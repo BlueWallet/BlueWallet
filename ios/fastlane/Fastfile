@@ -129,9 +129,9 @@ platform :ios do
   end
 end
 
-platform :catalyst do
+platform :macos do
   before_all do |lane, options|
-    UI.message("Setting up for all Catalyst lanes...")
+    UI.message("Setting up for all Mac Catalyst lanes...")
     UI.message("Discarding all untracked changes before running any lane...")
     sh("git clean -fd")
     sh("git checkout -- .")
@@ -164,7 +164,7 @@ platform :catalyst do
     app_identifiers.each do |app_identifier|
       match(
         type: "appstore",
-        platform: "catalyst",
+        platform: "macos", # Use macos for Catalyst builds
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],

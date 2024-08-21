@@ -11,14 +11,76 @@ on:
   workflow_dispatch:
 
 jobs:
-  # iOS Build Job
-  ios-build:
+  # Catalyst Build Job
+  catalyst-build:
     runs-on: macos-14
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Node modules
+        run: npm install
+      - name: Install dependencies with Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          bundle exec pod install
+        working-directory: ./ios
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+      - name: Create Temporary Keychain
+        run: bundle exec fastlane macos create_temp_keychain
+        working-directory: ./ios
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      - name: Setup Mac Catalyst Provisioning Profiles
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          bundle exec fastlane macos setup_provisioning_profiles
+        working-directory: ./ios
+      - name: Build Mac Catalyst App
+        run: bundle exec fastlane macos build_app_catalyst_lane
+        working-directory: ./ios
+      - name: Upload Catalyst IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet-Catalyst.${{ needs.catalyst-build.outputs.project_version }}(${{ needs.catalyst-build.outputs.new_build_number }}).ipa
+          path: ./ios/build/catalyst/BlueWallet-Catalyst.${{ needs.catalyst-build.outputs.project_version }}(${{ needs.catalyst-build.outputs.new_build_number }}).ipa
+
+  # iOS Build Job
+  ios-build:
+    runs-on: macos-14
+    timeout-minutes: 180
+    needs: catalyst-build
+    outputs:
+      new_build_number: ${{ needs.catalyst-build.outputs.new_build_number }}
+      project_version: ${{ needs.catalyst-build.outputs.project_version }}
+      latest_commit_message: ${{ needs.catalyst-build.outputs.latest_commit_message }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
@@ -77,22 +139,6 @@ jobs:
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
         working-directory: ./ios
-      - name: Cache Provisioning Profiles
-        id: cache_provisioning_profiles
-        uses: actions/cache@v2
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-      - name: Verify Provisioning Profiles Exist
-        run: |
-          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
-            echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning Profiles
-          else
-            echo "Provisioning profiles directory does not exist."
-          fi
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
@@ -117,70 +163,8 @@ jobs:
       - name: Upload iOS IPA as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-
-  # Catalyst Build Job
-  catalyst-build:
-    runs-on: macos-14
-    timeout-minutes: 180
-    needs: ios-build
-    outputs:
-      new_build_number: ${{ needs.ios-build.outputs.new_build_number }}
-      project_version: ${{ needs.ios-build.outputs.project_version }}
-      latest_commit_message: ${{ needs.ios-build.outputs.latest_commit_message }}
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Specify node version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install Node modules
-        run: npm install
-      - name: Install dependencies with Bundler
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-      - name: Install CocoaPods Dependencies
-        run: |
-          gem install cocoapods
-          bundle exec pod install
-        working-directory: ./ios
-      - name: Cache CocoaPods Pods
-        uses: actions/cache@v2
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane catalyst create_temp_keychain
-        working-directory: ./ios
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - name: Setup Mac Catalyst Provisioning Profiles
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane catalyst setup_provisioning_profiles
-        working-directory: ./ios
-      - name: Build Mac Catalyst App
-        run: bundle exec fastlane catalyst build_app_catalyst_lane
-        working-directory: ./ios
-      - name: Upload Catalyst IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-Catalyst.${{ needs.ios-build.outputs.project_version }}(${{ needs.ios-build.outputs.new_build_number }}).ipa
-          path: ./ios/build/catalyst/BlueWallet-Catalyst.${{ needs.ios-build.outputs.project_version }}(${{ needs.ios-build.outputs.new_build_number }}).ipa
+          name: BlueWallet.${{ needs.catalyst-build.outputs.project_version }}(${{ needs.catalyst-build.outputs.new_build_number }}).ipa
+          path: ./ios/build/BlueWallet.${{ needs.catalyst-build.outputs.project_version }}(${{ needs.catalyst-build.outputs.new_build_number }}).ipa
 
   # iOS Upload Job
   ios-upload:
@@ -257,5 +241,5 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane catalyst upload_to_testflight_catalyst_lane
+        run: bundle exec fastlane macos upload_to_testflight_catalyst_lane
         working-directory: ./ios
