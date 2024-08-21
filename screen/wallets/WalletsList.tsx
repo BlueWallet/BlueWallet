@@ -260,7 +260,6 @@ const WalletsList: React.FC = () => {
   const renderWalletsCarousel = useCallback(() => {
     return (
       <>
-        {isTotalBalanceEnabled && <TotalWalletsBalance />}
         <WalletsCarousel
           data={wallets}
           extraData={[wallets]}
@@ -275,7 +274,7 @@ const WalletsList: React.FC = () => {
         />
       </>
     );
-  }, [handleClick, handleLongPress, isFocused, isTotalBalanceEnabled, onSnapToItem, wallets]);
+  }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
 
   const renderSectionItem = useCallback(
     (item: { section: any; item: ExtendedTransaction }) => {
@@ -296,11 +295,15 @@ const WalletsList: React.FC = () => {
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
+        case WalletsListSections.CAROUSEL: {
+          return !isLargeScreen && isTotalBalanceEnabled ? <TotalWalletsBalance /> : null;
+        }
+
         default:
           return null;
       }
     },
-    [renderListHeaderComponent],
+    [isLargeScreen, isTotalBalanceEnabled, renderListHeaderComponent],
   );
 
   const renderSectionFooter = useCallback(
