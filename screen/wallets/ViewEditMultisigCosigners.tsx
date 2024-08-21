@@ -7,7 +7,6 @@ import {
   FlatList,
   InteractionManager,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   ListRenderItemInfo,
   Platform,
@@ -17,7 +16,7 @@ import {
   View,
 } from 'react-native';
 import { Badge, Icon } from '@rneui/themed';
-import { isDesktop, isTablet } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
@@ -631,23 +630,19 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-      <KeyboardAvoidingView
-        enabled={!isTablet}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={62}
-        style={[styles.mainBlock, styles.root]}
-      >
-        <FlatList
-          ListHeaderComponent={tipKeys}
-          data={data.current}
-          extraData={vaultKeyData}
-          renderItem={_renderKeyItem}
-          keyExtractor={(_item, index) => `${index}`}
-        />
-        <BlueSpacing10 />
-        {footer}
-        <BlueSpacing40 />
-      </KeyboardAvoidingView>
+      <FlatList
+        ListHeaderComponent={tipKeys}
+        data={data.current}
+        extraData={vaultKeyData}
+        renderItem={_renderKeyItem}
+        automaticallyAdjustKeyboardInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        keyExtractor={(_item, index) => `${index}`}
+      />
+      <BlueSpacing10 />
+      {footer}
+      <BlueSpacing40 />
 
       {renderProvideMnemonicsModal()}
 
@@ -689,7 +684,6 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerText: { fontSize: 15, color: '#13244D' },
-  mainBlock: { marginHorizontal: 16 },
   alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
   shareModalHeight: { minHeight: 450 },
   tipKeys: {

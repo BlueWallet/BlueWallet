@@ -7,7 +7,6 @@ import {
   I18nManager,
   InputAccessoryView,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   TextInput,
@@ -188,7 +187,7 @@ export const BlueDoneAndDismissKeyboardInputAccessory = props => {
   if (Platform.OS === 'ios') {
     return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
   } else {
-    return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
+    return inputView;
   }
 };
 
