@@ -32,13 +32,15 @@ platform :ios do
     UI.message("Setting up provisioning profiles and certificates from the repo...")
 
     # Download the provisioning profiles and certificates from the repo
-    sh("curl -o ~/certs.tar.gz #{ENV['GIT_URL']}/certs.tar.gz")
-    sh("curl -o ~/profiles.tar.gz #{ENV['GIT_URL']}/profiles.tar.gz")
+    sh("curl -L -o ~/provisioning_profiles.zip #{ENV['GIT_URL']}/profiles.zip")
+    sh("curl -L -o ~/certificates.zip #{ENV['GIT_URL']}/certs.zip")
 
-    # Extract the certificates
-    sh("tar -xvzf ~/certs.tar.gz -C ~/Library/Keychains/")
-    # Extract the provisioning profiles
-    sh("tar -xvzf ~/profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    # List the files to ensure they are downloaded correctly
+    sh("ls -la ~")
+
+    # Extract the provisioning profiles and certificates based on their format
+    sh("unzip -o ~/provisioning_profiles.zip -d ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    sh("unzip -o ~/certificates.zip -d ~/Library/Keychains/")
   end
 
   desc "Clear derived data"
