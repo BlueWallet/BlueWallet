@@ -137,8 +137,16 @@ jobs:
           NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
           NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
 
+      - name: Check for 'Upload to TestFlight' Label
+        id: check_label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const labels = context.payload.pull_request ? context.payload.pull_request.labels : [];
+            return labels.some(label => label.name === 'Upload to TestFlight');
+
       - name: Upload Mac Catalyst to TestFlight
-        if: github.event.pull_request.labels.*.name contains 'Upload to TestFlight'
+        if: steps.check_label.outputs.result == 'true'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         working-directory: ./ios
 
