@@ -24,7 +24,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches all history
+          fetch-depth: 0
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -130,6 +130,14 @@ jobs:
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+      - name: Build Mac Catalyst App
+        run: bundle exec fastlane ios build_app_catalyst_lane
+        working-directory: ./ios
+      - name: Upload Catalyst IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./ios/build/catalyst/BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
@@ -196,3 +204,52 @@ jobs:
               issue_number: prNumber,
               body: message,
             });
+
+  testflight-upload-catalyst:
+    needs: build
+    runs-on: macos-14
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+      - name: Download Catalyst IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet-Catalyst.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
+          path: ./ios/build/catalyst
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+      - name: Upload Catalyst App to TestFlight
+        env: 
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios upload_to_testflight_catalyst_lane
+        working-directory: ./ios
