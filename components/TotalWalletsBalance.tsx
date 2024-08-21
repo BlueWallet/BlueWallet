@@ -9,6 +9,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import DefaultPreference from 'react-native-default-preference';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useTheme } from './themes';
 
 export const setTotalBalanceViewEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -20,12 +21,14 @@ export const setTotalBalanceViewEnabled = async (value: boolean) => {
 export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const isEnabledValue = (await DefaultPreference.get(TotalWalletsBalanceKey)) ?? false;
+    const isEnabledValue = (await DefaultPreference.get(TotalWalletsBalanceKey)) ?? true;
     console.debug('getIsTotalBalanceViewEnabled', isEnabledValue);
     return isEnabledValue === 'true';
   } catch (e) {
     console.debug('getIsTotalBalanceViewEnabled error', e);
+    await setTotalBalanceViewEnabled(true);
   }
+  await setTotalBalanceViewEnabled(true);
   return true;
 };
 
@@ -52,6 +55,19 @@ const TotalWalletsBalance: React.FC = () => {
   const { wallets } = useStorage();
   const { preferredFiatCurrency, setIsTotalBalanceEnabledStorage, totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage } =
     useSettings();
+  const { colors } = useTheme();
+
+  const styleHooks = StyleSheet.create({
+    container: {
+      backgroundColor: colors.background,
+    },
+    balance: {
+      color: colors.foregroundColor,
+    },
+    currency: {
+      color: colors.foregroundColor,
+    },
+  });
 
   // Calculate total balance from all wallets
   const totalBalance = wallets.reduce((prev, curr) => {
@@ -93,7 +109,7 @@ const TotalWalletsBalance: React.FC = () => {
 
   const onPressMenuItem = useMemo(
     () => async (id: string) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when pressing a menu item
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
         case CommonToolTipActions.ViewInBitcoin.id:
@@ -113,7 +129,6 @@ const TotalWalletsBalance: React.FC = () => {
           }
           break;
         case CommonToolTipActions.HideBalance.id:
-          console.debug('Hide balance');
           setIsTotalBalanceEnabledStorage(false);
           break;
         case CommonToolTipActions.CopyAmount.id:
@@ -129,12 +144,14 @@ const TotalWalletsBalance: React.FC = () => {
   return (
     (wallets.length > 1 && (
       <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
-        <View style={styles.container}>
+        <View style={[styles.container, styleHooks.container]}>
           <Text style={styles.label}>{loc.wallets.total_balance}</Text>
           <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
-            <Text style={styles.balance}>
+            <Text style={[styles.balance, styleHooks.balance]}>
               {formattedBalance}{' '}
-              {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={styles.currency}>{totalBalancePreferredUnit}</Text>}
+              {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+                <Text style={[styles.currency, styleHooks.currency]}>{totalBalancePreferredUnit}</Text>
+              )}
             </Text>
           </TouchableOpacity>
         </View>
