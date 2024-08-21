@@ -62,7 +62,7 @@ platform :ios do
   desc "Build the iOS application"
   lane :build_app_lane do
     UI.message("Building the iOS application...")
-    build_ios_app(
+    build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
@@ -166,7 +166,7 @@ platform :macos do
     app_identifiers.each do |app_identifier|
       match(
         type: "appstore",
-        platform: "macos", # Use macos for Catalyst builds
+        platform: "ios", # Use "ios" to ensure compatibility
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -180,7 +180,7 @@ platform :macos do
   desc "Build the application for Mac Catalyst"
   lane :build_app_catalyst_lane do
     UI.message("Building the application for Mac Catalyst...")
-    build_mac_app(
+    build_app(
       scheme: "BlueWallet", # Replace with the appropriate scheme name
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
