@@ -20,20 +20,17 @@ platform :ios do
     UI.message("Temporary keychain created successfully.")
   end
 
-  desc "Setup Provisioning Profiles and Certificates"
+  desc "Setup Provisioning Profiles and Certificates using match"
   lane :setup_profiles do
-    UI.message("Setting up provisioning profiles and certificates from the repo...")
+    UI.message("Setting up provisioning profiles and certificates using match...")
 
-    # Download the provisioning profiles and certificates from the repo
-    sh("curl -L -o ~/provisioning_profiles.zip #{ENV['GIT_URL']}/profiles.zip")
-    sh("curl -L -o ~/certificates.zip #{ENV['GIT_URL']}/certs.zip")
-
-    # List the files to ensure they are downloaded correctly
-    sh("ls -la ~")
-
-    # Extract the provisioning profiles and certificates based on their format
-    sh("unzip -o ~/provisioning_profiles.zip -d ~/Library/MobileDevice/Provisioning\\ Profiles/")
-    sh("unzip -o ~/certificates.zip -d ~/Library/Keychains/")
+    match(
+      type: "appstore",          # or "development" depending on what you need
+      readonly: true,            # Ensures match only reads from the repo
+      git_url: ENV['GIT_URL'],   # Your Git repository with the certs and profiles
+      shallow_clone: true,       # Speeds up cloning by using shallow clone
+      clone_branch_directly: true # Clones only the branch needed
+    )
   end
 
   desc "Clear derived data"
