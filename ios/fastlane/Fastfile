@@ -33,8 +33,8 @@ platform :ios do
     UI.message("Setting up provisioning profiles and certificates from the repo...")
 
     # Download the provisioning profiles and certificates from the repo
-    sh("curl -o ~/provisioning_profiles.tar.gz #{ENV['PROFILES_REPO_URL']}")
-    sh("curl -o ~/certificates.tar.gz #{ENV['CERTIFICATES_REPO_URL']}")
+    sh("curl -o ~/provisioning_profiles.tar.gz #{ENV['GIT_URL']}")
+    sh("curl -o ~/certificates.tar.gz #{ENV['GIT_URL']}")
 
     # Extract the provisioning profiles and certificates
     sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
