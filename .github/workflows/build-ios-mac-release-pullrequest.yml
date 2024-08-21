@@ -81,8 +81,7 @@ jobs:
         run: bundle exec fastlane ios setup_profiles
         working-directory: ./ios
         env:
-          PROFILES_REPO_URL: ${{ secrets.PROFILES_REPO_URL }}
-          CERTIFICATES_REPO_URL: ${{ secrets.CERTIFICATES_REPO_URL }}
+          GIT_URL: ${{ secrets.GIT_URL }}
 
   build_ios:
     runs-on: macos-latest
@@ -130,13 +129,6 @@ jobs:
         run: bundle exec fastlane ios build_catalyst_app
         working-directory: ./ios
 
-      - name: Notarize and Create DMG
-        run: bundle exec fastlane ios notarize_and_create_dmg
-        working-directory: ./ios
-        env:
-          NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
-          NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
-
       - name: Check for 'Upload to TestFlight' Label
         id: check_label
         uses: actions/github-script@v6
@@ -150,12 +142,12 @@ jobs:
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         working-directory: ./ios
 
-      - name: Save DMG as Artifact
+      - name: Save Mac Catalyst App as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-MacCatalyst
           path: |
-            ./ios/build-catalyst/*.dmg
+            ./ios/build-catalyst/*.app
 
   finalize:
     runs-on: macos-latest
