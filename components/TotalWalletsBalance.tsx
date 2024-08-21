@@ -6,51 +6,12 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
-import DefaultPreference from 'react-native-default-preference';
-import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useTheme } from './themes';
 
-export const setTotalBalanceViewEnabled = async (value: boolean) => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(TotalWalletsBalanceKey, value.toString());
-  console.debug('setTotalBalanceViewEnabled value:', value);
-  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-};
-
-export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const isEnabledValue = (await DefaultPreference.get(TotalWalletsBalanceKey)) ?? true;
-    console.debug('getIsTotalBalanceViewEnabled', isEnabledValue);
-    return isEnabledValue === 'true';
-  } catch (e) {
-    console.debug('getIsTotalBalanceViewEnabled error', e);
-    await setTotalBalanceViewEnabled(true);
-  }
-  await setTotalBalanceViewEnabled(true);
-  return true;
-};
-
-export const setTotalBalancePreferredUnit = async (unit: BitcoinUnit) => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(TotalWalletsBalancePreferredUnit, unit);
-  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when changing unit
-};
-
-export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const unit = ((await DefaultPreference.get(TotalWalletsBalancePreferredUnit)) as BitcoinUnit) ?? BitcoinUnit.BTC;
-    return unit;
-  } catch (e) {
-    console.debug('getPreferredUnit error', e);
-  }
-  return BitcoinUnit.BTC;
-};
-
 export const TotalWalletsBalancePreferredUnit = 'TotalWalletsBalancePreferredUnit';
 export const TotalWalletsBalanceKey = 'TotalWalletsBalance';
+
 const TotalWalletsBalance: React.FC = () => {
   const { wallets } = useStorage();
   const { preferredFiatCurrency, setIsTotalBalanceEnabledStorage, totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage } =
@@ -83,25 +44,19 @@ const TotalWalletsBalance: React.FC = () => {
   );
 
   const toolTipActions = useMemo(() => {
-    let viewIn =
-      totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY
-        ? CommonToolTipActions.ViewInFiat
-        : totalBalancePreferredUnit === BitcoinUnit.BTC
-          ? CommonToolTipActions.ViewInSats
-          : CommonToolTipActions.ViewInBitcoin;
-    switch (totalBalancePreferredUnit) {
-      case BitcoinUnit.SATS:
-        viewIn = CommonToolTipActions.ViewInFiat;
-        viewIn.text = loc.formatString(loc.total_balance_view.view_in_fiat, { currency: preferredFiatCurrency.endPointKey });
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        viewIn = CommonToolTipActions.ViewInBitcoin;
-        break;
-      case BitcoinUnit.BTC:
-        viewIn = CommonToolTipActions.ViewInSats;
-        break;
-      default:
-        break;
+    let viewIn;
+
+    if (totalBalancePreferredUnit === BitcoinUnit.SATS) {
+      viewIn = {
+        ...CommonToolTipActions.ViewInFiat,
+        text: loc.formatString(loc.total_balance_view.view_in_fiat, { currency: preferredFiatCurrency.endPointKey }),
+      };
+    } else if (totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      viewIn = CommonToolTipActions.ViewInBitcoin;
+    } else if (totalBalancePreferredUnit === BitcoinUnit.BTC) {
+      viewIn = CommonToolTipActions.ViewInSats;
+    } else {
+      viewIn = CommonToolTipActions.ViewInBitcoin;
     }
 
     return [viewIn, CommonToolTipActions.CopyAmount, CommonToolTipActions.HideBalance];

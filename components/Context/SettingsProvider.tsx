@@ -11,13 +11,54 @@ import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDevice
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
-import {
-  getIsTotalBalanceViewEnabled,
-  getTotalBalancePreferredUnit,
-  setTotalBalanceViewEnabled,
-  setTotalBalancePreferredUnit,
-} from '../TotalWalletsBalance';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
+import { LayoutAnimation } from 'react-native';
+
+// DefaultPreference and AsyncStorage get/set
+
+// TotalWalletsBalance
+
+export const setTotalBalanceViewEnabled = async (value: boolean) => {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(TotalWalletsBalanceKey, value ? 'true' : 'false');
+  console.debug('setTotalBalanceViewEnabled value:', value);
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+};
+
+export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+
+    const isEnabledValue = (await DefaultPreference.get(TotalWalletsBalanceKey)) ?? 'true';
+    console.debug('getIsTotalBalanceViewEnabled', isEnabledValue);
+    return isEnabledValue === 'true';
+  } catch (e) {
+    console.debug('getIsTotalBalanceViewEnabled error', e);
+    await setTotalBalanceViewEnabled(true);
+  }
+  await setTotalBalanceViewEnabled(true);
+  return true;
+};
+
+export const setTotalBalancePreferredUnit = async (unit: BitcoinUnit) => {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(TotalWalletsBalancePreferredUnit, unit);
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when changing unit
+};
+
+//
+
+export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const unit = ((await DefaultPreference.get(TotalWalletsBalancePreferredUnit)) as BitcoinUnit) ?? BitcoinUnit.BTC;
+    return unit;
+  } catch (e) {
+    console.debug('getPreferredUnit error', e);
+  }
+  return BitcoinUnit.BTC;
+};
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
