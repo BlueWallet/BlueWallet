@@ -2,31 +2,20 @@ def app_identifiers
   ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
 end
 
-# Platform: iOS
 platform :ios do
   before_all do |lane, options|
-    UI.message("Setting up for all lanes...")
+    UI.message("Setting up for all iOS lanes...")
     UI.message("Discarding all untracked changes before running any lane...")
     sh("git clean -fd")
     sh("git checkout -- .")
   end
 
-  desc "Register new devices from a file"
-  lane :register_devices_from_txt do
-    UI.message("Registering new devices from file...")
-    csv_path = "../../devices.txt" # Update this with the actual path to your file
-    register_devices(devices_file: csv_path)
-    UI.message("Devices registered successfully.")
-    app_identifiers.each do |app_identifier|
-      match(
-        type: "development", 
-        app_identifier: app_identifier,
-        readonly: false,
-        force_for_new_devices: true
-      )
-    end
-    UI.message("Development provisioning profiles updated.")
-  end  
+  desc "Install Node modules and CocoaPods dependencies"
+  lane :setup_dependencies do
+    UI.message("Installing Node modules and CocoaPods dependencies...")
+    sh("npm install")
+    cocoapods
+  end
 
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
@@ -59,12 +48,6 @@ platform :ios do
     end
   end
 
-  desc "Clear derived data"
-  lane :clear_derived_data_lane do
-    UI.message("Clearing derived data...")
-    clear_derived_data
-  end
-
   desc "Increment build number"
   lane :increment_build_number_lane do
     UI.message("Incrementing build number to current timestamp...")
@@ -73,12 +56,6 @@ platform :ios do
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
     UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
-  end
-
-  desc "Install CocoaPods dependencies"
-  lane :install_pods do
-    UI.message("Installing CocoaPods dependencies...")
-    cocoapods
   end
 
   desc "Build the iOS application"
@@ -138,74 +115,47 @@ platform :ios do
   end
 
   desc "Deploy iOS app to TestFlight"
-  lane :deploy do |options|
+  lane :deploy do
     UI.message("Starting iOS build process...")
     update_wwdr_certificate
     setup_app_store_connect_api_key
+    setup_dependencies
+    create_temp_keychain
     setup_provisioning_profiles
-    clear_derived_data_lane
     increment_build_number_lane
-    install_pods unless File.directory?("Pods")
     build_app_lane
     upload_to_testflight_lane
     delete_keychain(name: "temp_keychain")
-    last_commit = last_git_commit
-    already_built_flag = ".already_built_#{last_commit[:sha]}"
-    File.write(already_built_flag, Time.now.to_s)
-  end
-
-  desc "Update 'What's New' section in App Store Connect for all localizations"
-  lane :update_release_notes do
-    release_notes_path = "../../release-notes.txt"
-    unless File.exist?(release_notes_path)
-      UI.error("Release notes file does not exist at path: #{release_notes_path}")
-      next
-    end
-    release_notes_text = File.read(release_notes_path)
-    UI.message("Release Notes Content:\n#{release_notes_text}")
-    app_version = get_version_number
-    UI.message("Version being updated: #{app_version}")
-    localized_release_notes = {
-      'en-US' => release_notes_text,
-      'ar-SA' => release_notes_text,
-      'zh-Hans' => release_notes_text,
-      'da' => release_notes_text,
-      'nl-NL' => release_notes_text,
-      'fi' => release_notes_text,
-      'fr-FR' => release_notes_text,
-      'de-DE' => release_notes_text,
-      'he' => release_notes_text,
-      'hu' => release_notes_text,
-      'it' => release_notes_text,
-      'pt-BR' => release_notes_text,
-      'pt-PT' => release_notes_text,
-      'ro' => release_notes_text,
-      'ru' => release_notes_text,
-      'es-MX' => release_notes_text,
-      'es-ES' => release_notes_text,
-      'sv' => release_notes_text,
-    }
-    deliver(
-      app_identifier: app_identifiers.first,
-      app_version: app_version,
-      skip_metadata: true,
-      skip_screenshots: true,
-      skip_binary_upload: true,
-      force: true,
-      release_notes: localized_release_notes,
-      submit_for_review: false,
-      automatic_release: false
-    )
   end
 end
 
-# Platform: Catalyst
 platform :catalyst do
   before_all do |lane, options|
-    UI.message("Setting up for all lanes...")
+    UI.message("Setting up for all Catalyst lanes...")
     UI.message("Discarding all untracked changes before running any lane...")
     sh("git clean -fd")
     sh("git checkout -- .")
+  end
+
+  desc "Install Node modules and CocoaPods dependencies"
+  lane :setup_dependencies do
+    UI.message("Installing Node modules and CocoaPods dependencies...")
+    sh("npm install")
+    cocoapods
+  end
+
+  desc "Create a temporary keychain"
+  lane :create_temp_keychain do
+    UI.message("Creating a temporary keychain...")
+    create_keychain(
+      name: "temp_keychain",
+      password: ENV["KEYCHAIN_PASSWORD"],
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+    UI.message("Temporary keychain created successfully.")
   end
 
   desc "Setup provisioning profiles for Mac Catalyst"
@@ -223,26 +173,6 @@ platform :catalyst do
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
       )
     end
-  end
-
-  desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
-  lane :fetch_dev_profiles_catalyst do
-    match(
-      type: "development",
-      platform: "catalyst",
-      app_identifier: app_identifiers,
-      readonly: true
-    )
-  end
-
-  desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
-  lane :fetch_appstore_profiles_catalyst do
-    match(
-      type: "appstore",
-      platform: "catalyst",
-      app_identifier: app_identifiers,
-      readonly: true
-    )
   end
 
   desc "Build the application for Mac Catalyst"
@@ -299,5 +229,18 @@ platform :catalyst do
         raise exception
       end
     end
+  end
+
+  desc "Deploy Mac Catalyst app to TestFlight"
+  lane :deploy do
+    UI.message("Starting Mac Catalyst build process...")
+    update_wwdr_certificate
+    setup_app_store_connect_api_key
+    setup_dependencies
+    create_temp_keychain
+    setup_provisioning_profiles
+    build_app_catalyst_lane
+    upload_to_testflight_catalyst_lane
+    delete_keychain(name: "temp_keychain")
   end
 end
