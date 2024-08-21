@@ -7,9 +7,9 @@ platform :ios do
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
 
-    # Discard untracked changes only in the project directory
-    sh("git clean -fd -- ios/ BlueWallet.xcworkspace/")
-    sh("git checkout -- ios/ BlueWallet.xcworkspace/")
+    # Perform a single cleanup of untracked changes
+    sh("git clean -fd")
+    sh("git checkout -- .")
   end
 
   desc "Create a temporary keychain"
@@ -82,7 +82,7 @@ platform :ios do
           'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
           'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
           'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget',
-          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+          'io.bluewallet.bluewallet.watch.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
         }
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
@@ -107,7 +107,7 @@ platform :ios do
           'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet catalyst',
           'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch catalyst',
           'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension catalyst',
-         'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget catalyst'
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget catalyst'
         }
       },
       output_directory: "./build-catalyst",
@@ -133,8 +133,8 @@ platform :ios do
     sh("hdiutil create -volname BlueWallet -srcfolder ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app -ov -format UDZO ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).dmg")
   end
 
-  desc "Upload to TestFlight"
-  lane :upload_to_testflight do
+  desc "Upload iOS app to TestFlight"
+  lane :upload_ios_to_testflight do
     UI.message("Uploading iOS App to TestFlight...")
     upload_to_testflight(
       ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
@@ -151,5 +151,12 @@ platform :ios do
       skip_waiting_for_build_processing: true,
       changelog: ENV["LATEST_COMMIT_MESSAGE"]
     )
+  end
+
+  desc "Save artifacts for the action summary"
+  lane :save_artifacts do
+    UI.message("Saving artifacts for the action summary...")
+    sh("mkdir -p artifacts && cp ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).dmg ./artifacts/")
+    sh("mkdir -p artifacts && cp ./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa ./artifacts/")
   end
 end

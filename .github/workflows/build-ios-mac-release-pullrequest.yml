@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS & Catalyst)
+name: Build and Deploy (iOS & Catalyst)
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   common_setup:
-    runs-on: macos-14
+    runs-on: macos-latest
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -67,60 +67,25 @@ jobs:
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
           echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
 
-      - name: Set up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      - name: Restore Node Modules Cache
+      - name: Cache Provisioning Profiles and Certificates
+        id: cache_provisioning
         uses: actions/cache@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Restore CocoaPods Cache
-        uses: actions/cache@v3
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: ${{ runner.os }}-provisioning-${{ hashFiles('**/provisioning-profiles.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-
-
-      - name: Restore Certificates Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/Keychains
-          key: ${{ runner.os }}-certificates-${{ hashFiles('**/certificates.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-certificates-
-
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane ios create_temp_keychain
-        working-directory: ./ios
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          path: |
+            ~/Library/MobileDevice/Provisioning\ Profiles/
+            ~/Library/Keychains/
+          key: macOS-provisioning-profiles-${{ hashFiles('**/provisioning_profiles.tar.gz', '**/certificates.tar.gz') }}
 
       - name: Setup Provisioning Profiles and Certificates
+        if: steps.cache_provisioning.outputs.cache-hit != 'true'
+        run: bundle exec fastlane ios setup_profiles
+        working-directory: ./ios
         env:
           PROFILES_REPO_URL: ${{ secrets.PROFILES_REPO_URL }}
           CERTIFICATES_REPO_URL: ${{ secrets.CERTIFICATES_REPO_URL }}
-        run: bundle exec fastlane ios setup_profiles
-        working-directory: ./ios
 
   build_ios:
-    runs-on: macos-14
+    runs-on: macos-latest
     needs: common_setup
     env:
       NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
@@ -129,13 +94,23 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          bundle exec pod install
+        working-directory: ./ios
 
       - name: Build iOS App
         run: bundle exec fastlane ios build_bluewallet_ios_app
         working-directory: ./ios
 
+      - name: Upload iOS to TestFlight
+        run: bundle exec fastlane ios upload_ios_to_testflight
+        working-directory: ./ios
+
   build_catalyst:
-    runs-on: macos-14
+    runs-on: macos-latest
     needs: common_setup
     env:
       NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
@@ -144,6 +119,12 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          bundle exec pod install
+        working-directory: ./ios
 
       - name: Build Mac Catalyst App
         run: bundle exec fastlane ios build_catalyst_app
@@ -152,40 +133,29 @@ jobs:
       - name: Notarize and Create DMG
         run: bundle exec fastlane ios notarize_and_create_dmg
         working-directory: ./ios
-
-      - name: Upload DMG as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: BlueWallet-MacOS-DMG
-          path: ./build-catalyst/BlueWallet.${{ needs.common_setup.outputs.project_version }}(${{ needs.common_setup.outputs.new_build_number }}).dmg
-
-  upload_ios_to_testflight:
-    runs-on: macos-14
-    needs: build_ios
-    env:
-      NEW_BUILD_NUMBER: ${{ needs.build_ios.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build_ios.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build_ios.outputs.latest_commit_message }}
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-
-      - name: Upload iOS to TestFlight
-        run: bundle exec fastlane ios upload_to_testflight
-        working-directory: ./ios
-
-  upload_catalyst_to_testflight:
-    if: github.event.label.name == 'Upload to TestFlight'
-    runs-on: macos-14
-    needs: build_catalyst
-    env:
-      NEW_BUILD_NUMBER: ${{ needs.build_catalyst.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build_catalyst.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build_catalyst.outputs.latest_commit_message }}
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
+        env:
+          NOTARIZE_USERNAME: ${{ secrets.NOTARIZE_USERNAME }}
+          NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
 
       - name: Upload Mac Catalyst to TestFlight
+        if: github.event.pull_request.labels.*.name contains 'Upload to TestFlight'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         working-directory: ./ios
+
+      - name: Save DMG as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: BlueWallet-MacCatalyst
+          path: |
+            ./ios/build-catalyst/*.dmg
+
+  finalize:
+    runs-on: macos-latest
+    needs: [build_ios, build_catalyst]
+    steps:
+      - name: Save IPA as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: BlueWallet-iOS
+          path: |
+            ./ios/build/*.ipa
