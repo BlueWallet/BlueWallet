@@ -1,23 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
-import {
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  LayoutAnimation,
-  Platform,
-  StyleSheet,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -116,122 +105,124 @@ const SignVerify = () => {
     );
 
   return (
-    <SafeArea style={[styles.root, stylesHooks.root]}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
-          {!isKeyboardVisible && (
-            <>
-              <BlueSpacing20 />
-              <BlueFormLabel>{loc.addresses.sign_help}</BlueFormLabel>
-              <BlueSpacing20 />
-            </>
-          )}
+    <ScrollView
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={styles.root}
+      style={[styles.root, stylesHooks.root]}
+    >
+      {!isKeyboardVisible && (
+        <>
+          <BlueSpacing20 />
+          <BlueFormLabel>{loc.addresses.sign_help}</BlueFormLabel>
+          <BlueSpacing20 />
+        </>
+      )}
 
-          <TextInput
-            multiline
-            textAlignVertical="top"
-            blurOnSubmit
-            placeholder={loc.addresses.sign_placeholder_address}
-            placeholderTextColor="#81868e"
-            value={address}
-            onChangeText={t => setAddress(t.replace('\n', ''))}
-            testID="Signature"
-            style={[styles.text, stylesHooks.text]}
-            autoCorrect={false}
-            autoCapitalize="none"
-            spellCheck={false}
-            editable={!loading}
-          />
+      <TextInput
+        multiline
+        textAlignVertical="top"
+        blurOnSubmit
+        placeholder={loc.addresses.sign_placeholder_address}
+        placeholderTextColor="#81868e"
+        value={address}
+        onChangeText={t => setAddress(t.replace('\n', ''))}
+        testID="Signature"
+        style={[styles.text, stylesHooks.text]}
+        autoCorrect={false}
+        autoCapitalize="none"
+        spellCheck={false}
+        editable={!loading}
+      />
+      <BlueSpacing10 />
+
+      <TextInput
+        multiline
+        textAlignVertical="top"
+        blurOnSubmit
+        placeholder={loc.addresses.sign_placeholder_signature}
+        placeholderTextColor="#81868e"
+        value={signature}
+        onChangeText={t => setSignature(t.replace('\n', ''))}
+        testID="Signature"
+        style={[styles.text, stylesHooks.text]}
+        autoCorrect={false}
+        autoCapitalize="none"
+        spellCheck={false}
+        editable={!loading}
+      />
+      <BlueSpacing10 />
+
+      <TextInput
+        multiline
+        placeholder={loc.addresses.sign_placeholder_message}
+        placeholderTextColor="#81868e"
+        value={message}
+        onChangeText={setMessage}
+        testID="Message"
+        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+        style={[styles.flex, styles.text, styles.textMessage, stylesHooks.text]}
+        autoCorrect={false}
+        autoCapitalize="none"
+        spellCheck={false}
+        editable={!loading}
+        onFocus={() => handleFocus(true)}
+        onBlur={() => handleFocus(false)}
+      />
+      <BlueSpacing40 />
+
+      {isShareVisible && !isKeyboardVisible && (
+        <>
+          <FContainer inline>
+            <FButton
+              onPress={handleShare}
+              text={loc.multisig.share}
+              icon={
+                <View style={styles.buttonsIcon}>
+                  <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                </View>
+              }
+            />
+          </FContainer>
           <BlueSpacing10 />
+        </>
+      )}
 
-          <TextInput
-            multiline
-            textAlignVertical="top"
-            blurOnSubmit
-            placeholder={loc.addresses.sign_placeholder_signature}
-            placeholderTextColor="#81868e"
-            value={signature}
-            onChangeText={t => setSignature(t.replace('\n', ''))}
-            testID="Signature"
-            style={[styles.text, stylesHooks.text]}
-            autoCorrect={false}
-            autoCapitalize="none"
-            spellCheck={false}
-            editable={!loading}
-          />
+      {!isKeyboardVisible && (
+        <>
+          <FContainer inline>
+            <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} />
+            <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} />
+          </FContainer>
           <BlueSpacing10 />
+        </>
+      )}
 
-          <TextInput
-            multiline
-            placeholder={loc.addresses.sign_placeholder_message}
-            placeholderTextColor="#81868e"
-            value={message}
-            onChangeText={setMessage}
-            testID="Message"
-            inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-            style={[styles.flex, styles.text, styles.textMessage, stylesHooks.text]}
-            autoCorrect={false}
-            autoCapitalize="none"
-            spellCheck={false}
-            editable={!loading}
-            onFocus={() => handleFocus(true)}
-            onBlur={() => handleFocus(false)}
+      {Platform.select({
+        ios: (
+          <BlueDoneAndDismissKeyboardInputAccessory
+            onClearTapped={() => setMessage('')}
+            onPasteTapped={text => {
+              setMessage(text);
+              Keyboard.dismiss();
+            }}
           />
-          <BlueSpacing40 />
-
-          {isShareVisible && !isKeyboardVisible && (
-            <>
-              <FContainer inline>
-                <FButton
-                  onPress={handleShare}
-                  text={loc.multisig.share}
-                  icon={
-                    <View style={styles.buttonsIcon}>
-                      <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-                    </View>
-                  }
-                />
-              </FContainer>
-              <BlueSpacing10 />
-            </>
-          )}
-
-          {!isKeyboardVisible && (
-            <>
-              <FContainer inline>
-                <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} />
-                <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} />
-              </FContainer>
-              <BlueSpacing10 />
-            </>
-          )}
-
-          {Platform.select({
-            ios: (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => setMessage('')}
-                onPasteTapped={text => {
-                  setMessage(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-            android: isToolbarVisibleForAndroid && (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => {
-                  setMessage('');
-                  Keyboard.dismiss();
-                }}
-                onPasteTapped={text => {
-                  setMessage(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-          })}
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    </SafeArea>
+        ),
+        android: isToolbarVisibleForAndroid && (
+          <BlueDoneAndDismissKeyboardInputAccessory
+            onClearTapped={() => {
+              setMessage('');
+              Keyboard.dismiss();
+            }}
+            onPasteTapped={text => {
+              setMessage(text);
+              Keyboard.dismiss();
+            }}
+          />
+        ),
+      })}
+    </ScrollView>
   );
 };
 

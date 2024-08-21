@@ -2,8 +2,9 @@ import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
-import loc from '../loc';
+import loc, { formatBalance } from '../loc';
 import { SecondButton } from './SecondButton';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 interface NetworkTransactionFees {
   fastestFee: number;
@@ -33,10 +34,11 @@ interface SelectFeeModalProps {
   feeRate: number | string;
   setCustomFee: (fee: string) => void;
   setFeePrecalc: (fn: (fp: FeePrecalc) => FeePrecalc) => void;
+  feeUnit: BitcoinUnit;
 }
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
-  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc }, ref) => {
+  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit }, ref) => {
     const [customFee, setCustomFeeState] = useState('');
     const feeModalRef = useRef<BottomModalHandle>(null);
     const customModalRef = useRef<BottomModalHandle>(null);
@@ -128,9 +130,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       },
     ];
 
-    const formatFee = (fee: number | null): string => {
-      return fee ? `${fee} sat/vB` : '';
-    };
+    const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
     const handleCustomFeeSubmit = async () => {
       if (!/^\d+$/.test(customFee) || Number(customFee) <= 0) {

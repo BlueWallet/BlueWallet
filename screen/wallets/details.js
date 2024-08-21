@@ -5,8 +5,6 @@ import {
   I18nManager,
   InteractionManager,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -419,6 +417,7 @@ const WalletDetails = () => {
 
   return (
     <ScrollView
+      automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
       centerContent={isLoading}
       contentContainerStyle={styles.scrollViewContent}
@@ -453,21 +452,19 @@ const WalletDetails = () => {
                 }
               })()}
               <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name.toLowerCase()}</Text>
-              <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-                <View style={[styles.input, stylesHook.input]}>
-                  <TextInput
-                    value={walletName}
-                    onChangeText={setWalletName}
-                    onBlur={walletNameTextInputOnBlur}
-                    numberOfLines={1}
-                    placeholderTextColor="#81868e"
-                    style={styles.inputText}
-                    editable={!isLoading}
-                    underlineColorAndroid="transparent"
-                    testID="WalletNameInput"
-                  />
-                </View>
-              </KeyboardAvoidingView>
+              <View style={[styles.input, stylesHook.input]}>
+                <TextInput
+                  value={walletName}
+                  onChangeText={setWalletName}
+                  onBlur={walletNameTextInputOnBlur}
+                  numberOfLines={1}
+                  placeholderTextColor="#81868e"
+                  style={styles.inputText}
+                  editable={!isLoading}
+                  underlineColorAndroid="transparent"
+                  testID="WalletNameInput"
+                />
+              </View>
               <BlueSpacing20 />
               <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_type.toLowerCase()}</Text>
               <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.typeReadable}</Text>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { isTablet } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import {
@@ -125,44 +124,42 @@ const Broadcast: React.FC = () => {
 
   return (
     <SafeArea>
-      <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
-        <View style={styles.wrapper} testID="BroadcastView">
-          {BROADCAST_RESULT.success !== broadcastResult && (
-            <BlueCard style={styles.mainCard}>
-              <View style={styles.topFormRow}>
-                <BlueFormLabel>{status}</BlueFormLabel>
-                {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
-              </View>
+      <View style={styles.wrapper} testID="BroadcastView">
+        {BROADCAST_RESULT.success !== broadcastResult && (
+          <BlueCard style={styles.mainCard}>
+            <View style={styles.topFormRow}>
+              <BlueFormLabel>{status}</BlueFormLabel>
+              {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
+            </View>
 
-              <View style={[styles.input, stylesHooks.input]}>
-                <TextInput
-                  style={styles.text}
-                  multiline
-                  editable
-                  placeholderTextColor="#81868e"
-                  value={txHex}
-                  onChangeText={handleUpdateTxHex}
-                  onSubmitEditing={Keyboard.dismiss}
-                  testID="TxHex"
-                />
-              </View>
-              <BlueSpacing20 />
-
-              <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
-              <BlueSpacing20 />
-
-              <Button
-                title={loc.send.broadcastButton}
-                onPress={handleBroadcast}
-                disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
-                testID="BroadcastButton"
+            <View style={[styles.input, stylesHooks.input]}>
+              <TextInput
+                style={styles.text}
+                multiline
+                editable
+                placeholderTextColor="#81868e"
+                value={txHex}
+                onChangeText={handleUpdateTxHex}
+                onSubmitEditing={Keyboard.dismiss}
+                testID="TxHex"
               />
-              <BlueSpacing20 />
-            </BlueCard>
-          )}
-          {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} />}
-        </View>
-      </KeyboardAvoidingView>
+            </View>
+            <BlueSpacing20 />
+
+            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+            <BlueSpacing20 />
+
+            <Button
+              title={loc.send.broadcastButton}
+              onPress={handleBroadcast}
+              disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
+              testID="BroadcastButton"
+            />
+            <BlueSpacing20 />
+          </BlueCard>
+        )}
+        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} />}
+      </View>
     </SafeArea>
   );
 };
