@@ -6,10 +6,9 @@ platform :ios do
 
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
-
-    # Perform a single cleanup of untracked changes
-    sh("git clean -fd")
-    sh("git checkout -- .")
+    # Discard untracked changes only in the project directory
+    sh("git clean -fd -- ios/ BlueWallet.xcworkspace/")
+    sh("git checkout -- ios/ BlueWallet.xcworkspace/")
   end
 
   desc "Create a temporary keychain"
@@ -33,12 +32,13 @@ platform :ios do
     UI.message("Setting up provisioning profiles and certificates from the repo...")
 
     # Download the provisioning profiles and certificates from the repo
-    sh("curl -o ~/provisioning_profiles.tar.gz #{ENV['GIT_URL']}")
-    sh("curl -o ~/certificates.tar.gz #{ENV['GIT_URL']}")
+    sh("curl -o ~/certs.tar.gz #{ENV['GIT_URL']}/certs.tar.gz")
+    sh("curl -o ~/profiles.tar.gz #{ENV['GIT_URL']}/profiles.tar.gz")
 
-    # Extract the provisioning profiles and certificates
-    sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
-    sh("tar -xvzf ~/certificates.tar.gz -C ~/Library/Keychains/")
+    # Extract the certificates
+    sh("tar -xvzf ~/certs.tar.gz -C ~/Library/Keychains/")
+    # Extract the provisioning profiles
+    sh("tar -xvzf ~/profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
   end
 
   desc "Clear derived data"
@@ -78,10 +78,10 @@ platform :ios do
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget',
+          'io.bluewallet.bluewallet' => 'AppStore_io.bluewallet.bluewallet.mobileprovision',
+          'io.bluewallet.bluewallet.watch' => 'AppStore_io.bluewallet.bluewallet.watch.mobileprovision',
+          'io.bluewallet.bluewallet.watch.extension' => 'AppStore_io.bluewallet.bluewallet.watch.extension.mobileprovision',
+          'io.bluewallet.bluewallet.MarketWidget' => 'AppStore_io.bluewallet.bluewallet.MarketWidget.mobileprovision',
           'io.bluewallet.bluewallet.watch.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
         }
       },
@@ -104,10 +104,10 @@ platform :ios do
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet catalyst',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch catalyst',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension catalyst',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget catalyst'
+          'io.bluewallet.bluewallet' => 'AppStore_io.bluewallet.bluewallet_catalyst.provisionprofile',
+          'io.bluewallet.bluewallet.watch' => 'AppStore_io.bluewallet.bluewallet.watch_catalyst.provisionprofile',
+          'io.bluewallet.bluewallet.watch.extension' => 'AppStore_io.bluewallet.bluewallet.watch.extension_catalyst.provisionprofile',
+          'io.bluewallet.bluewallet.MarketWidget' => 'AppStore_io.bluewallet.bluewallet.MarketWidget_catalyst.provisionprofile',
         }
       },
       output_directory: "./build-catalyst",
@@ -116,24 +116,7 @@ platform :ios do
     )
   end
 
-  desc "Notarize the Mac Catalyst app and create a DMG"
-  lane :notarize_and_create_dmg do
-    UI.message("Notarizing the Mac Catalyst app...")
-
-    notarize(
-      username: ENV['NOTARIZE_USERNAME'],
-      team_id: ENV['ITC_TEAM_ID'],
-      app_bundle_id: "io.bluewallet.bluewallet",
-      app_path: "./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
-      primary_bundle_id: "io.bluewallet.bluewallet",
-      app_specific_password: ENV['NOTARIZE_PASSWORD']
-    )
-
-    UI.message("Creating DMG...")
-    sh("hdiutil create -volname BlueWallet -srcfolder ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app -ov -format UDZO ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).dmg")
-  end
-
-  desc "Upload iOS app to TestFlight"
+  desc "Upload to TestFlight"
   lane :upload_ios_to_testflight do
     UI.message("Uploading iOS App to TestFlight...")
     upload_to_testflight(
@@ -151,12 +134,5 @@ platform :ios do
       skip_waiting_for_build_processing: true,
       changelog: ENV["LATEST_COMMIT_MESSAGE"]
     )
-  end
-
-  desc "Save artifacts for the action summary"
-  lane :save_artifacts do
-    UI.message("Saving artifacts for the action summary...")
-    sh("mkdir -p artifacts && cp ./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).dmg ./artifacts/")
-    sh("mkdir -p artifacts && cp ./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa ./artifacts/")
   end
 end

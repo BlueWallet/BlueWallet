@@ -74,7 +74,7 @@ jobs:
           path: |
             ~/Library/MobileDevice/Provisioning\ Profiles/
             ~/Library/Keychains/
-          key: macOS-provisioning-profiles-${{ hashFiles('**/provisioning_profiles.tar.gz', '**/certificates.tar.gz') }}
+          key: macOS-provisioning-profiles-${{ hashFiles('**/profiles.tar.gz', '**/certs.tar.gz') }}
 
       - name: Setup Provisioning Profiles and Certificates
         if: steps.cache_provisioning.outputs.cache-hit != 'true'
