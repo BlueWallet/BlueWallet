@@ -1,4 +1,13 @@
+def app_identifiers
+  ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
+end
 
+platform :ios do
+  before_all do |lane, options|
+    UI.message("Setting up for all iOS lanes...")
+    UI.message("Discarding all untracked changes before running any lane...")
+    sh("git clean -fd")
+    sh("git checkout -- .")
     sh("git checkout master || git checkout -b master") # Ensure master is checked out, or create it if it doesn't exist
   end
 
