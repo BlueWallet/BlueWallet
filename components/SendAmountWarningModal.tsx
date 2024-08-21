@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../components/themes';
 import BottomModal, { BottomModalHandle } from '../components/BottomModal';
 import loc from '../loc';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes, stopHapticFeedback } from '../blue_modules/hapticFeedback';
 
 export interface SendAmountWarningHandle {
   present: () => void;
@@ -19,14 +19,22 @@ interface SendAmountWarningProps {
 const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningProps>(({ feePercentage, onProceed, onCancel }, ref) => {
   const { colors } = useTheme();
   const modalRef = useRef<BottomModalHandle>(null);
+  const hapticIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useImperativeHandle(ref, () => ({
     present: () => {
       modalRef.current?.present();
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+      hapticIntervalRef.current = setInterval(() => {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+      }, 500); // 500ms interval for "heart beat" effect due to severity of warning
     },
     dismiss: () => {
       modalRef.current?.dismiss();
+      if (hapticIntervalRef.current) {
+        clearInterval(hapticIntervalRef.current);
+        hapticIntervalRef.current = null;
+      }
+      stopHapticFeedback();
     },
   }));
 
