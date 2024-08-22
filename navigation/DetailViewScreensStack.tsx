@@ -59,13 +59,13 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { RouteProp } from '@react-navigation/native';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
+import AddWalletButton from '../components/AddWalletButton';
 
 type walletTransactionsRouteProp = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
@@ -85,7 +85,7 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
+        <AddWalletButton onPress={navigateToAddWallet} />
         <View style={styles.width24} />
         <SettingsButton />
       </>
