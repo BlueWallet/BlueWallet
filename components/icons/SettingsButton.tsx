@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from '../themes';
@@ -24,8 +24,9 @@ const SettingsButton = () => {
     }
   };
 
+  const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (
-    <ToolTipMenu onPressMenuItem={onPressMenuItem} actions={[CommonToolTipActions.ManageWallet]}>
+    <ToolTipMenu onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc.settings.default_title}

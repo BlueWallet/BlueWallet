@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from './themes';
@@ -40,13 +40,10 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
     }
   };
 
+  const actions = useMemo(() => [CommonToolTipActions.ImportWallet], []);
+
   return (
-    <ToolTipMenu
-      accessibilityRole="button"
-      accessibilityLabel={loc.wallets.add_title}
-      onPressMenuItem={onPressMenuItem}
-      actions={[CommonToolTipActions.ImportWallet]}
-    >
+    <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity style={[styles.ball, stylesHook.ball]} onPress={onPress}>
         <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} />
       </TouchableOpacity>
