@@ -49,6 +49,23 @@ platform :ios do
     end
   end
 
+  desc "Setup provisioning profiles for Mac Catalyst"
+  lane :setup_catalyst_provisioning_profiles do
+    UI.message("Setting up provisioning profiles for Mac Catalyst...")
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "appstore",
+        platform: "ios", # Keep using "ios" here to ensure compatibility
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+    end
+  end
+
   desc "Increment build number"
   lane :increment_build_number_lane do
     UI.message("Incrementing build number to current timestamp...")
@@ -88,6 +105,35 @@ platform :ios do
     )
   end
 
+  desc "Build the application for Mac Catalyst"
+  lane :build_app_catalyst_lane do
+    UI.message("Building the application for Mac Catalyst...")
+    build_app(
+      scheme: "BlueWallet", # Replace with the appropriate scheme name
+      workspace: "BlueWallet.xcworkspace",
+      export_method: "app-store",
+      include_bitcode: false,
+      configuration: "Release",
+      skip_profile_detection: true,
+      catalyst_platform: "macos",
+      include_symbols: true,
+      export_team_id: ENV["ITC_TEAM_ID"],
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet catalyst',
+          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch catalyst',
+          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension catalyst',
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget catalyst'
+        }
+      },
+      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+      output_directory: "./build/catalyst",
+      output_name: "BlueWallet-Catalyst.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+      buildlog_path: "./build_logs"
+    )
+  end
+
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
     attempts = 0
@@ -98,6 +144,33 @@ platform :ios do
       upload_to_testflight(
         api_key_path: "appstore_api_key.json",
         ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        skip_waiting_for_build_processing: true,
+        changelog: changelog
+      )
+    rescue => exception
+      attempts += 1
+      if attempts <= max_attempts
+        wait_time = 180 # 3 minutes in seconds
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+        raise exception
+      end
+    end
+  end
+
+  desc "Upload Mac Catalyst app to TestFlight without Processing Wait"
+  lane :upload_to_testflight_catalyst_lane do
+    attempts = 0
+    max_attempts = 3
+    begin
+      UI.message("Uploading Mac Catalyst app to TestFlight without processing wait...")
+      changelog = ENV["LATEST_COMMIT_MESSAGE"]
+      upload_to_testflight(
+        api_key_path: "appstore_api_key.json",
+        ipa: "./build/catalyst/BlueWallet-Catalyst.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
         skip_waiting_for_build_processing: true,
         changelog: changelog
       )
@@ -128,119 +201,15 @@ platform :ios do
     upload_to_testflight_lane
     delete_keychain(name: "temp_keychain")
   end
-end
-
-platform :macos do
-  before_all do |lane, options|
-    UI.message("Setting up for all Mac Catalyst lanes...")
-    UI.message("Discarding all untracked changes before running any lane...")
-    sh("git clean -fd")
-    sh("git checkout -- .")
-    sh("git checkout master || git checkout -b master") # Ensure master is checked out, or create it if it doesn't exist
-  end
-
-  desc "Install Node modules and CocoaPods dependencies"
-  lane :setup_dependencies do
-    UI.message("Installing Node modules and CocoaPods dependencies...")
-    sh("npm install")
-    cocoapods
-  end
-
-  desc "Create a temporary keychain"
-  lane :create_temp_keychain do
-    UI.message("Creating a temporary keychain...")
-    create_keychain(
-      name: "temp_keychain",
-      password: ENV["KEYCHAIN_PASSWORD"],
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: true
-    )
-    UI.message("Temporary keychain created successfully.")
-  end
-
-  desc "Setup provisioning profiles for Mac Catalyst"
-  lane :setup_provisioning_profiles do
-    UI.message("Setting up provisioning profiles for Mac Catalyst...")
-    app_identifiers.each do |app_identifier|
-      match(
-        type: "appstore",
-        platform: "ios", # Use "ios" to ensure compatibility
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
-      )
-    end
-  end
-
-  desc "Build the application for Mac Catalyst"
-  lane :build_app_catalyst_lane do
-    UI.message("Building the application for Mac Catalyst...")
-    build_app(
-      scheme: "BlueWallet", # Replace with the appropriate scheme name
-      workspace: "BlueWallet.xcworkspace",
-      export_method: "app-store",
-      include_bitcode: false,
-      configuration: "Release",
-      skip_profile_detection: true,
-      catalyst_platform: "macos",
-      include_symbols: true,
-      export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet catalyst',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch catalyst',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension catalyst',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget catalyst'
-        }
-      },
-      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build/catalyst",
-      output_name: "BlueWallet-Catalyst.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-      buildlog_path: "./build_logs"
-    )
-  end
-
-  desc "Upload Mac Catalyst app to TestFlight without Processing Wait"
-  lane :upload_to_testflight_catalyst_lane do
-    attempts = 0
-    max_attempts = 3
-    begin
-      UI.message("Uploading Mac Catalyst app to TestFlight without processing wait...")
-      changelog = ENV["LATEST_COMMIT_MESSAGE"]
-      upload_to_testflight(
-        api_key_path: "appstore_api_key.json",
-        ipa: "./build/catalyst/BlueWallet-Catalyst.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-        skip_waiting_for_build_processing: true,
-        changelog: changelog
-      )
-    rescue => exception
-      attempts += 1
-      if attempts <= max_attempts
-        wait_time = 180 # 3 minutes in seconds
-        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
-        sleep(wait_time)
-        retry
-      else
-        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
-        raise exception
-      end
-    end
-  end
 
   desc "Deploy Mac Catalyst app to TestFlight"
-  lane :deploy do
+  lane :deploy_catalyst do
     UI.message("Starting Mac Catalyst build process...")
     update_wwdr_certificate
     setup_app_store_connect_api_key
     setup_dependencies
     create_temp_keychain
-    setup_provisioning_profiles
+    setup_catalyst_provisioning_profiles
     build_app_catalyst_lane
     upload_to_testflight_catalyst_lane
     delete_keychain(name: "temp_keychain")
