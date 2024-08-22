@@ -344,7 +344,6 @@ const ScanQRCode = () => {
       ) : isFocused ? (
         <CameraScreen
           scanBarcode
-          torchOffImage={require('../../img/flash-off.png')}
           cameraFlipImage={require('../../img/camera-rotate-solid.png')}
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
