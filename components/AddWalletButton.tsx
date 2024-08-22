@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from './themes';
@@ -29,7 +29,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
     },
   });
 
-  const onPressMenuItem = (action: string) => {
+  const onPressMenuItem = useCallback((action: string) => {
     switch (action) {
       case CommonToolTipActions.ImportWallet.id:
         console.log('Import Wallet');
@@ -38,7 +38,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
       default:
         break;
     }
-  };
+  }, []);
 
   const actions = useMemo(() => [CommonToolTipActions.ImportWallet], []);
 

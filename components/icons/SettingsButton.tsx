@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from '../themes';
@@ -14,7 +14,7 @@ const SettingsButton = () => {
     navigate('Settings');
   };
 
-  const onPressMenuItem = (menuItem: string) => {
+  const onPressMenuItem = useCallback((menuItem: string) => {
     switch (menuItem) {
       case CommonToolTipActions.ManageWallet.id:
         navigate('ManageWallets');
@@ -22,7 +22,7 @@ const SettingsButton = () => {
       default:
         break;
     }
-  };
+  }, []);
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (
