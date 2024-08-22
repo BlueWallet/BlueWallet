@@ -14,15 +14,18 @@ const SettingsButton = () => {
     navigate('Settings');
   };
 
-  const onPressMenuItem = useCallback((menuItem: string) => {
-    switch (menuItem) {
-      case CommonToolTipActions.ManageWallet.id:
-        navigate('ManageWallets');
-        break;
-      default:
-        break;
-    }
-  }, [navigate]);
+  const onPressMenuItem = useCallback(
+    (menuItem: string) => {
+      switch (menuItem) {
+        case CommonToolTipActions.ManageWallet.id:
+          navigate('ManageWallets');
+          break;
+        default:
+          break;
+      }
+    },
+    [navigate],
+  );
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (

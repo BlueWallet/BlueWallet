@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress } : { onPress: () => void }) => {
+const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     ball: {
