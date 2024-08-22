@@ -8,7 +8,7 @@ platform :ios do
     UI.message("Discarding all untracked changes before running any lane...")
     sh("git clean -fd")
     sh("git checkout -- .")
-    sh("git checkout master || git checkout -b master") # Ensure master is checked out, or create it if it doesn't exist
+    sh("git checkout master || git checkout -b master")
   end
 
   desc "Install Node modules and CocoaPods dependencies"
@@ -55,7 +55,7 @@ platform :ios do
     app_identifiers.each do |app_identifier|
       match(
         type: "appstore",
-        platform: "ios", # Keep using "ios" here to ensure compatibility
+        platform: "macos", # Use macos for Catalyst builds
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -79,7 +79,7 @@ platform :ios do
   desc "Build the iOS application"
   lane :build_app_lane do
     UI.message("Building the iOS application...")
-    build_app(
+    build_ios_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
@@ -108,7 +108,7 @@ platform :ios do
   desc "Build the application for Mac Catalyst"
   lane :build_app_catalyst_lane do
     UI.message("Building the application for Mac Catalyst...")
-    build_app(
+    build_mac_app(
       scheme: "BlueWallet", # Replace with the appropriate scheme name
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
