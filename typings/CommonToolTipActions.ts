@@ -7,6 +7,7 @@ const keys = {
   OpenInBlockExplorer: 'open_in_blockExplorer',
   CopyAmount: 'copyAmount',
   CopyNote: 'copyNote',
+  NFC: 'nfc',
 };
 
 const icons = {
@@ -24,6 +25,9 @@ const icons = {
   },
   Note: {
     iconValue: 'note.text',
+  },
+  NFC: {
+    iconValue: 'sensor.tag.radiowaves.forward',
   },
 };
 
@@ -57,5 +61,10 @@ export const CommonToolTipActions = {
     id: keys.CopyNote,
     text: loc.transactions.details_copy_note,
     icon: icons.Clipboard,
+  },
+  NFC: {
+    id: keys.NFC,
+    text: loc.send.details_nfc,
+    icon: icons.NFC,
   },
 };

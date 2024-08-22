@@ -8,6 +8,8 @@ import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_
 import Clipboard from '@react-native-clipboard/clipboard';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
+import { useNFC } from '../hooks/useNFC';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -50,6 +52,7 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
+  const { enabled, supported, readTag } = useNFC();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -68,6 +71,14 @@ const AddressInput = ({
     onBlur();
     Keyboard.dismiss();
   };
+
+  const toolTipActions = useMemo(() => {
+    const isNFCAvailable = supported && enabled;
+    if (isNFCAvailable) {
+      return [...actions, CommonToolTipActions.NFC];
+    }
+    return actions;
+  }, [enabled, supported]);
 
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
@@ -119,10 +130,13 @@ const AddressInput = ({
               presentAlert({ message: error.message });
             });
           break;
+        case CommonToolTipActions.NFC.id:
+          readTag();
+          break;
       }
       Keyboard.dismiss();
     },
-    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
+    [launchedBy, onBarScanned, onChangeText, readTag, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
@@ -147,7 +161,7 @@ const AddressInput = ({
       />
       {editable ? (
         <ToolTipMenu
-          actions={actions}
+          actions={toolTipActions}
           isButton
           onPressMenuItem={onMenuItemPressed}
           testID="BlueAddressInputScanQrButton"
