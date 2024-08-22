@@ -83,7 +83,7 @@
     "help2": "האחסון החדש יתפקד באופן מלא, ותוכלו לאחסן בו סכומים מינימליים כך שיראה יותר מהימן.",
     "password_should_not_match": "הסיסמה כבר בשימוש. אנא נסו סיסמה אחרת.",
     "passwords_do_not_match": "סיסמאות אינן תואמות, אנא נסו שוב",
-    "retype_password": "הכניסו שוב סיסמה",
+    "confirm_password": "הכניסו שוב סיסמה",
     "success": "הצלחה",
     "title": "יכולת הכחשה סבירה"
   },
@@ -301,7 +301,7 @@
     "privacy_do_not_track_explanation": "מידע ביצועים ומהימנות לא ישלח לניתוח.",
     "push_notifications": "התראות",
     "rate": "תעריף",
-    "retype_password": "הכניסו שוב סיסמה",
+    "confirm_password": "הכניסו שוב סיסמה",
     "selfTest": "בדיקה עצמית",
     "save": "שמירה",
     "saved": "נשמר",

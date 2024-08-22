@@ -42,17 +42,23 @@ const NotificationSettings = () => {
 
   useEffect(() => {
     (async () => {
-      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
-      setURI(await Notifications.getSavedUri());
-      setTokenInfo(
-        'token: ' +
-          JSON.stringify(await Notifications.getPushToken()) +
-          ' permissions: ' +
-          JSON.stringify(await Notifications.checkPermissions()) +
-          ' stored notifications: ' +
-          JSON.stringify(await Notifications.getStoredNotifications()),
-      );
-      setIsLoading(false);
+      try {
+        setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+        setURI(await Notifications.getSavedUri());
+        setTokenInfo(
+          'token: ' +
+            JSON.stringify(await Notifications.getPushToken()) +
+            ' permissions: ' +
+            JSON.stringify(await Notifications.checkPermissions()) +
+            ' stored notifications: ' +
+            JSON.stringify(await Notifications.getStoredNotifications()),
+        );
+      } catch (e) {
+        console.debug(e);
+        presentAlert({ message: e.message });
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 

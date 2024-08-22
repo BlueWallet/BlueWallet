@@ -84,7 +84,7 @@
     "help2": "Nowa przestrzeń będzie w pełni funkcjonalna i możesz przechowywać w niej minimalne ilości, aby wyglądało to wiarygodnie.",
     "password_should_not_match": "Hasło jest aktualnie w użyciu. Spróbuj z innym hasłem.",
     "passwords_do_not_match": "Hasła do siebie nie pasują, spróbuj ponownie.",
-    "retype_password": "Wpisz ponownie hasło",
+    "confirm_password": "Wpisz ponownie hasło",
     "success": "Sukces",
     "title": "Wiarygodna zaprzeczalność"
   },
@@ -304,7 +304,7 @@
     "privacy_do_not_track_explanation": "Informacje dotyczące wydajności i niezawodności nie będą przesyłane do analizy.",
     "push_notifications": "Powiadomienia Push",
     "rate": "Kurs",
-    "retype_password": "Wprowadź Ponownie hasło",
+    "confirm_password": "Wprowadź Ponownie hasło",
     "selfTest": "Autotest",
     "save": "Zapisz",
     "saved": "Zapisano",

@@ -1,5 +1,4 @@
 import assert from 'assert';
-import Frisbee from 'frisbee';
 
 import { LightningCustodianWallet } from '../../class';
 
@@ -164,22 +163,25 @@ describe.skip('LightningCustodianWallet', () => {
       console.error('process.env.OPENNODE not set, skipped');
       return;
     }
-    const api = new Frisbee({
-      baseURI: 'https://api.opennode.co',
-    });
 
-    const res = await api.post('/v1/charges', {
+    const response = await fetch('https://api.opennode.co/v1/charges', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: process.env.OPENNODE,
       },
-      body: '{"amount": "0.01", "currency": "USD"}',
+      body: JSON.stringify({
+        amount: '0.01',
+        currency: 'USD',
+      }),
     });
-    if (!res.body || !res.body.data || !res.body.data.lightning_invoice || !res.body.data.lightning_invoice.payreq) {
+
+    const res = await response.json();
+    if (!res.data || !res.data.lightning_invoice || !res.data.lightning_invoice.payreq) {
       throw new Error('Opennode problem');
     }
 
-    const invoice = res.body.data.lightning_invoice.payreq;
+    const invoice = res.data.lightning_invoice.payreq;
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
@@ -216,25 +218,22 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    const api = new Frisbee({
-      baseURI: 'https://api.strike.acinq.co',
-      headers: {},
-    });
-
-    api.auth(process.env.STRIKE + ':');
-
-    const res = await api.post('/api/v1/charges', {
+    const response = await fetch('https://api.strike.acinq.co/api/v1/charges', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${btoa(process.env.STRIKE + ':')}`,
       },
       body: 'amount=1&currency=btc&description=acceptance+test',
     });
 
-    if (!res.body || !res.body.payment_request) {
+    const res = await response.json();
+
+    if (!res.payment_request) {
       throw new Error('Strike problem: ' + JSON.stringify(res));
     }
 
-    const invoice = res.body.payment_request;
+    const invoice = res.payment_request;
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
@@ -290,18 +289,20 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    const api = new Frisbee({
-      baseURI: 'https://api-bitrefill.com',
-      headers: {},
+    const response = await fetch(`https://api-bitrefill.com/v1/lnurl_pay/${process.env.BITREFILL}/callback?amount=1000`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
-    const res = await api.get('/v1/lnurl_pay/' + process.env.BITREFILL + '/callback?amount=1000');
+    const res = await response.json();
 
-    if (!res.body || !res.body.pr) {
+    if (!res.pr) {
       throw new Error('Bitrefill problem: ' + JSON.stringify(res));
     }
 
-    const invoice = res.body.pr;
+    const invoice = res.pr;
 
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
@@ -427,16 +428,16 @@ describe.skip('LightningCustodianWallet', () => {
 
     // now, paying same internal invoice. should fail:
 
-    let coughtError = false;
+    let caughtError = false;
     await lOld.fetchTransactions();
     txLen = lOld.transactions_raw.length;
     const invLen = (await lNew.getUserInvoices()).length;
     try {
       await lOld.payInvoice(invoice);
     } catch (Err) {
-      coughtError = true;
+      caughtError = true;
     }
-    assert.ok(coughtError);
+    assert.ok(caughtError);
 
     await lOld.fetchTransactions();
     assert.strictEqual(txLen, lOld.transactions_raw.length, 'tx count should not be changed');
@@ -457,12 +458,10 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    // fetchig invoice from tippin.me :
+    // fetching invoice from tippin.me :
 
-    const api = new Frisbee({
-      baseURI: 'https://tippin.me',
-    });
-    const res = await api.post('/lndreq/newinvoice.php', {
+    const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {
+      method: 'POST',
       headers: {
         Origin: 'https://tippin.me',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -473,13 +472,11 @@ describe.skip('LightningCustodianWallet', () => {
       body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
     });
 
-    let json;
-    let invoice;
-    if (res && res.body && (json = JSON.parse(res.body)) && json.message) {
-      invoice = json.message;
-    } else {
+    const res = await response.json();
+    if (!res || !res.message) {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
     }
+    const invoice = res.message;
 
     // --> use to pay specific invoice
     // invoice =
@@ -527,7 +524,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(oldBalance - l2.balance < 10); // sanity check
   });
 
-  it('cant create zemo amt invoices yet', async () => {
+  it('cant create zero amt invoices yet', async () => {
     const l = new LightningCustodianWallet();
     l.setBaseURI(baseUri);
     l.init();
@@ -569,12 +566,10 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    // fetchig invoice from tippin.me :
+    // fetching invoice from tippin.me :
 
-    const api = new Frisbee({
-      baseURI: 'https://tippin.me',
-    });
-    const res = await api.post('/lndreq/newinvoice.php', {
+    const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {
+      method: 'POST',
       headers: {
         Origin: 'https://tippin.me',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -585,14 +580,11 @@ describe.skip('LightningCustodianWallet', () => {
       body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
     });
 
-    let json;
-    let invoice;
-    if (res && res.body && (json = JSON.parse(res.body)) && json.message) {
-      invoice = json.message;
-    } else {
+    const res = await response.json();
+    if (!res || !res.message) {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
     }
-
+    const invoice = res.message;
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);

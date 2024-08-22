@@ -1,15 +1,17 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import PromptPasswordConfirmationModal, {
+  MODAL_TYPES,
+  PromptPasswordConfirmationModalHandle,
+} from '../../components/PromptPasswordConfirmationModal';
 import { popToTop } from '../../NavigationService';
 
 enum ActionType {
@@ -17,13 +19,7 @@ enum ActionType {
   SetStorageEncryptedSwitch = 'SET_STORAGE_ENCRYPTED_SWITCH',
   SetDeviceBiometricCapable = 'SET_DEVICE_BIOMETRIC_CAPABLE',
   SetCurrentLoadingSwitch = 'SET_CURRENT_LOADING_SWITCH',
-}
-
-interface State {
-  isLoading: boolean;
-  storageIsEncryptedSwitchEnabled: boolean;
-  deviceBiometricCapable: boolean;
-  currentLoadingSwitch: string | null;
+  SetModalType = 'SET_MODAL_TYPE',
 }
 
 interface Action {
@@ -31,11 +27,20 @@ interface Action {
   payload?: any;
 }
 
+interface State {
+  isLoading: boolean;
+  storageIsEncryptedSwitchEnabled: boolean;
+  deviceBiometricCapable: boolean;
+  currentLoadingSwitch: string | null;
+  modalType: keyof typeof MODAL_TYPES;
+}
+
 const initialState: State = {
   isLoading: true,
   storageIsEncryptedSwitchEnabled: false,
   deviceBiometricCapable: false,
   currentLoadingSwitch: null,
+  modalType: MODAL_TYPES.ENTER_PASSWORD,
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -48,6 +53,8 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, deviceBiometricCapable: action.payload };
     case ActionType.SetCurrentLoadingSwitch:
       return { ...state, currentLoadingSwitch: action.payload };
+    case ActionType.SetModalType:
+      return { ...state, modalType: action.payload };
     default:
       return state;
   }
@@ -59,6 +66,7 @@ const EncryptStorage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
+  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const styleHooks = StyleSheet.create({
     root: {
@@ -75,71 +83,24 @@ const EncryptStorage = () => {
     dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: isStorageEncryptedSwitchEnabled });
     dispatch({ type: ActionType.SetDeviceBiometricCapable, payload: isDeviceBiometricCapableSync });
     dispatch({ type: ActionType.SetLoading, payload: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isStorageEncrypted, isDeviceBiometricCapable]);
 
   useEffect(() => {
     initializeState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initializeState]);
 
   const handleDecryptStorage = async () => {
-    dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'decrypt' });
-    const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).catch(() => {
-      dispatch({ type: ActionType.SetLoading, payload: false });
-      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-    });
-    if (!password) {
-      dispatch({ type: ActionType.SetLoading, payload: false });
-      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-      return;
-    }
-    try {
-      await decryptStorage(password);
-      await saveToDisk();
-      popToTop();
-    } catch (e) {
-      if (password) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc._.bad_password });
-      }
-
-      dispatch({ type: ActionType.SetLoading, payload: false });
-      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-      dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: await isStorageEncrypted() });
-    }
+    dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
+    promptRef.current?.present();
   };
 
   const onEncryptStorageSwitch = async (value: boolean) => {
     dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'encrypt' });
     dispatch({ type: ActionType.SetLoading, payload: true });
+
     if (value) {
-      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-        dispatch({ type: ActionType.SetLoading, payload: false });
-        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-        p1 = undefined;
-      });
-      if (!p1) {
-        dispatch({ type: ActionType.SetLoading, payload: false });
-        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-        return;
-      }
-      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-        dispatch({ type: ActionType.SetLoading, payload: false });
-        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-      });
-      if (p1 === p2) {
-        await encryptStorage(p1);
-        dispatch({ type: ActionType.SetLoading, payload: false });
-        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-        dispatch({ type: ActionType.SetStorageEncryptedSwitch, payload: await isStorageEncrypted() });
-        saveToDisk();
-      } else {
-        dispatch({ type: ActionType.SetLoading, payload: false });
-        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.settings.passwords_do_not_match });
-      }
+      dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
+      promptRef.current?.present();
     } else {
       Alert.alert(
         loc.settings.encrypt_decrypt,
@@ -179,15 +140,7 @@ const EncryptStorage = () => {
   };
 
   const renderPasscodeExplanation = () => {
-    let isCapable = true;
-
-    if (Platform.OS === 'android') {
-      if (Platform.Version < 30) {
-        isCapable = false;
-      }
-    }
-
-    return isCapable ? (
+    return Platform.OS === 'android' && Platform.Version >= 30 ? (
       <>
         <BlueText />
         <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
@@ -246,6 +199,41 @@ const EncryptStorage = () => {
           containerStyle={[styles.row, styleHooks.root]}
         />
       )}
+      <PromptPasswordConfirmationModal
+        ref={promptRef}
+        modalType={state.modalType}
+        onConfirmationSuccess={async (password: string) => {
+          let success = false;
+          if (state.modalType === MODAL_TYPES.CREATE_PASSWORD) {
+            try {
+              await encryptStorage(password);
+              await saveToDisk();
+              dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
+              success = true;
+            } catch (error) {
+              presentAlert({ title: loc.errors.error, message: (error as Error).message });
+              success = false;
+            }
+          } else if (state.modalType === MODAL_TYPES.ENTER_PASSWORD) {
+            try {
+              await decryptStorage(password);
+              await saveToDisk();
+              popToTop();
+              success = true;
+            } catch (error) {
+              success = false;
+            }
+          }
+          dispatch({ type: ActionType.SetLoading, payload: false });
+          dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+          initializeState();
+          return success;
+        }}
+        onConfirmationFailure={() => {
+          dispatch({ type: ActionType.SetLoading, payload: false });
+          dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+        }}
+      />
     </ScrollView>
   );
 };

@@ -78,7 +78,7 @@
     "help2": "Den alternativa lagringsytan kommer att vara fullt fungerade och du kan eventuellt spara en mindre summa där för att den ska verka mer trovärdig.",
     "password_should_not_match": "Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord",
     "passwords_do_not_match": "Lösenorden du angav matchar inte. Försök igen.",
-    "retype_password": "Ange lösenord igen",
+    "confirm_password": "Ange lösenord igen",
     "success": "Fejkad lagringsyta skapad!",
     "title": "Trovärdigt förnekande"
   },
@@ -274,7 +274,7 @@
     "privacy_do_not_track_explanation": "Information om prestanda och tillförlitlighet kommer inte att skickas in för analys.",
     "push_notifications": "Pushmeddelanden",
     "rate": "Betygsätta",
-    "retype_password": "Ange lösenord igen",
+    "confirm_password": "Ange lösenord igen",
     "selfTest": "Självtest",
     "save": "Spara",
     "saved": "Sparad",

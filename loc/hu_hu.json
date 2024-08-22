@@ -73,7 +73,7 @@
     "help2": "Az alternatív tárhely teljesen működőképes, és akár egy kisebb összeget is elhelyezhetsz rajta, hogy hitelesebbnek tűnjön.",
     "password_should_not_match": "A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé",
     "passwords_do_not_match": "Jelszavak nem egyeznek, próbáld újra.",
-    "retype_password": "Jelszó megerősítése",
+    "confirm_password": "Jelszó megerősítése",
     "success": "Hamis tárhely létrehozva!",
     "title": "Elfogadható tagadhatóság"
   },
@@ -270,7 +270,7 @@
     "privacy_do_not_track_explanation": "A teljesítményre és a megbízhatóságra vonatkozó információk nem lessznek beküldve elemzésre.",
     "push_notifications": "Push üzenet",
     "rate": "Ráta",
-    "retype_password": "Jelszó megerősítése",
+    "confirm_password": "Jelszó megerősítése",
     "selfTest": "Önteszt",
     "save": "Ment",
     "saved": "Elmentve",

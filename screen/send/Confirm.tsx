@@ -24,6 +24,7 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HDSegwitBech32Wallet } from '../../class';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -177,7 +178,7 @@ const Confirm: React.FC = () => {
       if (!state.isPayjoinEnabled) {
         await broadcast(tx);
       } else {
-        const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcast(txHex), wallet);
+        const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcast(txHex), wallet as HDSegwitBech32Wallet);
         const paymentScript = getPaymentScript();
         if (!paymentScript) {
           throw new Error('Invalid payment script');
