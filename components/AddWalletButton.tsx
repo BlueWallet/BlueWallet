@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
+const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress } : { onPress: () => void }) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     ball: {
@@ -32,7 +32,6 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const onPressMenuItem = useCallback((action: string) => {
     switch (action) {
       case CommonToolTipActions.ImportWallet.id:
-        console.log('Import Wallet');
         navigationRef.current?.navigate('AddWalletRoot', { screen: 'ImportWallet' });
         break;
       default:

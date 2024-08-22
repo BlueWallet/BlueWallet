@@ -22,7 +22,7 @@ const SettingsButton = () => {
       default:
         break;
     }
-  }, []);
+  }, [navigate]);
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (
