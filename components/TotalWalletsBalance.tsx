@@ -19,9 +19,6 @@ const TotalWalletsBalance: React.FC = () => {
   const { colors } = useTheme();
 
   const styleHooks = StyleSheet.create({
-    container: {
-      backgroundColor: colors.background,
-    },
     balance: {
       color: colors.foregroundColor,
     },
@@ -99,7 +96,7 @@ const TotalWalletsBalance: React.FC = () => {
   return (
     (wallets.length > 1 && (
       <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
-        <View style={[styles.container, styleHooks.container]}>
+        <View style={styles.container}>
           <Text style={styles.label}>{loc.wallets.total_balance}</Text>
           <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
             <Text style={[styles.balance, styleHooks.balance]}>
