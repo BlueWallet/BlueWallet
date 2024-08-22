@@ -69,7 +69,7 @@ jobs:
   ios-build:
     runs-on: macos-14
     timeout-minutes: 180
-    needs: catalyst-build
+    needs: build_catalyst
     outputs:
       new_build_number: ${{ needs.catalyst-build.outputs.new_build_number }}
       project_version: ${{ needs.catalyst-build.outputs.project_version }}
@@ -201,7 +201,7 @@ jobs:
   # Catalyst Upload Job
   catalyst-upload:
     runs-on: macos-14
-    needs: catalyst-build
+    needs: build_catalyst
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
