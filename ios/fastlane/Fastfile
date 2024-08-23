@@ -239,14 +239,11 @@ platform :ios do
 lane :update_release_notes do |options|
   require 'spaceship'
 
-  # Log in to App Store Connect
   UI.message("Logging in to App Store Connect...")
   Spaceship::ConnectAPI.login
 
-  # Fetch the app details using the newer Connect API
   app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
 
-  # Ensure the app exists
   unless app
     UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}")
   end
@@ -296,7 +293,6 @@ lane :update_release_notes do |options|
     release_notes_text = File.read(release_notes_path)
   end
 
-  # Define localized release notes only for enabled locales
   localized_release_notes = {
     'en-US' => release_notes_text, # English (U.S.) - Primary
     'ar-SA' => release_notes_text, # Arabic
@@ -343,7 +339,6 @@ lane :update_release_notes do |options|
     app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
 
     if app_store_version_localization
-      # Update the "What's New in This Version" section
       app_store_version_localization.update(attributes: { "whats_new" => notes })
     else
       UI.error("No localization found for locale #{locale}")
