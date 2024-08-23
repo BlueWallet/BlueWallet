@@ -380,6 +380,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Billetera Bitcoin simple y potente",
     "add_create": "Crear",
+    "total_balance": "Balance Total",
     "add_entropy": "Entropía ",
     "add_entropy_bytes": "{bytes} bytes de entropía",
     "add_entropy_generated": "{gen} bytes de entropía generada",
@@ -479,6 +480,13 @@
     "identity_pubkey": "Identidad Pubkey",
     "xpub_title": "XPUB de la billetera",
     "manage_wallets_search_placeholder": "Buscar billeteras, notas"
+  },
+  "total_balance_view": {
+    "view_in_bitcoin": "Ver en Bitcoin",
+    "view_in_sats": "Ver en sats",
+    "view_in_fiat": "Ver en {currency}",
+    "title": "Balance Total",
+    "explanation": "Ve el saldo total de todas tus billeteras en la pantalla de descripción general."
   },
   "multisig": {
     "multisig_vault": "Bóveda",
