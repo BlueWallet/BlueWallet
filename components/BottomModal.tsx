@@ -1,6 +1,8 @@
-import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, JSXElementConstructor, ReactNode } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, Image } from 'react-native';
+import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, PlatformColor, GestureResponderEvent } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import SaveFileButton from './SaveFileButton';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -12,31 +14,20 @@ interface BottomModalProps extends TrueSheetProps {
   onPresent?: () => void;
   onSizeChange?: (size: SizeInfo) => void;
   showCloseButton?: boolean;
+  shareContent?: BottomModalShareContent;
+  shareButtonOnPress?: (event: GestureResponderEvent) => void;
+  header?: ReactElement | ComponentType<any> | null;
 }
+
+type BottomModalShareContent = {
+  fileName: string;
+  fileContent: string;
+};
 
 export interface BottomModalHandle {
   present: () => Promise<void>;
   dismiss: () => Promise<void>;
 }
-
-const styles = StyleSheet.create({
-  footerContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    position: 'absolute',
-    backgroundColor: 'lightgray',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    top: 20,
-    right: 20,
-    zIndex: 10,
-  },
-});
 
 const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
   (
@@ -46,9 +37,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       onSizeChange,
       showCloseButton = true,
       isGrabberVisible = true,
+      shareContent,
+      shareButtonOnPress,
       sizes = ['auto'],
       footer,
       footerDefaultMargins,
+      header,
       children,
       ...props
     },
@@ -79,21 +73,54 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       trueSheetRef.current?.dismiss();
     };
 
-    const renderTopRightButton = () =>
-      showCloseButton ? (
-        <TouchableOpacity style={styles.buttonContainer} onPress={dismiss} testID="ModalDoneButton">
-          <Image source={require('../img/close.png')} width={20} height={20} />
-        </TouchableOpacity>
-      ) : null;
+    const renderTopRightButton = () => {
+      const buttons = [];
+      if (shareContent || shareButtonOnPress) {
+        if (shareContent) {
+          buttons.push(
+            <SaveFileButton
+              style={styles.topRightButton}
+              fileContent={shareContent.fileContent}
+              fileName={shareContent.fileName}
+              testID="ModalShareButton"
+            >
+              <Ionicons name="share" size={20} color={PlatformColor('lightText')} />
+            </SaveFileButton>,
+          );
+        } else if (shareButtonOnPress) {
+          buttons.push(
+            <TouchableOpacity style={styles.topRightButton} onPress={shareButtonOnPress} testID="ModalShareButton">
+              <Ionicons name="share" size={20} color={PlatformColor('lightText')} />
+            </TouchableOpacity>,
+          );
+        }
+      }
+      if (showCloseButton) {
+        buttons.push(
+          <TouchableOpacity style={styles.topRightButton} onPress={dismiss} testID="ModalDoneButton">
+            <Ionicons name="close" size={20} color={PlatformColor('lightText')} />
+          </TouchableOpacity>,
+        );
+      }
+      return <View style={styles.topRightButtonContainer}>{buttons}</View>;
+    };
 
-    const renderFooter = (): ReactElement<any, string | JSXElementConstructor<any>> | ComponentType<unknown> | undefined => {
+    const renderHeader = () => {
+      return (
+        <View style={styles.headerContainer}>
+          <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
+          {renderTopRightButton()}
+        </View>
+      );
+    };
+
+    const renderFooter = (): ReactElement | undefined => {
       // Footer is not working correctly on Android yet.
       if (!footer) return undefined;
 
       if (React.isValidElement(footer)) {
         return footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
       } else if (typeof footer === 'function') {
-        // Render the footer component dynamically
         const FooterComponent = footer as ComponentType<any>;
         return <FooterComponent />;
       }
@@ -101,7 +128,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       return undefined;
     };
 
-    const FooterComponent = Platform.OS !== 'android' && renderFooter();
+    const FooterComponent = renderFooter();
 
     return (
       <TrueSheet
@@ -112,16 +139,51 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-        // Footer is not working correctly on Android yet.
-        FooterComponent={FooterComponent as ReactElement}
+        FooterComponent={FooterComponent}
         {...props}
       >
-        {children}
-        {renderTopRightButton()}
-        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
+        {renderHeader()}
+        <View style={styles.childrenContainer}>{children}</View>
+        {Platform.OS === 'android' && FooterComponent}
       </TrueSheet>
     );
   },
 );
 
 export default BottomModal;
+
+const styles = StyleSheet.create({
+  footerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    minHeight: 22,
+  },
+  headerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    minHeight: 22,
+  },
+  topRightButton: {
+    backgroundColor: PlatformColor('systemGray2'),
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 22,
+  },
+  topRightButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  childrenContainer: {
+    marginTop: 0,
+  },
+});
