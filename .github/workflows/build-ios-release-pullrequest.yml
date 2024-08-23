@@ -39,6 +39,7 @@ jobs:
         run: bundle exec fastlane ios create_temp_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        working-directory: ./ios
 
       - name: Setup Provisioning Profiles for Mac Catalyst
         run: bundle exec fastlane ios setup_catalyst_provisioning_profiles
@@ -49,12 +50,14 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
+        working-directory: ./ios
+      
       - name: Build Mac Catalyst App
         run: bundle exec fastlane ios build_app_catalyst_lane
         env:
           NEW_BUILD_NUMBER: ${{ github.run_number }}
           PROJECT_VERSION: ${{ steps.get_version.outputs.version }}
+        working-directory: ./ios
 
       - name: Upload Mac Catalyst App to TestFlight
         run: bundle exec fastlane ios upload_to_testflight_catalyst_lane
@@ -64,12 +67,14 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        working-directory: ./ios
 
       - name: Clean up
         run: bundle exec fastlane ios delete_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          
+        working-directory: ./ios
+
   # iOS Build Job
   ios-build:
     runs-on: macos-14
