@@ -66,6 +66,8 @@ import ManageWallets from '../screen/wallets/ManageWallets';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { RouteProp } from '@react-navigation/native';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
 
 type walletTransactionsRouteProp = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
@@ -74,6 +76,8 @@ const walletTransactionsOptions = ({ route }: { route: walletTransactionsRoutePr
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
+  const { wallets } = useStorage();
+  const { isTotalBalanceEnabled } = useSettings();
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
@@ -94,11 +98,12 @@ const DetailViewStackScreensStack = () => {
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
+    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: loc.wallets.wallets,
+      title: displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
       headerShown: !isDesktop,
-      headerLargeTitle: true,
+      headerLargeTitle: displayTitle,
       headerShadowVisible: false,
       headerLargeTitleShadowVisible: false,
       headerStyle: {
@@ -106,7 +111,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => RightBarButtons,
     };
-  }, [RightBarButtons, theme.colors.customHeader, theme.colors.navigationBarColor]);
+  }, [RightBarButtons, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
