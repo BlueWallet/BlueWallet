@@ -11,8 +11,6 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
-let hapticInterval: NodeJS.Timeout | null = null;
-
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
   DeviceInfo.getPowerState().then((state: Partial<PowerState>) => {
     if (!state.lowPowerMode) {
@@ -21,13 +19,6 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
       console.log('Haptic feedback not triggered due to low power mode.');
     }
   });
-};
-
-export const stopHapticFeedback = () => {
-  if (hapticInterval) {
-    clearInterval(hapticInterval);
-    hapticInterval = null;
-  }
 };
 
 export default triggerHapticFeedback;
