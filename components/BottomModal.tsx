@@ -1,12 +1,15 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, PlatformColor, GestureResponderEvent } from 'react-native';
+import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SaveFileButton from './SaveFileButton';
+import { useTheme } from './themes';
+import { Image } from '@rneui/base';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
   onClose?: () => void;
+  onCloseModalPressed?: () => Promise<void>;
   isGrabberVisible?: boolean;
   sizes?: SheetSize[] | undefined;
   footer?: ReactElement | ComponentType<any> | null;
@@ -17,6 +20,8 @@ interface BottomModalProps extends TrueSheetProps {
   shareContent?: BottomModalShareContent;
   shareButtonOnPress?: (event: GestureResponderEvent) => void;
   header?: ReactElement | ComponentType<any> | null;
+  headerTitle?: string;
+  headerSubtitle?: string;
 }
 
 type BottomModalShareContent = {
@@ -33,6 +38,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
   (
     {
       onClose,
+      onCloseModalPressed,
       onPresent,
       onSizeChange,
       showCloseButton = true,
@@ -43,12 +49,23 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       footer,
       footerDefaultMargins,
       header,
+      headerTitle,
+      headerSubtitle,
       children,
       ...props
     },
     ref,
   ) => {
     const trueSheetRef = useRef<TrueSheet>(null);
+    const { colors } = useTheme();
+    const stylesHook = StyleSheet.create({
+      barButton: {
+        backgroundColor: colors.lightButton,
+      },
+      headerTitle: {
+        color: colors.foregroundColor,
+      },
+    });
 
     useImperativeHandle(ref, () => ({
       present: async () => {
@@ -69,8 +86,9 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       },
     }));
 
-    const dismiss = () => {
-      trueSheetRef.current?.dismiss();
+    const dismiss = async () => {
+      await onCloseModalPressed?.();
+      await trueSheetRef.current?.dismiss();
     };
 
     const renderTopRightButton = () => {
@@ -79,26 +97,41 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         if (shareContent) {
           buttons.push(
             <SaveFileButton
-              style={styles.topRightButton}
+              style={[styles.topRightButton, stylesHook.barButton]}
               fileContent={shareContent.fileContent}
               fileName={shareContent.fileName}
               testID="ModalShareButton"
+              key="ModalShareButton"
             >
-              <Ionicons name="share" size={20} color={PlatformColor('lightText')} />
+              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
             </SaveFileButton>,
           );
         } else if (shareButtonOnPress) {
           buttons.push(
-            <TouchableOpacity style={styles.topRightButton} onPress={shareButtonOnPress} testID="ModalShareButton">
-              <Ionicons name="share" size={20} color={PlatformColor('lightText')} />
+            <TouchableOpacity
+              testID="ModalShareButton"
+              key="ModalShareButton"
+              style={[styles.topRightButton, stylesHook.barButton]}
+              onPress={shareButtonOnPress}
+            >
+              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
             </TouchableOpacity>,
           );
         }
       }
       if (showCloseButton) {
         buttons.push(
-          <TouchableOpacity style={styles.topRightButton} onPress={dismiss} testID="ModalDoneButton">
-            <Ionicons name="close" size={20} color={PlatformColor('lightText')} />
+          <TouchableOpacity
+            style={[styles.topRightButton, stylesHook.barButton]}
+            onPress={dismiss}
+            key="ModalDoneButton"
+            testID="ModalDoneButton"
+          >
+            {Platform.OS === 'ios' ? (
+              <Ionicons name="close" size={20} color={colors.buttonTextColor} />
+            ) : (
+              <Image source={require('../img/close.png')} style={styles.closeButton} />
+            )}
           </TouchableOpacity>,
         );
       }
@@ -106,6 +139,18 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     };
 
     const renderHeader = () => {
+      if (headerTitle || headerSubtitle) {
+        return (
+          <View style={styles.headerContainer}>
+            <View style={styles.headerContent}>
+              {headerTitle && <Text style={[styles.headerTitle, stylesHook.headerTitle]}>{headerTitle}</Text>}
+              {headerSubtitle && <Text style={[styles.headerSubtitle, stylesHook.headerTitle]}>{headerSubtitle}</Text>}
+            </View>
+            {renderTopRightButton()}
+          </View>
+        );
+      }
+
       return (
         <View style={styles.headerContainer}>
           <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
@@ -133,7 +178,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     return (
       <TrueSheet
         ref={trueSheetRef}
-        cornerRadius={24}
         sizes={sizes}
         onDismiss={onClose}
         onPresent={onPresent}
@@ -144,7 +188,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       >
         {renderHeader()}
         <View style={styles.childrenContainer}>{children}</View>
-        {Platform.OS === 'android' && FooterComponent}
       </TrueSheet>
     );
   },
@@ -160,9 +203,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingVertical: 8,
     minHeight: 22,
   },
   headerContent: {
@@ -170,8 +211,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minHeight: 22,
   },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    width: 10,
+    height: 10,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+  },
   topRightButton: {
-    backgroundColor: PlatformColor('systemGray2'),
     justifyContent: 'center',
     alignItems: 'center',
     width: 30,
@@ -185,5 +236,6 @@ const styles = StyleSheet.create({
   },
   childrenContainer: {
     marginTop: 0,
+    width: '100%',
   },
 });

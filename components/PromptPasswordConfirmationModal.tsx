@@ -392,7 +392,6 @@ const styles = StyleSheet.create({
     width: '100%', // Ensure modal content takes full width
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 450,
   },
   feeModalFooter: {
     paddingBottom: 36,
