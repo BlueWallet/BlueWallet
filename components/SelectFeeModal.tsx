@@ -148,8 +148,8 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       }
       const fee = Number(customFee) < 1 ? '1' : customFee;
       setCustomFee(fee);
-      await customModalRef.current?.dismiss();
       await feeModalRef.current?.dismiss();
+      await customModalRef.current?.dismiss();
     };
 
     const handleCancel = async () => {
