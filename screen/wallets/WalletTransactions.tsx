@@ -40,6 +40,7 @@ import { WalletTransactionsStatus } from '../../components/Context/StorageProvid
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { Transaction, TWallet } from '../../class/wallets/types';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -274,7 +275,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     );
   };
 
-  const onWalletSelect = async (selectedWallet: any) => {
+  const onWalletSelect = async (selectedWallet: TWallet) => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
         walletType: wallet?.type,
@@ -315,7 +316,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     });
   };
 
-  const renderItem = (item: { item: any }) => (
+  const renderItem = (item: { item: Transaction }) => (
     <TransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} walletID={walletID} />
   );
 
