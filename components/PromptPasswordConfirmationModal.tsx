@@ -248,7 +248,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       opacity: fadeOutAnimation,
       transform: [{ scale: scaleAnimation }],
       width: '100%',
-      paddingTop: 20,
     };
 
     const onModalDismiss = () => {
@@ -394,12 +393,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   minHeight: {
-    minHeight: 320,
+    minHeight: 350,
   },
   feeModalFooter: {
     paddingHorizontal: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   feeModalFooterSpacing: {
     paddingHorizontal: 24,
