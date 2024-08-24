@@ -25,7 +25,6 @@ import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/details';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
-import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
@@ -63,15 +62,12 @@ import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
-import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { RouteProp } from '@react-navigation/native';
-import { DetailViewStackParamList } from './DetailViewStackParamList';
+import getWalletTransactionsOptions, { WalletTransactionsRouteProps } from './helpers/getWalletTransactionsOptions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import WalletTransactions from '../screen/wallets/WalletTransactions';
 
-type walletTransactionsRouteProp = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
-
-const walletTransactionsOptions = ({ route }: { route: walletTransactionsRouteProp }) => getWalletTransactionsOptions({ route });
+export const walletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }) => getWalletTransactionsOptions({ route });
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
