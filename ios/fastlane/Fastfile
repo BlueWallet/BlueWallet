@@ -48,23 +48,6 @@ platform :ios do
       )
     end
   end
-
-  def retry_on_failure(max_attempts = 3, wait_time = 180)
-    attempts = 0
-    begin
-      yield
-    rescue => exception
-      attempts += 1
-      if attempts < max_attempts
-        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Retrying in #{wait_time} seconds...")
-        sleep(wait_time)
-        retry
-      else
-        UI.error("Failed after #{attempts} attempts. Trying manual git clone...")
-        perform_manual_git_clone
-      end
-    end
-  end
   
   def perform_manual_git_clone
     git_url = ENV["GIT_URL"]
@@ -74,20 +57,21 @@ platform :ios do
     begin
       sh(git_command)
       UI.message("Manual git clone succeeded.")
-      # Assuming match will use the cloned repo path
+      # Set the cloned path for match to use
       ENV["MATCH_GIT_CLONE_PATH"] = clone_dir
+      return true
     rescue => exception
       UI.error("Manual git clone failed with error: #{exception.message}")
-      raise exception
+      return false
     end
   end
   
-  desc "Setup provisioning profiles for Mac Catalyst with retry and fallback"
+  desc "Setup provisioning profiles for Mac Catalyst with immediate fallback"
   lane :setup_catalyst_provisioning_profiles do
     UI.message("Setting up provisioning profiles for Mac Catalyst...")
     
     app_identifiers.each do |app_identifier|
-      retry_on_failure do
+      begin
         match(
           type: "appstore",
           platform: "macos", # Use macos for Catalyst builds
@@ -100,6 +84,27 @@ platform :ios do
           git_url: ENV["GIT_URL"],
           git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
         )
+      rescue => exception
+        UI.error("Match failed with error: #{exception.message}. Attempting manual git clone...")
+  
+        if perform_manual_git_clone
+          UI.message("Retrying match with the manually cloned repository...")
+          match(
+            type: "appstore",
+            platform: "macos", # Use macos for Catalyst builds
+            app_identifier: app_identifier,
+            team_id: ENV["ITC_TEAM_ID"],
+            team_name: ENV["ITC_TEAM_NAME"],
+            readonly: true,
+            keychain_name: "temp_keychain",
+            keychain_password: ENV["KEYCHAIN_PASSWORD"],
+            git_url: ENV["MATCH_GIT_CLONE_PATH"], # Use the cloned repo path
+            git_branch: "master" # Assuming the branch is master; adjust if necessary
+          )
+        else
+          UI.error("Both match and manual git clone failed. Aborting.")
+          raise exception
+        end
       end
     end
   end
