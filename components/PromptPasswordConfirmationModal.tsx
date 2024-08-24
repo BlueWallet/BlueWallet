@@ -259,18 +259,24 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     return (
       <BottomModal
         ref={modalRef}
-        showCloseButton={showExplanation}
         onDismiss={onModalDismiss}
         grabber={false}
+        onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
-        contentContainerStyle={styles.modalContent}
         footer={
           !isSuccess ? (
-            showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? null : (
+            showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
+              <Animated.View style={[{ opacity: explanationOpacity }, styles.feeModalFooterSpacing]}>
+                <SecondButton
+                  title={loc.settings.i_understand}
+                  onPress={handleTransitionToCreatePassword}
+                  disabled={isLoading}
+                  testID="IUnderstandButton"
+                />
+              </Animated.View>
+            ) : (
               <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
                 <View style={styles.feeModalFooter}>
-                  <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
-                  <View style={styles.feeModalFooterSpacing} />
                   <SecondButton
                     title={isLoading ? '' : loc._.ok}
                     onPress={handleSubmit}
@@ -285,7 +291,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         }
       >
         {!isSuccess && (
-          <Animated.View style={animatedViewStyle}>
+          <Animated.View style={[animatedViewStyle, styles.minHeight]}>
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
@@ -296,12 +302,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                   {loc.settings.encrypt_storage_explanation_description_line2}
                 </Text>
                 <View style={styles.feeModalFooter} />
-                <SecondButton
-                  title={loc.settings.i_understand}
-                  onPress={handleTransitionToCreatePassword}
-                  disabled={isLoading}
-                  testID="IUnderstandButton"
-                />
               </Animated.View>
             )}
             {(modalType === MODAL_TYPES.ENTER_PASSWORD ||
@@ -393,9 +393,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  minHeight: {
+    minHeight: 320,
+  },
   feeModalFooter: {
-    paddingBottom: 36,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },

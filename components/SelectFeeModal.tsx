@@ -148,8 +148,8 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       }
       const fee = Number(customFee) < 1 ? '1' : customFee;
       setCustomFee(fee);
-      await feeModalRef.current?.dismiss();
       await customModalRef.current?.dismiss();
+      await feeModalRef.current?.dismiss();
     };
 
     const handleCancel = async () => {
@@ -171,8 +171,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       <BottomModal
         ref={feeModalRef}
         backgroundColor={colors.modal}
-        contentContainerStyle={styles.modalContent}
-        footerDefaultMargins
         footer={
           <View style={styles.feeModalFooter}>
             <TouchableOpacity testID="feeCustom" accessibilityRole="button" onPress={handlePressCustom}>
@@ -213,7 +211,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
           blurTint="regular"
           onCloseModalPressed={handleCancel}
           backgroundColor={colors.modal}
-          contentContainerStyle={styles.modalContent}
           footer={
             <View style={[styles.feeModalFooter, styles.feeModalFooterSpacing]}>
               <SecondButton title={loc._.ok} onPress={handleCustomFeeSubmit} disabled={!customFee || Number(customFee) <= 0} />
@@ -258,9 +255,6 @@ const styles = StyleSheet.create({
     left: 8,
     bottom: 0,
     right: 8,
-  },
-  modalContent: {
-    margin: 22,
   },
   optionsContent: {
     padding: 22,
