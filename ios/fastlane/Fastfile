@@ -48,7 +48,7 @@ platform :ios do
       )
     end
   end
-  
+
   def perform_manual_git_clone
     git_url = ENV["GIT_URL"]
     clone_dir = Dir.mktmpdir
@@ -66,48 +66,55 @@ platform :ios do
     end
   end
   
-  desc "Setup provisioning profiles for Mac Catalyst with immediate fallback"
-  lane :setup_catalyst_provisioning_profiles do
-    UI.message("Setting up provisioning profiles for Mac Catalyst...")
-    
-    app_identifiers.each do |app_identifier|
-      begin
-        match(
-          type: "appstore",
-          platform: "macos", # Use macos for Catalyst builds
-          app_identifier: app_identifier,
-          team_id: ENV["ITC_TEAM_ID"],
-          team_name: ENV["ITC_TEAM_NAME"],
-          readonly: true,
-          keychain_name: "temp_keychain",
-          keychain_password: ENV["KEYCHAIN_PASSWORD"],
-          git_url: ENV["GIT_URL"],
-          git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
-        )
-      rescue => exception
-        UI.error("Match failed with error: #{exception.message}. Attempting manual git clone...")
-  
-        if perform_manual_git_clone
-          UI.message("Retrying match with the manually cloned repository...")
+desc "Setup provisioning profiles for Mac Catalyst with error handling"
+lane :setup_catalyst_provisioning_profiles do
+  UI.message("Setting up provisioning profiles for Mac Catalyst...")
+
+  app_identifiers.each do |app_identifier|
+    begin
+      match(
+        type: "appstore",
+        platform: "macos", # Use macos for Catalyst builds
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
+        git_url: ENV["GIT_URL"],
+        git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
+      )
+    rescue => exception
+      UI.error("Match failed: #{exception.message}")
+      
+      # Check if it's a specific error about the missing provisioning profile
+      if exception.message.include?("No matching provisioning profiles found")
+        UI.important("It appears that the required provisioning profile is missing.")
+        
+        # Optionally, try without readonly mode if permitted
+        if UI.confirm("Do you want to retry without `readonly` mode to allow profile creation?")
           match(
             type: "appstore",
-            platform: "macos", # Use macos for Catalyst builds
+            platform: "macos",
             app_identifier: app_identifier,
             team_id: ENV["ITC_TEAM_ID"],
             team_name: ENV["ITC_TEAM_NAME"],
-            readonly: true,
+            readonly: false, # Disabling readonly to allow profile creation
             keychain_name: "temp_keychain",
             keychain_password: ENV["KEYCHAIN_PASSWORD"],
-            git_url: ENV["MATCH_GIT_CLONE_PATH"], # Use the cloned repo path
-            git_branch: "master" # Assuming the branch is master; adjust if necessary
+            git_url: ENV["GIT_URL"],
+            git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
           )
         else
-          UI.error("Both match and manual git clone failed. Aborting.")
+          UI.error("The provisioning profile is missing, and `readonly` mode prevents automatic creation. Aborting.")
           raise exception
         end
+      else
+        raise exception
       end
     end
   end
+end
 
   desc "Increment build number"
   lane :increment_build_number_lane do
