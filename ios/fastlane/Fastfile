@@ -49,22 +49,58 @@ platform :ios do
     end
   end
 
-  desc "Setup provisioning profiles for Mac Catalyst"
+  def retry_on_failure(max_attempts = 3, wait_time = 180)
+    attempts = 0
+    begin
+      yield
+    rescue => exception
+      attempts += 1
+      if attempts < max_attempts
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Retrying in #{wait_time} seconds...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{attempts} attempts. Trying manual git clone...")
+        perform_manual_git_clone
+      end
+    end
+  end
+  
+  def perform_manual_git_clone
+    git_url = ENV["GIT_URL"]
+    clone_dir = Dir.mktmpdir
+    git_command = "git clone #{git_url} #{clone_dir} -c http.extraheader='Authorization: Basic #{Base64.strict_encode64(ENV['GIT_ACCESS_TOKEN'] + ':x-oauth-basic')}'"
+  
+    begin
+      sh(git_command)
+      UI.message("Manual git clone succeeded.")
+      # Assuming match will use the cloned repo path
+      ENV["MATCH_GIT_CLONE_PATH"] = clone_dir
+    rescue => exception
+      UI.error("Manual git clone failed with error: #{exception.message}")
+      raise exception
+    end
+  end
+  
+  desc "Setup provisioning profiles for Mac Catalyst with retry and fallback"
   lane :setup_catalyst_provisioning_profiles do
     UI.message("Setting up provisioning profiles for Mac Catalyst...")
+    
     app_identifiers.each do |app_identifier|
-      match(
-        type: "appstore",
-        platform: "macos",
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"],
-        git_url: ENV["GIT_URL"],
-        git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
-      )
+      retry_on_failure do
+        match(
+          type: "appstore",
+          platform: "macos", # Use macos for Catalyst builds
+          app_identifier: app_identifier,
+          team_id: ENV["ITC_TEAM_ID"],
+          team_name: ENV["ITC_TEAM_NAME"],
+          readonly: true,
+          keychain_name: "temp_keychain",
+          keychain_password: ENV["KEYCHAIN_PASSWORD"],
+          git_url: ENV["GIT_URL"],
+          git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
+        )
+      end
     end
   end
 
