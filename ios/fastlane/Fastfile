@@ -55,13 +55,15 @@ platform :ios do
     app_identifiers.each do |app_identifier|
       match(
         type: "appstore",
-        platform: "macos", # Use macos for Catalyst builds
+        platform: "macos",
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
         readonly: true,
         keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
+        git_url: ENV["GIT_URL"],
+        git_basic_authorization: "Basic " + Base64.strict_encode64("#{ENV['GIT_ACCESS_TOKEN']}:x-oauth-basic")
       )
     end
   end
