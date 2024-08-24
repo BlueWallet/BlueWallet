@@ -5,7 +5,7 @@ import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Vie
 import { Icon } from '@rneui/themed';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
@@ -18,6 +18,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
@@ -207,8 +208,9 @@ const LnurlPay = () => {
               onChangeText={setAmount}
               disabled={payload && payload.fixed}
               unit={unit}
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
+            <DismissKeyboardInputAccessory />
             <BlueText style={styles.alignSelfCenter}>
               {loc.formatString(loc.lndViewInvoice.please_pay_between_and, {
                 min: formatBalance(payload?.min, unit),
