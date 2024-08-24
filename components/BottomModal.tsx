@@ -87,8 +87,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     }));
 
     const dismiss = async () => {
-      await onCloseModalPressed?.();
-      await trueSheetRef.current?.dismiss();
+      try {
+        await onCloseModalPressed?.();
+        await trueSheetRef.current?.dismiss();
+      } catch (error) {
+        console.error('Error during dismiss:', error);
+      }
     };
 
     const renderTopRightButton = () => {
