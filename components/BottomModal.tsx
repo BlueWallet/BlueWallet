@@ -184,6 +184,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
         FooterComponent={FooterComponent}
+        keyboardMode="pan"
         {...props}
       >
         {renderHeader()}
