@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, ReactNode } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
 import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -173,7 +173,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       return undefined;
     };
 
-    const FooterComponent = renderFooter();
+    const FooterComponent = Platform.OS !== 'android' && renderFooter();
 
     return (
       <TrueSheet
@@ -183,12 +183,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-        FooterComponent={FooterComponent}
-        keyboardMode="pan"
+        FooterComponent={FooterComponent as ReactElement}
         {...props}
       >
         {renderHeader()}
         <View style={styles.childrenContainer}>{children}</View>
+        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
       </TrueSheet>
     );
   },
