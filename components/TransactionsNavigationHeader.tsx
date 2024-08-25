@@ -16,24 +16,13 @@ import ToolTipMenu from './TooltipMenu';
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
   onWalletUnitChange?: (wallet: any) => void;
-  navigation: {
-    navigate: (route: string, params?: any) => void;
-    goBack: () => void;
-  };
   onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
-  actionKeys: {
-    CopyToClipboard: 'copyToClipboard';
-    WalletBalanceVisibility: 'walletBalanceVisibility';
-    Refill: 'refill';
-    RefillWithExternalWallet: 'qrcode';
-  };
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
   wallet: initialWallet,
   onWalletUnitChange,
-  navigation,
   onManageFundsPressed,
   onWalletBalanceVisibilityChange,
 }) => {
