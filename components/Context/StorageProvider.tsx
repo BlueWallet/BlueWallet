@@ -128,37 +128,62 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const refreshAllWalletTransactions = useCallback(
     async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
-      InteractionManager.runAfterInteractions(async () => {
-        let noErr = true;
+      const TIMEOUT_DURATION = 30000;
+
+      const timeoutPromise = new Promise<never>((_resolve, reject) =>
+        setTimeout(() => {
+          reject(new Error('refreshAllWalletTransactions: Timeout reached'));
+        }, TIMEOUT_DURATION),
+      );
+
+      const mainLogicPromise = new Promise<void>((resolve, reject) => {
         try {
-          await BlueElectrum.waitTillConnected();
-          if (showUpdateStatusIndicator) {
-            setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
-          }
-          const paymentCodesStart = Date.now();
-          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-          const paymentCodesEnd = Date.now();
-          console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
-          const balanceStart = +new Date();
-          await fetchWalletBalances(lastSnappedTo);
-          const balanceEnd = +new Date();
-          console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          const start = +new Date();
-          await fetchWalletTransactions(lastSnappedTo);
-          const end = +new Date();
-          console.log('fetch tx took', (end - start) / 1000, 'sec');
+          InteractionManager.runAfterInteractions(async () => {
+            let noErr = true;
+            try {
+              await BlueElectrum.waitTillConnected();
+              if (showUpdateStatusIndicator) {
+                setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+              }
+              const paymentCodesStart = Date.now();
+              await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+              const paymentCodesEnd = Date.now();
+              console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
+              const balanceStart = +new Date();
+              await fetchWalletBalances(lastSnappedTo);
+              const balanceEnd = +new Date();
+              console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+              const start = +new Date();
+              await fetchWalletTransactions(lastSnappedTo);
+              const end = +new Date();
+              console.log('fetch tx took', (end - start) / 1000, 'sec');
+            } catch (err) {
+              noErr = false;
+              console.warn(err);
+              reject(err);
+            } finally {
+              setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+            }
+            if (noErr) await saveToDisk(); // caching
+            resolve();
+          });
         } catch (err) {
-          noErr = false;
-          console.warn(err);
+          reject(err);
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
-        if (noErr) await saveToDisk(); // caching
       });
+
+      try {
+        await Promise.race([mainLogicPromise, timeoutPromise]);
+      } catch (err) {
+        console.error('Error in refreshAllWalletTransactions:', err);
+      } finally {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      }
     },
     [fetchWalletBalances, fetchWalletTransactions, saveToDisk],
   );
-
   const fetchAndSaveWalletTransactions = useCallback(
     async (walletID: string) => {
       InteractionManager.runAfterInteractions(async () => {
