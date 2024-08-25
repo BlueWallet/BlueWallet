@@ -61,7 +61,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
   const nStylesHooks = StyleSheet.create({
     container: isLargeScreen
       ? {
@@ -169,7 +169,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-    const isLargeScreen = useIsLargeScreen();
+    const { isLargeScreen } = useIsLargeScreen();
 
     const onPressedIn = useCallback(() => {
       Animated.spring(scaleValue, {
