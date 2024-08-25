@@ -7,6 +7,10 @@ const keys = {
   OpenInBlockExplorer: 'open_in_blockExplorer',
   CopyAmount: 'copyAmount',
   CopyNote: 'copyNote',
+  HideBalance: 'hideBalance',
+  ViewInBitcoin: 'viewInBitcoin',
+  ViewInSats: 'viewInSats',
+  ViewInFiat: 'viewInFiat',
 };
 
 const icons = {
@@ -24,6 +28,12 @@ const icons = {
   },
   Note: {
     iconValue: 'note.text',
+  },
+  ViewInBitcoin: {
+    iconValue: 'bitcoinsign.circle',
+  },
+  ViewInFiat: {
+    iconValue: 'coloncurrencysign.circle',
   },
 };
 
@@ -57,5 +67,26 @@ export const CommonToolTipActions = {
     id: keys.CopyNote,
     text: loc.transactions.details_copy_note,
     icon: icons.Clipboard,
+  },
+  HideBalance: {
+    id: keys.HideBalance,
+    text: loc.transactions.details_balance_hide,
+    icon: icons.EyeSlash,
+  },
+  ViewInFiat: {
+    id: keys.ViewInFiat,
+    text: loc.total_balance_view.view_in_fiat,
+    icon: icons.ViewInFiat,
+  },
+
+  ViewInSats: {
+    id: keys.ViewInSats,
+    text: loc.total_balance_view.view_in_sats,
+    icon: icons.ViewInBitcoin,
+  },
+  ViewInBitcoin: {
+    id: keys.ViewInBitcoin,
+    text: loc.total_balance_view.view_in_bitcoin,
+    icon: icons.ViewInBitcoin,
   },
 };
