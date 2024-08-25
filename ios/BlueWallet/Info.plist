@@ -384,5 +384,9 @@
 		<key>apiKey</key>
 		<string>17ba9059f676f1cc4f45d98182388b01</string>
 	</dict>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+<false/>
+<key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>
+<false/>
 </dict>
 </plist>

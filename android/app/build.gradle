@@ -83,6 +83,8 @@ android {
         versionName "7.0.3"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        firebaseMessagingAutoInitEnabled false
+        firebaseAnalyticsCollectionEnabled false
     }
 
     lintOptions {
