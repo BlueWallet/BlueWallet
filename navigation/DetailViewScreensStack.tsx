@@ -25,7 +25,6 @@ import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/details';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
-import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
@@ -64,14 +63,9 @@ import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { RouteProp } from '@react-navigation/native';
-import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
-
-type walletTransactionsRouteProp = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
-
-const walletTransactionsOptions = ({ route }: { route: walletTransactionsRouteProp }) => getWalletTransactionsOptions({ route });
+import WalletTransactions from '../screen/wallets/WalletTransactions';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -121,7 +115,7 @@ const DetailViewStackScreensStack = () => {
       screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
     >
       <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={walletTransactionsOptions} />
+      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
       <DetailViewStack.Screen
         name="WalletDetails"
         component={WalletDetails}
