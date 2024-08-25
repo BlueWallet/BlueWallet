@@ -296,14 +296,18 @@ const WalletsList: React.FC = () => {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return !isLargeScreen && isTotalBalanceEnabled ? <TotalWalletsBalance /> : null;
+          return !isLargeScreen && isTotalBalanceEnabled ? (
+            <View style={stylesHook.walletsListWrapper}>
+              <TotalWalletsBalance />
+            </View>
+          ) : null;
         }
 
         default:
           return null;
       }
     },
-    [isLargeScreen, isTotalBalanceEnabled, renderListHeaderComponent],
+    [isLargeScreen, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
   );
 
   const renderSectionFooter = useCallback(
