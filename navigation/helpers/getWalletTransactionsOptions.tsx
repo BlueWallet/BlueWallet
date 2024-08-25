@@ -17,6 +17,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
       walletID,
     });
   };
+
   const RightButton = (
     <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
       <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />

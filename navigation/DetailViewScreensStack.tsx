@@ -62,12 +62,10 @@ import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
-import getWalletTransactionsOptions, { WalletTransactionsRouteProps } from './helpers/getWalletTransactionsOptions';
+import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
-
-export const walletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }) => getWalletTransactionsOptions({ route });
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -117,7 +115,7 @@ const DetailViewStackScreensStack = () => {
       screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
     >
       <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={walletTransactionsOptions} />
+      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
       <DetailViewStack.Screen
         name="WalletDetails"
         component={WalletDetails}

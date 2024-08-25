@@ -32,7 +32,6 @@ interface TransactionListItemProps {
   searchQuery?: string;
   style?: ViewStyle;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
-  timeElapsed?: number;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
