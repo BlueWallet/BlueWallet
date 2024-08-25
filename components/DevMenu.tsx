@@ -8,8 +8,9 @@ import { TWallet } from '../class/wallets/types';
 
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
-  const randomWord = words[Math.floor(Math.random() * words.length)];
-  return `[Developer] ${randomWord}`;
+  const firstWord = words[0];
+  const lastWord = words[words.length - 1];
+  return `[Developer] ${firstWord} ${lastWord}`;
 };
 
 const showAlertWithWalletOptions = (
