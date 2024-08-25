@@ -17,7 +17,7 @@ const MasterView = () => {
           <CompanionDelegates />
         </Suspense>
       )}
-      <DevMenu />
+      {__DEV__ && <DevMenu />}
     </>
   );
 };
