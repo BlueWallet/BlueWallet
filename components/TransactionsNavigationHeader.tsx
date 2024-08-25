@@ -16,24 +16,13 @@ import ToolTipMenu from './TooltipMenu';
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
   onWalletUnitChange?: (wallet: any) => void;
-  navigation: {
-    navigate: (route: string, params?: any) => void;
-    goBack: () => void;
-  };
   onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
-  actionKeys: {
-    CopyToClipboard: 'copyToClipboard';
-    WalletBalanceVisibility: 'walletBalanceVisibility';
-    Refill: 'refill';
-    RefillWithExternalWallet: 'qrcode';
-  };
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
   wallet: initialWallet,
   onWalletUnitChange,
-  navigation,
   onManageFundsPressed,
   onWalletBalanceVisibilityChange,
 }) => {
@@ -175,25 +164,24 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ];
   }, [wallet.hideBalance]);
 
+  const imageSource = useMemo(() => {
+    switch (wallet.type) {
+      case LightningCustodianWallet.type:
+        return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+      case MultisigHDWallet.type:
+        return I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+      default:
+        return I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+    }
+  }, [wallet.type]);
+
   return (
     <LinearGradient
       colors={WalletGradient.gradientsFor(wallet.type)}
       style={styles.lineaderGradient}
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
-      <Image
-        source={(() => {
-          switch (wallet.type) {
-            case LightningCustodianWallet.type:
-              return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-            case MultisigHDWallet.type:
-              return I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-            default:
-              return I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-          }
-        })()}
-        style={styles.chainIcon}
-      />
+      <Image source={imageSource} defaultSource={imageSource} style={styles.chainIcon} />
 
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
         {wallet.getLabel()}

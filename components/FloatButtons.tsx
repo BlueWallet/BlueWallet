@@ -130,11 +130,12 @@ interface FButtonProps {
   first?: boolean;
   last?: boolean;
   disabled?: boolean;
+  testID?: string;
   onPress: () => void;
   onLongPress?: () => void;
 }
 
-export const FButton = ({ text, icon, width, first, last, ...props }: FButtonProps) => {
+export const FButton = ({ text, icon, width, first, last, testID, ...props }: FButtonProps) => {
   const { colors } = useTheme();
   const bStylesHook = StyleSheet.create({
     root: {
@@ -163,6 +164,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
     <TouchableOpacity
       accessibilityLabel={text}
       accessibilityRole="button"
+      testID={testID}
       style={[bStyles.root, bStylesHook.root, style, additionalStyles]}
       {...props}
     >
