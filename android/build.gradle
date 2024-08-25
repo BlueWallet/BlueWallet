@@ -68,8 +68,6 @@ subprojects {
                  defaultConfig {
                     minSdkVersion 24
                 }
-                firebaseMessagingAutoInitEnabled false
-                firebaseAnalyticsCollectionEnabled false
             }
         }
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
