@@ -78,7 +78,7 @@
     "@bugsnag/react-native": "7.25.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.0",
-    "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726",
+    "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#839f2966cee77c0ad99d09609dadb61a338e7f54",
     "@ngraveio/bc-ur": "1.1.13",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.24.0",
