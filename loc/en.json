@@ -383,6 +383,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
+    "total_balance": "Total Balance",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "{bytes} bytes of entropy",
     "add_entropy_generated": "{gen} bytes of generated entropy",
@@ -482,6 +483,13 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, memos"
+  },
+  "total_balance_view": {
+    "view_in_bitcoin": "View in Bitcoin",
+    "view_in_sats": "View in sats",
+    "view_in_fiat": "View in {currency}",
+    "title": "Total Balance",
+    "explanation": "View the total balance of all your wallets in the overview screen."
   },
   "multisig": {
     "multisig_vault": "Vault",

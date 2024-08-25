@@ -55,6 +55,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
 import SendAmountWarning, { SendAmountWarningHandle } from '../../components/SendAmountWarningModal';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -152,25 +153,16 @@ const SendDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
 
-  // keyboad effects
-  useEffect(() => {
-    const _keyboardDidShow = () => {
+  useKeyboard({
+    onKeyboardDidShow: () => {
       setWalletSelectionOrCoinsSelectedHidden(true);
       setIsAmountToolbarVisibleForAndroid(true);
-    };
-
-    const _keyboardDidHide = () => {
+    },
+    onKeyboardDidHide: () => {
       setWalletSelectionOrCoinsSelectedHidden(false);
       setIsAmountToolbarVisibleForAndroid(false);
-    };
-
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
+    },
+  });
 
   useEffect(() => {
     // decode route params
