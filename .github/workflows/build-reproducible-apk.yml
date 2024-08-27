@@ -55,15 +55,20 @@ jobs:
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh reproducible
 
-      - name: List APKs
-        run: ls -la ./android/app/build/outputs/apk/reproducible/
+      - name: List All APK Outputs
+        run: ls -Rla ./android/app/build/outputs/apk/
 
       - name: Calculate APK Hash
         run: |
           REPRODUCIBLE_APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk"
-          SHA256_HASH=$(shasum -a 256 $REPRODUCIBLE_APK_PATH | awk '{print $1}')
-          echo "SHA256 Hash: $SHA256_HASH"
-          echo $SHA256_HASH > ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+          if [ -f "$REPRODUCIBLE_APK_PATH" ]; then
+            SHA256_HASH=$(shasum -a 256 "$REPRODUCIBLE_APK_PATH" | awk '{print $1}')
+            echo "SHA256 Hash: $SHA256_HASH"
+            echo "$SHA256_HASH" > "./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt"
+          else
+            echo "APK not found: $REPRODUCIBLE_APK_PATH"
+            exit 1
+          fi
 
       - name: Upload Reproducible APK
         uses: actions/upload-artifact@v2
