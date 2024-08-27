@@ -18,7 +18,7 @@ if [ "$BUILD_TYPE" == "release" ]; then
 
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
-    APK_FILENAME="app-$BUILD_TYPE-unsigned.apk"
+    APK_FILENAME="app-$BUILD_TYPE.apk"  # Adjusted filename
     APK_PATH="$APK_OUTPUT_DIR/$APK_FILENAME"
     FINAL_APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}(${BUILD_NUMBER}).apk"
     BUILD_COMMAND="./gradlew assembleReproducible"
@@ -57,7 +57,7 @@ fi
 
 # Sign the APK
 echo "Signing $BUILD_TYPE APK..."
-"$APKSIGNER_PATH" sign --ks "$FINAL_APK_PATH" --ks-pass=pass:"$KEYSTORE_PASSWORD" "$FINAL_APK_PATH"
+"$APKSIGNER_PATH" sign --ks "./keystore/reproducible.keystore" --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible "$FINAL_APK_PATH"
 
 echo "APK signing complete."
 echo "$BUILD_TYPE APK: $FINAL_APK_PATH"
