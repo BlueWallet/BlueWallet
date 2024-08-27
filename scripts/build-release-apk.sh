@@ -2,6 +2,8 @@
 
 # expects an optional parameter to specify the build type: "release" or "reproducible"
 # if no parameter is provided, defaults to "release"
+# For release builds, the BUILD_NUMBER should be passed as an environment variable.
+# For reproducible builds, the BUILD_NUMBER is extracted from the build.gradle file.
 
 BUILD_TYPE="${1:-release}"
 echo "BUILD_TYPE: $BUILD_TYPE"
@@ -33,6 +35,9 @@ if [ "$BUILD_TYPE" == "release" ]; then
 
     BUILD_COMMAND="./gradlew assembleRelease"
     echo "BUILD_COMMAND: $BUILD_COMMAND"
+
+    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD \"$FINAL_APK_PATH\""
+    echo "SIGN_COMMAND: $SIGN_COMMAND"
 
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     # Extract versionCode (BUILD_NUMBER) from build.gradle
@@ -74,6 +79,7 @@ ls -la "$APK_OUTPUT_DIR"
 
 # Verify that the APK was created before renaming
 if [ -f "$APK_OUTPUT_DIR/$APK_FILENAME" ]; then
+    echo "File found at: $APK_OUTPUT_DIR/$APK_FILENAME"
     mv "$APK_OUTPUT_DIR/$APK_FILENAME" "$FINAL_APK_PATH"
     echo "APK moved to FINAL_APK_PATH: $FINAL_APK_PATH"
 else
@@ -82,11 +88,10 @@ else
     exit 1
 fi
 
-# Sign the APK (only for release builds)
+# Sign the APK (only for release)
 if [ "$BUILD_TYPE" == "release" ]; then
     echo "Signing $BUILD_TYPE APK..."
-    "$APKSIGNER_PATH" sign --ks "$FINAL_APK_PATH" --ks-pass=pass:$KEYSTORE_PASSWORD "$FINAL_APK_PATH"
-
+    "$APKSIGNER_PATH" sign --ks "$FINAL_APK_PATH" --ks-pass=pass:$KEYSTORE_PASSWORD
     if [ $? -eq 0 ]; then
         echo "APK signing complete."
         echo "$BUILD_TYPE APK: $FINAL_APK_PATH"
