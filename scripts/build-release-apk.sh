@@ -6,9 +6,6 @@
 
 BUILD_TYPE="${1:-release}"
 
-# Set default BUILD_NUMBER if not provided
-BUILD_NUMBER="${BUILD_NUMBER:-1}"
-
 if [ "$BUILD_TYPE" == "release" ]; then
     # Convert the release keystore from hex
     echo "$KEYSTORE_FILE_HEX" > bluewallet-release-key.keystore.hex
@@ -38,11 +35,9 @@ fi
 
 cd android
 
-# Use the BUILD_NUMBER environment variable set in the GitHub Actions workflow
-sed -i'.original' "s/versionCode 1/versionCode ${BUILD_NUMBER}/g" app/build.gradle
-
-# Extract versionName from build.gradle
+# Extract versionName and versionCode (BUILD_NUMBER) from build.gradle
 VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
+BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
 
 # Find apksigner tool
 echo "Locating apksigner..."
