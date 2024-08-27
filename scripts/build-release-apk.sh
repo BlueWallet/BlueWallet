@@ -6,6 +6,9 @@
 
 BUILD_TYPE="${1:-release}"
 
+# Set default BUILD_NUMBER if not provided
+BUILD_NUMBER="${BUILD_NUMBER:-1}"
+
 if [ "$BUILD_TYPE" == "release" ]; then
     # Convert the release keystore from hex
     echo "$KEYSTORE_FILE_HEX" > bluewallet-release-key.keystore.hex
@@ -22,7 +25,7 @@ elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_PATH="$APK_OUTPUT_DIR/$APK_FILENAME"
     FINAL_APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}(${BUILD_NUMBER}).apk"
     BUILD_COMMAND="./gradlew assembleReproducible"
-    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./reproducible.keystore --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$FINAL_APK_PATH\""
+    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./keystore/reproducible.keystore --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$FINAL_APK_PATH\""
 
 else
     echo "Invalid build type specified. Use 'release' or 'reproducible'."
@@ -57,7 +60,7 @@ fi
 
 # Sign the APK
 echo "Signing $BUILD_TYPE APK..."
-"$APKSIGNER_PATH" sign --ks "./keystore/reproducible.keystore" --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible "$FINAL_APK_PATH"
+"$APKSIGNER_PATH" sign --ks "$FINAL_APK_PATH" --ks-pass=pass:"$KEYSTORE_PASSWORD" "$FINAL_APK_PATH"
 
 echo "APK signing complete."
 echo "$BUILD_TYPE APK: $FINAL_APK_PATH"
