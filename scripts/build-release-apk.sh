@@ -48,7 +48,7 @@ mv ./app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE-unsigned.apk "$APK_PATH"
 
 # Sign the APK
 echo "Signing $BUILD_TYPE APK..."
-$APKSIGNER_PATH sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "$APK_PATH"
+$APKSIGNER_PATH sign --ks ./reproducible.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "$APK_PATH"
 
 echo "APK signing complete."
 echo "$BUILD_TYPE APK: $APK_PATH"
