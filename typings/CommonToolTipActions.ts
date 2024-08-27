@@ -1,6 +1,24 @@
 import loc from '../loc';
 
-const keys = {
+// Define the type for the keys object
+interface Keys {
+  CopyTXID: string;
+  CopyBlockExplorerLink: string;
+  ExpandNote: string;
+  OpenInBlockExplorer: string;
+  CopyAmount: string;
+  CopyNote: string;
+  HideBalance: string;
+  ViewInBitcoin: string;
+  ViewInSats: string;
+  ViewInFiat: string;
+  Sent: string;
+  Received: string;
+  Pending: string;
+  MustHaveMemo: string;
+}
+
+const keys: Keys = {
   CopyTXID: 'copyTX_ID',
   CopyBlockExplorerLink: 'copy_blockExplorer',
   ExpandNote: 'expandNote',
@@ -11,9 +29,18 @@ const keys = {
   ViewInBitcoin: 'viewInBitcoin',
   ViewInSats: 'viewInSats',
   ViewInFiat: 'viewInFiat',
+  Sent: 'sent',
+  Received: 'received',
+  Pending: 'pending',
+  MustHaveMemo: 'containsMemo',
 };
 
-const icons = {
+// Define the type for icon objects
+interface Icon {
+  iconValue: string;
+}
+
+const icons: Record<string, Icon> = {
   Eye: {
     iconValue: 'eye',
   },
@@ -29,6 +56,9 @@ const icons = {
   Note: {
     iconValue: 'note.text',
   },
+  ContainsNote: {
+    iconValue: 'note.text',
+  },
   ViewInBitcoin: {
     iconValue: 'bitcoinsign.circle',
   },
@@ -37,7 +67,18 @@ const icons = {
   },
 };
 
-export const CommonToolTipActions = {
+// Define the type for a tooltip action
+interface TooltipAction {
+  id: string;
+  text: string;
+  icon?: Icon;
+  menuState?: 'on' | 'off';
+}
+
+// Define the type for the CommonToolTipActions object
+type CommonToolTipActionsType = Record<string, TooltipAction>;
+
+export const CommonToolTipActions: CommonToolTipActionsType = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -88,5 +129,25 @@ export const CommonToolTipActions = {
     id: keys.ViewInBitcoin,
     text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
+  },
+  Sent: {
+    id: keys.Sent,
+    text: loc.send.sent,
+    menuState: 'off',
+  },
+  Received: {
+    id: keys.Received,
+    text: loc.transactions.details_received,
+    menuState: 'off',
+  },
+  Pending: {
+    id: keys.Pending,
+    text: loc.transactions.pending,
+    menuState: 'off',
+  },
+  MustHaveMemo: {
+    id: keys.MustHaveMemo,
+    text: loc.transactions.must_have_memo,
+    menuState: 'off',
   },
 };

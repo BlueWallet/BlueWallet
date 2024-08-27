@@ -1,5 +1,5 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -27,19 +27,21 @@ import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { Transaction, TWallet } from '../../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import ActionSheet from '../ActionSheet';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -70,7 +72,45 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     list: {
       backgroundColor: colors.background,
     },
+    filterButton: {
+      borderColor: colors.foregroundColor,
+    },
   });
+
+  const determineTransactionTypeAndAvatar = (
+    item: Transaction & LightningTransaction,
+    activeFilters: Array<{ id: string; menuState: string }>,
+  ) => {
+    return activeFilters.some(action => {
+      if (action.id === CommonToolTipActions.Received.id) {
+        return item.category === 'receive';
+      }
+
+      if (action.id === CommonToolTipActions.Sent.id) {
+        return item.category === 'send';
+      }
+
+      if (action.id === CommonToolTipActions.Pending.id) {
+        return item.confirmations! < 3;
+      }
+
+      if (action.id === CommonToolTipActions.ContainsMemo.id) {
+        return Boolean(item.memo);
+      }
+
+      return false;
+    });
+  };
+
+  const filterTransactions = useCallback((transactions: Transaction[]): Transaction[] => {
+    const activeFilters = Object.values(CommonToolTipActions).filter(action => action.menuState === 'on');
+
+    if (activeFilters.length === 0) {
+      return transactions; // No filters active, return all transactions
+    }
+
+    return transactions.filter(tx => determineTransactionTypeAndAvatar(tx, activeFilters));
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -145,6 +185,28 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     return wallet && wallet.getTransactions().length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
   };
 
+  const filterToolTipActions = () => {
+    const actions = [
+      CommonToolTipActions.Received,
+      CommonToolTipActions.Sent,
+      CommonToolTipActions.Pending,
+      CommonToolTipActions.ContainsMemo,
+    ];
+
+    const toggleAction = (key: string) => {
+      const action = actions.find(action => action.id === key);
+      if (action) {
+        action.menuState = action.menuState === 'on' ? 'off' : 'on';
+      }
+      console.warn('actions', action);
+    };
+
+    return actions.map(action => ({
+      ...action,
+      onPress: () => toggleAction(action.id),
+    }));
+  };
+
   const renderListHeaderComponent = () => {
     const style: any = {};
     if (!isDesktop) {
@@ -162,6 +224,16 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       <View style={styles.flex}>
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+          <ToolTipMenu
+            title={loc.transactions.filter}
+            style={[styles.filterButton, stylesHook.filterButton]}
+            isButton
+            isMenuPrimaryAction
+            actions={filterToolTipActions()}
+            onPressMenuItem={(key: string) => filterToolTipActions().find(action => action.id === key)?.onPress()}
+          >
+            <Icon name="filter-list" size={22} type="ionicons" color={colors.foregroundColor} />
+          </ToolTipMenu>
         </View>
       </View>
     );
@@ -440,7 +512,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             </ScrollView>
           }
           {...refreshProps}
-          data={getTransactions(limit)}
+          data={filterTransactions(getTransactions(limit))} // <-- Use the filtered data
           extraData={wallet}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
@@ -494,11 +566,12 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 40 },
   activityIndicator: { marginVertical: 20 },
-  listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
+  listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
   list: { flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
   receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }] },
+  filterButton: { borderRadius: 16, width: 33, height: 33, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
 });
