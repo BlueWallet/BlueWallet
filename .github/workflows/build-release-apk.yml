@@ -43,18 +43,18 @@ jobs:
       - name: Extract Version Name and Build Number
         id: version_info
         run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          BUILD_NUMBER=$(grep versionCode android/app/build.gradle | awk '{print $2}')
+          VERSION_NAME=$(grep -m1 versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          VERSION_CODE=$(grep -m1 versionCode android/app/build.gradle | awk '{print $2}')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
-          echo "::set-output name=build_number::$BUILD_NUMBER"
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "Version Name: $VERSION_NAME"
+          echo "Version Code: $VERSION_CODE"
 
       - name: Build Release APK
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ env.VERSION_CODE }}
         run: |
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh release
@@ -63,5 +63,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.BUILD_NUMBER }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.BUILD_NUMBER }}).apk
+          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
