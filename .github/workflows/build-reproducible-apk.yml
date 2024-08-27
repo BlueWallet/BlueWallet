@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Use npm caches
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -53,10 +53,10 @@ jobs:
       - name: Build Reproducible APK
         run: ./scripts/build-release-apk.sh reproducible
 
-      - name: List All APK Outputs
+      - name: List All Files in Reproducible Folder
         run: |
-          echo "Listing contents of ./android/app/build/outputs/apk/"
-          ls -Rla ./android/app/build/outputs/apk/
+          echo "Listing all files in the reproducible folder:"
+          find ./android/app/build/outputs/apk/reproducible/ -type f -exec ls -la {} \;
 
       - name: Calculate APK Hash
         run: |
@@ -70,12 +70,12 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v2
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v2
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
