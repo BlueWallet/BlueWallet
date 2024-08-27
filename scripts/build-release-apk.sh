@@ -17,6 +17,8 @@ if [ "$BUILD_TYPE" == "release" ]; then
     SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD \"$APK_PATH\""
 
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
+    VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
+    BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
     APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
     FINAL_APK_DIR="./android/app/build/outputs/apk/reproducible"
     APK_FILENAME="app-$BUILD_TYPE.apk"  # Adjusted filename
