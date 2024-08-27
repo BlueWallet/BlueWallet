@@ -40,28 +40,28 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
-      - name: Extract Version Name and Build Number
-        id: version_info
+      - name: Extract Version Name
+        id: version_name
         run: |
-          VERSION_NAME=$(grep -m1 versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          VERSION_CODE=$(grep -m1 versionCode android/app/build.gradle | awk '{print $2}')
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          echo "Version Name: $VERSION_NAME"
-          echo "Version Code: $VERSION_CODE"
+          echo "::set-output name=version_name::$VERSION_NAME"
 
-      - name: Build Release APK
+      - name: Generate Build Number based on timestamp
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+
+      - name: Build
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.VERSION_CODE }}
-        run: |
-          chmod +x ./scripts/build-release-apk.sh
-          ./scripts/build-release-apk.sh release
+          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+        run: ./scripts/build-release-apk.sh
 
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk

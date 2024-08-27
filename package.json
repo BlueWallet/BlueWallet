@@ -47,8 +47,8 @@
     "typescript": "5.1.6"
   },
   "engines": {
-    "node": ">=20",
-    "npm": ">=7"
+    "node": "20.16.0",
+    "npm": "10.8.1"
   },
   "scripts": {
     "ci:install": "npm ci",
