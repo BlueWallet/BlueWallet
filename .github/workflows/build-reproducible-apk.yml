@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Use npm caches
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -40,23 +40,23 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
-      - name: Extract Version Name and Build Number
-        id: version_info
+      - name: Extract Version Information
+        id: extract_version
         run: |
-          VERSION_NAME=$(grep -m1 versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          VERSION_CODE=$(grep -m1 versionCode android/app/build.gradle | awk '{print $2}')
-          echo "VERSION_NAME=\"$VERSION_NAME\"" >> $GITHUB_ENV
-          echo "VERSION_CODE=\"$VERSION_CODE\"" >> $GITHUB_ENV
-          echo "Version Name: $VERSION_NAME"
-          echo "Version Code: $VERSION_CODE"
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          VERSION_CODE=$(grep versionCode android/app/build.gradle | awk '{print $2}')
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "::set-output name=version_name::$VERSION_NAME"
+          echo "::set-output name=version_code::$VERSION_CODE"
 
       - name: Build Reproducible APK
-        run: |
-          chmod +x ./scripts/build-release-apk.sh
-          ./scripts/build-release-apk.sh reproducible
+        run: ./scripts/build-release-apk.sh reproducible
 
       - name: List All APK Outputs
-        run: ls -Rla ./android/app/build/outputs/apk/
+        run: |
+          echo "Listing contents of ./android/app/build/outputs/apk/"
+          ls -Rla ./android/app/build/outputs/apk/
 
       - name: Calculate APK Hash
         run: |
@@ -70,16 +70,12 @@ jobs:
             exit 1
           fi
 
-      - name: Upload Reproducible APK
-        uses: actions/upload-artifact@v3
-        if: success()
+      - uses: actions/upload-artifact@v4
         with:
-          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
-          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
 
-      - name: Upload APK Hash
-        uses: actions/upload-artifact@v3
-        if: success()
+      - uses: actions/upload-artifact@v4
         with:
-          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
-          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
