@@ -40,28 +40,28 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
-      - name: Extract Version Name
-        id: version_name
+      - name: Extract Version Name and Build Number
+        id: version_info
         run: |
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          BUILD_NUMBER=$(grep versionCode android/app/build.gradle | awk '{print $2}')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
           echo "::set-output name=version_name::$VERSION_NAME"
+          echo "::set-output name=build_number::$BUILD_NUMBER"
 
-      - name: Generate Build Number based on timestamp
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-
-      - name: Build
+      - name: Build Release APK
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: ./scripts/build-release-apk.sh
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+        run: |
+          chmod +x ./scripts/build-release-apk.sh
+          ./scripts/build-release-apk.sh release
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.BUILD_NUMBER }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.BUILD_NUMBER }}).apk

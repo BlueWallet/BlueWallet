@@ -1444,7 +1444,7 @@ PODS:
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.7.0)
-  - TrueSheet (0.12.4):
+  - TrueSheet (0.13.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1858,9 +1858,9 @@ SPEC CHECKSUMS:
   RNVectorIcons: 2a2f79274248390b80684ea3c4400bd374a15c90
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
-  TrueSheet: 88ab6c4f590ed26ebab1b7ba0740a0c7af1e1e5d
+  TrueSheet: 1da69a3652ca94c5b4481068fc9b66a53730dbb3
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
 
-PODFILE CHECKSUM: edeeee286bcd83aa972eda6087a61695e7f612d8
+PODFILE CHECKSUM: 2dd572f5ba59c20a16bf6778c665352bf6d58f7e
 
 COCOAPODS: 1.15.2
