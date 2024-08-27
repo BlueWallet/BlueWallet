@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # assumes 1 env variable: KEYSTORE_FILE_HEX for release builds
-# expects a single parameter to specify the build type: "release" or "reproducible"
+# expects an optional parameter to specify the build type: "release" or "reproducible"
+# if no parameter is provided, defaults to "release"
 
-BUILD_TYPE=$1
+BUILD_TYPE=${1:-release}
 
 if [ "$BUILD_TYPE" == "release" ]; then
     # Convert the release keystore from hex
@@ -18,7 +19,7 @@ if [ "$BUILD_TYPE" == "release" ]; then
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}($BUILD_NUMBER).apk"
     BUILD_COMMAND="./gradlew assembleReproducible"
-    SIGN_COMMAND="$APKSIGNER_PATH sign --ks \"./keystore/reproducible.keystore\" --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$APK_PATH\""
+    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./keystore/reproducible.keystore --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$APK_PATH\""
 
 else
     echo "Invalid build type specified. Use 'release' or 'reproducible'."
@@ -40,14 +41,14 @@ echo "Using apksigner at: $APKSIGNER_PATH"
 
 # Build the APK
 echo "Building $BUILD_TYPE APK..."
-eval $BUILD_COMMAND
+$BUILD_COMMAND
 
 # Rename the APK file to include the dynamic version and build number with parentheses
 mv ./app/build/outputs/apk/$BUILD_TYPE/app-$BUILD_TYPE-unsigned.apk "$APK_PATH"
 
 # Sign the APK
 echo "Signing $BUILD_TYPE APK..."
-eval $SIGN_COMMAND
+$APKSIGNER_PATH sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "$APK_PATH"
 
 echo "APK signing complete."
 echo "$BUILD_TYPE APK: $APK_PATH"
