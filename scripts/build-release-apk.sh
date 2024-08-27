@@ -19,7 +19,7 @@ if [ "$BUILD_TYPE" == "release" ]; then
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}($BUILD_NUMBER).apk"
     BUILD_COMMAND="./gradlew assembleReproducible"
-    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./keystore/reproducible.keystore --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$APK_PATH\""
+    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./reproducible.keystore --ks-pass=pass:BWReproducibleBuild --key-pass=pass:reproducible \"$APK_PATH\""
 
 else
     echo "Invalid build type specified. Use 'release' or 'reproducible'."

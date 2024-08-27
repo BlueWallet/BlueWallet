@@ -98,7 +98,7 @@ android {
 
     signingConfigs {
         reproducible {
-            storeFile file("${rootDir}/keystore/reproducible.keystore") // Adjust path if necessary
+            storeFile file("${rootDir}/reproducible.keystore") // Adjust path if necessary
             storePassword "BWReproducibleBuild"
             keyAlias "key0"
             keyPassword "reproducible"
