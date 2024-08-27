@@ -38,7 +38,7 @@ cd android
 # Extract versionName and versionCode (BUILD_NUMBER) from build.gradle
 VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
 BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
-
+echo "Build number: $BUILD_NUMBER"
 # Find apksigner tool
 echo "Locating apksigner..."
 APKSIGNER_PATH=$(find "$ANDROID_HOME" -type f -name apksigner | grep -v jar | head -n 1)
