@@ -1,4 +1,4 @@
-lname: BuildReleaseApk
+name: BuildReleaseApk
 on:
   pull_request:
     branches:
