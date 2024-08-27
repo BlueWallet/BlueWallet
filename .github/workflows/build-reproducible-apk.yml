@@ -45,8 +45,8 @@ jobs:
         run: |
           VERSION_NAME=$(grep -m1 versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           VERSION_CODE=$(grep -m1 versionCode android/app/build.gradle | awk '{print $2}')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "VERSION_NAME=\"$VERSION_NAME\"" >> $GITHUB_ENV
+          echo "VERSION_CODE=\"$VERSION_CODE\"" >> $GITHUB_ENV
           echo "Version Name: $VERSION_NAME"
           echo "Version Code: $VERSION_CODE"
 
