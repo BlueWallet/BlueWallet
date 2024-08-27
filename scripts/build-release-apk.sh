@@ -53,6 +53,10 @@ echo "Using apksigner at: $APKSIGNER_PATH"
 echo "Building $BUILD_TYPE APK..."
 $BUILD_COMMAND
 
+# List the contents of the directory where the APK is expected to be
+echo "Listing contents of $APK_OUTPUT_DIR:"
+ls -la "$APK_OUTPUT_DIR"
+
 # Verify that the APK was created before renaming
 if [ -f "$APK_PATH" ]; then
     mv "$APK_PATH" "$FINAL_APK_PATH"
