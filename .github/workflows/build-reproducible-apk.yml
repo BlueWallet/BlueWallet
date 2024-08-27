@@ -55,9 +55,26 @@ jobs:
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh reproducible
 
+      - name: List APKs
+        run: ls -la ./android/app/build/outputs/apk/reproducible/
+
+      - name: Calculate APK Hash
+        run: |
+          REPRODUCIBLE_APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk"
+          SHA256_HASH=$(shasum -a 256 $REPRODUCIBLE_APK_PATH | awk '{print $1}')
+          echo "SHA256 Hash: $SHA256_HASH"
+          echo $SHA256_HASH > ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+
       - name: Upload Reproducible APK
         uses: actions/upload-artifact@v2
         if: success()
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+
+      - name: Upload APK Hash
+        uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
