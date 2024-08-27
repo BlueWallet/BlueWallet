@@ -71,14 +71,14 @@ jobs:
           fi
 
       - name: Upload Reproducible APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: success()
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
 
       - name: Upload APK Hash
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: success()
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
