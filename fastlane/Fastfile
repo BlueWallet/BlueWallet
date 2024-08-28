@@ -1,0 +1,66 @@
+# Fastfile
+
+platform :android do
+    desc "Prepare the keystore file"
+    lane :prepare_keystore do
+      # Create the keystore file from the HEX environment variable
+      File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+      system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
+      File.delete("bluewallet-release-key.keystore.hex")
+    end
+  
+    desc "Update the version code in build.gradle"
+    lane :update_version_code do |options|
+      build_number = options[:build_number]
+      gradle(
+        task: "assembleRelease",
+        build_type: "Release",
+        print_command: false,
+        properties: {
+          "versionCode" => build_number
+        }
+      )
+    end
+  
+    desc "Build the release APK"
+    lane :build_apk do
+      gradle(
+        task: "assembleRelease",
+        build_type: "Release",
+        project_dir: "android"
+      )
+    end
+  
+    desc "Sign the APK"
+    lane :sign_apk do
+      # Get versionName from build.gradle
+      version_name = gradle(
+        task: "printVersionName",
+        project_dir: "android"
+      ).match(/versionName\s*=\s*\"(.+)\"/)[1]
+  
+      # Rename the APK file with versionName and buildNumber
+      apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
+      new_apk_name = "BlueWallet-#{version_name}(#{ENV['BUILD_NUMBER']}).apk"
+      new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
+      FileUtils.mv(apk_output_path, new_apk_path)
+  
+      # Sign the APK using apksigner
+      sign_apk(
+        apk_path: new_apk_path,
+        keystore_path: "./android/bluewallet-release-key.keystore",
+        keystore_password: ENV['KEYSTORE_PASSWORD'],
+        alias: "release-key"
+      )
+  
+      return new_apk_path
+    end
+  
+    desc "Build and sign the release APK (combined)"
+    lane :build_and_sign_apk do
+      prepare_keystore
+      update_version_code(build_number: ENV['BUILD_NUMBER'])
+      build_apk
+      sign_apk
+    end
+  end

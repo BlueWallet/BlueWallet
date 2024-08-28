@@ -9,7 +9,7 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
@@ -40,27 +40,37 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
-      - name: Extract Version Name
-        id: version_name
-        run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
-
       - name: Generate Build Number based on timestamp
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
 
-      - name: Build
+      - name: Prepare Keystore
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+        run: |
+          bundle exec fastlane prepare_keystore
+
+      - name: Update Version Code
+        env:
+          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+        run: |
+          bundle exec fastlane update_version_code build_number:$BUILD_NUMBER
+
+      - name: Build APK
+        run: |
+          bundle exec fastlane build_apk
+
+      - name: Sign APK
+        env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: ./scripts/build-release-apk.sh
+        run: |
+          bundle exec fastlane sign_apk
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v2
         if: success()
         with:
           name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
