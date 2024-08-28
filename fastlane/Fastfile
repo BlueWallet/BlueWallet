@@ -91,7 +91,8 @@ platform :android do
     end
   end
   
-platform :ios do
+
+  platform :ios do
     before_all do |lane, options|
         UI.message("Setting up for all lanes...")
         UI.message("Discarding all untracked changes before running any lane...")
