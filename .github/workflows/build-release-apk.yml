@@ -42,8 +42,8 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Install Bundler
-        run: gem install bundler --user-install
+      - name: Install Specific Bundler Version
+        run: gem install bundler:2.5.13 --user-install
 
       - name: Add Bundler to PATH
         run: echo "$(ruby -e 'puts Gem.user_dir')/bin" >> $GITHUB_PATH
@@ -70,7 +70,7 @@ jobs:
           FASTLANE_VERBOSE=1 bundle exec fastlane apk_details apk_path="${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}"
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-APK
           path: ${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}
