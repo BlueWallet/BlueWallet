@@ -43,12 +43,12 @@ jobs:
       - name: Extract Version Information
         id: extract_version
         run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          VERSION_CODE=$(grep versionCode android/app/build.gradle | awk '{print $2}')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
-          echo "::set-output name=version_code::$VERSION_CODE"
+          VERSION_NAME="$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')"
+          VERSION_CODE="$(grep versionCode android/app/build.gradle | awk '{print $2}')"
+          echo "VERSION_NAME=\"$VERSION_NAME\"" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=\"$VERSION_CODE\"" >> "$GITHUB_ENV"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
 
       - name: Build Reproducible APK
         run: ./scripts/build-release-apk.sh reproducible
