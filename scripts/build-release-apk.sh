@@ -2,8 +2,6 @@
 
 # expects an optional parameter to specify the build type: "release" or "reproducible"
 # if no parameter is provided, defaults to "release"
-# For release builds, the BUILD_NUMBER should be passed as an environment variable.
-# For reproducible builds, the BUILD_NUMBER is extracted from the build.gradle file.
 
 BUILD_TYPE="${1:-release}"
 echo "BUILD_TYPE: $BUILD_TYPE"
@@ -12,7 +10,10 @@ cd android
 
 # Extract versionName from build.gradle
 VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
+VERSION_CODE=$(grep versionCode app/build.gradle | awk '{print $2}')
+
 echo "VERSION_NAME: $VERSION_NAME"
+echo "VERSION_CODE: $VERSION_CODE"
 
 if [ "$BUILD_TYPE" == "release" ]; then
     # Ensure that the BUILD_NUMBER is provided as an environment variable
@@ -37,14 +38,10 @@ if [ "$BUILD_TYPE" == "release" ]; then
     echo "BUILD_COMMAND: $BUILD_COMMAND"
 
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
-    # Extract versionCode (BUILD_NUMBER) from build.gradle
-    BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
-    echo "BUILD_NUMBER (from build.gradle): $BUILD_NUMBER"
-
     APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
-    FINAL_APK_DIR="./app/build/outputs/apk/reproducible"
-    APK_FILENAME="app-$BUILD_TYPE.apk"  # Adjusted filename
-    FINAL_APK_PATH="$FINAL_APK_DIR/BlueWallet-Reproducible-${VERSION_NAME}(${BUILD_NUMBER}).apk"
+    FINAL_APK_DIR="./android/app/build/outputs/apk/reproducible"
+    APK_FILENAME="app-$BUILD_TYPE-unsigned.apk"
+    FINAL_APK_PATH="$FINAL_APK_DIR/BlueWallet-Reproducible-${VERSION_NAME}(${VERSION_CODE}).apk"
     echo "APK_OUTPUT_DIR: $APK_OUTPUT_DIR"
     echo "FINAL_APK_DIR: $FINAL_APK_DIR"
     echo "FINAL_APK_PATH: $FINAL_APK_PATH"
@@ -76,7 +73,6 @@ ls -la "$APK_OUTPUT_DIR"
 
 # Verify that the APK was created before renaming
 if [ -f "$APK_OUTPUT_DIR/$APK_FILENAME" ]; then
-    echo "File found at: $APK_OUTPUT_DIR/$APK_FILENAME"
     mv "$APK_OUTPUT_DIR/$APK_FILENAME" "$FINAL_APK_PATH"
     echo "APK moved to FINAL_APK_PATH: $FINAL_APK_PATH"
 else
@@ -85,17 +81,21 @@ else
     exit 1
 fi
 
-# Sign the APK (only for release)
+# Zipalign the APK (needed to ensure that the APK is in a deterministic order)
+$ANDROID_HOME/build-tools/34.0.0/zipalign -p 4 "$FINAL_APK_PATH" "$FINAL_APK_PATH-aligned"
+
+# Replace original APK with aligned APK
+mv "$FINAL_APK_PATH-aligned" "$FINAL_APK_PATH"
+
+# Sign the APK (handled by gradle build script in reproducible build)
 if [ "$BUILD_TYPE" == "release" ]; then
-    echo "Signing $BUILD_TYPE APK..."
-    "$APKSIGNER_PATH" sign --ks "$FINAL_APK_PATH" --ks-pass=pass:$KEYSTORE_PASSWORD
-    if [ $? -eq 0 ]; then
-        echo "APK signing complete."
-        echo "$BUILD_TYPE APK: $FINAL_APK_PATH"
-    else
-        echo "Error: APK signing failed."
-        exit 1
-    fi
+    "$APKSIGNER_PATH" sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "$FINAL_APK_PATH"
+fi
+
+if [ $? -eq 0 ]; then
+    echo "APK signing complete."
+    echo "$BUILD_TYPE APK: $FINAL_APK_PATH"
 else
-    echo "$BUILD_TYPE APK signing handled by build.gradle."
+    echo "Error: APK signing failed."
+    exit 1
 fi

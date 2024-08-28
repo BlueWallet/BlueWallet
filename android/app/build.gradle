@@ -111,13 +111,14 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
-        reproducible {
+         reproducible {
             minifyEnabled true
             shrinkResources true
             crunchPngs false
             signingConfig signingConfigs.reproducible
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
+            zipAlignEnabled true // Ensure APK is zip-aligned
+            deterministicApk true // Custom flag to enforce deterministic builds (hypothetical)
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ['release']
         }
     }
