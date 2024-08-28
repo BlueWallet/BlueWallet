@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  findNodeHandle,
   FlatList,
   I18nManager,
   InteractionManager,
@@ -38,10 +37,11 @@ import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/
 import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import ActionSheet from '../ActionSheet';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import ActionSheet from '../ActionSheet';
+import { findNodeHandle } from 'react-native';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -77,39 +77,63 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     },
   });
 
-  const determineTransactionTypeAndAvatar = (
-    item: Transaction & LightningTransaction,
-    activeFilters: Array<{ id: string; menuState: string }>,
-  ) => {
-    return activeFilters.some(action => {
-      if (action.id === CommonToolTipActions.Received.id) {
-        return item.category === 'receive';
-      }
-
-      if (action.id === CommonToolTipActions.Sent.id) {
-        return item.category === 'send';
-      }
-
-      if (action.id === CommonToolTipActions.Pending.id) {
-        return item.confirmations! < 3;
-      }
-
-      if (action.id === CommonToolTipActions.ContainsMemo.id) {
-        return Boolean(item.memo);
-      }
-
-      return false;
-    });
+  // Function to toggle the menuState of each action
+  const toggleMenuState = (key: string) => {
+    CommonToolTipActions[key].menuState = !CommonToolTipActions[key].menuState;
   };
 
-  const filterTransactions = useCallback((transactions: Transaction[]): Transaction[] => {
-    const activeFilters = Object.values(CommonToolTipActions).filter(action => action.menuState === 'on');
+  // Memoize the tooltip actions with their current states
+  const filterToolTipActions = useMemo(() => {
+    return [
+      {
+        ...CommonToolTipActions.Received,
+        onPress: () => toggleMenuState(CommonToolTipActions.Received.id),
+      },
+      {
+        ...CommonToolTipActions.Sent,
+        onPress: () => toggleMenuState(CommonToolTipActions.Sent.id),
+      },
+      {
+        ...CommonToolTipActions.Pending,
+        onPress: () => toggleMenuState(CommonToolTipActions.Pending.id),
+      },
+      {
+        ...CommonToolTipActions.ContainsMemo,
+        onPress: () => toggleMenuState(CommonToolTipActions.ContainsMemo.id),
+      },
+    ];
+  }, []);
 
-    if (activeFilters.length === 0) {
-      return transactions; // No filters active, return all transactions
-    }
+  const filterTransactions = useCallback((transactions: Transaction[] & LightningTransaction[]): Transaction[] & LightningTransaction[] => {
+    // Filter transactions based on active filters
+    return transactions.filter((tx: Transaction & LightningTransaction) => {
+      if (
+        CommonToolTipActions.Received.menuState === 'on' &&
+        CommonToolTipActions.Sent.menuState === 'on' &&
+        CommonToolTipActions.Pending.menuState === 'on' &&
+        CommonToolTipActions.ContainsMemo.menuState === 'on'
+      ) {
+        return true;
+      }
 
-    return transactions.filter(tx => determineTransactionTypeAndAvatar(tx, activeFilters));
+      if (CommonToolTipActions.Received.menuState === 'on' && (tx.category === 'receive' || tx.value! > 0)) {
+        return true;
+      }
+
+      if (CommonToolTipActions.Sent.menuState === 'on'  && tx.value! < 0) {
+        return true;
+      }
+
+      if (CommonToolTipActions.Pending.menuState === 'on' && tx.confirmations! < 3) {
+        return true;
+      }
+
+      if (CommonToolTipActions.ContainsMemo.menuState === 'on' && tx.memo) {
+        return true;
+      }
+
+      return false; // Filter out transaction if it doesn't match any active filters
+    });
   }, []);
 
   useFocusEffect(
@@ -185,28 +209,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     return wallet && wallet.getTransactions().length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
   };
 
-  const filterToolTipActions = () => {
-    const actions = [
-      CommonToolTipActions.Received,
-      CommonToolTipActions.Sent,
-      CommonToolTipActions.Pending,
-      CommonToolTipActions.ContainsMemo,
-    ];
-
-    const toggleAction = (key: string) => {
-      const action = actions.find(action => action.id === key);
-      if (action) {
-        action.menuState = action.menuState === 'on' ? 'off' : 'on';
-      }
-      console.warn('actions', action);
-    };
-
-    return actions.map(action => ({
-      ...action,
-      onPress: () => toggleAction(action.id),
-    }));
-  };
-
   const renderListHeaderComponent = () => {
     const style: any = {};
     if (!isDesktop) {
@@ -229,8 +231,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             style={[styles.filterButton, stylesHook.filterButton]}
             isButton
             isMenuPrimaryAction
-            actions={filterToolTipActions()}
-            onPressMenuItem={(key: string) => filterToolTipActions().find(action => action.id === key)?.onPress()}
+            actions={filterToolTipActions}
+            onPressMenuItem={(key: string) => filterToolTipActions.find(action => action.id === key)?.onPress()}
           >
             <Icon name="filter-list" size={22} type="ionicons" color={colors.foregroundColor} />
           </ToolTipMenu>

@@ -1,3 +1,4 @@
+import { Action } from '../components/types';
 import loc from '../loc';
 
 // Define the type for the keys object
@@ -67,16 +68,8 @@ const icons: Record<string, Icon> = {
   },
 };
 
-// Define the type for a tooltip action
-interface TooltipAction {
-  id: string;
-  text: string;
-  icon?: Icon;
-  menuState?: 'on' | 'off';
-}
-
 // Define the type for the CommonToolTipActions object
-type CommonToolTipActionsType = Record<string, TooltipAction>;
+type CommonToolTipActionsType = Record<string, Action>;
 
 export const CommonToolTipActions: CommonToolTipActionsType = {
   CopyTXID: {
@@ -133,21 +126,21 @@ export const CommonToolTipActions: CommonToolTipActionsType = {
   Sent: {
     id: keys.Sent,
     text: loc.send.sent,
-    menuState: 'off',
+    menuState: false,
   },
   Received: {
     id: keys.Received,
     text: loc.transactions.details_received,
-    menuState: 'off',
+    menuState: false,
   },
   Pending: {
     id: keys.Pending,
     text: loc.transactions.pending,
-    menuState: 'off',
+    menuState: false,
   },
   MustHaveMemo: {
     id: keys.MustHaveMemo,
     text: loc.transactions.must_have_memo,
-    menuState: 'off',
+    menuState: false,
   },
 };
