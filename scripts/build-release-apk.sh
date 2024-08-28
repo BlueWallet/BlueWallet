@@ -44,8 +44,8 @@ elif [ "$BUILD_TYPE" == "reproducible" ]; then
     BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
     echo "BUILD_NUMBER (from build.gradle): $BUILD_NUMBER"
 
-    APK_OUTPUT_DIR="./android/app/build/outputs/apk/reproducible"
-    FINAL_APK_DIR="./android/app/build/outputs/apk/reproducible"
+    APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
+    FINAL_APK_DIR="./app/build/outputs/apk/reproducible"
     APK_FILENAME="app-$BUILD_TYPE.apk"  # Adjusted filename
     FINAL_APK_PATH="$FINAL_APK_DIR/BlueWallet-Reproducible-${VERSION_NAME}(${BUILD_NUMBER}).apk"
     echo "APK_OUTPUT_DIR: $APK_OUTPUT_DIR"
