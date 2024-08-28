@@ -83,7 +83,7 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
+        <PlusIcon onPress={navigateToAddWallet} />
         <View style={styles.width24} />
         <SettingsButton />
       </>
