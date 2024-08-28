@@ -20,10 +20,10 @@ jobs:
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.16.0
 
       - name: Use npm caches
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -34,11 +34,18 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '17.0.1'
           cache: 'gradle'
 
       - name: Install node_modules
         run: npm install --production
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 34       # Specify the Android API level
+          build-tools: 34.0.0  # Specify the exact build tools version
+          ndk-version: 23.1.7779620  # Specify the NDK version if needed
 
       - name: Extract Version Information
         id: extract_version
@@ -51,11 +58,15 @@ jobs:
 
       - name: Build Reproducible APK
         run: ./scripts/build-release-apk.sh reproducible
+        env:
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          VERSION_CODE: ${{ env.VERSION_CODE }}
 
       - name: List All Files in Reproducible Folder
         run: |
           echo "Listing all files in the reproducible folder:"
           find ./android/app/build/outputs/apk/reproducible/ -type f -exec ls -la {} \;
+        shell: bash
 
       - name: Calculate APK Hash
         run: |
@@ -69,14 +80,17 @@ jobs:
             echo "APK not found: $REPRODUCIBLE_APK_PATH"
             exit 1
           fi
+        env:
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          VERSION_CODE: ${{ env.VERSION_CODE }}
         shell: bash
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
           path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
