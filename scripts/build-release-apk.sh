@@ -39,7 +39,7 @@ if [ "$BUILD_TYPE" == "release" ]; then
 
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
-    FINAL_APK_DIR="./android/app/build/outputs/apk/reproducible"
+    FINAL_APK_DIR="./app/build/outputs/apk/reproducible"
     APK_FILENAME="app-$BUILD_TYPE-unsigned.apk"
     FINAL_APK_PATH="$FINAL_APK_DIR/BlueWallet-Reproducible-${VERSION_NAME}(${VERSION_CODE}).apk"
     echo "APK_OUTPUT_DIR: $APK_OUTPUT_DIR"
