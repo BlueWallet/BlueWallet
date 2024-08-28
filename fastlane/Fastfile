@@ -1,3 +1,5 @@
+require 'fastlane/plugin/versioning'
+
 def app_identifiers
     [
         "io.bluewallet.bluewallet",
@@ -19,6 +21,7 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
         )
     end
 end
+
 
 platform :android do
     desc "Prepare the keystore file"
@@ -90,9 +93,8 @@ platform :android do
       UI.success("APK uploaded successfully")
     end
   end
-  
 
-  platform :ios do
+platform :ios do
     before_all do |lane, options|
         UI.message("Setting up for all lanes...")
         UI.message("Discarding all untracked changes before running any lane...")
