@@ -1,76 +1,75 @@
-name: BuildReleaseApk
+name: Build and Sign APK (Android)
+
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
-  buildReleaseApk:
+  build_apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: "0"
-
-      - name: Set up Ruby 3.1.6
-        uses: actions/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-
+          fetch-depth: 0
+      
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Use npm caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Use specific Java version for sdkmanager to work
+      - name: Set up Java 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
-      - name: Install Specific Bundler Version
-        run: gem install bundler:2.5.13 --user-install
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
 
-      - name: Add Bundler to PATH
-        run: echo "$(ruby -e 'puts Gem.user_dir')/bin" >> $GITHUB_PATH
-
-      - name: Configure Bundler Path
-        run: bundle config set path 'vendor/bundle'
-
-      - name: Install Ruby Dependencies
+      - name: Install Dependencies with Bundler
         run: bundle install
 
       - name: Install node_modules
-        run: npm install --production
+        run: npm install
 
-      - name: Build and Sign APK
-        id: build_and_sign_apk
-        env:
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      - name: Prepare Keystore
+        run: bundle exec fastlane android prepare_keystore
+
+      - name: Increment Version Code
+        run: bundle exec fastlane android increment_version_code
+
+      - name: Build APK
+        run: bundle exec fastlane android build_apk
+
+      - name: Sign APK
         run: |
-          FASTLANE_VERBOSE=1 bundle exec fastlane build_and_sign_apk
+          bundle exec fastlane android sign_apk
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Calculate APK Details
         run: |
-          FASTLANE_VERBOSE=1 bundle exec fastlane apk_details apk_path="${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}"
+          bundle exec fastlane android apk_details apk_path="./android/app/build/outputs/apk/release/BlueWallet.apk"
 
-      - name: Upload APK Artifact
+      - name: Upload APK as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-APK
-          path: ${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}
+          path: ./android/app/build/outputs/apk/release/BlueWallet.apk
