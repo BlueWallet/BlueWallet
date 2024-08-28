@@ -36,9 +36,6 @@ if [ "$BUILD_TYPE" == "release" ]; then
     BUILD_COMMAND="./gradlew assembleRelease"
     echo "BUILD_COMMAND: $BUILD_COMMAND"
 
-    SIGN_COMMAND="$APKSIGNER_PATH sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD \"$FINAL_APK_PATH\""
-    echo "SIGN_COMMAND: $SIGN_COMMAND"
-
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     # Extract versionCode (BUILD_NUMBER) from build.gradle
     BUILD_NUMBER=$(grep versionCode app/build.gradle | awk '{print $2}')
