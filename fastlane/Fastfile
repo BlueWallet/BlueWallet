@@ -1,4 +1,3 @@
-require 'fastlane/plugin/versioning'
 
 def app_identifiers
     [
@@ -22,11 +21,14 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
     end
 end
 
-
 platform :android do
     desc "Prepare the keystore file"
     lane :prepare_keystore do
       UI.verbose("Preparing keystore file from HEX")
+      
+      # Ensure the directory exists
+      FileUtils.mkdir_p("android") unless Dir.exist?("android")
+      
       File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
       system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
       File.delete("bluewallet-release-key.keystore.hex")
@@ -36,9 +38,21 @@ platform :android do
     desc "Increment the version code in build.gradle"
     lane :increment_android_version_code do
       UI.verbose("Incrementing version code in build.gradle")
-      increment_version_code(
-        gradle_file_path: "android/app/build.gradle"
-      )
+  
+      gradle_file = "android/app/build.gradle"
+  
+      # Read the file content
+      gradle_content = File.read(gradle_file)
+  
+      # Increment the versionCode
+      new_gradle_content = gradle_content.gsub(/versionCode (\d+)/) do |match|
+        version_code = $1.to_i + 1
+        "versionCode #{version_code}"
+      end
+  
+      # Write the changes back to the file
+      File.open(gradle_file, "w") { |file| file.puts new_gradle_content }
+  
       UI.success("Version code incremented successfully")
     end
   
