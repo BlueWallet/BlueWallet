@@ -322,6 +322,8 @@ const ManageWallets: React.FC = () => {
         onDragBegin={onDragBegin}
         onRelease={onRelease}
         onDragEnd={onDragEnd}
+        autoscrollSpeed={2}
+        dragItemOverflow
         containerStyle={styles.root}
         ListHeaderComponent={renderHeader}
       />
