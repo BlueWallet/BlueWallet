@@ -1,0 +1,82 @@
+name: BuildReproducibleApk
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  buildReproducibleApk:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure the entire history is checked out for consistency
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.16.0  # Use a specific version of Node.js for consistency
+
+      - name: Use npm caches
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Use specific Java version for sdkmanager to work
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Install node_modules
+        run: npm ci  # Use npm ci instead of npm install for consistency
+
+      - name: Extract Version Information
+        id: extract_version
+        run: |
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          VERSION_CODE=$(grep versionCode android/app/build.gradle | awk '{print $2}')
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Build Reproducible APK
+        run: ./scripts/build-release-apk.sh reproducible
+
+      - name: List All Files in Reproducible Folder
+        run: |
+          echo "Listing all files in the reproducible folder:"
+          find ./android/app/build/outputs/apk/reproducible/ -type f -exec ls -la {} \;
+
+      - name: Calculate APK Hash
+        run: |
+          REPRODUCIBLE_APK_PATH="./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}(${VERSION_CODE}).apk"
+          echo "Expected APK path: $REPRODUCIBLE_APK_PATH"
+          if [ -f "$REPRODUCIBLE_APK_PATH" ]; then
+            SHA256_HASH=$(shasum -a 256 "$REPRODUCIBLE_APK_PATH" | awk '{print $1}')
+            echo "SHA256 Hash: $SHA256_HASH"
+            echo "$SHA256_HASH" > "./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${VERSION_NAME}(${VERSION_CODE}).sha256.txt"
+          else
+            echo "APK not found: $REPRODUCIBLE_APK_PATH"
+            exit 1
+          fi
+        shell: bash
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt

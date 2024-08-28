@@ -79,7 +79,7 @@ android {
         applicationId "io.bluewallet.bluewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 703
         versionName "7.0.3"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -96,18 +96,32 @@ android {
         }
     }
 
+    signingConfigs {
+        reproducible {
+            storeFile file("${rootDir}/reproducible.keystore") // Adjust path if necessary
+            storePassword "BWReproducibleBuild"
+            keyAlias "key0"
+            keyPassword "reproducible"
+        }
+    }
+
     buildTypes {
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
+         reproducible {
+            minifyEnabled true
+            shrinkResources true
+            crunchPngs false
+            signingConfig signingConfigs.reproducible
+            zipAlignEnabled true // Ensure APK is zip-aligned
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            matchingFallbacks = ['release']
+        }
     }
-
 }
-
 task copyFiatUnits(type: Copy) {
     from '../../models/fiatUnits.json'
     into 'src/main/assets'
@@ -117,8 +131,8 @@ preBuild.dependsOn(copyFiatUnits)
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
-    implementation("com.facebook.react:react-android")
-    implementation 'androidx.core:core-ktx'
+    implementation("com.facebook.react:react-android:0.74.5")
+    implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.work:work-runtime-ktx:2.9.1'
 
     if (hermesEnabled.toBoolean()) {
@@ -126,8 +140,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    androidTestImplementation('com.wix:detox:+')
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    androidTestImplementation('com.wix:detox:0.1.1')
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }
