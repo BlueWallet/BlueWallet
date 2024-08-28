@@ -10,6 +10,7 @@ import {
   LayoutAnimation,
   PixelRatio,
   ScrollView,
+  findNodeHandle,
   StyleSheet,
   Text,
   View,
@@ -34,14 +35,13 @@ import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
-import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ActionSheet from '../ActionSheet';
-import { findNodeHandle } from 'react-native';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -51,7 +51,8 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, isElectrumDisabled, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { wallets, saveToDisk, setSelectedWalletID, isElectrumDisabled, txMetadata, setReloadTransactionsMenuActionFunction } =
+    useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = route.params;
@@ -59,11 +60,18 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState<BitcoinUnit>(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);
   const [limit, setLimit] = useState(15);
-  const [pageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(20);
   const navigation = useExtendedNavigation();
   const { setOptions, navigate } = navigation;
   const { colors } = useTheme();
   const walletActionButtonsRef = useRef<View>(null);
+
+  const [activeFilters, setActiveFilters] = useState({
+    received: true,
+    sent: true,
+    pending: true,
+    mustHaveMemo: false,
+  });
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -77,69 +85,71 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     },
   });
 
-  // Function to toggle the menuState of each action
-  const toggleMenuState = (key: string) => {
-    CommonToolTipActions[key].menuState = !CommonToolTipActions[key].menuState;
-  };
+  const toggleFilter = useCallback((filterKey: keyof typeof activeFilters) => {
+    setActiveFilters(prevFilters => ({
+      ...prevFilters,
+      [filterKey]: !prevFilters[filterKey],
+    }));
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+  }, []);
 
-  // Memoize the tooltip actions with their current states
   const filterToolTipActions = useMemo(() => {
     return [
-      {
-        ...CommonToolTipActions.Received,
-        onPress: () => toggleMenuState(CommonToolTipActions.Received.id),
-      },
-      {
-        ...CommonToolTipActions.Sent,
-        onPress: () => toggleMenuState(CommonToolTipActions.Sent.id),
-      },
-      {
-        ...CommonToolTipActions.Pending,
-        onPress: () => toggleMenuState(CommonToolTipActions.Pending.id),
-      },
-      {
-        ...CommonToolTipActions.ContainsMemo,
-        onPress: () => toggleMenuState(CommonToolTipActions.ContainsMemo.id),
-      },
+      [
+        {
+          ...CommonToolTipActions.Received,
+          menuState: activeFilters.received,
+          onPress: () => toggleFilter('received'),
+        },
+        {
+          ...CommonToolTipActions.Sent,
+          menuState: activeFilters.sent,
+          onPress: () => toggleFilter('sent'),
+        },
+        {
+          ...CommonToolTipActions.Pending,
+          menuState: activeFilters.pending,
+          onPress: () => toggleFilter('pending'),
+        },
+      ],
+      [
+        {
+          ...CommonToolTipActions.MustHaveMemo,
+          menuState: activeFilters.mustHaveMemo,
+          onPress: () => toggleFilter('mustHaveMemo'),
+        },
+      ],
     ];
-  }, []);
+  }, [activeFilters.mustHaveMemo, activeFilters.pending, activeFilters.received, activeFilters.sent, toggleFilter]);
 
-  const filterTransactions = useCallback((transactions: Transaction[] & LightningTransaction[]): Transaction[] & LightningTransaction[] => {
-    // Filter transactions based on active filters
-    return transactions.filter((tx: Transaction & LightningTransaction) => {
-      if (
-        CommonToolTipActions.Received.menuState === 'on' &&
-        CommonToolTipActions.Sent.menuState === 'on' &&
-        CommonToolTipActions.Pending.menuState === 'on' &&
-        CommonToolTipActions.ContainsMemo.menuState === 'on'
-      ) {
-        return true;
-      }
+  const filterTransactions = useCallback(
+    (transactions: Transaction[] & LightningTransaction[]): Transaction[] & LightningTransaction[] => {
+      return transactions.filter((tx: Transaction & LightningTransaction) => {
+        // If mustHaveMemo filter is on, exclude transactions without a memo
+        if (activeFilters.mustHaveMemo) {
+          const memo = tx.memo ?? txMetadata[tx.hash]?.memo;
+          if (!memo || memo.trim().length === 0) {
+            return false;
+          }
+        }
 
-      if (CommonToolTipActions.Received.menuState === 'on' && (tx.category === 'receive' || tx.value! > 0)) {
-        return true;
-      }
+        // Check other filters
+        if (activeFilters.received && (tx.category === 'receive' || tx.value! > 0)) {
+          return true;
+        }
 
-      if (CommonToolTipActions.Sent.menuState === 'on'  && tx.value! < 0) {
-        return true;
-      }
+        if (activeFilters.sent && tx.value! < 0) {
+          return true;
+        }
 
-      if (CommonToolTipActions.Pending.menuState === 'on' && tx.confirmations! < 3) {
-        return true;
-      }
+        if (activeFilters.pending && tx.confirmations! < 3) {
+          return true;
+        }
 
-      if (CommonToolTipActions.ContainsMemo.menuState === 'on' && tx.memo) {
-        return true;
-      }
-
-      return false; // Filter out transaction if it doesn't match any active filters
-    });
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      setOptions(getWalletTransactionsOptions({ route }));
-    }, [route, setOptions]),
+        return false; // Filter out transaction if it doesn't match any active filters
+      });
+    },
+    [activeFilters.mustHaveMemo, activeFilters.pending, activeFilters.received, activeFilters.sent, txMetadata],
   );
 
   const getTransactions = useCallback(
@@ -151,6 +161,20 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     },
     [wallet],
   );
+
+  useEffect(() => {
+    const allTransactions = getTransactions(Infinity);
+    const filteredTransactions = filterTransactions(allTransactions);
+    const totalTransactions = allTransactions.length;
+    const filteredCount = filteredTransactions.length;
+
+    const adjustmentFactor = filteredCount / totalTransactions;
+    const adjustedLimit = Math.max(15, Math.round(15 * adjustmentFactor));
+    const adjustedPageSize = Math.max(20, Math.round(20 * adjustmentFactor));
+
+    setLimit(adjustedLimit);
+    setPageSize(adjustedPageSize);
+  }, [activeFilters, filterTransactions, getTransactions]);
 
   const loadMoreTransactions = useCallback(() => {
     if (getTransactions(Infinity).length > limit) {
@@ -205,14 +229,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const isLightning = (): boolean => wallet?.chain === Chain.OFFCHAIN || false;
 
   const renderListFooterComponent = () => {
-    // if not all txs rendered - display indicator
-    return wallet && wallet.getTransactions().length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
+    const allTransactions = getTransactions(Infinity);
+    const filteredTransactions = filterTransactions(allTransactions);
+
+    return filteredTransactions.length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
   };
 
   const renderListHeaderComponent = () => {
     const style: any = {};
     if (!isDesktop) {
-      // we need this button for testing
       style.opacity = 0;
       style.height = 1;
       style.width = 1;
@@ -227,14 +252,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <ToolTipMenu
-            title={loc.transactions.filter}
+            title={loc.transactions.display}
             style={[styles.filterButton, stylesHook.filterButton]}
             isButton
             isMenuPrimaryAction
             actions={filterToolTipActions}
-            onPressMenuItem={(key: string) => filterToolTipActions.find(action => action.id === key)?.onPress()}
+            onPressMenuItem={(key: string) =>
+              filterToolTipActions
+                .flat()
+                .find(action => action.id === key)
+                ?.onPress()
+            }
           >
-            <Icon name="filter-list" size={22} type="ionicons" color={colors.foregroundColor} />
+            <Icon name="filter-list" type="ionicons" color={colors.foregroundColor} />
           </ToolTipMenu>
         </View>
       </View>
@@ -428,6 +458,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
+      setOptions(getWalletTransactionsOptions({ route }));
       const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => refreshTransactions);
       });
@@ -435,7 +466,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+    }, [setOptions, route, setReloadTransactionsMenuActionFunction, refreshTransactions]),
   );
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
@@ -575,5 +606,5 @@ const styles = StyleSheet.create({
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
   receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }] },
-  filterButton: { borderRadius: 16, width: 33, height: 33, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
+  filterButton: { width: 33, height: 33, justifyContent: 'center', alignItems: 'center' },
 });

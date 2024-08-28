@@ -33,7 +33,7 @@ const keys: Keys = {
   Sent: 'sent',
   Received: 'received',
   Pending: 'pending',
-  MustHaveMemo: 'containsMemo',
+  MustHaveMemo: 'mustHaveMemo',
 };
 
 // Define the type for icon objects

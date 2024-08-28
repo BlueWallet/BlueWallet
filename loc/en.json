@@ -327,7 +327,7 @@
     "confirmations_lowercase": "{confirmations} confirmations",
     "copy_link": "Copy Link",
     "expand_note": "Expand Note",
-    "filter": "Filter",
+    "display": "Display",
     "cpfp_create": "Create",
     "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP—Child Pays for Parent.",
     "cpfp_no_bump": "This transaction is not bumpable.",

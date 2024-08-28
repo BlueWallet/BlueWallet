@@ -84,7 +84,7 @@ const TotalWalletsBalance: React.FC = () => {
           setIsTotalBalanceEnabledStorage(false);
           break;
         case CommonToolTipActions.CopyAmount.id:
-          Clipboard.setString(formattedBalance.toString());
+          Clipboard.setString(String(formattedBalance)); // Ensuring the value is a string
           break;
         default:
           break;
@@ -98,7 +98,7 @@ const TotalWalletsBalance: React.FC = () => {
       <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
         <View style={styles.container}>
           <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
+          <TouchableOpacity onPress={() => onPressMenuItem(String(CommonToolTipActions.ViewInBitcoin.id))}>
             <Text style={[styles.balance, styleHooks.balance]}>
               {formattedBalance}{' '}
               {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
