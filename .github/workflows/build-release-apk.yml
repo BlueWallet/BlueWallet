@@ -41,7 +41,7 @@ jobs:
         run: gem install bundler --user-install
 
       - name: Add Bundler to PATH
-        run: echo "::add-path::$(ruby -e 'puts Gem.user_dir')/bin"
+        run: echo "$(ruby -e 'puts Gem.user_dir')/bin" >> $GITHUB_PATH
 
       - name: Install Ruby Dependencies
         run: bundle install --path vendor/bundle
@@ -50,14 +50,16 @@ jobs:
         run: npm install --production
 
       - name: Build and Sign APK
+        id: build_and_sign_apk
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           FASTLANE_VERBOSE=1 bundle exec fastlane build_and_sign_apk
+        continue-on-error: false
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')($(grep versionCode android/app/build.gradle | awk '{print $2}')).apk
-          path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
+          name: BlueWallet-APK
+          path: ${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}

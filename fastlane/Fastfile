@@ -61,6 +61,7 @@ platform :android do
       prepare_keystore
       increment_version_code
       build_apk
-      sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
+      apk_path = sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
+      Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = apk_path
     end
   end
