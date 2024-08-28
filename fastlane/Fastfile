@@ -53,8 +53,13 @@ platform :android do
 
     desc "Sign the APK"
     lane :sign_apk do |options|
-        version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
-        version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+        version_name = get_version_name(
+        gradle_file_path: "android/app/build.gradle"
+        )
+
+        version_code = get_version_code(
+        gradle_file_path: "android/app/build.gradle"
+        )
 
         apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
         new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
@@ -90,15 +95,17 @@ platform :android do
         UI.user_error!("APK file not found: #{apk_path}")
         end
 
+        # Calculate SHA-256 checksum using Fastlane's sha256 action
         checksum = sha256(apk_path: apk_path)
         UI.message("SHA-256 checksum: #{checksum}")
 
+        # Get file details using Ruby's built-in methods
         file_size = File.size(apk_path)
         file_mtime = File.mtime(apk_path)
 
         UI.message("File size: #{file_size} bytes")
         UI.message("Last modified time: #{file_mtime}")
-    end
+        end
 end
 
 platform :ios do
