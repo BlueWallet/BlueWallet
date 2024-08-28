@@ -80,9 +80,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     list: {
       backgroundColor: colors.background,
     },
-    filterButton: {
-      borderColor: colors.foregroundColor,
-    },
   });
 
   const toggleFilter = useCallback((filterKey: keyof typeof activeFilters) => {
@@ -150,6 +147,16 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       });
     },
     [activeFilters.mustHaveMemo, activeFilters.pending, activeFilters.received, activeFilters.sent, txMetadata],
+  );
+
+  const onFilterMenuItemPress = useCallback(
+    (key: string) => {
+      filterToolTipActions
+        .flat()
+        .find(action => action.id === key)
+        ?.onPress();
+    },
+    [filterToolTipActions],
   );
 
   const getTransactions = useCallback(
@@ -253,16 +260,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <ToolTipMenu
             title={loc.transactions.display}
-            style={[styles.filterButton, stylesHook.filterButton]}
+            style={styles.filterButton}
             isButton
             isMenuPrimaryAction
             actions={filterToolTipActions}
-            onPressMenuItem={(key: string) =>
-              filterToolTipActions
-                .flat()
-                .find(action => action.id === key)
-                ?.onPress()
-            }
+            onPressMenuItem={onFilterMenuItemPress}
           >
             <Icon name="filter-list" type="ionicons" color={colors.foregroundColor} />
           </ToolTipMenu>
@@ -545,7 +547,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             </ScrollView>
           }
           {...refreshProps}
-          data={filterTransactions(getTransactions(limit))} // <-- Use the filtered data
+          data={filterTransactions(getTransactions(limit))}
           extraData={wallet}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
