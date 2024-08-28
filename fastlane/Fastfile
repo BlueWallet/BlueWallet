@@ -54,6 +54,8 @@ platform :android do
       )
       UI.success("APK signed successfully")
       Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
+  
+      return new_apk_path
     end
   
     desc "Build and sign the release APK (combined)"
@@ -63,5 +65,25 @@ platform :android do
       build_apk
       apk_path = sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
       Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = apk_path
+    end
+  
+    desc "Calculate SHA-256 checksum and print file details"
+    lane :apk_details do |options|
+      apk_path = options[:apk_path]
+      
+      unless File.exist?(apk_path)
+        UI.user_error!("APK file not found: #{apk_path}")
+      end
+  
+      # Calculate SHA-256 checksum using Fastlane's sha256 action
+      checksum = sha256(apk_path: apk_path)
+      UI.message("SHA-256 checksum: #{checksum}")
+  
+      # Get file details using Ruby's built-in methods
+      file_size = File.size(apk_path)
+      file_mtime = File.mtime(apk_path)
+  
+      UI.message("File size: #{file_size} bytes")
+      UI.message("Last modified time: #{file_mtime}")
     end
   end

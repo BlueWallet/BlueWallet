@@ -17,6 +17,11 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - name: Set up Ruby 3.1.6
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -43,8 +48,11 @@ jobs:
       - name: Add Bundler to PATH
         run: echo "$(ruby -e 'puts Gem.user_dir')/bin" >> $GITHUB_PATH
 
+      - name: Configure Bundler Path
+        run: bundle config set path 'vendor/bundle'
+
       - name: Install Ruby Dependencies
-        run: bundle install --path vendor/bundle
+        run: bundle install
 
       - name: Install node_modules
         run: npm install --production
@@ -56,7 +64,10 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           FASTLANE_VERBOSE=1 bundle exec fastlane build_and_sign_apk
-        continue-on-error: false
+
+      - name: Calculate APK Details
+        run: |
+          FASTLANE_VERBOSE=1 bundle exec fastlane apk_details apk_path="${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v2
