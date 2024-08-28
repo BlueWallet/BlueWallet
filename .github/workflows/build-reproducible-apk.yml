@@ -72,10 +72,10 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
-          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).apk
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).apk
 
       - uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
-          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${ env.VERSION_CODE }).sha256.txt
+          name: BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
+          path: ./android/app/build/outputs/apk/reproducible/BlueWallet-Reproducible-${{ env.VERSION_NAME }}(${{ env.VERSION_CODE }}).sha256.txt
