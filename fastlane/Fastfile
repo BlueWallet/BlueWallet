@@ -1,89 +1,303 @@
-# Fastfile
+def app_identifiers
+    [
+        "io.bluewallet.bluewallet",
+        "io.bluewallet.bluewallet.watch",
+        "io.bluewallet.bluewallet.watch.extension",
+        "io.bluewallet.bluewallet.Stickers",
+        "io.bluewallet.bluewallet.MarketWidget"
+    ]
+end
+
+def setup_provisioning_profiles(type:, platform:, readonly: true)
+    app_identifiers.each do |app_identifier|
+        match(
+        type: type,
+        platform: platform,
+        app_identifier: app_identifier,
+        readonly: readonly,
+        force_for_new_devices: !readonly
+        )
+    end
+end
 
 platform :android do
     desc "Prepare the keystore file"
     lane :prepare_keystore do
-      UI.verbose("Preparing keystore file from HEX")
-      File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
-      system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
-      File.delete("bluewallet-release-key.keystore.hex")
-      UI.success("Keystore file prepared successfully")
+        UI.verbose("Preparing keystore file from HEX")
+        File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+        system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
+        File.delete("bluewallet-release-key.keystore.hex")
+        UI.success("Keystore file prepared successfully")
     end
-  
+
     desc "Increment the version code in build.gradle"
     lane :increment_version_code do
-      UI.verbose("Incrementing version code in build.gradle")
-      increment_version_code(
+        UI.verbose("Incrementing version code in build.gradle")
+        increment_version_code(
         gradle_file_path: "android/app/build.gradle"
-      )
-      UI.success("Version code incremented successfully")
+        )
+        UI.success("Version code incremented successfully")
     end
-  
+
     desc "Build the release APK"
     lane :build_apk do
-      UI.verbose("Building the release APK")
-      gradle(
+        UI.verbose("Building the release APK")
+        gradle(
         task: "assembleRelease",
         build_type: "Release",
         project_dir: "android",
         print_command: true
-      )
-      UI.success("APK built successfully")
+        )
+        UI.success("APK built successfully")
     end
-  
+
     desc "Sign the APK"
     lane :sign_apk do |options|
-      version_name = get_version_name(
-        gradle_file_path: "android/app/build.gradle"
-      )
-  
-      version_code = get_version_code(
-        gradle_file_path: "android/app/build.gradle"
-      )
-  
-      apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
-      new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
-      new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
-      FileUtils.mv(apk_output_path, new_apk_path)
-  
-      sign_apk(
+        version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
+        version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+
+        apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
+        new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
+        new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
+        FileUtils.mv(apk_output_path, new_apk_path)
+
+        sign_apk(
         apk_path: new_apk_path,
         keystore_path: "./android/bluewallet-release-key.keystore",
         keystore_password: options[:keystore_password],
         alias: "release-key"
-      )
-      UI.success("APK signed successfully")
-      Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
-  
-      return new_apk_path
+        )
+        UI.success("APK signed successfully")
+        Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
+
+        return new_apk_path
     end
-  
+
     desc "Build and sign the release APK (combined)"
     lane :build_and_sign_apk do
-      prepare_keystore
-      increment_version_code
-      build_apk
-      apk_path = sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
-      Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = apk_path
+        prepare_keystore
+        increment_version_code
+        build_apk
+        apk_path = sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
+        Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = apk_path
     end
-  
+
     desc "Calculate SHA-256 checksum and print file details"
     lane :apk_details do |options|
-      apk_path = options[:apk_path]
-      
-      unless File.exist?(apk_path)
+        apk_path = options[:apk_path]
+        
+        unless File.exist?(apk_path)
         UI.user_error!("APK file not found: #{apk_path}")
-      end
-  
-      # Calculate SHA-256 checksum using Fastlane's sha256 action
-      checksum = sha256(apk_path: apk_path)
-      UI.message("SHA-256 checksum: #{checksum}")
-  
-      # Get file details using Ruby's built-in methods
-      file_size = File.size(apk_path)
-      file_mtime = File.mtime(apk_path)
-  
-      UI.message("File size: #{file_size} bytes")
-      UI.message("Last modified time: #{file_mtime}")
+        end
+
+        checksum = sha256(apk_path: apk_path)
+        UI.message("SHA-256 checksum: #{checksum}")
+
+        file_size = File.size(apk_path)
+        file_mtime = File.mtime(apk_path)
+
+        UI.message("File size: #{file_size} bytes")
+        UI.message("Last modified time: #{file_mtime}")
     end
-  end
+end
+
+platform :ios do
+    before_all do |lane, options|
+        UI.message("Setting up for all lanes...")
+        UI.message("Discarding all untracked changes before running any lane...")
+        sh("git clean -fd")
+        sh("git checkout -- .")
+    end
+
+    desc "Register new devices from a file and update provisioning profiles"
+    lane :register_devices_from_txt do
+        UI.message("Registering new devices from file...")
+        csv_path = "../ios/devices.txt" 
+
+        register_devices(devices_file: csv_path)
+        setup_provisioning_profiles(type: "development", platform: "ios", readonly: false)
+
+        UI.message("Development provisioning profiles updated.")
+    end
+
+    desc "Create a temporary keychain"
+    lane :create_temp_keychain do
+        UI.message("Creating a temporary keychain...")
+        create_keychain(
+        name: "temp_keychain",
+        password: ENV["KEYCHAIN_PASSWORD"],
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        lock_when_sleeps: true
+        )
+        UI.message("Temporary keychain created successfully.")
+    end
+
+    desc "Setup provisioning profiles for iOS"
+    lane :setup_provisioning_profiles do |options|
+        UI.message("Setting up provisioning profiles...")
+        platform = options[:platform] || "ios"
+        setup_provisioning_profiles(type: "appstore", platform: platform)
+    end
+
+    desc "Fetch certificates and provisioning profiles for Mac Catalyst"
+    lane :fetch_profiles_catalyst do |options|
+        type = options[:type] || "development"
+        setup_provisioning_profiles(type: type, platform: "catalyst")
+    end
+
+    desc "Clear derived data"
+    lane :clear_derived_data_lane do
+        UI.message("Clearing derived data...")
+        clear_derived_data
+    end
+
+    desc "Increment build number"
+    lane :increment_build_number_lane do
+        UI.message("Incrementing build number to current timestamp...")
+        increment_build_number(
+        xcodeproj: "BlueWallet.xcodeproj", 
+        build_number: ENV["NEW_BUILD_NUMBER"]
+        )
+        UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
+    end
+
+    desc "Install CocoaPods dependencies"
+    lane :install_pods do
+        UI.message("Installing CocoaPods dependencies...")
+        cocoapods
+    end
+
+    desc "Build the application"
+    lane :build_app_lane do
+        UI.message("Building the application...")
+        build_app(
+        scheme: "BlueWallet",
+        workspace: "BlueWallet.xcworkspace",
+        export_method: "app-store",
+        include_bitcode: false,
+        configuration: "Release",
+        skip_profile_detection: true,
+        include_symbols: true,
+        export_team_id: ENV["ITC_TEAM_ID"],
+        export_options: {
+            signingStyle: "manual",
+            provisioningProfiles: {
+            'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+            'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+            'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+            'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+            'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+            }
+        },
+        xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+        output_directory: "./build",
+        output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        buildlog_path: "./build_logs"
+        )
+    end
+
+    desc "Upload to TestFlight without processing wait"
+    lane :upload_to_testflight_lane do
+        attempts = 0
+        max_attempts = 3
+        begin
+        UI.message("Uploading to TestFlight without processing wait...")
+        changelog = ENV["LATEST_COMMIT_MESSAGE"]
+
+        upload_to_testflight(
+            api_key_path: "appstore_api_key.json",
+            ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+            skip_waiting_for_build_processing: true,
+            changelog: changelog
+        )
+        rescue => exception
+        attempts += 1
+        if attempts <= max_attempts
+            wait_time = 180 # 3 minutes in seconds
+            UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
+            sleep(wait_time)
+            retry
+        else
+            UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+            raise exception
+        end
+        end
+    end
+
+    desc "Deploy to TestFlight"
+    lane :deploy do |options|
+        UI.message("Starting build process...")
+
+        update_wwdr_certificate
+        setup_app_store_connect_api_key
+        setup_provisioning_profiles
+        clear_derived_data_lane
+        increment_build_number_lane
+
+        install_pods unless File.directory?("Pods")
+
+        build_app_lane
+        upload_to_testflight_lane
+
+        delete_keychain(name: "temp_keychain")
+
+        last_commit = last_git_commit
+        already_built_flag = ".already_built_#{last_commit[:sha]}"
+        File.write(already_built_flag, Time.now.to_s)
+    end
+
+    desc "Update 'What's New' section in App Store Connect for all localizations"
+    lane :update_release_notes do
+        release_notes_path = "../../release-notes.txt"
+
+        unless File.exist?(release_notes_path)
+        UI.error("Release notes file does not exist at path: #{release_notes_path}")
+        next
+        end
+
+        release_notes_text = File.read(release_notes_path)
+        UI.message("Release Notes Content:\n#{release_notes_text}")
+
+        app_version = get_version_number
+        UI.message("Version being updated: #{app_version}")
+
+        localized_release_notes = Hash.new(release_notes_text).merge({
+        'en-US' => release_notes_text, # English (U.S.) - Primary
+        'ar-SA' => release_notes_text, # Arabic
+        'zh-Hans' => release_notes_text, # Chinese (Simplified)
+        'da' => release_notes_text, # Danish
+        'nl-NL' => release_notes_text, # Dutch
+        'fi' => release_notes_text, # Finnish
+        'fr-FR' => release_notes_text, # French
+        'de-DE' => release_notes_text, # German
+        'he' => release_notes_text, # Hebrew
+        'hu' => release_notes_text, # Hungarian
+        'it' => release_notes_text, # Italian
+        'pt-BR' => release_notes_text, # Portuguese (Brazil)
+        'pt-PT' => release_notes_text, # Portuguese (Portugal)
+        'ro' => release_notes_text, # Romanian
+        'ru' => release_notes_text, # Russian
+        'es-MX' => release_notes_text, # Spanish (Mexico)
+        'es-ES' => release_notes_text, # Spanish (Spain)
+        'sv' => release_notes_text, # Swedish
+        })
+
+        localized_release_notes.each do |locale, notes|
+        UI.message("Setting release notes for #{locale}:\n#{notes}\n")
+        end
+
+        deliver(
+        app_identifier: app_identifiers.first,
+        app_version: app_version,
+        skip_metadata: true,
+        skip_screenshots: true,
+        skip_binary_upload: true,
+        force: true,
+        release_notes: localized_release_notes,
+        submit_for_review: false,
+        automatic_release: false
+        )
+    end
+end
