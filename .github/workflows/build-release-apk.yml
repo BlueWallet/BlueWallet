@@ -38,10 +38,13 @@ jobs:
           cache: 'gradle'
 
       - name: Install Bundler
-        run: gem install bundler
+        run: gem install bundler --user-install
+
+      - name: Add Bundler to PATH
+        run: echo "::add-path::$(ruby -e 'puts Gem.user_dir')/bin"
 
       - name: Install Ruby Dependencies
-        run: bundle install
+        run: bundle install --path vendor/bundle
 
       - name: Install node_modules
         run: npm install --production
@@ -54,7 +57,7 @@ jobs:
           FASTLANE_VERBOSE=1 bundle exec fastlane build_and_sign_apk
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')($(grep versionCode android/app/build.gradle | awk '{print $2}')).apk
           path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
