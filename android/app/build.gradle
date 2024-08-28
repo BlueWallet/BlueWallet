@@ -117,7 +117,6 @@ android {
             crunchPngs false
             signingConfig signingConfigs.reproducible
             zipAlignEnabled true // Ensure APK is zip-aligned
-            deterministicApk true // Custom flag to enforce deterministic builds (hypothetical)
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ['release']
         }
