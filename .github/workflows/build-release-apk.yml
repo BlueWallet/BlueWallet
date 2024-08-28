@@ -1,4 +1,4 @@
-name: Build and Sign APK (Android)
+name: Build, Sign, and Upload APK (Android)
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Specify node version
+      - name: Set up Node.js and Java
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -37,68 +37,27 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Install Ruby
+      - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Install Dependencies with Bundler
-        run: bundle install
-
-      - name: Install node_modules
-        run: npm install
-
-      - name: Set up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      - name: Install dependencies
         run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      - name: Prepare Keystore
-        run: bundle exec fastlane android prepare_keystore
-
-      - name: Increment Version Code
-        run: bundle exec fastlane android increment_android_version_code
+          bundle install
+          npm install
 
       - name: Build APK
         run: bundle exec fastlane android build_apk
+        env:
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Sign APK
-        run: |
-          bundle exec fastlane android sign_apk
+        run: bundle exec fastlane android sign_apk
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Rename and Upload APK as Artifact
-        run: |
-          version_name=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          version_code=$(grep versionCode android/app/build.gradle | awk '{print $2}')
-          apk_path="./android/app/build/outputs/apk/release/BlueWallet-${version_name}(${version_code}).apk"
-          mv ./android/app/build/outputs/apk/release/app-release.apk "$apk_path"
-          echo "APK path: $apk_path"
-        shell: bash
-
-      - name: Upload APK as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-APK
-          path: ./android/app/build/outputs/apk/release/BlueWallet-*.apk
-
-      - name: Post PR Comment (Optional)
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ github.run_number }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The APK build ${buildNumber} is ready for download.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+      - name: Upload APK
+        run: bundle exec fastlane android upload_apk

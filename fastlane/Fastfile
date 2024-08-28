@@ -23,91 +23,74 @@ end
 platform :android do
     desc "Prepare the keystore file"
     lane :prepare_keystore do
-        UI.verbose("Preparing keystore file from HEX")
-        File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
-        system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
-        File.delete("bluewallet-release-key.keystore.hex")
-        UI.success("Keystore file prepared successfully")
+      UI.verbose("Preparing keystore file from HEX")
+      File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+      system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
+      File.delete("bluewallet-release-key.keystore.hex")
+      UI.success("Keystore file prepared successfully")
     end
-
+  
     desc "Increment the version code in build.gradle"
-    lane :increment_version_code do
-        UI.verbose("Incrementing version code in build.gradle")
-        increment_version_code(
+    lane :increment_android_version_code do
+      UI.verbose("Incrementing version code in build.gradle")
+      increment_version_code(
         gradle_file_path: "android/app/build.gradle"
-        )
-        UI.success("Version code incremented successfully")
+      )
+      UI.success("Version code incremented successfully")
     end
-
-    desc "Build the release APK"
+  
+    desc "Build the APK"
     lane :build_apk do
-        UI.verbose("Building the release APK")
-        gradle(
+      prepare_keystore
+      increment_android_version_code
+  
+      UI.verbose("Building the release APK")
+      gradle(
         task: "assembleRelease",
         build_type: "Release",
         project_dir: "android",
         print_command: true
-        )
-        UI.success("APK built successfully")
+      )
+      UI.success("APK built successfully")
     end
-
-    desc "Sign the APK"
-    lane :sign_apk do |options|
-        version_name = get_version_name(
-        gradle_file_path: "android/app/build.gradle"
-        )
-
-        version_code = get_version_code(
-        gradle_file_path: "android/app/build.gradle"
-        )
-
-        apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
-        new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
-        new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
-        FileUtils.mv(apk_output_path, new_apk_path)
-
-        sign_apk(
+  
+    desc "Sign the APK and rename it"
+    lane :sign_apk do
+      version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
+      version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+  
+      apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
+      new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
+      new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
+      FileUtils.mv(apk_output_path, new_apk_path)
+  
+      sign_apk(
         apk_path: new_apk_path,
         keystore_path: "./android/bluewallet-release-key.keystore",
-        keystore_password: options[:keystore_password],
+        keystore_password: ENV['KEYSTORE_PASSWORD'],
         alias: "release-key"
-        )
-        UI.success("APK signed successfully")
-        Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
-
-        return new_apk_path
+      )
+      UI.success("APK signed successfully")
+  
+      Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
     end
-
-    desc "Build and sign the release APK (combined)"
-    lane :build_and_sign_apk do
-        prepare_keystore
-        increment_version_code
-        build_apk
-        apk_path = sign_apk(keystore_password: ENV['KEYSTORE_PASSWORD'])
-        Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = apk_path
-    end
-
-    desc "Calculate SHA-256 checksum and print file details"
-    lane :apk_details do |options|
-        apk_path = options[:apk_path]
-        
-        unless File.exist?(apk_path)
+  
+    desc "Upload APK as an artifact"
+    lane :upload_apk do
+      apk_path = lane_context[SharedValues::APK_OUTPUT_PATH]
+  
+      unless File.exist?(apk_path)
         UI.user_error!("APK file not found: #{apk_path}")
-        end
-
-        # Calculate SHA-256 checksum using Fastlane's sha256 action
-        checksum = sha256(apk_path: apk_path)
-        UI.message("SHA-256 checksum: #{checksum}")
-
-        # Get file details using Ruby's built-in methods
-        file_size = File.size(apk_path)
-        file_mtime = File.mtime(apk_path)
-
-        UI.message("File size: #{file_size} bytes")
-        UI.message("Last modified time: #{file_mtime}")
-        end
-end
-
+      end
+  
+      # Example of an upload process, e.g., to a server or a storage bucket
+      UI.message("Uploading APK: #{apk_path}")
+      # Here you can add logic to upload the APK to a server or other storage service
+  
+      UI.success("APK uploaded successfully")
+    end
+  end
+  
 platform :ios do
     before_all do |lane, options|
         UI.message("Setting up for all lanes...")
