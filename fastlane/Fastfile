@@ -39,22 +39,24 @@ platform :android do
     lane :increment_android_version_code do
       UI.verbose("Incrementing version code in build.gradle")
   
-      # Explicitly set the directory
-      Dir.chdir("android/app") do
-        gradle_file = "build.gradle"
+      gradle_file = "android/app/build.gradle"
   
-        # Read the file content
-        gradle_content = File.read(gradle_file)
-  
-        # Increment the versionCode
-        new_gradle_content = gradle_content.gsub(/versionCode (\d+)/) do |match|
-          version_code = $1.to_i + 1
-          "versionCode #{version_code}"
-        end
-  
-        # Write the changes back to the file
-        File.open(gradle_file, "w") { |file| file.puts new_gradle_content }
+      # Check if the file exists
+      unless File.exist?(gradle_file)
+        UI.user_error!("Could not find build.gradle at #{gradle_file}")
       end
+  
+      # Read the file content
+      gradle_content = File.read(gradle_file)
+  
+      # Increment the versionCode
+      new_gradle_content = gradle_content.gsub(/versionCode (\d+)/) do |match|
+        version_code = $1.to_i + 1
+        "versionCode #{version_code}"
+      end
+  
+      # Write the changes back to the file
+      File.open(gradle_file, "w") { |file| file.puts new_gradle_content }
   
       UI.success("Version code incremented successfully")
     end
