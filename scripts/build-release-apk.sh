@@ -40,7 +40,7 @@ if [ "$BUILD_TYPE" == "release" ]; then
 elif [ "$BUILD_TYPE" == "reproducible" ]; then
     APK_OUTPUT_DIR="./app/build/outputs/apk/reproducible"
     FINAL_APK_DIR="./app/build/outputs/apk/reproducible"
-    APK_FILENAME="app-$BUILD_TYPE-unsigned.apk"
+    APK_FILENAME="app-$BUILD_TYPE.apk"
     FINAL_APK_PATH="$FINAL_APK_DIR/BlueWallet-Reproducible-${VERSION_NAME}(${VERSION_CODE}).apk"
     echo "APK_OUTPUT_DIR: $APK_OUTPUT_DIR"
     echo "FINAL_APK_DIR: $FINAL_APK_DIR"
@@ -58,10 +58,6 @@ else
     exit 1
 fi
 
-# Find apksigner tool
-echo "Locating apksigner..."
-APKSIGNER_PATH=$(find "$ANDROID_HOME" -type f -name apksigner | grep -v jar | head -n 1)
-echo "Using apksigner at: $APKSIGNER_PATH"
 
 # Build the APK
 echo "Building $BUILD_TYPE APK..."
