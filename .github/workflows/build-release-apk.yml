@@ -37,41 +37,24 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Install Ruby Dependencies
+        run: bundle install
+
       - name: Install node_modules
         run: npm install --production
 
-      - name: Generate Build Number based on timestamp
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-
-      - name: Prepare Keystore
+      - name: Build and Sign APK
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-        run: |
-          bundle exec fastlane prepare_keystore
-
-      - name: Update Version Code
-        env:
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: |
-          bundle exec fastlane update_version_code build_number:$BUILD_NUMBER
-
-      - name: Build APK
-        run: |
-          bundle exec fastlane build_apk
-
-      - name: Sign APK
-        env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: |
-          bundle exec fastlane sign_apk
+          FASTLANE_VERBOSE=1 bundle exec fastlane build_and_sign_apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v2
-        if: success()
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          name: BlueWallet-$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')($(grep versionCode android/app/build.gradle | awk '{print $2}')).apk
+          path: ${{ steps.build_and_sign_apk.outputs.apk_output_path }}
