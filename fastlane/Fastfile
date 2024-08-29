@@ -279,55 +279,55 @@ platform :ios do
   end
 
   desc "Update 'What's New' section in App Store Connect for all localizations"
-  lane :update_release_notes do
-    release_notes_path = "../../release-notes.txt"
+lane :update_release_notes do
+  release_notes_path = "../../release-notes.txt"
 
-    unless File.exist?(release_notes_path)
-      UI.error("Release notes file does not exist at path: #{release_notes_path}")
-      next
-    end
-
-    release_notes_text = File.read(release_notes_path)
-    UI.message("Release Notes Content:\n#{release_notes_text}")
-
-    app_version = get_version_number
-    UI.message("Version being updated: #{app_version}")
-
-    localized_release_notes = Hash.new(release_notes_text).merge({
-      'en-US' => release_notes_text, # English (U.S.) - Primary
-      'ar-SA' => release_notes_text, # Arabic
-      'zh-Hans' => release_notes_text, # Chinese (Simplified)
-      'da' => release_notes_text, # Danish
-      'nl-NL' => release_notes_text, # Dutch
-      'fi' => release_notes_text, # Finnish
-      'fr-FR' => release_notes_text, # French
-      'de-DE' => release notes_text, # German
-      'he' => release notes_text, # Hebrew
-      'hu' => release notes_text, # Hungarian
-      'it' => release notes text, # Italian
-      'pt-BR' => release notes text, # Portuguese (Brazil)
-      'pt-PT' => release notes text, # Portuguese (Portugal)
-      'ro' => release notes text, # Romanian
-      'ru' => release notes text, # Russian
-      'es-MX' => release notes text, # Spanish (Mexico)
-      'es-ES' => release notes text, # Spanish (Spain)
-      'sv' => release notes text, # Swedish
-    })
-
-    localized_release_notes.each do |locale, notes|
-      UI.message("Setting release notes for #{locale}:\n#{notes}\n")
-    end
-
-    deliver(
-      app_identifier: app_identifiers.first,
-      app_version: app_version,
-      skip_metadata: true,
-      skip_screenshots: true,
-      skip_binary_upload: true,
-      force: true,
-      release_notes: localized_release_notes,
-      submit_for_review: false,
-      automatic_release: false
-    )
+  unless File.exist?(release_notes_path)
+    UI.error("Release notes file does not exist at path: #{release_notes_path}")
+    next
   end
+
+  release_notes_text = File.read(release_notes_path)
+  UI.message("Release Notes Content:\n#{release_notes_text}")
+
+  app_version = get_version_number
+  UI.message("Version being updated: #{app_version}")
+
+  localized_release_notes = {
+    'en-US' => release_notes_text, # English (U.S.) - Primary
+    'ar-SA' => release_notes_text, # Arabic
+    'zh-Hans' => release_notes_text, # Chinese (Simplified)
+    'da' => release_notes_text, # Danish
+    'nl-NL' => release_notes_text, # Dutch
+    'fi' => release_notes_text, # Finnish
+    'fr-FR' => release_notes_text, # French
+    'de-DE' => release_notes_text, # German
+    'he' => release_notes_text, # Hebrew
+    'hu' => release_notes_text, # Hungarian
+    'it' => release_notes_text, # Italian
+    'pt-BR' => release_notes_text, # Portuguese (Brazil)
+    'pt-PT' => release_notes_text, # Portuguese (Portugal)
+    'ro' => release_notes_text, # Romanian
+    'ru' => release_notes_text, # Russian
+    'es-MX' => release_notes_text, # Spanish (Mexico)
+    'es-ES' => release_notes_text, # Spanish (Spain)
+    'sv' => release_notes_text, # Swedish
+  }
+
+  localized_release_notes.each do |locale, notes|
+    UI.message("Setting release notes for #{locale}:\n#{notes}\n")
+  end
+
+  deliver(
+    app_identifier: app_identifiers.first,
+    app_version: app_version,
+    skip_metadata: true,
+    skip_screenshots: true,
+    skip_binary_upload: true,
+    force: true,
+    release_notes: localized_release_notes,
+    submit_for_review: false,
+    automatic_release: false
+  )
+end
 end
