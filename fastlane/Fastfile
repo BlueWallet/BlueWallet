@@ -20,8 +20,6 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
   end
 end
 
-default_platform :android
-
 platform :android do
   before_all do
     # Ensure we're in the correct working directory
