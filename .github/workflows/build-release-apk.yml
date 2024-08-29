@@ -41,18 +41,47 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
+      - name: Set up Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '3.1.6'
+
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Install Fastlane and other Ruby gems
+        run: bundle install
+
       - name: Generate Build Number based on timestamp
         id: build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
 
-      - name: Run Fastlane
+      - name: Prepare Keystore
         uses: maierj/fastlane-action@v2.0.0
         with:
-          lane: "assemble_release_apk"
+          lane: "prepare_keystore"
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+
+      - name: Update Version Code
+        uses: maierj/fastlane-action@v2.0.0
+        with:
+          lane: "update_version_code"
+        env:
+          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+
+      - name: Build APK
+        uses: maierj/fastlane-action@v2.0.0
+        with:
+          lane: "build_apk"
+
+      - name: Sign APK
+        uses: maierj/fastlane-action@v2.0.0
+        with:
+          lane: "sign_apk"
+        env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
