@@ -1,4 +1,3 @@
-
 def app_identifiers
     [
         "io.bluewallet.bluewallet",
@@ -25,93 +24,100 @@ platform :android do
     desc "Prepare the keystore file"
     lane :prepare_keystore do
       UI.verbose("Preparing keystore file from HEX")
-  
+
       # Ensure the directory exists
-      FileUtils.mkdir_p("android") unless Dir.exist?("android")
-  
-      File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
-      system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore")
-      File.delete("bluewallet-release-key.keystore.hex")
+      Dir.chdir("android") do
+        FileUtils.mkdir_p(".")
+        File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+        system("xxd -plain -revert bluewallet-release-key.keystore.hex > ./bluewallet-release-key.keystore")
+        File.delete("bluewallet-release-key.keystore.hex")
+      end
+
       UI.success("Keystore file prepared successfully")
     end
-  
+
     desc "Increment the version code in build.gradle"
     lane :increment_android_version_code do
       UI.verbose("Incrementing version code in build.gradle")
-  
+
       gradle_file = "android/app/build.gradle"
-  
+
       # Check if the file exists
       unless File.exist?(gradle_file)
         UI.user_error!("Could not find build.gradle at #{gradle_file}")
       end
-  
+
       # Read the file content
       gradle_content = File.read(gradle_file)
-  
+
       # Increment the versionCode
       new_gradle_content = gradle_content.gsub(/versionCode (\d+)/) do |match|
         version_code = $1.to_i + 1
         "versionCode #{version_code}"
       end
-  
+
       # Write the changes back to the file
       File.open(gradle_file, "w") { |file| file.puts new_gradle_content }
-  
+
       UI.success("Version code incremented successfully")
     end
-  
+
     desc "Build the APK"
     lane :build_apk do
       prepare_keystore
       increment_android_version_code
-  
+
       UI.verbose("Building the release APK")
-      gradle(
-        task: "assembleRelease",
-        build_type: "Release",
-        project_dir: "android",
-        print_command: true
-      )
+      Dir.chdir("android") do
+        gradle(
+          task: "assembleRelease",
+          build_type: "Release",
+          project_dir: ".",
+          print_command: true
+        )
+      end
       UI.success("APK built successfully")
     end
-  
+
     desc "Sign the APK and rename it"
     lane :sign_apk do
       version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
       version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
-  
+
       apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
       new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
       new_apk_path = File.join(File.dirname(apk_output_path), new_apk_name)
       FileUtils.mv(apk_output_path, new_apk_path)
-  
-      sign_apk(
-        apk_path: new_apk_path,
-        keystore_path: "./android/bluewallet-release-key.keystore",
-        keystore_password: ENV['KEYSTORE_PASSWORD'],
-        alias: "release-key"
-      )
+
+      Dir.chdir("android") do
+        sign_apk(
+          apk_path: new_apk_path,
+          keystore_path: "./bluewallet-release-key.keystore",
+          keystore_password: ENV['KEYSTORE_PASSWORD'],
+          alias: "release-key"
+        )
+      end
+
       UI.success("APK signed successfully")
-  
+
       Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
     end
-  
+
     desc "Upload APK as an artifact"
     lane :upload_apk do
       apk_path = lane_context[SharedValues::APK_OUTPUT_PATH]
-  
+
       unless File.exist?(apk_path)
         UI.user_error!("APK file not found: #{apk_path}")
       end
-  
+
       # Example of an upload process, e.g., to a server or a storage bucket
       UI.message("Uploading APK: #{apk_path}")
       # Here you can add logic to upload the APK to a server or other storage service
-  
+
       UI.success("APK uploaded successfully")
     end
-  end
+end
 
 platform :ios do
     before_all do |lane, options|
