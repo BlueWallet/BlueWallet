@@ -31,7 +31,7 @@ platform :android do
     UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
 
     UI.message("Updating version code in build.gradle...")
-    sh "sed -i'.original' \"s/versionCode 1/versionCode #{build_number}/g\" app/build.gradle"
+    sh "sed -i.bak 's/versionCode [0-9]*/versionCode #{build_number}/' app/build.gradle && rm app/build.gradle.bak"
     UI.message("Version code updated to #{build_number}.")
   end
 
