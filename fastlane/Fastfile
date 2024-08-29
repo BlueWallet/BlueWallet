@@ -21,42 +21,24 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
 end
 
 platform :android do
-  # Ensure we're in the correct directory
-  def ensure_android_directory
-    Dir.chdir("android") do
-      UI.message("Current Directory: #{Dir.pwd}")
-      UI.message("Contents: #{Dir.entries(Dir.pwd)}")
-    end
-  end
-
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    ensure_android_directory
-
     UI.verbose("Preparing keystore file from HEX")
 
-    File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
-    system("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore")
-    File.delete("bluewallet-release-key.keystore.hex")
+    File.write("android/bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+    sh("xxd -plain -revert android/bluewallet-release-key.keystore.hex > android/bluewallet-release-key.keystore")
+    File.delete("android/bluewallet-release-key.keystore.hex")
 
     UI.success("Keystore file prepared successfully")
   end
 
   desc "Increment the version code in build.gradle"
-  lane :increment_android_version_code do
-    ensure_android_directory
-
+  lane :increment_version_code do
     UI.verbose("Incrementing version code in build.gradle")
 
-    gradle_file = "app/build.gradle"
-
-    unless File.exist?(gradle_file)
-      UI.user_error!("Could not find build.gradle at #{gradle_file}")
-    end
-
-    # Increment the version code using a plugin
+    # Increment version code using fastlane's built-in versioning plugin
     increment_version_code(
-      gradle_file_path: gradle_file
+      gradle_file_path: "android/app/build.gradle"
     )
 
     UI.success("Version code incremented successfully")
@@ -64,27 +46,22 @@ platform :android do
 
   desc "Build the APK"
   lane :build_apk do
-    ensure_android_directory
-
     prepare_keystore
-    increment_android_version_code
+    increment_version_code
 
     UI.verbose("Building the release APK")
     gradle(
       task: "assembleRelease",
-      build_type: "Release",
-      project_dir: ".",
-      print_command: true
+      project_dir: "android",
+      build_type: "Release"
     )
     UI.success("APK built successfully")
   end
 
-  desc "Sign the APK and rename it"
+  desc "Sign the APK"
   lane :sign_apk do
-    ensure_android_directory
-
-    version_name = get_version_name(gradle_file_path: "app/build.gradle")
-    version_code = get_version_code(gradle_file_path: "app/build.gradle")
+    version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
+    version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
 
     apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
     new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
@@ -93,20 +70,17 @@ platform :android do
 
     sign_apk(
       apk_path: new_apk_path,
-      keystore_path: "bluewallet-release-key.keystore",
+      keystore_path: "android/bluewallet-release-key.keystore",
       keystore_password: ENV['KEYSTORE_PASSWORD'],
       alias: "release-key"
     )
 
     UI.success("APK signed successfully")
-
     Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
   end
 
   desc "Upload APK as an artifact"
   lane :upload_apk do
-    ensure_android_directory
-
     apk_path = lane_context[SharedValues::APK_OUTPUT_PATH]
 
     unless File.exist?(apk_path)
@@ -117,6 +91,13 @@ platform :android do
     # Add your logic here to upload the APK to a server or storage service
 
     UI.success("APK uploaded successfully")
+  end
+
+  desc "Full build, sign, and upload process"
+  lane :build_sign_and_upload do
+    build_apk
+    sign_apk
+    upload_apk
   end
 end
 
