@@ -1,4 +1,4 @@
-name: Build and Release Android APK
+name: Build, Sign, and Test Android APK
 
 on:
   push:
@@ -7,10 +7,13 @@ on:
   pull_request:
     branches:
       - master
+    types: [opened, reopened, synchronize, labeled, unlabeled]
 
 jobs:
   build:
     runs-on: macos-latest
+    outputs:
+      apk_path: ${{ steps.upload_apk.outputs.apk_path }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -26,7 +29,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11'
           cache: 'gradle'
 
       - name: Setup Ruby
@@ -35,17 +38,64 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Install dependencies
+      - name: Install Fastlane dependencies
+        working-directory: android
         run: bundle install
 
       - name: Build, Sign, and Prepare APK
+        working-directory: android
         run: bundle exec fastlane android build_sign_and_prepare_apk
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Upload APK as Artifact
+        id: upload_apk
         uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-APK
           path: android/app/build/outputs/apk/release/BlueWallet-*.apk
+
+  upload_to_browserstack:
+    runs-on: macos-latest
+    needs: build
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack')
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install Fastlane dependencies
+        working-directory: android
+        run: bundle install
+
+      - name: Download APK from Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: BlueWallet-APK
+          path: android/app/build/outputs/apk/release/
+
+      - name: Upload APK to BrowserStack
+        working-directory: android
+        run: bundle exec fastlane android upload_to_browserstack
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+
+      - name: Post PR Comment with BrowserStack Link
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const browserstackDashboardUrl = `https://www.browserstack.com/dashboard`;
+            const message = `The APK has been uploaded to BrowserStack. You can view your uploaded apps in the [BrowserStack Dashboard](${browserstackDashboardUrl}).`;
+            github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: message
+            });
