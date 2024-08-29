@@ -36,7 +36,6 @@ platform :android do
   lane :increment_version_code do
     UI.verbose("Incrementing version code in build.gradle")
 
-    # Increment version code using fastlane's built-in versioning plugin
     increment_version_code(
       gradle_file_path: "android/app/build.gradle"
     )
@@ -44,10 +43,24 @@ platform :android do
     UI.success("Version code incremented successfully")
   end
 
+  desc "Commit version bump"
+  lane :commit_version_bump do
+    version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+    
+    git_add(path: "android/app/build.gradle")
+    commit_version_bump(
+      message: "Version bump to #{version_code}"
+    )
+    push_to_git_remote
+
+    UI.success("Version bump committed and pushed successfully")
+  end
+
   desc "Build the APK"
   lane :build_apk do
     prepare_keystore
     increment_version_code
+    commit_version_bump
 
     UI.verbose("Building the release APK")
     gradle(
@@ -79,25 +92,10 @@ platform :android do
     Actions.lane_context[SharedValues::APK_OUTPUT_PATH] = new_apk_path
   end
 
-  desc "Upload APK as an artifact"
-  lane :upload_apk do
-    apk_path = lane_context[SharedValues::APK_OUTPUT_PATH]
-
-    unless File.exist?(apk_path)
-      UI.user_error!("APK file not found: #{apk_path}")
-    end
-
-    UI.message("Uploading APK: #{apk_path}")
-    # Add your logic here to upload the APK to a server or storage service
-
-    UI.success("APK uploaded successfully")
-  end
-
-  desc "Full build, sign, and upload process"
-  lane :build_sign_and_upload do
+  desc "Full build, sign, and prepare APK for upload"
+  lane :build_sign_and_prepare_apk do
     build_apk
     sign_apk
-    upload_apk
   end
 end
 
