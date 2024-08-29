@@ -21,8 +21,8 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
 end
 
 platform :android do
-  desc "Ensure working directory is android"
-  lane :ensure_android_directory do
+  # Ensure we're in the correct directory
+  def ensure_android_directory
     Dir.chdir("android") do
       UI.message("Current Directory: #{Dir.pwd}")
       UI.message("Contents: #{Dir.entries(Dir.pwd)}")
@@ -50,26 +50,14 @@ platform :android do
 
     gradle_file = "app/build.gradle"
 
-    # Check if the file exists
     unless File.exist?(gradle_file)
       UI.user_error!("Could not find build.gradle at #{gradle_file}")
     end
 
-    # Log the directory and its contents before modifying the file
-    UI.message("Current Directory (increment_android_version_code): #{Dir.pwd}")
-    UI.message("Contents: #{Dir.entries(Dir.pwd)}")
-
-    # Read the file content
-    gradle_content = File.read(gradle_file)
-
-    # Increment the versionCode
-    new_gradle_content = gradle_content.gsub(/versionCode (\d+)/) do |match|
-      version_code = $1.to_i + 1
-      "versionCode #{version_code}"
-    end
-
-    # Write the changes back to the file
-    File.open(gradle_file, "w") { |file| file.puts new_gradle_content }
+    # Increment the version code using a plugin
+    increment_version_code(
+      gradle_file_path: gradle_file
+    )
 
     UI.success("Version code incremented successfully")
   end
@@ -77,6 +65,7 @@ platform :android do
   desc "Build the APK"
   lane :build_apk do
     ensure_android_directory
+
     prepare_keystore
     increment_android_version_code
 
@@ -84,7 +73,7 @@ platform :android do
     gradle(
       task: "assembleRelease",
       build_type: "Release",
-      project_dir: ".", # We're already in the android directory
+      project_dir: ".",
       print_command: true
     )
     UI.success("APK built successfully")
@@ -125,7 +114,7 @@ platform :android do
     end
 
     UI.message("Uploading APK: #{apk_path}")
-    # Here you can add logic to upload the APK to a server or other storage service
+    # Add your logic here to upload the APK to a server or storage service
 
     UI.success("APK uploaded successfully")
   end
