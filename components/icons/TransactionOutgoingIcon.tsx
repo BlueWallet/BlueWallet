@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from '../themes';
@@ -7,17 +7,17 @@ import { useTheme } from '../themes';
 const styles = StyleSheet.create({
   boxIncoming: {
     position: 'relative',
-  },
+  } as ViewStyle,
   ballOutgoing: {
     width: 30,
     height: 30,
     borderRadius: 15,
     transform: [{ rotate: '225deg' }],
     justifyContent: 'center',
-  },
+  } as ViewStyle,
 });
 
-const TransactionOutgoingIcon = props => {
+const TransactionOutgoingIcon: React.FC = () => {
   const { colors } = useTheme();
   const stylesBlueIconHooks = StyleSheet.create({
     ballOutgoing: {
