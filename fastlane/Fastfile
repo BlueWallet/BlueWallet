@@ -2,6 +2,39 @@ def app_identifiers
   ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
 end
 
+platform :android do
+  desc "Assemble Release APK"
+  lane :assemble_release_apk do |options|
+    # Save the keystore file
+    sh "echo $KEYSTORE_FILE_HEX > bluewallet-release-key.keystore.hex"
+    sh "xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore"
+    sh "rm bluewallet-release-key.keystore.hex"
+
+    # Update version code in build.gradle
+    build_number = options[:build_number]
+    sh "sed -i'.original' \"s/versionCode 1/versionCode #{build_number}/g\" android/app/build.gradle"
+
+    # Extract version name from build.gradle
+    version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'")
+    version_name.strip!
+
+    # Build the APK
+    gradle(task: "assembleRelease")
+
+    # Rename APK with version and build number
+    apk_output_path = "./android/app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
+    sh "mv ./android/app/build/outputs/apk/release/app-release-unsigned.apk #{apk_output_path}"
+
+    # Signing the APK
+    apksigner_path = sh("find $ANDROID_HOME | grep apksigner | grep -v jar").strip
+    sh "#{apksigner_path} sign --ks ./android/bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD #{apk_output_path}"
+
+    # Export environment variables for GitHub Actions
+    sh "echo \"VERSION_NAME=#{version_name}\" >> $GITHUB_ENV"
+    sh "echo \"APK_OUTPUT_PATH=#{apk_output_path}\" >> $GITHUB_ENV"
+  end
+end
+
 platform :ios do
 
   before_all do |lane, options|

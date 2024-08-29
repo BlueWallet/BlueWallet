@@ -1,4 +1,5 @@
 name: BuildReleaseApk
+
 on:
   pull_request:
     branches:
@@ -40,28 +41,24 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
-      - name: Extract Version Name
-        id: version_name
-        run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
-
       - name: Generate Build Number based on timestamp
+        id: build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
 
-      - name: Build
+      - name: Run Fastlane
+        uses: maierj/fastlane-action@v2.0.0
+        with:
+          lane: "assemble_release_apk"
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: ./scripts/build-release-apk.sh
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
         if: success()
         with:
           name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          path: ${{ env.APK_OUTPUT_PATH }}

@@ -1,1 +1,0 @@
-bitcoin,cartera,blockchain,btc,criptomoneda,comprar,samourai,electrum,ethereum,moneda

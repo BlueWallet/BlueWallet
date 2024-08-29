@@ -1,7 +1,0 @@
-* Nyílt forráskód
-* Teljes titkosítás
-* Feltételes elutasítás
-* Rugalmas tranzakciós díjjak
-* Tranzakciós Díj Pótlás (RBF)
-* Tárca - csak megtekintésre
-* Lightning

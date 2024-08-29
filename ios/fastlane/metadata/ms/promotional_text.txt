@@ -1,8 +1,0 @@
-* Sumber Terbuka
-* Penyulitan penuh
-* Penafian Munasabah
-* Yuran boleh lentur
-* Rancakkan-dengan-Bayaran-Fi
-* SegWit
-* Dompet Lihat-saja (Sentinel)
-* Rangkaian Lightning

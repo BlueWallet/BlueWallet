@@ -1,1 +1,0 @@
-bitcoin,محفظة,محفظة bitcoin,سلسلة الكتل,btc,عملة مشفرة,شراء bitcoin,samourai,electrum,ethereum
