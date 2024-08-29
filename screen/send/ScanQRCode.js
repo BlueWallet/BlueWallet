@@ -342,7 +342,12 @@ const ScanQRCode = () => {
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       ) : isFocused ? (
-        <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
+        <CameraScreen
+          scanBarcode
+          cameraFlipImage={require('../../img/camera-rotate-solid.png')}
+          onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
+          showFrame={false}
+        />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
