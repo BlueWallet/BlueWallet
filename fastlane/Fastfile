@@ -5,19 +5,23 @@ end
 default_platform(:android)
 
 platform :android do
-
   # Lane for preparing the keystore
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    sh "echo $KEYSTORE_FILE_HEX > bluewallet-release-key.keystore.hex"
+    keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
+    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
+
+    sh "echo #{keystore_file_hex} > bluewallet-release-key.keystore.hex"
     sh "xxd -plain -revert bluewallet-release-key.keystore.hex > ./android/bluewallet-release-key.keystore"
     sh "rm bluewallet-release-key.keystore.hex"
   end
 
   # Lane for updating the version code in build.gradle
   desc "Update version code in build.gradle"
-  lane :update_version_code do |options|
-    build_number = options[:build_number]
+  lane :update_version_code do
+    build_number = ENV['BUILD_NUMBER']
+    UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
+
     sh "sed -i'.original' \"s/versionCode 1/versionCode #{build_number}/g\" android/app/build.gradle"
   end
 
@@ -29,15 +33,17 @@ platform :android do
 
   # Lane for signing the APK
   desc "Sign the APK"
-  lane :sign_apk do |options|
+  lane :sign_apk do
+    build_number = ENV['BUILD_NUMBER']
+    UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
+
     version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-    build_number = options[:build_number]
     apk_output_path = "./android/app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
     
     sh "mv ./android/app/build/outputs/apk/release/app-release-unsigned.apk #{apk_output_path}"
 
     apksigner_path = sh("find $ANDROID_HOME | grep apksigner | grep -v jar").strip
-    sh "#{apksigner_path} sign --ks ./android/bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD #{apk_output_path}"
+    sh "#{apksigner_path} sign --ks ./android/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{apk_output_path}"
 
     # Export environment variables for GitHub Actions
     sh "echo \"VERSION_NAME=#{version_name}\" >> $GITHUB_ENV"
@@ -46,13 +52,12 @@ platform :android do
 
   # Combined lane to run all the steps (for local use)
   desc "Prepare keystore, update version, build and sign APK"
-  lane :build_release_apk do |options|
+  lane :build_release_apk do
     prepare_keystore
-    update_version_code(build_number: options[:build_number])
+    update_version_code
     build_apk
-    sign_apk(build_number: options[:build_number])
+    sign_apk
   end
-
 end
 
 platform :ios do

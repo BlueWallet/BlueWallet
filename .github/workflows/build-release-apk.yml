@@ -61,7 +61,7 @@ jobs:
       - name: Generate Build Number based on timestamp
         id: build_number
         run: |
-          NEW_BUILD_NUMBER=$(date +%s)
+          NEW_BUILD_NUMBER="$(date +%s)"
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
 
       - name: Prepare Keystore
