@@ -20,14 +20,22 @@ def setup_provisioning_profiles(type:, platform:, readonly: true)
   end
 end
 
+default_platform :android
+
 platform :android do
+  before_all do
+    # Ensure we're in the correct working directory
+    Dir.chdir("android")
+  end
+
   desc "Prepare the keystore file"
   lane :prepare_keystore do
     UI.verbose("Preparing keystore file from HEX")
 
-    File.write("android/bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
-    sh("xxd -plain -revert android/bluewallet-release-key.keystore.hex > android/bluewallet-release-key.keystore")
-    File.delete("android/bluewallet-release-key.keystore.hex")
+    # Convert the keystore from HEX to binary
+    File.write("bluewallet-release-key.keystore.hex", ENV['KEYSTORE_FILE_HEX'])
+    sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore")
+    File.delete("bluewallet-release-key.keystore.hex")
 
     UI.success("Keystore file prepared successfully")
   end
@@ -37,7 +45,7 @@ platform :android do
     UI.verbose("Incrementing version code in build.gradle")
 
     increment_version_code(
-      gradle_file_path: "android/app/build.gradle"
+      gradle_file_path: "app/build.gradle"
     )
 
     UI.success("Version code incremented successfully")
@@ -45,9 +53,9 @@ platform :android do
 
   desc "Commit version bump"
   lane :commit_version_bump do
-    version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+    version_code = get_version_code(gradle_file_path: "app/build.gradle")
     
-    git_add(path: "android/app/build.gradle")
+    git_add(path: "app/build.gradle")
     commit_version_bump(
       message: "Version bump to #{version_code}"
     )
@@ -65,7 +73,6 @@ platform :android do
     UI.verbose("Building the release APK")
     gradle(
       task: "assembleRelease",
-      project_dir: "android",
       build_type: "Release"
     )
     UI.success("APK built successfully")
@@ -73,8 +80,8 @@ platform :android do
 
   desc "Sign the APK"
   lane :sign_apk do
-    version_name = get_version_name(gradle_file_path: "android/app/build.gradle")
-    version_code = get_version_code(gradle_file_path: "android/app/build.gradle")
+    version_name = get_version_name(gradle_file_path: "app/build.gradle")
+    version_code = get_version_code(gradle_file_path: "app/build.gradle")
 
     apk_output_path = lane_context[SharedValues::GRADLE_APK_OUTPUT_PATHS].first
     new_apk_name = "BlueWallet-#{version_name}(#{version_code}).apk"
@@ -83,7 +90,7 @@ platform :android do
 
     sign_apk(
       apk_path: new_apk_path,
-      keystore_path: "android/bluewallet-release-key.keystore",
+      keystore_path: "bluewallet-release-key.keystore",
       keystore_password: ENV['KEYSTORE_PASSWORD'],
       alias: "release-key"
     )
@@ -96,6 +103,29 @@ platform :android do
   lane :build_sign_and_prepare_apk do
     build_apk
     sign_apk
+  end
+
+  desc "Upload APK to BrowserStack"
+  lane :upload_to_browserstack do
+    apk_path = lane_context[SharedValues::APK_OUTPUT_PATH]
+    
+    unless File.exist?(apk_path)
+      UI.user_error!("APK file not found: #{apk_path}")
+    end
+
+    browserstack(
+      username: ENV['BROWSERSTACK_USERNAME'],
+      access_key: ENV['BROWSERSTACK_ACCESS_KEY'],
+      app_path: apk_path,
+      app_name: "BlueWallet"
+    )
+
+    UI.success("APK uploaded to BrowserStack successfully")
+  end
+
+  after_all do
+    # Change back to the root directory if necessary
+    Dir.chdir("..")
   end
 end
 
