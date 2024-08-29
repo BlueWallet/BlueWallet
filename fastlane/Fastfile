@@ -39,7 +39,7 @@ def app_identifiers
     lane :increment_android_version_code do
       UI.verbose("Incrementing version code in build.gradle")
   
-      gradle_file = "android/app/build.gradle"
+      gradle_file = "app/build.gradle"
   
       # Check if the file exists
       unless File.exist?(gradle_file)
