@@ -64,6 +64,17 @@ platform :android do
 
     desc "Build the APK"
     lane :build_apk do
+
+        # List all files in current dir
+
+        UI.verbose("List the diretory")
+        UI.verbose(Dir.entries("."))
+        UI.verbose("List the diretory android")
+
+        Dir.chdir("android") do
+            UI.verbose(Dir.entries("."))
+        end
+        
       prepare_keystore
       increment_android_version_code
 
