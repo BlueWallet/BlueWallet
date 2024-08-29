@@ -11,28 +11,17 @@ platform :android do
     keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
     UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
-    # Log environment variables and current directory
-    UI.message("Environment Variables:")
-    UI.message("KEYSTORE_FILE_HEX: #{keystore_file_hex[0..10]}... (truncated for security)")
-    UI.message("Current Directory: #{Dir.pwd}")
-    sh "ls -la"
-
-    # Save the keystore file
     UI.message("Creating keystore hex file...")
-    sh "echo #{keystore_file_hex} > bluewallet-release-key.keystore.hex"
+    File.write('bluewallet-release-key.keystore.hex', keystore_file_hex)
     UI.message("Keystore hex file created.")
 
-    # Convert the hex file back to binary
     UI.message("Converting hex file back to binary...")
-    sh "xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore"
+    system('xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore')
 
-    # Verify that the keystore file was created
     UI.message("Verifying keystore file...")
-    sh "ls -la"
 
-    # Clean up the hex file
     UI.message("Removing keystore hex file...")
-    sh "rm bluewallet-release-key.keystore.hex"
+    File.delete('bluewallet-release-key.keystore.hex')
   end
 
   # Lane for updating the version code in build.gradle
