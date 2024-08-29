@@ -90,10 +90,13 @@ jobs:
       - name: Post PR Comment with BrowserStack Link
         if: success()
         uses: actions/github-script@v6
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         with:
           script: |
-            const browserstackDashboardUrl = `https://www.browserstack.com/dashboard`;
-            const message = `The APK has been uploaded to BrowserStack. You can view your uploaded apps in the [BrowserStack Dashboard](${browserstackDashboardUrl}).`;
+            const browserstackUrl = `https://${process.env.BROWSERSTACK_USERNAME}:${process.env.BROWSERSTACK_ACCESS_KEY}@www.browserstack.com/automate`;
+            const message = `The APK has been uploaded to BrowserStack. You can access it [here](${browserstackUrl}).`;
             github.rest.issues.createComment({
               ...context.repo,
               issue_number: context.issue.number,
