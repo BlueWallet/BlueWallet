@@ -39,10 +39,7 @@ platform :android do
           task: "assemble",
           build_type: "Release",
           properties: {
-            "versionCode" => build_number,
-            "android.injected.signing.store.file" => File.expand_path("bluewallet-release-key.keystore"),
-            "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
-            "android.injected.signing.key.password" => ENV['KEY_PASSWORD']
+            "versionCode" => build_number
           },
           project_dir: "android"
         )
@@ -55,7 +52,7 @@ platform :android do
           UI.user_error!("Failed to extract versionName from build.gradle")
         end
         
-        apk_input_path = "app/build/outputs/apk/release/app-release.apk"
+        apk_input_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
         apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
 
         if File.exist?(apk_input_path)
@@ -65,6 +62,11 @@ platform :android do
         else
           UI.user_error!("APK not found at #{apk_input_path}")
         end
+
+        # Signing the APK using apksigner
+        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+        UI.message("Signing APK with apksigner...")
+        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{apk_output_path}")
 
         ENV['APK_OUTPUT_PATH'] = File.expand_path(apk_output_path)
         UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
@@ -84,14 +86,14 @@ platform :android do
       UI.message("Uploading APK as a PR artifact...")
       copy_artifacts(
         artifacts: [apk_output_path],
-        target_path: target_path,
+        target_path: target_path
       )
       UI.message("APK uploaded as an artifact for the pull request.")
     else
       UI.message("Copying APK to artifact directory...")
       copy_artifacts(
         artifacts: [apk_output_path],
-        target_path: target_path,
+        target_path: target_path
       )
       UI.message("APK copied to artifact directory.")
     end
@@ -107,7 +109,6 @@ platform :android do
     upload_apk
   end
 end
-
 
 platform :ios do
 
