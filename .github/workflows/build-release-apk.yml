@@ -62,30 +62,25 @@ jobs:
 
       - name: Generate Build Number based on timestamp
         id: build_number
-        working-directory: ./android
         run: |
           NEW_BUILD_NUMBER="$(date +%s)"
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
 
       - name: Prepare Keystore
-        working-directory: ./android
-        run: bundle exec fastlane prepare_keystore
+        run: bundle exec fastlane android prepare_keystore
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
       - name: Update Version Code
-        working-directory: ./android
-        run: bundle exec fastlane update_version_code
+        run: bundle exec fastlane android update_version_code
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
       - name: Build APK
-        working-directory: ./android
-        run: bundle exec fastlane build_apk
+        run: bundle exec fastlane android build_apk
 
       - name: Sign APK
-        working-directory: ./android
-        run: bundle exec fastlane sign_apk
+        run: bundle exec fastlane android sign_apk
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
