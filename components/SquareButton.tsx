@@ -10,7 +10,7 @@ interface SquareButtonProps {
   testID?: string;
 }
 
-export const SquareButton = forwardRef<TouchableOpacity, SquareButtonProps>((props, ref) => {
+export const SquareButton = forwardRef<React.ElementRef<typeof TouchableOpacity>, SquareButtonProps>((props, ref) => {
   const { title, onPress, style, testID } = props;
   const { colors } = useTheme();
 
