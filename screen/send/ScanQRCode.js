@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 20,
     position: 'absolute',
-    right: 16,
+    left: 16,
     top: 44,
   },
   closeImage: {
