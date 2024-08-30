@@ -53,7 +53,7 @@ platform :android do
         end
         
         apk_input_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
-        apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
+        apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}\\(#{build_number}\\).apk"
 
         if File.exist?(apk_input_path)
           # Rename the APK file
