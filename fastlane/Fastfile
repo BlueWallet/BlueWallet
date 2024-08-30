@@ -4,6 +4,7 @@ end
 
 default_platform(:android)
 project_root = File.expand_path("..", __dir__)
+
 platform :android do
 
   desc "Prepare the keystore file"
@@ -25,8 +26,8 @@ platform :android do
     end
   end
 
-  desc "Update version code, build the APK, and sign"
-  lane :update_version_build_and_sign_apk do
+  desc "Update version code and build the APK"
+  lane :update_version_and_build_apk do
     project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
@@ -57,15 +58,23 @@ platform :android do
           next
         end
 
-        # Sign the APK using apksigner directly since we don't have an alias
-        UI.message("Signing APK with apksigner...")
-        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
-        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-
         ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
         UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
       end
     end
+  end
+
+  desc "Sign the APK"
+  lane :sign_apk do
+    signed_apk_path = ENV['APK_OUTPUT_PATH']
+    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if signed_apk_path.nil?
+
+    # Sign the APK using apksigner directly since we don't have an alias
+    UI.message("Signing APK with apksigner...")
+    apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+    sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+
+    UI.message("APK signed successfully.")
   end
 
   desc "Upload the APK as an artifact"
@@ -82,13 +91,15 @@ platform :android do
   end
 
   # Combined lane to run all the steps (for local use)
-  desc "Prepare keystore, update version, build, and sign APK"
+  desc "Prepare keystore, update version, build, sign, and upload APK"
   lane :build_release_apk do
     prepare_keystore
-    update_version_build_and_sign_apk
+    update_version_and_build_apk
+    sign_apk
     upload_apk
   end
 end
+
 platform :ios do
 
   before_all do |lane, options|
