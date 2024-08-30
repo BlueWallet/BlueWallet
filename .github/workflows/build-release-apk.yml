@@ -71,13 +71,10 @@ jobs:
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
-      - name: Update Version Code
-        run: bundle exec fastlane android update_version_code
+      - name: Update Version Code and Build APK
+        run: bundle exec fastlane android update_version_and_build_apk
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-
-      - name: Build APK
-        run: bundle exec fastlane android build_apk
 
       - name: Sign APK
         run: bundle exec fastlane android sign_apk
@@ -89,5 +86,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          name: BlueWallet-${{ env.VERSION_NAME }}-${{ env.NEW_BUILD_NUMBER }}.apk
           path: ${{ env.APK_OUTPUT_PATH }}
