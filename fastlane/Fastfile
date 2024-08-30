@@ -53,13 +53,11 @@ platform :android do
         if File.exist?(unsigned_apk_path)
           UI.message("Renaming APK to #{signed_apk_name}...")
           FileUtils.mv(unsigned_apk_path, signed_apk_path)
+          ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
         else
           UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
           next
         end
-
-        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-        UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
       end
     end
   end
@@ -73,8 +71,7 @@ platform :android do
     UI.message("Signing APK with apksigner...")
     apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
     sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-
-    UI.message("APK signed successfully.")
+    UI.message("APK signed successfully: #{signed_apk_path}")
   end
 
   desc "Upload the APK as an artifact"
