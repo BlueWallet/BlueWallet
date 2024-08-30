@@ -71,13 +71,14 @@ jobs:
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
-      - name: Update Version Code
-        run: bundle exec fastlane android update_version_code
+      - name: Update Version Code, Build APK, and Sign APK
+        run: bundle exec fastlane android update_version_build_and_sign_apk
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Build APK
-        run: bundle exec fastlane android build_apk
 
       - name: Sign APK
         run: bundle exec fastlane android sign_apk

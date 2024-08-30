@@ -3,12 +3,12 @@ def app_identifiers
 end
 
 default_platform(:android)
+project_root = File.expand_path("..", __dir__)
 
 platform :android do
-  # Lane for preparing the keystore
+  # Lane for preparing the keystore (optional if signingConfig is already set in build.gradle)
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
       UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
@@ -25,51 +25,46 @@ platform :android do
     end
   end
 
-  # Lane for updating the version code in build.gradle
-  desc "Update version code in build.gradle"
-  lane :update_version_code do
-    project_root = File.expand_path("..", __dir__)
+  # Lane for updating the version code, building, and signing the APK
+  desc "Update version code, build, and sign the release APK"
+  lane :update_version_build_and_sign_apk do
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
 
       Dir.chdir("android") do
-        UI.message("Updating version code in build.gradle...")
-        gradle(task: "assembleRelease", properties: { "versionCode" => build_number }, project_dir: ".")
-        UI.message("Version code updated to #{build_number}.")
-      end
-  end
-end
+        UI.message("Updating version code in build.gradle and building the APK...")
 
-  # Lane for building the APK
-  desc "Build the release APK"
-  lane :build_apk do
-    project_root = File.expand_path("..", __dir__)
-    Dir.chdir(project_root) do
-        UI.message("Building the release APK...")
-        gradle(task: "assembleRelease", project_dir: "android")
-        UI.message("APK build completed.")
-    end
-  end
-
-  # Lane for signing the APK
-  desc "Sign the APK"
-  lane :sign_apk do
-    project_root = File.expand_path("..", __dir__)
-    Dir.chdir(project_root) do
-      build_number = ENV['BUILD_NUMBER']
-      UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
-
-      Dir.chdir("android") do
-        version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-        apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}-#{build_number}.apk"
+        gradle(
+          task: "assemble",
+          build_type: "Release",
+          properties: {
+            "versionCode" => build_number,
+            "android.injected.signing.store.file" => File.expand_path("bluewallet-release-key.keystore"),
+            "android.injected.signing.store.password" => ENV['KEYSTORE_PASSWORD'],
+            "android.injected.signing.key.password" => ENV['KEY_PASSWORD']
+          },
+          project_dir: "android"
+        )
         
-        UI.message("Renaming unsigned APK to #{apk_output_path}...")
-        FileUtils.mv("app/build/outputs/apk/release/app-release-unsigned.apk", apk_output_path)
+        UI.message("Version code updated to #{build_number} and APK build completed.")
 
-        UI.message("Signing APK with apksigner...")
-        apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").last
-        sh("#{apksigner_path} sign --ks bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{apk_output_path}")
+        # Get the version name and define the APK path with build number in parentheses
+        version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+        if version_name.empty?
+          UI.user_error!("Failed to extract versionName from build.gradle")
+        end
+        
+        apk_input_path = "app/build/outputs/apk/release/app-release.apk"
+        apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
+
+        if File.exist?(apk_input_path)
+          # Rename the APK file
+          UI.message("Renaming APK to #{apk_output_path}...")
+          FileUtils.mv(apk_input_path, apk_output_path)
+        else
+          UI.user_error!("APK not found at #{apk_input_path}")
+        end
 
         ENV['APK_OUTPUT_PATH'] = File.expand_path(apk_output_path)
         UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
@@ -83,14 +78,36 @@ end
     apk_output_path = ENV['APK_OUTPUT_PATH']
     UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if apk_output_path.nil?
 
-    copy_artifacts(
-      artifacts: [apk_output_path],
-      target_path: ENV['GITHUB_WORKSPACE'] # This is the root directory in GitHub Actions
-    )
+    target_path = ENV['GITHUB_WORKSPACE'] # Default to the root directory in GitHub Actions
 
-    UI.message("APK uploaded to GitHub Actions workspace.")
+    if ENV['GITHUB_EVENT_NAME'] == 'pull_request'
+      UI.message("Uploading APK as a PR artifact...")
+      copy_artifacts(
+        artifacts: [apk_output_path],
+        target_path: target_path,
+      )
+      UI.message("APK uploaded as an artifact for the pull request.")
+    else
+      UI.message("Copying APK to artifact directory...")
+      copy_artifacts(
+        artifacts: [apk_output_path],
+        target_path: target_path,
+      )
+      UI.message("APK copied to artifact directory.")
+    end
+
+    UI.message("To download the APK, go to the 'Actions' tab in GitHub, select the relevant workflow run, and download the APK from the 'Artifacts' section.")
+  end
+
+  # Combined lane to run all the steps (for local use)
+  desc "Prepare keystore, update version, build, sign, and upload APK"
+  lane :build_release_apk do
+    prepare_keystore
+    update_version_build_and_sign_apk
+    upload_apk
   end
 end
+
 
 platform :ios do
 
