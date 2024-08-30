@@ -69,26 +69,30 @@ jobs:
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
 
       - name: Prepare Keystore
-        uses: maierj/fastlane-action@v2.0.0 --working-directory ./android
+        uses: maierj/fastlane-action@v2.0.0
+        working-directory: ./android
         with:
           lane: "prepare_keystore"
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
       - name: Update Version Code
-        uses: maierj/fastlane-action@v2.0.0 --working-directory ./android
+        uses: maierj/fastlane-action@v2.0.0
+        working-directory: ./android
         with:
           lane: "update_version_code"
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
       - name: Build APK
-        uses: maierj/fastlane-action@v2.0.0 --working-directory ./android
+        uses: maierj/fastlane-action@v2.0.0
+        working-directory: ./android
         with:
           lane: "build_apk"
 
       - name: Sign APK
-        uses: maierj/fastlane-action@v2.0.0 --working-directory ./android
+        uses: maierj/fastlane-action@v2.0.0
+        working-directory: ./android
         with:
           lane: "sign_apk"
         env:
@@ -96,7 +100,8 @@ jobs:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
+        working-directory: ./android
         if: success()
         with:
           name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
