@@ -121,20 +121,18 @@ preBuild.dependsOn(copyFiatUnits)
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'androidx.core:core-ktx:+'
-    implementation 'androidx.work:work-runtime-ktx:+'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }
-    androidTestImplementation('com.wix:detox:+')
-    implementation 'androidx.appcompat:appcompat:+'
+    androidTestImplementation('com.wix:detox:0.1.1')
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.constraintlayout:constraintlayout:+'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
-
-apply plugin: 'org.jetbrains.kotlin.android';
 apply plugin: "com.bugsnag.android.gradle"
