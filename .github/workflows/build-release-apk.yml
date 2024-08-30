@@ -79,12 +79,5 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-
-      - name: Sign APK
-        run: bundle exec fastlane android sign_apk
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-
       - name: Upload APK
         run: bundle exec fastlane android upload_apk
