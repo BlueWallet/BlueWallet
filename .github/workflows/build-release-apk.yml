@@ -71,22 +71,15 @@ jobs:
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
   
-      - name: Update Version Code and Build APK
+      - name: Update Version Code, Build, and Sign APK
         run: |
-          bundle exec fastlane android update_version_and_build_apk
+          bundle exec fastlane android update_version_build_and_sign_apk
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-
-      - name: Sign APK
-        run: |
-          bundle exec fastlane android sign_apk
-        env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Upload APK
         run: bundle exec fastlane android upload_apk
-        env:
-          APK_OUTPUT_PATH: ${{ steps.build.outputs.APK_OUTPUT_PATH }}
 
   browserstack:
     runs-on: ubuntu-latest
@@ -99,7 +92,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1
+          ruby-version: 3.1.6
           bundler-cache: true
 
       - name: Install dependencies

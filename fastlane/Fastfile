@@ -26,8 +26,8 @@ platform :android do
     end
   end
 
-  desc "Update version code and build the APK"
-  lane :update_version_and_build_apk do
+  desc "Update version code, build, and sign the APK"
+  lane :update_version_build_and_sign_apk do
     project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
@@ -58,20 +58,14 @@ platform :android do
           UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
           next
         end
+
+        # Sign the APK using apksigner directly since we don't have an alias
+        UI.message("Signing APK with apksigner...")
+        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+        UI.message("APK signed successfully: #{signed_apk_path}")
       end
     end
-  end
-
-  desc "Sign the APK"
-  lane :sign_apk do
-    signed_apk_path = ENV['APK_OUTPUT_PATH']
-    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if signed_apk_path.nil?
-
-    # Sign the APK using apksigner directly since we don't have an alias
-    UI.message("Signing APK with apksigner...")
-    apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
-    sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-    UI.message("APK signed successfully: #{signed_apk_path}")
   end
 
   desc "Upload the APK as an artifact"
@@ -91,8 +85,7 @@ platform :android do
   desc "Prepare keystore, update version, build, sign, and upload APK"
   lane :build_release_apk do
     prepare_keystore
-    update_version_and_build_apk
-    sign_apk
+    update_version_build_and_sign_apk
     upload_apk
   end
 end
