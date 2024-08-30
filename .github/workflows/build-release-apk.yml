@@ -76,7 +76,6 @@ jobs:
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Upload APK

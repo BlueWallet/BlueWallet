@@ -5,7 +5,7 @@ end
 default_platform(:android)
 project_root = File.expand_path("..", __dir__)
 platform :android do
-  # Lane for preparing the keystore
+
   desc "Prepare the keystore file"
   lane :prepare_keystore do
     project_root = File.expand_path("..", __dir__)
@@ -25,7 +25,6 @@ platform :android do
     end
   end
 
-  # Lane for updating the version code and building the APK
   desc "Update version code, build the APK, and sign"
   lane :update_version_build_and_sign_apk do
     project_root = File.expand_path("..", __dir__)
@@ -42,7 +41,6 @@ platform :android do
         )
         UI.message("Version code updated to #{build_number} and APK build completed.")
 
-        # Fetch the versionName using shell command since get_version_name is not available
         version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
 
         # Define the output paths
@@ -70,7 +68,6 @@ platform :android do
     end
   end
 
-  # Lane for uploading the APK as an artifact
   desc "Upload the APK as an artifact"
   lane :upload_apk do
     apk_output_path = ENV['APK_OUTPUT_PATH']
