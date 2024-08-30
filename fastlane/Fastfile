@@ -35,7 +35,7 @@ platform :android do
 
       Dir.chdir("android") do
         UI.message("Updating version code in build.gradle...")
-        gradle(task: "assemble", build_type: "Release", properties: { "versionCode" => build_number })
+        gradle(task: "assemble", build_type: "Release", properties: { "versionCode" => build_number}, project_dir: "android")
         UI.message("Version code updated to #{build_number}.")
       end
     end
@@ -46,11 +46,9 @@ platform :android do
   lane :build_apk do
     project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
-      Dir.chdir("android") do
         UI.message("Building the release APK...")
-        gradle(task: "assembleRelease")
+        gradle(task: "assembleRelease", project_dir: "android")
         UI.message("APK build completed.")
-      end
     end
   end
 
