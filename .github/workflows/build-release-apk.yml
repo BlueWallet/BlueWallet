@@ -24,7 +24,7 @@ jobs:
           node-version: 20
 
       - name: Use npm caches
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Use specific Java version for sdkmanager to work
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -48,7 +48,7 @@ jobs:
           bundler-cache: true
 
       - name: Cache Ruby Gems
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -83,7 +83,7 @@ jobs:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: success()
         with:
           name: BlueWallet-${{ env.VERSION_NAME }}-${{ env.NEW_BUILD_NUMBER }}.apk

@@ -60,7 +60,7 @@ platform :android do
     end
   end
 
- # Lane for signing the APK
+# Lane for signing the APK
 desc "Sign the APK"
 lane :sign_apk do
   project_root = File.expand_path("..", __dir__)
@@ -69,11 +69,19 @@ lane :sign_apk do
     UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
 
     Dir.chdir("android") do
-      # Extract version name directly from build.gradle
-      version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-      UI.message("Extracted version name: #{version_name}")
+      # Parse version name from output-metadata.json or extract from build.gradle
+      metadata_file = "app/build/outputs/apk/release/output-metadata.json"
+      if File.exist?(metadata_file)
+        json_content = JSON.parse(File.read(metadata_file))
+        version_name = json_content['elements'].first['versionName']
+        UI.message("Parsed version name: #{version_name}")
+      else
+        version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+        UI.message("Extracted version name: #{version_name}")
+      end
 
-      apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}(#{build_number}).apk"
+      # Simplify the APK file name to avoid special characters
+      apk_output_path = "app/build/outputs/apk/release/BlueWallet-#{version_name}-#{build_number}.apk"
       
       UI.message("Renaming unsigned APK to #{apk_output_path}...")
       FileUtils.mv("app/build/outputs/apk/release/app-release-unsigned.apk", apk_output_path)
@@ -89,7 +97,8 @@ lane :sign_apk do
       # Export environment variables for GitHub Actions
       UI.message("Exporting environment variables...")
       ENV['VERSION_NAME'] = version_name
-      ENV['APK_OUTPUT_PATH'] = apk_output_path
+      ENV['APK_OUTPUT_PATH'] = File.expand_path(apk_output_path)
+      UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
     end
   end
 end
