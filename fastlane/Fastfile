@@ -99,6 +99,9 @@ lane :sign_apk do
       ENV['VERSION_NAME'] = version_name
       ENV['APK_OUTPUT_PATH'] = File.expand_path(apk_output_path)
       UI.message("APK_OUTPUT_PATH set to: #{ENV['APK_OUTPUT_PATH']}")
+
+      # Debugging output to ensure APK_OUTPUT_PATH is set
+      UI.message("Final APK_OUTPUT_PATH: #{ENV['APK_OUTPUT_PATH']}")
     end
   end
 end
