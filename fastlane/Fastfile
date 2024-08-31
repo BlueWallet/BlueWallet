@@ -81,37 +81,31 @@ platform :android do
     UI.message("APK uploaded to GitHub Actions workspace.")
   end
 
-  desc "Upload APK to BrowserStack"
+  # New Lane: Upload APK to BrowserStack using the official Fastlane plugin
+  desc "Upload the APK to BrowserStack"
   lane :upload_to_browserstack do
-    apk_output_path = ENV['APK_OUTPUT_PATH']
-    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if apk_output_path.nil?
+    apk_output_path = Dir.glob("**/BlueWallet-*.apk").first
+    UI.user_error!("APK file not found") if apk_output_path.nil?
 
     UI.message("Uploading APK to BrowserStack...")
-    browserstack(
+
+    browserstack_upload(
+      file_path: apk_output_path,
       username: ENV['BROWSERSTACK_USERNAME'],
-      access_key: ENV['BROWSERSTACK_ACCESS_KEY'],
-      file: apk_output_path,
-      custom_id: "BlueWallet-#{ENV['BUILD_NUMBER']}"
+      access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
+
     UI.message("APK uploaded to BrowserStack successfully.")
   end
 
-
-   # Combined lane to run all the steps (for local use)
-   desc "Prepare keystore, update version, build, sign, and upload APK"
-   lane :build_release_apk do
-     prepare_keystore
-     update_version_build_and_sign_apk
-     upload_apk
-   end
- 
-   desc "Build, sign, and upload APK to BrowserStack"
-   lane :build_and_upload_to_browserstack do
-     build_release_apk
-     upload_to_browserstack
-   end
+  # Combined lane to run all the steps (for local use)
+  desc "Prepare keystore, update version, build, sign, and upload APK"
+  lane :build_release_apk do
+    prepare_keystore
+    update_version_build_and_sign_apk
+    upload_apk
+  end
 end
-
 platform :ios do
 
   before_all do |lane, options|
