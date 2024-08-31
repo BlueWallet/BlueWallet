@@ -119,3 +119,21 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           APK_OUTPUT_PATH: ${{ github.workspace }}/signed-apk/*.apk
+
+      - name: Post BrowserStack Upload Result as PR Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = process.env.BROWSERSTACK_UPLOAD_OUTPUT || "No output from BrowserStack upload.";
+            const commentBody = `
+            ### BrowserStack Upload Summary
+            ${output}
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
