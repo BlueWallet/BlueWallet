@@ -113,9 +113,9 @@ jobs:
 
       - name: Upload APK to BrowserStack
         run: |
-          APK_PATH=$(find . -name "*.apk")
+          APK_OUTPUT_PATH=$(find . -name "*.apk")
           bundle exec fastlane android upload_to_browserstack
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          APK_PATH: ${{ github.workspace }}/signed-apk/*.apk
+          APK_OUTPUT_PATH: ${{ github.workspace }}/signed-apk/*.apk
