@@ -9,7 +9,6 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
       UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
@@ -28,7 +27,6 @@ platform :android do
 
   desc "Update version code, build, and sign the APK"
   lane :update_version_build_and_sign_apk do
-    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
@@ -81,18 +79,20 @@ platform :android do
     UI.message("APK uploaded to GitHub Actions workspace.")
   end
 
-  desc "Upload the APK to BrowserStack App Live"
+  desc "Upload APK to BrowserStack"
   lane :upload_to_browserstack do
     apk_output_path = ENV['APK_OUTPUT_PATH']
     UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if apk_output_path.nil?
 
-    upload_to_browserstack_app_live(
-      browserstack_username: ENV["BROWSERSTACK_USERNAME"],
-      browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
-      file_path: apk_output_path
+    browserstack_upload(
+      file_path: apk_output_path,
+      username: ENV['BROWSERSTACK_USERNAME'],
+      access_key: ENV['BROWSERSTACK_ACCESS_KEY'],
+      app_name: "BlueWallet"
     )
-  end
 
+    UI.message("APK uploaded to BrowserStack: #{apk_output_path}")
+  end
 
   # Combined lane to run all the steps (for local use)
   desc "Prepare keystore, update version, build, sign, and upload APK"
