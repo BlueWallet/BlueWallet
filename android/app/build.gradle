@@ -119,6 +119,7 @@ task copyFiatUnits(type: Copy) {
 preBuild.dependsOn(copyFiatUnits)
 
 dependencies {
+		androidTestImplementation('com.wix:detox:+')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.13.1'
