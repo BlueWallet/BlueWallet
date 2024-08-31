@@ -10,7 +10,7 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout project
@@ -87,7 +87,7 @@ jobs:
           path: ${{ env.APK_OUTPUT_PATH }}
 
   browserstack:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: buildReleaseApk
 
     steps:
@@ -104,6 +104,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: signed-apk
+          path: ./android/
 
       - name: Install dependencies
         run: bundle install
