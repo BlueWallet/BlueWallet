@@ -10,7 +10,7 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
@@ -73,11 +73,12 @@ jobs:
   
       - name: Update Version Code, Build, and Sign APK
         id: build_apk
-        run: bundle exec fastlane android build_release_apk
+        run: |
+          bundle exec fastlane android build_release_apk
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          APK_OUTPUT_PATH: ${{ github.workspace }}/app/build/outputs/apk/release/BlueWallet-*.apk
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
@@ -86,7 +87,7 @@ jobs:
           path: ${{ env.APK_OUTPUT_PATH }}
 
   browserstack:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs: buildReleaseApk
 
     steps:
