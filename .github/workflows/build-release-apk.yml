@@ -113,12 +113,11 @@ jobs:
 
       - name: Upload APK to BrowserStack
         run: |
-          APK_OUTPUT_PATH=$(find . -name "*.apk")
-          bundle exec fastlane android upload_to_browserstack
+          APK_OUTPUT_PATH=$(find ./signed-apk -name "*.apk")
+          bundle exec fastlane android upload_to_browserstack apk_path=$APK_OUTPUT_PATH
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          APK_OUTPUT_PATH: ${{ github.workspace }}/signed-apk/*.apk
 
       - name: Post BrowserStack Upload Result as PR Comment
         if: github.event_name == 'pull_request'
