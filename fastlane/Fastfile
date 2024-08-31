@@ -92,10 +92,9 @@ platform :android do
       browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
   
-    app_url = result[:app_url]
   
     # Store the result in an environment variable for later use
-    ENV['BROWSERSTACK_UPLOAD_OUTPUT'] = "Successfully uploaded app #{apk_path} to BrowserStack AppLive.\nBrowserStack App URL: #{app_url}"
+    ENV['BROWSERSTACK_UPLOAD_OUTPUT'] = "Successfully uploaded app #{apk_path} to BrowserStack AppLive.\nBrowserStack App URL: #{result}"
     
     UI.message(ENV['BROWSERSTACK_UPLOAD_OUTPUT'])
   end
