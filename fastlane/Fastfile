@@ -74,8 +74,17 @@ platform :android do
   end
 
   desc "Upload APK to BrowserStack"
-  lane :upload_to_browserstack do |options|
-    apk_path = options[:apk_path] || ENV['APK_OUTPUT_PATH']
+  lane :upload_to_browserstack do
+    # Specify the directory where the APK was downloaded
+    download_directory = ENV['DOWNLOAD_PATH'] || './'
+    apk_filename = ENV['APK_FILENAME']
+  
+    # Construct the full path to the APK file
+    apk_path = File.join(download_directory, apk_filename)
+  
+    unless File.exist?(apk_path)
+      UI.user_error!("APK file not found at path: #{apk_path}")
+    end
   
     result = upload_to_browserstack_app_live(
       file_path: apk_path,

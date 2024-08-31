@@ -93,56 +93,42 @@ jobs:
           name: ${{ env.APK_FILE_NAME }}
           path: ${{ github.workspace }}/android/app/build/outputs/apk/release/${{ env.APK_FILE_NAME }}
 
-  browserstack:
-    runs-on: ubuntu-latest
-    needs: buildReleaseApk
+ browserstack:
+  runs-on: ubuntu-latest
+  needs: buildReleaseApk
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Download APK artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.APK_FILE_NAME }}
-          path: ./
-      
-      - name: Set APK file path
-        run: |
-            APK_FILE_PATH=$(find . -name "${{ env.APK_FILE_NAME }}")
-            echo "APK_FILE_PATH=$APK_FILE_PATH" >> $GITHUB_ENV
+    - name: Download APK artifact
+      id: download_apk
+      uses: actions/download-artifact@v3
+      with:
+        name: signed-apk
 
+    - name: Get APK filename
+      id: get_filename
+      run: echo "APK_FILENAME=$(basename $(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk'))" >> $GITHUB_ENV
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1
+        bundler-cache: true
 
-      - name: Install dependencies
-        run: bundle install
-      
-      - name: Upload APK to BrowserStack
-        run: |
-          bundle exec fastlane android upload_to_browserstack apk_path=${{ env.APK_FILE_PATH }}
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          
-      - name: Post BrowserStack Upload Result as PR Comment
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = process.env.BROWSERSTACK_UPLOAD_OUTPUT || "No output from BrowserStack upload.";
-            const commentBody = `
-            ### BrowserStack Upload Summary
-            ${output}
-            `;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: commentBody
-            });
+    - name: Upload APK to BrowserStack
+      run: bundle exec fastlane android upload_to_browserstack
+      env:
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        DOWNLOAD_PATH: ${{ steps.download_apk.outputs.download-path }}
+        APK_FILENAME: ${{ env.APK_FILENAME }}
+
+    - name: Post BrowserStack Upload Info to PR
+      if: github.event_name == 'pull_request'
+      run: |
+        gh pr comment ${{ github.event.pull_request.number }} --body "$BROWSERSTACK_UPLOAD_OUTPUT"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BROWSERSTACK_UPLOAD_OUTPUT: ${{ env.BROWSERSTACK_UPLOAD_OUTPUT }}
