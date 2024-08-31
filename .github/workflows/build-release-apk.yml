@@ -75,8 +75,10 @@ jobs:
         id: build_apk
         run: |
           bundle exec fastlane android update_version_build_and_sign_apk
-          APK_FILE_NAME=$(basename ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk)
-          echo "APK_FILE_NAME=${APK_FILE_NAME}" >> $GITHUB_ENV
+          APK_FILE_PATH=$(ls ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk)
+          APK_FILE_NAME=$(basename $APK_FILE_PATH)
+          echo "APK_FILE_NAME=$APK_FILE_NAME" >> $GITHUB_ENV
+          echo "APK_FILE_PATH=$APK_FILE_PATH" >> $GITHUB_ENV
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
@@ -113,10 +115,10 @@ jobs:
 
       - name: Install dependencies
         run: bundle install
-
+      
       - name: Upload APK to BrowserStack
         run: |
-          APK_OUTPUT_PATH="./${{ env.APK_FILE_NAME }}"
+          APK_OUTPUT_PATH="${{ env.APK_FILE_PATH }}"
           bundle exec fastlane android upload_to_browserstack apk_path=$APK_OUTPUT_PATH
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
