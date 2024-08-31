@@ -84,16 +84,12 @@ jobs:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Check if APK exists
-        run: ls -l ${{ github.workspace }}/android/app/build/outputs/apk/release/
-
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.APK_FILE_NAME }}
-          path: ${{ github.workspace }}/android/app/build/outputs/apk/release/${{ env.APK_FILE_NAME }}
-
-
+          name: signed-apk
+          path: ${{ env.APK_OUTPUT_PATH }}
+  
   browserstack:
     runs-on: ubuntu-latest
     needs: buildReleaseApk
