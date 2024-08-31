@@ -77,6 +77,7 @@ jobs:
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
