@@ -10,7 +10,7 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
@@ -77,32 +77,36 @@ jobs:
           bundle exec fastlane android build_release_apk
         env:
           BUILD_NUMBER: ${{ github.run_number }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Check if APK exists
+        run: ls -l ${{ github.workspace }}/android/app/build/outputs/apk/release/
+
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
           name: signed-apk
-          path: ${{ github.workspace }}/app/build/outputs/apk/release/BlueWallet-*.apk
+          path: ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk
 
   browserstack:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs: buildReleaseApk
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download APK artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: signed-apk
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-
-      - name: Download APK artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: signed-apk
 
       - name: Install dependencies
         run: bundle install
