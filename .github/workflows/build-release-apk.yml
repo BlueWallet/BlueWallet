@@ -104,7 +104,6 @@ jobs:
         id: upload_to_browserstack
         run: |
           APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
-          export APK_PATH=$APK_PATH
           BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack)
           echo "BROWSERSTACK_UPLOAD_OUTPUT=$BROWSERSTACK_UPLOAD_OUTPUT" >> $GITHUB_ENV
         env:
@@ -114,7 +113,6 @@ jobs:
       - name: Post BrowserStack Upload Info to PR
         if: github.event_name == 'pull_request'
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "$BROWSERSTACK_UPLOAD_OUTPUT"
+          gh pr comment ${{ github.event.pull_request.number }} --body "${{ env.BROWSERSTACK_UPLOAD_OUTPUT }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BROWSERSTACK_UPLOAD_OUTPUT: ${{ env.BROWSERSTACK_UPLOAD_OUTPUT }}
