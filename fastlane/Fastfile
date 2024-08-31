@@ -66,42 +66,29 @@ platform :android do
     end
   end
 
-  desc "Upload the APK as an artifact"
-  lane :upload_apk do
-    apk_output_path = ENV['APK_OUTPUT_PATH']
-    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if apk_output_path.nil?
-
-    copy_artifacts(
-      artifacts: [apk_output_path],
-      target_path: ENV['GITHUB_WORKSPACE'] # This is the root directory in GitHub Actions
-    )
-
-    UI.message("APK uploaded to GitHub Actions workspace.")
+  # Combined lane to run all the steps (for local use)
+  desc "Prepare keystore, update version, build, and sign APK"
+  lane :build_release_apk do
+    prepare_keystore
+    update_version_build_and_sign_apk
   end
 
   desc "Upload APK to BrowserStack"
   lane :upload_to_browserstack do
-    apk_output_path = ENV['APK_OUTPUT_PATH']
-    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if apk_output_path.nil?
+    signed_apk_path = ENV['APK_OUTPUT_PATH']
+    UI.user_error!("APK_OUTPUT_PATH environment variable is missing") if signed_apk_path.nil?
 
     browserstack_upload(
-      file_path: apk_output_path,
+      file_path: signed_apk_path,
       username: ENV['BROWSERSTACK_USERNAME'],
       access_key: ENV['BROWSERSTACK_ACCESS_KEY'],
       app_name: "BlueWallet"
     )
 
-    UI.message("APK uploaded to BrowserStack: #{apk_output_path}")
-  end
-
-  # Combined lane to run all the steps (for local use)
-  desc "Prepare keystore, update version, build, sign, and upload APK"
-  lane :build_release_apk do
-    prepare_keystore
-    update_version_build_and_sign_apk
-    upload_apk
+    UI.message("APK uploaded to BrowserStack: #{signed_apk_path}")
   end
 end
+
 platform :ios do
 
   before_all do |lane, options|
