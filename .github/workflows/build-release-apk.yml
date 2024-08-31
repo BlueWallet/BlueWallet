@@ -71,13 +71,18 @@ jobs:
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
   
-      - name: Update Version Code, Build, Sign, and Upload APK
+      - name: Update Version Code, Build, and Sign APK
         id: build_apk
         run: bundle exec fastlane android build_release_apk
         env:
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: signed-apk
+          path: ${{ env.APK_OUTPUT_PATH }}
 
   browserstack:
     runs-on: ubuntu-latest
