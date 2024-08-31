@@ -228,7 +228,7 @@ platform :ios do
     
     # Set the new build number
     increment_build_number(
-      xcodeproj: "BlueWallet.xcodeproj", 
+      xcodeproj: "ios/BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
   

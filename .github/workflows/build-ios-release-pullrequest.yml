@@ -117,7 +117,6 @@ jobs:
           echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
       - name: Set Build Number
         run: bundle exec fastlane ios increment_build_number_lane
-        working-directory: ios
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |

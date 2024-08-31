@@ -106,6 +106,12 @@ jobs:
         with:
           name: ${{ env.APK_FILE_NAME }}
           path: ./
+      
+      - name: Set APK file path
+        run: |
+            APK_FILE_PATH=$(find . -name "${{ env.APK_FILE_NAME }}")
+            echo "APK_FILE_PATH=$APK_FILE_PATH" >> $GITHUB_ENV
+
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -118,12 +124,11 @@ jobs:
       
       - name: Upload APK to BrowserStack
         run: |
-          APK_OUTPUT_PATH="${{ env.APK_FILE_PATH }}"
-          bundle exec fastlane android upload_to_browserstack apk_path=$APK_OUTPUT_PATH
+          bundle exec fastlane android upload_to_browserstack apk_path=${{ env.APK_FILE_PATH }}
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-
+          
       - name: Post BrowserStack Upload Result as PR Comment
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
