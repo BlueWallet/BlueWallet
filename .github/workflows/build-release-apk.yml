@@ -115,7 +115,7 @@ jobs:
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
+          APK_PATH="${{ steps.download_apk.outputs.download-path }}/${{ steps.expected_filename.outputs.EXPECTED_FILENAME }}"
           BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path:$APK_PATH)
           echo "BROWSERSTACK_UPLOAD_OUTPUT=$BROWSERSTACK_UPLOAD_OUTPUT" >> $GITHUB_ENV
         env:
