@@ -76,18 +76,18 @@ platform :android do
   desc "Upload APK to BrowserStack"
   lane :upload_to_browserstack do |options|
     apk_path = options[:apk_path]
-  
-    result = other_action.upload_to_browserstack_app_live(
+
+    result = upload_to_browserstack_app_live(
       file_path: apk_path,
       browserstack_username: ENV['BROWSERSTACK_USERNAME'],
       browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
-  
+
     app_url = result[:app_url]
-  
+
     # Store the result in an environment variable for later use
     ENV['BROWSERSTACK_UPLOAD_OUTPUT'] = "Successfully uploaded app #{apk_path} to BrowserStack AppLive.\nBrowserStack App URL: #{app_url}"
-    
+  
     UI.message(ENV['BROWSERSTACK_UPLOAD_OUTPUT'])
   end
 
