@@ -75,7 +75,7 @@ jobs:
         id: build_apk
         run: |
           bundle exec fastlane android update_version_build_and_sign_apk
-          APK_FILE_NAME=$(ls ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk)
+          APK_FILE_NAME=$(basename ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk)
           echo "APK_FILE_NAME=${APK_FILE_NAME}" >> $GITHUB_ENV
         env:
           BUILD_NUMBER: ${{ github.run_number }}
@@ -89,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.APK_FILE_NAME }}
-          path: ${{ env.APK_FILE_NAME }}
+          path: ${{ github.workspace }}/android/app/build/outputs/apk/release/${{ env.APK_FILE_NAME }}
 
   browserstack:
     runs-on: ubuntu-latest
