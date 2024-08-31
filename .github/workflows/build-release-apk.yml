@@ -78,13 +78,12 @@ jobs:
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          APK_OUTPUT_PATH: ${{ github.workspace }}/app/build/outputs/apk/release/BlueWallet-*.apk
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
           name: signed-apk
-          path: ${{ env.APK_OUTPUT_PATH }}
+          path: ${{ github.workspace }}/app/build/outputs/apk/release/BlueWallet-*.apk
 
   browserstack:
     runs-on: macos-latest
@@ -104,13 +103,15 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: signed-apk
-          path: ./android/
 
       - name: Install dependencies
         run: bundle install
 
       - name: Upload APK to BrowserStack
-        run: bundle exec fastlane android upload_to_browserstack
+        run: |
+          APK_PATH=$(find . -name "*.apk")
+          bundle exec fastlane android upload_to_browserstack
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          APK_PATH: ${{ github.workspace }}/signed-apk/*.apk
