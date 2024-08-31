@@ -75,6 +75,7 @@ jobs:
         id: build_apk
         run: bundle exec fastlane android build_release_apk
         env:
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
