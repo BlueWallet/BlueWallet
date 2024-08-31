@@ -102,6 +102,9 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
+      - name: Install dependencies with Bundler
+        run: bundle install --jobs 4 --retry 3
+
       - name: Download APK artifact
         id: download_apk
         uses: actions/download-artifact@v3
