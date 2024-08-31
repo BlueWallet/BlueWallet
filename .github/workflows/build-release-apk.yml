@@ -74,7 +74,9 @@ jobs:
       - name: Update Version Code, Build, and Sign APK
         id: build_apk
         run: |
-          bundle exec fastlane android build_release_apk
+          bundle exec fastlane android update_version_build_and_sign_apk
+          APK_FILE_NAME=$(ls ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk)
+          echo "APK_FILE_NAME=${APK_FILE_NAME}" >> $GITHUB_ENV
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
@@ -86,8 +88,8 @@ jobs:
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: signed-apk
-          path: ${{ github.workspace }}/android/app/build/outputs/apk/release/BlueWallet-*.apk
+          name: ${{ env.APK_FILE_NAME }}
+          path: ${{ env.APK_FILE_NAME }}
 
   browserstack:
     runs-on: ubuntu-latest
@@ -100,7 +102,8 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v3
         with:
-          name: signed-apk
+          name: ${{ env.APK_FILE_NAME }}
+          path: ./
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -113,7 +116,7 @@ jobs:
 
       - name: Upload APK to BrowserStack
         run: |
-          APK_OUTPUT_PATH=$(find ./signed-apk -name "*.apk")
+          APK_OUTPUT_PATH="./${{ env.APK_FILE_NAME }}"
           bundle exec fastlane android upload_to_browserstack apk_path=$APK_OUTPUT_PATH
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
