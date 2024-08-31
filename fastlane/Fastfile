@@ -246,7 +246,7 @@ platform :ios do
     UI.message("Building the application...")
     build_app(
       scheme: "BlueWallet",
-      workspace: "BlueWallet.xcworkspace",
+      workspace: "ios/BlueWallet.xcworkspace",
       export_method: "app-store",
       include_bitcode: false,
       configuration: "Release",
