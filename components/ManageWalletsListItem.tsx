@@ -11,7 +11,6 @@ interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
   drag: () => void;
-  isActive: boolean;
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
@@ -61,7 +60,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
   isDraggingDisabled,
   drag,
-  isActive,
   state,
   navigateToWallet,
   renderHighlightedText,
@@ -82,21 +80,28 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         leftWidth={80}
         rightWidth={90}
         minSlideWidth={40}
+        containerStyle={{ backgroundColor: colors.background }}
         leftContent={
           <LeftSwipeContent onPress={() => handleToggleHideBalance(item.data)} hideBalance={item.data.hideBalance} colors={colors} />
         }
         rightContent={<RightSwipeContent colors={colors} onPress={() => handleDeleteWallet(item.data)} />}
       >
-        <View style={styles.walletCarouselItemContainer}>
-          <WalletCarouselItem
-            item={item.data}
-            handleLongPress={isDraggingDisabled ? undefined : drag}
-            isActive={isActive}
-            onPress={onPress}
-            searchQuery={state.searchQuery}
-            renderHighlightedText={renderHighlightedText}
-          />
-        </View>
+        <ListItem.Content
+          style={{
+            backgroundColor: colors.background,
+          }}
+        >
+          <View style={styles.walletCarouselItemContainer}>
+            <WalletCarouselItem
+              item={item.data}
+              handleLongPress={isDraggingDisabled ? undefined : drag}
+              onPress={onPress}
+              animationsEnabled={false}
+              searchQuery={state.searchQuery}
+              renderHighlightedText={renderHighlightedText}
+            />
+          </View>
+        </ListItem.Content>
       </ListItem.Swipeable>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {

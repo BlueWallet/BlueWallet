@@ -98,7 +98,6 @@ interface WalletCarouselItemProps {
   isSelectedWallet?: boolean;
   customStyle?: ViewStyle;
   horizontal?: boolean;
-  isActive?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
@@ -162,8 +161,30 @@ const iStyles = StyleSheet.create({
   },
 });
 
+interface WalletCarouselItemProps {
+  item: TWallet;
+  onPress: (item: TWallet) => void;
+  handleLongPress?: () => void;
+  isSelectedWallet?: boolean;
+  customStyle?: ViewStyle;
+  horizontal?: boolean;
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  animationsEnabled?: boolean; // New prop
+}
+
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, searchQuery, renderHighlightedText }) => {
+  ({
+    item,
+    onPress,
+    handleLongPress,
+    isSelectedWallet,
+    customStyle,
+    horizontal,
+    searchQuery,
+    renderHighlightedText,
+    animationsEnabled = true, // Default to true
+  }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
@@ -172,22 +193,26 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const isLargeScreen = useIsLargeScreen();
 
     const onPressedIn = useCallback(() => {
-      Animated.spring(scaleValue, {
-        toValue: 0.95,
-        useNativeDriver: true,
-        friction: 3,
-        tension: 100,
-      }).start();
-    }, [scaleValue]);
+      if (animationsEnabled) {
+        Animated.spring(scaleValue, {
+          toValue: 0.95,
+          useNativeDriver: true,
+          friction: 3,
+          tension: 100,
+        }).start();
+      }
+    }, [scaleValue, animationsEnabled]);
 
     const onPressedOut = useCallback(() => {
-      Animated.spring(scaleValue, {
-        toValue: 1.0,
-        useNativeDriver: true,
-        friction: 3,
-        tension: 100,
-      }).start();
-    }, [scaleValue]);
+      if (animationsEnabled) {
+        Animated.spring(scaleValue, {
+          toValue: 1.0,
+          useNativeDriver: true,
+          friction: 3,
+          tension: 100,
+        }).start();
+      }
+    }, [scaleValue, animationsEnabled]);
 
     const handlePress = useCallback(() => {
       onPressedOut();

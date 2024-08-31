@@ -12,7 +12,7 @@ import {
   LayoutAnimation,
 } from 'react-native';
 // @ts-expect-error: react-native-draggable-flatlist is not typed
-import { NestableScrollContainer, NestableDraggableFlatList, RenderItem } from 'react-native-draggable-flatlist';
+import { NestableScrollContainer, ScaleDecorator, NestableDraggableFlatList, RenderItem } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -430,17 +430,18 @@ const ManageWallets: React.FC = () => {
   );
   const renderWalletItem = useCallback(
     ({ item, drag, isActive }: RenderItem<Item>) => (
-      <ManageWalletsListItem
-        item={item}
-        isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
-        drag={drag}
-        isActive={isActive}
-        state={state}
-        navigateToWallet={navigateToWallet}
-        renderHighlightedText={renderHighlightedText}
-        handleDeleteWallet={handleDeleteWallet}
-        handleToggleHideBalance={handleToggleHideBalance}
-      />
+      <ScaleDecorator drag={drag} activeScale={1.2}>
+        <ManageWalletsListItem
+          item={item}
+          isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
+          drag={drag}
+          state={state}
+          navigateToWallet={navigateToWallet}
+          renderHighlightedText={renderHighlightedText}
+          handleDeleteWallet={handleDeleteWallet}
+          handleToggleHideBalance={handleToggleHideBalance}
+        />
+      </ScaleDecorator>
     ),
     [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance],
   );
@@ -482,7 +483,7 @@ const ManageWallets: React.FC = () => {
   }, [state.searchQuery, state.wallets.length, state.txMetadata, stylesHook.noResultsText]);
 
   return (
-    <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
+    <GestureHandlerRootView style={{ backgroundColor: colors.background }}>
       <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is WalletItem => item.type === ItemType.WalletSection)}
@@ -493,6 +494,7 @@ const ManageWallets: React.FC = () => {
           onRelease={onRelease}
           delayLongPress={150}
           useNativeDriver={true}
+          dragItemOverflow
           onDragEnd={onDragEnd}
           containerStyle={styles.root}
           ListHeaderComponent={renderHeader}
@@ -501,6 +503,7 @@ const ManageWallets: React.FC = () => {
           data={state.tempOrder.filter((item): item is TransactionItem => item.type === ItemType.TransactionSection)}
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
+          dragItemOverflow
           containerStyle={styles.root}
           useNativeDriver={true}
           ListHeaderComponent={renderHeader}
