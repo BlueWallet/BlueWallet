@@ -65,7 +65,7 @@ jobs:
         run: bundle exec fastlane android prepare_keystore
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-  
+
       - name: Update Version Code, Build, and Sign APK
         id: build_and_sign_apk
         run: |
@@ -74,11 +74,19 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
+      - name: Expected Filename
+        id: expected_filename
+        run: |
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${GITHUB_RUN_NUMBER}.apk"
+          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
+          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_OUTPUT
+
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
           name: signed-apk
-          path: ${{ steps.build_and_sign_apk.outputs.APK_OUTPUT_PATH }}
+          path: android/app/build/outputs/apk/release/${{ steps.expected_filename.outputs.EXPECTED_FILENAME }}
 
   browserstack:
     runs-on: ubuntu-latest
@@ -103,8 +111,8 @@ jobs:
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
-          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack)
+          APK_PATH="${{ steps.download_apk.outputs.download-path }}/${{ steps.expected_filename.outputs.EXPECTED_FILENAME }}"
+          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path:$APK_PATH)
           echo "BROWSERSTACK_UPLOAD_OUTPUT=$BROWSERSTACK_UPLOAD_OUTPUT" >> $GITHUB_ENV
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
