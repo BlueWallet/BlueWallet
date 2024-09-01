@@ -1,7 +1,0 @@
-* Open Source
-* Chiffrement complet
-* Possibilité de déni plausible
-* Frais flexibles
-* Remplacement des frais (RBF)
-* Portefeuilles spectateurs
-* Réseau Lightning

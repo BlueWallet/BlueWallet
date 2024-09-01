@@ -1,1 +1,0 @@
-Thin Bitcoin Wallet Built with React Native and Electrum
