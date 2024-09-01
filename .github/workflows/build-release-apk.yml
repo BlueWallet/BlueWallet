@@ -83,7 +83,6 @@ jobs:
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_OUTPUT
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
@@ -112,9 +111,10 @@ jobs:
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path="${{ needs.buildReleaseApk.outputs.APK_PATH }}")
+          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path="${APK_PATH}")
           echo "BROWSERSTACK_UPLOAD_OUTPUT=${BROWSERSTACK_UPLOAD_OUTPUT}" >> $GITHUB_ENV
         env:
+          APK_PATH: ${{ env.APK_PATH }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
 
