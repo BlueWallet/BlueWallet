@@ -3,7 +3,6 @@ def app_identifiers
 end
 
 default_platform(:android)
-project_root = File.expand_path("..", __dir__)
 
 platform :android do
 
@@ -27,6 +26,7 @@ platform :android do
 
   desc "Update version code, build, and sign the APK"
   lane :update_version_build_and_sign_apk do
+    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
@@ -66,17 +66,16 @@ platform :android do
     end
   end
 
-  # Combined lane to run all the steps (for local use)
-  desc "Prepare keystore, update version, build, and sign APK"
-  lane :build_release_apk do
-    prepare_keystore
-    update_version_build_and_sign_apk
-  end
-
   desc "Upload APK to BrowserStack and post result as PR comment"
-  lane :upload_to_browserstack do |options|
-    apk_path = options[:apk_path] || ENV['APK_PATH']
-    UI.user_error!("No APK path provided") if apk_path.nil? || apk_path.empty?
+  lane :upload_to_browserstack do
+    # Download the artifact if necessary
+    apk_path = ENV['APK_PATH']
+
+    if apk_path.nil? || apk_path.empty?
+      UI.message("No APK path provided, attempting to download the artifact...")
+      apk_path = `find ./ -name "*.apk"`.strip
+      UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
+    end
 
     UI.message("Uploading APK to BrowserStack: #{apk_path}...")
 
@@ -100,9 +99,8 @@ platform :android do
       UI.message("No PR number found; skipping PR comment.")
     end
   end
-
-  
 end
+
 
 platform :ios do
 
