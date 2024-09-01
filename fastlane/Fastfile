@@ -3,6 +3,7 @@ def app_identifiers
 end
 
 default_platform(:android)
+project_root = File.expand_path("..", __dir__)
 
 platform :android do
 
@@ -26,7 +27,6 @@ platform :android do
 
   desc "Update version code, build, and sign the APK"
   lane :update_version_build_and_sign_apk do
-    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
@@ -68,7 +68,6 @@ platform :android do
 
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack do
-    project_root = File.expand_path("..", __dir__)
     Dir.chdir(project_root) do
 
     # Download the artifact if necessary
