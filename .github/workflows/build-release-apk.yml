@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  buildReleaseApk:
+  build_and_upload:
     runs-on: ubuntu-latest
 
     steps:
@@ -74,7 +74,7 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Expected Filename
+      - name: Determine APK Filename
         id: expected_filename
         run: |
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
@@ -88,34 +88,26 @@ jobs:
           name: signed-apk
           path: android/app/build/outputs/apk/release/${{ steps.expected_filename.outputs.EXPECTED_FILENAME }}
 
-  browserstack:
-    runs-on: ubuntu-latest
-    needs: buildReleaseApk
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-
-      - name: Install dependencies with Bundler
-        run: bundle install --jobs 4 --retry 3
-
       - name: Download APK artifact
         id: download_apk
         uses: actions/download-artifact@v3
         with:
           name: signed-apk
 
+      - name: Verify APK file
+        id: verify_apk
+        run: |
+          APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
+          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+          echo "APK_PATH=${APK_PATH}" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies with Bundler
+        run: bundle install --jobs 4 --retry 3
+
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
-          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path:$APK_PATH)
+          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path:${{ steps.verify_apk.outputs.APK_PATH }})
           echo "BROWSERSTACK_UPLOAD_OUTPUT=$BROWSERSTACK_UPLOAD_OUTPUT" >> $GITHUB_ENV
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
