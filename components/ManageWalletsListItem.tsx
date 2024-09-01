@@ -7,18 +7,6 @@ import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 
-interface ManageWalletsListItemProps {
-  item: Item;
-  isDraggingDisabled: boolean;
-  drag?: () => void;
-  isPlaceHolder?: boolean;
-  state: { wallets: TWallet[]; searchQuery: string };
-  navigateToWallet: (wallet: TWallet) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
-  handleDeleteWallet: (wallet: TWallet) => void;
-  handleToggleHideBalance: (wallet: TWallet) => void;
-}
-
 enum ItemType {
   WalletSection = 'wallet',
   TransactionSection = 'transaction',
@@ -35,6 +23,18 @@ interface TransactionItem {
 }
 
 type Item = WalletItem | TransactionItem;
+
+interface ManageWalletsListItemProps {
+  item: Item;
+  isDraggingDisabled: boolean;
+  drag?: () => void;
+  isPlaceHolder?: boolean;
+  state: { wallets: TWallet[]; searchQuery: string };
+  navigateToWallet: (wallet: TWallet) => void;
+  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  handleDeleteWallet: (wallet: TWallet) => void;
+  handleToggleHideBalance: (wallet: TWallet) => void;
+}
 
 interface SwipeContentProps {
   onPress: () => void;
@@ -76,6 +76,32 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     }
   }, [item, navigateToWallet]);
 
+  const leftContent = useCallback(
+    (reset: () => void) => (
+      <LeftSwipeContent
+        onPress={() => {
+          handleToggleHideBalance(item.data as TWallet);
+          reset();
+        }}
+        hideBalance={(item.data as TWallet).hideBalance}
+        colors={colors}
+      />
+    ),
+    [colors, handleToggleHideBalance, item.data],
+  );
+
+  const rightContent = useCallback(
+    (reset: () => void) => (
+      <RightSwipeContent
+        onPress={() => {
+          handleDeleteWallet(item.data as TWallet);
+          reset();
+        }}
+      />
+    ),
+    [handleDeleteWallet, item.data],
+  );
+
   if (item.type === ItemType.WalletSection) {
     return (
       <ListItem.Swipeable
@@ -83,10 +109,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         rightWidth={90}
         animation={{ duration: 400 }}
         containerStyle={{ backgroundColor: colors.background }}
-        leftContent={
-          <LeftSwipeContent onPress={() => handleToggleHideBalance(item.data)} hideBalance={item.data.hideBalance} colors={colors} />
-        }
-        rightContent={<RightSwipeContent colors={colors} onPress={() => handleDeleteWallet(item.data)} />}
+        leftContent={leftContent}
+        rightContent={rightContent}
       >
         <ListItem.Content
           style={{
@@ -143,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageWalletsListItem;
+export { ManageWalletsListItem, LeftSwipeContent, RightSwipeContent };

@@ -23,7 +23,7 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import presentAlert from '../../components/Alert';
 import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import ManageWalletsListItem from '../../components/ManageWalletsListItem';
+import { ManageWalletsListItem } from '../../components/ManageWalletsListItem';
 
 enum ItemType {
   WalletSection = 'wallet',
