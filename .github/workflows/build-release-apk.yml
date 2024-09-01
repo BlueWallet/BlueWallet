@@ -118,10 +118,10 @@ jobs:
           APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
           echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
 
-      - name: Upload to BrowserStack and Post PR Comment
-        run: |
-          bundle exec fastlane android upload_to_browserstack_and_comment
+      - name: Upload APK to BrowserStack and Post PR Comment
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bundle exec fastlane upload_to_browserstack_and_comment

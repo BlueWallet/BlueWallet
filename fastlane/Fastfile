@@ -66,47 +66,48 @@ platform :android do
     end
   end
 
+ 
   desc "Upload APK to BrowserStack and post result as PR comment"
-  lane :upload_to_browserstack_and_comment do
-    # Upload APK to BrowserStack
-    Dir.chdir(project_root) do
+lane :upload_to_browserstack_and_comment do
+  # Upload APK to BrowserStack
+  Dir.chdir(project_root) do
 
-      # Download the artifact if necessary
-      apk_path = ENV['APK_PATH']
-  
-      if apk_path.nil? || apk_path.empty?
-        UI.message("No APK path provided, attempting to download the artifact...")
-        apk_path = `find ./ -name "*.apk"`.strip
-        UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
-      end
-  
-      UI.message("Uploading APK to BrowserStack: #{apk_path}...")
-  
-      # Perform the upload
+    # Download the artifact if necessary
+    apk_path = ENV['APK_PATH']
+
+    if apk_path.nil? || apk_path.empty?
+      UI.message("No APK path provided, attempting to download the artifact...")
+      apk_path = `find ./ -name "*.apk"`.strip
+      UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
+    end
+
+    UI.message("Uploading APK to BrowserStack: #{apk_path}...")
+
+    # Perform the upload
     browserstack_upload_output = upload_to_browserstack_app_live(
       file_path: apk_path,
       browserstack_username: ENV['BROWSERSTACK_USERNAME'],
       browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
-    
+
     # Extract the BrowserStack URL from the output
     app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
-    
+
     # Check if the PR number is available
     pr_number = ENV['GITHUB_PR_NUMBER']
-  
+
     # Construct the comment content
     comment = <<~COMMENT
       APK successfully uploaded to BrowserStack. You can test it using the following URL:
       #{app_url}
-  
+
       Additional BrowserStack Upload Output:
       #{browserstack_upload_output}
     COMMENT
-  
+
     # Post the comment to the PR
     if pr_number
-      sh("gh pr comment #{pr_number} --body '#{comment}'")
+      sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
     else
       UI.important("No PR number found. Skipping PR comment.")
     end
