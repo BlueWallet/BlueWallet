@@ -1,16 +1,5 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  useColorScheme,
-  TouchableOpacity,
-  Image,
-  Text,
-  Alert,
-  I18nManager,
-  Animated,
-  LayoutAnimation,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Text, Alert, I18nManager, Animated, LayoutAnimation } from 'react-native';
 import {
   NestableScrollContainer,
   ScaleDecorator,
@@ -200,7 +189,6 @@ const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
   const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
-  const colorScheme = useColorScheme();
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -289,12 +277,11 @@ const ManageWallets: React.FC = () => {
     };
 
     setOptions({
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
       headerLeft: () => HeaderLeftButton,
       headerRight: () => SaveButton,
       headerSearchBarOptions: searchBarOptions,
     });
-  }, [colorScheme, setOptions, HeaderLeftButton, SaveButton]);
+  }, [setOptions, HeaderLeftButton, SaveButton]);
 
   useFocusEffect(
     useCallback(() => {
@@ -507,11 +494,12 @@ const ManageWallets: React.FC = () => {
   }, [state.searchQuery, state.wallets.length, state.txMetadata, stylesHook.noResultsText]);
 
   return (
-    <GestureHandlerRootView style={{ backgroundColor: colors.background }}>
+    <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
       <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
         {renderHeader}
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is WalletItem => item.type === ItemType.WalletSection)}
+          extraData={state.tempOrder}
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
           onChangeOrder={onChangeOrder}

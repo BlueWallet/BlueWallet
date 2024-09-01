@@ -383,6 +383,7 @@ const DetailViewStackScreensStack = () => {
           gestureEnabled: false,
           presentation: 'containedModal',
           title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
         })(theme)}
       />
     </DetailViewStack.Navigator>
