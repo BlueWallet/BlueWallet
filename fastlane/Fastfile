@@ -73,26 +73,33 @@ platform :android do
     update_version_build_and_sign_apk
   end
 
-  desc "Upload APK to BrowserStack"
+  desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack do |options|
-    apk_path = options[:apk_path] || UI.user_error!("No APK path provided")
+    apk_path = options[:apk_path] || ENV['APK_PATH']
+    UI.user_error!("No APK path provided") if apk_path.nil? || apk_path.empty?
 
-  result = upload_to_browserstack_app_live(
-    file_path: apk_path,
-    browserstack_username: ENV['BROWSERSTACK_USERNAME'],
-    browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
-  )
+    UI.message("Uploading APK to BrowserStack: #{apk_path}...")
 
-  app_url = result[:app_url]
+    # Perform the upload
+    browserstack_upload_output = upload_to_browserstack_app_live(
+      app_path: apk_path,
+      username: ENV['BROWSERSTACK_USERNAME'],
+      access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+    )
 
-  # Prepare the message
-  output_message = "Successfully uploaded app #{apk_path} to BrowserStack AppLive.\nBrowserStack App URL: #{app_url}"
+    UI.message("APK successfully uploaded to BrowserStack.")
 
-  # Export as environment variable
-  ENV['BROWSERSTACK_UPLOAD_OUTPUT'] = output_message
+    # Extract the relevant URL from the output and post it as a PR comment
+    app_url = browserstack_upload_output[:app_url]
+    pr_number = ENV['GITHUB_PR_NUMBER']
 
-  UI.message(output_message)
-end
+    if pr_number
+      comment_body = "BrowserStack App URL: #{app_url}"
+      sh("gh pr comment #{pr_number} --body '#{comment_body}'")
+    else
+      UI.message("No PR number found; skipping PR comment.")
+    end
+  end
 
   
 end
