@@ -72,14 +72,14 @@ jobs:
         run: |
           bundle exec fastlane android update_version_build_and_sign_apk
         env:
-          BUILD_NUMBER: ${{ github.run_number }}
+          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Determine APK Filename and Path
-        id: expected_filename
+        id: determine_apk_path
         run: |
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${GITHUB_RUN_NUMBER}.apk"
+          EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${{ env.NEW_BUILD_NUMBER }}.apk"
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
