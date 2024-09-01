@@ -83,9 +83,9 @@ platform :android do
 
     # Perform the upload
     browserstack_upload_output = upload_to_browserstack_app_live(
-      app_path: apk_path,
-      username: ENV['BROWSERSTACK_USERNAME'],
-      access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+      file_path: apk_path,
+      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
 
     UI.message("APK successfully uploaded to BrowserStack.")
