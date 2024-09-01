@@ -68,6 +68,9 @@ platform :android do
 
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack do
+    project_root = File.expand_path("..", __dir__)
+    Dir.chdir(project_root) do
+
     # Download the artifact if necessary
     apk_path = ENV['APK_PATH']
 
@@ -98,6 +101,7 @@ platform :android do
     else
       UI.message("No PR number found; skipping PR comment.")
     end
+  end
   end
 end
 
