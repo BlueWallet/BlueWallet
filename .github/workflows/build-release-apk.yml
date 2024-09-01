@@ -5,7 +5,6 @@ on:
     branches:
       - master
     types: [opened, synchronize, reopened, labeled, unlabeled]
-
   push:
     branches:
       - master
@@ -113,7 +112,7 @@ jobs:
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path="${{ env.APK_PATH }}")
+          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path="${{ needs.buildReleaseApk.outputs.APK_PATH }}")
           echo "BROWSERSTACK_UPLOAD_OUTPUT=${BROWSERSTACK_UPLOAD_OUTPUT}" >> $GITHUB_ENV
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
