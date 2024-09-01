@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - master
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+      types: [opened, synchronize, reopened, labeled, unlabeled]
 
   push:
     branches:
@@ -76,32 +76,21 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      - name: Determine APK Filename
+      - name: Determine APK Filename and Path
         id: expected_filename
         run: |
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${GITHUB_RUN_NUMBER}.apk"
+          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_OUTPUT
+          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+          echo "APK_PATH=${APK_PATH}" >> $GITHUB_OUTPUT
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
           name: signed-apk
-          path: android/app/build/outputs/apk/release/${{ steps.expected_filename.outputs.EXPECTED_FILENAME }}
-
-      - name: Download APK artifact
-        id: download_apk
-        uses: actions/download-artifact@v3
-        with:
-          name: signed-apk
-
-      - name: Verify APK file
-        id: verify_apk
-        run: |
-          APK_PATH=$(find "${{ steps.download_apk.outputs.download-path }}" -name '*.apk')
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_OUTPUT
+          path: ${{ env.APK_PATH }}
 
       - name: Install dependencies with Bundler
         run: bundle install --jobs 4 --retry 3
