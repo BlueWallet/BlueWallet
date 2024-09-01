@@ -120,7 +120,7 @@ jobs:
 
       - name: Upload to BrowserStack and Post PR Comment
         run: |
-          bundle exec fastlane android upload_to_browserstack
+          bundle exec fastlane android upload_to_browserstack_and_comment
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
