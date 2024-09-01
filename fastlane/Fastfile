@@ -69,8 +69,24 @@ platform :android do
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
     # Upload APK to BrowserStack
+    Dir.chdir(project_root) do
+
+      # Download the artifact if necessary
+      apk_path = ENV['APK_PATH']
+  
+      if apk_path.nil? || apk_path.empty?
+        UI.message("No APK path provided, attempting to download the artifact...")
+        apk_path = `find ./ -name "*.apk"`.strip
+        UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
+      end
+  
+      UI.message("Uploading APK to BrowserStack: #{apk_path}...")
+  
+      # Perform the upload
     browserstack_upload_output = upload_to_browserstack_app_live(
-      app_path: ENV['APK_PATH']
+      file_path: apk_path,
+      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
     )
     
     # Extract the BrowserStack URL from the output
@@ -95,6 +111,7 @@ platform :android do
       UI.important("No PR number found. Skipping PR comment.")
     end
   end
+end
 end
 
 
