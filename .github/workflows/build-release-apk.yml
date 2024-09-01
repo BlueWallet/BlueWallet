@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - master
+      types: [opened, synchronize, reopened, labeled, unlabeled]
+
   push:
     branches:
       - master
@@ -97,24 +99,26 @@ jobs:
       - name: Verify APK file
         id: verify_apk
         run: |
-          APK_PATH=$(find ${{ steps.download_apk.outputs.download-path }} -name '*.apk')
+          APK_PATH=$(find "${{ steps.download_apk.outputs.download-path }}" -name '*.apk')
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_OUTPUT
 
       - name: Install dependencies with Bundler
         run: bundle install --jobs 4 --retry 3
+        if: contains(github.event.pull_request.labels.*.name, 'browserstack')
 
       - name: Upload APK to BrowserStack
         id: upload_to_browserstack
         run: |
-          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path:${{ steps.verify_apk.outputs.APK_PATH }})
-          echo "BROWSERSTACK_UPLOAD_OUTPUT=$BROWSERSTACK_UPLOAD_OUTPUT" >> $GITHUB_ENV
+          BROWSERSTACK_UPLOAD_OUTPUT=$(bundle exec fastlane android upload_to_browserstack apk_path="${{ env.APK_PATH }}")
+          echo "BROWSERSTACK_UPLOAD_OUTPUT=${BROWSERSTACK_UPLOAD_OUTPUT}" >> $GITHUB_ENV
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        if: contains(github.event.pull_request.labels.*.name, 'browserstack')
 
       - name: Post BrowserStack Upload Info to PR
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack')
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --body "${{ env.BROWSERSTACK_UPLOAD_OUTPUT }}"
         env:
