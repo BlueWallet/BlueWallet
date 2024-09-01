@@ -168,6 +168,7 @@ interface WalletCarouselItemProps {
   isSelectedWallet?: boolean;
   customStyle?: ViewStyle;
   horizontal?: boolean;
+  isPlaceHolder?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
   animationsEnabled?: boolean; // New prop
@@ -183,7 +184,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     horizontal,
     searchQuery,
     renderHighlightedText,
-    animationsEnabled = true, // Default to true
+    animationsEnabled = true,
+    isPlaceHolder = false,
   }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
@@ -264,33 +266,37 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
               <Image defaultSource={image} source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
-              <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-                {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
-              </Text>
-              <View style={iStyles.balanceContainer}>
-                {item.hideBalance ? (
-                  <>
-                    <BlueSpacing10 />
-                    <BlurredBalanceView />
-                  </>
-                ) : (
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                    style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
-                  >
-                    {`${balance} `}
+              {!isPlaceHolder && (
+                <>
+                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                    {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
                   </Text>
-                )}
-              </View>
-              <Text style={iStyles.br} />
-              <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
-                {loc.wallets.list_latest_transaction}
-              </Text>
-              <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-                {latestTransactionText}
-              </Text>
+                  <View style={iStyles.balanceContainer}>
+                    {item.hideBalance ? (
+                      <>
+                        <BlueSpacing10 />
+                        <BlurredBalanceView />
+                      </>
+                    ) : (
+                      <Text
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                        style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                      >
+                        {`${balance} `}
+                      </Text>
+                    )}
+                  </View>
+                  <Text style={iStyles.br} />
+                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
+                    {loc.wallets.list_latest_transaction}
+                  </Text>
+                  <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                    {latestTransactionText}
+                  </Text>
+                </>
+              )}
             </LinearGradient>
           </View>
         </Pressable>

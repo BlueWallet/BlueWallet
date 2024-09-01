@@ -10,7 +10,8 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
-  drag: () => void;
+  drag?: () => void;
+  isPlaceHolder?: boolean;
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
@@ -61,6 +62,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   isDraggingDisabled,
   drag,
   state,
+  isPlaceHolder = false,
   navigateToWallet,
   renderHighlightedText,
   handleDeleteWallet,
@@ -79,7 +81,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        minSlideWidth={40}
+        animation={{ duration: 400 }}
         containerStyle={{ backgroundColor: colors.background }}
         leftContent={
           <LeftSwipeContent onPress={() => handleToggleHideBalance(item.data)} hideBalance={item.data.hideBalance} colors={colors} />
@@ -98,6 +100,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
               onPress={onPress}
               animationsEnabled={false}
               searchQuery={state.searchQuery}
+              isPlaceHolder={isPlaceHolder}
               renderHighlightedText={renderHighlightedText}
             />
           </View>

@@ -11,8 +11,14 @@ import {
   Animated,
   LayoutAnimation,
 } from 'react-native';
-// @ts-expect-error: react-native-draggable-flatlist is not typed
-import { NestableScrollContainer, ScaleDecorator, NestableDraggableFlatList, RenderItem } from 'react-native-draggable-flatlist';
+import {
+  NestableScrollContainer,
+  ScaleDecorator,
+  OpacityDecorator,
+  NestableDraggableFlatList,
+  RenderItem,
+  // @ts-expect-error: react-native-draggable-flatlist is not typed
+} from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -430,20 +436,38 @@ const ManageWallets: React.FC = () => {
   );
   const renderWalletItem = useCallback(
     ({ item, drag, isActive }: RenderItem<Item>) => (
-      <ScaleDecorator drag={drag} activeScale={1.2}>
-        <ManageWalletsListItem
-          item={item}
-          isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
-          drag={drag}
-          state={state}
-          navigateToWallet={navigateToWallet}
-          renderHighlightedText={renderHighlightedText}
-          handleDeleteWallet={handleDeleteWallet}
-          handleToggleHideBalance={handleToggleHideBalance}
-        />
+      <ScaleDecorator drag={drag} activeScale={1.1}>
+        <OpacityDecorator activeOpacity={0.5}>
+          <ManageWalletsListItem
+            item={item}
+            isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
+            drag={drag}
+            state={state}
+            navigateToWallet={navigateToWallet}
+            renderHighlightedText={renderHighlightedText}
+            handleDeleteWallet={handleDeleteWallet}
+            handleToggleHideBalance={handleToggleHideBalance}
+          />
+        </OpacityDecorator>
       </ScaleDecorator>
     ),
     [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance],
+  );
+
+  const renderPlaceholder = useCallback(
+    ({ item, drag, isActive }: RenderItem<Item>) => (
+      <ManageWalletsListItem
+        item={item}
+        isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
+        state={state}
+        navigateToWallet={navigateToWallet}
+        renderHighlightedText={renderHighlightedText}
+        isPlaceHolder
+        handleDeleteWallet={handleDeleteWallet}
+        handleToggleHideBalance={handleToggleHideBalance}
+      />
+    ),
+    [handleDeleteWallet, handleToggleHideBalance, navigateToWallet, renderHighlightedText, state],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -485,6 +509,7 @@ const ManageWallets: React.FC = () => {
   return (
     <GestureHandlerRootView style={{ backgroundColor: colors.background }}>
       <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+        {renderHeader}
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is WalletItem => item.type === ItemType.WalletSection)}
           keyExtractor={keyExtractor}
@@ -495,9 +520,13 @@ const ManageWallets: React.FC = () => {
           delayLongPress={150}
           useNativeDriver={true}
           dragItemOverflow
+          autoscrollThreshold={1}
+          renderPlaceholder={renderPlaceholder}
+          autoscrollSpeed={0.5}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
           onDragEnd={onDragEnd}
           containerStyle={styles.root}
-          ListHeaderComponent={renderHeader}
         />
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is TransactionItem => item.type === ItemType.TransactionSection)}
@@ -505,8 +534,9 @@ const ManageWallets: React.FC = () => {
           renderItem={renderWalletItem}
           dragItemOverflow
           containerStyle={styles.root}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
           useNativeDriver={true}
-          ListHeaderComponent={renderHeader}
         />
       </NestableScrollContainer>
     </GestureHandlerRootView>

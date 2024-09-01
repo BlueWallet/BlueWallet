@@ -381,7 +381,7 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerBackVisible: false,
           gestureEnabled: false,
-          presentation: 'fullScreenModal',
+          presentation: 'containedModal',
           title: loc.wallets.manage_title,
         })(theme)}
       />
