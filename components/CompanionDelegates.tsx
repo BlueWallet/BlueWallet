@@ -15,6 +15,7 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
+import LiveActivityTracker from './LiveActivityTracker';
 import { useStorage } from '../hooks/context/useStorage';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
@@ -233,6 +234,7 @@ const CompanionDelegates = () => {
         <HandOffComponentListener />
         <WidgetCommunication />
         <WatchConnectivity />
+        <LiveActivityTracker />
       </Suspense>
     </>
   );
