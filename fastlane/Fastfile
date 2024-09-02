@@ -100,9 +100,6 @@ lane :upload_to_browserstack_and_comment do
     comment = <<~COMMENT
       APK successfully uploaded to BrowserStack. You can test it using the following URL:
       #{app_url}
-
-      Additional BrowserStack Upload Output:
-      #{browserstack_upload_output}
     COMMENT
 
     # Post the comment to the PR
