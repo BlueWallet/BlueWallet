@@ -504,6 +504,7 @@ const ManageWallets: React.FC = () => {
           renderItem={renderWalletItem}
           onChangeOrder={onChangeOrder}
           onDragBegin={onDragBegin}
+          onPlaceholderIndexChange={onChangeOrder}
           onRelease={onRelease}
           delayLongPress={150}
           useNativeDriver={true}
