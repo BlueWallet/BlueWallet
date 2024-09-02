@@ -81,9 +81,9 @@ jobs:
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           BRANCH_NAME=$(echo ${{ github.head_ref || github.ref_name }} | sed 's/\//-/g')
           if [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}(${NEW_BUILD_NUMBER})-${BRANCH_NAME}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
           else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}(${NEW_BUILD_NUMBER}).apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}.apk"
           fi
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
