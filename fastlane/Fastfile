@@ -26,7 +26,7 @@ platform :android do
   end
 
   desc "Update version code, build, and sign the APK"
-lane :update_version_build_and_sign_apk do
+  lane :update_version_build_and_sign_apk do
   Dir.chdir(project_root) do
     build_number = ENV['BUILD_NUMBER']
     UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
@@ -79,8 +79,7 @@ end
  
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
-  # Upload APK to BrowserStack
-  Dir.chdir(project_root) do
+    Dir.chdir(project_root) do
 
     # Download the artifact if necessary
     apk_path = ENV['APK_PATH']
@@ -93,8 +92,7 @@ end
 
     UI.message("Uploading APK to BrowserStack: #{apk_path}...")
 
-    # Perform the upload
-    browserstack_upload_output = upload_to_browserstack_app_live(
+    upload_to_browserstack_app_live(
       file_path: apk_path,
       browserstack_username: ENV['BROWSERSTACK_USERNAME'],
       browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
@@ -103,13 +101,16 @@ end
     # Extract the BrowserStack URL from the output
     app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
 
-    # Check if the PR number is available
+    # Extract the filename from the APK path
+    apk_filename = File.basename(apk_path)
+
     pr_number = ENV['GITHUB_PR_NUMBER']
 
-    # Construct the comment content
     comment = <<~COMMENT
       APK successfully uploaded to BrowserStack. You can test it using the following URL:
       #{app_url}
+
+      Filename: #{apk_filename}
     COMMENT
 
     # Post the comment to the PR
