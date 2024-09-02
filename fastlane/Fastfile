@@ -26,49 +26,59 @@ platform :android do
   end
 
   desc "Update version code, build, and sign the APK"
-  lane :update_version_build_and_sign_apk do
-    Dir.chdir(project_root) do
-      build_number = ENV['BUILD_NUMBER']
-      UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
+lane :update_version_build_and_sign_apk do
+  Dir.chdir(project_root) do
+    build_number = ENV['BUILD_NUMBER']
+    UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
 
-      Dir.chdir("android") do
-        UI.message("Updating version code in build.gradle...")
-        gradle(
-          task: "assembleRelease",
-          properties: { "versionCode" => build_number },
-          project_dir: "android"
-        )
-        UI.message("Version code updated to #{build_number} and APK build completed.")
+    # Get the version name from build.gradle
+    version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+    
+    # Get the branch name
+    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub('/', '-')
+    
+    # Append branch name only if it's not 'master'
+    if branch_name != 'master'
+      signed_apk_name = "BlueWallet-#{version_name}(#{build_number})-#{branch_name}.apk"
+    else
+      signed_apk_name = "BlueWallet-#{version_name}(#{build_number}).apk"
+    end
+    
+    Dir.chdir("android") do
+      UI.message("Updating version code in build.gradle...")
+      gradle(
+        task: "assembleRelease",
+        properties: { "versionCode" => build_number },
+        project_dir: "android"
+      )
+      UI.message("Version code updated to #{build_number} and APK build completed.")
 
-        version_name = sh("grep versionName app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+      # Define the output paths
+      unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
+      signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
 
-        # Define the output paths
-        unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
-        signed_apk_name = "BlueWallet-#{version_name}-#{build_number}.apk"
-        signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
-
-        # Rename the unsigned APK to include the version and build number
-        if File.exist?(unsigned_apk_path)
-          UI.message("Renaming APK to #{signed_apk_name}...")
-          FileUtils.mv(unsigned_apk_path, signed_apk_path)
-          ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-        else
-          UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
-          next
-        end
-
-        # Sign the APK using apksigner directly since we don't have an alias
-        UI.message("Signing APK with apksigner...")
-        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
-        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-        UI.message("APK signed successfully: #{signed_apk_path}")
+      # Rename the unsigned APK to include the version and build number
+      if File.exist?(unsigned_apk_path)
+        UI.message("Renaming APK to #{signed_apk_name}...")
+        FileUtils.mv(unsigned_apk_path, signed_apk_path)
+        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+      else
+        UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
+        next
       end
+
+      # Sign the APK using apksigner directly since we don't have an alias
+      UI.message("Signing APK with apksigner...")
+      apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+      sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+      UI.message("APK signed successfully: #{signed_apk_path}")
     end
   end
+end
 
  
   desc "Upload APK to BrowserStack and post result as PR comment"
-lane :upload_to_browserstack_and_comment do
+  lane :upload_to_browserstack_and_comment do
   # Upload APK to BrowserStack
   Dir.chdir(project_root) do
 
