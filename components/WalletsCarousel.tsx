@@ -171,7 +171,7 @@ interface WalletCarouselItemProps {
   isPlaceHolder?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
-  animationsEnabled?: boolean; // New prop
+  animationsEnabled?: boolean;
 }
 
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
