@@ -100,8 +100,8 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
     });
 
     useImperativeHandle(ref, () => ({
-      present: async () => feeModalRef.current?.present(),
-      dismiss: async () => feeModalRef.current?.dismiss(),
+      present: async () => await feeModalRef.current?.present(),
+      dismiss: async () => await feeModalRef.current?.dismiss(),
     }));
 
     const options: Option[] = [
