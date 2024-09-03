@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import ListItem from '../../components/ListItem';
+import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
@@ -195,7 +195,7 @@ const EncryptStorage = () => {
           title={loc.settings.plausible_deniability}
           chevron
           testID="PlausibleDeniabilityButton"
-          Component={TouchableOpacity}
+          Component={TouchableOpacityWrapper}
           containerStyle={[styles.row, styleHooks.root]}
         />
       )}

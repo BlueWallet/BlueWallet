@@ -19,7 +19,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-const CopyTextToClipboard = forwardRef<TouchableOpacity, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
+const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
   const [hasTappedText, setHasTappedText] = useState(false);
   const [address, setAddress] = useState(text);
 
