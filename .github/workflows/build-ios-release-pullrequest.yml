@@ -26,7 +26,6 @@ jobs:
         with:
           fetch-depth: 0 # Fetches all history
       
-      
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -200,3 +199,35 @@ jobs:
               issue_number: prNumber,
               body: message,
             });
+
+  browserstack-upload:
+    needs: build
+    runs-on: macos-latest
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack')
+    env:
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+      - name: Generate Build Number based on timestamp
+        run: |
+          echo "Using previously generated build number: ${{ env.NEW_BUILD_NUMBER }}"
+      - name: Build iOS Simulator Release App
+        run: bundle exec fastlane ios build_ios_simulator_release
+      - name: Zip iOS Simulator Release Build
+        run: bundle exec fastlane ios zip_ios_simulator_release_build
+      - name: Upload iOS Simulator Release Build to BrowserStack
+        run: bundle exec fastlane ios upload_ios_simulator_release_to_browserstack
