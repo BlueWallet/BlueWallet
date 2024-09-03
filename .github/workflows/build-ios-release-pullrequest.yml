@@ -1,4 +1,4 @@
-name: Build and Deploy iOS
+name: Build Release and Upload to TestFlight (iOS)
 
 on:
   push:
@@ -23,108 +23,52 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Specify node version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 15.4
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
 
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.4
+
       - name: Install dependencies with Bundler
         run: |
           bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          bundle install --jobs=4 --retry=3 --quiet
 
       - name: Install node_modules
         run: npm install --production
 
       - name: Install CocoaPods Dependencies
-        run: |
-          bundle exec fastlane ios setup_dependencies
+        run: bundle exec fastlane ios install_pods
 
       - name: Cache CocoaPods Pods
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-
-      - name: Set up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-      
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane ios setup_environment
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-
-      - name: Setup Provisioning Profiles
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane ios setup_provisioning_profiles
-
-      - name: Cache Provisioning Profiles
-        id: cache_provisioning_profiles
-        uses: actions/cache@v2
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
-      - name: Check Cache Status for Provisioning Profiles
-        run: |
-          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
-            echo "Provisioning profiles were restored from cache."
-          else
-            echo "No cache found for provisioning profiles. A new cache will be created."
-          fi
-
-      - name: Verify Provisioning Profiles Exist
-        run: |
-          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
-            echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning Profiles
-          else
-            echo "Provisioning profiles directory does not exist."
-          fi
-
+          
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-
+          
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |
           MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
-        working-directory: ios
-
+          
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
@@ -133,61 +77,100 @@ jobs:
           echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
 
   build:
-    needs: set-build-env
     runs-on: macos-latest
-    timeout-minutes: 180
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+    needs: set-build-env
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.4
+
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs=4 --retry=3 --quiet
+
+      - name: Install node_modules
+        run: npm install --production
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
+          path: ./ios/build/BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
 
   testflight-upload:
     needs: build
     runs-on: macos-14
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
+          path: ./ios/build
+
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+
       - name: Upload to TestFlight
-        env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+        run: bundle exec fastlane ios upload_to_testflight_lane
+        env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.json
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
+          PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+          NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
 
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+          BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
         with:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
@@ -201,19 +184,37 @@ jobs:
             });
 
   build-ios-simulator-release:
-    needs: set-build-env
     runs-on: macos-latest
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack')
-    env:
-      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+    needs: set-build-env
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.4
+
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs=4 --retry=3 --quiet
+
+      - name: Install node_modules
+        run: npm install --production
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec fastlane ios install_pods
 
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
@@ -221,29 +222,35 @@ jobs:
       - name: Zip iOS Simulator Release Build
         run: bundle exec fastlane ios zip_ios_simulator_release_build
 
-      - name: Upload Simulator Build as Artifact
+      - name: Upload iOS Simulator Release Build as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-Simulator.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).zip
-          path: ./build/simulator/BlueWallet-Simulator.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).zip
+          name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
+          path: ./build/simulator/BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
 
   browserstack-upload:
-    needs: build-ios-simulator-release
     runs-on: macos-latest
+    needs: build-ios-simulator-release
     env:
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      NEW_BUILD_NUMBER: ${{ needs.build-ios-simulator-release.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build-ios-simulator-release.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build-ios-simulator-release.outputs.latest_commit_message }}
+      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
 
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
       - name: Download Simulator Build Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet-Simulator.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).zip
+          name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
           path: ./build/simulator
 
       - name: Upload iOS Simulator Release Build to BrowserStack
@@ -253,12 +260,12 @@ jobs:
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
+          BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
         with:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
-            const message = `iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
+            const message = `The iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
