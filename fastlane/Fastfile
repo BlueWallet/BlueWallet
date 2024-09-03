@@ -130,44 +130,14 @@ platform :android do
   end
 end
 
+
 platform :ios do
 
-  before_all do |lane, options|
-    UI.message("Setting up for all lanes...")
-    UI.message("Discarding all untracked changes before running any lane...")
-    sh("git clean -fd")
-    sh("git checkout -- .")
-  end
+  desc "Set up the environment, including provisioning profiles, keychain, and dependencies"
+  lane :setup_environment do
+    UI.message("Setting up the environment...")
 
-  desc "Register new devices from a file"
-  lane :register_devices_from_txt do
-    UI.message("Registering new devices from file...")
-
-    csv_path = "../../devices.txt" # Update this with the actual path to your file
-
-    # Registering devices using the devices_file parameter
-    register_devices(
-      devices_file: csv_path
-    )
-
-    UI.message("Devices registered successfully.")
-
-    app_identifiers.each do |app_identifier|
-      match(
-        type: "development", 
-        app_identifier: app_identifier,
-        readonly: false, # This will regenerate the provisioning profile if needed
-        force_for_new_devices: true # This forces match to add new devices to the profile
-      )
-    end
-
-    UI.message("Development provisioning profiles updated.")
-  end  
-
-  desc "Create a temporary keychain"
-  lane :create_temp_keychain do
-    UI.message("Creating a temporary keychain...")
-  
+    # Create a temporary keychain
     create_keychain(
       name: "temp_keychain",
       password: ENV["KEYCHAIN_PASSWORD"],
@@ -176,12 +146,20 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
-  
     UI.message("Temporary keychain created successfully.")
+
+    # Set up provisioning profiles
+    setup_provisioning_profiles
+
+    # Set up dependencies
+    setup_dependencies
+
+    # Generate the build number and project version
+    generate_build_version_info
   end
 
-  desc "Synchronize certificates and provisioning profiles"
-  lane :setup_provisioning_profiles do |options|
+  desc "Set up provisioning profiles using match"
+  lane :setup_provisioning_profiles do
     UI.message("Setting up provisioning profiles...")
     target_to_app_identifier = {
       'BlueWallet' => 'io.bluewallet.bluewallet',
@@ -191,17 +169,12 @@ platform :ios do
       'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
     }
 
-    platform = options[:platform] || "ios" # Default to iOS if not specified
-  
-    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
-    sh("git branch -D master || true")
-  
     target_to_app_identifier.each do |target, app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
         type: "appstore",
-        platform: platform,
+        platform: "ios",
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -212,52 +185,47 @@ platform :ios do
     end
   end
 
-  desc "Clear derived data"
-  lane :clear_derived_data_lane do
-    UI.message("Clearing derived data...")
-    clear_derived_data
-  end
+  desc "Set up dependencies including Ruby gems, node modules, and CocoaPods"
+  lane :setup_dependencies do
+    UI.message("Setting up dependencies...")
 
-  desc "Increment build number"
-  lane :increment_build_number_lane do
-    UI.message("Incrementing build number to current timestamp...")
-    
-    # Set the new build number
-    increment_build_number(
-      xcodeproj: "ios/BlueWallet.xcodeproj", 
-      build_number: ENV["NEW_BUILD_NUMBER"]
+    # Install dependencies with Bundler
+    bundle_install(
+      path: "vendor/bundle",
+      jobs: 4,
+      retry_count: 3,
+      quiet: true
     )
-  
-    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
-  end
 
-  desc "Install CocoaPods dependencies"
-  lane :install_pods do
-    UI.message("Installing CocoaPods dependencies...")
-    cocoapods(podfile: "ios/Podfile")
-  end
+    # Install node modules
+    sh("npm install --production")
 
-   # Common setup for both build_app_lane and build_ios_simulator_release
-   def setup_build_environment
-    UI.message("Setting up build environment...")
-    
-    # Set the build number
-    increment_build_number(
-      xcodeproj: "ios/BlueWallet.xcodeproj", 
-      build_number: ENV["NEW_BUILD_NUMBER"]
+    # Install CocoaPods dependencies
+    cocoapods(
+      podfile: "ios/Podfile"
     )
-    
+
+    UI.message("Dependencies set up successfully.")
+  end
+
+  desc "Generate build number and project version information"
+  lane :generate_build_version_info do
+    UI.message("Generating build number and project version information...")
+
+    # Generate Build Number based on timestamp
+    NEW_BUILD_NUMBER = Time.now.to_i.to_s
+    ENV["NEW_BUILD_NUMBER"] = NEW_BUILD_NUMBER
     UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
-    
-    # Determine the project version
-    MARKETING_VERSION = `grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1`.strip
+
+    # Determine Marketing Version
+    MARKETING_VERSION = `grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1`.strip
     ENV["PROJECT_VERSION"] = MARKETING_VERSION
     UI.message("Project version set to: #{ENV['PROJECT_VERSION']}")
   end
 
-  desc "Build the iOS app"
+  desc "Build the iOS app for release"
   lane :build_app_lane do
-    setup_build_environment
+    setup_environment
     
     UI.message("Building the iOS app...")
     build_app(
@@ -288,7 +256,7 @@ platform :ios do
 
   desc "Build the iOS Simulator Release build"
   lane :build_ios_simulator_release do
-    setup_build_environment
+    setup_environment
     
     UI.message("Building the iOS Simulator Release build...")
     build_app(
@@ -377,6 +345,73 @@ platform :ios do
         raise exception
       end
     end
+  end
+
+  desc "Post PR comment for TestFlight upload"
+  lane :post_testflight_pr_comment do
+    build_number = ENV['NEW_BUILD_NUMBER']
+    pr_number = ENV['GITHUB_PR_NUMBER']
+
+    comment = <<~COMMENT
+      The build #{build_number} has been uploaded to TestFlight.
+    COMMENT
+
+    # Post the comment to the PR
+    if pr_number
+      sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
+    else
+      UI.important("No PR number found. Skipping PR comment.")
+    end
+  end
+
+  desc "Register new devices from a file"
+  lane :register_devices_from_txt do
+    UI.message("Registering new devices from file...")
+
+    csv_path = "../../devices.txt" # Update this with the actual path to your file
+
+    # Registering devices using the devices_file parameter
+    register_devices(
+      devices_file: csv_path
+    )
+
+    UI.message("Devices registered successfully.")
+
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "development", 
+        app_identifier: app_identifier,
+        readonly: false, # This will regenerate the provisioning profile if needed
+        force_for_new_devices: true # This forces match to add new devices to the profile
+      )
+    end
+
+    UI.message("Development provisioning profiles updated.")
+  end  
+
+  desc "Clear derived data"
+  lane :clear_derived_data_lane do
+    UI.message("Clearing derived data...")
+    clear_derived_data
+  end
+
+  desc "Increment build number"
+  lane :increment_build_number_lane do
+    UI.message("Incrementing build number to current timestamp...")
+    
+    # Set the new build number
+    increment_build_number(
+      xcodeproj: "ios/BlueWallet.xcodeproj", 
+      build_number: ENV["NEW_BUILD_NUMBER"]
+    )
+  
+    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
+  end
+
+  desc "Install CocoaPods dependencies"
+  lane :install_pods do
+    UI.message("Installing CocoaPods dependencies...")
+    cocoapods(podfile: "ios/Podfile")
   end
 
   desc "Deploy to TestFlight"
