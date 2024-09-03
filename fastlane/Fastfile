@@ -185,28 +185,24 @@ platform :ios do
     end
   end
 
-  desc "Set up dependencies including Ruby gems, node modules, and CocoaPods"
-  lane :setup_dependencies do
-    UI.message("Setting up dependencies...")
+desc "Set up dependencies including Ruby gems, node modules, and CocoaPods"
+lane :setup_dependencies do
+  UI.message("Setting up dependencies...")
 
-    # Install dependencies with Bundler
-    bundle_install(
-      path: "vendor/bundle",
-      jobs: 4,
-      retry_count: 3,
-      quiet: true
-    )
+  # Install dependencies with Bundler
+  sh("bundle config path vendor/bundle")
+  sh("bundle install --jobs 4 --retry 3 --quiet")
 
-    # Install node modules
-    sh("npm install --production")
+  # Install node modules
+  sh("npm install --production")
 
-    # Install CocoaPods dependencies
-    cocoapods(
-      podfile: "ios/Podfile"
-    )
+  # Install CocoaPods dependencies
+  cocoapods(
+    podfile: "ios/Podfile"
+  )
 
-    UI.message("Dependencies set up successfully.")
-  end
+  UI.message("Dependencies set up successfully.")
+end
 
   desc "Generate build number and project version information"
   lane :generate_build_version_info do
