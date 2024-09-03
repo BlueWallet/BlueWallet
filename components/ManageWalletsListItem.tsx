@@ -107,7 +107,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        animation={{ duration: 400 }}
         containerStyle={{ backgroundColor: colors.background }}
         leftContent={leftContent}
         rightContent={rightContent}
