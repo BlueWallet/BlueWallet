@@ -34,7 +34,8 @@ jobs:
         with:
           node-version: 20
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
 
@@ -54,7 +55,7 @@ jobs:
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          
+
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
@@ -79,6 +80,15 @@ jobs:
   build:
     runs-on: macos-latest
     needs: set-build-env
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+      ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      GIT_URL: ${{ secrets.GIT_URL }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -96,7 +106,8 @@ jobs:
         with:
           node-version: 20
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
 
@@ -130,6 +141,19 @@ jobs:
     needs: build
     runs-on: macos-14
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+      ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      GIT_URL: ${{ secrets.GIT_URL }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -152,18 +176,7 @@ jobs:
       - name: Upload to TestFlight
         run: bundle exec fastlane ios upload_to_testflight_lane
         env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.json
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
-          NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
 
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
@@ -186,6 +199,15 @@ jobs:
   build-ios-simulator-release:
     runs-on: macos-latest
     needs: set-build-env
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+      ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      GIT_URL: ${{ secrets.GIT_URL }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -201,7 +223,8 @@ jobs:
         with:
           node-version: 20
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
 
