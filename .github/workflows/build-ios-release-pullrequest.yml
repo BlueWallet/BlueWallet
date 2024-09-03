@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+name: Build and Deploy iOS
 
 on:
   push:
@@ -48,16 +48,13 @@ jobs:
 
       - name: Install CocoaPods Dependencies
         run: |
-          bundle exec fastlane ios install_pods
+          bundle exec fastlane ios setup_dependencies
 
       - name: Cache CocoaPods Pods
         uses: actions/cache@v2
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-
-      - name: Display release-notes.txt
-        run: cat release-notes.txt
 
       - name: Set up Git Authentication
         env:
@@ -67,7 +64,7 @@ jobs:
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
       
       - name: Create Temporary Keychain
-        run: bundle exec fastlane ios create_temp_keychain
+        run: bundle exec fastlane ios setup_environment
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
@@ -118,7 +115,7 @@ jobs:
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
         working-directory: ios
@@ -152,7 +149,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
@@ -231,10 +228,9 @@ jobs:
     env:
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
       BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+      NEW_BUILD_NUMBER: ${{ needs.build-ios-simulator-release.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build-ios-simulator-release.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build-ios-simulator-release.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -243,7 +239,25 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: BlueWallet-Simulator.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).zip
-          path: ./build/simulator/
+          path: ./build/simulator
 
       - name: Upload iOS Simulator Release Build to BrowserStack
         run: bundle exec fastlane ios upload_ios_simulator_release_to_browserstack
+
+      - name: Post PR Comment
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const message = `iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
