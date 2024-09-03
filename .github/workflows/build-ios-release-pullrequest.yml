@@ -88,6 +88,7 @@ jobs:
       ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
       ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       GIT_URL: ${{ secrets.GIT_URL }}
     steps:
       - name: Checkout project
