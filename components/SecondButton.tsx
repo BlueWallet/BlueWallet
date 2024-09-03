@@ -20,7 +20,7 @@ type SecondButtonProps = {
   testID?: string;
 };
 
-export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((props, ref) => {
+export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>, SecondButtonProps>((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonGrayBackgroundColor;
   let fontColor = colors.secondButtonTextColor;
