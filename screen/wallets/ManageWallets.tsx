@@ -1,18 +1,13 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, TouchableOpacity, Image, Text, Alert, I18nManager, Animated, LayoutAnimation } from 'react-native';
 import {
-  Platform,
-  StyleSheet,
-  useColorScheme,
-  TouchableOpacity,
-  Image,
-  Text,
-  Alert,
-  I18nManager,
-  Animated,
-  LayoutAnimation,
-} from 'react-native';
-// @ts-expect-error: react-native-draggable-flatlist is not typed
-import { NestableScrollContainer, NestableDraggableFlatList, RenderItem } from 'react-native-draggable-flatlist';
+  NestableScrollContainer,
+  ScaleDecorator,
+  OpacityDecorator,
+  NestableDraggableFlatList,
+  RenderItem,
+  // @ts-expect-error: react-native-draggable-flatlist is not typed
+} from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -28,7 +23,7 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import presentAlert from '../../components/Alert';
 import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import ManageWalletsListItem from '../../components/ManageWalletsListItem';
+import { ManageWalletsListItem } from '../../components/ManageWalletsListItem';
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -194,7 +189,6 @@ const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
   const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
-  const colorScheme = useColorScheme();
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -283,12 +277,11 @@ const ManageWallets: React.FC = () => {
     };
 
     setOptions({
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
       headerLeft: () => HeaderLeftButton,
       headerRight: () => SaveButton,
       headerSearchBarOptions: searchBarOptions,
     });
-  }, [colorScheme, setOptions, HeaderLeftButton, SaveButton]);
+  }, [setOptions, HeaderLeftButton, SaveButton]);
 
   useFocusEffect(
     useCallback(() => {
@@ -430,19 +423,38 @@ const ManageWallets: React.FC = () => {
   );
   const renderWalletItem = useCallback(
     ({ item, drag, isActive }: RenderItem<Item>) => (
+      <ScaleDecorator drag={drag} activeScale={1.1}>
+        <OpacityDecorator activeOpacity={0.5}>
+          <ManageWalletsListItem
+            item={item}
+            isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
+            drag={drag}
+            state={state}
+            navigateToWallet={navigateToWallet}
+            renderHighlightedText={renderHighlightedText}
+            handleDeleteWallet={handleDeleteWallet}
+            handleToggleHideBalance={handleToggleHideBalance}
+          />
+        </OpacityDecorator>
+      </ScaleDecorator>
+    ),
+    [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance],
+  );
+
+  const renderPlaceholder = useCallback(
+    ({ item, drag, isActive }: RenderItem<Item>) => (
       <ManageWalletsListItem
         item={item}
         isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
-        drag={drag}
-        isActive={isActive}
         state={state}
         navigateToWallet={navigateToWallet}
         renderHighlightedText={renderHighlightedText}
+        isPlaceHolder
         handleDeleteWallet={handleDeleteWallet}
         handleToggleHideBalance={handleToggleHideBalance}
       />
     ),
-    [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance],
+    [handleDeleteWallet, handleToggleHideBalance, navigateToWallet, renderHighlightedText, state],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -482,28 +494,38 @@ const ManageWallets: React.FC = () => {
   }, [state.searchQuery, state.wallets.length, state.txMetadata, stylesHook.noResultsText]);
 
   return (
-    <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
+    <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
       <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+        {renderHeader}
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is WalletItem => item.type === ItemType.WalletSection)}
+          extraData={state.tempOrder}
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
           onChangeOrder={onChangeOrder}
           onDragBegin={onDragBegin}
+          onPlaceholderIndexChange={onChangeOrder}
           onRelease={onRelease}
           delayLongPress={150}
           useNativeDriver={true}
+          dragItemOverflow
+          autoscrollThreshold={1}
+          renderPlaceholder={renderPlaceholder}
+          autoscrollSpeed={0.5}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
           onDragEnd={onDragEnd}
           containerStyle={styles.root}
-          ListHeaderComponent={renderHeader}
         />
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is TransactionItem => item.type === ItemType.TransactionSection)}
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
+          dragItemOverflow
           containerStyle={styles.root}
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
           useNativeDriver={true}
-          ListHeaderComponent={renderHeader}
         />
       </NestableScrollContainer>
     </GestureHandlerRootView>

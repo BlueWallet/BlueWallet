@@ -7,18 +7,6 @@ import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 
-interface ManageWalletsListItemProps {
-  item: Item;
-  isDraggingDisabled: boolean;
-  drag: () => void;
-  isActive: boolean;
-  state: { wallets: TWallet[]; searchQuery: string };
-  navigateToWallet: (wallet: TWallet) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
-  handleDeleteWallet: (wallet: TWallet) => void;
-  handleToggleHideBalance: (wallet: TWallet) => void;
-}
-
 enum ItemType {
   WalletSection = 'wallet',
   TransactionSection = 'transaction',
@@ -35,6 +23,18 @@ interface TransactionItem {
 }
 
 type Item = WalletItem | TransactionItem;
+
+interface ManageWalletsListItemProps {
+  item: Item;
+  isDraggingDisabled: boolean;
+  drag?: () => void;
+  isPlaceHolder?: boolean;
+  state: { wallets: TWallet[]; searchQuery: string };
+  navigateToWallet: (wallet: TWallet) => void;
+  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  handleDeleteWallet: (wallet: TWallet) => void;
+  handleToggleHideBalance: (wallet: TWallet) => void;
+}
 
 interface SwipeContentProps {
   onPress: () => void;
@@ -61,8 +61,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
   isDraggingDisabled,
   drag,
-  isActive,
   state,
+  isPlaceHolder = false,
   navigateToWallet,
   renderHighlightedText,
   handleDeleteWallet,
@@ -76,27 +76,59 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     }
   }, [item, navigateToWallet]);
 
+  const leftContent = useCallback(
+    (reset: () => void) => (
+      <LeftSwipeContent
+        onPress={() => {
+          handleToggleHideBalance(item.data as TWallet);
+          reset();
+        }}
+        hideBalance={(item.data as TWallet).hideBalance}
+        colors={colors}
+      />
+    ),
+    [colors, handleToggleHideBalance, item.data],
+  );
+
+  const rightContent = useCallback(
+    (reset: () => void) => (
+      <RightSwipeContent
+        onPress={() => {
+          handleDeleteWallet(item.data as TWallet);
+          reset();
+        }}
+      />
+    ),
+    [handleDeleteWallet, item.data],
+  );
+
   if (item.type === ItemType.WalletSection) {
     return (
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        minSlideWidth={40}
-        leftContent={
-          <LeftSwipeContent onPress={() => handleToggleHideBalance(item.data)} hideBalance={item.data.hideBalance} colors={colors} />
-        }
-        rightContent={<RightSwipeContent colors={colors} onPress={() => handleDeleteWallet(item.data)} />}
+        animation={{ duration: 400 }}
+        containerStyle={{ backgroundColor: colors.background }}
+        leftContent={leftContent}
+        rightContent={rightContent}
       >
-        <View style={styles.walletCarouselItemContainer}>
-          <WalletCarouselItem
-            item={item.data}
-            handleLongPress={isDraggingDisabled ? undefined : drag}
-            isActive={isActive}
-            onPress={onPress}
-            searchQuery={state.searchQuery}
-            renderHighlightedText={renderHighlightedText}
-          />
-        </View>
+        <ListItem.Content
+          style={{
+            backgroundColor: colors.background,
+          }}
+        >
+          <View style={styles.walletCarouselItemContainer}>
+            <WalletCarouselItem
+              item={item.data}
+              handleLongPress={isDraggingDisabled ? undefined : drag}
+              onPress={onPress}
+              animationsEnabled={false}
+              searchQuery={state.searchQuery}
+              isPlaceHolder={isPlaceHolder}
+              renderHighlightedText={renderHighlightedText}
+            />
+          </View>
+        </ListItem.Content>
       </ListItem.Swipeable>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
@@ -135,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ManageWalletsListItem;
+export { ManageWalletsListItem, LeftSwipeContent, RightSwipeContent };
