@@ -189,13 +189,6 @@ desc "Set up dependencies including Ruby gems, node modules, and CocoaPods"
 lane :setup_dependencies do
   UI.message("Setting up dependencies...")
 
-  # Install dependencies with Bundler
-  sh("bundle config path vendor/bundle")
-  sh("bundle install --jobs 4 --retry 3 --quiet")
-
-  # Install node modules
-  sh("npm install --production")
-
   # Install CocoaPods dependencies
   cocoapods(
     podfile: "ios/Podfile"
