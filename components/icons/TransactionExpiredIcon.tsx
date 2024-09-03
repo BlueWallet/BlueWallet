@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from '../themes';
@@ -7,20 +7,20 @@ import { useTheme } from '../themes';
 const styles = StyleSheet.create({
   boxIncoming: {
     position: 'relative',
-  },
+  } as ViewStyle,
   ballOutgoingExpired: {
     width: 30,
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
-  },
+  } as ViewStyle,
   icon: {
     left: 0,
     top: 0,
   },
 });
 
-const TransactionExpiredIcon = props => {
+const TransactionExpiredIcon: React.FC = () => {
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
     ballOutgoingExpired: {

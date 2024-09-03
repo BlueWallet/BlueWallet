@@ -9,3 +9,38 @@
                      if (zoomMode == "off") return true
                      val cameraControl = camera?.cameraControl ?: return true
                      val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
+
+--- ../node_modules/react-native-camera-kit/dist/CameraScreen.js	2024-09-01 13:00:57
++++ ../node_modules/react-native-camera-kit/dist/CameraScreen.js	2024-09-01 13:00:46
+@@ -61,14 +61,14 @@
+         </TouchableOpacity>));
+     }
+     renderTorchButton() {
+-        return (!this.isCaptureRetakeMode() && (<TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
+-          <Image style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]} source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage} resizeMode="contain"/>
++        return (!this.isCaptureRetakeMode() && (<TouchableOpacity style={{  backgroundColor: '#FFFFFF', borderRadius: 20 }} onPress={() => this.onSetTorch()}>
++          <Image style={[{ width: 40, height: 40, justifyContent: 'center' }, this.props.torchImageStyle]} source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage} resizeMode="contain"/>
+         </TouchableOpacity>));
+     }
+     renderSwitchCameraButton() {
+         return (this.props.cameraFlipImage &&
+-            !this.isCaptureRetakeMode() && (<TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSwitchCameraPressed()}>
+-          <Image style={{ flex: 1, justifyContent: 'center' }} source={this.props.cameraFlipImage} resizeMode="contain"/>
++            !this.isCaptureRetakeMode() && (<TouchableOpacity style={{  }} onPress={() => this.onSwitchCameraPressed()}>
++          <Image style={{ width: 40, height: 40, justifyContent: 'center' }} source={this.props.cameraFlipImage} resizeMode="contain"/>
+         </TouchableOpacity>));
+     }
+     renderTopButtons() {
+\ No newline at end of file
+@@ -228,8 +228,8 @@
+         flex: 1,
+         flexDirection: 'row',
+         justifyContent: 'space-between',
+-        paddingTop: 8,
+-        paddingBottom: 0,
++        paddingTop:44,
++        paddingHorizontal: 16,
+     },
+     cameraContainer: Object.assign({}, Platform.select({
+         android: {
+\ No newline at end of file
