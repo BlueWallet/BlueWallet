@@ -49,19 +49,15 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
 
-      - name: Set up Keychain
-        run: bundle exec fastlane ios setup_keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      - name: Setup Provisioning Profiles
-        run: bundle exec fastlane ios setup_provisioning_profiles
+      - name: Setup Environment (Keychain and Provisioning Profiles)
+        run: bundle exec fastlane ios setup_environment
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Cache Provisioning Profiles
         uses: actions/cache@v2
