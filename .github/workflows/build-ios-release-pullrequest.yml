@@ -51,7 +51,7 @@ jobs:
           bundle exec fastlane ios setup_dependencies
 
       - name: Cache CocoaPods Pods
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
@@ -67,6 +67,11 @@ jobs:
         run: bundle exec fastlane ios setup_environment
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
       - name: Setup Provisioning Profiles
         env:
