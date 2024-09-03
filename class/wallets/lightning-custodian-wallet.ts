@@ -36,7 +36,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param URI
    */
   setBaseURI(URI: string | undefined) {
-    this.baseURI = URI;
+    this.baseURI = URI?.endsWith('/') ? URI.slice(0, -1) : URI;
   }
 
   getBaseURI() {
@@ -579,7 +579,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static async isValidNodeAddress(address: string) {
-    const response = await fetch(address + '/getinfo', {
+    const response = await fetch((address?.endsWith('/') ? address.slice(0, -1) : address) + '/getinfo', {
       method: 'GET',
       headers: {
         'Access-Control-Allow-Origin': '*',
