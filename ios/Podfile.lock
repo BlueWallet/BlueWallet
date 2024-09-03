@@ -1015,6 +1015,8 @@ PODS:
     - Yoga
   - react-native-ios-context-menu (1.15.3):
     - React-Core
+  - react-native-live-activity (0.2.0):
+    - React-Core
   - react-native-menu (1.1.2):
     - React
   - react-native-qrcode-local-image (1.0.4):
@@ -1510,6 +1512,7 @@ DEPENDENCIES:
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
+  - react-native-live-activity (from `../node_modules/react-native-live-activity`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -1653,6 +1656,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-ios-context-menu:
     :path: "../node_modules/react-native-ios-context-menu"
+  react-native-live-activity:
+    :path: "../node_modules/react-native-live-activity"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
   react-native-qrcode-local-image:
@@ -1805,6 +1810,7 @@ SPEC CHECKSUMS:
   react-native-idle-timer: ee2053f2cd458f6fef1db7bebe5098ca281cce07
   react-native-image-picker: c3afe5472ef870d98a4b28415fc0b928161ee5f7
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
+  react-native-live-activity: 21ac2829a25a28eaba5b9b8f17efab60399b7007
   react-native-menu: d32728a357dfb360cf01cd5979cf7713c5acbb95
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
