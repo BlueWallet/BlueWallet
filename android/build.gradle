@@ -23,7 +23,7 @@ buildscript {
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 	    classpath 'com.google.gms:google-services:4.4.2'  // Google Services plugin
-        classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.+")
+        classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.1.0")
     }
 }
 
@@ -51,11 +51,6 @@ allprojects {
         }
         google()
                 maven { url 'https://www.jitpack.io' }
-    }
-     configurations.all {
-        resolutionStrategy {
-            force 'androidx.activity:activity:1.5.1'
-        }
     }
 }
 

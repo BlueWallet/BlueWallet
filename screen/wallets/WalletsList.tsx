@@ -241,12 +241,8 @@ const WalletsList: React.FC = () => {
   }, [stylesHook.listHeaderBack, stylesHook.listHeaderText]);
 
   const handleLongPress = useCallback(() => {
-    if (wallets.length > 1) {
-      navigate('ManageWallets');
-    } else {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-    }
-  }, [navigate, wallets.length]);
+    navigate('ManageWallets');
+  }, [navigate]);
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
