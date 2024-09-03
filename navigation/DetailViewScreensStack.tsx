@@ -380,10 +380,10 @@ const DetailViewStackScreensStack = () => {
         component={ManageWallets}
         options={navigationStyle({
           headerBackVisible: false,
-          headerLargeTitle: true,
           gestureEnabled: false,
-          presentation: 'modal',
+          presentation: 'containedModal',
           title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
         })(theme)}
       />
     </DetailViewStack.Navigator>
