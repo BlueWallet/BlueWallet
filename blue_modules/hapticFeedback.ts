@@ -11,7 +11,7 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
-let hapticInterval: NodeJS.Timeout | null = null;
+let hapticInterval: NodeJS.Timeout;
 
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
   DeviceInfo.getPowerState().then((state: Partial<PowerState>) => {
@@ -24,10 +24,7 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
 };
 
 export const stopHapticFeedback = () => {
-  if (hapticInterval) {
-    clearInterval(hapticInterval);
-    hapticInterval = null;
-  }
+  clearInterval(hapticInterval);
 };
 
 export default triggerHapticFeedback;
