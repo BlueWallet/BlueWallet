@@ -1,7 +1,7 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
+import { InteractionManager, LayoutAnimation, StyleSheet, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
@@ -146,7 +146,11 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       showsVerticalScrollIndicator={false}
     >
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
-      {isTotalBalanceEnabled && <TotalWalletsBalance />}
+      {isTotalBalanceEnabled && (
+        <View style={stylesHook.root}>
+          <TotalWalletsBalance />
+        </View>
+      )}
       <WalletsCarousel
         data={state.wallets}
         extraData={[state.wallets]}
