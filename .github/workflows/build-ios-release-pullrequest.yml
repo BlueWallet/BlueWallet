@@ -230,7 +230,7 @@ jobs:
         run: bundle exec fastlane ios zip_ios_simulator_release_build
 
       - name: Upload iOS Simulator Release Build as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
           path: ./build/simulator/BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
