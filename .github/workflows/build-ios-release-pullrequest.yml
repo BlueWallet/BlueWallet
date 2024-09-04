@@ -61,7 +61,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}  
 
       - name: Cache Provisioning Profiles
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/Library/MobileDevice/Provisioning Profiles
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
