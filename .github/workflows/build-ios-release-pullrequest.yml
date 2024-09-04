@@ -148,7 +148,7 @@ jobs:
           bundler-cache: true
 
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
           path: ./ios/build
