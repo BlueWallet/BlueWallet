@@ -1,19 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useReducer } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { ActivityIndicator, Alert, Keyboard, LayoutAnimation, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -21,13 +9,14 @@ import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText }
 import { BlueApp, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useSettings } from '../../hooks/context/useSettings';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { Icon } from '@rneui/themed';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -60,7 +49,7 @@ const ActionTypes = {
 } as const;
 type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
 
-interface Action {
+interface TAction {
   type: ActionTypes;
   payload?: any;
 }
@@ -76,7 +65,7 @@ const initialState: State = {
   entropyButtonText: loc.wallets.add_entropy_provide,
 };
 
-const walletReducer = (state: State, action: Action): State => {
+const walletReducer = (state: State, action: TAction): State => {
   switch (action.type) {
     case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
@@ -112,9 +101,7 @@ const WalletsAdd: React.FC = () => {
   const entropy = state.entropy;
   const entropyButtonText = state.entropyButtonText;
   //
-  const colorScheme = useColorScheme();
   const { addWallet, saveToDisk } = useStorage();
-  const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {
     advancedText: {
@@ -138,20 +125,7 @@ const WalletsAdd: React.FC = () => {
     },
   };
 
-  useEffect(() => {
-    AsyncStorage.getItem(BlueApp.LNDHUB)
-      .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
-      .catch(() => setWalletBaseURI(''))
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  useEffect(() => {
-    setOptions({
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
-    });
-  }, [colorScheme, setOptions]);
-
-  const entropyGenerated = (newEntropy: Buffer) => {
+  const entropyGenerated = useCallback((newEntropy: Buffer) => {
     let entropyTitle;
     if (!newEntropy) {
       entropyTitle = loc.wallets.add_entropy_provide;
@@ -162,7 +136,91 @@ const WalletsAdd: React.FC = () => {
     }
     setEntropy(newEntropy);
     setEntropyButtonText(entropyTitle);
-  };
+  }, []);
+
+  const navigateToEntropy = useCallback(() => {
+    Alert.alert(
+      loc.wallets.add_wallet_seed_length,
+      loc.wallets.add_wallet_seed_length_message,
+      [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'default',
+        },
+        {
+          text: loc.wallets.add_wallet_seed_length_12,
+          onPress: () => {
+            // @ts-ignore: Return later to update
+            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 12 });
+          },
+          style: 'default',
+        },
+        {
+          text: loc.wallets.add_wallet_seed_length_24,
+          onPress: () => {
+            // @ts-ignore: Return later to update
+            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 24 });
+          },
+          style: 'default',
+        },
+      ],
+      { cancelable: true },
+    );
+  }, [entropyGenerated, navigate]);
+  // ToolTipMenu actions for wallet options
+  const toolTipActions = useMemo(() => {
+    const actions = [
+      [
+        { id: HDSegwitBech32Wallet.type, text: HDSegwitBech32Wallet.typeReadable, menuState: selectedIndex === 0 },
+        { id: SegwitP2SHWallet.type, text: SegwitP2SHWallet.typeReadable, menuState: selectedIndex === 1 },
+        { id: HDSegwitP2SHWallet.type, text: HDSegwitP2SHWallet.typeReadable, menuState: selectedIndex === 2 },
+      ],
+    ];
+    const entropyAction = CommonToolTipActions.Entropy;
+    entropyAction.text = entropyButtonText;
+    actions.push([entropyAction]);
+    return actions;
+  }, [entropyButtonText, selectedIndex]);
+
+  const HeaderRight = useMemo(
+    () => (
+      <ToolTipMenu
+        isButton
+        isMenuPrimaryAction
+        onPressMenuItem={(id: string) => {
+          if (id === HDSegwitBech32Wallet.type) {
+            setSelectedIndex(0);
+          } else if (id === SegwitP2SHWallet.type) {
+            setSelectedIndex(1);
+          } else if (id === HDSegwitP2SHWallet.type) {
+            setSelectedIndex(2);
+          } else if (id === CommonToolTipActions.Entropy.id) {
+            navigateToEntropy();
+          }
+        }}
+        title={loc.multisig.wallet_type}
+        actions={toolTipActions}
+      >
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      </ToolTipMenu>
+    ),
+    [colors.foregroundColor, navigateToEntropy, toolTipActions],
+  );
+
+  // Adding the ToolTipMenu to the header
+  useEffect(() => {
+    setOptions({
+      headerRight: () => HeaderRight,
+    });
+  }, [HeaderRight, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
+
+  useEffect(() => {
+    AsyncStorage.getItem(BlueApp.LNDHUB)
+      .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
+      .catch(() => setWalletBaseURI(''))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const setIsLoading = (value: boolean) => {
     dispatch({ type: 'SET_LOADING', payload: value });
@@ -225,7 +283,6 @@ const WalletsAdd: React.FC = () => {
           } catch (e: any) {
             console.log(e.toString());
             presentAlert({ message: e.toString() });
-            goBack();
             return;
           }
         } else {
@@ -289,37 +346,6 @@ const WalletsAdd: React.FC = () => {
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),
     });
-  };
-
-  const navigateToEntropy = () => {
-    Alert.alert(
-      loc.wallets.add_wallet_seed_length,
-      loc.wallets.add_wallet_seed_length_message,
-      [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'default',
-        },
-        {
-          text: loc.wallets.add_wallet_seed_length_12,
-          onPress: () => {
-            // @ts-ignore: Return later to update
-            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 12 });
-          },
-          style: 'default',
-        },
-        {
-          text: loc.wallets.add_wallet_seed_length_24,
-          onPress: () => {
-            // @ts-ignore: Return later to update
-            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 24 });
-          },
-          style: 'default',
-        },
-      ],
-      { cancelable: true },
-    );
   };
 
   const navigateToImportWallet = () => {
@@ -390,65 +416,29 @@ const WalletsAdd: React.FC = () => {
       </View>
 
       <View style={styles.advanced}>
-        {(() => {
-          if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedModeEnabled) {
-            return (
-              <View>
-                <BlueSpacing20 />
-                <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                <ListItem
-                  containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                  bottomDivider={false}
-                  onPress={() => setSelectedIndex(0)}
-                  title={HDSegwitBech32Wallet.typeReadable}
-                  checkmark={selectedIndex === 0}
-                />
-                <ListItem
-                  containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                  bottomDivider={false}
-                  onPress={() => setSelectedIndex(1)}
-                  title={SegwitP2SHWallet.typeReadable}
-                  checkmark={selectedIndex === 1}
-                />
-                <ListItem
-                  containerStyle={[styles.noPadding, stylesHook.noPadding]}
-                  bottomDivider={false}
-                  onPress={() => setSelectedIndex(2)}
-                  title={HDSegwitP2SHWallet.typeReadable}
-                  checkmark={selectedIndex === 2}
-                />
-              </View>
-            );
-          } else if (selectedWalletType === ButtonSelected.OFFCHAIN) {
-            return (
-              <>
-                <BlueSpacing20 />
-                <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                <BlueSpacing20 />
-                <BlueText>{loc.wallets.add_lndhub}</BlueText>
-                <View style={[styles.lndUri, stylesHook.lndUri]}>
-                  <TextInput
-                    value={walletBaseURI}
-                    onChangeText={setWalletBaseURI}
-                    onSubmitEditing={Keyboard.dismiss}
-                    placeholder={loc.wallets.add_lndhub_placeholder}
-                    clearButtonMode="while-editing"
-                    autoCapitalize="none"
-                    textContentType="URL"
-                    autoCorrect={false}
-                    placeholderTextColor="#81868e"
-                    style={styles.textInputCommon}
-                    editable={!isLoading}
-                    underlineColorAndroid="transparent"
-                  />
-                </View>
-              </>
-            );
-          }
-        })()}
-        {isAdvancedModeEnabled === true && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
-          <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
+        {selectedWalletType === ButtonSelected.OFFCHAIN && (
+          <>
+            <BlueSpacing20 />
+            <BlueText>{loc.wallets.add_lndhub}</BlueText>
+            <View style={[styles.lndUri, stylesHook.lndUri]}>
+              <TextInput
+                value={walletBaseURI}
+                onChangeText={setWalletBaseURI}
+                onSubmitEditing={Keyboard.dismiss}
+                placeholder={loc.wallets.add_lndhub_placeholder}
+                clearButtonMode="while-editing"
+                autoCapitalize="none"
+                textContentType="URL"
+                autoCorrect={false}
+                placeholderTextColor="#81868e"
+                style={styles.textInputCommon}
+                editable={!isLoading}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+          </>
         )}
+
         <BlueSpacing20 />
         {!isLoading ? (
           <>
@@ -508,9 +498,6 @@ const styles = StyleSheet.create({
   advanced: {
     marginHorizontal: 20,
   },
-  advancedText: {
-    fontWeight: '500',
-  },
   lndUri: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -523,9 +510,6 @@ const styles = StyleSheet.create({
   },
   import: {
     marginVertical: 24,
-  },
-  noPadding: {
-    paddingHorizontal: 0,
   },
 });
 

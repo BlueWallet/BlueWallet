@@ -11,6 +11,7 @@ const keys = {
   ViewInBitcoin: 'viewInBitcoin',
   ViewInSats: 'viewInSats',
   ViewInFiat: 'viewInFiat',
+  Entropy: 'entropy',
 };
 
 const icons = {
@@ -34,6 +35,9 @@ const icons = {
   },
   ViewInFiat: {
     iconValue: 'coloncurrencysign.circle',
+  },
+  Entropy: {
+    iconValue: 'dice',
   },
 };
 
@@ -88,5 +92,11 @@ export const CommonToolTipActions = {
     id: keys.ViewInBitcoin,
     text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
+  },
+  Entropy: {
+    id: keys.Entropy,
+    text: loc.wallets.add_entropy_provide,
+    icon: icons.Entropy,
+    menuState: false,
   },
 };
