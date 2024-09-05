@@ -1,0 +1,47 @@
+แอพพลิเคชั่นกระเป๋าบิตคอยน์ ที่ทำให้คุณสามารถ เก็บ, โอนบิตคอยน์, รับบิตคอยน์ และ ซื้อบิตคอยน์ โดยเรามุ่งเน้นที่ความปลอดภัยและความสะดวกในการใช้งาน
+
+บลูวอลเล็ท เป็นแอพพลิเคชั่นกระเป๋าบิตคอยน์ที่คุณเป็นเจ้าของ กุญแจลับหรือไพรเวทคีย์ (private key) ของคุณ เป็นกระเป๋าบิตคอยน์ที่สร้างโดยผู้ใช้บิตคอยน์เพื่อผู้ใช้บิตคอยน์
+
+คุณสามารถทำธุรกรรมกับใครก็ได้บนโลกใบนี้ได้อย่างรวดเร็ว และเปลี่ยนแปลงระบบการเงินได้จากกระเป๋าของคุณ
+
+สามารถสร้างกระเป๋าบิตคอยน์ได้อย่างอิสระไม่จำกัดจำนวน หรือนำกระเป๋าบิตคอยน์ที่คุณใช้งานอยู่แล้วมาใช้งานในแอพพลิเคชั่นกระเป๋านี้ได้อย่างง่ายดายและรวดเร็ว
+
+_____
+
+นี่คือสิ่งที่คุณจะได้
+
+
+1. ความปลอดภัยโดยการออกแบบ
+
+ซอฟต์แวร์โอเพนซอร์ส
+MIT licensed, you can build it and run it on your own! Made with ReactNative
+
+Plausible deniability
+Password which decrypts fake bitcoin wallets if you are forced to disclose your access
+
+Full encryption
+On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+
+Full node
+Connect to your Bitcoin full node through Electrum
+
+Cold Storage
+Connect to your hardware wallet and keep your coins in Cold storage
+
+2 - Focused on your experience
+
+Be in control
+Private keys never leave your device.
+You control your private keys
+
+Flexible fees
+Starting from 1 Satoshi. Defined by you, the user
+
+Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125)
+
+Watch-only wallets
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+
+Lightning Network
+Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.

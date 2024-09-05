@@ -1,0 +1,46 @@
+Uma carteira Bitcoin que permite armazenar, enviar e receber Bitcoins. Focada em segurança e simplicidade.
+
+BlueWallet, uma carteira de bitcoin onde você detém a posse das chaves privadas. Uma carteira Bitcoin criada para a comunidade por usuários do Bitcoin.
+
+Você pode fazer transações instantaneamente com qualquer pessoa no mundo e transformar o sistema financeiro direto do seu bolso.
+
+Crie um número ilimitado de carteiras de Bitcoin gratuitamente ou importe sua carteira existente. É simples e rápido.
+
+_____
+
+Entenda o que oferecemos:
+
+
+1 - Designada para ser segura
+
+Código Aberto
+Licenciado pelo MIT, você pode compilar e rodar a sua própria versão! Feita com ReactNative
+
+Negação plausível
+Senha que descriptografa carteiras de Bitcoin "falsas" para utilizar caso seja forçado a revelar sua carteira
+
+Totalmente criptografada
+Além da criptografia multicamadas do iOS, criptografamos tudo com senhas adicionais
+
+Nó completo
+Conecte-se ao seu nó completo Bitcoin através da Electrum
+
+Armazenamento Frio 
+Conecte-se a sua carteira hardware e mantenha suas moedas em armazenamento frio
+
+2 - Focada na sua experiência
+
+Tenha o controle
+Chaves privadas nunca saem do seu dispositivo. Você detém o controle delas.
+
+Taxas flexíveis
+A partir de 1 Satoshi. Definidas por você, o usuário
+
+Replace-By-Fee
+(RBF) Acelere suas transações aumentando a taxa depois de enviar (BIP125)
+
+Carteiras somente leitura
+Carteiras somente leitura permitem a você ficar de olho no seu armazenamento frio sem tocar na sua carteira hardware.
+
+Rede Lightning
+Carteira Lightning sem precisar configurar nada. Transações muito baratas e rápidas para ter a melhor experiência com o Bitcoin.

@@ -1,0 +1,8 @@
+* Open Source
+* Cifrado completo
+* Negación plausible
+* Tarifas flexibles
+* Reemplazo por tarifa (RBF)
+* SegWit
+* Carteras de solo-vista (Sentinel)
+* Red Lightning

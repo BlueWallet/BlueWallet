@@ -1,0 +1,9 @@
+Funktioner
+* Öppen källkod
+* Full kryptering
+* Trolig förnekelse
+* Flexibla avgifter
+* Replace-By-Fee(RBF)
+* SegWit
+* Se bara (Sentinel) plånböcker
+* Lightning nätverket

@@ -1,0 +1,8 @@
+* Open Source
+* Volledig versleutelt
+* Plausibele ontkenning
+* Aanpasbare transactievergoedingen
+* Replace-By-Fee
+* SegWit
+* Watch-only portomonnees
+* Lightning network
