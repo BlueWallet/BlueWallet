@@ -264,7 +264,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-              <Image defaultSource={image} source={image} style={iStyles.image} />
+              <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
               {!isPlaceHolder && (
                 <>

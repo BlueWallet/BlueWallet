@@ -181,7 +181,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       style={styles.lineaderGradient}
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
-      <Image source={imageSource} defaultSource={imageSource} style={styles.chainIcon} />
+      <Image source={imageSource} style={styles.chainIcon} />
 
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
         {wallet.getLabel()}
