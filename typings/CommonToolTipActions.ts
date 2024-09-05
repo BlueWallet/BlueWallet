@@ -12,6 +12,8 @@ const keys = {
   ViewInSats: 'viewInSats',
   ViewInFiat: 'viewInFiat',
   Entropy: 'entropy',
+  SearchAccount: 'searchAccount',
+  Passphrase: 'passphrase',
 };
 
 const icons = {
@@ -38,6 +40,12 @@ const icons = {
   },
   Entropy: {
     iconValue: 'dice',
+  },
+  SearchAccount: {
+    iconValue: 'magnifyingglass',
+  },
+  Passphrase: {
+    iconValue: 'rectangle.and.pencil.and.ellipsis',
   },
 };
 
@@ -82,7 +90,6 @@ export const CommonToolTipActions = {
     text: loc.total_balance_view.view_in_fiat,
     icon: icons.ViewInFiat,
   },
-
   ViewInSats: {
     id: keys.ViewInSats,
     text: loc.total_balance_view.view_in_sats,
@@ -97,6 +104,18 @@ export const CommonToolTipActions = {
     id: keys.Entropy,
     text: loc.wallets.add_entropy_provide,
     icon: icons.Entropy,
+    menuState: false,
+  },
+  SearchAccount: {
+    id: keys.SearchAccount,
+    text: loc.wallets.import_search_accounts,
+    icon: icons.SearchAccount,
+    menuState: false,
+  },
+  Passphrase: {
+    id: keys.Passphrase,
+    text: loc.wallets.import_passphrase,
+    icon: icons.Passphrase,
     menuState: false,
   },
 };
