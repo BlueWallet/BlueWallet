@@ -81,46 +81,51 @@ end
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
 
-    # Download the artifact if necessary
-    apk_path = ENV['APK_PATH']
+      # Download the artifact if necessary
+      apk_path = ENV['APK_PATH']
 
-    if apk_path.nil? || apk_path.empty?
-      UI.message("No APK path provided, attempting to download the artifact...")
-      apk_path = `find ./ -name "*.apk"`.strip
-      UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
-    end
+      if apk_path.nil? || apk_path.empty?
+        UI.message("No APK path provided, attempting to download the artifact...")
+        apk_path = `find ./ -name "*.apk"`.strip
+        UI.user_error!("No APK file found after downloading the artifact") if apk_path.nil? || apk_path.empty?
+      end
 
-    UI.message("Uploading APK to BrowserStack: #{apk_path}...")
+      UI.message("Uploading APK to BrowserStack: #{apk_path}...")
 
-    upload_to_browserstack_app_live(
-      file_path: apk_path,
-      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
-      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
-    )
+      upload_to_browserstack_app_live(
+        file_path: apk_path,
+        browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+        browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+      )
 
-    # Extract the BrowserStack URL from the output
-    app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
+      # Extract the BrowserStack URL from the output
+      app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
 
-    # Extract the filename from the APK path
-    apk_filename = File.basename(apk_path)
+      # Extract the filename from the APK path
+      apk_filename = File.basename(apk_path)
 
-    pr_number = ENV['GITHUB_PR_NUMBER']
+      # Remove 'bs://' from the app_url
+      browserstack_hashed_id = app_url.gsub('bs://', '')
 
-    comment = <<~COMMENT
-      APK successfully uploaded to BrowserStack. You can test it using the following URL:
-      #{app_url}
+      pr_number = ENV['GITHUB_PR_NUMBER']
 
-      Filename: #{apk_filename}
-    COMMENT
+      # Construct the comment content
+      comment = <<~COMMENT
+        APK successfully uploaded to BrowserStack. You can test it using the following URL:
+        
+        https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true
+        
+        Filename: #{apk_filename}
+      COMMENT
 
-    # Post the comment to the PR
-    if pr_number
-      sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
-    else
-      UI.important("No PR number found. Skipping PR comment.")
+      # Post the comment to the PR
+      if pr_number
+        sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
+      else
+        UI.important("No PR number found. Skipping PR comment.")
+      end
     end
   end
-end
 end
 
 
