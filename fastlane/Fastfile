@@ -15,10 +15,13 @@ platform :android do
 
       Dir.chdir("android") do
         UI.message("Creating keystore hex file...")
+
         File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
-        system("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore")
-        UI.message("Keystore created.")
+        sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
+          UI.user_error!("Error reverting hex to keystore") unless status.success?
+        end
+        UI.message("Keystore created successfully.")
 
         File.delete("bluewallet-release-key.keystore.hex")
       end
@@ -81,7 +84,6 @@ end
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
 
-      # Download the artifact if necessary
       apk_path = ENV['APK_PATH']
 
       if apk_path.nil? || apk_path.empty?
@@ -98,13 +100,12 @@ end
         browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
       )
 
-      # Extract the BrowserStack URL from the output
+      # Extract the BrowserStack URL from the output set by the previous step
       app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
 
       # Extract the filename from the APK path
       apk_filename = File.basename(apk_path)
 
-      # Remove 'bs://' from the app_url
       browserstack_hashed_id = app_url.gsub('bs://', '')
 
       pr_number = ENV['GITHUB_PR_NUMBER']
