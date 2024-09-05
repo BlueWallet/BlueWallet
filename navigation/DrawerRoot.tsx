@@ -14,7 +14,7 @@ const DrawerListContent = (props: any) => {
 };
 
 const DrawerRoot = () => {
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
