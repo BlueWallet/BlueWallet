@@ -111,9 +111,8 @@ lane :upload_to_browserstack_and_comment do
 
     comment = <<~COMMENT
       ### APK Successfully Uploaded to BrowserStack
-      You can test it using the following URL:
       
-      [Test on BrowserStack](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+      You can test it using by clicking [here](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
       
       **Filename**: #{apk_filename}
       **BrowserStack App URL**: #{app_url}
