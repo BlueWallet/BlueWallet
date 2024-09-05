@@ -54,7 +54,7 @@
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && npm i && cd ios && pod update && cd ..; npm start -- --reset-cache",
     "releasenotes2json": "./scripts/release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "branch2json": "./scripts/current-branch.sh > current-branch.json",
-    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "start": "react-native start",
     "android": "react-native run-android",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
