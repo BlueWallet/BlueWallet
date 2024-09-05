@@ -97,6 +97,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [getTransactions, limit, pageSize]);
 
   const refreshTransactions = useCallback(async () => {
+    console.debug('refreshTransactions, ', wallet?.getLabel());
     if (!wallet || isElectrumDisabled || isLoading) return;
     setIsLoading(true);
     let smthChanged = false;

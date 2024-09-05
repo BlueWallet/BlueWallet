@@ -410,6 +410,7 @@ const WalletsList: React.FC = () => {
   }, [copyFromClipboard, onBarScanned, routeName]);
 
   const onRefresh = useCallback(() => {
+    console.debug('WalletsList onRefresh');
     refreshTransactions(true, false);
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
