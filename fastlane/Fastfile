@@ -200,7 +200,7 @@ lane :setup_dependencies do
 
   # Install CocoaPods dependencies
   cocoapods(
-    podfile: "ios/Podfile"
+    podfile: "Podfile"
   )
 
   UI.message("Dependencies set up successfully.")

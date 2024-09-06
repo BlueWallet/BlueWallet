@@ -222,6 +222,7 @@ jobs:
 
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
+        working-directory: ios
 
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
