@@ -14,6 +14,8 @@ const keys = {
   Entropy: 'entropy',
   SearchAccount: 'searchAccount',
   Passphrase: 'passphrase',
+  ViewAdditionalDetails: 'viewAdditionalDetails',
+  SaveChanges: 'saveChanges',
 };
 
 const icons = {
@@ -46,6 +48,12 @@ const icons = {
   },
   Passphrase: {
     iconValue: 'rectangle.and.pencil.and.ellipsis',
+  },
+  ViewAdditionalDetails: {
+    iconValue: 'info.circle',
+  },
+  SaveChanges: {
+    iconValue: 'checkmark',
   },
 };
 
@@ -117,5 +125,16 @@ export const CommonToolTipActions = {
     text: loc.wallets.import_passphrase,
     icon: icons.Passphrase,
     menuState: false,
+  },
+  ViewAdditionalDetails: {
+    id: keys.ViewAdditionalDetails,
+    text: loc.wallets.view_additional_details,
+    icon: icons.ViewAdditionalDetails,
+    menuState: false,
+  },
+  SaveChanges: {
+    id: keys.SaveChanges,
+    text: loc._.save,
+    icon: icons.SaveChanges,
   },
 };

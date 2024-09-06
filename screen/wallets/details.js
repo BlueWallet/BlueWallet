@@ -5,6 +5,7 @@ import {
   I18nManager,
   InteractionManager,
   Keyboard,
+  LayoutAnimation,
   ScrollView,
   StyleSheet,
   Switch,
@@ -31,7 +32,6 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
@@ -41,10 +41,12 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
 import { useRoute } from '@react-navigation/native';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { Icon } from '@rneui/themed';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -113,7 +115,7 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const { isAdvancedModeEnabled } = useSettings();
+  const [isAdvancedModeEnabled, setIsAdvancedModeEnabled] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [isContactsVisible, setIsContactsVisible] = useState(wallet.allowBIP47() && wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -189,17 +191,44 @@ const WalletDetails = () => {
       });
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
-  const SaveButton = useMemo(
-    () => <HeaderRightButton title={loc.wallets.details_save} onPress={handleSave} disabled={isLoading} testID="Save" />,
-    [isLoading, handleSave],
+  const toolTipActions = useMemo(() => {
+    const viewAdditionalDetails = CommonToolTipActions.ViewAdditionalDetails;
+    viewAdditionalDetails.menuState = isAdvancedModeEnabled;
+    const actions = [viewAdditionalDetails, CommonToolTipActions.SaveChanges];
+    return actions;
+  }, [isAdvancedModeEnabled]);
+
+  const onMenuPressItem = useCallback(
+    id => {
+      switch (id) {
+        case CommonToolTipActions.SaveChanges.id:
+          handleSave();
+          break;
+        case CommonToolTipActions.ViewAdditionalDetails.id:
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          setIsAdvancedModeEnabled(!isAdvancedModeEnabled);
+          break;
+        default:
+          break;
+      }
+    },
+    [handleSave, isAdvancedModeEnabled],
+  );
+
+  const HeaderRight = useMemo(
+    () => (
+      <ToolTipMenu testID="HeaderRightButton" isButton isMenuPrimaryAction onPressMenuItem={onMenuPressItem} actions={toolTipActions}>
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      </ToolTipMenu>
+    ),
+    [colors.foregroundColor, onMenuPressItem, toolTipActions],
   );
 
   useEffect(() => {
     setOptions({
-      headerRight: () => SaveButton,
-      headerBackTitleVisible: true,
+      headerRight: () => HeaderRight,
     });
-  }, [SaveButton, setOptions]);
+  }, [HeaderRight, colors.foregroundColor, setOptions, toolTipActions]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {

@@ -73,7 +73,6 @@ const DetailViewStackScreensStack = () => {
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
 
-  const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
@@ -122,7 +121,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerTitle: loc.wallets.details_title,
           statusBarStyle: 'auto',
-          headerRight: () => SaveButton,
         })(theme)}
       />
       <DetailViewStack.Screen
