@@ -328,7 +328,6 @@ const CoinControl = () => {
   const handleChoose = item => setOutput(item);
 
   const handleUseCoin = async u => {
-    await bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
@@ -422,7 +421,14 @@ const CoinControl = () => {
         backgroundColor={colors.elevated}
         footer={
           <View style={mStyles.buttonContainer}>
-            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
+            <Button
+              testID="UseCoin"
+              title={loc.cc.use_coin}
+              onPress={async () => {
+                await bottomModalRef.current?.dismiss();
+                handleUseCoin([output]);
+              }}
+            />
           </View>
         }
         footerDefaultMargins
