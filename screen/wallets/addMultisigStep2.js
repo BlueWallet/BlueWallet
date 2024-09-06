@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
@@ -8,7 +8,6 @@ import {
   LayoutAnimation,
   Platform,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -17,7 +16,7 @@ import { Icon } from '@rneui/themed';
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
+import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -35,15 +34,15 @@ import prompt from '../../helpers/prompt';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useSettings } from '../../hooks/context/useSettings';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
-  const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
   const { navigate, navigateToWalletsList } = useExtendedNavigation();
@@ -107,6 +106,9 @@ const WalletsAddMultisigStep2 = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
+    },
+    askPassphrase: {
+      backgroundColor: colors.lightButton,
     },
     textDestination: {
       color: colors.foregroundColor,
@@ -611,6 +613,12 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
+  const toolTipActions = useMemo(() => {
+    const passphrase = CommonToolTipActions.Passphrase;
+    passphrase.menuState = askPassphrase;
+    return [passphrase];
+  }, [askPassphrase]);
+
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal
@@ -648,18 +656,24 @@ const WalletsAddMultisigStep2 = () => {
           setAskPassphrase(false);
         }}
       >
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-        {isAdvancedModeEnabled && (
-          <>
-            <BlueSpacing10 />
-            <View style={styles.row}>
-              <BlueText>{loc.wallets.import_passphrase}</BlueText>
-              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-            </View>
-          </>
-        )}
+        <>
+          <ToolTipMenu
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={_id => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setAskPassphrase(!askPassphrase);
+            }}
+            actions={toolTipActions}
+            style={[styles.askPassprase, stylesHook.askPassphrase]}
+          >
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+          </ToolTipMenu>
+
+          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        </>
       </BottomModal>
     );
   };
@@ -798,6 +812,8 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
+  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+
   secretContainer: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     justifyContent: 'flex-start',
@@ -828,12 +844,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
   },
 });
 
