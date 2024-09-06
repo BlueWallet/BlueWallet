@@ -409,7 +409,9 @@ end
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    cocoapods(podfile: "ios/Podfile")
+    Dir.chdir(project_root) do
+      cocoapods(podfile: "ios/Podfile")
+    end
   end
 
   desc "Deploy to TestFlight"

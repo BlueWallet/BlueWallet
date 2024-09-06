@@ -48,7 +48,6 @@ jobs:
 
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
-        working-directory: ios
 
       - name: Setup Environment (Keychain and Provisioning Profiles)
         run: bundle exec fastlane ios setup_environment
