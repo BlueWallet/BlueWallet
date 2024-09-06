@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -11,7 +11,6 @@ import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -21,13 +20,19 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
 
 const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate, setOptions } = useExtendedNavigation<NavigationProps>();
   const { walletLabel } = useRoute<RouteProps>().params;
   const bottomModalRef = useRef<BottomModalHandle>(null);
+
+  // Actual state variables
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
-  const { isAdvancedModeEnabled } = useSettings();
+
+  // Temporary state variables for modal
+  const [tempM, setTempM] = useState(m);
+  const [tempN, setTempN] = useState(n);
+  const [tempFormat, setTempFormat] = useState(format);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -59,60 +64,106 @@ const WalletsAddMultisig: React.FC = () => {
     navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
   };
 
-  const setFormatP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2WSH);
+  // Setters for temporary state variables
+  const setFormatP2wsh = () => setTempFormat(MultisigHDWallet.FORMAT_P2WSH);
+  const setFormatP2shP2wsh = () => setTempFormat(MultisigHDWallet.FORMAT_P2SH_P2WSH);
+  const setFormatP2sh = () => setTempFormat(MultisigHDWallet.FORMAT_P2SH);
 
-  const setFormatP2shP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2SH_P2WSH);
+  const isP2wsh = () => tempFormat === MultisigHDWallet.FORMAT_P2WSH;
+  const isP2shP2wsh = () => tempFormat === MultisigHDWallet.FORMAT_P2SH_P2WSH || tempFormat === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
+  const isP2sh = () => tempFormat === MultisigHDWallet.FORMAT_P2SH;
 
-  const setFormatP2sh = () => setFormat(MultisigHDWallet.FORMAT_P2SH);
-
-  const isP2wsh = () => format === MultisigHDWallet.FORMAT_P2WSH;
-
-  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
-
-  const isP2sh = () => format === MultisigHDWallet.FORMAT_P2SH;
-
-  const increaseM = () => {
-    if (n === m) return;
-    if (m === 7) return;
-    setM(m + 1);
+  const increaseTempM = () => {
+    if (tempN === tempM) return;
+    if (tempM === 7) return;
+    setTempM(tempM + 1);
   };
-  const decreaseM = () => {
-    if (m === 2) return;
-    setM(m - 1);
+  const decreaseTempM = () => {
+    if (tempM === 2) return;
+    setTempM(tempM - 1);
   };
 
-  const increaseN = () => {
-    if (n === 7) return;
-    setN(n + 1);
+  const increaseTempN = () => {
+    if (tempN === 7) return;
+    setTempN(tempN + 1);
   };
-  const decreaseN = () => {
-    if (n === m) return;
-    setN(n - 1);
+  const decreaseTempN = () => {
+    if (tempN === tempM) return;
+    setTempN(tempN - 1);
+  };
+
+  const showAdvancedOptionsModal = useCallback(() => {
+    setTempM(m);
+    setTempN(n);
+    setTempFormat(format);
+    bottomModalRef.current?.present();
+  }, [format, m, n]);
+
+  const HeaderRight = useMemo(
+    () => (
+      <TouchableOpacity onPress={showAdvancedOptionsModal} testID="HeaderRightButton">
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      </TouchableOpacity>
+    ),
+    [colors.foregroundColor, showAdvancedOptionsModal],
+  );
+
+  useEffect(() => {
+    setOptions({
+      headerRight: () => HeaderRight,
+    });
+  }, [HeaderRight, colors.foregroundColor, setOptions]);
+
+  const resetWalletOptions = async () => {
+    setTempM(2);
+    setTempN(3);
+    setTempFormat(MultisigHDWallet.FORMAT_P2WSH);
+  };
+
+  const applyWalletOptions = async () => {
+    setM(tempM);
+    setN(tempN);
+    setFormat(tempFormat);
+    await bottomModalRef.current?.dismiss();
   };
 
   const renderModal = () => {
+    const isResetDisabled = tempM === 2 && tempN === 3 && tempFormat === MultisigHDWallet.FORMAT_P2WSH;
+
     return (
       <BottomModal
         sizes={['auto', 'large']}
         ref={bottomModalRef}
         contentContainerStyle={styles.modalContentShort}
         backgroundColor={colors.elevated}
+        footer={
+          <View style={styles.modalButtonContainer}>
+            <Button testID="ResetWalletOptionsButton" title={loc.receive.reset} onPress={resetWalletOptions} disabled={isResetDisabled} />
+            <View style={styles.modalButtonSpacing} />
+            <Button testID="ApplyWalletOptionsButton" title={loc._.ok} onPress={applyWalletOptions} />
+          </View>
+        }
       >
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
         <View style={styles.rowCenter}>
           <View style={styles.column}>
-            <TouchableOpacity accessibilityRole="button" onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={increaseTempM}
+              disabled={tempN === tempM || tempM === 7}
+              style={styles.chevron}
+            >
               <Icon
                 name="chevron-up"
                 size={22}
                 type="font-awesome-5"
-                color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
+                color={tempN === tempM || tempM === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
               />
             </TouchableOpacity>
-            <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
-            <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
-              <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+            <Text style={[styles.textM, stylesHook.textHeader]}>{tempM}</Text>
+            <TouchableOpacity accessibilityRole="button" onPress={decreaseTempM} disabled={tempM === 2} style={styles.chevron}>
+              <Icon name="chevron-down" size={22} type="font-awesome-5" color={tempM === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
             </TouchableOpacity>
           </View>
 
@@ -121,12 +172,23 @@ const WalletsAddMultisig: React.FC = () => {
           </View>
 
           <View style={styles.column}>
-            <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
-              <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+            <TouchableOpacity accessibilityRole="button" disabled={tempN === 7} onPress={increaseTempN} style={styles.chevron}>
+              <Icon name="chevron-up" size={22} type="font-awesome-5" color={tempN === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
             </TouchableOpacity>
-            <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
-            <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron} testID="DecreaseN">
-              <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+            <Text style={[styles.textM, stylesHook.textHeader]}>{tempN}</Text>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={decreaseTempN}
+              disabled={tempN === tempM}
+              style={styles.chevron}
+              testID="DecreaseN"
+            >
+              <Icon
+                name="chevron-down"
+                size={22}
+                type="font-awesome-5"
+                color={tempN === tempM ? colors.buttonDisabledTextColor : '#007AFF'}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -159,22 +221,6 @@ const WalletsAddMultisig: React.FC = () => {
       </BottomModal>
     );
   };
-
-  const showAdvancedOptionsModal = () => {
-    bottomModalRef.current?.present();
-  };
-
-  const getCurrentlySelectedFormat = (code: string) => {
-    switch (code) {
-      case 'format':
-        return getCurrentFormatReadable(format);
-      case 'quorum':
-        return loc.formatString(loc.multisig.quorum, { m, n });
-      default:
-        throw new Error('This should never happen');
-    }
-  };
-
   return (
     <SafeArea style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
@@ -185,7 +231,7 @@ const WalletsAddMultisig: React.FC = () => {
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.multisig.what_is_vault}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.formatString(loc.multisig.what_is_vault_numberOfWallets, { m, n })}
+            {loc.formatString(loc.multisig.what_is_vault_numberOfWallets, { tempM, tempN })}
           </Text>
           <Text style={[styles.textdesc, stylesHook.textdesc]}>{loc.multisig.what_is_vault_wallet}</Text>
         </Text>
@@ -195,24 +241,15 @@ const WalletsAddMultisig: React.FC = () => {
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.multisig.needs}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.formatString(loc.multisig.what_is_vault_description_number_of_vault_keys, { m })}
+            {loc.formatString(loc.multisig.what_is_vault_description_number_of_vault_keys, { tempM })}
           </Text>
           <Text style={[styles.textdesc, stylesHook.textdesc]}>
-            {m === 2 && n === 3 ? loc.multisig.what_is_vault_description_to_spend : loc.multisig.what_is_vault_description_to_spend_other}
+            {tempM === 2 && tempN === 3
+              ? loc.multisig.what_is_vault_description_to_spend
+              : loc.multisig.what_is_vault_description_to_spend_other}
           </Text>
         </Text>
       </View>
-      {isAdvancedModeEnabled && (
-        <View>
-          <ListItem
-            testID="VaultAdvancedCustomize"
-            onPress={showAdvancedOptionsModal}
-            title={loc.multisig.vault_advanced_customize}
-            subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
-            chevron
-          />
-        </View>
-      )}
       <View style={styles.buttonContainer}>
         <Button
           testID="LetsStart"
@@ -264,10 +301,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
   },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 34,
+  },
   textdescBold: {
     fontWeight: '700',
     alignSelf: 'center',
     textAlign: 'center',
+  },
+  modalButtonSpacing: {
+    width: 16,
   },
   textM: {
     fontSize: 50,
@@ -300,19 +346,5 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
 });
-
-const getCurrentFormatReadable = (f: string) => {
-  switch (f) {
-    case MultisigHDWallet.FORMAT_P2WSH:
-      return loc.multisig.native_segwit_title;
-    case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-    case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-      return loc.multisig.wrapped_segwit_title;
-    case MultisigHDWallet.FORMAT_P2SH:
-      return loc.multisig.legacy_title;
-    default:
-      throw new Error('This should never happen');
-  }
-};
 
 export default WalletsAddMultisig;

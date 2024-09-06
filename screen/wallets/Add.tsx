@@ -32,7 +32,6 @@ interface State {
   selectedIndex: number;
   label: string;
   selectedWalletType: ButtonSelected;
-  backdoorPressed: number;
   entropy: Buffer | undefined;
   entropyButtonText: string;
 }
@@ -43,7 +42,6 @@ const ActionTypes = {
   SET_SELECTED_INDEX: 'SET_SELECTED_INDEX',
   SET_LABEL: 'SET_LABEL',
   SET_SELECTED_WALLET_TYPE: 'SET_SELECTED_WALLET_TYPE',
-  INCREMENT_BACKDOOR_PRESSED: 'INCREMENT_BACKDOOR_PRESSED',
   SET_ENTROPY: 'SET_ENTROPY',
   SET_ENTROPY_BUTTON_TEXT: 'SET_ENTROPY_BUTTON_TEXT',
 } as const;
@@ -60,7 +58,6 @@ const initialState: State = {
   selectedIndex: 0,
   label: '',
   selectedWalletType: ButtonSelected.ONCHAIN,
-  backdoorPressed: 1,
   entropy: undefined,
   entropyButtonText: loc.wallets.add_entropy_provide,
 };
@@ -72,13 +69,11 @@ const walletReducer = (state: State, action: TAction): State => {
     case ActionTypes.SET_WALLET_BASE_URI:
       return { ...state, walletBaseURI: action.payload };
     case ActionTypes.SET_SELECTED_INDEX:
-      return { ...state, selectedIndex: action.payload };
+      return { ...state, selectedIndex: action.payload, selectedWalletType: ButtonSelected.ONCHAIN };
     case ActionTypes.SET_LABEL:
       return { ...state, label: action.payload };
     case ActionTypes.SET_SELECTED_WALLET_TYPE:
       return { ...state, selectedWalletType: action.payload };
-    case ActionTypes.INCREMENT_BACKDOOR_PRESSED:
-      return { ...state, backdoorPressed: state.backdoorPressed + 1 };
     case ActionTypes.SET_ENTROPY:
       return { ...state, entropy: action.payload };
     case ActionTypes.SET_ENTROPY_BUTTON_TEXT:
@@ -172,16 +167,39 @@ const WalletsAdd: React.FC = () => {
   const toolTipActions = useMemo(() => {
     const actions = [
       [
-        { id: HDSegwitBech32Wallet.type, text: HDSegwitBech32Wallet.typeReadable, menuState: selectedIndex === 0 },
-        { id: SegwitP2SHWallet.type, text: SegwitP2SHWallet.typeReadable, menuState: selectedIndex === 1 },
-        { id: HDSegwitP2SHWallet.type, text: HDSegwitP2SHWallet.typeReadable, menuState: selectedIndex === 2 },
+        {
+          id: HDSegwitBech32Wallet.type,
+          text: HDSegwitBech32Wallet.typeReadable,
+          menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
+        },
+        {
+          id: SegwitP2SHWallet.type,
+          text: SegwitP2SHWallet.typeReadable,
+          menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
+        },
+        {
+          id: HDSegwitP2SHWallet.type,
+          text: HDSegwitP2SHWallet.typeReadable,
+          menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
+        },
+
+        {
+          id: LightningCustodianWallet.type,
+          text: LightningCustodianWallet.typeReadable,
+          menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
+        },
       ],
     ];
     const entropyAction = CommonToolTipActions.Entropy;
     entropyAction.text = entropyButtonText;
     actions.push([entropyAction]);
     return actions;
-  }, [entropyButtonText, selectedIndex]);
+  }, [entropyButtonText, selectedIndex, selectedWalletType]);
+
+  const handleOnLightningButtonPressed = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSelectedWalletType(ButtonSelected.OFFCHAIN);
+  }, []);
 
   const HeaderRight = useMemo(
     () => (
@@ -189,12 +207,15 @@ const WalletsAdd: React.FC = () => {
         isButton
         isMenuPrimaryAction
         onPressMenuItem={(id: string) => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           if (id === HDSegwitBech32Wallet.type) {
             setSelectedIndex(0);
           } else if (id === SegwitP2SHWallet.type) {
             setSelectedIndex(1);
           } else if (id === HDSegwitP2SHWallet.type) {
             setSelectedIndex(2);
+          } else if (id === LightningCustodianWallet.type) {
+            handleOnLightningButtonPressed();
           } else if (id === CommonToolTipActions.Entropy.id) {
             navigateToEntropy();
           }
@@ -205,10 +226,9 @@ const WalletsAdd: React.FC = () => {
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
       </ToolTipMenu>
     ),
-    [colors.foregroundColor, navigateToEntropy, toolTipActions],
+    [colors.foregroundColor, handleOnLightningButtonPressed, navigateToEntropy, toolTipActions],
   );
 
-  // Adding the ToolTipMenu to the header
   useEffect(() => {
     setOptions({
       headerRight: () => HeaderRight,
@@ -240,10 +260,6 @@ const WalletsAdd: React.FC = () => {
 
   const setSelectedWalletType = (value: ButtonSelected) => {
     dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
-  };
-
-  const setBackdoorPressed = (value: number) => {
-    dispatch({ type: 'INCREMENT_BACKDOOR_PRESSED', payload: value });
   };
 
   const setEntropy = (value: Buffer) => {
@@ -365,16 +381,6 @@ const WalletsAdd: React.FC = () => {
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
-  const handleOnLightningButtonPressed = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    // @ts-ignore: Return later to update
-    setBackdoorPressed((prevState: number) => {
-      return prevState + 1;
-    });
-    Keyboard.dismiss();
-    setSelectedWalletType(ButtonSelected.OFFCHAIN);
-  };
-
   return (
     <ScrollView style={stylesHook.root} testID="ScrollView" automaticallyAdjustKeyboardInsets>
       <BlueSpacing20 />
@@ -398,12 +404,6 @@ const WalletsAdd: React.FC = () => {
           testID="ActivateBitcoinButton"
           active={selectedWalletType === ButtonSelected.ONCHAIN}
           onPress={handleOnBitcoinButtonPressed}
-          size={styles.button}
-        />
-        <WalletButton
-          buttonType="Lightning"
-          active={selectedWalletType === ButtonSelected.OFFCHAIN}
-          onPress={handleOnLightningButtonPressed}
           size={styles.button}
         />
         <WalletButton

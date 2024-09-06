@@ -488,7 +488,7 @@
     "explanation": "View the total balance of all your wallets in the overview screen."
   },
   "multisig": {
-    "multisig_vault": "Vault",
+    "multisig_vault": "Multisig Vault",
     "default_label": "Multisig Vault",
     "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
@@ -518,7 +518,6 @@
     "what_is_vault": "A Vault is a",
     "what_is_vault_numberOfWallets": " {m}-of-{n} multisig ",
     "what_is_vault_wallet": "wallet.",
-    "vault_advanced_customize": "Vault Settings",
     "needs": "It needs",
     "what_is_vault_description_number_of_vault_keys": " {m} vault keys ",
     "what_is_vault_description_to_spend": "to spend and a third one you \ncan use as backup.",
