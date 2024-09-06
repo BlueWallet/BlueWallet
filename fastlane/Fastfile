@@ -2,6 +2,137 @@ def app_identifiers
   ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
 end
 
+default_platform(:android)
+project_root = File.expand_path("..", __dir__)
+
+platform :android do
+
+  desc "Prepare the keystore file"
+  lane :prepare_keystore do
+    Dir.chdir(project_root) do
+      keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
+      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
+
+      Dir.chdir("android") do
+        UI.message("Creating keystore hex file...")
+
+        File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
+
+        sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
+          UI.user_error!("Error reverting hex to keystore") unless status.success?
+        end
+        UI.message("Keystore created successfully.")
+
+        File.delete("bluewallet-release-key.keystore.hex")
+      end
+    end
+  end
+
+  desc "Update version code, build, and sign the APK"
+  lane :update_version_build_and_sign_apk do
+  Dir.chdir(project_root) do
+    build_number = ENV['BUILD_NUMBER']
+    UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
+
+    # Get the version name from build.gradle
+    version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+    
+    # Get the branch name
+    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub('/', '-')
+    
+    # Append branch name only if it's not 'master'
+    if branch_name != 'master'
+      signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
+    else
+      signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-.apk"
+    end
+    
+    Dir.chdir("android") do
+      UI.message("Updating version code in build.gradle...")
+      gradle(
+        task: "assembleRelease",
+        properties: { "versionCode" => build_number },
+        project_dir: "android"
+      )
+      UI.message("Version code updated to #{build_number} and APK build completed.")
+
+      # Define the output paths
+      unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
+      signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
+
+      # Rename the unsigned APK to include the version and build number
+      if File.exist?(unsigned_apk_path)
+        UI.message("Renaming APK to #{signed_apk_name}...")
+        FileUtils.mv(unsigned_apk_path, signed_apk_path)
+        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+      else
+        UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
+        next
+      end
+
+      # Sign the APK using apksigner directly since we don't have an alias
+      UI.message("Signing APK with apksigner...")
+      apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+      sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+      UI.message("APK signed successfully: #{signed_apk_path}")
+    end
+  end
+end
+
+ 
+desc "Upload APK to BrowserStack and post result as PR comment"
+lane :upload_to_browserstack_and_comment do
+  Dir.chdir(project_root) do
+    # Fetch the APK path from environment variables
+    apk_path = ENV['APK_PATH']
+
+    # Attempt to find the APK if not provided
+    if apk_path.nil? || apk_path.empty?
+      UI.message("No APK path provided, attempting to find the artifact...")
+      apk_path = `find ./ -name "*.apk"`.strip
+      UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
+    end
+
+    UI.message("Uploading APK to BrowserStack: #{apk_path}...")
+    upload_to_browserstack_app_live(
+      file_path: apk_path,
+      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+    )
+
+    # Extract the BrowserStack URL from the output
+    app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
+    UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
+
+    # Prepare necessary values for the PR comment
+    apk_filename = File.basename(apk_path)
+    browserstack_hashed_id = app_url.gsub('bs://', '')
+    pr_number = ENV['GITHUB_PR_NUMBER']
+
+    comment = <<~COMMENT
+      ### APK Successfully Uploaded to BrowserStack
+      
+      You can test it using by clicking [here](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+      
+      **Filename**: #{apk_filename}
+      **BrowserStack App URL**: #{app_url}
+    COMMENT
+
+    if pr_number
+      begin
+        sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
+        UI.success("Posted comment to PR ##{pr_number}")
+      rescue => e
+        UI.error("Failed to post comment to PR: #{e.message}")
+      end
+    else
+      UI.important("No PR number found. Skipping PR comment.")
+    end
+  end
+end
+end
+
+
 platform :ios do
 
   before_all do |lane, options|
@@ -136,7 +267,7 @@ platform :ios do
     
     # Set the new build number
     increment_build_number(
-      xcodeproj: "BlueWallet.xcodeproj", 
+      xcodeproj: "ios/BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
   
@@ -146,7 +277,7 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    cocoapods
+    cocoapods(podfile: "ios/Podfile")
   end
 
   desc "Build the application"
@@ -154,7 +285,7 @@ platform :ios do
     UI.message("Building the application...")
     build_app(
       scheme: "BlueWallet",
-      workspace: "BlueWallet.xcworkspace",
+      workspace: "ios/BlueWallet.xcworkspace",
       export_method: "app-store",
       include_bitcode: false,
       configuration: "Release",
