@@ -16,14 +16,7 @@ const styles = StyleSheet.create({
 
 const GeneralSettings: React.FC = () => {
   const { wallets } = useStorage();
-  const {
-    isAdvancedModeEnabled,
-    setIsAdvancedModeEnabledStorage,
-    isHandOffUseEnabled,
-    setIsHandOffUseEnabledAsyncStorage,
-    isLegacyURv1Enabled,
-    setIsLegacyURv1EnabledStorage,
-  } = useSettings();
+  const { isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage, isLegacyURv1Enabled, setIsLegacyURv1EnabledStorage } = useSettings();
   const { navigate } = useNavigation();
   const { colors } = useTheme();
 
@@ -64,14 +57,6 @@ const GeneralSettings: React.FC = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <ListItem
-        Component={PressableWrapper}
-        title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: setIsAdvancedModeEnabledStorage, value: isAdvancedModeEnabled, testID: 'AdvancedMode' }}
-      />
-      <BlueCard>
-        <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
-      </BlueCard>
       <BlueSpacing20 />
       <ListItem
         Component={PressableWrapper}
