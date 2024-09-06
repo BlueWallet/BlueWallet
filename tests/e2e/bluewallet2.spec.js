@@ -383,6 +383,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await expect(element(by.text('Contacts'))).not.toBeVisible();
       await element(by.id('BIP47Switch')).tap();
       await expect(element(by.text('Contacts'))).toBeVisible();
+      await element(by.id('HeaderRightButton')).tap();
       await element(by.text('Save')).tap(); // automatically goes back 1 screen
       await element(by.text('OK')).tap();
     } else {
