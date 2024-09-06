@@ -144,7 +144,13 @@ const WalletsImport = () => {
 
   const HeaderRight = useMemo(
     () => (
-      <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions}>
+      <ToolTipMenu
+        isButton
+        testID="HeaderRightButton"
+        isMenuPrimaryAction
+        onPressMenuItem={toolTipOnPressMenuItem}
+        actions={toolTipActions}
+      >
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
       </ToolTipMenu>
     ),
