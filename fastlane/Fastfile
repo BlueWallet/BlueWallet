@@ -9,8 +9,6 @@ def app_identifiers
   ]
 end
 
-# Default platform configuration
-default_platform(:android)
 project_root = File.expand_path("..", __dir__)
 
 platform :android do
