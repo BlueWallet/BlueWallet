@@ -1,0 +1,47 @@
+ארנק ביטקוין המאפשר לך לאחסן, לשלוח ביטקוין, לקבל ביטקוין ולקנות ביטקוין תוך שמירה על אבטחה ופשטות.
+
+בארנק BlueWallet, המפתחות שלך נשלטים על ידך. ארנק ביטקוין שנוצר על ידי הקהילה למען הקהילה.
+
+You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+
+Create for free unlimited number of bitcoin wallets or import your existing wallet. It's simple and fast.
+
+_____
+
+Here's what you get:
+
+
+1 - Security by design
+
+Open Source
+MIT licensed, you can build it and run it on your own! Made with ReactNative
+
+Plausible deniability
+Password which decrypts fake bitcoin wallets if you are forced to disclose your access
+
+Full encryption
+On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+
+Full node
+Connect to your Bitcoin full node through Electrum
+
+Cold Storage
+Connect to your hardware wallet and keep your coins in Cold storage
+
+2 - Focused on your experience
+
+Be in control
+Private keys never leave your device.
+You control your private keys
+
+Flexible fees
+Starting from 1 Satoshi. Defined by you, the user
+
+Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125)
+
+Watch-only wallets
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+
+Lightning Network
+Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.

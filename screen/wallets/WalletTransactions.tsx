@@ -40,6 +40,8 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { Transaction, TWallet } from '../../class/wallets/types';
 import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import selectWallet from '../../helpers/select-wallet';
+import assert from 'assert';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -95,6 +97,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [getTransactions, limit, pageSize]);
 
   const refreshTransactions = useCallback(async () => {
+    console.debug('refreshTransactions, ', wallet?.getLabel());
     if (!wallet || isElectrumDisabled || isLoading) return;
     setIsLoading(true);
     let smthChanged = false;
@@ -177,34 +180,35 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   };
 
   const onWalletSelect = async (selectedWallet: TWallet) => {
-    if (selectedWallet) {
-      navigate('WalletTransactions', {
-        walletType: wallet?.type,
-        walletID: wallet?.getID(),
-        key: `WalletTransactions-${wallet?.getID()}`,
-      });
-      if (wallet?.type === LightningCustodianWallet.type) {
-        let toAddress;
-        if (wallet?.refill_addressess.length > 0) {
-          toAddress = wallet.refill_addressess[0];
-        } else {
-          try {
-            await wallet?.fetchBtcAddress();
-            toAddress = wallet?.refill_addressess[0];
-          } catch (Err) {
-            return presentAlert({ message: (Err as Error).message, type: AlertType.Toast });
-          }
-        }
-        navigate('SendDetailsRoot', {
-          screen: 'SendDetails',
-          params: {
-            memo: loc.lnd.refill_lnd_balance,
-            address: toAddress,
-            walletID: selectedWallet.getID(),
-          },
-        });
+    assert(wallet?.type === LightningCustodianWallet.type, `internal error, wallet is not ${LightningCustodianWallet.type}`);
+    navigate('WalletTransactions', {
+      walletType: wallet?.type,
+      walletID: wallet?.getID(),
+      key: `WalletTransactions-${wallet?.getID()}`,
+    }); // navigating back to ln wallet screen
+
+    // getting refill address, either cached or from the server:
+    let toAddress;
+    if (wallet?.refill_addressess.length > 0) {
+      toAddress = wallet.refill_addressess[0];
+    } else {
+      try {
+        await wallet?.fetchBtcAddress();
+        toAddress = wallet?.refill_addressess[0];
+      } catch (Err) {
+        return presentAlert({ message: (Err as Error).message, type: AlertType.Toast });
       }
     }
+
+    // navigating to pay screen where user can pay to refill address:
+    navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: {
+        memo: loc.lnd.refill_lnd_balance,
+        address: toAddress,
+        walletID: selectedWallet.getID(),
+      },
+    });
   };
 
   const navigateToViewEditCosigners = () => {
@@ -222,7 +226,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       if (availableWallets.length === 0) {
         presentAlert({ message: loc.lnd.refill_create });
       } else {
-        navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
+        selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
       }
     } else if (id === actionKeys.RefillWithExternalWallet) {
       navigate('ReceiveDetailsRoot', {

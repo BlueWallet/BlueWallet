@@ -1,0 +1,8 @@
+* Open Source
+* Totalmente criptografada
+* Negação plausível
+* Taxas flexíveis
+* Replace-By-Fee
+* SegWit
+* Carteiras Watch-only (somente leitura)
+* Lightning Network
