@@ -326,8 +326,8 @@ platform :ios do
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
   
       upload_to_testflight(
-        api_key_path: "appstore_api_key.json",
-        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        api_key_path: "./appstore_api_key.json",
+        ipa: "./BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
         skip_waiting_for_build_processing: true, # Do not wait for processing
         changelog: changelog
       )
