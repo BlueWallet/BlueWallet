@@ -193,7 +193,7 @@ const WalletDetails = () => {
 
   const toolTipActions = useMemo(() => {
     const moreInfo = CommonToolTipActions.MoreInfo;
-    moreInfo.menuState = isAdvancedModeEnabled;
+    moreInfo.hidden = isAdvancedModeEnabled;
     const actions = [moreInfo, CommonToolTipActions.SaveChanges];
     return actions;
   }, [isAdvancedModeEnabled]);

@@ -17,6 +17,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { Action } from '../../components/types';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -163,37 +164,44 @@ const WalletsAdd: React.FC = () => {
       { cancelable: true },
     );
   }, [entropyGenerated, navigate]);
-  // ToolTipMenu actions for wallet options
   const toolTipActions = useMemo(() => {
-    const actions = [
-      [
-        {
-          id: HDSegwitBech32Wallet.type,
-          text: HDSegwitBech32Wallet.typeReadable,
-          menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
-        },
-        {
-          id: SegwitP2SHWallet.type,
-          text: SegwitP2SHWallet.typeReadable,
-          menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
-        },
-        {
-          id: HDSegwitP2SHWallet.type,
-          text: HDSegwitP2SHWallet.typeReadable,
-          menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
-        },
-
-        {
-          id: LightningCustodianWallet.type,
-          text: LightningCustodianWallet.typeReadable,
-          menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
-        },
-      ],
+    const walletSubactions: Action[] = [
+      {
+        id: HDSegwitBech32Wallet.type,
+        text: HDSegwitBech32Wallet.typeReadable,
+        menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
+      },
+      {
+        id: SegwitP2SHWallet.type,
+        text: SegwitP2SHWallet.typeReadable,
+        menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
+      },
+      {
+        id: HDSegwitP2SHWallet.type,
+        text: HDSegwitP2SHWallet.typeReadable,
+        menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
+      },
+      {
+        id: LightningCustodianWallet.type,
+        text: LightningCustodianWallet.typeReadable,
+        menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
+      },
     ];
-    const entropyAction = CommonToolTipActions.Entropy;
-    entropyAction.text = entropyButtonText;
-    actions.push([entropyAction]);
-    return actions;
+
+    const walletAction: Action = {
+      id: 'wallets',
+      text: loc.multisig.wallet_type,
+      subactions: walletSubactions,
+      displayInline: true,
+    };
+
+    const entropyAction = {
+      ...CommonToolTipActions.Entropy,
+      text: entropyButtonText,
+      menuState: false,
+    };
+
+    return [walletAction, entropyAction];
   }, [entropyButtonText, selectedIndex, selectedWalletType]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
@@ -220,7 +228,6 @@ const WalletsAdd: React.FC = () => {
             navigateToEntropy();
           }
         }}
-        title={loc.multisig.wallet_type}
         actions={toolTipActions}
       >
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />

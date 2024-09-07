@@ -130,7 +130,7 @@ export const CommonToolTipActions = {
     id: keys.MoreInfo,
     text: loc.wallets.more_info,
     icon: icons.MoreInfo,
-    menuState: false,
+    hidden: false,
   },
   SaveChanges: {
     id: keys.SaveChanges,

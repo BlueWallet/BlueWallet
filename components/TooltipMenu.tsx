@@ -1,5 +1,6 @@
 import React, { Ref, useCallback, useMemo } from 'react';
 import { Platform, Pressable, TouchableOpacity } from 'react-native';
+import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import {
   ContextMenuView,
   RenderItem,
@@ -8,10 +9,103 @@ import {
   IconConfig,
   MenuElementConfig,
 } from 'react-native-ios-context-menu';
-import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
+/**
+ * ToolTipMenu component to display contextual menus with support for subactions and inline display.
+ *
+ * @param {ToolTipMenuProps} props - The properties for the ToolTipMenu component.
+ * @returns {JSX.Element} The rendered component.
+ *
+ * @example
+ * ```tsx
+ * import React from 'react';
+ * import { View, Text, StyleSheet, Alert } from 'react-native';
+ * import ToolTipMenu from './ToolTipMenu'; // Adjust this import to where ToolTipMenu is located
+ * import { Action } from './types';
+ *
+ * const ExampleToolTipMenu = () => {
+ *   const handlePressMenuItem = (id: string) => {
+ *     Alert.alert(`Action pressed: ${id}`);
+ *   };
+ *
+ *   const actions: Action[] = [
+ *     {
+ *       id: 'send',
+ *       text: 'Send',
+ *       icon: { iconValue: 'send-icon' },
+ *       subactions: [
+ *         {
+ *           id: 'send_max',
+ *           text: 'Send Max',
+ *           displayInline: true,
+ *         },
+ *         {
+ *           id: 'send_later',
+ *           text: 'Send Later',
+ *           displayInline: false,
+ *         },
+ *       ],
+ *     },
+ *     {
+ *       id: 'receive',
+ *       text: 'Receive',
+ *       icon: { iconValue: 'receive-icon' },
+ *     },
+ *     {
+ *       id: 'delete',
+ *       text: 'Delete',
+ *       attributes: { destructive: true },
+ *       subactions: [
+ *         {
+ *           id: 'delete_all',
+ *           text: 'Delete All',
+ *           displayInline: true,
+ *         },
+ *       ],
+ *     },
+ *   ];
+ *
+ *   return (
+ *     <View style={styles.container}>
+ *       <Text style={styles.title}>ToolTip Menu Example</Text>
+ *       <ToolTipMenu
+ *         actions={actions}
+ *         onPressMenuItem={handlePressMenuItem}
+ *         title="Options Menu"
+ *       >
+ *         <View style={styles.button}>
+ *           <Text style={styles.buttonText}>Open Menu</Text>
+ *         </View>
+ *       </ToolTipMenu>
+ *     </View>
+ *   );
+ * };
+ *
+ * const styles = StyleSheet.create({
+ *   container: {
+ *     flex: 1,
+ *     justifyContent: 'center',
+ *     alignItems: 'center',
+ *   },
+ *   title: {
+ *     fontSize: 18,
+ *     marginBottom: 20,
+ *   },
+ *   button: {
+ *     padding: 10,
+ *     backgroundColor: '#2367A2',
+ *     borderRadius: 5,
+ *   },
+ *   buttonText: {
+ *     color: '#fff',
+ *   },
+ * });
+ *
+ * export default ExampleToolTipMenu;
+ * ```
+ */
 const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   const {
     title = '',
@@ -30,6 +124,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
 
   const { language } = useSettings();
 
+  // Map Menu Items for iOS Context Menu
   const mapMenuItemForContextMenuView = useCallback((action: Action) => {
     if (!action.id) return null;
     return {
@@ -41,14 +136,28 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
     };
   }, []);
 
+  // Map Menu Items for RN Menu (supports subactions and displayInline)
   const mapMenuItemForMenuView = useCallback((action: Action): MenuAction | null => {
     if (!action.id) return null;
+
+    // Check for subactions
+    const subactions =
+      action.subactions?.map(subaction => ({
+        id: subaction.id.toString(),
+        title: subaction.text,
+        image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
+        state: subaction.menuState === undefined ? undefined : ((subaction.menuState ? 'on' : 'off') as MenuState),
+        attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
+      })) || [];
+
     return {
       id: action.id.toString(),
       title: action.text,
       image: action.icon?.iconValue ? action.icon.iconValue : undefined,
       state: action.menuState === undefined ? undefined : ((action.menuState ? 'on' : 'off') as MenuState),
-      attributes: { disabled: action.disabled },
+      attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
+      subactions: subactions.length > 0 ? subactions : undefined,
+      displayInline: action.displayInline || false,
     };
   }, []);
 
@@ -98,7 +207,6 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   );
 
   const renderContextMenuView = () => {
-    console.debug('ToolTipMenu.tsx rendering: renderContextMenuView');
     return (
       <ContextMenuView
         lazyPreview
@@ -139,7 +247,6 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   };
 
   const renderMenuView = () => {
-    console.debug('ToolTipMenu.tsx rendering: renderMenuView');
     return (
       <MenuView
         title={title}
@@ -147,7 +254,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
         onPressAction={handlePressMenuItemForMenuView}
         actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
         shouldOpenOnLongPress={!isMenuPrimaryAction}
-        // @ts-ignore: its not in the types but it works
+        // @ts-ignore: Not exposed in types
         accessibilityLabel={props.accessibilityLabel}
         accessibilityHint={props.accessibilityHint}
         accessibilityRole={props.accessibilityRole}
