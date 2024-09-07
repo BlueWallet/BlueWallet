@@ -192,9 +192,9 @@ const WalletDetails = () => {
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
   const toolTipActions = useMemo(() => {
-    const viewAdditionalDetails = CommonToolTipActions.ViewAdditionalDetails;
-    viewAdditionalDetails.menuState = isAdvancedModeEnabled;
-    const actions = [viewAdditionalDetails, CommonToolTipActions.SaveChanges];
+    const moreInfo = CommonToolTipActions.MoreInfo;
+    moreInfo.menuState = isAdvancedModeEnabled;
+    const actions = [moreInfo, CommonToolTipActions.SaveChanges];
     return actions;
   }, [isAdvancedModeEnabled]);
 
@@ -204,7 +204,7 @@ const WalletDetails = () => {
         case CommonToolTipActions.SaveChanges.id:
           handleSave();
           break;
-        case CommonToolTipActions.ViewAdditionalDetails.id:
+        case CommonToolTipActions.MoreInfo.id:
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           setIsAdvancedModeEnabled(!isAdvancedModeEnabled);
           break;

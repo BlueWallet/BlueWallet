@@ -477,7 +477,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, memos",
-    "view_additional_details": "View additional details"
+    "more_info": "More Info"
   },
   "total_balance_view": {
     "view_in_bitcoin": "View in Bitcoin",
