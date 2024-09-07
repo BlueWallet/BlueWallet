@@ -66,8 +66,8 @@ const isReactNative = typeof navigator !== 'undefined' && navigator?.product ===
 
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
-  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static LNDHUB = 'lndhub';
+  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
