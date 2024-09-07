@@ -112,7 +112,7 @@ lane :upload_to_browserstack_and_comment do
     comment = <<~COMMENT
       ### APK Successfully Uploaded to BrowserStack
       
-      You can test it using by clicking [here](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+      You can test it [here](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
       
       **Filename**: #{apk_filename}
       **BrowserStack App URL**: #{app_url}
@@ -160,7 +160,8 @@ platform :ios do
         type: "development", 
         app_identifier: app_identifier,
         readonly: false, # This will regenerate the provisioning profile if needed
-        force_for_new_devices: true # This forces match to add new devices to the profile
+        force_for_new_devices: true,
+        clone_branch_directly: true
       )
     end
 
@@ -204,6 +205,7 @@ platform :ios do
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
         type: "appstore",
+        clone_branch_directly: true, # Skip if the branch already exists (Exit 128 error)
         platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
@@ -221,7 +223,8 @@ platform :ios do
       type: "development",
       platform: "catalyst",
       app_identifier: app_identifiers,
-      readonly: true
+      readonly: true,
+      clone_branch_directly: true
     )
   end
 
@@ -231,7 +234,9 @@ platform :ios do
       type: "appstore",
       platform: "catalyst",
       app_identifier: app_identifiers,
-      readonly: true
+      readonly: true,
+      clone_branch_directly: true
+
     )
   end
 
@@ -243,14 +248,16 @@ platform :ios do
         platform: "catalyst",
         app_identifier: app_identifier,
         readonly: false,
-        force_for_new_devices: true
+        force_for_new_devices: true,
+        clone_branch_directly: true
       )
 
       match(
         type: "appstore",
         platform: "catalyst",
         app_identifier: app_identifier,
-        readonly: false
+        readonly: false,
+        clone_branch_directly: true
       )
     end
   end
