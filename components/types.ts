@@ -7,6 +7,7 @@ export interface Action {
     iconValue: string;
   };
   menuTitle?: string;
+  subtitle?: string;
   menuState?: 'mixed' | boolean | undefined;
   displayInline?: boolean; // Indicates if subactions should be displayed inline or nested (iOS only)
   image?: string;

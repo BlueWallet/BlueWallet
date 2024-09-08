@@ -156,7 +156,7 @@ const ReceiveDetails = () => {
 
   // re-fetching address balance periodically
   useEffect(() => {
-    console.log('receive/details - useEffect');
+    console.debug('receive/details - useEffect');
 
     const intervalId = setInterval(async () => {
       try {
@@ -164,9 +164,9 @@ const ReceiveDetails = () => {
         const addressToUse = address || decoded.address;
         if (!addressToUse) return;
 
-        console.log('checking address', addressToUse, 'for balance...');
+        console.debug('checking address', addressToUse, 'for balance...');
         const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
-        console.log('...got', balance);
+        console.debug('...got', balance);
 
         if (balance.unconfirmed > 0) {
           if (initialConfirmed === 0 && initialUnconfirmed === 0) {
@@ -226,7 +226,7 @@ const ReceiveDetails = () => {
           }
         }
       } catch (error) {
-        console.log(error);
+        console.debug(error);
       }
     }, intervalMs);
 
@@ -326,7 +326,7 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    console.log('receive/details - componentDidMount');
+    console.debug('receive/details - componentDidMount');
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
@@ -426,7 +426,7 @@ const ReceiveDetails = () => {
 
   const handleShareButtonPressed = () => {
     Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
-      console.log(error),
+      console.debug(error),
     );
   };
 

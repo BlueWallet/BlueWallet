@@ -5,7 +5,6 @@ import {
   I18nManager,
   InteractionManager,
   Keyboard,
-  LayoutAnimation,
   ScrollView,
   StyleSheet,
   Switch,
@@ -32,6 +31,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
@@ -43,10 +43,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
-import { useRoute } from '@react-navigation/native';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Icon } from '@rneui/themed';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -115,7 +112,6 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const [isAdvancedModeEnabled, setIsAdvancedModeEnabled] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [isContactsVisible, setIsContactsVisible] = useState(wallet.allowBIP47() && wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -140,13 +136,17 @@ const WalletDetails = () => {
     setIsContactsVisible(isBIP47Enabled);
   }, [isBIP47Enabled]);
 
-  useEffect(() => {
-    if (isAdvancedModeEnabled && wallet.allowMasterFingerprint()) {
-      InteractionManager.runAfterInteractions(() => {
-        setMasterFingerprint(wallet.getMasterFingerprintHex());
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (wallet.allowMasterFingerprint()) {
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
+        }
       });
-    }
-  }, [isAdvancedModeEnabled, wallet]);
+
+      return () => task.cancel();
+    }, [wallet]),
+  );
   const stylesHook = StyleSheet.create({
     textLabel1: {
       color: colors.feeText,
@@ -191,44 +191,17 @@ const WalletDetails = () => {
       });
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
-  const toolTipActions = useMemo(() => {
-    const moreInfo = CommonToolTipActions.MoreInfo;
-    moreInfo.hidden = isAdvancedModeEnabled;
-    const actions = [moreInfo, CommonToolTipActions.SaveChanges];
-    return actions;
-  }, [isAdvancedModeEnabled]);
-
-  const onMenuPressItem = useCallback(
-    id => {
-      switch (id) {
-        case CommonToolTipActions.SaveChanges.id:
-          handleSave();
-          break;
-        case CommonToolTipActions.MoreInfo.id:
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          setIsAdvancedModeEnabled(!isAdvancedModeEnabled);
-          break;
-        default:
-          break;
-      }
-    },
-    [handleSave, isAdvancedModeEnabled],
-  );
-
-  const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu testID="HeaderRightButton" isButton isMenuPrimaryAction onPressMenuItem={onMenuPressItem} actions={toolTipActions}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
-    ),
-    [colors.foregroundColor, onMenuPressItem, toolTipActions],
+  const SaveButton = useMemo(
+    () => <HeaderRightButton title={loc.wallets.details_save} onPress={handleSave} disabled={isLoading} testID="Save" />,
+    [isLoading, handleSave],
   );
 
   useEffect(() => {
     setOptions({
-      headerRight: () => HeaderRight,
+      headerRight: () => SaveButton,
+      headerBackTitleVisible: true,
     });
-  }, [HeaderRight, colors.foregroundColor, setOptions, toolTipActions]);
+  }, [SaveButton, setOptions]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
@@ -570,25 +543,21 @@ const WalletDetails = () => {
                     </View>
                   </>
                 )}
-                {isAdvancedModeEnabled && (
-                  <View style={styles.row}>
-                    {wallet.allowMasterFingerprint() && (
-                      <View style={styles.marginRight16}>
-                        <Text style={[styles.textLabel2, stylesHook.textLabel2]}>
-                          {loc.wallets.details_master_fingerprint.toLowerCase()}
-                        </Text>
-                        <BlueText>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
-                      </View>
-                    )}
+                <View style={styles.row}>
+                  {wallet.allowMasterFingerprint() && (
+                    <View style={styles.marginRight16}>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
+                      <BlueText>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                    </View>
+                  )}
 
-                    {derivationPath && (
-                      <View>
-                        <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                        <BlueText testID="DerivationPath">{derivationPath}</BlueText>
-                      </View>
-                    )}
-                  </View>
-                )}
+                  {derivationPath && (
+                    <View>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
+                      <BlueText testID="DerivationPath">{derivationPath}</BlueText>
+                    </View>
+                  )}
+                </View>
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (

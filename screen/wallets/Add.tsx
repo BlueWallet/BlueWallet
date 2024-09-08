@@ -181,17 +181,20 @@ const WalletsAdd: React.FC = () => {
     const walletSubactions: Action[] = [
       {
         id: HDSegwitBech32Wallet.type,
-        text: HDSegwitBech32Wallet.typeReadable,
+        text: `${loc.multisig.native_segwit_title}`,
+        subtitle: HDSegwitBech32Wallet.typeReadable,
         menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
         id: SegwitP2SHWallet.type,
-        text: SegwitP2SHWallet.typeReadable,
+        text: `${loc.multisig.wrapped_segwit_title}`,
+        subtitle: HDSegwitP2SHWallet.typeReadable,
         menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
         id: HDSegwitP2SHWallet.type,
-        text: HDSegwitP2SHWallet.typeReadable,
+        text: `${loc.multisig.legacy_title}`,
+        subtitle: SegwitP2SHWallet.typeReadable,
         menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {

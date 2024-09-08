@@ -464,9 +464,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ActivateVaultButton')).tap();
     await element(by.id('Create')).tap();
     // vault settings:
-    await element(by.id('HeaderRightButton')).tap();
+    await element(by.id('VaultAdvancedCustomize')).tap();
     await element(by.id('DecreaseN')).tap();
-    await element(by.id('ApplyWalletOptionsButton')).tap();
+    await element(by.id('ModalDoneButton')).tap();
 
     //
 
@@ -709,8 +709,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
     await element(by.id('WalletDetails')).tap();
-    await element(by.id('HeaderRightButton')).tap();
-    await element(by.text('More Info')).tap();
     await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
 
     await device.pressBack();
