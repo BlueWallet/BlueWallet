@@ -3,7 +3,7 @@ import bolt11 from 'bolt11';
 import createHash from 'create-hash';
 import { createHmac } from 'crypto';
 import CryptoJS from 'crypto-js';
-// @ts-ignore
+// @ts-ignore theres no types for secp256k1
 import secp256k1 from 'secp256k1';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 
@@ -62,8 +62,8 @@ export default class Lnurl {
   private _AsyncStorage: any;
   private _preimage: string | false;
 
-  constructor(url: string, AsyncStorage?: any) {
-    this._lnurl = url;
+  constructor(url: string | false, AsyncStorage?: any) {
+    this._lnurl = url || '';
     this._lnurlPayServiceBolt11Payload = false;
     this._lnurlPayServicePayload = false;
     this._AsyncStorage = AsyncStorage;
