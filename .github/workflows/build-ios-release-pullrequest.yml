@@ -255,7 +255,7 @@ jobs:
           bundler-cache: true
 
       - name: Download Simulator Build Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
           path: ./build/simulator
