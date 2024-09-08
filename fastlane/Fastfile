@@ -399,11 +399,16 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
+    
     Dir.chdir(project_root) do
+      # Print current directory contents before running cocoapods
+      UI.message("Current directory contents before running CocoaPods:")
+      Dir.entries(Dir.pwd).each { |entry| UI.message(entry) }
+  
+      # Run cocoapods installation
       cocoapods(podfile: "ios/Podfile")
     end
   end
-
   desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")
