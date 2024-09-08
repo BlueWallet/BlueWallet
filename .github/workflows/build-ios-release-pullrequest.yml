@@ -62,15 +62,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
 
-
-      - name: Install node_modules
-        run: npm install --production
-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs=4 --retry=3 --quiet
-
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
@@ -104,6 +95,17 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
+      - name: Restore node_modules Cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install node_modules
+        run: npm install --production
+
       - name: Restore Provisioning Profiles Cache
         uses: actions/cache@v3
         with:
@@ -111,6 +113,17 @@ jobs:
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
+
+      - name: Restore CocoaPods Cache
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('Podfile.lock') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec pod install --project-directory=ios
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
@@ -196,6 +209,17 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
+      - name: Restore node_modules Cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install node_modules
+        run: npm install --production
+
       - name: Restore Provisioning Profiles Cache
         uses: actions/cache@v3
         with:
@@ -203,6 +227,17 @@ jobs:
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
+
+      - name: Restore CocoaPods Cache
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('Podfile.lock') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec pod install --project-directory=ios
 
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
