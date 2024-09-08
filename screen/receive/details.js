@@ -1,6 +1,17 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, InteractionManager, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  BackHandler,
+  Image,
+  InteractionManager,
+  LayoutAnimation,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -24,6 +35,9 @@ import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { Icon } from '@rneui/themed';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -43,9 +57,9 @@ const ReceiveDetails = () => {
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
-  const { goBack, setParams } = useExtendedNavigation();
+  const { goBack, setParams, setOptions } = useExtendedNavigation();
   const bottomModalRef = useRef(null);
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -84,6 +98,61 @@ const ReceiveDetails = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     }
   }, [showConfirmedBalance]);
+
+  const toolTipActions = useMemo(() => {
+    const action = CommonToolTipActions.PaymentCode;
+    action.menuState = wallet.isBIP47Enabled();
+    return [action];
+  }, [wallet]);
+  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
+    if (wallet.allowBIP47()) {
+      wallet.switchBIP47(!wallet.isBIP47Enabled());
+    }
+    saveToDisk();
+    obtainWalletAddress();
+  }, [wallet, saveToDisk, obtainWalletAddress]);
+
+  const onPressMenuItem = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    onEnablePaymentsCodeSwitchValue();
+  }, [onEnablePaymentsCodeSwitchValue]);
+
+  const HeaderRight = useMemo(
+    () => (
+      <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={[toolTipActions]}>
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      </ToolTipMenu>
+    ),
+    [colors.foregroundColor, onPressMenuItem, toolTipActions],
+  );
+
+  const handleClose = useCallback(() => {
+    goBack();
+  }, [goBack]);
+
+  const HeaderLeft = useMemo(
+    () => (
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.close}
+        style={styles.button}
+        onPress={handleClose}
+        testID="NavigationCloseButton"
+      >
+        <Image source={closeImage} />
+      </TouchableOpacity>
+    ),
+    [closeImage, handleClose],
+  );
+
+  useEffect(() => {
+    wallet.allowBIP47() &&
+      !wallet.isBIP47Enabled() &&
+      setOptions({
+        headerLeft: () => (wallet.isBIP47Enabled() ? null : HeaderLeft),
+        headerRight: () => (wallet.isBIP47Enabled() ? HeaderLeft : HeaderRight),
+      });
+  }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
   // re-fetching address balance periodically
   useEffect(() => {

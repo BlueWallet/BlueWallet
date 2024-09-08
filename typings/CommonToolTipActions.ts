@@ -16,6 +16,7 @@ const keys = {
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
+  PaymentsCode: 'paymentsCode',
 };
 
 const icons = {
@@ -54,6 +55,9 @@ const icons = {
   },
   SaveChanges: {
     iconValue: 'checkmark',
+  },
+  PaymentsCode: {
+    iconValue: 'qrcode',
   },
 };
 
@@ -136,5 +140,11 @@ export const CommonToolTipActions = {
     id: keys.SaveChanges,
     text: loc._.save,
     icon: icons.SaveChanges,
+  },
+  PaymentCode: {
+    id: keys.PaymentsCode,
+    text: loc.bip47.purpose,
+    icon: icons.PaymentsCode,
+    menuState: false,
   },
 };
