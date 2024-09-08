@@ -93,6 +93,52 @@ const ReceiveDetails = () => {
     },
   });
 
+  const obtainWalletAddress = useCallback(async () => {
+    console.debug('receive/details - componentDidMount');
+    let newAddress;
+    if (address) {
+      setAddressBIP21Encoded(address);
+      await Notifications.tryToObtainPermissions(receiveAddressButton);
+      Notifications.majorTomToGroundControl([address], [], []);
+    } else {
+      if (wallet.chain === Chain.ONCHAIN) {
+        try {
+          if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+        } catch (_) {}
+        if (newAddress === undefined) {
+          // either sleep expired or getAddressAsync threw an exception
+          console.warn('either sleep expired or getAddressAsync threw an exception');
+          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+        } else {
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
+      } else if (wallet.chain === Chain.OFFCHAIN) {
+        try {
+          await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          newAddress = wallet.getAddress();
+        } catch (_) {}
+        if (newAddress === undefined) {
+          // either sleep expired or getAddressAsync threw an exception
+          console.warn('either sleep expired or getAddressAsync threw an exception');
+          newAddress = wallet.getAddress();
+        } else {
+          saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
+      }
+      setAddressBIP21Encoded(newAddress);
+      await Notifications.tryToObtainPermissions(receiveAddressButton);
+      Notifications.majorTomToGroundControl([newAddress], [], []);
+    }
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+
+  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
+    if (wallet.allowBIP47()) {
+      wallet.switchBIP47(!wallet.isBIP47Enabled());
+    }
+    saveToDisk();
+    obtainWalletAddress();
+  }, [wallet, saveToDisk, obtainWalletAddress]);
+
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -104,13 +150,6 @@ const ReceiveDetails = () => {
     action.menuState = wallet.isBIP47Enabled();
     return [action];
   }, [wallet]);
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
 
   const onPressMenuItem = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -324,44 +363,6 @@ const ReceiveDetails = () => {
       </>
     );
   };
-
-  const obtainWalletAddress = useCallback(async () => {
-    console.debug('receive/details - componentDidMount');
-    let newAddress;
-    if (address) {
-      setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([address], [], []);
-    } else {
-      if (wallet.chain === Chain.ONCHAIN) {
-        try {
-          if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-        } catch (_) {}
-        if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
-          console.warn('either sleep expired or getAddressAsync threw an exception');
-          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
-        } else {
-          saveToDisk(); // caching whatever getAddressAsync() generated internally
-        }
-      } else if (wallet.chain === Chain.OFFCHAIN) {
-        try {
-          await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-          newAddress = wallet.getAddress();
-        } catch (_) {}
-        if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
-          console.warn('either sleep expired or getAddressAsync threw an exception');
-          newAddress = wallet.getAddress();
-        } else {
-          saveToDisk(); // caching whatever getAddressAsync() generated internally
-        }
-      }
-      setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([newAddress], [], []);
-    }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   useFocusEffect(
     useCallback(() => {
