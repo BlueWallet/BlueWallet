@@ -165,9 +165,6 @@ platform :ios do
     # Set up provisioning profiles
     setup_provisioning_profiles
 
-    # Set up dependencies
-    setup_dependencies
-
     # Generate the build number and project version
     generate_build_version_info
   end
@@ -198,18 +195,6 @@ platform :ios do
       )
     end
   end
-
-desc "Set up dependencies including Ruby gems, node modules, and CocoaPods"
-lane :setup_dependencies do
-  UI.message("Setting up dependencies...")
-
-  # Install CocoaPods dependencies
-  cocoapods(
-    podfile: "Podfile"
-  )
-
-  UI.message("Dependencies set up successfully.")
-end
 
   desc "Generate build number and project version information"
   lane :generate_build_version_info do
