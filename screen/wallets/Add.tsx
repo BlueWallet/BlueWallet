@@ -133,12 +133,6 @@ const WalletsAdd: React.FC = () => {
     },
   };
 
-  useEffect(() => {
-    setOptions({
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
-    });
-  }, [colorScheme, setOptions]);
-
   const entropyGenerated = useCallback((newEntropy: Buffer) => {
     let entropyTitle;
     if (!newEntropy) {
@@ -182,6 +176,7 @@ const WalletsAdd: React.FC = () => {
       { cancelable: true },
     );
   }, [entropyGenerated, navigate]);
+
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
       {
@@ -257,8 +252,9 @@ const WalletsAdd: React.FC = () => {
   useEffect(() => {
     setOptions({
       headerRight: () => HeaderRight,
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
-  }, [HeaderRight, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
+  }, [HeaderRight, colorScheme, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
 
   useEffect(() => {
     AsyncStorage.getItem(BlueApp.LNDHUB)
