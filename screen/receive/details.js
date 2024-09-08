@@ -93,6 +93,16 @@ const ReceiveDetails = () => {
     },
   });
 
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
+
   const obtainWalletAddress = useCallback(async () => {
     console.debug('receive/details - componentDidMount');
     let newAddress;
@@ -353,16 +363,6 @@ const ReceiveDetails = () => {
       </>
     );
   };
-
-  const setAddressBIP21Encoded = useCallback(
-    addr => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-      setParams({ address: addr });
-      setBip21encoded(newBip21encoded);
-      setShowAddress(true);
-    },
-    [setParams],
-  );
 
   useFocusEffect(
     useCallback(() => {
