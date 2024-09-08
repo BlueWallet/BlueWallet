@@ -399,7 +399,11 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-      cocoapods(podfile: "./Podfile")
+    cocoapods(
+      clean_install: true,
+      podfile: "ios",
+      try_repo_update_on_error: true
+    )
   end
 
   desc "Deploy to TestFlight"
