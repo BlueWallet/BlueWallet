@@ -441,6 +441,13 @@ platform :ios do
 
   desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
   lane :update_release_notes do |options|
+    force_run = options[:force_run] || ENV['FORCE_UPDATE_NOTES'] == 'true'
+  
+    unless force_run
+      UI.message("Skipping update_release_notes as force_run is not enabled")
+      next
+    end
+    
     require 'spaceship'
 
     UI.message("Logging in to App Store Connect...")
