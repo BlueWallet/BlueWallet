@@ -35,7 +35,7 @@ const LnurlPay: React.FC = () => {
   const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
   const { walletID, lnurl } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
-  const [unit, setUnit] = useState<BitcoinUnit>(wallet.getPreferredBalanceUnit());
+  const [unit, setUnit] = useState<BitcoinUnit>(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [_LN, setLN] = useState<Lnurl | undefined>();
   const [payButtonDisabled, setPayButtonDisabled] = useState<boolean>(true);

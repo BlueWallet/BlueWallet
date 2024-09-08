@@ -230,8 +230,8 @@ export default class Lnurl {
     }
 
     // setting the payment screen with the parameters
-    const min = Math.ceil((data?.minSendable ?? 0) / 1000);
-    const max = Math.floor((data?.maxSendable ?? 0) / 1000);
+    const min = Math.ceil((data.minSendable ?? 0) / 1000);
+    const max = Math.floor((data.maxSendable ?? 0) / 1000);
 
     this._lnurlPayServicePayload = {
       callback: data.callback,
