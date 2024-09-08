@@ -317,16 +317,6 @@ const ReceiveDetails = () => {
     return true;
   };
 
-  const setAddressBIP21Encoded = useCallback(
-    addr => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-      setParams({ address: addr });
-      setBip21encoded(newBip21encoded);
-      setShowAddress(true);
-    },
-    [setParams],
-  );
-
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
@@ -363,6 +353,16 @@ const ReceiveDetails = () => {
       </>
     );
   };
+
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
 
   useFocusEffect(
     useCallback(() => {
