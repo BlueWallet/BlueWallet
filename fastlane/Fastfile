@@ -400,7 +400,7 @@ platform :ios do
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
     Dir.chdir(project_root) do
-      cocoapods(podfile: "ios/Podfile")
+      cocoapods(podfile: "Podfile")
     end
   end
 
