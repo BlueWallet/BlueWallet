@@ -191,7 +191,8 @@ platform :ios do
         team_name: ENV["ITC_TEAM_NAME"],
         readonly: true,
         keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
+        clone_branch_directly: true # This clones only the necessary branch
       )
     end
   end
