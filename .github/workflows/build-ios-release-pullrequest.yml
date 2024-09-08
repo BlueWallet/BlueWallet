@@ -120,6 +120,13 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+          NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v3
@@ -214,6 +221,14 @@ jobs:
         run: bundle exec fastlane ios build_ios_simulator_release
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
+          NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+
 
       - name: Zip iOS Simulator Release Build
         run: bundle exec fastlane ios zip_ios_simulator_release_build
