@@ -32,11 +32,35 @@ jobs:
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20.x'
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('Podfile.lock') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Cache Provisioning Profiles
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
 
       - name: Install dependencies with Bundler
         run: |
@@ -49,45 +73,23 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
 
-      - name: Setup Environment (Keychain and Provisioning Profiles)
-        run: bundle exec fastlane ios setup_environment
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}  
-
-      - name: Cache Provisioning Profiles
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
 
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |
           MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=project_version::$MARKETING_VERSION"
 
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
 
   build:
     runs-on: macos-latest
@@ -104,25 +106,13 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Specify node version
-        uses: actions/setup-node@v4
+      - name: Restore Provisioning Profiles Cache
+        uses: actions/cache@v3
         with:
-          node-version: 20
-
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 15.4
-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs=4 --retry=3 --quiet
-
-      - name: Install node_modules
-        run: npm install --production
-
-      - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
@@ -131,15 +121,20 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
-          path: ./ios/build/BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
+          path: ./ios/build/*.ipa
 
   testflight-upload:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-latest
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
+      - name: Restore Provisioning Profiles Cache
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -203,25 +198,13 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Specify node version
-        uses: actions/setup-node@v4
+      - name: Restore Provisioning Profiles Cache
+        uses: actions/cache@v3
         with:
-          node-version: 20
-
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 15.4
-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs=4 --retry=3 --quiet
-
-      - name: Install node_modules
-        run: npm install --production
-
-      - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
 
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
@@ -245,9 +228,6 @@ jobs:
       PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
