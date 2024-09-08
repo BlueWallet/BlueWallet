@@ -17,7 +17,6 @@ import {
   WalletsAddMultisigHelpComponent,
   WalletsAddMultisigStep2Component,
 } from './LazyLoadAddWalletStack';
-import { Platform, useColorScheme } from 'react-native';
 
 export type AddWalletStackParamList = {
   AddWallet: undefined;
@@ -44,7 +43,6 @@ const Stack = createNativeStackNavigator<AddWalletStackParamList>();
 
 const AddWalletStack = () => {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
   return (
     <Stack.Navigator initialRouteName="AddWallet">
       <Stack.Screen
@@ -53,7 +51,6 @@ const AddWalletStack = () => {
         options={navigationStyle({
           closeButtonPosition: CloseButtonPosition.Left,
           title: loc.wallets.add_title,
-          statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
         })(theme)}
       />
       <Stack.Screen name="ImportCustomDerivationPath" component={ImportCustomDerivationPathComponent} />

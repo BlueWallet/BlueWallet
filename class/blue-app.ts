@@ -67,13 +67,12 @@ const isReactNative = typeof navigator !== 'undefined' && navigator?.product ===
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
-  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
   private static _instance: BlueApp | null = null;
 
-  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK, BlueApp.ADVANCED_MODE_ENABLED];
+  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;

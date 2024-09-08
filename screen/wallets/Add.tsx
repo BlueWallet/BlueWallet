@@ -1,7 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
-import { ActivityIndicator, Alert, Keyboard, LayoutAnimation, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
+  View,
+} from 'react-native';
 
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -96,6 +107,7 @@ const WalletsAdd: React.FC = () => {
   const selectedWalletType = state.selectedWalletType;
   const entropy = state.entropy;
   const entropyButtonText = state.entropyButtonText;
+  const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
   const { navigate, goBack, setOptions } = useNavigation();
@@ -120,6 +132,12 @@ const WalletsAdd: React.FC = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   };
+
+  useEffect(() => {
+    setOptions({
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    });
+  }, [colorScheme, setOptions]);
 
   const entropyGenerated = useCallback((newEntropy: Buffer) => {
     let entropyTitle;
