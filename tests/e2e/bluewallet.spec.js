@@ -54,7 +54,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await device.pressBack();
-    await device.pressBack();
     //
     // currency
     // change currency to ARS ($) and switch it back to USD ($)

@@ -187,6 +187,7 @@ const WalletsImport = () => {
       contentContainerStyle={styles.root}
       automaticallyAdjustContentInsets
       automaticallyAdjustsScrollIndicatorInsets
+      keyboardShouldPersistTaps
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
