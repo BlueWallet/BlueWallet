@@ -298,7 +298,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 6.1.7.5, != 7.1.0)
   cocoapods (>= 1.13, != 1.15.1, != 1.15.0)
-  fastlane
+  fastlane (>= 2.200.0)
   fastlane-plugin-browserstack
   rubyzip (= 2.3.2)
 
