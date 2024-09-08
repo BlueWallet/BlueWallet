@@ -389,7 +389,7 @@ platform :ios do
     
     # Set the new build number
     increment_build_number(
-      xcodeproj: "ios/BlueWallet.xcodeproj", 
+      xcodeproj: "./ios/BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
   
@@ -406,7 +406,7 @@ platform :ios do
       Dir.entries(Dir.pwd).each { |entry| UI.message(entry) }
   
       # Run cocoapods installation
-      cocoapods(podfile: "ios/Podfile")
+      cocoapods(podfile: "./ios/Podfile")
     end
   end
   desc "Deploy to TestFlight"
