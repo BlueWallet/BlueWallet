@@ -401,12 +401,13 @@ platform :ios do
     UI.message("Installing CocoaPods dependencies...")
     
     Dir.chdir(project_root) do
-      # Print current directory contents before running cocoapods
-      UI.message("Current directory contents before running CocoaPods:")
-      Dir.entries(Dir.pwd).each { |entry| UI.message(entry) }
-  
-      # Run cocoapods installation
-      cocoapods(podfile: "./ios/Podfile")
+      fastlane_dir = %x(pwd)
+      absolute_path = Pathname.new(File.expand_path(fastlane_dir)).parent
+      cocoapods(podfile: "#{absolute_path}/Podfile", error_callback: lambda { |result|
+        # Udate cocoapods. This might fail on the private pods, but we'll let it fail silently
+        cocoapods(podfile: "#{absolute_path}/Podfile", repo_update: true,  error_callback: lambda { |result|
+        })
+      })
     end
   end
   desc "Deploy to TestFlight"
