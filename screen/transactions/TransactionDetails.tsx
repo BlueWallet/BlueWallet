@@ -139,7 +139,7 @@ const TransactionDetails = () => {
             // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
             // and load user-defined alias for the pc if any
 
-            setCounterpartyLabel(counterpartyMetadata ? (counterpartyMetadata[foundPaymentCode]?.label ?? '') : '');
+            setCounterpartyLabel(counterpartyMetadata ? counterpartyMetadata[foundPaymentCode]?.label ?? '' : '');
             setIsCounterpartyLabelVisible(true);
             setPaymentCode(foundPaymentCode);
           }
