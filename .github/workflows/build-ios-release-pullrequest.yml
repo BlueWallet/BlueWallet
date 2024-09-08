@@ -62,16 +62,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
 
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs=4 --retry=3 --quiet
 
       - name: Install node_modules
         run: npm install --production
 
-      - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs=4 --retry=3 --quiet
 
       - name: Generate Build Number based on timestamp
         id: generate_build_number
