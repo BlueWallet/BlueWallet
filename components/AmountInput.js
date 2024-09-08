@@ -264,6 +264,7 @@ class AmountInput extends Component {
                 {amount !== BitcoinUnit.MAX ? (
                   <TextInput
                     {...this.props}
+                    caretHidden
                     testID="BitcoinAmountInput"
                     keyboardType="numeric"
                     adjustsFontSizeToFit

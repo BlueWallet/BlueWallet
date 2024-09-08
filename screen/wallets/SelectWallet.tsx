@@ -74,8 +74,8 @@ const SelectWallet: React.FC = () => {
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
-    if (isModal) {
-      onWalletSelect?.(item, { navigation: { pop, navigate } });
+    if (onWalletSelect) {
+      onWalletSelect(item, { navigation: { pop, navigate } });
     } else {
       navigate(previousRouteName, { walletID: item.getID(), merge: true });
     }
