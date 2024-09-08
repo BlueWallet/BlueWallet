@@ -389,7 +389,7 @@ platform :ios do
     
     # Set the new build number
     increment_build_number(
-      xcodeproj: "./ios/BlueWallet.xcodeproj", 
+      xcodeproj: "ios/BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
   
@@ -399,17 +399,9 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    
-    Dir.chdir(project_root) do
-      fastlane_dir = %x(pwd)
-      absolute_path = Pathname.new(File.expand_path(fastlane_dir)).parent
-      cocoapods(podfile: "#{absolute_path}/Podfile", error_callback: lambda { |result|
-        # Udate cocoapods. This might fail on the private pods, but we'll let it fail silently
-        cocoapods(podfile: "#{absolute_path}/Podfile", repo_update: true,  error_callback: lambda { |result|
-        })
-      })
-    end
+      cocoapods(podfile: "./Podfile")
   end
+
   desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")

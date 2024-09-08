@@ -72,6 +72,7 @@ jobs:
 
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
+        working-directory: ios
 
       - name: Generate Build Number based on timestamp
         id: generate_build_number
