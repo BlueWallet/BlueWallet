@@ -440,120 +440,44 @@ platform :ios do
   end
 
   desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
-  lane :update_release_notes do |options|
-    force_run = options[:force_run] || ENV['FORCE_UPDATE_NOTES'] == 'true'
-  
-    unless force_run
-      UI.message("Skipping update_release_notes as force_run is not enabled")
-      next
+lane :update_release_notes do |options|
+  force_run = options[:force_run] || ENV['FORCE_UPDATE_NOTES'] == 'true'
+
+  unless force_run
+    UI.message("Skipping update_release_notes as force_run is not enabled")
+    next
+  end
+
+  require 'spaceship'
+
+  UI.message("Logging in to App Store Connect...")
+  Spaceship::ConnectAPI.login
+
+  app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
+  UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
+
+  retries = 5
+  begin
+    prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+
+    if prepare_version.nil?
+      UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
+      latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+      new_version_number = (latest_version.version_string.to_f + 0.1).to_s
+      prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
+      UI.message("Created new version: #{new_version_number}")
+    else
+      UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
     end
-    
-    require 'spaceship'
-
-    UI.message("Logging in to App Store Connect...")
-    Spaceship::ConnectAPI.login
-
-    app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
-
-    unless app
-      UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}")
-    end
-
-    # Retry logic for fetching or creating the edit version
-    retries = 5
-    begin
-      prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
-      
-      # If no "Prepare for Submission" version is found, create a new one
-      if prepare_version.nil?
-        UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
-        latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
-        new_version_number = (latest_version.version_string.to_f + 0.1).to_s
-        prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
-        UI.message("Created new version: #{new_version_number}")
-      else
-        UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
-      end
-    rescue => e
-      retries -= 1
-      if retries > 0
-        delay = 20
-        UI.message("Cannot find edit app info... Retrying after #{delay} seconds (remaining: #{retries})")
-        sleep(delay)
-        retry
-      else
-        UI.user_error!("Failed to fetch or create the app version: #{e.message}")
-      end
-    end
-
-    # Extract existing metadata
-    localized_metadata = prepare_version.get_app_store_version_localizations
-
-    # Get all the enabled locales for the app version
-    enabled_locales = localized_metadata.map(&:locale)
-
-    # Define valid language codes and filter them based on enabled locales
-    release_notes_text = options[:release_notes]
-
-    if release_notes_text.nil? || release_notes_text.strip.empty?
-      release_notes_path = "../../release-notes.txt"
-      unless File.exist?(release_notes_path)
-        UI.error("Release notes file does not exist at path: #{release_notes_path}")
-        UI.user_error!("No release notes provided and no file found. Failing the lane.")
-      end
-      release_notes_text = File.read(release_notes_path)
-    end
-
-    localized_release_notes = {
-      'en-US' => release_notes_text, # English (U.S.) - Primary
-      'ar-SA' => release_notes_text, # Arabic
-      'zh-Hans' => release_notes_text, # Chinese (Simplified)
-      'hr' => release_notes_text, # Croatian
-      'da' => release_notes_text, # Danish
-      'nl-NL' => release_notes_text, # Dutch
-      'fi' => release_notes_text, # Finnish
-      'fr-FR' => release_notes_text, # French
-      'de-DE' => release_notes_text, # German
-      'el' => release_notes_text, # Greek
-      'he' => release_notes_text, # Hebrew
-      'hu' => release_notes_text, # Hungarian
-      'it' => release_notes_text, # Italian
-      'ja' => release_notes_text, # Japanese
-      'ms' => release_notes_text, # Malay
-      'nb-NO' => release_notes_text, # Norwegian
-      'pl' => release_notes_text, # Polish
-      'pt-BR' => release_notes_text, # Portuguese (Brazil)
-      'pt-PT' => release_notes_text, # Portuguese (Portugal)
-      'ro' => release_notes_text, # Romanian
-      'ru' => release_notes_text, # Russian
-      'es-MX' => release_notes_text, # Spanish (Mexico)
-      'es-ES' => release_notes_text, # Spanish (Spain)
-      'sv' => release_notes_text, # Swedish
-      'th' => release_notes_text, # Thai
-    }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
-
-    # Review what's going to be updated
-    UI.message("Review the following release notes updates:")
-    localized_release_notes.each do |locale, notes|
-      UI.message("Locale: #{locale} - Notes: #{notes}")
-    end
-
-    unless options[:force_yes]
-      confirm = UI.confirm("Do you want to proceed with these release notes updates?")
-      unless confirm
-        UI.user_error!("User aborted the lane.")
-      end
-    end
-
-    # Update release notes in App Store Connect and skip all other metadata
-    localized_release_notes.each do |locale, notes|
-      app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
-
-      if app_store_version_localization
-        app_store_version_localization.update(attributes: { "whats_new" => notes })
-      else
-        UI.error("No localization found for locale #{locale}")
-      end
+  rescue => e
+    retries -= 1
+    if retries > 0
+      delay = 20
+      UI.message("Cannot find edit app info... Retrying after #{delay} seconds (remaining retries: #{retries})")
+      sleep(delay)
+      retry
+    else
+      UI.user_error!("Failed to fetch or create the app version: #{e.message}")
     end
   end
 
@@ -601,7 +525,7 @@ platform :ios do
     'es-ES' => release_notes_text, # Spanish (Spain)
     'sv' => release_notes_text, # Swedish
     'th' => release_notes_text, # Thai
-  }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
+  }.select { |locale, _| enabled_locales.include?(locale) }
 
   # Review what's going to be updated
   UI.message("Review the following release notes updates:")
@@ -611,21 +535,19 @@ platform :ios do
 
   unless options[:force_yes]
     confirm = UI.confirm("Do you want to proceed with these release notes updates?")
-    unless confirm
-      UI.user_error!("User aborted the lane.")
-    end
+    UI.user_error!("User aborted the lane.") unless confirm
   end
 
-  # Update release notes in App Store Connect and skip all other metadata
+  # Update release notes in App Store Connect
   localized_release_notes.each do |locale, notes|
     app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
-
     if app_store_version_localization
       app_store_version_localization.update(attributes: { "whats_new" => notes })
     else
       UI.error("No localization found for locale #{locale}")
     end
   end
+end
 end
 
 end
