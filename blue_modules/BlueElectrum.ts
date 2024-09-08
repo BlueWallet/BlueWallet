@@ -194,10 +194,23 @@ export async function connectMain(): Promise<void> {
     console.log('Electrum connection disabled by user. Skipping connectMain call');
     return;
   }
+
   let usingPeer = getNextPeer();
   const savedPeer = await getSavedPeer();
   if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
     usingPeer = savedPeer;
+  }
+
+  // Check if the peer is online before attempting the connection
+  const isOnline = await testConnection(
+    usingPeer.host,
+    usingPeer.tcp ? Number(usingPeer.tcp) : undefined,
+    usingPeer.ssl ? Number(usingPeer.ssl) : undefined,
+  );
+
+  if (!isOnline) {
+    console.debug('The selected peer is offline. Trying next peer...');
+    return connectMain(); // Retry connection with next peer
   }
 
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
@@ -213,7 +226,6 @@ export async function connectMain(): Promise<void> {
       await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl ?? '');
     }
   } catch (e) {
-    // Must be running on Android
     console.log(e);
   }
 
@@ -224,45 +236,30 @@ export async function connectMain(): Promise<void> {
     mainClient.onError = function (e: { message: string }) {
       console.log('electrum mainClient.onError():', e.message);
       if (mainConnected) {
-        // most likely got a timeout from electrum ping. lets reconnect
-        // but only if we were previously connected (mainConnected), otherwise theres other
-        // code which does connection retries
         mainClient.close();
         mainConnected = false;
-        // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
-        // errors triggered
         console.log('reconnecting after socket error');
         setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
       }
     };
+
     const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
     if (ver && ver[0]) {
       console.log('connected to ', ver);
       serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
+
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
-
-        // exeptions for versions:
         const [electrumImplementation, electrumVersion] = ver[0].split(' ');
-        switch (electrumImplementation) {
-          case 'electrs':
-            if (semVerToInt(electrumVersion) >= semVerToInt('0.9.0')) {
-              disableBatching = false;
-            }
-            break;
-          case 'electrs-esplora':
-            // its a different one, and it does NOT support batching
-            // nop
-            break;
-          case 'Fulcrum':
-            if (semVerToInt(electrumVersion) >= semVerToInt('1.9.0')) {
-              disableBatching = false;
-            }
-            break;
+        if (electrumImplementation === 'electrs' && semVerToInt(electrumVersion) >= semVerToInt('0.9.0')) {
+          disableBatching = false;
+        } else if (electrumImplementation === 'Fulcrum' && semVerToInt(electrumVersion) >= semVerToInt('1.9.0')) {
+          disableBatching = false;
         }
       }
+
       const header = await mainClient.blockchainHeaders_subscribe();
       if (header && header.height) {
         latestBlock = {
@@ -270,7 +267,6 @@ export async function connectMain(): Promise<void> {
           time: Math.floor(+new Date() / 1000),
         };
       }
-      // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
     }
   } catch (e) {
     mainConnected = false;
@@ -279,7 +275,7 @@ export async function connectMain(): Promise<void> {
 
   if (!mainConnected) {
     console.log('retry');
-    connectionAttempt = connectionAttempt + 1;
+    connectionAttempt += 1;
     mainClient.close && mainClient.close();
     if (connectionAttempt >= 5) {
       presentNetworkErrorAlert(usingPeer);
