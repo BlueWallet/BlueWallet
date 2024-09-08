@@ -127,6 +127,9 @@ jobs:
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
+      - env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v3
@@ -241,6 +244,9 @@ jobs:
 
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
+      - env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
 
       - name: Zip iOS Simulator Release Build
         run: bundle exec fastlane ios zip_ios_simulator_release_build
