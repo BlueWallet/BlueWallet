@@ -321,7 +321,7 @@ platform :ios do
   
 
   desc "Build the application"
-  lane :build_app_adhoc_lane
+  lane :build_app_adhoc_lane do
   UI.message("Building the app with export method: ad-hoc...")
 
   build_app(
