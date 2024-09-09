@@ -54,14 +54,6 @@ jobs:
           restore-keys: |
             pods-${{ runner.os }}-
 
-      - name: Cache Provisioning Profiles
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
       - name: Install node_modules
         run: npm install --production
 
@@ -107,14 +99,6 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
         env:
@@ -139,13 +123,6 @@ jobs:
     runs-on: macos-latest
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     steps:
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -209,14 +186,7 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
+   
       - name: Build iOS Simulator Release App
         run: bundle exec fastlane ios build_ios_simulator_release
         env:
