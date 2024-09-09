@@ -170,32 +170,46 @@ platform :ios do
   end
 
   desc "Set up provisioning profiles using match"
-  lane :setup_provisioning_profiles do
-    UI.message("Setting up provisioning profiles...")
-    target_to_app_identifier = {
-      'BlueWallet' => 'io.bluewallet.bluewallet',
-      'BlueWalletWatch' => 'io.bluewallet.bluewallet.watch',
-      'BlueWalletWatchExtension' => 'io.bluewallet.bluewallet.watch.extension',
-      'Stickers' => 'io.bluewallet.bluewallet.Stickers',
-      'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
-    }
+lane :setup_provisioning_profiles do
+  UI.message("Setting up provisioning profiles...")
 
-    sh("git branch -D master || true")
-    target_to_app_identifier.each do |target, app_identifier|
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "appstore",
-        platform: "ios",
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
-      )
-    end
+  # Log the environment variables (obfuscate sensitive ones)
+  UI.message("Logging Environment Variables:")
+  UI.message("GIT_ACCESS_TOKEN: #{ENV['GIT_ACCESS_TOKEN'] ? ENV['GIT_ACCESS_TOKEN'][0..4] + '*****' : 'Not Set'}")
+  UI.message("GIT_URL: #{ENV['GIT_URL']}")
+  UI.message("ITC_TEAM_ID: #{ENV['ITC_TEAM_ID']}")
+  UI.message("ITC_TEAM_NAME: #{ENV['ITC_TEAM_NAME']}")
+  UI.message("KEYCHAIN_PASSWORD: #{ENV['KEYCHAIN_PASSWORD'] ? ENV['KEYCHAIN_PASSWORD'][0..4] + '*****' : 'Not Set'}")
+
+  target_to_app_identifier = {
+    'BlueWallet' => 'io.bluewallet.bluewallet',
+    'BlueWalletWatch' => 'io.bluewallet.bluewallet.watch',
+    'BlueWalletWatchExtension' => 'io.bluewallet.bluewallet.watch.extension',
+    'Stickers' => 'io.bluewallet.bluewallet.Stickers',
+    'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
+  }
+
+  # Log the app identifiers being used
+  UI.message("App Identifiers: #{target_to_app_identifier}")
+
+  sh("git branch -D master || true")
+  target_to_app_identifier.each do |target, app_identifier|
+    UI.message("Setting up provisioning profiles for target: #{target} with app_identifier: #{app_identifier}")
+
+    match(
+      git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+      git_url: ENV["GIT_URL"],
+      type: "appstore",
+      platform: "ios",
+      app_identifier: app_identifier,
+      team_id: ENV["ITC_TEAM_ID"],
+      team_name: ENV["ITC_TEAM_NAME"],
+      readonly: true,
+      keychain_name: "temp_keychain",
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+    )
   end
+end
 
   desc "Generate build number and project version information"
   lane :generate_build_version_info do

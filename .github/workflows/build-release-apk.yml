@@ -90,7 +90,7 @@ jobs:
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: signed-apk
           path: ${{ env.APK_PATH }}

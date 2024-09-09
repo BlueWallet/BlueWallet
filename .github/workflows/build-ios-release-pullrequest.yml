@@ -123,11 +123,11 @@ jobs:
         run: bundle exec fastlane ios build_app_lane
 
       - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
           path: ./ios/build/*.ipa
-
+  
   testflight-upload:
     needs: build
     runs-on: macos-latest
@@ -161,7 +161,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v3
         with:
-          name: BlueWallet.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).ipa
+          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
 
       - name: Create App Store Connect API Key JSON
@@ -174,8 +174,8 @@ jobs:
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
-          BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
         with:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
@@ -196,35 +196,36 @@ jobs:
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
       GIT_URL: ${{ secrets.GIT_URL }}
+      
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
+    - name: Checkout project
+      uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1.6
+        bundler-cache: true
 
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
+    - name: Restore Provisioning Profiles Cache
+      uses: actions/cache@v3
+      with:
+        path: ~/Library/MobileDevice/Provisioning Profiles
+        key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-provisioning-profiles-
 
-      - name: Build iOS Simulator Release App
-        run: bundle exec fastlane ios build_ios_simulator_release
+    - name: Build iOS Simulator Release App
+      run: bundle exec fastlane ios build_ios_simulator_release
 
-      - name: Zip iOS Simulator Release Build
-        run: bundle exec fastlane ios zip_ios_simulator_release_build
+    - name: Zip iOS Simulator Release Build
+      run: bundle exec fastlane ios zip_ios_simulator_release_build
 
-      - name: Upload iOS Simulator Release Build as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
-          path: ./build/simulator/BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
+    - name: Upload iOS Simulator Release Build as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
+        path: ./build/simulator/BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
 
   browserstack-upload:
     runs-on: macos-latest
@@ -240,35 +241,35 @@ jobs:
       GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
       GIT_URL: ${{ secrets.GIT_URL }}
     steps:
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1.6
+        bundler-cache: true
 
-      - name: Download Simulator Build Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
-          path: ./build/simulator
+    - name: Download Simulator Build Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
+        path: ./build/simulator
 
-      - name: Upload iOS Simulator Release Build to BrowserStack
-        run: bundle exec fastlane ios upload_ios_simulator_release_to_browserstack
+    - name: Upload iOS Simulator Release Build to BrowserStack
+      run: bundle exec fastlane ios upload_ios_simulator_release_to_browserstack
 
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+    - name: Post PR Comment
+      if: success() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      env:
+        BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
+        LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
+      with:
+        script: |
+          const buildNumber = process.env.BUILD_NUMBER;
+          const message = `The iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
+          const prNumber = context.payload.pull_request.number;
+          const repo = context.repo;
+          github.rest.issues.createComment({
+            ...repo,
+            issue_number: prNumber,
+            body: message,
+          });
