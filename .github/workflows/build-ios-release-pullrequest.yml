@@ -29,12 +29,12 @@ jobs:
           bundler-cache: true
       
       - name: Create Keychain
-        run: bundle exec fastlane create_temporary_keychain
+        run: bundle exec fastlane ios create_temporary_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Setup Provisioning Profiles with Fastlane
-        run: bundle exec fastlane setup_provisioning_profiles
+        run: bundle exec fastlane ios setup_provisioning_profiles
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
