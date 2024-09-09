@@ -33,6 +33,3 @@ readonly(true)
 # Optional: Define the platform to use, can be 'ios', 'macos', or 'tvos'.
 # For React Native projects, you'll typically use 'ios'.
 platform("ios")
-git_basic_authorization(ENV["GIT_ACCESS_TOKEN"])
-keychain_name("temp_keychain")
-keychain_password(ENV["KEYCHAIN_PASSWORD"])
