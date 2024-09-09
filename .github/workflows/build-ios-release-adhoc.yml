@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+name: Build Release and Upload to BrowserStack (iOS)
 
 on:
   push:
@@ -85,7 +85,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          bundle exec fastlane ios setup_provisioning_profiles
+          bundle exec fastlane ios setup_provisioning_profiles export-method:ad-hoc
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
         uses: actions/cache@v2
@@ -129,74 +129,82 @@ jobs:
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
       - name: Build App
-        run: bundle exec fastlane ios build_app_lane
+        run: bundle exec fastlane ios build_app_lane export-method:ad-hoc
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-
-  testflight-upload:
+    
+    
+  browserstack-upload:
     needs: build
     runs-on: macos-14
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    if: github.event_name == 'push'
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+        BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+        PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+        LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
-      - name: Download IPA from Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
-          path: ./ios/build
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-      - name: Upload to TestFlight
-        env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-        with:
-          script: |
+    - name: Checkout project
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1.6
+        bundler-cache: true
+
+    - name: Cache Ruby Gems
+      uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+         ${{ runner.os }}-gems-
+
+    - name: Install dependencies with Bundler
+      run: |
+        bundle config path vendor/bundle
+        bundle install --jobs 4 --retry 3 --quiet
+
+    - name: Download IPA from Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
+        path: ./ios/build
+
+    - name: Upload IPA to BrowserStack
+      env:
+            BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+            BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      run: |
+            ipa_path="./ios/build/BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa"
+            response=$(curl -u "${BROWSERSTACK_USERNAME}:${BROWSERSTACK_ACCESS_KEY}" -X POST "https://api-cloud.browserstack.com/app-automate/ipa" \
+            -F "file=@$ipa_path")
+
+            app_url=$(echo $response | jq -r '.app_url')
+            echo "BrowserStack upload URL: $app_url"
+            echo "##[set-output name=browserstack_app_url;]$app_url"
+
+    - name: Post PR Comment
+      if: success() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      env:
+        BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+        LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        BROWSERSTACK_APP_URL: ${{ steps.upload-to-browserstack.outputs.browserstack_app_url }}
+      with:
+        script: |
             const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
+            const browserstackUrl = process.env.BROWSERSTACK_APP_URL;
+            const message = `The build ${buildNumber} has been uploaded to BrowserStack. You can test it [here](${browserstackUrl}).`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
+                ...repo,
+                issue_number: prNumber,
+                body: message,
             });
