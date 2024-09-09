@@ -345,6 +345,79 @@ platform :ios do
     end
   end
 
+  desc "Build the iOS Simulator Release build"
+  lane :build_ios_simulator_release do
+    setup_environment
+    
+    UI.message("Building the iOS Simulator Release build...")
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "ios/BlueWallet.xcworkspace",
+      configuration: "Release",
+      sdk: "iphonesimulator",
+      clean: true,
+      output_directory: "./build/simulator",
+      output_name: "BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app"
+    )
+
+    UI.message("iOS Simulator Release build is ready at ./build/simulator/BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app")
+  end
+
+  desc "Zip the iOS Simulator Release build"
+  lane :zip_ios_simulator_release_build do
+    UI.message("Zipping the iOS Simulator Release build...")
+    
+    zip(
+      path: "./build/simulator/BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
+      output_path: "./build/simulator/BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).zip"
+    )
+    
+    UI.message("iOS Simulator Release build zipped successfully!")
+  end
+
+  desc "Upload the iOS Simulator Release build to BrowserStack and post result as PR comment"
+  lane :upload_ios_simulator_release_to_browserstack do
+    UI.message("Uploading the iOS Simulator Release build to BrowserStack...")
+    
+    upload_to_browserstack_app_live(
+      file_path: "./build/simulator/BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).zip",
+      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY'],
+      os: "iOS",
+      device: "iPhone 14", # Specify the desired iPhone model for testing
+      real_mobile: false # Indicate that this is a simulator build
+    )
+
+    UI.message("iOS Simulator Release build uploaded to BrowserStack successfully!")
+
+    # Extract the filename from the zip path
+    simulator_zip_filename = File.basename("./build/simulator/BlueWallet-Simulator.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).zip")
+
+    pr_number = ENV['GITHUB_PR_NUMBER']
+
+    comment = <<~COMMENT
+      iOS Simulator Release build successfully uploaded to BrowserStack. You can test it using the following URL:
+      #{ENV['BROWSERSTACK_LIVE_APP_ID']}
+
+      Filename: #{simulator_zip_filename}
+    COMMENT
+
+    # Post the comment to the PR
+    if pr_number
+      sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
+    else
+      UI.important("No PR number found. Skipping PR comment.")
+    end
+  end
+
+  desc "Create and upload iOS Simulator Release build to BrowserStack"
+  lane :ios_simulator_release_build_and_upload do
+    build_ios_simulator_release
+    zip_ios_simulator_release_build
+    upload_ios_simulator_release_to_browserstack
+  end
+
+
   desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")
@@ -482,6 +555,8 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+
+
 end
 
 end

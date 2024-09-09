@@ -1,0 +1,145 @@
+name: Build and Upload to BrowserStack (iOS Simulator)
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 180
+    outputs:
+      new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
+      project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
+      latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.4
+      
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Install node_modules
+        run: npm install --production
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          bundle exec fastlane ios install_pods
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+      
+      - name: Display release-notes.txt
+        run: cat release-notes.txt
+      
+      - name: Get Latest Commit Message
+        id: get_latest_commit_message
+        run: |
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
+      
+      - name: Generate Build Number based on timestamp
+        id: generate_build_number
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+      
+      - name: Set Build Number
+        run: bundle exec fastlane ios increment_build_number_lane
+      
+      - name: Determine Marketing Version
+        id: determine_marketing_version
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=project_version::$MARKETING_VERSION"
+        working-directory: ios
+        
+      - name: Expected Simulator build file name
+        run: |
+          echo "Simulator build file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app"
+      
+      - name: Build App for iOS Simulator
+        run: bundle exec fastlane ios build_simulator_lane
+      
+      - name: Upload Simulator Build as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
+          path: ./ios/build/Build/Products/Debug-iphonesimulator/*.app
+
+  browserstack-upload:
+    needs: build-simulator
+    runs-on: macos-latest
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'browserstack')
+    env:
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      NEW_BUILD_NUMBER: ${{ needs.build-simulator.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build-simulator.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build-simulator.outputs.latest_commit_message }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      
+      - name: Download Simulator Build from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{ needs.build-simulator.outputs.project_version }}(${{ needs.build-simulator.outputs.new_build_number }}).app
+          path: ./ios/build
+
+      - name: Upload Build to BrowserStack
+        run: |
+          curl -u "${{ secrets.BROWSERSTACK_USERNAME }}:${{ secrets.BROWSERSTACK_ACCESS_KEY }}" \
+          -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+          -F "file=@./ios/build/BlueWallet.${{ needs.build-simulator.outputs.project_version }}(${{ needs.build-simulator.outputs.new_build_number }}).app"
+      
+      - name: Post PR Comment
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          BUILD_NUMBER: ${{ needs.build-simulator.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build-simulator.outputs.latest_commit_message }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const message = `The build ${buildNumber} for iOS Simulator has been uploaded to BrowserStack.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
