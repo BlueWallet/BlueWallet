@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
@@ -13,38 +13,40 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { TWallet } from '../../class/wallets/types';
+import { pop } from '../../NavigationService';
 
-/**
- * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
- * to satoshi, and attempt to pay this satoshi value, which might be a little bit off from `min` & `max` values
- * provided by LnUrl. thats why we cache initial precise conversion rate so the reverse conversion wont be off.
- */
-const _cacheFiatToSat = {};
+type RouteParams = {
+  walletID: string;
+  lnurl: string;
+};
 
-const LnurlPay = () => {
+const _cacheFiatToSat: Record<string, string> = {};
+
+const LnurlPay: React.FC = () => {
   const { wallets } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { walletID, lnurl } = useRoute().params;
-  /** @type {LightningCustodianWallet} */
-  const wallet = wallets.find(w => w.getID() === walletID);
-  const [unit, setUnit] = useState(wallet.getPreferredBalanceUnit());
-  const [isLoading, setIsLoading] = useState(true);
-  const [_LN, setLN] = useState();
-  const [payButtonDisabled, setPayButtonDisabled] = useState(true);
-  const [payload, setPayload] = useState();
-  const { setParams, pop, navigate } = useExtendedNavigation();
-  const [amount, setAmount] = useState();
+  const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
+  const { walletID, lnurl } = route.params;
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
+  const [unit, setUnit] = useState<BitcoinUnit>(wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [_LN, setLN] = useState<Lnurl | undefined>();
+  const [payButtonDisabled, setPayButtonDisabled] = useState<boolean>(true);
+  const [payload, setPayload] = useState<any>();
+  const { setParams, navigate } = useExtendedNavigation();
+  const [amount, setAmount] = useState<string | undefined>();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
     },
-
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
     },
@@ -68,18 +70,16 @@ const LnurlPay = () => {
       setLN(ln);
       setIsLoading(false);
     }
-  }, [lnurl, pop]);
+  }, [lnurl]);
 
   useEffect(() => {
     setPayButtonDisabled(isLoading);
   }, [isLoading]);
 
   useEffect(() => {
-    if (payload) {
-      /** @type {Lnurl} */
-      const LN = _LN;
-      let originalSatAmount;
-      let newAmount = (originalSatAmount = LN.getMin());
+    if (payload && _LN) {
+      let originalSatAmount: number | false;
+      let newAmount: number | boolean | string = (originalSatAmount = _LN.getMin());
       if (!newAmount) {
         presentAlert({ message: 'Internal error: incorrect LNURL amount' });
         return;
@@ -90,22 +90,21 @@ const LnurlPay = () => {
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           newAmount = satoshiToLocalCurrency(newAmount, false);
-          _cacheFiatToSat[newAmount] = originalSatAmount;
+          _cacheFiatToSat[newAmount] = String(originalSatAmount);
           break;
       }
-      setAmount(newAmount);
+      setAmount(newAmount.toString());
     }
-  }, [payload]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [payload, _LN, unit]);
 
-  const onWalletSelect = w => {
+  const onWalletSelect = (w: TWallet) => {
     setParams({ walletID: w.getID() });
     pop();
   };
 
   const pay = async () => {
     setPayButtonDisabled(true);
-    /** @type {Lnurl} */
-    const LN = _LN;
+    if (!_LN || !amount) return;
 
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
@@ -114,39 +113,41 @@ const LnurlPay = () => {
       }
     }
 
-    let amountSats = amount;
+    let amountSats: number | false;
     switch (unit) {
       case BitcoinUnit.SATS:
-        amountSats = parseInt(amountSats, 10); // nop
+        amountSats = parseInt(amount, 10);
         break;
       case BitcoinUnit.BTC:
-        amountSats = btcToSatoshi(amountSats);
+        amountSats = btcToSatoshi(amount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        if (_cacheFiatToSat[amount]) {
-          amountSats = _cacheFiatToSat[amount];
+        if (_cacheFiatToSat[String(amount)]) {
+          amountSats = parseInt(_cacheFiatToSat[amount], 10);
         } else {
-          amountSats = btcToSatoshi(fiatToBTC(amountSats));
+          amountSats = btcToSatoshi(fiatToBTC(parseFloat(amount)));
         }
         break;
+      default:
+        throw new Error('Unknown unit type');
     }
 
-    let bolt11payload;
     try {
-      let comment;
-      if (LN.getCommentAllowed()) {
+      let comment: string | undefined;
+      if (_LN.getCommentAllowed()) {
         comment = await prompt('Comment', '', false, 'plain-text');
       }
 
-      bolt11payload = await LN.requestBolt11FromLnurlPayService(amountSats, comment);
+      const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
+      // @ts-ignore fixme after lnurl.js converted to ts
       await wallet.payInvoice(bolt11payload.pr);
+      // @ts-ignore fixme after lnurl.js converted to ts
       const decoded = wallet.decodeInvoice(bolt11payload.pr);
       setPayButtonDisabled(false);
 
-      // success, probably
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       if (wallet.last_paid_invoice_result && wallet.last_paid_invoice_result.payment_preimage) {
-        await LN.storeSuccess(decoded.payment_hash, wallet.last_paid_invoice_result.payment_preimage);
+        await _LN.storeSuccess(decoded.payment_hash, wallet.last_paid_invoice_result.payment_preimage);
       }
 
       navigate('ScanLndInvoiceRoot', {
@@ -158,12 +159,12 @@ const LnurlPay = () => {
         },
       });
       setIsLoading(false);
-    } catch (Err) {
-      console.log(Err.message);
+    } catch (err) {
+      console.log((err as Error).message);
       setIsLoading(false);
       setPayButtonDisabled(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return presentAlert({ message: Err.message });
+      return presentAlert({ message: (err as Error).message });
     }
   };
 
@@ -198,15 +199,16 @@ const LnurlPay = () => {
   const renderGotPayload = () => {
     return (
       <SafeArea>
-        <ScrollView contentContainertyle={{ justifyContent: 'space-around' }}>
+        <ScrollView contentContainerStyle={styles.scrollviewContainer}>
           <BlueCard>
             <AmountInput
               isLoading={isLoading}
-              amount={amount && amount.toString()}
+              amount={amount}
               onAmountUnitChange={setUnit}
               onChangeText={setAmount}
               disabled={payload && payload.fixed}
               unit={unit}
+              // @ts-ignore idk
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
             <BlueText style={styles.alignSelfCenter}>
@@ -234,7 +236,7 @@ const LnurlPay = () => {
     );
   };
 
-  return isLoading || wallet === undefined || amount === undefined ? (
+  return isLoading || !wallet || amount === undefined ? (
     <View style={[styles.root, stylesHook.root]}>
       <BlueLoading />
     </View>
@@ -246,6 +248,7 @@ const LnurlPay = () => {
 export default LnurlPay;
 
 const styles = StyleSheet.create({
+  scrollviewContainer: { justifyContent: 'space-around' },
   img: { width: 200, height: 200, alignSelf: 'center' },
   alignSelfCenter: {
     alignSelf: 'center',
