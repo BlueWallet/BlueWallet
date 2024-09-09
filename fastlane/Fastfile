@@ -147,9 +147,8 @@ end
 
 platform :ios do
 
-  desc "Set up the environment, including provisioning profiles, keychain, and dependencies"
-  lane :setup_environment do
-    UI.message("Setting up the environment...")
+  desc "Create Keychain"
+  lane :create_temporary_keychain do
 
     # Create a temporary keychain
     create_keychain(
@@ -161,12 +160,6 @@ platform :ios do
       lock_when_sleeps: true
     )
     UI.message("Temporary keychain created successfully.")
-
-    # Set up provisioning profiles
-    setup_provisioning_profiles
-
-    # Generate the build number and project version
-    generate_build_version_info
   end
 
   desc "Set up provisioning profiles using match"
@@ -429,7 +422,6 @@ end
     update_wwdr_certificate
 
     setup_app_store_connect_api_key
-    setup_provisioning_profiles
     clear_derived_data_lane
     increment_build_number_lane
 

@@ -11,8 +11,47 @@ on:
   workflow_dispatch:
 
 jobs:
+  setup-provisioning-profiles:
+    runs-on: macos-latest
+    env:
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      GIT_URL: ${{ secrets.GIT_URL }}
+      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      
+      - name: Create Keychain
+        run: bundle exec fastlane create_temporary_keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Setup Provisioning Profiles with Fastlane
+        run: bundle exec fastlane setup_provisioning_profiles
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Cache Provisioning Profiles
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: provisioning-profiles-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            provisioning-profiles-${{ runner.os }}-
+
   set-build-env:
     runs-on: macos-latest
+    needs: setup-provisioning-profiles
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
@@ -53,14 +92,6 @@ jobs:
           key: pods-${{ runner.os }}-${{ hashFiles('Podfile.lock') }}
           restore-keys: |
             pods-${{ runner.os }}-
-
-      - name: Cache Provisioning Profiles
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
 
       - name: Install dependencies with Bundler
         run: |
@@ -115,9 +146,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          key: provisioning-profiles-${{ runner.os }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
+            provisioning-profiles-${{ runner.os }}-
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
@@ -148,9 +179,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/Library/MobileDevice/Provisioning Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          key: provisioning-profiles-${{ runner.os }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
+            provisioning-profiles-${{ runner.os }}-
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -159,7 +190,7 @@ jobs:
           bundler-cache: true
 
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
@@ -187,89 +218,3 @@ jobs:
               issue_number: prNumber,
               body: message,
             });
-
-  build-ios-simulator-release:
-    runs-on: macos-latest
-    needs: set-build-env
-    env:
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-      GIT_URL: ${{ secrets.GIT_URL }}
-      
-    steps:
-    - name: Checkout project
-      uses: actions/checkout@v4
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.1.6
-        bundler-cache: true
-
-    - name: Restore Provisioning Profiles Cache
-      uses: actions/cache@v3
-      with:
-        path: ~/Library/MobileDevice/Provisioning Profiles
-        key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-provisioning-profiles-
-
-    - name: Build iOS Simulator Release App
-      run: bundle exec fastlane ios build_ios_simulator_release
-
-    - name: Zip iOS Simulator Release Build
-      run: bundle exec fastlane ios zip_ios_simulator_release_build
-
-    - name: Upload iOS Simulator Release Build as Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
-        path: ./build/simulator/BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
-
-  browserstack-upload:
-    runs-on: macos-latest
-    needs: build-ios-simulator-release
-    env:
-      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-      NEW_BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.set-build-env.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
-      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-      GIT_URL: ${{ secrets.GIT_URL }}
-    steps:
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.1.6
-        bundler-cache: true
-
-    - name: Download Simulator Build Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: BlueWallet-Simulator.${{ needs.set-build-env.outputs.project_version }}(${{ needs.set-build-env.outputs.new_build_number }}).zip
-        path: ./build/simulator
-
-    - name: Upload iOS Simulator Release Build to BrowserStack
-      run: bundle exec fastlane ios upload_ios_simulator_release_to_browserstack
-
-    - name: Post PR Comment
-      if: success() && github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      env:
-        BUILD_NUMBER: ${{ needs.set-build-env.outputs.new_build_number }}
-        LATEST_COMMIT_MESSAGE: ${{ needs.set-build-env.outputs.latest_commit_message }}
-      with:
-        script: |
-          const buildNumber = process.env.BUILD_NUMBER;
-          const message = `The iOS Simulator build ${buildNumber} has been uploaded to BrowserStack.`;
-          const prNumber = context.payload.pull_request.number;
-          const repo = context.repo;
-          github.rest.issues.createComment({
-            ...repo,
-            issue_number: prNumber,
-            body: message,
-          });
