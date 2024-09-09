@@ -180,6 +180,7 @@ platform :ios do
       'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
     }
 
+    sh("git branch -D master || true")
     target_to_app_identifier.each do |target, app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
