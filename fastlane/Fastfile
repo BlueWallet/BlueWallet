@@ -572,3 +572,4 @@ lane :update_release_notes do |options|
     end
   end
 end
+end
