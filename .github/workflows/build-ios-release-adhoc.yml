@@ -114,7 +114,7 @@ jobs:
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
       - name: Set Build Number
         run: bundle exec fastlane ios increment_build_number_lane
       - name: Determine Marketing Version
