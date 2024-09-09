@@ -195,7 +195,7 @@ jobs:
       env:
         BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
         LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-        BROWSERSTACK_APP_URL: ${{ steps.upload-to-browserstack.outputs.browserstack_app_url }}
+        BROWSERSTACK_APP_URL: ${{ steps.browserstack-upload.outputs.browserstack_app_url }}
       with:
         script: |
             const buildNumber = process.env.BUILD_NUMBER;
