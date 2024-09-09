@@ -127,7 +127,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          bundle exec fastlane ios setup_provisioning_profiles export_method:adhoc
+          bundle exec fastlane ios setup_provisioning_profiles_adhoc
 
       - name: Generate Build Number based on timestamp
         id: generate_build_number

@@ -202,7 +202,6 @@ platform :ios do
     }
 
     platform = options[:platform] || "ios" # Default to iOS if not specified
-    export_method = options[:export_method] || "appstore" # Default to AppStore if not provided
 
     # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
     sh("git branch -D master || true")
@@ -211,7 +210,39 @@ platform :ios do
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
-        type: export_method,
+        type: "appstore",
+        platform: platform,
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+    end
+  end
+
+  desc "Synchronize certificates and provisioning profiles"
+  lane :setup_provisioning_profiles_adhoc do |options|
+    UI.message("Setting up provisioning profiles...")
+    target_to_app_identifier = {
+      'BlueWallet' => 'io.bluewallet.bluewallet',
+      'BlueWalletWatch' => 'io.bluewallet.bluewallet.watch',
+      'BlueWalletWatchExtension' => 'io.bluewallet.bluewallet.watch.extension',
+      'Stickers' => 'io.bluewallet.bluewallet.Stickers',
+      'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
+    }
+
+    platform = options[:platform] || "ios" # Default to iOS if not specified
+
+    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
+    sh("git branch -D master || true")
+  
+    target_to_app_identifier.each do |target, app_identifier|
+      match(
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        git_url: ENV["GIT_URL"],
+        type: "adhoc",
         platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
