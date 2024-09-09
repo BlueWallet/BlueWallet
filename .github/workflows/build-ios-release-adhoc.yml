@@ -65,7 +65,7 @@ jobs:
         run: |
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
+          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
