@@ -111,12 +111,11 @@ jobs:
       # Provisioning profiles cache
       - name: Cache Provisioning Profiles
         uses: actions/cache@v4
-        id: cache-provisioning-profiles
         with:
           path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          key: adhoc-provisioning-profiles-${{ runner.os }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
+            adhoc-provisioning-profiles-${{ runner.os }}-
 
       - name: Setup Provisioning Profiles
         if: steps.cache-provisioning-profiles.outputs.cache-hit != 'true'
@@ -153,7 +152,7 @@ jobs:
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
 
       - name: Build App
-        run: bundle exec fastlane ios build_app_lane export_method:ad-hoc
+        run: bundle exec fastlane ios build_app_lane export_method:adhoc
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
