@@ -95,7 +95,7 @@ jobs:
         run: bundle exec fastlane ios build_simulator_lane
       
       - name: Upload Simulator Build as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
           path: ./ios/build/Build/Products/Debug-iphonesimulator/*.app
@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Download Simulator Build from Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build-simulator.outputs.project_version }}(${{ needs.build-simulator.outputs.new_build_number }}).app
           path: ./ios/build
