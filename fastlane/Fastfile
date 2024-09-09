@@ -301,7 +301,7 @@ platform :ios do
     workspace: "ios/BlueWallet.xcworkspace",
     export_method: export_method,
     include_bitcode: false,
-    configuration: "Release",
+    skip_profile_detection:true,
     include_symbols: true,
     export_team_id: ENV["ITC_TEAM_ID"],
     export_options: {
@@ -422,7 +422,7 @@ end
       install_pods
     end
 
-    build_app_lane
+  #  build_app_lane
     upload_to_testflight_lane
 
     # Clean up and delete the temporary keychain
