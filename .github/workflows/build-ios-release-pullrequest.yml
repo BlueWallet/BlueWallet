@@ -54,7 +54,7 @@ jobs:
         run: |
           bundle exec fastlane ios install_pods
       - name: Cache CocoaPods Pods
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
@@ -88,7 +88,7 @@ jobs:
           bundle exec fastlane ios setup_provisioning_profiles
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/Library/MobileDevice/Provisioning Profiles
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
@@ -131,7 +131,7 @@ jobs:
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
       - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
@@ -154,7 +154,7 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
       - name: Cache Ruby Gems
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -165,7 +165,7 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
