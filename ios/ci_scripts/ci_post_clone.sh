@@ -24,7 +24,8 @@ echo "Configuration complete."
 # Install dependencies using npm
 echo "===== Running npm ci ====="
 npm ci | tee npm-ci-log.txt
-echo "npm ci complete. Full log output in npm-ci-log.txt"
+npm prune --production | tee npm-prune-log.txt
+echo "npm ci complete. Full log output in npm-ci-log.txt and npm-prune-log.txt"
 
 echo "===== Running pod install ====="
 cd ios
