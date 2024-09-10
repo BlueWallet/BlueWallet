@@ -389,7 +389,6 @@ platform :ios do
       archive_path: "./build/#{archive_name}.xcarchive" # Sanitize the archive path
     )
   end
-  end
 
   desc "Upload IPA to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
