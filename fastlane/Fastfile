@@ -359,7 +359,7 @@ platform :ios do
       scheme: "BlueWallet",
       workspace: "ios/BlueWallet.xcworkspace",
       export_method: "ad-hoc",
-      type: "AdHoc",
+      configuration: "AdHoc",
       include_bitcode: false,
       skip_profile_detection: true,
       include_symbols: true,
