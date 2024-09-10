@@ -41,10 +41,9 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -113,7 +112,6 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const { isAdvancedModeEnabled } = useSettings();
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [isContactsVisible, setIsContactsVisible] = useState(wallet.allowBIP47() && wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -138,13 +136,17 @@ const WalletDetails = () => {
     setIsContactsVisible(isBIP47Enabled);
   }, [isBIP47Enabled]);
 
-  useEffect(() => {
-    if (isAdvancedModeEnabled && wallet.allowMasterFingerprint()) {
-      InteractionManager.runAfterInteractions(() => {
-        setMasterFingerprint(wallet.getMasterFingerprintHex());
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (wallet.allowMasterFingerprint()) {
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
+        }
       });
-    }
-  }, [isAdvancedModeEnabled, wallet]);
+
+      return () => task.cancel();
+    }, [wallet]),
+  );
   const stylesHook = StyleSheet.create({
     textLabel1: {
       color: colors.feeText,
@@ -541,25 +543,21 @@ const WalletDetails = () => {
                     </View>
                   </>
                 )}
-                {isAdvancedModeEnabled && (
-                  <View style={styles.row}>
-                    {wallet.allowMasterFingerprint() && (
-                      <View style={styles.marginRight16}>
-                        <Text style={[styles.textLabel2, stylesHook.textLabel2]}>
-                          {loc.wallets.details_master_fingerprint.toLowerCase()}
-                        </Text>
-                        <BlueText>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
-                      </View>
-                    )}
+                <View style={styles.row}>
+                  {wallet.allowMasterFingerprint() && (
+                    <View style={styles.marginRight16}>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
+                      <BlueText>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                    </View>
+                  )}
 
-                    {derivationPath && (
-                      <View>
-                        <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                        <BlueText testID="DerivationPath">{derivationPath}</BlueText>
-                      </View>
-                    )}
-                  </View>
-                )}
+                  {derivationPath && (
+                    <View>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
+                      <BlueText testID="DerivationPath">{derivationPath}</BlueText>
+                    </View>
+                  )}
+                </View>
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (

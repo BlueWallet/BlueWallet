@@ -134,11 +134,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-latest
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -168,12 +168,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
-          path: ./ios/build
+          path: ./
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
       - name: Upload to TestFlight
         env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}

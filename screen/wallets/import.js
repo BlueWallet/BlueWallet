@@ -1,6 +1,6 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { Keyboard, Platform, StyleSheet, Switch, TouchableWithoutFeedback, View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, ScrollView } from 'react-native';
 
 import {
   BlueButtonLink,
@@ -8,24 +8,25 @@ import {
   BlueFormLabel,
   BlueFormMultiInput,
   BlueSpacing20,
-  BlueText,
 } from '../../BlueComponents';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
+import { Icon } from '@rneui/themed';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const WalletsImport = () => {
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
   const scannedData = route?.params?.scannedData ?? '';
-  const { isAdvancedModeEnabled } = useSettings();
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const [, setSpeedBackdoor] = useState(0);
@@ -33,22 +34,17 @@ const WalletsImport = () => {
   const [askPassphrase, setAskPassphrase] = useState(false);
   const { enableBlur, disableBlur } = usePrivacy();
 
+  // Styles
   const styles = StyleSheet.create({
     root: {
       paddingTop: 10,
       backgroundColor: colors.elevated,
+      flex: 1,
     },
     center: {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginHorizontal: 16,
-      marginTop: 10,
-      justifyContent: 'space-between',
     },
   });
 
@@ -58,18 +54,18 @@ const WalletsImport = () => {
     return valueWithSingleWhitespace;
   };
 
+  useKeyboard({
+    onKeyboardDidShow: () => {
+      setIsToolbarVisibleForAndroid(true);
+    },
+    onKeyboardDidHide: () => {
+      setIsToolbarVisibleForAndroid(false);
+    },
+  });
+
   useEffect(() => {
     enableBlur();
-
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>
-      setIsToolbarVisibleForAndroid(true),
-    );
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () =>
-      setIsToolbarVisibleForAndroid(false),
-    );
     return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
       disableBlur();
     };
   }, [disableBlur, enableBlur]);
@@ -125,21 +121,51 @@ const WalletsImport = () => {
     });
   };
 
+  const toolTipOnPressMenuItem = useCallback(
+    menuItem => {
+      if (menuItem === CommonToolTipActions.Passphrase.id) {
+        setAskPassphrase(!askPassphrase);
+      } else if (menuItem === CommonToolTipActions.SearchAccount.id) {
+        setSearchAccounts(!searchAccounts);
+      }
+    },
+    [askPassphrase, searchAccounts],
+  );
+
+  // ToolTipMenu actions for advanced options
+  const toolTipActions = useMemo(() => {
+    const askPassphraseAction = CommonToolTipActions.Passphrase;
+    askPassphraseAction.menuState = askPassphrase;
+
+    const searchAccountsAction = CommonToolTipActions.SearchAccount;
+    searchAccountsAction.menuState = searchAccounts;
+    return [askPassphraseAction, searchAccountsAction];
+  }, [askPassphrase, searchAccounts]);
+
+  const HeaderRight = useMemo(
+    () => (
+      <ToolTipMenu
+        isButton
+        testID="HeaderRightButton"
+        isMenuPrimaryAction
+        onPressMenuItem={toolTipOnPressMenuItem}
+        actions={toolTipActions}
+      >
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      </ToolTipMenu>
+    ),
+    [toolTipOnPressMenuItem, toolTipActions, colors.foregroundColor],
+  );
+
+  // Adding the ToolTipMenu to the header
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => HeaderRight,
+    });
+  }, [askPassphrase, searchAccounts, colors.foregroundColor, navigation, toolTipActions, HeaderRight]);
+
   const renderOptionsAndImportButton = (
     <>
-      {isAdvancedModeEnabled && (
-        <>
-          <View style={styles.row}>
-            <BlueText>{loc.wallets.import_passphrase}</BlueText>
-            <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-          </View>
-          <View style={styles.row}>
-            <BlueText>{loc.wallets.import_search_accounts}</BlueText>
-            <Switch testID="SearchAccounts" value={searchAccounts} onValueChange={setSearchAccounts} />
-          </View>
-        </>
-      )}
-
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
@@ -157,7 +183,14 @@ const WalletsImport = () => {
   );
 
   return (
-    <SafeArea style={styles.root}>
+    <ScrollView
+      contentContainerStyle={styles.root}
+      automaticallyAdjustContentInsets
+      automaticallyAdjustsScrollIndicatorInsets
+      keyboardShouldPersistTaps
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -197,7 +230,7 @@ const WalletsImport = () => {
           />
         ),
       })}
-    </SafeArea>
+    </ScrollView>
   );
 };
 

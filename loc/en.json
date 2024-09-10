@@ -219,7 +219,6 @@
     "about_sm_twitter": "Follow us on Twitter",
     "privacy_temporary_screenshots": "Allow Screenshots",
     "privacy_temporary_screenshots_instructions": "Screen capture protection will be turned off for this session, allowing you to take screenshots. Once you close and reopen the app, the protection will be automatically turned back on.",
-    "advanced_options": "Advanced Options",
     "biometrics": "Biometrics",
     "biometrics_no_longer_available": "Your device settings have changed and no longer match the selected security settings in the app. Please re-enable biometrics or passcode, then restart the app to apply these changes.",
     "biom_10times": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.",
@@ -272,8 +271,6 @@
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet. {type} will not be used to unlock encrypted storage.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
-    "general_adv_mode": "Advanced Mode",
-    "general_adv_mode_e": "When enabled, you will see advanced options such as different wallet types, the ability to specify the LNDHub instance you wish to connect to, and custom entropy during wallet creation.",
     "general_continuity": "Continuity",
     "general_continuity_e": "When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.",
     "groundcontrol_explanation": "GroundControl is a free, open-source push notifications server for Bitcoin wallets. You can install your own GroundControl server and put its URL here to not rely on BlueWallet’s infrastructure. Leave blank to use GroundControl’s default server.",
@@ -479,7 +476,8 @@
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
-    "manage_wallets_search_placeholder": "Search wallets, memos"
+    "manage_wallets_search_placeholder": "Search wallets, memos",
+    "more_info": "More Info"
   },
   "total_balance_view": {
     "view_in_bitcoin": "View in Bitcoin",
@@ -489,7 +487,7 @@
     "explanation": "View the total balance of all your wallets in the overview screen."
   },
   "multisig": {
-    "multisig_vault": "Vault",
+    "multisig_vault": "Multisig Vault",
     "default_label": "Multisig Vault",
     "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",

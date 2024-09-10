@@ -67,13 +67,12 @@ const isReactNative = typeof navigator !== 'undefined' && navigator?.product ===
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
-  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
   private static _instance: BlueApp | null = null;
 
-  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK, BlueApp.ADVANCED_MODE_ENABLED];
+  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -880,17 +879,6 @@ export class BlueApp {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  };
-
-  isAdvancedModeEnabled = async (): Promise<boolean> => {
-    try {
-      return !!(await AsyncStorage.getItem(BlueApp.ADVANCED_MODE_ENABLED));
-    } catch (_) {}
-    return false;
-  };
-
-  setIsAdvancedModeEnabled = async (value: boolean) => {
-    await AsyncStorage.setItem(BlueApp.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 
   isHandoffEnabled = async (): Promise<boolean> => {
