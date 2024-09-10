@@ -356,7 +356,7 @@ platform :ios do
     UI.message("Building the app with export method: ad-hoc...")
   
     build_app(
-      scheme: "BlueWallet",
+      scheme: "BlueWallet (AdHoc)",
       workspace: "ios/BlueWallet.xcworkspace",
       export_method: "ad-hoc",
       configuration: "AdHoc",
