@@ -25,7 +25,7 @@ jobs:
           node-version: 20
 
       - name: Use npm caches
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -49,7 +49,7 @@ jobs:
           bundler-cache: true
 
       - name: Cache Ruby Gems
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -90,7 +90,7 @@ jobs:
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: signed-apk
           path: ${{ env.APK_PATH }}
@@ -114,7 +114,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Download APK artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: signed-apk
 
