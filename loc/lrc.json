@@ -99,7 +99,7 @@
     "electrum_offline_mode": "هالت آفلاین",
     "use_ssl": "SSL نه وه کار بییر",
     "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموݩ بۊئه؟",
-    "set_lndhub_as_default": "{server} سی سرور پؽش فرز LNDHub ساموݩ بۊئه؟",
+    "set_lndhub_as_default": "{server} سی سرور پؽش فرز LNDhub ساموݩ بۊئه؟",
     "electrum_settings_server": "سرور الکترام",
     "electrum_status": "وزیت",
     "electrum_clear_alert_title": "ویرگار پاک بۊئه؟",

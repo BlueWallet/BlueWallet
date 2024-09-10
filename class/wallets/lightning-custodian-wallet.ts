@@ -5,6 +5,7 @@ import { LegacyWallet } from './legacy-wallet';
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
   static readonly typeReadable = 'Lightning';
+  static readonly subtitleReadable = 'LNDhub';
   // @ts-ignore: override
   public readonly type = LightningCustodianWallet.type;
   // @ts-ignore: override
