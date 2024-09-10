@@ -22,9 +22,9 @@ export CPPFLAGS="-I/usr/local/opt/node@20/include"
 echo "Configuration complete."
 
 # Install dependencies using npm
-echo "===== Running npm install ====="
-npm install -y | tee npm-install-log.txt
-echo "npm install complete. Full log output in npm-install-log.txt"
+echo "===== Running npm ci ====="
+npm ci | tee npm-ci-log.txt
+echo "npm ci complete. Full log output in npm-ci-log.txt"
 
 echo "===== Running pod install ====="
 cd ios
