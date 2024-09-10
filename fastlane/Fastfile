@@ -377,16 +377,16 @@ platform :ios do
       xcargs: "
         GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'
       ",
-      output_directory: "./build_adhoc", # Directory where the IPA file will be stored
+      output_directory: "./build", # Directory where the IPA file will be stored
       output_name: "BlueWallet#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-AdHoc.ipa",
-      buildlog_path: "./build_adhoc_logs"
+      buildlog_path: "./build_logs"
     )
   end
 
   desc "Upload IPA to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
-      ipa_path = ENV['IPA_PATH'] || "./build_adhoc/BlueWallet-AdHoc.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-AdHoc.ipa"
+      ipa_path = ENV['IPA_PATH'] || "./build/BlueWallet-AdHoc.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-AdHoc.ipa"
   
       # Attempt to find the IPA if not provided
       if ipa_path.nil? || ipa_path.empty?

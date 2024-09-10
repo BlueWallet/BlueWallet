@@ -25,21 +25,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
-
-      # Node modules cache
-      - name: Cache Node modules
-        uses: actions/cache@v4
-        id: cache-node-modules
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-
-
-      - name: Install Node modules
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm install --production
-
+      
+      
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -60,65 +47,36 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
 
-      # CocoaPods cache
+      - name: Install node_modules
+        run: npm install --production
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          bundle exec fastlane ios install_pods
       - name: Cache CocoaPods Pods
         uses: actions/cache@v4
-        id: cache-cocoapods
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
-      - name: Install CocoaPods Dependencies
-        if: steps.cache-cocoapods.outputs.cache-hit != 'true'
-        run: |
-          bundle exec fastlane ios install_pods
-
       - name: Display release-notes.txt
         run: cat release-notes.txt
-
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
-
+          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
           git config --global credential.helper 'cache --timeout=3600'
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      # Keychain cache
-      - name: Cache Keychain
-        uses: actions/cache@v4
-        id: cache-keychain
-        with:
-          path: ~/Library/Keychains
-          key: keychain-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            keychain-${{ runner.os }}-
-
       - name: Create Temporary Keychain
-        if: steps.cache-keychain.outputs.cache-hit != 'true'
         run: bundle exec fastlane ios create_temp_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      # Provisioning profiles cache
-      - name: Cache Provisioning Profiles
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: adhoc-provisioning-profiles-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            adhoc-provisioning-profiles-${{ runner.os }}-
-
       - name: Setup Provisioning Profiles
-        if: steps.cache-provisioning-profiles.outputs.cache-hit != 'true'
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -128,17 +86,37 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           bundle exec fastlane ios setup_provisioning_profiles_adhoc
-
+      - name: Cache Provisioning Profiles
+        id: cache_provisioning_profiles
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/MobileDevice/Provisioning Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
+      - name: Check Cache Status for Provisioning Profiles
+        run: |
+          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
+            echo "Provisioning profiles were restored from cache."
+          else
+            echo "No cache found for provisioning profiles. A new cache will be created."
+          fi
+      - name: Verify Provisioning Profiles Exist
+        run: |
+          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
+            echo "Provisioning profiles are available in the cache."
+            ls -la ~/Library/MobileDevice/Provisioning Profiles
+          else
+            echo "Provisioning profiles directory does not exist."
+          fi
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
-
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
       - name: Set Build Number
         run: bundle exec fastlane ios increment_build_number_lane
-
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |
@@ -146,40 +124,35 @@ jobs:
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
         working-directory: ios
-
+        
       - name: Expected IPA file name
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}})-AdHoc.ipa"
-
       - name: Build App
         run: bundle exec fastlane ios build_app_adhoc_lane
-
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}})-AdHoc.ipa
-          path: ./ios/build_adhoc/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}})-AdHoc.ipa
-    
-  browserstack-upload:
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}})-AdHoc.ipa
+
+  testflight-upload:
     needs: build
     runs-on: macos-14
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
-      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-
       - name: Cache Ruby Gems
         uses: actions/cache@v4
         with:
@@ -187,43 +160,39 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
-
       - name: Install dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
-
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }})-AdHoc.ipa
-          path: ./ios/build_adhoc
-
-      - name: Upload IPA to BrowserStack
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: |
-          ipa_path="./ios/build_adhoc/BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }})-AdHoc.ipa"
-          response=$(curl -u "${BROWSERSTACK_USERNAME}:${BROWSERSTACK_ACCESS_KEY}" -X POST "https://api-cloud.browserstack.com/app-automate/ipa" \
-          -F "file=@$ipa_path")
-
-          app_url=$(echo $response | jq -r '.app_url')
-          echo "BrowserStack upload URL: $app_url"
-          echo "##[set-output name=browserstack_app_url;]$app_url"
-
+          path: ./ios/build
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+      - name: Upload to TestFlight
+        env: 
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios upload_to_testflight_lane
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
           BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
           LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-          BROWSERSTACK_APP_URL: ${{ steps.browserstack-upload.outputs.browserstack_app_url }}
         with:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
-            const browserstackUrl = process.env.BROWSERSTACK_APP_URL;
-            const message = `The build ${buildNumber} has been uploaded to BrowserStack. You can test it [here](${browserstackUrl}).`;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
