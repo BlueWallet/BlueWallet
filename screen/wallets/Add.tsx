@@ -6,6 +6,7 @@ import {
   Alert,
   Keyboard,
   LayoutAnimation,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -200,6 +201,7 @@ const WalletsAdd: React.FC = () => {
       {
         id: LightningCustodianWallet.type,
         text: LightningCustodianWallet.typeReadable,
+        subtitle: LightningCustodianWallet.subtitleReadable,
         menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
       },
     ];
@@ -405,6 +407,10 @@ const WalletsAdd: React.FC = () => {
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
+  const onLearnMorePressed = () => {
+    Linking.openURL('https://bluewallet.io/lightning/');
+  };
+
   return (
     <ScrollView style={stylesHook.root} testID="ScrollView" automaticallyAdjustKeyboardInsets>
       <BlueSpacing20 />
@@ -443,7 +449,11 @@ const WalletsAdd: React.FC = () => {
         {selectedWalletType === ButtonSelected.OFFCHAIN && (
           <>
             <BlueSpacing20 />
-            <BlueText>{loc.wallets.add_lndhub}</BlueText>
+            <View style={styles.lndhubTitle}>
+              <BlueText>{loc.wallets.add_lndhub}</BlueText>
+              <BlueButtonLink title={loc.wallets.learn_more} onPress={onLearnMorePressed} />
+            </View>
+
             <View style={[styles.lndUri, stylesHook.lndUri]}>
               <TextInput
                 value={walletBaseURI}
@@ -534,6 +544,11 @@ const styles = StyleSheet.create({
   },
   import: {
     marginVertical: 24,
+  },
+  lndhubTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 
