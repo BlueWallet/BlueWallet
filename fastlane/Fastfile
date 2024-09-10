@@ -355,8 +355,14 @@ platform :ios do
   lane :build_app_adhoc_lane do
     UI.message("Building the app with export method: ad-hoc...")
   
+    # Sanitize the project version and build number to remove special characters or spaces
+    sanitized_version = ENV['PROJECT_VERSION'].gsub(/[^0-9A-Za-z]/, '')
+    sanitized_build_number = ENV['NEW_BUILD_NUMBER'].gsub(/[^0-9A-Za-z]/, '')
+  
+    archive_name = "BlueWallet#{sanitized_version}(#{sanitized_build_number})-AdHoc"
+  
     build_app(
-      scheme: "BlueWallet (AdHoc)",
+      scheme: "BlueWallet-AdHoc", # Remove special characters from the scheme name as well
       workspace: "ios/BlueWallet.xcworkspace",
       export_method: "ad-hoc",
       configuration: "AdHoc",
@@ -378,9 +384,11 @@ platform :ios do
         GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'
       ",
       output_directory: "./build", # Directory where the IPA file will be stored
-      output_name: "BlueWallet#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-AdHoc.ipa",
-      buildlog_path: "./build_logs"
+      output_name: "BlueWallet#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-AdHoc.ipa", # Original IPA output name
+      buildlog_path: "./build_logs",
+      archive_path: "./build/#{archive_name}.xcarchive" # Sanitize the archive path
     )
+  end
   end
 
   desc "Upload IPA to BrowserStack and post result as PR comment"
