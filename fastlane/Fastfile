@@ -359,6 +359,7 @@ platform :ios do
       scheme: "BlueWallet",
       workspace: "ios/BlueWallet.xcworkspace",
       export_method: "ad-hoc",
+      type: "AdHoc",
       include_bitcode: false,
       skip_profile_detection: true,
       include_symbols: true,
@@ -374,11 +375,6 @@ platform :ios do
         }
       },
       xcargs: "
-        PROVISIONING_PROFILE_SPECIFIER='match AdHoc io.bluewallet.bluewallet' \
-        PROVISIONING_PROFILE_SPECIFIER='match AdHoc io.bluewallet.bluewallet.watch' \
-        PROVISIONING_PROFILE_SPECIFIER='match AdHoc io.bluewallet.bluewallet.watch.extension' \
-        PROVISIONING_PROFILE_SPECIFIER='match AdHoc io.bluewallet.bluewallet.Stickers' \
-        PROVISIONING_PROFILE_SPECIFIER='match AdHoc io.bluewallet.bluewallet.MarketWidget' \
         GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'
       ",
       output_directory: "./build", # Directory where the IPA file will be stored
