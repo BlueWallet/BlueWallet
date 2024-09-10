@@ -38,8 +38,8 @@ platform :android do
     version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
     
     # Get the branch name
-    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub('/', '-')
-    
+    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[\/\\:?*"<>|]/, '_')
+
     # Append branch name only if it's not 'master'
     if branch_name != 'master'
       signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
