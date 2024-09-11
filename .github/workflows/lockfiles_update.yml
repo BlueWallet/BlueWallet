@@ -37,6 +37,7 @@ jobs:
       - name: Install and update Ruby Gems
         run: |
           bundle install
+          bundle update
 
       # Step 4: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
@@ -45,22 +46,17 @@ jobs:
           pod install
           pod update
 
-      # Step 5: Set up Git authentication using the LockFiles team PAT
-      - name: Set up Git Authentication using LockFiles PAT
-        env:
-          ACCESS_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
-        run: |
-          git config --global user.name "LockFiles Team"
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      # Step 6: Commit and push changes for package-lock.json, Podfile.lock, and Gemfile.lock
-      - name: Commit and create PR for dependency updates
+      # Step 5: Commit the changes
+      - name: Commit changes
         run: |
           git checkout -b pod-update-branch
-          git add package-lock.json ios/Podfile.lock
+          git add package-lock.json ios/Podfile.lock Gemfile.lock
           git commit -m "Update dependencies (CocoaPods)"
+      
+      # Step 6: Push the changes and create the PR using the LockFiles PAT
+      - name: Push and create PR
+        run: |
           git push origin pod-update-branch
-          gh pr create --title "Pod and Dependency Update" --body "This PR updates Podfile.lock" --base master
+          gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
         env:
-          GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
+          GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }} # Use the LockFiles PAT for PR creation
