@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
@@ -11,7 +11,6 @@ import {
   ListRenderItemInfo,
   Platform,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
@@ -20,12 +19,11 @@ import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
+  BlueCard,
   BlueFormMultiInput,
   BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -49,14 +47,14 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useSettings } from '../../hooks/context/useSettings';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const route = useRoute();
@@ -96,6 +94,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     },
     vaultKeyText: {
       color: colors.alternativeTextColor,
+    },
+    askPassphrase: {
+      backgroundColor: colors.lightButton,
     },
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
@@ -523,6 +524,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const hideShareModal = () => {};
 
+  const toolTipActions = useMemo(() => {
+    const passphrase = CommonToolTipActions.Passphrase;
+    passphrase.menuState = askPassphrase;
+    return [passphrase];
+  }, [askPassphrase]);
+
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal
@@ -545,18 +552,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
           </>
         }
       >
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-        {isAdvancedModeEnabled && (
-          <>
-            <BlueSpacing10 />
-            <View style={styles.row}>
-              <BlueText>{loc.wallets.import_passphrase}</BlueText>
-              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-            </View>
-          </>
-        )}
+        <>
+          <ToolTipMenu
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={(id: string) => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setAskPassphrase(!askPassphrase);
+            }}
+            actions={toolTipActions}
+            style={[styles.askPassprase, stylesHook.askPassphrase]}
+          >
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+          </ToolTipMenu>
+
+          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        </>
       </BottomModal>
     );
   };
@@ -639,10 +652,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         keyExtractor={(_item, index) => `${index}`}
+        contentContainerStyle={styles.contentContainerStyle}
       />
       <BlueSpacing10 />
-      {footer}
-      <BlueSpacing40 />
+      <BlueCard>{footer}</BlueCard>
+      <BlueSpacing20 />
 
       {renderProvideMnemonicsModal()}
 
@@ -665,6 +679,7 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     minHeight: 370,
   },
+  contentContainerStyle: { padding: 16 },
   modalContent: {
     padding: 22,
     justifyContent: 'center',
@@ -700,12 +715,8 @@ const styles = StyleSheet.create({
   tipLabelText: {
     fontWeight: '500',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
-  },
+
+  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 });
 
 export default ViewEditMultisigCosigners;

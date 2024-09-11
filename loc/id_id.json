@@ -85,7 +85,7 @@
     "ask": "Sudahkah Anda menyimpan frase cadangan dompet Anda? Frase cadangan ini diperlukan untuk mengakses dana Anda jika Anda kehilangan perangkat ini. Tanpa frase cadangan, dana Anda akan hilang secara permanen.",
     "ok_lnd": "Oke, saya sudah menyimpannya.",
     "text": "Silakan tulis frasa mnemonik ini di atas kertas.\nIni adalah cadangan Anda dan Anda bisa menggunakannya untuk memulihkan dompet Anda.",
-    "text_lnd": "Harap luangkan waktu sejenak untuk menyimpan otentikasi LNDHub ini. Ini cadangan Anda yang dapat Anda gunakan untuk memulihkan dompet di perangkat lain.",
+    "text_lnd": "Harap luangkan waktu sejenak untuk menyimpan otentikasi LNDhub ini. Ini cadangan Anda yang dapat Anda gunakan untuk memulihkan dompet di perangkat lain.",
     "title": "Dompet Anda telah dibuat ..."
   },
   "receive": {
@@ -234,7 +234,7 @@
     "header": "setting",
     "language": "Bahasa",
     "last_updated": "Terakhir Diperbaharui",
-    "lightning_error_lndhub_uri": "LNDHub URI tidak valid",
+    "lightning_error_lndhub_uri": "LNDhub URI tidak valid",
     "lightning_saved": "Perubahan Anda telah berhasil disimpan.",
     "lightning_settings": "Pengaturan Lightning",
     "network": "Jaringan",
@@ -295,7 +295,7 @@
     "add_create": "Buat",
     "add_entropy": "Entropi",
     "add_import_wallet": "Impor dompet",
-    "add_lndhub": "Hubungan ke LNDHub Anda",
+    "add_lndhub": "Hubungan ke LNDhub Anda",
     "add_placeholder": "dompet pertama saya",
     "add_title": "tambah dompet",
     "add_wallet_name": "nama dompet",

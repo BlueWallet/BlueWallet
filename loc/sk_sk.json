@@ -190,7 +190,7 @@
     "add_entropy_remain": "{gen} bytov vygenerovanej entropie. Zvyšných {rem} bytov sa získa zo systémového generátora náhodných čísel.",
     "add_import_wallet": "Importovať peňaženku",
     "add_lightning": "Lightning",
-    "add_lndhub": "Pripojiť sa na LNDHub",
+    "add_lndhub": "Pripojiť sa na LNDhub",
     "add_lndhub_placeholder": "adresa uzla",
     "add_title": "pridať peňaženku",
     "add_wallet_name": "názov peňaženky",

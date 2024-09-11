@@ -73,7 +73,6 @@ const DetailViewStackScreensStack = () => {
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
 
-  const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
@@ -122,7 +121,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerTitle: loc.wallets.details_title,
           statusBarStyle: 'auto',
-          headerRight: () => SaveButton,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -247,7 +245,11 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.addresses.addresses_title, statusBarStyle: 'auto' })(theme)}
       />
 
-      <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
+      <DetailViewStack.Screen
+        name="AddWalletRoot"
+        component={AddWalletStack}
+        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
+      />
       <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />

@@ -1,17 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import {
-  expectToBeVisible,
-  extractTextFromElementById,
-  hashIt,
-  helperCreateWallet,
-  helperDeleteWallet,
-  helperSwitchAdvancedMode,
-  sleep,
-  sup,
-  yo,
-} from './helperz';
+import { expectToBeVisible, extractTextFromElementById, hashIt, helperCreateWallet, helperDeleteWallet, sleep, sup, yo } from './helperz';
 import { element } from 'detox';
 
 /**
@@ -64,14 +54,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await device.pressBack();
+    await device.pressBack();
 
-    // enable AdvancedMode
-    await element(by.id('AdvancedMode')).tap();
-    await device.pressBack();
-    // disable it:
-    await element(by.id('GeneralSettings')).tap();
-    await element(by.id('AdvancedMode')).tap();
-    await device.pressBack();
     //
     // currency
     // change currency to ARS ($) and switch it back to USD ($)
@@ -472,7 +456,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
-    await helperSwitchAdvancedMode();
     await yo('WalletsList');
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     await sleep(200); // Wait until bounce animation finishes.
@@ -542,7 +525,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await device.pressBack();
     await helperDeleteWallet('Multisig Vault');
-    await helperSwitchAdvancedMode(); // turn off advanced mode
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -686,9 +668,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
     await yo('WalletsList');
 
-    // enable AdvancedMode to see derivation path in wallet details
-    await helperSwitchAdvancedMode();
-
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     await sleep(200); // Wait until bounce animation finishes.
     // going to Import Wallet screen and importing mnemonic
@@ -698,8 +677,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
     );
-    await element(by.id('AskPassphrase')).tap();
-    await element(by.id('SearchAccounts')).tap();
+    await element(by.id('HeaderRightButton')).tap();
+    await element(by.text('Passphrase')).tap();
+    await element(by.id('HeaderRightButton')).tap();
+    await element(by.text('Search accounts')).tap();
     await element(by.id('DoImport')).tap();
     await sleep(1000);
 
@@ -734,7 +715,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.pressBack();
     await device.pressBack();
     await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
-    await helperSwitchAdvancedMode();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
