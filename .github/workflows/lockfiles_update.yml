@@ -1,4 +1,5 @@
 name: Update lock files
+
 on:
   workflow_dispatch: # Manual trigger
   pull_request:
@@ -11,34 +12,36 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Step 1: Checkout the repository
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
-      # Step 2: Specify the node version and install node dependencies
+          fetch-depth: 0 # Fetches all history
+      
+      
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Install node modules
-        run: npm install
-
-      # Step 3: Set up Ruby and install Bundler dependencies
+      
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.4
+      
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-
-      - name: Install and update Ruby Gems
+      
+      - name: Install dependencies with Bundler
         run: |
-          bundle install
-          bundle update
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
 
-      # Step 4: Install CocoaPods and update pods
+      - name: Install node_modules
+        run: npm install --production
+
+     # Step 4: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
