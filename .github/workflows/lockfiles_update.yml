@@ -1,0 +1,61 @@
+name: Lock files Update Workflow
+
+on:
+  workflow_dispatch: # Manual trigger
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  pod-update:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Specify the node version and install node dependencies
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install node modules
+        run: npm install
+
+      # Step 3: Set up Ruby and install Bundler dependencies
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install and update Ruby Gems
+        run: |
+          bundle install
+
+      # Step 4: Install CocoaPods and update pods
+      - name: Install CocoaPods Dependencies
+        run: |
+          cd ios
+          pod install
+          pod update
+
+      # Step 5: Commit the changes
+      - name: Commit changes
+        run: |
+          git checkout -b pod-update-branch
+          git add package-lock.json ios/Podfile.lock Gemfile.lock
+          git commit -m "Update dependencies (CocoaPods)"
+      
+      # Step 6: Push the changes and create the PR using the LockFiles PAT
+      - name: Push and create PR
+        run: |
+          git push origin pod-update-branch
+          gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
+        env:
+          GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }} # Use the LockFiles PAT for PR creation
