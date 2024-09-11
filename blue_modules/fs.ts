@@ -46,18 +46,21 @@ export const writeFileAndExport = async function (fileName: string, contents: st
     await RNFS.writeFile(filePath, contents);
     await _shareOpen(filePath, showShareDialog);
   } else if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-      title: loc.send.permission_storage_title,
-      message: loc.send.permission_storage_message,
-      buttonNeutral: loc.send.permission_storage_later,
-      buttonNegative: loc._.cancel,
-      buttonPositive: loc._.ok,
-    });
+    const granted =
+      Platform.Version >= 30
+        ? true
+        : (await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+            title: loc.send.permission_storage_title,
+            message: loc.send.permission_storage_message,
+            buttonNeutral: loc.send.permission_storage_later,
+            buttonNegative: loc._.cancel,
+            buttonPositive: loc._.ok,
+          })) === PermissionsAndroid.RESULTS.GRANTED;
 
     // In Android 13 no WRITE_EXTERNAL_STORAGE permission is needed
     // @see https://stackoverflow.com/questions/76311685/permissionandroid-request-always-returns-never-ask-again-without-any-prompt-r
-    if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 30) {
-      const filePath = RNFS.DownloadDirectoryPath + `/${sanitizedFileName}`;
+    if (granted) {
+      const filePath = Platform.Version >= 30 ? RNFS.DocumentDirectoryPath : RNFS.DownloadDirectoryPath + `/${sanitizedFileName}`;
       try {
         await RNFS.writeFile(filePath, contents);
         console.log(`file saved to ${filePath}`);
