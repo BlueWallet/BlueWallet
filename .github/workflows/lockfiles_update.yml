@@ -1,7 +1,7 @@
 name: Lock Files Update
 
 on:
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -12,24 +12,21 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Step 1: Checkout the repository and the master branch
+
       - name: Checkout master branch
         uses: actions/checkout@v4
         with:
           ref: master  # Ensures we're checking out the master branch
           fetch-depth: 0 # Ensures full history to enable branch deletion and recreation
 
-      # Step 2: Delete existing branch (if it exists)
       - name: Delete existing branch
         run: |
           git push origin --delete pod-update-branch || echo "Branch does not exist, continuing..."
           git branch -D pod-update-branch || echo "Local branch does not exist, continuing..."
 
-      # Step 3: Create new branch from master
       - name: Create new branch from master
         run: git checkout -b pod-update-branch  # Create a new branch from the master branch
 
-      # Step 4: Specify the node version and install node dependencies
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -38,7 +35,6 @@ jobs:
       - name: Install node modules
         run: npm install
 
-      # Step 5: Set up Ruby and install Bundler dependencies
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -49,28 +45,24 @@ jobs:
         run: |
           bundle install
 
-      # Step 6: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
           pod install
           pod update
 
-      # Step 7: Check for changes in package-lock.json and Podfile.lock
       - name: Check for changes
         id: check-changes
         run: |
           git diff --quiet package-lock.json ios/Podfile.lock || echo "Changes detected"
         continue-on-error: true
 
-      # Step 8: Stop the workflow if no changes are found
       - name: Stop job if no changes
         if: steps.check-changes.outcome == 'success'
         run: |
           echo "No changes detected in package-lock.json or Podfile.lock. Stopping the job."
           exit 0
 
-      # Step 9: Commit the changes (if changes are detected)
       - name: Commit changes
         if: steps.check-changes.outcome != 'success'
         run: |
@@ -99,7 +91,7 @@ jobs:
     if: github.event.pull_request.merged == true || github.event.pull_request.state == 'closed'
     needs: pod-update
     steps:
-      # Step 12: Delete the branch after PR merge/close
+
       - name: Delete branch after PR merge/close
         run: |
           git push origin --delete pod-update-branch
