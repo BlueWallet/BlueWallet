@@ -37,7 +37,6 @@ jobs:
       - name: Install and update Ruby Gems
         run: |
           bundle install
-          bundle update
 
       # Step 4: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
@@ -52,7 +51,6 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
         run: |
           git config --global user.name "LockFiles Team"
-          git config --global user.email "lockfiles-team@example.com"
           git config --global credential.helper 'cache --timeout=3600'
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
 
@@ -60,9 +58,9 @@ jobs:
       - name: Commit and create PR for dependency updates
         run: |
           git checkout -b pod-update-branch
-          git add package-lock.json ios/Podfile.lock Gemfile.lock
-          git commit -m "Update dependencies (npm, CocoaPods, Ruby gems)"
+          git add package-lock.json ios/Podfile.lock
+          git commit -m "Update dependencies (CocoaPods)"
           git push origin pod-update-branch
-          gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
+          gh pr create --title "Pod and Dependency Update" --body "This PR updates Podfile.lock" --base master
         env:
           GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
