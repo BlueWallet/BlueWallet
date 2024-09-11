@@ -2,7 +2,7 @@ name: Lock Files Update
 
 on:
   workflow_dispatch: # Manual trigger
-  pull_request:
+  push:
     branches:
       - master
 
