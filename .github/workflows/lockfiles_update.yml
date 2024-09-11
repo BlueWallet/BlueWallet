@@ -51,7 +51,7 @@ jobs:
       # Step 5: Set up Git authentication to push changes
       - name: Set up Git Authentication
         env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          ACCESS_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
         run: |
           git config --global credential.helper 'cache --timeout=3600'
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
