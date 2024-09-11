@@ -36,10 +36,15 @@ platform :android do
       # Get the version name from build.gradle
       version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
   
+      # Manually update the versionCode in build.gradle
+      UI.message("Updating versionCode in build.gradle to #{build_number}...")
+      build_gradle_path = "android/app/build.gradle"
+      build_gradle_contents = File.read(build_gradle_path)
+      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, new_build_gradle_contents)
+  
       # Get the branch name and default to 'master' if empty
       branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[\/\\:?*"<>|]/, '_')
-      
-      # Ensure branch name is not empty and defaults to 'master'
       if branch_name.nil? || branch_name.empty?
         branch_name = 'master'
       end
@@ -51,15 +56,15 @@ platform :android do
         signed_apk_name = "BlueWallet-#{version_name}-#{build_number}.apk"
       end
   
+      # Continue with the build process
       Dir.chdir("android") do
-        UI.message("Updating version code in build.gradle...")
+        UI.message("Building APK...")
         gradle(
           task: "assembleRelease",
-          properties: { "versionCode" => build_number },
           project_dir: "android"
         )
-        UI.message("Version code updated to #{build_number} and APK build completed.")
-  
+        UI.message("APK build completed.")
+        
         # Define the output paths
         unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
         signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
@@ -74,7 +79,7 @@ platform :android do
           next
         end
   
-        # Sign the APK using apksigner directly
+        # Sign the APK using apksigner
         UI.message("Signing APK with apksigner...")
         apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
         sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
