@@ -1,4 +1,4 @@
-name: Lock files Update Workflow
+name: Lock Files Update
 
 on:
   workflow_dispatch: # Manual trigger
@@ -12,13 +12,24 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout project
+      # Step 1: Checkout the repository and the master branch
+      - name: Checkout master branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: master  # Ensures we're checking out the master branch
+          fetch-depth: 0 # Ensures full history to enable branch deletion and recreation
 
-      # Step 2: Specify the node version and install node dependencies
+      # Step 2: Delete existing branch (if it exists)
+      - name: Delete existing branch
+        run: |
+          git push origin --delete pod-update-branch || echo "Branch does not exist, continuing..."
+          git branch -D pod-update-branch || echo "Local branch does not exist, continuing..."
+
+      # Step 3: Create new branch from master
+      - name: Create new branch from master
+        run: git checkout -b pod-update-branch  # Create a new branch from the master branch
+
+      # Step 4: Specify the node version and install node dependencies
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
@@ -27,35 +38,40 @@ jobs:
       - name: Install node modules
         run: npm install
 
-      # Step 3: Set up Ruby and install Bundler dependencies
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-
-      - name: Install and update Ruby Gems
-        run: |
-          bundle install
-
-      # Step 4: Install CocoaPods and update pods
+      # Step 5: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
           pod install
           pod update
 
-      # Step 5: Commit the changes
+      # Step 6: Commit the changes
       - name: Commit changes
         run: |
-          git checkout -b pod-update-branch
-          git add package-lock.json ios/Podfile.lock Gemfile.lock
-          git commit -m "Update dependencies (CocoaPods)"
-      
-      # Step 6: Push the changes and create the PR using the LockFiles PAT
+          git add package-lock.json ios/Podfile.lock
+          git commit -m "Update lock files (npm, CocoaPods)"
+
+      # Step 7: Get the list of changed files for PR description
+      - name: Get changed files for PR description
+        id: get-changes
+        run: |
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          echo "CHANGES=$(cat changed_files.txt)" >> $GITHUB_ENV
+
+      # Step 8: Push the changes and create the PR using the LockFiles PAT
       - name: Push and create PR
         run: |
           git push origin pod-update-branch
-          gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
+          gh pr create --title "Lock Files Updates" --body "The following files were updated:\n\n${{ env.CHANGES }}" --base master
         env:
           GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }} # Use the LockFiles PAT for PR creation
+
+  cleanup:
+    runs-on: macos-latest
+    if: github.event.pull_request.merged == true || github.event.pull_request.state == 'closed'
+    needs: pod-update
+    steps:
+      # Step 9: Delete the branch after PR merge/close
+      - name: Delete branch after PR merge/close
+        run: |
+          git push origin --delete pod-update-branch
