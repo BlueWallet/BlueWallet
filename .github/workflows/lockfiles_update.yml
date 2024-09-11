@@ -37,7 +37,6 @@ jobs:
       - name: Install and update Ruby Gems
         run: |
           bundle install
-          bundle update
 
       # Step 4: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
