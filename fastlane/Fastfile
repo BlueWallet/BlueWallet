@@ -44,7 +44,7 @@ platform :android do
     if branch_name != 'master'
       signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
     else
-      signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-.apk"
+      signed_apk_name = "BlueWallet-#{version_name}-#{build_number}.apk"
     end
     
     Dir.chdir("android") do
