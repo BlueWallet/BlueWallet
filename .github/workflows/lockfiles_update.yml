@@ -1,0 +1,63 @@
+name: Update lock files
+
+on:
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  pod-update:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 2: Specify the node version and install node dependencies
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install node modules
+        run: npm install
+
+      # Step 3: Set up Ruby and install Bundler dependencies
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install and update Ruby Gems
+        run: |
+          bundle install
+          bundle update
+
+      # Step 4: Install CocoaPods and update pods
+      - name: Install CocoaPods Dependencies
+        run: |
+          cd ios
+          pod install
+          pod update
+
+      # Step 5: Set up Git authentication to push changes
+      - name: Set up Git Authentication
+        env:
+          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+        run: |
+          git config --global credential.helper 'cache --timeout=3600'
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
+
+      # Step 6: Commit and push changes for package-lock.json, Podfile.lock, and Gemfile.lock
+      - name: Commit and create PR for dependency updates
+        run: |
+          git checkout -b pod-update-branch
+          git add package-lock.json ios/Podfile.lock Gemfile.lock
+          git commit -m "Update dependencies (npm, CocoaPods, Ruby gems)"
+          git push origin pod-update-branch
+          gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
