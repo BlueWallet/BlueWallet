@@ -1,4 +1,4 @@
-name: Update lock files
+name: Lock files Update Workflow
 
 on:
   workflow_dispatch: # Manual trigger
@@ -12,47 +12,47 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches all history
-      
-      
+          fetch-depth: 0
+
+      # Step 2: Specify the node version and install node dependencies
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: 15.4
-      
+
+      - name: Install node modules
+        run: npm install
+
+      # Step 3: Set up Ruby and install Bundler dependencies
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-      
-      - name: Install dependencies with Bundler
+
+      - name: Install and update Ruby Gems
         run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          bundle install
+          bundle update
 
-      - name: Install node_modules
-        run: npm install --production
-
-     # Step 4: Install CocoaPods and update pods
+      # Step 4: Install CocoaPods and update pods
       - name: Install CocoaPods Dependencies
         run: |
           cd ios
           pod install
           pod update
 
-      # Step 5: Set up Git authentication to push changes
-      - name: Set up Git Authentication
+      # Step 5: Set up Git authentication using the LockFiles team PAT
+      - name: Set up Git Authentication using LockFiles PAT
         env:
           ACCESS_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
         run: |
+          git config --global user.name "LockFiles Team"
+          git config --global user.email "lockfiles-team@example.com"
           git config --global credential.helper 'cache --timeout=3600'
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
 
@@ -65,4 +65,4 @@ jobs:
           git push origin pod-update-branch
           gh pr create --title "Pod and Dependency Update" --body "This PR updates npm, CocoaPods, and Ruby gem dependencies" --base master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }}
