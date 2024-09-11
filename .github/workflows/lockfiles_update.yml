@@ -1,7 +1,9 @@
 name: Update lock files
-
 on:
   workflow_dispatch: # Manual trigger
+  pull_request:
+    branches:
+      - master
 
 jobs:
   pod-update:
