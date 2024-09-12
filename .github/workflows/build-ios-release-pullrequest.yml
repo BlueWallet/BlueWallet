@@ -48,7 +48,7 @@ jobs:
           bundle install --jobs 4 --retry 3 --quiet
 
       - name: Install node_modules
-        run: npm install --production
+        run: npm install --omit=dev --yes
 
       - name: Install CocoaPods Dependencies
         run: |

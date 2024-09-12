@@ -39,7 +39,7 @@ jobs:
 
     - name: Install node_modules
       if: steps.cache-nm.outputs.cache-hit != 'true'
-      run: npm install
+      run: npm install --omit=dev --yes
 
     - name: Run tests
       run: npm test || npm test || npm test || npm test
