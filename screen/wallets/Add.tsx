@@ -216,7 +216,6 @@ const WalletsAdd: React.FC = () => {
     const entropyAction = {
       ...CommonToolTipActions.Entropy,
       text: entropyButtonText,
-      menuState: false,
     };
 
     return [walletAction, entropyAction];
