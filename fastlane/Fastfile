@@ -88,66 +88,67 @@ platform :android do
     end
   end
 
-desc "Upload APK to BrowserStack and post result as PR comment"
-lane :upload_to_browserstack_and_comment do
-  Dir.chdir(project_root) do
-    # Fetch the APK path from environment variables
-    apk_path = ENV['APK_PATH']
-
-    # Attempt to find the APK if not provided
-    if apk_path.nil? || apk_path.empty?
-      UI.message("No APK path provided, attempting to find the artifact...")
-      apk_path = `find ./ -name "*.apk"`.strip
-      UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
-    end
-
-    UI.message("Uploading APK to BrowserStack: #{apk_path}...")
-    upload_to_browserstack_app_live(
-      file_path: apk_path,
-      browserstack_username: ENV['BROWSERSTACK_USERNAME'],
-      browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
-    )
-
-    # Extract the BrowserStack URL from the output
-    app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
-    UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
-
-    # Prepare necessary values for the PR comment
-    apk_filename = File.basename(apk_path)
-    browserstack_hashed_id = app_url.gsub('bs://', '')
-    pr_number = ENV['GITHUB_PR_NUMBER']
-
-    comment = <<~COMMENT
-      ### APK Successfully Uploaded to BrowserStack
-      
-      You can test it on the following devices:
-      
-      - [Google Pixel 5 (Android 12.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Google Pixel 7 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Google Pixel 8 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Google Pixel 3a (Android 9.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-
-      - [Samsung Galaxy Z Fold 5 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Samsung Galaxy Z Fold 6 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Samsung Galaxy Tab S9 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-      - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-
-      **Filename**: #{apk_filename}
-      **BrowserStack App URL**: #{app_url}
-    COMMENT
-
-    if pr_number
-      begin
-        sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
-        UI.success("Posted comment to PR ##{pr_number}")
-      rescue => e
-        UI.error("Failed to post comment to PR: #{e.message}")
+  desc "Upload APK to BrowserStack and post result as PR comment"
+  lane :upload_to_browserstack_and_comment do
+    Dir.chdir(project_root) do
+      # Fetch the APK path from environment variables
+      apk_path = ENV['APK_PATH']
+  
+      # Attempt to find the APK if not provided
+      if apk_path.nil? || apk_path.empty?
+        UI.message("No APK path provided, attempting to find the artifact...")
+        apk_path = `find ./ -name "*.apk"`.strip
+        UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
       end
-    else
-      UI.important("No PR number found. Skipping PR comment.")
+  
+      UI.message("Uploading APK to BrowserStack: #{apk_path}...")
+      upload_to_browserstack_app_live(
+        file_path: apk_path,
+        browserstack_username: ENV['BROWSERSTACK_USERNAME'],
+        browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
+      )
+  
+      # Extract the BrowserStack URL from the output
+      app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
+      UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
+  
+      # Prepare necessary values for the PR comment
+      apk_filename = File.basename(apk_path)
+      apk_download_url = ENV['APK_OUTPUT_PATH'] # Assuming this path is accessible to the PR
+      browserstack_hashed_id = app_url.gsub('bs://', '')
+      pr_number = ENV['GITHUB_PR_NUMBER']
+  
+      comment = <<~COMMENT
+        ### APK Successfully Uploaded to BrowserStack
+        
+        You can test it on the following devices:
+        
+        - [Google Pixel 5 (Android 12.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 7 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 8 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 3a (Android 9.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+  
+        - [Samsung Galaxy Z Fold 5 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Z Fold 6 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Tab S9 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+  
+        **Filename**: [#{apk_filename}](#{apk_download_url})
+        **BrowserStack App URL**: #{app_url}
+      COMMENT
+  
+      if pr_number
+        begin
+          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
+          UI.success("Posted comment to PR ##{pr_number}")
+        rescue => e
+          UI.error("Failed to post comment to PR: #{e.message}")
+        end
+      else
+        UI.important("No PR number found. Skipping PR comment.")
+      end
     end
   end
-end
 end
 
 
