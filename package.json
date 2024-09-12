@@ -111,7 +111,7 @@
     "crypto-js": "4.2.0",
     "dayjs": "1.11.13",
     "detox": "20.26.2",
-    "ecpair": "2.0.1",
+    "ecpair": "2.1.0",
     "ecurve": "1.0.6",
     "electrum-client": "github:BlueWallet/rn-electrum-client#1bfe3cc",
     "electrum-mnemonic": "2.0.0",
