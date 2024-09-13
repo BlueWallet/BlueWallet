@@ -74,28 +74,41 @@ jobs:
         env:
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: Determine APK Filename and Path
         id: determine_apk_path
         run: |
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          fi
+
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME='master'
+          fi
+
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')
 
-          if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
-          else
+          # If branch is master or main, do not include branch name in filename
+          if [ "$BRANCH_NAME" = "master" ] || [ "$BRANCH_NAME" = "main" ]; then
             EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}.apk"
+          else
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
           fi
       
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+          echo "APK_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: signed-apk
+          name: ${{ env.APK_FILENAME }}
           path: ${{ env.APK_PATH }}
 
   browserstack:
@@ -119,7 +132,7 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v4
         with:
-          name: signed-apk
+          name: ${{ needs.buildReleaseApk.outputs.apk_filename }}  # Use the dynamic artifact name
 
       - name: Set APK Path
         run: |
