@@ -12,6 +12,9 @@ on:
 jobs:
   buildReleaseApk:
     runs-on: ubuntu-latest
+    outputs:
+      apk_filename: ${{ steps.determine_apk_path.outputs.apk_filename }}
+      apk_path: ${{ steps.determine_apk_path.outputs.apk_path }}
 
     steps:
       - name: Checkout project
@@ -68,7 +71,6 @@ jobs:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
 
       - name: Update Version Code, Build, and Sign APK
-        id: build_and_sign_apk
         run: |
           bundle exec fastlane android update_version_build_and_sign_apk
         env:
@@ -91,6 +93,7 @@ jobs:
             BRANCH_NAME='master'
           fi
 
+          # Sanitize the branch name
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/-/g')
 
           # If branch is master or main, do not include branch name in filename
@@ -99,22 +102,30 @@ jobs:
           else
             EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
           fi
-      
+
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
-          echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
-          echo "APK_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
+
+          # Set outputs
+          echo "apk_filename=${EXPECTED_FILENAME}" >> $GITHUB_OUTPUT
+          echo "apk_path=${APK_PATH}" >> $GITHUB_OUTPUT
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APK_FILENAME }}
-          path: ${{ env.APK_PATH }}
+          name: ${{ steps.determine_apk_path.outputs.apk_filename }}
+          path: ${{ steps.determine_apk_path.outputs.apk_path }}
 
   browserstack:
     runs-on: ubuntu-latest
     needs: buildReleaseApk
     if: ${{ github.event_name == 'pull_request' }}
+    env:
+      APK_FILENAME: ${{ needs.buildReleaseApk.outputs.apk_filename }}
+      APK_PATH: ${{ needs.buildReleaseApk.outputs.apk_path }}
+      BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+      GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -132,17 +143,7 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.buildReleaseApk.outputs.apk_filename }}  # Use the dynamic artifact name
-
-      - name: Set APK Path
-        run: |
-          APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+          name: ${{ env.APK_FILENAME }}
 
       - name: Upload APK to BrowserStack and Post PR Comment
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bundle exec fastlane upload_to_browserstack_and_comment
