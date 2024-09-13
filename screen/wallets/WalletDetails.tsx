@@ -31,7 +31,6 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
@@ -43,110 +42,76 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-const styles = StyleSheet.create({
-  scrollViewContent: {
-    flexGrow: 1,
-  },
-  address: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  textLabel1: {
-    fontWeight: '500',
-    fontSize: 14,
-    marginVertical: 12,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  textLabel2: {
-    fontWeight: '500',
-    fontSize: 14,
-    marginVertical: 16,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  textValue: {
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  inputText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
-    color: '#81868e',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  hardware: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  delete: {
-    fontSize: 15,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-  },
-  marginRight16: {
-    marginRight: 16,
-  },
-});
-
-const WalletDetails = () => {
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { walletID } = useRoute().params;
-  const [isLoading, setIsLoading] = useState(false);
-  const [backdoorPressed, setBackdoorPressed] = useState(0);
-  const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
-  const [walletName, setWalletName] = useState(wallet.getLabel());
-  const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
-  const [isContactsVisible, setIsContactsVisible] = useState(wallet.allowBIP47() && wallet.isBIP47Enabled());
-  const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, setOptions, navigate } = useExtendedNavigation();
+  const { walletID } = useRoute<RouteProps>().params;
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
+  const walletRef = useRef<TWallet | undefined>(wallets.find(w => w.getID() === walletID));
+  const wallet = walletRef.current as TWallet;
+
+  const [walletName, setWalletName] = useState<string>(wallet.getLabel());
+  const [walletUseWithHardwareWallet, setWalletUseWithHardwareWallet] = useState<boolean>(
+    wallet.useWithHardwareWalletEnabled ? wallet.useWithHardwareWalletEnabled() : false,
+  );
+  const [isBIP47Enabled, setIsBIP47Enabled] = useState<boolean>(wallet.isBIP47Enabled ? wallet.isBIP47Enabled() : false);
+
+  const [isContactsVisible, setIsContactsVisible] = useState<boolean>(
+    (wallet.allowBIP47 && wallet.allowBIP47() && wallet.isBIP47Enabled && wallet.isBIP47Enabled()) || false,
+  );
+
+  const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
+    wallet.getHideTransactionsInWalletsList ? wallet.getHideTransactionsInWalletsList() : false,
+  );
+  const { setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
-  const [masterFingerprint, setMasterFingerprint] = useState();
-  const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
-  const derivationPath = useMemo(() => {
+  const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
+  const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
+  const derivationPath = useMemo<string | null>(() => {
     try {
-      const path = wallet.getDerivationPath();
-      return path.length > 0 ? path : null;
+      // @ts-expect-error: Need to fix later
+      if (wallet.getDerivationPath) {
+        // @ts-expect-error: Need to fix later
+        const path = wallet.getDerivationPath();
+        return path.length > 0 ? path : null;
+      }
+      return null;
     } catch (e) {
       return null;
     }
   }, [wallet]);
-  const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState(false);
+  const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState<boolean>(false);
 
   const onMenuWillShow = () => setIsToolTipMenuVisible(true);
   const onMenuWillHide = () => setIsToolTipMenuVisible(false);
 
   useEffect(() => {
-    setIsContactsVisible(isBIP47Enabled);
-  }, [isBIP47Enabled]);
+    setIsContactsVisible(wallet.allowBIP47 && wallet.allowBIP47() && isBIP47Enabled);
+  }, [isBIP47Enabled, wallet]);
 
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet.allowMasterFingerprint()) {
-          setMasterFingerprint(wallet.getMasterFingerprintHex());
+        if (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+          // @ts-expect-error: Need to fix later
+          if (wallet.getMasterFingerprintHex) {
+            // @ts-expect-error: Need to fix later
+            setMasterFingerprint(wallet.getMasterFingerprintHex());
+          }
         }
       });
 
       return () => task.cancel();
     }, [wallet]),
   );
+
   const stylesHook = StyleSheet.create({
     textLabel1: {
       color: colors.feeText,
@@ -160,7 +125,6 @@ const WalletDetails = () => {
     input: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
-
       backgroundColor: colors.inputBackgroundColor,
     },
     delete: {
@@ -168,40 +132,11 @@ const WalletDetails = () => {
     },
   });
 
-  const handleSave = useCallback(() => {
-    setIsLoading(true);
-    if (walletName.trim().length > 0) {
-      wallet.setLabel(walletName.trim());
-      if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
-        wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
-      }
-      wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
-      if (wallet.allowBIP47()) {
-        wallet.switchBIP47(isBIP47Enabled);
-      }
-    }
-    saveToDisk()
-      .then(() => {
-        presentAlert({ message: loc.wallets.details_wallet_updated });
-        goBack();
-      })
-      .catch(error => {
-        console.log(error.message);
-        setIsLoading(false);
-      });
-  }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
-
-  const SaveButton = useMemo(
-    () => <HeaderRightButton title={loc.wallets.details_save} onPress={handleSave} disabled={isLoading} testID="Save" />,
-    [isLoading, handleSave],
-  );
-
   useEffect(() => {
     setOptions({
-      headerRight: () => SaveButton,
       headerBackTitleVisible: true,
     });
-  }, [SaveButton, setOptions]);
+  }, [setOptions]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
@@ -212,10 +147,14 @@ const WalletDetails = () => {
 
   const navigateToOverviewAndDeleteWallet = () => {
     setIsLoading(true);
-    let externalAddresses = [];
+    let externalAddresses: string[] = [];
     try {
-      externalAddresses = wallet.getAllExternalAddresses();
+      if (wallet.getAllExternalAddresses) {
+        externalAddresses = wallet.getAllExternalAddresses();
+      }
     } catch (_) {}
+
+    // @ts-ignore: ts-ify later
     Notifications.unsubscribe(externalAddresses, [], []);
     deleteWallet(wallet);
     saveToDisk(true);
@@ -332,17 +271,27 @@ const WalletDetails = () => {
       presentAlert({ message: msg });
     }
 
+    // @ts-expect-error: Need to fix later
     if (wallet._hdWalletInstance) {
+      // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._txs_by_external_index = {};
+      // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._txs_by_internal_index = {};
       presentAlert({ message: msg });
     }
   };
 
-  const walletNameTextInputOnBlur = () => {
+  const walletNameTextInputOnBlur = async () => {
     if (walletName.trim().length === 0) {
       const walletLabel = wallet.getLabel();
       setWalletName(walletLabel);
+    } else {
+      wallet.setLabel(walletName.trim());
+      try {
+        await saveToDisk();
+      } catch (error) {
+        console.log((error as Error).message);
+      }
     }
   };
 
@@ -355,22 +304,23 @@ const WalletDetails = () => {
     const rows = [headers.join(',')];
     const transactions = wallet.getTransactions();
 
-    transactions.forEach(transaction => {
-      const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-      let hash = transaction.hash;
-      let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
-      let status;
+    transactions.forEach((transaction: Transaction & LightningTransaction) => {
+      const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
+      let hash: string = transaction.hash || '';
+      let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
+      let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
-        hash = transaction.payment_hash;
-        memo = transaction.description;
+        hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
+        memo = transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
-        if (hash?.type === 'Buffer' && hash?.data) {
-          hash = Buffer.from(hash.data).toString('hex');
+        if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
+          hash = Buffer.from((hash as any).data).toString('hex');
         }
       }
 
-      const data = [new Date(transaction.received).toString(), hash, value, memo];
+      const date = transaction.received ? new Date(transaction.received).toString() : '';
+      const data = [date, hash, value, memo];
 
       if (wallet.chain === Chain.OFFCHAIN) {
         data.push(status);
@@ -398,7 +348,7 @@ const WalletDetails = () => {
                 return;
               }
             }
-            if (wallet.getBalance() > 0 && wallet.allowSend()) {
+            if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
               presentWalletHasBalanceAlert();
             } else {
               navigateToOverviewAndDeleteWallet();
@@ -421,8 +371,8 @@ const WalletDetails = () => {
     <ScrollView
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
       centerContent={isLoading}
-      contentContainerStyle={styles.scrollViewContent}
       testID="WalletDetailsScroll"
     >
       {isLoading ? (
@@ -443,8 +393,8 @@ const WalletDetails = () => {
                         {(() => {
                           // gracefully handling faulty wallets, so at least user has an option to delete the wallet
                           try {
-                            return wallet.getAddress();
-                          } catch (error) {
+                            return wallet.getAddress ? wallet.getAddress() : '';
+                          } catch (error: any) {
                             return error.message;
                           }
                         })()}
@@ -457,7 +407,9 @@ const WalletDetails = () => {
               <View style={[styles.input, stylesHook.input]}>
                 <TextInput
                   value={walletName}
-                  onChangeText={setWalletName}
+                  onChangeText={(text: string) => {
+                    setWalletName(text);
+                  }}
                   onBlur={walletNameTextInputOnBlur}
                   numberOfLines={1}
                   placeholderTextColor="#81868e"
@@ -511,7 +463,17 @@ const WalletDetails = () => {
                   <Switch
                     disabled={isToolTipMenuVisible}
                     value={hideTransactionsInWalletsList}
-                    onValueChange={setHideTransactionsInWalletsList}
+                    onValueChange={async (value: boolean) => {
+                      setHideTransactionsInWalletsList(value);
+                      if (wallet.setHideTransactionsInWalletsList) {
+                        wallet.setHideTransactionsInWalletsList(value);
+                      }
+                      try {
+                        await saveToDisk();
+                      } catch (error: any) {
+                        console.log(error.message);
+                      }
+                    }}
                   />
                 </View>
               </>
@@ -522,29 +484,56 @@ const WalletDetails = () => {
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
 
-              {wallet.allowBIP47() ? (
+              {wallet.allowBIP47 && wallet.allowBIP47() ? (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
                   <View style={styles.hardware}>
                     <BlueText>{loc.bip47.purpose}</BlueText>
-                    <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} testID="BIP47Switch" />
+                    <Switch
+                      value={isBIP47Enabled}
+                      onValueChange={async (value: boolean) => {
+                        setIsBIP47Enabled(value);
+                        if (wallet.switchBIP47) {
+                          wallet.switchBIP47(value);
+                        }
+                        try {
+                          await saveToDisk();
+                        } catch (error: any) {
+                          console.log(error.message);
+                        }
+                      }}
+                      testID="BIP47Switch"
+                    />
                   </View>
                 </>
               ) : null}
 
               <View>
-                {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
+                {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() && (
                   <>
                     <BlueSpacing10 />
                     <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_advanced.toLowerCase()}</Text>
                     <View style={styles.hardware}>
                       <BlueText>{loc.wallets.details_use_with_hardware_wallet}</BlueText>
-                      <Switch value={useWithHardwareWallet} onValueChange={setUseWithHardwareWallet} />
+                      <Switch
+                        value={walletUseWithHardwareWallet}
+                        onValueChange={async (value: boolean) => {
+                          setWalletUseWithHardwareWallet(value);
+                          if (wallet.setUseWithHardwareWalletEnabled) {
+                            wallet.setUseWithHardwareWalletEnabled(value);
+                          }
+                          try {
+                            await saveToDisk();
+                          } catch (error: any) {
+                            console.log(error.message);
+                          }
+                        }}
+                      />
                     </View>
                   </>
                 )}
                 <View style={styles.row}>
-                  {wallet.allowMasterFingerprint() && (
+                  {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
                     <View style={styles.marginRight16}>
                       <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
                       <BlueText>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
@@ -560,7 +549,7 @@ const WalletDetails = () => {
                 </View>
               </View>
             </BlueCard>
-            {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+            {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) && (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
             {isContactsVisible ? (
@@ -595,7 +584,7 @@ const WalletDetails = () => {
                       disabled={isToolTipMenuVisible}
                       onPress={navigateToMultisigCoordinationSetup}
                       testID="MultisigCoordinationSetup"
-                      title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())}
+                      title={loc.multisig.export_coordination_setup.replace(/^\w/, (c: string) => c.toUpperCase())}
                     />
                   </>
                 )}
@@ -612,7 +601,7 @@ const WalletDetails = () => {
                   </>
                 )}
 
-                {wallet.allowXpub() && (
+                {wallet.allowXpub && wallet.allowXpub() && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton
@@ -623,7 +612,7 @@ const WalletDetails = () => {
                     />
                   </>
                 )}
-                {wallet.allowSignVerifyMessage() && (
+                {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton
@@ -657,5 +646,60 @@ const WalletDetails = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  address: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  textLabel1: {
+    fontWeight: '500',
+    fontSize: 14,
+    marginVertical: 12,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
+  textLabel2: {
+    fontWeight: '500',
+    fontSize: 14,
+    marginVertical: 16,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
+  textValue: {
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  input: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  inputText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+    color: '#81868e',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
+  hardware: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  delete: {
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  marginRight16: {
+    marginRight: 16,
+  },
+});
 
 export default WalletDetails;

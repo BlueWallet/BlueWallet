@@ -384,8 +384,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await element(by.id('BIP47Switch')).tap();
       await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
       await expect(element(by.text('Contacts'))).toBeVisible();
-      await element(by.text('Save')).tap(); // automatically goes back 1 screen
-      await element(by.text('OK')).tap();
+      await element(by.text('Save')).tap();
+      await device.pressBack();
     } else {
       await device.pressBack();
     }

@@ -22,7 +22,7 @@ import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
-import WalletDetails from '../screen/wallets/details';
+import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
