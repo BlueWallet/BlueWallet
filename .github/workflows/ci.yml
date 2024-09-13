@@ -39,7 +39,7 @@ jobs:
 
     - name: Install node_modules
       if: steps.cache-nm.outputs.cache-hit != 'true'
-      run: npm install --omit=dev --yes
+      run: npm ci
 
     - name: Run tests
       run: npm test || npm test || npm test || npm test
@@ -54,6 +54,9 @@ jobs:
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
         RETRY: 1
+
+    - name: Prune devDependencies
+      run: npm prune --omit=dev
 
   e2e:
     runs-on: ubuntu-latest
