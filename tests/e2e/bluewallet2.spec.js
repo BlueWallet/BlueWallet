@@ -504,14 +504,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // rename test
-    await element(by.id('WalletNameInput')).replaceText('testname\n');
+    await element(by.id('WalletNameInput')).replaceText('testname');
     await device.pressBack();
     await sup('testname');
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
 
     // rename back
-    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');
+    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)');
     await device.pressBack();
     await sup('Imported HD SegWit (BIP84 Bech32 Native)');
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
