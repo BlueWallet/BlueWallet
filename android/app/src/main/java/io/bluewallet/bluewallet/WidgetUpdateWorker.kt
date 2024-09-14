@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.*
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,17 +34,22 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         }
     }
 
+    private lateinit var sharedPref: SharedPreferences
+    private lateinit var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
+
     override fun doWork(): Result {
         Log.d(TAG, "Widget update worker running")
+
+        sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        registerPreferenceChangeListener()
 
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val thisWidget = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
         val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
 
-        val sharedPref = applicationContext.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
-        val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", "en-US")
+        val preferredCurrency = sharedPref.getString("preferredCurrency", null) ?: "USD"
+        val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null) ?: "en-US"
         val previousPrice = sharedPref.getString("previous_price", null)
 
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
@@ -51,11 +57,45 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         fetchPrice(preferredCurrency) { fetchedPrice, error ->
             handlePriceResult(
                 appWidgetManager, appWidgetIds, views, sharedPref,
-                fetchedPrice, previousPrice, currentTime, preferredCurrencyLocale, error
+                fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale, error
             )
         }
 
         return Result.success()
+    }
+
+    private fun registerPreferenceChangeListener() {
+        preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == "preferredCurrency" || key == "preferredCurrencyLocale" || key == "previous_price") {
+                Log.d(TAG, "Preference changed: $key")
+                updateWidgetOnPreferenceChange()
+            }
+        }
+        sharedPref.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+    }
+
+    override fun onStopped() {
+        super.onStopped()
+        sharedPref.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+    }
+
+    private fun updateWidgetOnPreferenceChange() {
+        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+        val thisWidget = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+        val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
+
+        val preferredCurrency = sharedPref.getString("preferredCurrency", null) ?: "USD"
+        val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null) ?: "en-US"
+        val previousPrice = sharedPref.getString("previous_price", null)
+        val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
+
+        fetchPrice(preferredCurrency) { fetchedPrice, error ->
+            handlePriceResult(
+                appWidgetManager, appWidgetIds, views, sharedPref,
+                fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale, error
+            )
+        }
     }
 
     private fun handlePriceResult(
@@ -66,6 +106,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         fetchedPrice: String?,
         previousPrice: String?,
         currentTime: String,
+        preferredCurrency: String?,
         preferredCurrencyLocale: String?,
         error: String?
     ) {
@@ -77,11 +118,11 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
             if (!isPriceCached) {
                 showLoadingError(views)
             } else {
-                displayCachedPrice(views, previousPrice, currentTime, preferredCurrencyLocale)
+                displayCachedPrice(views, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale)
             }
         } else {
             displayFetchedPrice(
-                views, fetchedPrice!!, previousPrice, currentTime, preferredCurrencyLocale
+                views, fetchedPrice!!, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale
             )
             savePrice(sharedPref, fetchedPrice)
         }
@@ -103,11 +144,10 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         views: RemoteViews,
         previousPrice: String?,
         currentTime: String,
+        preferredCurrency: String?,
         preferredCurrencyLocale: String?
     ) {
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag(preferredCurrencyLocale!!)).apply {
-            maximumFractionDigits = 0
-        }
+        val currencyFormat = getCurrencyFormat(preferredCurrency, preferredCurrencyLocale)
 
         views.apply {
             setViewVisibility(R.id.loading_indicator, View.GONE)
@@ -125,12 +165,11 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         fetchedPrice: String,
         previousPrice: String?,
         currentTime: String,
+        preferredCurrency: String?,
         preferredCurrencyLocale: String?
     ) {
-        val currentPrice = fetchedPrice.toDouble().let { it.toInt() } // Remove cents
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag(preferredCurrencyLocale!!)).apply {
-            maximumFractionDigits = 0
-        }
+        val currentPrice = fetchedPrice.toDouble().toInt() // Remove cents
+        val currencyFormat = getCurrencyFormat(preferredCurrency, preferredCurrencyLocale)
 
         views.apply {
             setViewVisibility(R.id.loading_indicator, View.GONE)
@@ -151,6 +190,30 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
                 setViewVisibility(R.id.price_arrow_container, View.GONE)
             }
         }
+    }
+
+    private fun getCurrencyFormat(currencyCode: String?, localeString: String?): NumberFormat {
+        val localeParts = localeString?.split("-") ?: listOf("en", "US")
+        val locale = if (localeParts.size == 2) {
+            Locale(localeParts[0], localeParts[1])
+        } else {
+            Locale.getDefault()
+        }
+        val currencyFormat = NumberFormat.getCurrencyInstance(locale)
+        val currency = try {
+            Currency.getInstance(currencyCode ?: "USD")
+        } catch (e: IllegalArgumentException) {
+            Currency.getInstance("USD") // Default to USD if an invalid code is provided
+        }
+        currencyFormat.currency = currency
+        currencyFormat.maximumFractionDigits = 0 // No cents
+
+        // Remove the ISO country code and keep only the symbol
+        val decimalFormatSymbols = (currencyFormat as java.text.DecimalFormat).decimalFormatSymbols
+        decimalFormatSymbols.currencySymbol = currency.symbol
+        currencyFormat.decimalFormatSymbols = decimalFormatSymbols
+
+        return currencyFormat
     }
 
     private fun fetchPrice(currency: String?, callback: (String?, String?) -> Unit) {
