@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (7.25.1):
+  - BugsnagReactNative (8.0.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -2121,7 +2121,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 4cb898d0bf20404aab1850c656dcea009429d6c1
-  BugsnagReactNative: 0e335dab2447e0cb761ca271d6d26699e4ae61db
+  BugsnagReactNative: c712dfc4b0b1cce9f195d5476c0ea05c2cbb7b23
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
