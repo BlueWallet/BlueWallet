@@ -59,18 +59,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>JSON File</string>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>public.json</string>
-			</array>
-		</dict>
-		<dict>
 			<key>CFBundleTypeIconFiles</key>
 			<array/>
 			<key>CFBundleTypeName</key>
@@ -239,10 +227,6 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
 			<key>UTTypeDescription</key>
 			<string>BW COSIGNER</string>
 			<key>UTTypeIconFiles</key>
@@ -288,8 +272,6 @@
 			<string>JSON File</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>public.json</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -360,10 +342,6 @@
 			</dict>
 		</dict>
 		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
 			<key>UTTypeDescription</key>
 			<string>BW COSIGNER</string>
 			<key>UTTypeIconFiles</key>
