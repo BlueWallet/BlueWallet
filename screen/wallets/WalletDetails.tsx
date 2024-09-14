@@ -55,8 +55,6 @@ const WalletDetails: React.FC = () => {
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
   const walletRef = useRef<TWallet | undefined>(wallets.find(w => w.getID() === walletID));
   const wallet = walletRef.current as TWallet;
-
-  const [walletName, setWalletName] = useState<string>(wallet.getLabel());
   const [walletUseWithHardwareWallet, setWalletUseWithHardwareWallet] = useState<boolean>(
     wallet.useWithHardwareWalletEnabled ? wallet.useWithHardwareWalletEnabled() : false,
   );
