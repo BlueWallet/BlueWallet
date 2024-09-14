@@ -201,7 +201,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     getTotalBalancePreferredUnit()
       .then(unit => {
         console.debug('SettingsContext totalBalancePreferredUnit:', unit);
-        setTotalBalancePreferredUnit(unit);
+        setTotalBalancePreferredUnitState(unit);
       })
       .catch(error => console.error('Error fetching total balance preferred unit:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
