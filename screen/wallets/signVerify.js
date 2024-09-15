@@ -4,12 +4,16 @@ import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, Sty
 import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
+import { BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import {
+  DoneAndDismissKeyboardInputAccessory,
+  DoneAndDismissKeyboardInputAccessoryViewID,
+} from '../../components/DoneAndDismissKeyboardInputAccessory';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -161,7 +165,7 @@ const SignVerify = () => {
         value={message}
         onChangeText={setMessage}
         testID="Message"
-        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+        inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
         style={[styles.flex, styles.text, styles.textMessage, stylesHooks.text]}
         autoCorrect={false}
         autoCapitalize="none"
@@ -201,7 +205,7 @@ const SignVerify = () => {
 
       {Platform.select({
         ios: (
-          <BlueDoneAndDismissKeyboardInputAccessory
+          <DoneAndDismissKeyboardInputAccessory
             onClearTapped={() => setMessage('')}
             onPasteTapped={text => {
               setMessage(text);
@@ -210,7 +214,7 @@ const SignVerify = () => {
           />
         ),
         android: isToolbarVisibleForAndroid && (
-          <BlueDoneAndDismissKeyboardInputAccessory
+          <DoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
               setMessage('');
               Keyboard.dismiss();

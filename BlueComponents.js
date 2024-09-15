@@ -1,22 +1,8 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef } from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  I18nManager,
-  InputAccessoryView,
-  Keyboard,
-  Platform,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
-
 import { useTheme } from './components/themes';
-import loc from './loc';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -135,60 +121,6 @@ export const BlueSpacing20 = props => {
 
 export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
-};
-
-export const BlueDismissKeyboardInputAccessory = () => {
-  const { colors } = useTheme();
-  BlueDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
-
-  return Platform.OS !== 'ios' ? null : (
-    <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
-      <View
-        style={{
-          backgroundColor: colors.inputBackgroundColor,
-          height: 44,
-          flex: 1,
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-        }}
-      >
-        <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
-      </View>
-    </InputAccessoryView>
-  );
-};
-
-export const BlueDoneAndDismissKeyboardInputAccessory = props => {
-  const { colors } = useTheme();
-  BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
-
-  const onPasteTapped = async () => {
-    const clipboard = await Clipboard.getString();
-    props.onPasteTapped(clipboard);
-  };
-
-  const inputView = (
-    <View
-      style={{
-        backgroundColor: colors.inputBackgroundColor,
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        maxHeight: 44,
-      }}
-    >
-      <BlueButtonLink title={loc.send.input_clear} onPress={props.onClearTapped} />
-      <BlueButtonLink title={loc.send.input_paste} onPress={onPasteTapped} />
-      <BlueButtonLink title={loc.send.input_done} onPress={Keyboard.dismiss} />
-    </View>
-  );
-
-  if (Platform.OS === 'ios') {
-    return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
-  } else {
-    return inputView;
-  }
 };
 
 export const BlueLoading = props => {

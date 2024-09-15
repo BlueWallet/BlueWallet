@@ -28,7 +28,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueDismissKeyboardInputAccessory, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -38,7 +38,7 @@ import AmountInput from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
-import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
+import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -56,6 +56,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 
 interface IPaymentDestinations {
@@ -1263,7 +1264,7 @@ const SendDetails = () => {
           unit={units[index] || amountUnit}
           editable={isEditable}
           disabled={!isEditable}
-          inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
+          inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
         />
 
         {frozenBalance > 0 && (
@@ -1292,7 +1293,7 @@ const SendDetails = () => {
           address={item.address}
           isLoading={isLoading}
           /* @ts-ignore marcos fixme */
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           launchedBy={name}
           editable={isEditable}
         />
@@ -1340,7 +1341,7 @@ const SendDetails = () => {
             editable={!isLoading}
             onSubmitEditing={Keyboard.dismiss}
             /* @ts-ignore marcos fixme */
-            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
         </View>
         <TouchableOpacity
@@ -1373,7 +1374,7 @@ const SendDetails = () => {
           feeUnit={feeUnit || BitcoinUnit.BTC}
         />
       </View>
-      <BlueDismissKeyboardInputAccessory />
+      <DismissKeyboardInputAccessory />
       {Platform.select({
         ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
         android: isAmountToolbarVisibleForAndroid && (
