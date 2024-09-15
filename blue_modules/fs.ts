@@ -1,10 +1,10 @@
 import LocalQRCode from '@remobile/react-native-qrcode-local-image';
-import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Share from 'react-native-share';
-
+import { request, PERMISSIONS } from 'react-native-permissions';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
@@ -39,6 +39,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
  * or perhabs messaging app). Provided filename should be just a file name, NOT a path
  */
+
 export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   if (Platform.OS === 'ios') {
@@ -46,44 +47,34 @@ export const writeFileAndExport = async function (fileName: string, contents: st
     await RNFS.writeFile(filePath, contents);
     await _shareOpen(filePath, showShareDialog);
   } else if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-      title: loc.send.permission_storage_title,
-      message: loc.send.permission_storage_message,
-      buttonNeutral: loc.send.permission_storage_later,
-      buttonNegative: loc._.cancel,
-      buttonPositive: loc._.ok,
-    });
-
-    // In Android 13 no WRITE_EXTERNAL_STORAGE permission is needed
-    // @see https://stackoverflow.com/questions/76311685/permissionandroid-request-always-returns-never-ask-again-without-any-prompt-r
-    if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 30) {
-      const filePath = RNFS.DownloadDirectoryPath + `/${sanitizedFileName}`;
-      try {
-        await RNFS.writeFile(filePath, contents);
-        console.log(`file saved to ${filePath}`);
-        if (showShareDialog) {
-          await _shareOpen(filePath);
-        } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName: sanitizedFileName }) });
+    const isAndroidVersion33OrAbove = Platform.Version >= 33;
+    const permissionType = isAndroidVersion33OrAbove ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
+    request(permissionType).then(async result => {
+      if (result === 'granted') {
+        const filePath = RNFS.ExternalDirectoryPath + `/${sanitizedFileName}`;
+        try {
+          await RNFS.writeFile(filePath, contents);
+          if (showShareDialog) {
+            await _shareOpen(filePath);
+          } else {
+            presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+          }
+        } catch (e: any) {
+          presentAlert({ message: e.message });
         }
-      } catch (e: any) {
-        console.log(e);
-      }
-    } else {
-      console.log('Storage Permission: Denied');
-      Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-        {
-          text: loc.send.open_settings,
-          onPress: () => {
-            Linking.openSettings();
+      } else {
+        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+          {
+            text: loc.send.open_settings,
+            onPress: () => {
+              Linking.openSettings();
+            },
+            style: 'default',
           },
-          style: 'default',
-        },
-        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-      ]);
-    }
-  } else {
-    presentAlert({ message: 'Not implemented for this platform' });
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        ]);
+      }
+    });
   }
 };
 
