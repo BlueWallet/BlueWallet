@@ -1,11 +1,12 @@
 // DrawerRoot.tsx
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer';
-import React, { useMemo } from 'react';
-import { I18nManager } from 'react-native';
+import React, { useLayoutEffect, useMemo } from 'react';
+import { I18nManager, LayoutAnimation } from 'react-native';
 
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
+import { useSettings } from '../hooks/context/useSettings';
 
 const Drawer = createDrawerNavigator();
 
@@ -15,15 +16,20 @@ const DrawerListContent = (props: any) => {
 
 const DrawerRoot = () => {
   const { isLargeScreen } = useIsLargeScreen();
+  const { isDrawerShouldHide } = useSettings();
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
       drawerPosition: I18nManager.isRTL ? 'right' : 'left',
-      drawerStyle: { width: isLargeScreen ? 320 : '0%' },
+      drawerStyle: { width: isLargeScreen && !isDrawerShouldHide ? 320 : '0%' },
       drawerType: isLargeScreen ? 'permanent' : 'back',
     }),
-    [isLargeScreen],
+    [isDrawerShouldHide, isLargeScreen],
   );
+
+  useLayoutEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [isDrawerShouldHide]);
 
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
