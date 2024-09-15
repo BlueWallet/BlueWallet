@@ -421,7 +421,6 @@
     "wallets": "Billeteras",
     "details_type": "Tipo",
     "details_use_with_hardware_wallet": "Usar con Billetera de Hardware",
-    "details_wallet_updated": "Billetera actualizada",
     "details_yes_delete": "Si, eliminar",
     "enter_bip38_password": "Ingresa la contraseña para descifrar",
     "export_title": "Exportación de Billetera",
