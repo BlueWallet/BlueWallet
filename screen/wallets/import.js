@@ -1,19 +1,16 @@
-import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, ScrollView } from 'react-native';
-
-import {
-  BlueButtonLink,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueFormLabel,
-  BlueFormMultiInput,
-  BlueSpacing20,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import {
+  DoneAndDismissKeyboardInputAccessory,
+  DoneAndDismissKeyboardInputAccessoryViewID,
+} from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -201,13 +198,13 @@ const WalletsImport = () => {
         onBlur={onBlur}
         onChangeText={setImportText}
         testID="MnemonicInput"
-        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+        inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
       />
 
       {Platform.select({ android: !isToolbarVisibleForAndroid && renderOptionsAndImportButton, default: renderOptionsAndImportButton })}
       {Platform.select({
         ios: (
-          <BlueDoneAndDismissKeyboardInputAccessory
+          <DoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
               setImportText('');
             }}
@@ -218,7 +215,7 @@ const WalletsImport = () => {
           />
         ),
         android: isToolbarVisibleForAndroid && (
-          <BlueDoneAndDismissKeyboardInputAccessory
+          <DoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
               setImportText('');
               Keyboard.dismiss();

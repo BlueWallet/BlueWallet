@@ -83,6 +83,8 @@ interface SettingsContextType {
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
   setTotalBalancePreferredUnitStorage: (unit: BitcoinUnit) => Promise<void>;
+  isDrawerShouldHide: boolean;
+  setIsDrawerShouldHide: (value: boolean) => void;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -108,6 +110,8 @@ const defaultSettingsContext: SettingsContextType = {
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
   setTotalBalancePreferredUnitStorage: async (unit: BitcoinUnit) => {},
+  isDrawerShouldHide: false,
+  setIsDrawerShouldHide: () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -134,6 +138,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Total Balance
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnitState] = useState<BitcoinUnit>(BitcoinUnit.BTC);
+
+  // Toggle Drawer (for screens like Manage Wallets or ScanQRCode)
+  const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
 
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
@@ -312,6 +319,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
+      isDrawerShouldHide,
+      setIsDrawerShouldHide,
     }),
     [
       preferredFiatCurrency,
@@ -336,6 +345,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
+      isDrawerShouldHide,
+      setIsDrawerShouldHide,
     ],
   );
 
