@@ -384,8 +384,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await element(by.id('BIP47Switch')).tap();
       await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
       await expect(element(by.text('Contacts'))).toBeVisible();
-      await element(by.text('Save')).tap(); // automatically goes back 1 screen
-      await element(by.text('OK')).tap();
+      await device.pressBack();
     } else {
       await device.pressBack();
     }
@@ -505,18 +504,16 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // rename test
-    await element(by.id('WalletNameInput')).replaceText('testname\n');
-    await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
+    await element(by.id('WalletNameInput')).replaceText('testname');
+    await device.pressBack();
+    await sup('testname');
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
 
     // rename back
-    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');
-    await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
+    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)');
+    await device.pressBack();
+    await sup('Imported HD SegWit (BIP84 Bech32 Native)');
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 

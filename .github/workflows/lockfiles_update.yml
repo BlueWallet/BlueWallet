@@ -1,0 +1,97 @@
+name: Lock Files Update
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  pod-update:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+
+      - name: Checkout master branch
+        uses: actions/checkout@v4
+        with:
+          ref: master  # Ensures we're checking out the master branch
+          fetch-depth: 0 # Ensures full history to enable branch deletion and recreation
+
+      - name: Delete existing branch
+        run: |
+          git push origin --delete pod-update-branch || echo "Branch does not exist, continuing..."
+          git branch -D pod-update-branch || echo "Local branch does not exist, continuing..."
+
+      - name: Create new branch from master
+        run: git checkout -b pod-update-branch  # Create a new branch from the master branch
+
+      - name: Specify node version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install node modules
+        run: npm install
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install and update Ruby Gems
+        run: |
+          bundle install
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          cd ios
+          pod install
+          pod update
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          git diff --quiet package-lock.json ios/Podfile.lock || echo "Changes detected"
+        continue-on-error: true
+
+      - name: Stop job if no changes
+        if: steps.check-changes.outcome == 'success'
+        run: |
+          echo "No changes detected in package-lock.json or Podfile.lock. Stopping the job."
+          exit 0
+
+      - name: Commit changes
+        if: steps.check-changes.outcome != 'success'
+        run: |
+          git add package-lock.json ios/Podfile.lock
+          git commit -m "Update lock files"
+
+      # Step 10: Get the list of changed files for PR description
+      - name: Get changed files for PR description
+        id: get-changes
+        if: steps.check-changes.outcome != 'success'
+        run: |
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          echo "CHANGES=$(cat changed_files.txt)" >> $GITHUB_ENV
+
+      # Step 11: Push the changes and create the PR using the LockFiles PAT
+      - name: Push and create PR
+        if: steps.check-changes.outcome != 'success'
+        run: |
+          git push origin pod-update-branch
+          gh pr create --title "Lock Files Updates" --body "The following lock files were updated:\n\n${{ env.CHANGES }}" --base master
+        env:
+          GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }} # Use the LockFiles PAT for PR creation
+
+  cleanup:
+    runs-on: macos-latest
+    if: github.event.pull_request.merged == true || github.event.pull_request.state == 'closed'
+    needs: pod-update
+    steps:
+
+      - name: Delete branch after PR merge/close
+        run: |
+          git push origin --delete pod-update-branch
