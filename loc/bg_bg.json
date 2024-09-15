@@ -174,7 +174,7 @@
     "electrum_connected_not": "Няма връзка",
     "electrum_saved": "Промените бяха запазени успешно. Моля, рестартирайте Блу Уолет за да видите промените.",
     "set_electrum_server_as_default": "Задайте {server} като Електрум сървър по подразбиране? ",
-    "set_lndhub_as_default": "Задайте {url} като LNDHub сървър по подразбиране?",
+    "set_lndhub_as_default": "Задайте {url} като LNDhub сървър по подразбиране?",
     "electrum_status": "Статус",
     "electrum_clear_alert_title": "Изчисти историята?",
     "electrum_clear_alert_message": "Искате ли да изтриете електрум сървър историята?",

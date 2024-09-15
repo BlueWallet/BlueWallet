@@ -5,7 +5,7 @@ import { Icon } from '@rneui/themed';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import { BlueCard, BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
@@ -17,6 +17,7 @@ import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
@@ -307,7 +308,7 @@ const ScanLndInvoice = () => {
               onChangeText={setAmount}
               disabled={!decoded || isLoading || decoded.num_satoshis > 0}
               unit={unit}
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
           </View>
 
@@ -321,7 +322,7 @@ const ScanLndInvoice = () => {
               address={destination}
               isLoading={isLoading}
               placeholder={loc.lnd.placeholder}
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
               launchedBy={name}
               onBlur={onBlur}
               keyboardType="email-address"
@@ -355,7 +356,7 @@ const ScanLndInvoice = () => {
           {renderWalletSelectionButton()}
         </ScrollView>
       </View>
-      <BlueDismissKeyboardInputAccessory />
+      <DismissKeyboardInputAccessory />
     </SafeArea>
   );
 };

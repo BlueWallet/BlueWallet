@@ -1,4 +1,4 @@
-import { AccessibilityRole, ViewStyle } from 'react-native';
+import { AccessibilityRole, ViewStyle, ColorValue } from 'react-native';
 
 export interface Action {
   id: string | number;
@@ -7,13 +7,19 @@ export interface Action {
     iconValue: string;
   };
   menuTitle?: string;
+  subtitle?: string;
   menuState?: 'mixed' | boolean | undefined;
+  displayInline?: boolean; // Indicates if subactions should be displayed inline or nested (iOS only)
+  image?: string;
+  imageColor?: ColorValue;
+  destructive?: boolean;
+  hidden?: boolean;
   disabled?: boolean;
-  displayInline?: boolean;
+  subactions?: Action[]; // Nested/Inline actions (subactions) within an action
 }
 
 export interface ToolTipMenuProps {
-  actions: Action[] | Action[][];
+  actions: Action[];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
   dismissMenu?: () => void;

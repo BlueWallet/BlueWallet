@@ -69,8 +69,6 @@ interface SettingsContextType {
   setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
   isPrivacyBlurEnabled: boolean;
   setIsPrivacyBlurEnabledState: (value: boolean) => void;
-  isAdvancedModeEnabled: boolean;
-  setIsAdvancedModeEnabledStorage: (value: boolean) => Promise<void>;
   isDoNotTrackEnabled: boolean;
   setDoNotTrackStorage: (value: boolean) => Promise<void>;
   isWidgetBalanceDisplayAllowed: boolean;
@@ -98,8 +96,6 @@ const defaultSettingsContext: SettingsContextType = {
   setIsHandOffUseEnabledAsyncStorage: async () => {},
   isPrivacyBlurEnabled: true,
   setIsPrivacyBlurEnabledState: () => {},
-  isAdvancedModeEnabled: false,
-  setIsAdvancedModeEnabledStorage: async () => {},
   isDoNotTrackEnabled: false,
   setDoNotTrackStorage: async () => {},
   isWidgetBalanceDisplayAllowed: true,
@@ -129,8 +125,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isHandOffUseEnabled, setHandOffUseEnabled] = useState<boolean>(false);
   // PrivacyBlur
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
-  // AdvancedMode
-  const [isAdvancedModeEnabled, setIsAdvancedModeEnabled] = useState<boolean>(false);
   // DoNotTrack
   const [isDoNotTrackEnabled, setIsDoNotTrackEnabled] = useState<boolean>(false);
   // WidgetCommunication
@@ -148,19 +142,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Toggle Drawer (for screens like Manage Wallets or ScanQRCode)
   const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
 
-  const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
-    advancedModeStorage
-      .getItem()
-      .then(advMode => {
-        console.debug('SettingsContext advMode:', advMode);
-        setIsAdvancedModeEnabled(advMode ? JSON.parse(advMode) : false);
-      })
-      .catch(error => console.error('Error fetching advanced mode settings:', error));
-
     getIsHandOffUseEnabled()
       .then(handOff => {
         console.debug('SettingsContext handOff:', handOff);
@@ -223,7 +208,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     getTotalBalancePreferredUnit()
       .then(unit => {
         console.debug('SettingsContext totalBalancePreferredUnit:', unit);
-        setTotalBalancePreferredUnit(unit);
+        setTotalBalancePreferredUnitState(unit);
       })
       .catch(error => console.error('Error fetching total balance preferred unit:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -249,14 +234,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await saveLanguage(newLanguage);
     setLanguage(newLanguage);
   }, []);
-
-  const setIsAdvancedModeEnabledStorage = useCallback(
-    async (value: boolean) => {
-      await advancedModeStorage.setItem(JSON.stringify(value));
-      setIsAdvancedModeEnabled(value);
-    },
-    [advancedModeStorage],
-  );
 
   const setDoNotTrackStorage = useCallback(async (value: boolean) => {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -328,8 +305,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsHandOffUseEnabledAsyncStorage,
       isPrivacyBlurEnabled,
       setIsPrivacyBlurEnabledState,
-      isAdvancedModeEnabled,
-      setIsAdvancedModeEnabledStorage,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
@@ -356,8 +331,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsHandOffUseEnabledAsyncStorage,
       isPrivacyBlurEnabled,
       setIsPrivacyBlurEnabledState,
-      isAdvancedModeEnabled,
-      setIsAdvancedModeEnabledStorage,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
