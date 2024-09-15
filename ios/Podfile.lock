@@ -1662,7 +1662,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.15.1):
+  - RNReanimated (3.15.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1682,10 +1682,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.15.1)
-    - RNReanimated/worklets (= 3.15.1)
+    - RNReanimated/reanimated (= 3.15.2)
+    - RNReanimated/worklets (= 3.15.2)
     - Yoga
-  - RNReanimated/reanimated (3.15.1):
+  - RNReanimated/reanimated (3.15.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1706,7 +1706,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.15.1):
+  - RNReanimated/worklets (3.15.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2216,7 +2216,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: 2bdbd63bcdbb52c4ae81a7b0c48ab1f00c06980a
-  RNReanimated: b0912c8ba12f6c03db07c851c4de71c3eed6c83c
+  RNReanimated: ece067b779e0d6c7887c6bb80d381d0a0efd43c9
   RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: 5da7a24f31968ec74f0b091e3440080f347e279b
@@ -2226,6 +2226,6 @@ SPEC CHECKSUMS:
   TrueSheet: 49bf7af5d5a29f018f02879c26a1afe595c85829
   Yoga: 4ef80d96a5534f0e01b3055f17d1e19a9fc61b63
 
-PODFILE CHECKSUM: edeeee286bcd83aa972eda6087a61695e7f612d8
+PODFILE CHECKSUM: 95cd28e70ae47c36e1e0b30f60bba0bd6ffa77d8
 
 COCOAPODS: 1.15.2

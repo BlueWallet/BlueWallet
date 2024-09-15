@@ -665,7 +665,10 @@ const WalletsAddMultisigStep2 = () => {
 
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          <View style={styles.multiLineTextInput}>
+            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+            <BlueSpacing20 />
+          </View>
         </>
       </BottomModal>
     );
@@ -756,6 +759,7 @@ const styles = StyleSheet.create({
   modalContent: {
     paddingHorizontal: 22,
     paddingVertical: 32,
+    alignItems: 'center',
     justifyContent: 'center',
     minHeight: 450,
   },
@@ -780,7 +784,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { top: -44, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 
   secretContainer: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
