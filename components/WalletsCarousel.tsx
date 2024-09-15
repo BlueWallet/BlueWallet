@@ -61,7 +61,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
   const nStylesHooks = StyleSheet.create({
     container: isLargeScreen
       ? {
@@ -192,7 +192,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-    const isLargeScreen = useIsLargeScreen();
+    const { isLargeScreen } = useIsLargeScreen();
 
     const onPressedIn = useCallback(() => {
       if (animationsEnabled) {
@@ -248,7 +248,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     return (
       <Animated.View
         style={[
-          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
+          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
           { opacity, transform: [{ scale: scaleValue }] },
         ]}
       >
@@ -264,7 +264,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-              <Image defaultSource={image} source={image} style={iStyles.image} />
+              <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
               {!isPlaceHolder && (
                 <>
@@ -374,31 +374,27 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const flatListRef = useRef<FlatList<any>>(null);
 
-  useImperativeHandle(
-    ref,
-    (): any => {
-      return {
-        scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-        scrollToIndex: (params: {
-          animated?: boolean | null | undefined;
-          index: number;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToIndex(params),
-        scrollToItem: (params: {
-          animated?: boolean | null | undefined;
-          item: any;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToItem(params),
-        scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
-        recordInteraction: () => flatListRef.current?.recordInteraction(),
-        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-        getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
-      };
-    },
-    [],
-  );
+  useImperativeHandle(ref, (): any => {
+    return {
+      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
+      scrollToIndex: (params: {
+        animated?: boolean | null | undefined;
+        index: number;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToIndex(params),
+      scrollToItem: (params: {
+        animated?: boolean | null | undefined;
+        item: any;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToItem(params),
+      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
+      recordInteraction: () => flatListRef.current?.recordInteraction(),
+      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+    };
+  }, []);
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
     console.debug('onScrollToIndexFailed');

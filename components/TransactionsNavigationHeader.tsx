@@ -38,13 +38,15 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
         .catch((e: Error) => {
-          console.log('This Lndhub wallet does not have an onchain address API.');
+          console.log('This LNDhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
     }
   }, [wallet]);
 
   useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
     setWallet(initialWallet);
   }, [initialWallet]);
 
@@ -82,9 +84,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     const updatedWallet = updateWalletWithNewUnit(wallet, newWalletPreferredUnit);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(updatedWallet);
     onWalletUnitChange?.(updatedWallet);
   };
@@ -132,8 +134,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ? formatBalance(wallet.getBalance(), balanceUnit, true)
         : formatBalanceWithoutSuffix(wallet.getBalance(), balanceUnit, true);
     return !hideBalance && balanceFormatted;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
+  }, [wallet]);
 
   const toolTipWalletBalanceActions = useMemo(() => {
     return wallet.hideBalance
@@ -181,7 +182,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       style={styles.lineaderGradient}
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
-      <Image source={imageSource} defaultSource={imageSource} style={styles.chainIcon} />
+      <Image source={imageSource} style={styles.chainIcon} />
 
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
         {wallet.getLabel()}
@@ -218,7 +219,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
             {wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
+              ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD)
               : wallet.getPreferredBalanceUnit()}
           </Text>
         </TouchableOpacity>

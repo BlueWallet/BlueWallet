@@ -18,7 +18,7 @@ import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import { BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
@@ -30,6 +30,7 @@ import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } fr
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
@@ -403,7 +404,7 @@ const LNDCreateInvoice = () => {
             onChangeText={setAmount}
             disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
             unit={unit}
-            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
           <View style={[styles.fiat, styleHooks.fiat]}>
             <TextInput
@@ -415,11 +416,11 @@ const LNDCreateInvoice = () => {
               style={styles.fiat2}
               editable={!isLoading}
               onSubmitEditing={Keyboard.dismiss}
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
             {lnurlParams ? null : renderScanClickable()}
           </View>
-          <BlueDismissKeyboardInputAccessory />
+          <DismissKeyboardInputAccessory />
           {renderCreateButton()}
         </View>
         {renderWalletSelectionButton()}

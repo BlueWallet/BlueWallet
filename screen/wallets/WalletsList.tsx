@@ -95,7 +95,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const {
@@ -410,6 +410,7 @@ const WalletsList: React.FC = () => {
   }, [copyFromClipboard, onBarScanned, routeName]);
 
   const onRefresh = useCallback(() => {
+    console.debug('WalletsList onRefresh');
     refreshTransactions(true, false);
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
@@ -465,7 +466,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 16,
+    paddingHorizontal: 16,
   },
   listHeaderText: {
     fontWeight: 'bold',

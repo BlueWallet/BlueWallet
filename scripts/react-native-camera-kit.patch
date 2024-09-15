@@ -18,7 +18,7 @@
      renderTorchButton() {
 -        return (!this.isCaptureRetakeMode() && (<TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetTorch()}>
 -          <Image style={[{ flex: 1, justifyContent: 'center' }, this.props.torchImageStyle]} source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage} resizeMode="contain"/>
-+        return (!this.isCaptureRetakeMode() && (<TouchableOpacity style={{  backgroundColor: '#FFFFFF', borderRadius: 20 }} onPress={() => this.onSetTorch()}>
++        return (!this.isCaptureRetakeMode() && (<TouchableOpacity style={{  backgroundColor: '#FFFFFF', borderRadius: 20, height: 40, marginHorizontal: 15 }} onPress={() => this.onSetTorch()}>
 +          <Image style={[{ width: 40, height: 40, justifyContent: 'center' }, this.props.torchImageStyle]} source={this.state.torchMode ? this.props.torchOnImage : this.props.torchOffImage} resizeMode="contain"/>
          </TouchableOpacity>));
      }

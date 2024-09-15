@@ -17,15 +17,7 @@ import {
 import DefaultPreference from 'react-native-default-preference';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import {
-  BlueButtonLink,
-  BlueCard,
-  BlueDismissKeyboardInputAccessory,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueLoading,
-  BlueSpacing20,
-  BlueText,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
@@ -34,6 +26,11 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
+import {
+  DoneAndDismissKeyboardInputAccessory,
+  DoneAndDismissKeyboardInputAccessoryViewID,
+} from '../../components/DoneAndDismissKeyboardInputAccessory';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 
 export default class ElectrumSettings extends Component {
   static contextType = StorageContext;
@@ -303,7 +300,7 @@ export default class ElectrumSettings extends Component {
               autoCorrect={false}
               autoCapitalize="none"
               underlineColorAndroid="transparent"
-              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+              inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
               testID="HostInput"
               onFocus={() => this.setState({ isAndroidAddressKeyboardVisible: true })}
               onBlur={() => this.setState({ isAndroidAddressKeyboardVisible: false })}
@@ -332,7 +329,7 @@ export default class ElectrumSettings extends Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 keyboardType="number-pad"
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
                 testID="PortInput"
                 onFocus={() => this.setState({ isAndroidNumericKeyboardFocused: true })}
                 onBlur={() => this.setState({ isAndroidNumericKeyboardFocused: false })}
@@ -361,13 +358,13 @@ export default class ElectrumSettings extends Component {
           <BlueSpacing20 />
         </BlueCard>
         {Platform.select({
-          ios: <BlueDismissKeyboardInputAccessory />,
-          android: this.state.isAndroidNumericKeyboardFocused && <BlueDismissKeyboardInputAccessory />,
+          ios: <DismissKeyboardInputAccessory />,
+          android: this.state.isAndroidNumericKeyboardFocused && <DismissKeyboardInputAccessory />,
         })}
 
         {Platform.select({
           ios: (
-            <BlueDoneAndDismissKeyboardInputAccessory
+            <DoneAndDismissKeyboardInputAccessory
               onClearTapped={() => this.setState({ host: '' })}
               onPasteTapped={text => {
                 this.setState({ host: text });
@@ -376,7 +373,7 @@ export default class ElectrumSettings extends Component {
             />
           ),
           android: this.state.isAndroidAddressKeyboardVisible && (
-            <BlueDoneAndDismissKeyboardInputAccessory
+            <DoneAndDismissKeyboardInputAccessory
               onClearTapped={() => {
                 this.setState({ host: '' });
                 Keyboard.dismiss();

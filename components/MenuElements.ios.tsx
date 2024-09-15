@@ -45,11 +45,10 @@ const MenuElements = () => {
     if (reloadTransactionsMenuActionFunction && typeof reloadTransactionsMenuActionFunction === 'function') {
       reloadTransactionsMenuActionFunction();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reloadTransactionsMenuActionFunction]);
 
   useEffect(() => {
-    console.log('MenuElements: useEffect');
+    console.debug('MenuElements: useEffect');
     if (walletsInitialized) {
       eventEmitter?.addListener('openSettings', openSettings);
       eventEmitter?.addListener('addWalletMenuAction', addWalletMenuAction);
@@ -62,8 +61,7 @@ const MenuElements = () => {
       eventEmitter?.removeAllListeners('importWalletMenuAction');
       eventEmitter?.removeAllListeners('reloadTransactionsMenuAction');
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized]);
+  }, [addWalletMenuAction, importWalletMenuAction, openSettings, reloadTransactionsMenuElementsFunction, walletsInitialized]);
 
   return null;
 };

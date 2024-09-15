@@ -194,7 +194,7 @@
     "header": "Configuració",
     "language": "Idioma",
     "last_updated": "Última actualització",
-    "lightning_error_lndhub_uri": "LNDHub URI no vàlid",
+    "lightning_error_lndhub_uri": "LNDhub URI no vàlid",
     "lightning_settings": "Configuració Lightning",
     "network": "Xarxa",
     "network_electrum": "Servidor Electrum",
