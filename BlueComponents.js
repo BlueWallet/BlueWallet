@@ -24,8 +24,8 @@ export const BlueButtonLink = forwardRef((props, ref) => {
     <TouchableOpacity
       accessibilityRole="button"
       style={{
-        minHeight: 60,
         minWidth: 100,
+        minHeight: 36,
         justifyContent: 'center',
       }}
       {...props}

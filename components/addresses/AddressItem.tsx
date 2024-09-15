@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const getAvailableActions = ({ allowSignVerifyMessage }: { allowSignVerifyMessage: boolean }): Action[] | Action[][] => {
+const getAvailableActions = ({ allowSignVerifyMessage }: { allowSignVerifyMessage: boolean }): Action[] => {
   const actions = [
     {
       id: actionKeys.CopyToClipboard,

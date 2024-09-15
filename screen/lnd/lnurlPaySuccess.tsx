@@ -43,6 +43,9 @@ const LnurlPaySuccess: React.FC = () => {
       switch (successAction.tag) {
         case 'aes': {
           const preimage = lnurl.getPreimage();
+          if (!preimage) {
+            break;
+          }
           setMessage(Lnurl.decipherAES(successAction.ciphertext, preimage, successAction.iv));
           setPreamble(successAction.description);
           break;

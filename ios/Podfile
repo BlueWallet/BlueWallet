@@ -19,7 +19,6 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 
 workspace 'BlueWallet'
-project 'BlueWallet.xcodeproj'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 setup_permissions(['Camera', 'Notifications'])

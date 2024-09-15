@@ -28,8 +28,8 @@ class BitcoinPriceWidget : AppWidgetProvider() {
     }
 
     private fun clearCache(context: Context) {
-        val sharedPref = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        sharedPref.edit().clear().apply()
-        Log.d("BitcoinPriceWidget", "Cache cleared")
+        val sharedPref = context.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        sharedPref.edit().clear().apply() // Clear all preferences in the group
+        Log.d("BitcoinPriceWidget", "Cache cleared from group.io.bluewallet.bluewallet")
     }
 }

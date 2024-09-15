@@ -38,13 +38,15 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
         .catch((e: Error) => {
-          console.log('This Lndhub wallet does not have an onchain address API.');
+          console.log('This LNDhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
     }
   }, [wallet]);
 
   useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
     setWallet(initialWallet);
   }, [initialWallet]);
 
@@ -82,9 +84,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     const updatedWallet = updateWalletWithNewUnit(wallet, newWalletPreferredUnit);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(updatedWallet);
     onWalletUnitChange?.(updatedWallet);
   };
@@ -132,8 +134,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ? formatBalance(wallet.getBalance(), balanceUnit, true)
         : formatBalanceWithoutSuffix(wallet.getBalance(), balanceUnit, true);
     return !hideBalance && balanceFormatted;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
+  }, [wallet]);
 
   const toolTipWalletBalanceActions = useMemo(() => {
     return wallet.hideBalance
