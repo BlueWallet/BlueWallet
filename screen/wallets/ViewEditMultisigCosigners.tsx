@@ -35,8 +35,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SaveFileButton from '../../components/SaveFileButton';
-import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -88,9 +86,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     },
     textDestination: {
       color: colors.foregroundColor,
-    },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     vaultKeyText: {
       color: colors.alternativeTextColor,
@@ -160,10 +155,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [isSaveButtonDisabled, addListener, dispatch]),
   );
 
-  const saveFileButtonAfterOnPress = () => {
-    shareModalRef.current?.dismiss();
-  };
-
   const onSave = async () => {
     dismissAllModals();
     if (!wallet) {
@@ -226,32 +217,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
     return (
       <BottomModal
         ref={mnemonicsModalRef}
-        footerDefaultMargins
         backgroundColor={colors.elevated}
         contentContainerStyle={styles.newKeyModalContent}
-        footer={
-          <>
-            <Button
-              title={loc.multisig.share}
-              onPress={() => {
-                shareModalRef.current?.present();
-              }}
-            />
-            <BlueSpacing20 />
-          </>
+        shareButtonOnPress={() => {
+          shareModalRef.current?.present();
+        }}
+        header={
+          <View style={styles.itemKeyUnprovidedWrapper}>
+            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            </View>
+            <View style={styles.vaultKeyTextWrapper}>
+              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+              </Text>
+            </View>
+          </View>
         }
       >
-        <View style={styles.itemKeyUnprovidedWrapper}>
-          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-          </View>
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-            </Text>
-          </View>
-        </View>
-        <BlueSpacing20 />
         {vaultKeyData.xpub.length > 1 && (
           <>
             <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
@@ -581,23 +564,15 @@ const ViewEditMultisigCosigners: React.FC = () => {
         onClose={hideShareModal}
         contentContainerStyle={[styles.modalContent, styles.alignItemsCenter, styles.shareModalHeight]}
         backgroundColor={colors.elevated}
-        footerDefaultMargins
-        footer={
-          <SaveFileButton
-            style={[styles.exportButton, stylesHook.exportButton]}
-            fileContent={exportString}
-            fileName={exportFilename}
-            afterOnPress={saveFileButtonAfterOnPress}
-          >
-            <SquareButton title={loc.multisig.share} />
-          </SaveFileButton>
-        }
+        shareContent={{ fileName: exportFilename, fileContent: exportString }}
       >
-        <Text style={[styles.headerText, stylesHook.textDestination]}>
-          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-        </Text>
-        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-        <BlueSpacing20 />
+        <View style={styles.alignItemsCenter}>
+          <Text style={[styles.headerText, stylesHook.textDestination]}>
+            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+          </Text>
+          <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+          <BlueSpacing20 />
+        </View>
       </BottomModal>
     );
   };
@@ -670,16 +645,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
+  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 22 },
   textDestination: { fontWeight: '600' },
   vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingTop: 32,
-    minHeight: 370,
+    minHeight: 320,
   },
-  contentContainerStyle: { padding: 16 },
+  contentContainerStyle: {
+    padding: 16,
+  },
   modalContent: {
     padding: 22,
     justifyContent: 'center',
@@ -691,16 +667,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
+
   headerText: { fontSize: 15, color: '#13244D' },
   alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
-  shareModalHeight: { minHeight: 450 },
+  shareModalHeight: { minHeight: 370 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',

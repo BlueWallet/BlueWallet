@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
 import loc, { formatBalance } from '../loc';
@@ -53,6 +53,12 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       root: {
         backgroundColor: colors.elevated,
       },
+      input: {
+        backgroundColor: colors.inputBackgroundColor,
+        borderColor: colors.formBorder,
+        color: colors.foregroundColor,
+        width: '100%',
+      },
       feeModalItemActive: {
         backgroundColor: colors.feeActive,
       },
@@ -70,6 +76,9 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       },
       feeModalCustomText: {
         color: colors.buttonAlternativeTextColor,
+      },
+      insertCustomFeeText: {
+        color: colors.foregroundColor,
       },
       selectLabel: {
         color: colors.buttonTextColor,
@@ -162,8 +171,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       <BottomModal
         ref={feeModalRef}
         backgroundColor={colors.modal}
-        contentContainerStyle={[styles.modalContent, styles.modalContentMinHeight]}
-        footerDefaultMargins
         footer={
           <View style={styles.feeModalFooter}>
             <TouchableOpacity testID="feeCustom" accessibilityRole="button" onPress={handlePressCustom}>
@@ -172,7 +179,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
           </View>
         }
       >
-        <View style={styles.paddingTop66}>
+        <View>
           {options.map(({ label, time, fee, rate, active, disabled }) => (
             <TouchableOpacity
               accessibilityRole="button"
@@ -201,23 +208,21 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
 
         <BottomModal
           ref={customModalRef}
+          blurTint="regular"
+          onCloseModalPressed={handleCancel}
           backgroundColor={colors.modal}
-          showCloseButton={false}
-          contentContainerStyle={[styles.modalContent, styles.modalContentMinHeight]}
           footer={
             <View style={[styles.feeModalFooter, styles.feeModalFooterSpacing]}>
-              <SecondButton title={loc._.cancel} onPress={handleCancel} />
-              <View style={styles.feeModalFooterSpacing} />
               <SecondButton title={loc._.ok} onPress={handleCustomFeeSubmit} disabled={!customFee || Number(customFee) <= 0} />
             </View>
           }
           footerDefaultMargins
         >
-          <View style={styles.paddingTop30}>
-            <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{loc.send.insert_custom_fee}</Text>
+          <View>
+            <Text style={[styles.feeModalLabel, stylesHook.insertCustomFeeText]}>{loc.send.insert_custom_fee}</Text>
             <View style={styles.optionsContent} />
             <TextInput
-              style={[styles.feeModalLabel, stylesHook.feeModalLabel, styles.customFeeTextInput]}
+              style={[styles.input, stylesHook.input]}
               keyboardType="numeric"
               placeholder={loc.send.create_fee}
               value={customFee}
@@ -251,12 +256,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 8,
   },
-  modalContent: {
-    margin: 22,
-  },
-  modalContentMinHeight: Platform.OS === 'android' ? { minHeight: 400 } : {},
-  paddingTop66: { paddingVertical: 66 },
-  paddingTop30: { paddingBottom: 60, paddingTop: 30 },
   optionsContent: {
     padding: 22,
   },
@@ -277,11 +276,21 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
   },
+  inputContainer: {
+    marginBottom: 10,
+    width: '100%', // Ensure full width
+  },
+  input: {
+    borderRadius: 4,
+    padding: 8,
+    marginVertical: 8,
+    fontSize: 16,
+  },
   customFeeTextInput: {
     backgroundColor: '#FFFFFF',
     borderColor: '#9aa0aa',
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 8,
     padding: 8,
     marginVertical: 8,
     fontSize: 16,
@@ -329,9 +338,13 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   feeModalFooter: {
-    paddingBottom: 36,
+    paddingVertical: 46,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+    minHeight: 80,
   },
   feeModalFooterSpacing: {
     paddingHorizontal: 24,

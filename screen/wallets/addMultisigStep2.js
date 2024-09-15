@@ -26,8 +26,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SaveFileButton from '../../components/SaveFileButton';
-import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
@@ -112,9 +110,6 @@ const WalletsAddMultisigStep2 = () => {
     },
     textDestination: {
       color: colors.foregroundColor,
-    },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     vaultKeyText: {
       color: colors.alternativeTextColor,
@@ -581,7 +576,6 @@ const WalletsAddMultisigStep2 = () => {
         showCloseButton={!isLoading}
         footerDefaultMargins
         backgroundColor={colors.modal}
-        contentContainerStyle={styles.newKeyModalContent}
         footer={
           <View style={styles.modalFooterBottomPadding}>
             {isLoading ? (
@@ -649,7 +643,6 @@ const WalletsAddMultisigStep2 = () => {
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
         isGrabberVisible={false}
-        contentContainerStyle={styles.modalContent}
         onDismiss={() => {
           Keyboard.dismiss();
           setImportText('');
@@ -672,18 +665,13 @@ const WalletsAddMultisigStep2 = () => {
 
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          <View style={styles.multiLineTextInput}>
+            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+            <BlueSpacing20 />
+          </View>
         </>
       </BottomModal>
     );
-  };
-
-  const exportCosignerBeforeOnPress = () => {
-    setIsLoading(true);
-  };
-
-  const exportCosignerAfterOnPress = () => {
-    setIsLoading(false);
   };
 
   const hideCosignersXpubModal = () => {
@@ -697,25 +685,10 @@ const WalletsAddMultisigStep2 = () => {
         onClose={hideCosignersXpubModal}
         ref={renderCosignersXpubModalRef}
         backgroundColor={colors.modal}
+        shareContent={{ fileContent: cosignerXpub, fileName: cosignerXpubFilename }}
         footerDefaultMargins
         contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
-        footer={
-          <View style={styles.modalFooterBottomPadding}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <SaveFileButton
-                style={[styles.exportButton, stylesHook.exportButton]}
-                fileName={cosignerXpubFilename}
-                fileContent={cosignerXpub}
-                beforeOnPress={exportCosignerBeforeOnPress}
-                afterOnPress={exportCosignerAfterOnPress}
-              >
-                <SquareButton title={loc.multisig.share} />
-              </SaveFileButton>
-            )}
-          </View>
-        }
+        footer={<View style={styles.modalFooterBottomPadding}>{isLoading ? <ActivityIndicator /> : null}</View>}
       >
         <Text style={[styles.headerText, stylesHook.textDestination]}>
           {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
@@ -786,13 +759,12 @@ const styles = StyleSheet.create({
   modalContent: {
     paddingHorizontal: 22,
     paddingVertical: 32,
+    alignItems: 'center',
     justifyContent: 'center',
     minHeight: 450,
   },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    justifyContent: 'center',
-    minHeight: 450,
+  multiLineTextInput: {
+    minHeight: 200,
   },
   modalFooterBottomPadding: { paddingBottom: 26 },
   vaultKeyCircleSuccess: {
@@ -812,7 +784,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { top: -44, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 
   secretContainer: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -821,12 +793,6 @@ const styles = StyleSheet.create({
   },
   wordText: {
     fontWeight: 'bold',
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
   },
   headerText: { fontSize: 15, color: '#13244D' },
   alignItemsCenter: { alignItems: 'center' },

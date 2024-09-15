@@ -218,7 +218,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
   }, [memo]);
 
   return (
-    <>
+    <View style={styles.padding}>
       <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
       <BlueSpacing20 />
       <TextInput
@@ -243,7 +243,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         switch={switchValue}
       />
       <BlueSpacing20 />
-    </>
+    </View>
   );
 };
 
@@ -431,8 +431,7 @@ const CoinControl = () => {
             />
           </View>
         }
-        footerDefaultMargins
-        contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
+        contentContainerStyle={styles.modalMinHeight}
       >
         {output && renderOutputModalContent()}
       </BottomModal>
@@ -474,10 +473,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
-    padding: 22,
+  padding: {
+    padding: 16,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 500 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 490 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
