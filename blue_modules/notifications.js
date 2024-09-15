@@ -109,7 +109,7 @@ function Notifications(props) {
              * - if you are not using remote notification or do not have Firebase installed, use this:
              *     requestPermissions: Platform.OS === 'ios'
              */
-            requestPermissions: Platform.OS === 'ios',
+            requestPermissions: true,
           });
         }
       });
