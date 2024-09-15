@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     position: 'absolute',
     left: 16,
-    top: 44,
+    top: 55,
   },
   closeImage: {
     alignSelf: 'center',

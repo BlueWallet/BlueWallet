@@ -58,7 +58,6 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
@@ -66,6 +65,7 @@ import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
+import AddWalletButton from '../components/AddWalletButton';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -82,7 +82,7 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <PlusIcon onPress={navigateToAddWallet} />
+        <AddWalletButton onPress={navigateToAddWallet} />
         <View style={styles.width24} />
         <SettingsButton />
       </>
