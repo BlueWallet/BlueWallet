@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import PlusIcon from './icons/PlusIcon';
 import { useTheme } from './themes';
+import AddWalletButton from './AddWalletButton';
 
 interface HeaderProps {
   leftText: string;
@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWal
   return (
     <View style={[styles.root, styleWithProps.root]}>
       <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
-      {onNewWalletPress && <PlusIcon onPress={onNewWalletPress} />}
+      {onNewWalletPress && <AddWalletButton onPress={onNewWalletPress} />}
     </View>
   );
 };
