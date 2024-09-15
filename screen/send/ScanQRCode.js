@@ -1,8 +1,8 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from '@rneui/themed';
@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 let decoder = false;
 
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
   const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
@@ -118,6 +120,16 @@ const ScanQRCode = () => {
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsDrawerShouldHide(true);
+
+      return () => {
+        setIsDrawerShouldHide(false);
+      };
+    }, [setIsDrawerShouldHide]),
+  );
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();

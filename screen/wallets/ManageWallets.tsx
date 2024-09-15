@@ -24,6 +24,7 @@ import presentAlert from '../../components/Alert';
 import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { ManageWalletsListItem } from '../../components/ManageWalletsListItem';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -188,6 +189,7 @@ const reducer = (state: State, action: Action): State => {
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
   const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
+  const { setIsDrawerShouldHide } = useSettings();
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -285,6 +287,7 @@ const ManageWallets: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setIsDrawerShouldHide(true);
       const beforeRemoveListener = (e: { preventDefault: () => void; data: { action: any } }) => {
         if (!hasUnsavedChanges) {
           return;
@@ -311,8 +314,9 @@ const ManageWallets: React.FC = () => {
         if (beforeRemoveListenerRef.current) {
           navigation.removeListener('beforeRemove', beforeRemoveListenerRef.current);
         }
+        setIsDrawerShouldHide(false);
       };
-    }, [hasUnsavedChanges, navigation]),
+    }, [hasUnsavedChanges, navigation, setIsDrawerShouldHide]),
   );
 
   const renderHighlightedText = useCallback(
