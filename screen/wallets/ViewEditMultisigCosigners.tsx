@@ -657,7 +657,6 @@ const styles = StyleSheet.create({
   contentContainerStyle: {
     padding: 16,
   },
-  contentContainerStyle: { padding: 16 },
   modalContent: {
     padding: 22,
     justifyContent: 'center',

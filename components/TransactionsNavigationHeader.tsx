@@ -84,7 +84,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-
     const updatedWallet = updateWalletWithNewUnit(wallet, newWalletPreferredUnit);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(updatedWallet);
