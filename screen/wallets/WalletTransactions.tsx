@@ -420,7 +420,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       <View style={[styles.list, stylesHook.list]}>
         {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
           <WatchOnlyWarning
-            disabled={isLoading}
             handleDismiss={() => {
               wallet.isWatchOnlyWarningVisible = false;
               LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);

@@ -5,14 +5,13 @@ import loc from '../loc';
 
 interface Props {
   handleDismiss: () => void;
-  disabled?: boolean;
 }
 
-const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss, disabled }) => {
+const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss} disabled={disabled}>
+        <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss}>
           <Icon name="close" color="white" size={20} />
         </TouchableOpacity>
         <Icon name="warning" color="#FFFF" />
