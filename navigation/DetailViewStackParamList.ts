@@ -51,6 +51,7 @@ export type DetailViewStackParamList = {
   PlausibleDeniability: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
+  SettingsBlockExplorer: undefined;
   About: undefined;
   DefaultView: undefined;
   ElectrumSettings: undefined;

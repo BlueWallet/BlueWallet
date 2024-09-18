@@ -1596,7 +1596,7 @@ PODS:
     - React
   - RNCAsyncStorage (1.24.0):
     - React-Core
-  - RNCClipboard (1.14.1):
+  - RNCClipboard (1.14.2):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -1641,7 +1641,7 @@ PODS:
     - React
   - RNRate (1.2.12):
     - React-Core
-  - RNReactNativeHapticFeedback (2.3.1):
+  - RNReactNativeHapticFeedback (2.3.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1751,7 +1751,7 @@ PODS:
     - Yoga
   - RNShare (10.2.1):
     - React-Core
-  - RNSVG (15.6.0):
+  - RNSVG (15.7.1):
     - React-Core
   - RNVectorIcons (10.2.0):
     - DoubleConversion
@@ -2202,7 +2202,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 325a7b621587dd9945306d4cbfd6b641bc20e2dd
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
-  RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
+  RNCClipboard: 5e503962f0719ace8f7fdfe9c60282b526305c85
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
@@ -2215,11 +2215,11 @@ SPEC CHECKSUMS:
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
-  RNReactNativeHapticFeedback: 2bdbd63bcdbb52c4ae81a7b0c48ab1f00c06980a
+  RNReactNativeHapticFeedback: 9b35ff960958c399b03581140fa2d1499c09c8b6
   RNReanimated: ece067b779e0d6c7887c6bb80d381d0a0efd43c9
   RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
-  RNSVG: 5da7a24f31968ec74f0b091e3440080f347e279b
+  RNSVG: 4590aa95758149fa27c5c83e54a6a466349a1688
   RNVectorIcons: 6382277afab3c54658e9d555ee0faa7a37827136
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d

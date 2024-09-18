@@ -23,6 +23,7 @@ import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -39,6 +40,7 @@ const Broadcast: React.FC = () => {
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
+  const { selectedBlockExplorer } = useSettings();
 
   const stylesHooks = StyleSheet.create({
     input: {
@@ -158,13 +160,13 @@ const Broadcast: React.FC = () => {
             <BlueSpacing20 />
           </BlueCard>
         )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} />}
+        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer}/${tx}`} />}
       </View>
     </SafeArea>
   );
 };
 
-const SuccessScreen: React.FC<{ tx: string }> = ({ tx }) => {
+const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
   if (!tx) {
     return null;
   }
@@ -177,7 +179,7 @@ const SuccessScreen: React.FC<{ tx: string }> = ({ tx }) => {
           <BlueSpacing20 />
           <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
           <BlueSpacing10 />
-          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(`https://mempool.space/tx/${tx}`)} />
+          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
         </View>
       </BlueCard>
     </View>

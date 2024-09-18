@@ -21,6 +21,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum ButtonStatus {
   Possible,
@@ -97,6 +98,7 @@ const TransactionStatus = () => {
   const { navigate, setOptions, goBack } = useNavigation<TransactionStatusProps['navigation']>();
   const { colors } = useTheme();
   const wallet = useRef(wallets.find(w => w.getID() === walletID));
+  const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout>();
   const stylesHook = StyleSheet.create({
     value: {
@@ -481,7 +483,7 @@ const TransactionStatus = () => {
       <HandOffComponent
         title={loc.transactions.details_title}
         type={HandOffActivityType.ViewInBlockExplorer}
-        url={`https://mempool.space/tx/${tx.hash}`}
+        url={`${selectedBlockExplorer}/${tx.hash}`}
       />
 
       <View style={styles.container}>
