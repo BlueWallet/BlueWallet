@@ -1,4 +1,4 @@
-import { hashIt, helperDeleteWallet, helperImportWallet, sleep, yo } from './helperz';
+import { hashIt, helperDeleteWallet, helperImportWallet, sleep } from './helperz';
 
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
@@ -50,7 +50,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     await expect(element(by.text('bitcoin:bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv?amount=1&label=Test'))).toBeVisible();
     await device.pressBack();
-    await yo('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
