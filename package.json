@@ -137,7 +137,7 @@
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.19.0",
     "react-native-handoff": "github:BlueWallet/react-native-handoff#v0.0.4",
-    "react-native-haptic-feedback": "2.3.2",
+    "react-native-haptic-feedback": "2.3.3",
     "react-native-idle-timer": "github:BlueWallet/react-native-idle-timer#v2.2.3",
     "react-native-image-picker": "7.1.2",
     "react-native-ios-context-menu": "github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e",
