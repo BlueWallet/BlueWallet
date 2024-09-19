@@ -29,7 +29,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       '0.0001',
     );
     await sleep(15000);
-    await yo('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     try {
       // in case emulator has no google services and doesnt support pushes
