@@ -2,7 +2,7 @@ import React, { useReducer, useRef } from 'react';
 import { ScrollView } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
-import presentAlert, { AlertType } from '../components/Alert';
+import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
