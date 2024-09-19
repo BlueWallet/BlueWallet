@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from 'react';
-import { StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, TouchableOpacityProps, ViewStyle } from 'react-native';
 
 import * as fs from '../blue_modules/fs';
 import loc from '../loc';
@@ -7,7 +7,7 @@ import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
 
-interface SaveFileButtonProps {
+interface SaveFileButtonProps extends TouchableOpacityProps {
   fileName: string;
   fileContent: string;
   children?: ReactNode;
@@ -57,6 +57,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
       actions={actions}
       onPressMenuItem={handlePressMenuItem}
       buttonStyle={style as ViewStyle} // Type assertion to match ViewStyle
+      {...{ children }}
     >
       {children}
     </ToolTipMenu>

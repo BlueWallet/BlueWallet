@@ -1,14 +1,18 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { InputAccessoryView, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { Text } from '@rneui/themed';
-
 import { BlueButtonLink } from '../BlueComponents';
 import loc from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useTheme } from './themes';
 
-const InputAccessoryAllFunds = ({ balance, canUseAll, onUseAllPressed }) => {
+interface InputAccessoryAllFundsProps {
+  balance: string;
+  canUseAll: boolean;
+  onUseAllPressed: () => void;
+}
+
+const InputAccessoryAllFunds: React.FC<InputAccessoryAllFundsProps> = ({ balance, canUseAll, onUseAllPressed }) => {
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
@@ -42,7 +46,7 @@ const InputAccessoryAllFunds = ({ balance, canUseAll, onUseAllPressed }) => {
   );
 
   if (Platform.OS === 'ios') {
-    return <InputAccessoryView nativeID={InputAccessoryAllFunds.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+    return <InputAccessoryView nativeID={InputAccessoryAllFundsAccessoryViewID}>{inputView}</InputAccessoryView>;
   }
 
   // androidPlaceholder View is needed to force shrink screen (KeyboardAvoidingView) where this component is used
@@ -54,13 +58,7 @@ const InputAccessoryAllFunds = ({ balance, canUseAll, onUseAllPressed }) => {
   );
 };
 
-InputAccessoryAllFunds.InputAccessoryViewID = 'useMaxInputAccessoryViewID';
-
-InputAccessoryAllFunds.propTypes = {
-  balance: PropTypes.string.isRequired,
-  canUseAll: PropTypes.bool.isRequired,
-  onUseAllPressed: PropTypes.func.isRequired,
-};
+export const InputAccessoryAllFundsAccessoryViewID = 'useMaxInputAccessoryViewID';
 
 const styles = StyleSheet.create({
   root: {

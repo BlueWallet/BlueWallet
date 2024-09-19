@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -25,29 +25,36 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
+      
+      
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
+      
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
+      
       - name: Install dependencies with Bundler
-        run: bundle install
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
       - name: Install node_modules
-        run: npm install
+        run: npm install --omit=dev --yes
+
       - name: Install CocoaPods Dependencies
         run: |
-          gem install cocoapods
-          bundle exec pod install
-        working-directory: ./ios
+          bundle exec fastlane ios install_pods
       - name: Cache CocoaPods Pods
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
@@ -67,7 +74,6 @@ jobs:
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
       - name: Create Temporary Keychain
         run: bundle exec fastlane ios create_temp_keychain
-        working-directory: ./ios
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Setup Provisioning Profiles
@@ -80,10 +86,9 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
-        working-directory: ./ios
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/Library/MobileDevice/Provisioning Profiles
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
@@ -112,28 +117,28 @@ jobs:
           echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
       - name: Set Build Number
         run: bundle exec fastlane ios increment_build_number_lane
-        working-directory: ./ios
       - name: Determine Marketing Version
         id: determine_marketing_version
         run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
+        working-directory: ios
+        
       - name: Expected IPA file name
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
-        working-directory: ./ios
       - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-latest
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -149,7 +154,7 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
       - name: Cache Ruby Gems
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
@@ -160,15 +165,15 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
-          path: ./ios/build
+          path: ./
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
       - name: Upload to TestFlight
         env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
@@ -178,7 +183,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
-        working-directory: ./ios
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  findNodeHandle,
   FlatList,
   I18nManager,
   Keyboard,
@@ -27,7 +28,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueDismissKeyboardInputAccessory, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -37,7 +38,7 @@ import AmountInput from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
-import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
+import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -56,6 +57,8 @@ import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
 import SendAmountWarning, { SendAmountWarningHandle } from '../../components/SendAmountWarningModal';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import ActionSheet from '../ActionSheet';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -109,7 +112,7 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // This is for the SendAmountWarningModal
@@ -754,7 +757,7 @@ const SendDetails = () => {
       const res = await DocumentPicker.pickSingle({
         type:
           Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, DocumentPicker.types.json]
             : [DocumentPicker.types.allFiles],
       });
 
@@ -1096,34 +1099,30 @@ const SendDetails = () => {
   const onUseAllPressed = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
-    Alert.alert(
-      loc.send.details_adv_full,
+
+    const anchor = findNodeHandle(scrollView.current);
+    const options = {
+      title: loc.send.details_adv_full,
       message,
-      [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            Keyboard.dismiss();
-            setAddresses(addrs => {
-              addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
-              addrs[scrollIndex.current].amountSats = BitcoinUnit.MAX;
-              return [...addrs];
-            });
-            setUnits(u => {
-              u[scrollIndex.current] = BitcoinUnit.BTC;
-              return [...u];
-            });
-          },
-          style: 'default',
-        },
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-      ],
-      { cancelable: false },
-    );
+      options: [loc._.cancel, loc._.ok],
+      cancelButtonIndex: 0,
+      anchor: anchor ?? undefined,
+    };
+
+    ActionSheet.showActionSheetWithOptions(options, buttonIndex => {
+      if (buttonIndex === 1) {
+        Keyboard.dismiss();
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
+          addrs[scrollIndex.current].amountSats = BitcoinUnit.MAX;
+          return [...addrs];
+        });
+        setUnits(u => {
+          u[scrollIndex.current] = BitcoinUnit.BTC;
+          return [...u];
+        });
+      }
+    });
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
@@ -1283,7 +1282,7 @@ const SendDetails = () => {
           unit={units[index] || amountUnit}
           editable={isEditable}
           disabled={!isEditable}
-          inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
+          inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
         />
 
         {frozenBalance > 0 && (
@@ -1312,7 +1311,7 @@ const SendDetails = () => {
           address={item.address}
           isLoading={isLoading}
           /* @ts-ignore marcos fixme */
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           launchedBy={name}
           editable={isEditable}
         />
@@ -1360,7 +1359,7 @@ const SendDetails = () => {
             editable={!isLoading}
             onSubmitEditing={Keyboard.dismiss}
             /* @ts-ignore marcos fixme */
-            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
         </View>
         <TouchableOpacity
@@ -1393,7 +1392,7 @@ const SendDetails = () => {
           feeUnit={feeUnit || BitcoinUnit.BTC}
         />
       </View>
-      <BlueDismissKeyboardInputAccessory />
+      <DismissKeyboardInputAccessory />
       {Platform.select({
         ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
         android: isAmountToolbarVisibleForAndroid && (

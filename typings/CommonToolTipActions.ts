@@ -7,10 +7,18 @@ const keys = {
   OpenInBlockExplorer: 'open_in_blockExplorer',
   CopyAmount: 'copyAmount',
   CopyNote: 'copyNote',
+  ManageWallets: 'manageWallets',
+  ImportWallet: 'importWallet',
   HideBalance: 'hideBalance',
   ViewInBitcoin: 'viewInBitcoin',
   ViewInSats: 'viewInSats',
   ViewInFiat: 'viewInFiat',
+  Entropy: 'entropy',
+  SearchAccount: 'searchAccount',
+  Passphrase: 'passphrase',
+  MoreInfo: 'moreInfo',
+  SaveChanges: 'saveChanges',
+  PaymentsCode: 'paymentsCode',
 };
 
 const icons = {
@@ -29,11 +37,35 @@ const icons = {
   Note: {
     iconValue: 'note.text',
   },
+  ManageWallets: {
+    iconValue: 'slider.horizontal.3',
+  },
+  ImportWallet: {
+    iconValue: 'square.and.arrow.down.on.square',
+  },
   ViewInBitcoin: {
     iconValue: 'bitcoinsign.circle',
   },
   ViewInFiat: {
     iconValue: 'coloncurrencysign.circle',
+  },
+  Entropy: {
+    iconValue: 'dice',
+  },
+  SearchAccount: {
+    iconValue: 'magnifyingglass',
+  },
+  Passphrase: {
+    iconValue: 'rectangle.and.pencil.and.ellipsis',
+  },
+  MoreInfo: {
+    iconValue: 'info.circle',
+  },
+  SaveChanges: {
+    iconValue: 'checkmark',
+  },
+  PaymentsCode: {
+    iconValue: 'qrcode',
   },
 };
 
@@ -68,6 +100,16 @@ export const CommonToolTipActions = {
     text: loc.transactions.details_copy_note,
     icon: icons.Clipboard,
   },
+  ManageWallet: {
+    id: keys.ManageWallets,
+    text: loc.wallets.manage_title,
+    icon: icons.ManageWallets,
+  },
+  ImportWallet: {
+    id: keys.ImportWallet,
+    text: loc.wallets.add_import_wallet,
+    icon: icons.ImportWallet,
+  },
   HideBalance: {
     id: keys.HideBalance,
     text: loc.transactions.details_balance_hide,
@@ -78,7 +120,6 @@ export const CommonToolTipActions = {
     text: loc.total_balance_view.view_in_fiat,
     icon: icons.ViewInFiat,
   },
-
   ViewInSats: {
     id: keys.ViewInSats,
     text: loc.total_balance_view.view_in_sats,
@@ -88,5 +129,39 @@ export const CommonToolTipActions = {
     id: keys.ViewInBitcoin,
     text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
+  },
+  Entropy: {
+    id: keys.Entropy,
+    text: loc.wallets.add_entropy_provide,
+    icon: icons.Entropy,
+  },
+  SearchAccount: {
+    id: keys.SearchAccount,
+    text: loc.wallets.import_search_accounts,
+    icon: icons.SearchAccount,
+    menuState: false,
+  },
+  Passphrase: {
+    id: keys.Passphrase,
+    text: loc.wallets.import_passphrase,
+    icon: icons.Passphrase,
+    menuState: false,
+  },
+  MoreInfo: {
+    id: keys.MoreInfo,
+    text: loc.wallets.more_info,
+    icon: icons.MoreInfo,
+    hidden: false,
+  },
+  SaveChanges: {
+    id: keys.SaveChanges,
+    text: loc._.save,
+    icon: icons.SaveChanges,
+  },
+  PaymentCode: {
+    id: keys.PaymentsCode,
+    text: loc.bip47.purpose,
+    icon: icons.PaymentsCode,
+    menuState: false,
   },
 };

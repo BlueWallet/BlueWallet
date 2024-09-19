@@ -11,7 +11,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import * as encryption from '../../blue_modules/encryption';
 import * as fs from '../../blue_modules/fs';
 import ecc from '../../blue_modules/noble_ecc';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
@@ -22,7 +22,6 @@ import {
 } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 import SaveFileButton from '../../components/SaveFileButton';
 import loc from '../../loc';
 
@@ -285,46 +284,42 @@ export default class SelfTest extends Component {
   }
 
   render() {
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
-      <SafeArea>
-        <BlueCard>
-          <ScrollView>
-            <BlueSpacing20 />
+      <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+        <BlueSpacing20 />
 
-            {(() => {
-              if (this.state.isOk) {
-                return (
-                  <View style={styles.center}>
-                    <BlueText testID="SelfTestOk" h4>
-                      OK
-                    </BlueText>
-                    <BlueSpacing20 />
-                    <BlueText>{loc.settings.about_selftest_ok}</BlueText>
-                  </View>
-                );
-              } else {
-                return (
-                  <View style={styles.center}>
-                    <BlueText h4 numberOfLines={0}>
-                      {this.state.errorMessage}
-                    </BlueText>
-                  </View>
-                );
-              }
-            })()}
-            <BlueSpacing20 />
-            <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
-              <Button title="Test Save to Storage" />
-            </SaveFileButton>
-            <BlueSpacing20 />
-            <Button title="Test File Import" onPress={this.onPressImportDocument} />
-          </ScrollView>
-        </BlueCard>
-      </SafeArea>
+        {this.state.isLoading ? (
+          <BlueLoading />
+        ) : (
+          (() => {
+            if (this.state.isOk) {
+              return (
+                <View style={styles.center}>
+                  <BlueText testID="SelfTestOk" h4>
+                    OK
+                  </BlueText>
+                  <BlueSpacing20 />
+                  <BlueText>{loc.settings.about_selftest_ok}</BlueText>
+                </View>
+              );
+            } else {
+              return (
+                <View style={styles.center}>
+                  <BlueText h4 numberOfLines={0}>
+                    {this.state.errorMessage}
+                  </BlueText>
+                </View>
+              );
+            }
+          })()
+        )}
+        <BlueSpacing20 />
+        <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
+          <Button title="Test Save to Storage" />
+        </SaveFileButton>
+        <BlueSpacing20 />
+        <Button title="Test File Import" onPress={this.onPressImportDocument} />
+      </ScrollView>
     );
   }
 }
