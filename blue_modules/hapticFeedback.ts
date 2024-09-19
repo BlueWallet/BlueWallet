@@ -11,20 +11,19 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
-let hapticInterval: NodeJS.Timeout;
-
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
   DeviceInfo.getPowerState().then((state: Partial<PowerState>) => {
     if (!state.lowPowerMode) {
       ReactNativeHapticFeedback.trigger(type, { ignoreAndroidSystemSettings: false, enableVibrateFallback: true });
     } else {
-      console.log('Haptic feedback not triggered due to low power mode.');
+      console.debug('Haptic feedback not triggered due to low power mode.');
     }
   });
 };
 
 export const stopHapticFeedback = () => {
-  clearInterval(hapticInterval);
+  // force a final trigger to stop any ongoing haptic feedback
+  ReactNativeHapticFeedback.trigger(HapticFeedbackTypes.Selection, { ignoreAndroidSystemSettings: true });
 };
 
 export default triggerHapticFeedback;

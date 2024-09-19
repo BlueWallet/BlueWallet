@@ -28,8 +28,8 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
         triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       }, 500); // 500ms interval for "heart beat" effect due to severity of warning
     },
-    dismiss: () => {
-      modalRef.current?.dismiss();
+    dismiss: async () => {
+      await modalRef.current?.dismiss();
       if (hapticIntervalRef.current) {
         clearInterval(hapticIntervalRef.current);
         hapticIntervalRef.current = null;
