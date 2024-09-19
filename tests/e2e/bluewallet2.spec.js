@@ -40,6 +40,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
     // lets create real transaction:
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
@@ -204,6 +205,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
     // lets create real transaction:
@@ -282,7 +284,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
-
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
     // set fee rate
@@ -360,6 +362,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
     await element(by.id('advancedOptionsMenuButton')).tap();
@@ -419,6 +422,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // go to receive screen and check that payment code is there
 
+    await yo('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
 
     try {
@@ -479,6 +483,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await device.pressBack();
     await device.pressBack();
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await yo('SendButton');
+
     await element(by.id('SendButton')).tap();
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.text('Insert Contact')).tap();
@@ -636,6 +642,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await device.launchApp({ newInstance: true });
     await yo('WalletsList');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.text('Coin Control')).tap();
@@ -687,6 +694,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await device.pressBack();
 
     // create tx with unfrozen input
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('advancedOptionsMenuButton')).tap();
