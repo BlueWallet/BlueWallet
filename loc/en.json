@@ -4,6 +4,7 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "clipboard": "Clipboard",
+    "clear_clipboard_on_import": "Clear clipboard on import",
     "discard_changes": "Discard changes?",
     "discard_changes_explain": "You have unsaved changes. Are you sure you want to discard them and leave the screen?",
     "enter_password": "Enter password",
