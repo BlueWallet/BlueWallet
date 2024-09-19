@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
-
+import DefaultPreference from 'react-native-default-preference';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { BlueApp } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
+import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 
 const styles = StyleSheet.create({
   uri: {
@@ -61,28 +62,42 @@ const LightningSettings: React.FC = () => {
   });
 
   useEffect(() => {
-    AsyncStorage.getItem(BlueApp.LNDHUB)
-      .then(value => setURI(value ?? undefined))
-      .then(() => setIsLoading(false))
-      .catch(() => setIsLoading(false));
+    const fetchURI = async () => {
+      try {
+        // Try fetching from DefaultPreference first as DefaultPreference uses truly native storage
+        const value = await getLNDHub();
+        setURI(value ?? undefined);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-    if (params?.url) {
-      Alert.alert(
-        loc.formatString(loc.settings.set_lndhub_as_default, { url: params.url }) as string,
-        '',
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              params?.url && setLndhubURI(params.url);
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    }
+    const initialize = async () => {
+      setIsLoading(true);
+      await fetchURI().finally(() => {
+        setIsLoading(false);
+        if (params?.url) {
+          Alert.alert(
+            loc.formatString(loc.settings.set_lndhub_as_default, { url: params.url }) as string,
+            '',
+            [
+              {
+                text: loc._.ok,
+                onPress: () => {
+                  params?.url && setLndhubURI(params.url);
+                },
+                style: 'default',
+              },
+              { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+            ],
+            { cancelable: false },
+          );
+        }
+      });
+    };
+
+    // Call the initialize function
+    initialize();
   }, [params?.url]);
 
   const setLndhubURI = (value: string) => {
@@ -91,21 +106,24 @@ const LightningSettings: React.FC = () => {
 
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
-
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       if (URI) {
-        await LightningCustodianWallet.isValidNodeAddress(URI);
-        // validating only if its not empty. empty means use default
-      }
-      if (URI) {
-        await AsyncStorage.setItem(BlueApp.LNDHUB, URI);
+        const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
+
+        await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
+
+        await setLNDHub(normalizedURI);
       } else {
-        await AsyncStorage.removeItem(BlueApp.LNDHUB);
+        await clearLNDHub();
       }
-      presentAlert({ message: loc.settings.lightning_saved });
+
+      presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } catch (error) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
       console.log(error);
     }
