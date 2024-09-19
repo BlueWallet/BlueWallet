@@ -1,8 +1,8 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from '@rneui/themed';
@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 let decoder = false;
 
@@ -33,8 +34,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 20,
     position: 'absolute',
-    right: 16,
-    top: 44,
+    left: 16,
+    top: 55,
   },
   closeImage: {
     alignSelf: 'center',
@@ -85,6 +86,7 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
   const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
@@ -118,6 +120,16 @@ const ScanQRCode = () => {
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsDrawerShouldHide(true);
+
+      return () => {
+        setIsDrawerShouldHide(false);
+      };
+    }, [setIsDrawerShouldHide]),
+  );
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();
@@ -342,7 +354,14 @@ const ScanQRCode = () => {
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       ) : isFocused ? (
-        <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
+        <CameraScreen
+          scanBarcode
+          torchOffImage={require('../../img/flash-off.png')}
+          torchOnImage={require('../../img/flash-on.png')}
+          cameraFlipImage={require('../../img/camera-rotate-solid.png')}
+          onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
+          showFrame={false}
+        />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />

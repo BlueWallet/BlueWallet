@@ -67,13 +67,12 @@ const isReactNative = typeof navigator !== 'undefined' && navigator?.product ===
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
-  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
   private static _instance: BlueApp | null = null;
 
-  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK, BlueApp.ADVANCED_MODE_ENABLED];
+  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -376,7 +375,7 @@ export class BlueApp {
       if (!data.wallets) return false;
       const wallets = data.wallets;
       for (const key of wallets) {
-        // deciding which type is wallet and instatiating correct object
+        // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
         let unserializedWallet: TWallet;
         switch (tempObj.type) {
@@ -455,6 +454,11 @@ export class BlueApp {
             unserializedWallet.init();
             break;
           }
+          case 'lightningLdk':
+            // since ldk wallets are deprecated and removed, we need to handle a case when such wallet still exists in storage
+            unserializedWallet = new HDSegwitBech32Wallet();
+            unserializedWallet.setSecret(tempObj.secret.replace('ldk://', ''));
+            break;
           case LegacyWallet.type:
           default:
             unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
@@ -875,17 +879,6 @@ export class BlueApp {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  };
-
-  isAdvancedModeEnabled = async (): Promise<boolean> => {
-    try {
-      return !!(await AsyncStorage.getItem(BlueApp.ADVANCED_MODE_ENABLED));
-    } catch (_) {}
-    return false;
-  };
-
-  setIsAdvancedModeEnabled = async (value: boolean) => {
-    await AsyncStorage.setItem(BlueApp.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 
   isHandoffEnabled = async (): Promise<boolean> => {

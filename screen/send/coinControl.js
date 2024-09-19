@@ -86,9 +86,8 @@ const OutputList = ({
     <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
       <RNElementsListItem.CheckBox
         checkedColor="#0070FF"
-        iconType="octaicon"
-        checkedIcon="check"
-        uncheckedColor="white"
+        iconType="font-awesome"
+        checkedIcon="check-square"
         checked={selected}
         onPress={selected ? onDeSelect : onSelect}
       />
@@ -219,7 +218,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
   }, [memo]);
 
   return (
-    <>
+    <View style={styles.padding}>
       <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
       <BlueSpacing20 />
       <TextInput
@@ -244,7 +243,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         switch={switchValue}
       />
       <BlueSpacing20 />
-    </>
+    </View>
   );
 };
 
@@ -329,7 +328,6 @@ const CoinControl = () => {
   const handleChoose = item => setOutput(item);
 
   const handleUseCoin = async u => {
-    await bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
@@ -423,11 +421,17 @@ const CoinControl = () => {
         backgroundColor={colors.elevated}
         footer={
           <View style={mStyles.buttonContainer}>
-            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
+            <Button
+              testID="UseCoin"
+              title={loc.cc.use_coin}
+              onPress={async () => {
+                await bottomModalRef.current?.dismiss();
+                handleUseCoin([output]);
+              }}
+            />
           </View>
         }
-        footerDefaultMargins
-        contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
+        contentContainerStyle={styles.modalMinHeight}
       >
         {output && renderOutputModalContent()}
       </BottomModal>
@@ -469,10 +473,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
-    padding: 22,
+  padding: {
+    padding: 16,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 500 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 490 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',

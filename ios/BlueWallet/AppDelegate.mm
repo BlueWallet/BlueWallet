@@ -170,42 +170,48 @@
 }
 
 - (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
-  [super buildMenuWithBuilder:builder];
-  [builder removeMenuForIdentifier:UIMenuServices];
-  [builder removeMenuForIdentifier:UIMenuFormat];
-  [builder removeMenuForIdentifier:UIMenuToolbar];
-  
-  // File -> Add Wallet (Command + A)
- UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A"
-                                                      modifierFlags:UIKeyModifierCommand | UIKeyModifierShift
-                                                            action:@selector(addWalletAction:)];
-[addWalletCommand setTitle:@"Add Wallet"];
-  
-  // File -> Import Wallet
-  UIKeyCommand *importWalletCommand = [UIKeyCommand keyCommandWithInput:@"I" modifierFlags:UIKeyModifierCommand action:@selector(importWalletAction:)];
-  [importWalletCommand setTitle:@"Import Wallet"];
-  
-  // Group Add Wallet and Import Wallet in a displayInline menu
-  UIMenu *walletOperationsMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand, importWalletCommand]];
-  
-  // Modify the existing File menu to include Wallet Operations
-  UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
-  if (fileMenu) {
-      // Add "Reload Transactions"
-      UIKeyCommand *reloadTransactionsCommand = [UIKeyCommand keyCommandWithInput:@"R" modifierFlags:UIKeyModifierCommand action:@selector(reloadTransactionsAction:)];
-      [reloadTransactionsCommand setTitle:@"Reload Transactions"];
-      
-      // Combine wallet operations and Reload Transactions into the new File menu
-      UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[walletOperationsMenu, reloadTransactionsCommand]];
-      [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
-  }
-  
-  // BlueWallet -> Settings (Command + ,)
-  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
-  [settingsCommand setTitle:@"Settings..."];
-  UIMenu *settings = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
-  
-  [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
+    [super buildMenuWithBuilder:builder];
+    
+    // Remove unnecessary menus
+    [builder removeMenuForIdentifier:UIMenuServices];
+    [builder removeMenuForIdentifier:UIMenuFormat];
+    [builder removeMenuForIdentifier:UIMenuToolbar];
+    
+    // Remove the original Settings menu item
+    [builder removeMenuForIdentifier:UIMenuPreferences];
+    
+    // File -> Add Wallet (Command + A)
+    UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A"
+                                                        modifierFlags:UIKeyModifierCommand | UIKeyModifierShift
+                                                              action:@selector(addWalletAction:)];
+    [addWalletCommand setTitle:@"Add Wallet"];
+    
+    // File -> Import Wallet
+    UIKeyCommand *importWalletCommand = [UIKeyCommand keyCommandWithInput:@"I" modifierFlags:UIKeyModifierCommand action:@selector(importWalletAction:)];
+    [importWalletCommand setTitle:@"Import Wallet"];
+    
+    // Group Add Wallet and Import Wallet in a displayInline menu
+    UIMenu *walletOperationsMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand, importWalletCommand]];
+    
+    // Modify the existing File menu to include Wallet Operations
+    UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
+    if (fileMenu) {
+        // Add "Reload Transactions"
+        UIKeyCommand *reloadTransactionsCommand = [UIKeyCommand keyCommandWithInput:@"R" modifierFlags:UIKeyModifierCommand action:@selector(reloadTransactionsAction:)];
+        [reloadTransactionsCommand setTitle:@"Reload Transactions"];
+        
+        // Combine wallet operations and Reload Transactions into the new File menu
+        UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[walletOperationsMenu, reloadTransactionsCommand]];
+        [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
+    }
+    
+    // BlueWallet -> Settings (Command + ,)
+    UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
+    [settingsCommand setTitle:@"Settings..."];
+    UIMenu *settings = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
+    
+    // Insert the new Settings menu after the About menu
+    [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
 
 - (void)openSettings:(UIKeyCommand *)keyCommand {
@@ -247,12 +253,7 @@
 {
  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
-// Required for the notification event. You must call the completion handler after handling the remote notification.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-{
-  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-}
+
 // Required for the registrationError event.
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {

@@ -7,10 +7,10 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  findNodeHandle,
   FlatList,
   I18nManager,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -28,7 +28,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -38,7 +38,7 @@ import AmountInput from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
-import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
+import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -50,12 +50,14 @@ import { TOptions } from 'bip21';
 import assert from 'assert';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import ActionSheet from '../ActionSheet';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -109,7 +111,7 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
@@ -136,25 +138,16 @@ const SendDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
 
-  // keyboad effects
-  useEffect(() => {
-    const _keyboardDidShow = () => {
+  useKeyboard({
+    onKeyboardDidShow: () => {
       setWalletSelectionOrCoinsSelectedHidden(true);
       setIsAmountToolbarVisibleForAndroid(true);
-    };
-
-    const _keyboardDidHide = () => {
+    },
+    onKeyboardDidHide: () => {
       setWalletSelectionOrCoinsSelectedHidden(false);
       setIsAmountToolbarVisibleForAndroid(false);
-    };
-
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
+    },
+  });
 
   useEffect(() => {
     // decode route params
@@ -749,7 +742,7 @@ const SendDetails = () => {
       const res = await DocumentPicker.pickSingle({
         type:
           Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, 'public.json']
+            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, DocumentPicker.types.json]
             : [DocumentPicker.types.allFiles],
       });
 
@@ -1091,42 +1084,35 @@ const SendDetails = () => {
   const onUseAllPressed = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
-    Alert.alert(
-      loc.send.details_adv_full,
+
+    const anchor = findNodeHandle(scrollView.current);
+    const options = {
+      title: loc.send.details_adv_full,
       message,
-      [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            Keyboard.dismiss();
-            setAddresses(addrs => {
-              addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
-              addrs[scrollIndex.current].amountSats = BitcoinUnit.MAX;
-              return [...addrs];
-            });
-            setUnits(u => {
-              u[scrollIndex.current] = BitcoinUnit.BTC;
-              return [...u];
-            });
-          },
-          style: 'default',
-        },
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-      ],
-      { cancelable: false },
-    );
+      options: [loc._.cancel, loc._.ok],
+      cancelButtonIndex: 0,
+      anchor: anchor ?? undefined,
+    };
+
+    ActionSheet.showActionSheetWithOptions(options, buttonIndex => {
+      if (buttonIndex === 1) {
+        Keyboard.dismiss();
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
+          addrs[scrollIndex.current].amountSats = BitcoinUnit.MAX;
+          return [...addrs];
+        });
+        setUnits(u => {
+          u[scrollIndex.current] = BitcoinUnit.BTC;
+          return [...u];
+        });
+      }
+    });
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
-    loading: {
-      backgroundColor: colors.background,
-    },
     root: {
       backgroundColor: colors.elevated,
     },
@@ -1278,7 +1264,7 @@ const SendDetails = () => {
           unit={units[index] || amountUnit}
           editable={isEditable}
           disabled={!isEditable}
-          inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
+          inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
         />
 
         {frozenBalance > 0 && (
@@ -1307,7 +1293,7 @@ const SendDetails = () => {
           address={item.address}
           isLoading={isLoading}
           /* @ts-ignore marcos fixme */
-          inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           launchedBy={name}
           editable={isEditable}
         />
@@ -1324,78 +1310,71 @@ const SendDetails = () => {
     index,
   });
 
-  if (isLoading || !wallet) {
-    return (
-      <View style={[styles.loading, stylesHook.loading]}>
-        <BlueLoading />
-      </View>
-    );
-  }
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
-        <KeyboardAvoidingView enabled={!isTablet} behavior="position">
-          <FlatList
-            keyboardShouldPersistTaps="always"
-            scrollEnabled={addresses.length > 1}
-            data={addresses}
-            renderItem={renderBitcoinTransactionInfoFields}
-            horizontal
-            ref={scrollView}
-            pagingEnabled
-            removeClippedSubviews={false}
-            onMomentumScrollBegin={Keyboard.dismiss}
-            onScroll={handleRecipientsScroll}
-            scrollEventThrottle={16}
-            scrollIndicatorInsets={styles.scrollViewIndicator}
-            contentContainerStyle={styles.scrollViewContent}
-            getItemLayout={getItemLayout}
+        <FlatList
+          keyboardShouldPersistTaps="always"
+          scrollEnabled={addresses.length > 1}
+          data={addresses}
+          renderItem={renderBitcoinTransactionInfoFields}
+          horizontal
+          ref={scrollView}
+          automaticallyAdjustKeyboardInsets
+          pagingEnabled
+          removeClippedSubviews={false}
+          onMomentumScrollBegin={Keyboard.dismiss}
+          onScroll={handleRecipientsScroll}
+          scrollEventThrottle={16}
+          scrollIndicatorInsets={styles.scrollViewIndicator}
+          contentContainerStyle={styles.scrollViewContent}
+          getItemLayout={getItemLayout}
+        />
+        <View style={[styles.memo, stylesHook.memo]}>
+          <TextInput
+            onChangeText={setTransactionMemo}
+            placeholder={loc.send.details_note_placeholder}
+            placeholderTextColor="#81868e"
+            value={transactionMemo}
+            numberOfLines={1}
+            style={styles.memoText}
+            editable={!isLoading}
+            onSubmitEditing={Keyboard.dismiss}
+            /* @ts-ignore marcos fixme */
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
-          <View style={[styles.memo, stylesHook.memo]}>
-            <TextInput
-              onChangeText={setTransactionMemo}
-              placeholder={loc.send.details_note_placeholder}
-              placeholderTextColor="#81868e"
-              value={transactionMemo}
-              numberOfLines={1}
-              style={styles.memoText}
-              editable={!isLoading}
-              onSubmitEditing={Keyboard.dismiss}
-              /* @ts-ignore marcos fixme */
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-            />
-          </View>
-          <TouchableOpacity
-            testID="chooseFee"
-            accessibilityRole="button"
-            onPress={() => feeModalRef.current?.present()}
-            disabled={isLoading}
-            style={styles.fee}
-          >
-            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+        </View>
+        <TouchableOpacity
+          testID="chooseFee"
+          accessibilityRole="button"
+          onPress={() => feeModalRef.current?.present()}
+          disabled={isLoading}
+          style={styles.fee}
+        >
+          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-            {networkTransactionFeesIsLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
-                <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          {renderCreateButton()}
-          <SelectFeeModal
-            ref={feeModalRef}
-            networkTransactionFees={networkTransactionFees}
-            feePrecalc={feePrecalc}
-            feeRate={feeRate}
-            setCustomFee={setCustomFee}
-            setFeePrecalc={setFeePrecalc}
-          />
-        </KeyboardAvoidingView>
+          {networkTransactionFeesIsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={[styles.feeRow, stylesHook.feeRow]}>
+              <Text style={stylesHook.feeValue}>
+                {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        {renderCreateButton()}
+        <SelectFeeModal
+          ref={feeModalRef}
+          networkTransactionFees={networkTransactionFees}
+          feePrecalc={feePrecalc}
+          feeRate={feeRate}
+          setCustomFee={setCustomFee}
+          setFeePrecalc={setFeePrecalc}
+          feeUnit={feeUnit || BitcoinUnit.BTC}
+        />
       </View>
-      <BlueDismissKeyboardInputAccessory />
+      <DismissKeyboardInputAccessory />
       {Platform.select({
         ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
         android: isAmountToolbarVisibleForAndroid && (
@@ -1438,10 +1417,6 @@ SendDetails.actionIcons = {
 };
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
   root: {
     flex: 1,
     justifyContent: 'space-between',

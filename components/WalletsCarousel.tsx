@@ -61,7 +61,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
   const nStylesHooks = StyleSheet.create({
     container: isLargeScreen
       ? {
@@ -98,7 +98,6 @@ interface WalletCarouselItemProps {
   isSelectedWallet?: boolean;
   customStyle?: ViewStyle;
   horizontal?: boolean;
-  isActive?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
@@ -162,32 +161,60 @@ const iStyles = StyleSheet.create({
   },
 });
 
+interface WalletCarouselItemProps {
+  item: TWallet;
+  onPress: (item: TWallet) => void;
+  handleLongPress?: () => void;
+  isSelectedWallet?: boolean;
+  customStyle?: ViewStyle;
+  horizontal?: boolean;
+  isPlaceHolder?: boolean;
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  animationsEnabled?: boolean;
+}
+
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, searchQuery, renderHighlightedText }) => {
+  ({
+    item,
+    onPress,
+    handleLongPress,
+    isSelectedWallet,
+    customStyle,
+    horizontal,
+    searchQuery,
+    renderHighlightedText,
+    animationsEnabled = true,
+    isPlaceHolder = false,
+  }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-    const isLargeScreen = useIsLargeScreen();
+    const { isLargeScreen } = useIsLargeScreen();
 
     const onPressedIn = useCallback(() => {
-      Animated.spring(scaleValue, {
-        toValue: 0.95,
-        useNativeDriver: true,
-        friction: 3,
-        tension: 100,
-      }).start();
-    }, [scaleValue]);
+      if (animationsEnabled) {
+        Animated.spring(scaleValue, {
+          toValue: 0.95,
+          useNativeDriver: true,
+          friction: 3,
+          tension: 100,
+        }).start();
+      }
+    }, [scaleValue, animationsEnabled]);
 
     const onPressedOut = useCallback(() => {
-      Animated.spring(scaleValue, {
-        toValue: 1.0,
-        useNativeDriver: true,
-        friction: 3,
-        tension: 100,
-      }).start();
-    }, [scaleValue]);
+      if (animationsEnabled) {
+        Animated.spring(scaleValue, {
+          toValue: 1.0,
+          useNativeDriver: true,
+          friction: 3,
+          tension: 100,
+        }).start();
+      }
+    }, [scaleValue, animationsEnabled]);
 
     const handlePress = useCallback(() => {
       onPressedOut();
@@ -221,7 +248,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     return (
       <Animated.View
         style={[
-          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
+          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
           { opacity, transform: [{ scale: scaleValue }] },
         ]}
       >
@@ -239,33 +266,37 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
-              <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-                {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
-              </Text>
-              <View style={iStyles.balanceContainer}>
-                {item.hideBalance ? (
-                  <>
-                    <BlueSpacing10 />
-                    <BlurredBalanceView />
-                  </>
-                ) : (
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                    style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
-                  >
-                    {`${balance} `}
+              {!isPlaceHolder && (
+                <>
+                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                    {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
                   </Text>
-                )}
-              </View>
-              <Text style={iStyles.br} />
-              <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
-                {loc.wallets.list_latest_transaction}
-              </Text>
-              <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-                {latestTransactionText}
-              </Text>
+                  <View style={iStyles.balanceContainer}>
+                    {item.hideBalance ? (
+                      <>
+                        <BlueSpacing10 />
+                        <BlurredBalanceView />
+                      </>
+                    ) : (
+                      <Text
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                        style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                      >
+                        {`${balance} `}
+                      </Text>
+                    )}
+                  </View>
+                  <Text style={iStyles.br} />
+                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
+                    {loc.wallets.list_latest_transaction}
+                  </Text>
+                  <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                    {latestTransactionText}
+                  </Text>
+                </>
+              )}
             </LinearGradient>
           </View>
         </Pressable>
@@ -276,6 +307,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   horizontal?: boolean;
+  isFlatList?: boolean;
   selectedWallet?: string;
   onPress: (item: TWallet) => void;
   onNewWalletPress?: () => void;
@@ -313,15 +345,16 @@ const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle}
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
   const {
-    horizontal,
+    horizontal = true,
     data,
     handleLongPress,
     onPress,
     selectedWallet,
-    scrollEnabled,
+    scrollEnabled = true,
     onNewWalletPress,
     searchQuery,
     renderHighlightedText,
+    isFlatList = true,
   } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
@@ -341,31 +374,27 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const flatListRef = useRef<FlatList<any>>(null);
 
-  useImperativeHandle(
-    ref,
-    (): any => {
-      return {
-        scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-        scrollToIndex: (params: {
-          animated?: boolean | null | undefined;
-          index: number;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToIndex(params),
-        scrollToItem: (params: {
-          animated?: boolean | null | undefined;
-          item: any;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToItem(params),
-        scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
-        recordInteraction: () => flatListRef.current?.recordInteraction(),
-        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-        getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
-      };
-    },
-    [],
-  );
+  useImperativeHandle(ref, (): any => {
+    return {
+      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
+      scrollToIndex: (params: {
+        animated?: boolean | null | undefined;
+        index: number;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToIndex(params),
+      scrollToItem: (params: {
+        animated?: boolean | null | undefined;
+        item: any;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToItem(params),
+      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
+      recordInteraction: () => flatListRef.current?.recordInteraction(),
+      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+    };
+  }, []);
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
     console.debug('onScrollToIndexFailed');
@@ -382,14 +411,14 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const sliderHeight = 195;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
 
-  return horizontal ? (
+  return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
       extraData={data}
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
-      pagingEnabled
+      pagingEnabled={horizontal}
       disableIntervalMomentum={horizontal}
       snapToInterval={itemWidth}
       decelerationRate="fast"

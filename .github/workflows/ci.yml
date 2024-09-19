@@ -30,16 +30,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-npm-
 
-    - name: Use node_modules caches
-      id: cache-nm
-      uses: actions/cache@v4
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
-
     - name: Install node_modules
       if: steps.cache-nm.outputs.cache-hit != 'true'
-      run: npm install
+      run: npm ci
 
     - name: Run tests
       run: npm test || npm test || npm test || npm test
@@ -54,6 +47,9 @@ jobs:
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
         RETRY: 1
+
+    - name: Prune devDependencies
+      run: npm prune --omit=dev
 
   e2e:
     runs-on: ubuntu-latest

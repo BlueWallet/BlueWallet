@@ -2158,9 +2158,9 @@ describe('multisig-cosigner', () => {
   it('cant parse bs', () => {
     const cosigner = new MultisigCosigner('asdfasdgsqwrgqwegq');
     assert.ok(!cosigner.isValid());
-    assert.strictEqual(cosigner.getFp(), false);
-    assert.strictEqual(cosigner.getXpub(), false);
-    assert.strictEqual(cosigner.getPath(), false);
+    assert.strictEqual(cosigner.getFp(), '');
+    assert.strictEqual(cosigner.getXpub(), '');
+    assert.strictEqual(cosigner.getPath(), '');
   });
 
   it('can parse file from coldcard with multiple xpubs (for different formats)', () => {
@@ -2178,9 +2178,9 @@ describe('multisig-cosigner', () => {
     const cosigner = new MultisigCosigner(cc);
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 3);
     assert.ok(cosigner.isValid());
-    assert.strictEqual(cosigner.getFp(), false);
-    assert.strictEqual(cosigner.getXpub(), false);
-    assert.strictEqual(cosigner.getPath(), false);
+    assert.strictEqual(cosigner.getFp(), '');
+    assert.strictEqual(cosigner.getXpub(), '');
+    assert.strictEqual(cosigner.getPath(), '');
 
     const [c1, c2, c3] = cosigner.getAllCosigners();
 

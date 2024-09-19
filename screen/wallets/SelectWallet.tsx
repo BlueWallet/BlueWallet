@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigationState, useRoute, RouteProp } from '@react-navigation/native';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -39,16 +39,6 @@ const SelectWallet: React.FC = () => {
   const walletsCarousel = useRef(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
 
-  let data = !onChainRequireSend
-    ? wallets.filter(item => item.chain === Chain.ONCHAIN)
-    : chainType
-      ? wallets.filter(item => item.chain === chainType && item.allowSend())
-      : wallets.filter(item => item.allowSend());
-
-  if (availableWallets && availableWallets.length > 0) {
-    data = availableWallets;
-  }
-
   const stylesHook = StyleSheet.create({
     loading: {
       backgroundColor: colors.background,
@@ -60,11 +50,27 @@ const SelectWallet: React.FC = () => {
     setIsLoading(false);
   }, []);
 
+  const filterWallets = useCallback(() => {
+    if (availableWallets && availableWallets.length > 0) {
+      return availableWallets;
+    }
+
+    if (!onChainRequireSend && chainType === Chain.ONCHAIN) {
+      return wallets.filter(item => item.chain === Chain.ONCHAIN);
+    }
+
+    if (chainType) {
+      return wallets.filter(item => item.chain === chainType && item.allowSend());
+    }
+
+    return wallets.filter(item => item.allowSend());
+  }, [availableWallets, chainType, onChainRequireSend, wallets]);
+
   useEffect(() => {
     setOptions({
-      statusBarStyle: isLoading || data.length === 0 ? 'light' : 'auto',
+      statusBarStyle: isLoading || (availableWallets || filterWallets()).length === 0 ? 'light' : 'auto',
     });
-  }, [isLoading, data.length, setOptions]);
+  }, [isLoading, availableWallets, setOptions, filterWallets]);
 
   useEffect(() => {
     if (!isModal) {
@@ -74,8 +80,8 @@ const SelectWallet: React.FC = () => {
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
-    if (isModal) {
-      onWalletSelect?.(item, { navigation: { pop, navigate } });
+    if (onWalletSelect) {
+      onWalletSelect(item, { navigation: { pop, navigate } });
     } else {
       navigate(previousRouteName, { walletID: item.getID(), merge: true });
     }
@@ -87,7 +93,11 @@ const SelectWallet: React.FC = () => {
         <ActivityIndicator />
       </View>
     );
-  } else if (data.length <= 0) {
+  }
+
+  const filteredWallets = filterWallets();
+
+  if (filteredWallets.length <= 0) {
     return (
       <SafeArea>
         <View style={styles.noWallets}>
@@ -97,9 +107,20 @@ const SelectWallet: React.FC = () => {
         </View>
       </SafeArea>
     );
-  } else {
-    return <WalletsCarousel data={data} onPress={onPress} ref={walletsCarousel} testID="WalletsList" horizontal={false} />;
   }
+
+  return (
+    <View style={styles.walletsCarousel}>
+      <WalletsCarousel
+        data={filteredWallets}
+        scrollEnabled
+        onPress={onPress}
+        ref={walletsCarousel}
+        testID="WalletsList"
+        horizontal={false}
+      />
+    </View>
+  );
 };
 
 export default SelectWallet;
@@ -119,5 +140,9 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
+  },
+  walletsCarousel: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 });

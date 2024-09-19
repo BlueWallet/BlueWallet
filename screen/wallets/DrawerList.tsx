@@ -1,7 +1,7 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
+import { InteractionManager, LayoutAnimation, StyleSheet, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
@@ -10,6 +10,8 @@ import { useTheme } from '../../components/themes';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import TotalWalletsBalance from '../../components/TotalWalletsBalance';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -87,6 +89,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
+  const { isTotalBalanceEnabled } = useSettings();
 
   const stylesHook = useMemo(
     () =>
@@ -143,12 +146,20 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       showsVerticalScrollIndicator={false}
     >
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      {isTotalBalanceEnabled && (
+        <View style={stylesHook.root}>
+          <TotalWalletsBalance />
+        </View>
+      )}
       <WalletsCarousel
         data={state.wallets}
         extraData={[state.wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
+        horizontal={false}
+        isFlatList={false}
+        onNewWalletPress={handleClick}
         testID="WalletsList"
         selectedWallet={selectedWalletID}
         scrollEnabled={state.isFocused}

@@ -2,16 +2,14 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from '@rneui/themed';
 import WalletGradient from '../../class/wallet-gradient';
-import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
+import { RouteProp } from '@react-navigation/native';
 
-interface GetWalletTransactionsOptionsParams {
-  route: RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
-}
+export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
-const getWalletTransactionsOptions = ({ route }: GetWalletTransactionsOptionsParams): NativeStackNavigationOptions => {
+const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }): NativeStackNavigationOptions => {
   const { isLoading, walletID, walletType } = route.params;
 
   const onPress = () => {
@@ -19,6 +17,7 @@ const getWalletTransactionsOptions = ({ route }: GetWalletTransactionsOptionsPar
       walletID,
     });
   };
+
   const RightButton = (
     <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
       <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
@@ -7,26 +7,23 @@ import {
   FlatList,
   InteractionManager,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   ListRenderItemInfo,
   Platform,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
 import { Badge, Icon } from '@rneui/themed';
-import { isDesktop, isTablet } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
+  BlueCard,
   BlueFormMultiInput,
   BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -38,8 +35,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SaveFileButton from '../../components/SaveFileButton';
-import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -50,14 +45,14 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useSettings } from '../../hooks/context/useSettings';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const route = useRoute();
@@ -92,11 +87,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
     textDestination: {
       color: colors.foregroundColor,
     },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
     vaultKeyText: {
       color: colors.alternativeTextColor,
+    },
+    askPassphrase: {
+      backgroundColor: colors.lightButton,
     },
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
@@ -160,10 +155,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [isSaveButtonDisabled, addListener, dispatch]),
   );
 
-  const saveFileButtonAfterOnPress = () => {
-    shareModalRef.current?.dismiss();
-  };
-
   const onSave = async () => {
     dismissAllModals();
     if (!wallet) {
@@ -226,32 +217,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
     return (
       <BottomModal
         ref={mnemonicsModalRef}
-        footerDefaultMargins
         backgroundColor={colors.elevated}
         contentContainerStyle={styles.newKeyModalContent}
-        footer={
-          <>
-            <Button
-              title={loc.multisig.share}
-              onPress={() => {
-                shareModalRef.current?.present();
-              }}
-            />
-            <BlueSpacing20 />
-          </>
+        shareButtonOnPress={() => {
+          shareModalRef.current?.present();
+        }}
+        header={
+          <View style={styles.itemKeyUnprovidedWrapper}>
+            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            </View>
+            <View style={styles.vaultKeyTextWrapper}>
+              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+              </Text>
+            </View>
+          </View>
         }
       >
-        <View style={styles.itemKeyUnprovidedWrapper}>
-          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-          </View>
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-            </Text>
-          </View>
-        </View>
-        <BlueSpacing20 />
         {vaultKeyData.xpub.length > 1 && (
           <>
             <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
@@ -524,6 +507,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const hideShareModal = () => {};
 
+  const toolTipActions = useMemo(() => {
+    const passphrase = CommonToolTipActions.Passphrase;
+    passphrase.menuState = askPassphrase;
+    return [passphrase];
+  }, [askPassphrase]);
+
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal
@@ -546,18 +535,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
           </>
         }
       >
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-        {isAdvancedModeEnabled && (
-          <>
-            <BlueSpacing10 />
-            <View style={styles.row}>
-              <BlueText>{loc.wallets.import_passphrase}</BlueText>
-              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-            </View>
-          </>
-        )}
+        <>
+          <ToolTipMenu
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={(id: string) => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setAskPassphrase(!askPassphrase);
+            }}
+            actions={toolTipActions}
+            style={[styles.askPassprase, stylesHook.askPassphrase]}
+          >
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+          </ToolTipMenu>
+
+          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        </>
       </BottomModal>
     );
   };
@@ -569,23 +564,15 @@ const ViewEditMultisigCosigners: React.FC = () => {
         onClose={hideShareModal}
         contentContainerStyle={[styles.modalContent, styles.alignItemsCenter, styles.shareModalHeight]}
         backgroundColor={colors.elevated}
-        footerDefaultMargins
-        footer={
-          <SaveFileButton
-            style={[styles.exportButton, stylesHook.exportButton]}
-            fileContent={exportString}
-            fileName={exportFilename}
-            afterOnPress={saveFileButtonAfterOnPress}
-          >
-            <SquareButton title={loc.multisig.share} />
-          </SaveFileButton>
-        }
+        shareContent={{ fileName: exportFilename, fileContent: exportString }}
       >
-        <Text style={[styles.headerText, stylesHook.textDestination]}>
-          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-        </Text>
-        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-        <BlueSpacing20 />
+        <View style={styles.alignItemsCenter}>
+          <Text style={[styles.headerText, stylesHook.textDestination]}>
+            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+          </Text>
+          <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+          <BlueSpacing20 />
+        </View>
       </BottomModal>
     );
   };
@@ -631,23 +618,20 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-      <KeyboardAvoidingView
-        enabled={!isTablet}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={62}
-        style={[styles.mainBlock, styles.root]}
-      >
-        <FlatList
-          ListHeaderComponent={tipKeys}
-          data={data.current}
-          extraData={vaultKeyData}
-          renderItem={_renderKeyItem}
-          keyExtractor={(_item, index) => `${index}`}
-        />
-        <BlueSpacing10 />
-        {footer}
-        <BlueSpacing40 />
-      </KeyboardAvoidingView>
+      <FlatList
+        ListHeaderComponent={tipKeys}
+        data={data.current}
+        extraData={vaultKeyData}
+        renderItem={_renderKeyItem}
+        automaticallyAdjustKeyboardInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        keyExtractor={(_item, index) => `${index}`}
+        contentContainerStyle={styles.contentContainerStyle}
+      />
+      <BlueSpacing10 />
+      <BlueCard>{footer}</BlueCard>
+      <BlueSpacing20 />
 
       {renderProvideMnemonicsModal()}
 
@@ -661,14 +645,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
+  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 22 },
   textDestination: { fontWeight: '600' },
   vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingTop: 32,
-    minHeight: 370,
+    minHeight: 320,
+  },
+  contentContainerStyle: {
+    padding: 16,
   },
   modalContent: {
     padding: 22,
@@ -681,17 +667,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 32,
-  },
+
   headerText: { fontSize: 15, color: '#13244D' },
-  mainBlock: { marginHorizontal: 16 },
   alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
-  shareModalHeight: { minHeight: 450 },
+  shareModalHeight: { minHeight: 370 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
@@ -706,12 +685,8 @@ const styles = StyleSheet.create({
   tipLabelText: {
     fontWeight: '500',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
-  },
+
+  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 });
 
 export default ViewEditMultisigCosigners;

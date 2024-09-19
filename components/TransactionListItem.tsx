@@ -205,7 +205,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const onPress = useCallback(async () => {
       menuRef?.current?.dismissMenu?.();
       if (item.hash) {
-        pop();
+        if (renderHighlightedText) {
+          pop();
+        }
         navigate('TransactionStatus', { hash: item.hash, walletID });
       } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
         const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
@@ -239,7 +241,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           });
         }
       }
-    }, [item, wallets, navigate, walletID]);
+    }, [item, renderHighlightedText, navigate, walletID, wallets]);
 
     const handleOnExpandNote = useCallback(() => {
       setSubtitleNumberOfLines(0);
@@ -287,7 +289,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         handleOnViewOnBlockExplorer,
       ],
     );
-    const toolTipActions = useMemo((): Action[] | Action[][] => {
+    const toolTipActions = useMemo((): Action[] => {
       const actions: (Action | Action[])[] = [];
 
       if (rowTitle !== loc.lnd.expired) {
@@ -306,7 +308,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         actions.push([CommonToolTipActions.ExpandNote]);
       }
 
-      return actions as Action[] | Action[][];
+      return actions as Action[];
     }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines]);
 
     const accessibilityState = useMemo(() => {

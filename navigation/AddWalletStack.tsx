@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import {
@@ -49,7 +49,7 @@ const AddWalletStack = () => {
         name="AddWallet"
         component={AddComponent}
         options={navigationStyle({
-          headerBackVisible: false,
+          closeButtonPosition: CloseButtonPosition.Left,
           title: loc.wallets.add_title,
         })(theme)}
       />

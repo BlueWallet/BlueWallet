@@ -5,7 +5,6 @@ import {
   I18nManager,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Text,
@@ -19,7 +18,7 @@ import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import { BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
@@ -31,6 +30,7 @@ import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } fr
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
@@ -397,33 +397,31 @@ const LNDCreateInvoice = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, styleHooks.root]}>
         <View style={[styles.amount, styleHooks.amount]}>
-          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
-            <AmountInput
-              isLoading={isLoading}
-              amount={amount}
-              onAmountUnitChange={setUnit}
-              onChangeText={setAmount}
-              disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
-              unit={unit}
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+          <AmountInput
+            isLoading={isLoading}
+            amount={amount}
+            onAmountUnitChange={setUnit}
+            onChangeText={setAmount}
+            disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
+            unit={unit}
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+          />
+          <View style={[styles.fiat, styleHooks.fiat]}>
+            <TextInput
+              onChangeText={setDescription}
+              placeholder={loc.receive.details_label}
+              value={description}
+              numberOfLines={1}
+              placeholderTextColor="#81868e"
+              style={styles.fiat2}
+              editable={!isLoading}
+              onSubmitEditing={Keyboard.dismiss}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
-            <View style={[styles.fiat, styleHooks.fiat]}>
-              <TextInput
-                onChangeText={setDescription}
-                placeholder={loc.receive.details_label}
-                value={description}
-                numberOfLines={1}
-                placeholderTextColor="#81868e"
-                style={styles.fiat2}
-                editable={!isLoading}
-                onSubmitEditing={Keyboard.dismiss}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              {lnurlParams ? null : renderScanClickable()}
-            </View>
-            <BlueDismissKeyboardInputAccessory />
-            {renderCreateButton()}
-          </KeyboardAvoidingView>
+            {lnurlParams ? null : renderScanClickable()}
+          </View>
+          <DismissKeyboardInputAccessory />
+          {renderCreateButton()}
         </View>
         {renderWalletSelectionButton()}
       </View>

@@ -22,10 +22,9 @@ import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
-import WalletDetails from '../screen/wallets/details';
+import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
-import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
@@ -59,17 +58,21 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
+import WalletTransactions from '../screen/wallets/WalletTransactions';
+import AddWalletButton from '../components/AddWalletButton';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
+  const { wallets } = useStorage();
+  const { isTotalBalanceEnabled } = useSettings();
 
-  const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
@@ -79,7 +82,7 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
+        <AddWalletButton onPress={navigateToAddWallet} />
         <View style={styles.width24} />
         <SettingsButton />
       </>
@@ -88,11 +91,12 @@ const DetailViewStackScreensStack = () => {
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
+    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: loc.wallets.wallets,
+      title: displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
       headerShown: !isDesktop,
-      headerLargeTitle: true,
+      headerLargeTitle: displayTitle,
       headerShadowVisible: false,
       headerLargeTitleShadowVisible: false,
       headerStyle: {
@@ -100,7 +104,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => RightBarButtons,
     };
-  }, [RightBarButtons, theme.colors.customHeader, theme.colors.navigationBarColor]);
+  }, [RightBarButtons, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
@@ -110,18 +114,13 @@ const DetailViewStackScreensStack = () => {
       screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
     >
       <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-      <DetailViewStack.Screen
-        name="WalletTransactions"
-        component={WalletTransactions}
-        options={({ route }) => getWalletTransactionsOptions({ route })}
-      />
+      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
       <DetailViewStack.Screen
         name="WalletDetails"
         component={WalletDetails}
         options={navigationStyle({
           headerTitle: loc.wallets.details_title,
           statusBarStyle: 'auto',
-          headerRight: () => SaveButton,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -246,7 +245,11 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.addresses.addresses_title, statusBarStyle: 'auto' })(theme)}
       />
 
-      <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
+      <DetailViewStack.Screen
+        name="AddWalletRoot"
+        component={AddWalletStack}
+        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
+      />
       <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
@@ -379,10 +382,10 @@ const DetailViewStackScreensStack = () => {
         component={ManageWallets}
         options={navigationStyle({
           headerBackVisible: false,
-          headerLargeTitle: true,
           gestureEnabled: false,
-          presentation: 'modal',
+          presentation: 'containedModal',
           title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
         })(theme)}
       />
     </DetailViewStack.Navigator>
