@@ -24,7 +24,7 @@ export const getLNDHub = async (): Promise<string | undefined> => {
 
     return value ?? undefined;
   } catch (error) {
-    console.log('Error getting LNDHub preference:', error);
+    console.error('Error getting LNDHub preference:', (error as Error).message);
     return undefined;
   }
 };
@@ -34,7 +34,7 @@ export const setLNDHub = async (value: string): Promise<void> => {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     await DefaultPreference.set(BlueApp.LNDHUB, value);
   } catch (error) {
-    console.log('Error setting LNDHub preference:', error);
+    console.error('Error setting LNDHub preference:', error);
   }
 };
 
@@ -44,6 +44,6 @@ export const clearLNDHub = async (): Promise<void> => {
     await DefaultPreference.clear(BlueApp.LNDHUB);
     await AsyncStorage.removeItem(BlueApp.LNDHUB);
   } catch (error) {
-    console.log('Error clearing LNDHub preference:', error);
+    console.error('Error clearing LNDHub preference:', error);
   }
 };
