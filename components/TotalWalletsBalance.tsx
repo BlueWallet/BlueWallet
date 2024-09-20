@@ -37,7 +37,8 @@ const TotalWalletsBalance: React.FC = () => {
 
   const formattedBalance = useMemo(
     () => formatBalanceWithoutSuffix(Number(totalBalance), totalBalancePreferredUnit, true),
-    [totalBalance, totalBalancePreferredUnit],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [totalBalance, totalBalancePreferredUnit, preferredFiatCurrency],
   );
 
   const toolTipActions = useMemo(() => {
