@@ -26,7 +26,7 @@ const presentAlert = ({
   }
   switch (type) {
     case AlertType.Toast:
-      ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      ToastAndroid.show(message, ToastAndroid.LONG);
       break;
     default:
       RNAlert.alert(title ?? loc.alert.default, message);
