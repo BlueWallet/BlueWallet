@@ -24,6 +24,7 @@ import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
+import { getLNDHub } from '../helpers/lndHub';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -437,7 +438,7 @@ export class BlueApp {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
             let lndhub: false | any = false;
             try {
-              lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
+              lndhub = await getLNDHub();
             } catch (error) {
               console.warn(error);
             }

@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import {
@@ -18,7 +17,7 @@ import {
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-import { BlueApp, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
+import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -30,6 +29,7 @@ import ToolTipMenu from '../../components/TooltipMenu';
 import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
+import { getLNDHub } from '../../helpers/lndHub';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -261,7 +261,7 @@ const WalletsAdd: React.FC = () => {
   }, [HeaderRight, colorScheme, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
 
   useEffect(() => {
-    AsyncStorage.getItem(BlueApp.LNDHUB)
+    getLNDHub()
       .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
       .catch(() => setWalletBaseURI(''))
       .finally(() => setIsLoading(false));
