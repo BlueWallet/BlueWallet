@@ -1641,7 +1641,7 @@ PODS:
     - React
   - RNRate (1.2.12):
     - React-Core
-  - RNReactNativeHapticFeedback (2.3.2):
+  - RNReactNativeHapticFeedback (2.3.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2215,7 +2215,7 @@ SPEC CHECKSUMS:
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
-  RNReactNativeHapticFeedback: 9b35ff960958c399b03581140fa2d1499c09c8b6
+  RNReactNativeHapticFeedback: 0d591ea1e150f36cb96d868d4e8d77272243d78a
   RNReanimated: ece067b779e0d6c7887c6bb80d381d0a0efd43c9
   RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
