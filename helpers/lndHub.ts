@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueApp } from '../class';
-import { GROUP_IO_BLUEWALLET } from '..//blue_modules/currency';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
 // Function to get the value from DefaultPreference first, then fallback to AsyncStorage 
 // as DefaultPreference uses truly native storage.
