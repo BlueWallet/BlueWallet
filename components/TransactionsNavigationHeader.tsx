@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,12 +10,12 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
-import { ToolTipMenuProps } from './types';
 import ToolTipMenu from './TooltipMenu';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
-  onWalletUnitChange?: (wallet: any) => void;
+  unit: BitcoinUnit;
+  onWalletUnitChange: (unit: BitcoinUnit) => void;
   onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
 }
@@ -25,12 +25,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   onWalletUnitChange,
   onManageFundsPressed,
   onWalletBalanceVisibilityChange,
+  unit = BitcoinUnit.BTC,
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
   const { preferredFiatCurrency } = useSettings();
-
-  const menuRef = useRef<ToolTipMenuProps>(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (wallet.type === LightningCustodianWallet.type) {
@@ -55,25 +54,18 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = useCallback(() => {
-    const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
+    const value = formatBalance(wallet.getBalance(), unit);
     if (value) {
       Clipboard.setString(value);
     }
-  }, [wallet]);
+  }, [unit, wallet]);
 
   const handleBalanceVisibility = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
   }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
-  const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
-    w.preferredBalanceUnit = newPreferredUnit;
-    return w;
-  };
-
   const changeWalletBalanceUnit = () => {
-    if (menuRef.current?.dismissMenu) {
-      menuRef.current.dismissMenu();
-    }
     let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
@@ -84,10 +76,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    const updatedWallet = updateWalletWithNewUnit(wallet, newWalletPreferredUnit);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setWallet(updatedWallet);
-    onWalletUnitChange?.(updatedWallet);
+    onWalletUnitChange(newWalletPreferredUnit);
   };
 
   const handleManageFundsPressed = useCallback(
@@ -126,14 +116,14 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, []);
 
   const balance = useMemo(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const hideBalance = wallet.hideBalance;
-    const balanceUnit = wallet.getPreferredBalanceUnit();
     const balanceFormatted =
-      balanceUnit === BitcoinUnit.LOCAL_CURRENCY
-        ? formatBalance(wallet.getBalance(), balanceUnit, true)
-        : formatBalanceWithoutSuffix(wallet.getBalance(), balanceUnit, true);
+      unit === BitcoinUnit.LOCAL_CURRENCY
+        ? formatBalance(wallet.getBalance(), unit, true)
+        : formatBalanceWithoutSuffix(wallet.getBalance(), unit, true);
     return !hideBalance && balanceFormatted;
-  }, [wallet]);
+  }, [unit, wallet]);
 
   const toolTipWalletBalanceActions = useMemo(() => {
     return wallet.hideBalance
@@ -217,9 +207,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
-            {wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD)
-              : wallet.getPreferredBalanceUnit()}
+            {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
           </Text>
         </TouchableOpacity>
       </View>
