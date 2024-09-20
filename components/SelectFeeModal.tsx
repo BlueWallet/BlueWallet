@@ -38,7 +38,7 @@ interface SelectFeeModalProps {
 }
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
-  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit }, ref) => {
+  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit = BitcoinUnit.BTC }, ref) => {
     const [customFee, setCustomFeeState] = useState('');
     const feeModalRef = useRef<BottomModalHandle>(null);
     const customModalRef = useRef<BottomModalHandle>(null);
@@ -139,7 +139,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       },
     ];
 
-    const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
+    const formatFee = (fee: number) => formatBalance(fee, feeUnit, true);
 
     const handleCustomFeeSubmit = async () => {
       if (!/^\d+$/.test(customFee) || Number(customFee) <= 0) {
