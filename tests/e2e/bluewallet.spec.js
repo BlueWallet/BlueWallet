@@ -561,9 +561,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     }
 
     if (process.env.TRAVIS) await sleep(60000);
-    await sup('OK', 3 * 61000); // waiting for wallet import
-    await element(by.text('OK')).tap();
-    // ok, wallet imported
+    // await sup('OK', 3 * 61000); // waiting for wallet import
+    // await element(by.text('OK')).tap();
+    // // ok, wallet imported
 
     // lets go inside wallet
     const expectedWalletLabel = 'Multisig Vault';
@@ -705,7 +705,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(300 * 1000);
     await element(by.text('Found')).tap();
     await element(by.id('ImportButton')).tap();
-    await element(by.text('OK')).tap();
+    //  await element(by.text('OK')).tap();
 
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
