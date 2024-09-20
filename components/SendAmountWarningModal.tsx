@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, I18nManager, Animated } from 'react-native';
 import { useTheme } from '../components/themes';
 import BottomModal, { BottomModalHandle } from '../components/BottomModal';
 import loc from '../loc';
@@ -21,12 +21,29 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
   const modalRef = useRef<BottomModalHandle>(null);
   const hapticIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
   useImperativeHandle(ref, () => ({
     present: () => {
       modalRef.current?.present();
       hapticIntervalRef.current = setInterval(() => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       }, 500); // 500ms interval for "heart beat" effect due to severity of warning
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: false,
+          }),
+        ]),
+      ).start();
     },
     dismiss: async () => {
       await modalRef.current?.dismiss();
@@ -37,6 +54,11 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       stopHapticFeedback();
     },
   }));
+
+  const glowInterpolate = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['rgba(255, 0, 0, 0)', 'rgba(255, 0, 0, 0.5)'],
+  });
 
   return (
     <BottomModal
@@ -57,13 +79,15 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       }
     >
       <View style={styles.container}>
-        <Text testID="HighFeeWarningTitle" style={[styles.title, { color: colors.redText }]}>
-          {loc.send.high_fee_warning}
-        </Text>
+        <Animated.View style={[styles.titleContainer, { shadowColor: glowInterpolate }]}>
+          <Text testID="HighFeeWarningTitle" style={[styles.title, { color: colors.redText }]}>
+            {loc.send.high_fee_warning}
+          </Text>
+        </Animated.View>
         <Text style={[styles.message, { color: colors.labelText }]}>
-          {loc.send.high_fee_warning_message_part1}
-          <Text style={styles.feePercentage}>{`${feePercentage.toFixed(2)}%`}</Text>
-          {loc.send.high_fee_warning_message_part2}
+          {loc.formatString(loc.send.high_fee_warning_message, {
+            percentage: <Text style={styles.feePercentage}>{`${feePercentage.toFixed(2)}%`}</Text>,
+          })}
         </Text>
       </View>
     </BottomModal>
@@ -74,16 +98,22 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
+  titleContainer: {
+    marginVertical: 10,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 10,
   },
   message: {
     fontSize: 16,
     textAlign: 'center',
     marginVertical: 20,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   feePercentage: {
     fontWeight: 'bold',

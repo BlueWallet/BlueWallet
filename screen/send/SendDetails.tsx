@@ -704,7 +704,7 @@ const SendDetails = () => {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    requestCameraAuthorization().then(async () => {
+    requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -715,7 +715,7 @@ const SendDetails = () => {
     });
   };
 
-  const importQrTransactionOnBarScanned = async (ret: any) => {
+  const importQrTransactionOnBarScanned = (ret: any) => {
     navigation.getParent()?.getParent()?.dispatch(popAction);
     if (!wallet) return;
     if (!ret.data) ret = { data: ret };
@@ -1204,7 +1204,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={async () => {
+            onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
