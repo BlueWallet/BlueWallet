@@ -591,11 +591,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
 
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
-
     await waitFor(element(by.id('ItemUnsigned'))).toBeVisible();
     await waitFor(element(by.id('ItemSigned'))).toBeNotVisible(); // not a single green checkmark
 
