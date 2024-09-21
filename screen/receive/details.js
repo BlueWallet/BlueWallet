@@ -615,6 +615,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 50,
     fontWeight: '700',
+    flex: 0.5,
+    alignItems: 'center',
   },
   modalButtonContainer: {
     flexDirection: 'row',
