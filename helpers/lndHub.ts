@@ -1,48 +1,50 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import DefaultPreference from 'react-native-default-preference';
 import { BlueApp } from '../class';
-import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { getUserPreference, setUserPreference, clearUserPreference } from './userPreference';
 
-// Function to get the value from DefaultPreference first, then fallback to AsyncStorage 
-// as DefaultPreference uses truly native storage.
-// If found in AsyncStorage, migrate it to DefaultPreference and remove it from AsyncStorage.
+/**
+ * Function to get the LNDHub value from user preferences.
+ * @returns The stored LNDHub value or undefined if not found.
+ */
 export const getLNDHub = async (): Promise<string | undefined> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    let value = await DefaultPreference.get(BlueApp.LNDHUB);
-
-    // If not found, check AsyncStorage and migrate it to DefaultPreference
-    if (!value) {
-      value = await AsyncStorage.getItem(BlueApp.LNDHUB);
-
-      if (value) {
-        await DefaultPreference.set(BlueApp.LNDHUB, value);
-        await AsyncStorage.removeItem(BlueApp.LNDHUB);
-        console.log('Migrated LNDHub value from AsyncStorage to DefaultPreference');
-      }
-    }
-
-    return value ?? undefined;
+    const value = await getUserPreference({
+      key: BlueApp.LNDHUB,
+      migrateToGroupContainer: true,
+    });
+    return String(value) ?? undefined;
   } catch (error) {
     console.error('Error getting LNDHub preference:', (error as Error).message);
     return undefined;
   }
 };
 
+/**
+ * Function to set the LNDHub value using user preferences.
+ * @param value The value to be stored for LNDHub.
+ */
 export const setLNDHub = async (value: string): Promise<void> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    await DefaultPreference.set(BlueApp.LNDHUB, value);
+    await setUserPreference({
+      key: BlueApp.LNDHUB,
+      value,
+      migrateToGroupContainer: true,
+    });
   } catch (error) {
     console.error('Error setting LNDHub preference:', error);
   }
 };
 
+/**
+ * Function to clear the LNDHub value from user preferences.
+ * It removes the value from DefaultPreference or Settings (based on the platform).
+ */
 export const clearLNDHub = async (): Promise<void> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    await DefaultPreference.clear(BlueApp.LNDHUB);
-    await AsyncStorage.removeItem(BlueApp.LNDHUB);
+    await clearUserPreference({
+      key: BlueApp.LNDHUB,
+      useGroupContainer: true,
+      migrateToGroupContainer: true,
+    });
   } catch (error) {
     console.error('Error clearing LNDHub preference:', error);
   }

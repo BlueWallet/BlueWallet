@@ -314,6 +314,7 @@ const DetailViewStackScreensStack = () => {
         name="ElectrumSettings"
         component={ElectrumSettingsComponent}
         options={navigationStyle({ title: loc.settings.electrum_settings_server })(theme)}
+        initialParams={{ server: undefined }}
       />
       <DetailViewStack.Screen
         name="EncryptStorage"

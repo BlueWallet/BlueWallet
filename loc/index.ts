@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -11,6 +10,7 @@ import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import enJson from './en.json';
+import { getUserPreference, setUserPreference } from '../helpers/userPreference';
 
 export const STORAGE_KEY = 'lang';
 
@@ -25,7 +25,7 @@ interface ILocalization extends Omit<ILocalization1, 'formatString'> {
 }
 
 const setDateTimeLocale = async () => {
-  let lang = (await AsyncStorage.getItem(STORAGE_KEY)) ?? '';
+  let lang = ((await getUserPreference({ key: STORAGE_KEY, useGroupContainer: false })) as string) ?? '';
   let localeForDayJSAvailable = true;
   switch (lang) {
     case 'ar':
@@ -182,7 +182,8 @@ const setDateTimeLocale = async () => {
 
 const init = async () => {
   // finding out whether lang preference was saved
-  const lang = await AsyncStorage.getItem(STORAGE_KEY);
+  const lang = ((await getUserPreference({ key: STORAGE_KEY, useGroupContainer: false })) as string) ?? '';
+
   if (lang) {
     await saveLanguage(lang);
     await loc.setLanguage(lang);
@@ -266,7 +267,7 @@ const loc: ILocalization = new Localization({
 });
 
 export const saveLanguage = async (lang: string) => {
-  await AsyncStorage.setItem(STORAGE_KEY, lang);
+  await setUserPreference({ key: STORAGE_KEY, value: lang, useGroupContainer: false });
   loc.setLanguage(lang);
   // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
   if (process.env.JEST_WORKER_ID === undefined) {

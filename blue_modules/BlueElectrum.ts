@@ -1,15 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Alert } from 'react-native';
-import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Realm from 'realm';
 
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
-import { GROUP_IO_BLUEWALLET } from './currency';
+import { clearUserPreference, getUserPreference, setUserPreference } from '../helpers/userPreference';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -138,22 +136,13 @@ async function _getRealm() {
 }
 
 export async function isDisabled(): Promise<boolean> {
-  let result;
-  try {
-    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
-    if (savedValue === null) {
-      result = false;
-    } else {
-      result = savedValue;
-    }
-  } catch {
-    result = false;
-  }
-  return !!result;
+  const value = await getUserPreference({ key: ELECTRUM_CONNECTION_DISABLED, useGroupContainer: false });
+  return value as boolean;
 }
 
-export async function setDisabled(disabled = true) {
-  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+export async function setDisabled(value = true) {
+  // Set the value in DefaultPreference
+  await setUserPreference({ key: ELECTRUM_CONNECTION_DISABLED, value, useGroupContainer: false });
 }
 
 function getCurrentPeer() {
@@ -171,9 +160,9 @@ function getNextPeer() {
 }
 
 async function getSavedPeer(): Promise<Peer | null> {
-  const host = await AsyncStorage.getItem(ELECTRUM_HOST);
-  const tcpPort = await AsyncStorage.getItem(ELECTRUM_TCP_PORT);
-  const sslPort = await AsyncStorage.getItem(ELECTRUM_SSL_PORT);
+  const host = (await getUserPreference({ key: ELECTRUM_HOST, useGroupContainer: true, migrateToGroupContainer: true })) as string;
+  const tcpPort = (await getUserPreference({ key: ELECTRUM_TCP_PORT, useGroupContainer: true, migrateToGroupContainer: true })) as string;
+  const sslPort = (await getUserPreference({ key: ELECTRUM_SSL_PORT, useGroupContainer: true, migrateToGroupContainer: true })) as string;
 
   if (!host) {
     return null;
@@ -201,17 +190,16 @@ export async function connectMain(): Promise<void> {
     usingPeer = savedPeer;
   }
 
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   try {
     if (usingPeer.host.endsWith('onion')) {
       const randomPeer = getCurrentPeer();
-      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
-      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp ?? '');
-      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl ?? '');
+      await setUserPreference({ key: ELECTRUM_HOST, value: randomPeer.host, useGroupContainer: true });
+      await setUserPreference({ key: ELECTRUM_TCP_PORT, value: randomPeer.tcp ?? '', useGroupContainer: true });
+      await setUserPreference({ key: ELECTRUM_SSL_PORT, value: randomPeer.ssl ?? '', useGroupContainer: true });
     } else {
-      await DefaultPreference.set(ELECTRUM_HOST, usingPeer.host);
-      await DefaultPreference.set(ELECTRUM_TCP_PORT, usingPeer.tcp ?? '');
-      await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl ?? '');
+      await setUserPreference({ key: ELECTRUM_HOST, value: usingPeer.host, useGroupContainer: true });
+      await setUserPreference({ key: ELECTRUM_TCP_PORT, value: usingPeer.tcp ?? '', useGroupContainer: true });
+      await setUserPreference({ key: ELECTRUM_SSL_PORT, value: usingPeer.ssl ?? '', useGroupContainer: true });
     }
   } catch (e) {
     // Must be running on Android
@@ -331,14 +319,10 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
                 text: loc._.ok,
                 style: 'destructive',
                 onPress: async () => {
-                  await AsyncStorage.setItem(ELECTRUM_HOST, '');
-                  await AsyncStorage.setItem(ELECTRUM_TCP_PORT, '');
-                  await AsyncStorage.setItem(ELECTRUM_SSL_PORT, '');
                   try {
-                    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-                    await DefaultPreference.clear(ELECTRUM_HOST);
-                    await DefaultPreference.clear(ELECTRUM_SSL_PORT);
-                    await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+                    await clearUserPreference({ key: ELECTRUM_HOST, useGroupContainer: true });
+                    await clearUserPreference({ key: ELECTRUM_TCP_PORT, useGroupContainer: true });
+                    await clearUserPreference({ key: ELECTRUM_SSL_PORT, useGroupContainer: true });
                   } catch (e) {
                     // Must be running on Android
                     console.log(e);
@@ -377,7 +361,9 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getRandomDynamicPeer(): Promise<Peer> {
   try {
-    let peers = JSON.parse((await AsyncStorage.getItem(storageKey)) as string);
+    let peers = JSON.parse(
+      (await getUserPreference({ key: storageKey, useGroupContainer: true, migrateToGroupContainer: true })) as string,
+    );
     peers = peers.sort(() => Math.random() - 0.5); // shuffle
     for (const peer of peers) {
       const ret = {

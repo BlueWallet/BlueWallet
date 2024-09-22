@@ -1,9 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
-import DefaultPreference from 'react-native-default-preference';
 import { TWallet, Transaction } from '../class/wallets/types';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
-import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { clearUserPreference, getUserPreference, setUserPreference } from '../helpers/userPreference';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -14,9 +13,12 @@ enum WidgetCommunicationKeys {
 
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
-    return displayBalance === '1';
+    const displayBalance = await getUserPreference({
+      key: WidgetCommunicationKeys.DisplayBalanceAllowed,
+      useGroupContainer: false,
+      migrateToGroupContainer: true,
+    });
+    return Boolean(displayBalance);
   } catch {
     await setBalanceDisplayAllowed(true);
     return true;
@@ -24,11 +26,17 @@ export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
 };
 
 export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   if (value) {
-    await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+    await setUserPreference({
+      key: WidgetCommunicationKeys.DisplayBalanceAllowed,
+      value: true,
+      useGroupContainer: false,
+    });
   } else {
-    await DefaultPreference.clear(WidgetCommunicationKeys.DisplayBalanceAllowed);
+    await clearUserPreference({
+      key: WidgetCommunicationKeys.DisplayBalanceAllowed,
+      useGroupContainer: false,
+    });
   }
 };
 
@@ -68,11 +76,18 @@ const WidgetCommunication: React.FC = () => {
 
   const syncWidgetBalanceWithWallets = useCallback(async (): Promise<void> => {
     try {
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime(wallets, walletsInitialized);
       await Promise.all([
-        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
-        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime)),
+        setUserPreference({
+          key: WidgetCommunicationKeys.AllWalletsSatoshiBalance,
+          value: String(allWalletsBalance),
+          useGroupContainer: false,
+        }),
+        setUserPreference({
+          key: WidgetCommunicationKeys.AllWalletsLatestTransactionTime,
+          value: String(latestTransactionTime),
+          useGroupContainer: false,
+        }),
       ]);
     } catch (error) {
       console.error('Failed to sync widget balance with wallets:', error);

@@ -6,6 +6,7 @@
 	<string>Root</string>
 	<key>PreferenceSpecifiers</key>
 	<array>
+		<!-- Report Issue Section -->
 		<dict>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
@@ -19,9 +20,11 @@
 			<string>PSTextFieldSpecifier</string>
 			<key>Title</key>
 			<string>Unique ID</string>
-            <key>Key</key>
+			<key>Key</key>
 			<string>deviceUIDCopy</string>
 		</dict>
+
+		<!-- Cache Section -->
 		<dict>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
@@ -37,6 +40,22 @@
 			<string>clearFilesOnLaunch</string>
 			<key>DefaultValue</key>
 			<false/>
+		</dict>
+
+		<!-- Network Section -->
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Network</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+			<key>Title</key>
+			<string>Network</string>
+			<key>File</key>
+			<string>NetworkSettings</string>
 		</dict>
 	</array>
 </dict>

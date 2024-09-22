@@ -1,8 +1,6 @@
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
-import DefaultPreference from 'react-native-default-preference';
 import BlueClipboard from '../../blue_modules/clipboard';
-import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon } from '../../blue_modules/currency';
+import { getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
@@ -14,25 +12,32 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { LayoutAnimation } from 'react-native';
+import { clearUserPreference, getUserPreference, setUserPreference } from '../../helpers/userPreference';
 
 // DefaultPreference and AsyncStorage get/set
 
 // TotalWalletsBalance
 
 export const setTotalBalanceViewEnabled = async (value: boolean) => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(TotalWalletsBalanceKey, value ? 'true' : 'false');
+  await setUserPreference({
+    key: TotalWalletsBalanceKey,
+    value,
+    useGroupContainer: false,
+  });
   console.debug('setTotalBalanceViewEnabled value:', value);
   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 };
 
 export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-
-    const isEnabledValue = (await DefaultPreference.get(TotalWalletsBalanceKey)) ?? 'true';
+    const isEnabledValue = Boolean(
+      await getUserPreference({
+        key: TotalWalletsBalanceKey,
+        useGroupContainer: false,
+      }),
+    );
     console.debug('getIsTotalBalanceViewEnabled', isEnabledValue);
-    return isEnabledValue === 'true';
+    return isEnabledValue;
   } catch (e) {
     console.debug('getIsTotalBalanceViewEnabled error', e);
     await setTotalBalanceViewEnabled(true);
@@ -42,17 +47,23 @@ export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
 };
 
 export const setTotalBalancePreferredUnit = async (unit: BitcoinUnit) => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(TotalWalletsBalancePreferredUnit, unit);
-  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when changing unit
+  await setUserPreference({
+    key: TotalWalletsBalancePreferredUnit,
+    value: unit,
+    useGroupContainer: false,
+  });
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 };
 
 //
 
 export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const unit = ((await DefaultPreference.get(TotalWalletsBalancePreferredUnit)) as BitcoinUnit) ?? BitcoinUnit.BTC;
+    const unit =
+      ((await getUserPreference({
+        key: TotalWalletsBalancePreferredUnit,
+        useGroupContainer: false,
+      })) as BitcoinUnit) ?? BitcoinUnit.BTC;
     return unit;
   } catch (e) {
     console.debug('getPreferredUnit error', e);
@@ -142,7 +153,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Toggle Drawer (for screens like Manage Wallets or ScanQRCode)
   const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
 
-  const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
@@ -153,10 +163,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       })
       .catch(error => console.error('Error fetching hand-off usage:', error));
 
-    languageStorage
-      .getItem()
+    getUserPreference({ key: STORAGE_KEY, useGroupContainer: false })
       .then(lang => {
-        lang = lang ?? 'en';
+        lang = String(lang) ?? 'en';
         console.debug('SettingsContext lang:', lang);
         setLanguage(lang);
       })
@@ -236,19 +245,27 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const setDoNotTrackStorage = useCallback(async (value: boolean) => {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     if (value) {
-      await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
+      await setUserPreference({
+        key: BlueApp.DO_NOT_TRACK,
+        value,
+        useGroupContainer: false,
+      });
     } else {
-      await DefaultPreference.clear(BlueApp.DO_NOT_TRACK);
+      await clearUserPreference({
+        key: BlueApp.DO_NOT_TRACK,
+        useGroupContainer: false,
+      });
     }
     setIsDoNotTrackEnabled(value);
   }, []);
 
   const getDoNotTrackStorage = useCallback(async () => {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const doNotTrack = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
-    return doNotTrack === '1';
+    const doNotTrack = await getUserPreference({
+      key: BlueApp.DO_NOT_TRACK,
+      useGroupContainer: false,
+    });
+    return Boolean(doNotTrack);
   }, []);
 
   const setIsHandOffUseEnabledAsyncStorage = useCallback(async (value: boolean) => {

@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createHash from 'create-hash';
-import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Keychain from 'react-native-keychain';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
@@ -25,6 +24,7 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
+import { clearUserPreference, getUserPreference, setUserPreference } from '../helpers/userPreference';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -884,39 +884,36 @@ export class BlueApp {
 
   isHandoffEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(BlueApp.HANDOFF_STORAGE_KEY));
+      return Boolean(await getUserPreference({ key: BlueApp.HANDOFF_STORAGE_KEY, useGroupContainer: false }));
     } catch (_) {}
     return false;
   };
 
   setIsHandoffEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(BlueApp.HANDOFF_STORAGE_KEY, value ? '1' : '');
+    await setUserPreference({ key: BlueApp.HANDOFF_STORAGE_KEY, value, useGroupContainer: false });
   };
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      const keyExists = await AsyncStorage.getItem(BlueApp.DO_NOT_TRACK);
+      const keyExists = await getUserPreference({ key: BlueApp.DO_NOT_TRACK, useGroupContainer: false });
       if (keyExists !== null) {
         const doNotTrackValue = !!keyExists;
         if (doNotTrackValue) {
-          await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-          await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
-          AsyncStorage.removeItem(BlueApp.DO_NOT_TRACK);
+          await setUserPreference({ key: BlueApp.DO_NOT_TRACK, value: '1', useGroupContainer: false });
         } else {
-          return Boolean(await DefaultPreference.get(BlueApp.DO_NOT_TRACK));
+          return Boolean(await getUserPreference({ key: BlueApp.DO_NOT_TRACK, useGroupContainer: false }));
         }
       }
     } catch (_) {}
-    const doNotTrackValue = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
-    return doNotTrackValue === '1' || false;
+    const doNotTrackValue = await getUserPreference({ key: BlueApp.DO_NOT_TRACK, useGroupContainer: false });
+    return Boolean(doNotTrackValue);
   };
 
   setDoNotTrack = async (value: boolean) => {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
     if (value) {
-      await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
+      await setUserPreference({ key: BlueApp.DO_NOT_TRACK, value: true, useGroupContainer: false });
     } else {
-      await DefaultPreference.clear(BlueApp.DO_NOT_TRACK);
+      await clearUserPreference({ key: BlueApp.DO_NOT_TRACK, useGroupContainer: false });
     }
   };
 
