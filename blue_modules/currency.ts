@@ -135,14 +135,23 @@ async function updateExchangeRate(): Promise<void> {
 
 async function isRateOutdated(): Promise<boolean> {
   try {
-    const rate = (await getUserPreference({
-      key: EXCHANGE_RATES_STORAGE_KEY,
-      useGroupContainer: true,
-      migrateToGroupContainer: true,
-    })) as string;
+    try {
+        const rate = (await getUserPreference({
+            key: EXCHANGE_RATES_STORAGE_KEY,
+            useGroupContainer: true,
+            migrateToGroupContainer: true,
+        })) as string;
 
-    const parsedRate = rate ? JSON.parse(rate) : {};
-    return parsedRate.LAST_UPDATED_ERROR || Date.now() - (parsedRate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
+        let parsedRate = {};
+        if (rate) {
+            parsedRate = JSON.parse(rate);
+        }
+
+        return parsedRate.LAST_UPDATED_ERROR || Date.now() - (parsedRate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
+    } catch (error) {
+        console.error('Failed to parse exchange rates from storage', error);
+        return true;
+    }
   } catch {
     return true;
   }
