@@ -361,9 +361,9 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getRandomDynamicPeer(): Promise<Peer> {
   try {
-    let peers = JSON.parse(
-      (await getUserPreference({ key: storageKey, useGroupContainer: true, migrateToGroupContainer: true })) as string,
-    );
+    const peersJson = await getUserPreference({ key: storageKey, useGroupContainer: true, migrateToGroupContainer: true });
+    if (!peersJson) return defaultPeer; // Return default if no peers are saved
+    let peers = JSON.parse(peersJson as string);
     peers = peers.sort(() => Math.random() - 0.5); // shuffle
     for (const peer of peers) {
       const ret = {
