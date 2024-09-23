@@ -18,7 +18,7 @@ describe('currency', () => {
     // Initialize and check the currency daemon, fetching rates
     await initCurrencyDaemon();
     let cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
-    cur = JSON.parse(cur);
+
     assert.ok(Number.isInteger(cur[LAST_UPDATED]));
     assert.ok(cur[LAST_UPDATED] > 0);
     assert.ok(cur.BTC_USD > 0);
@@ -26,7 +26,7 @@ describe('currency', () => {
     // Set other currency as default using setUserPreference
     await setUserPreference({ key: PREFERRED_CURRENCY_STORAGE_KEY, value: JSON.stringify(FiatUnit.JPY) });
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY }));
+    cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
     assert.ok(cur.BTC_JPY > 0);
 
     // Set with a proper setter
@@ -34,25 +34,25 @@ describe('currency', () => {
     await initCurrencyDaemon(true);
     const preferred = await getPreferredCurrency();
     assert.strictEqual(preferred.endPointKey, 'EUR');
-    cur = JSON.parse(await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY }));
+    cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
     assert.ok(cur.BTC_EUR > 0);
 
     // Test Yadio rate source
     await setPreferredCurrency(FiatUnit.ARS);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY }));
+    cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
     assert.ok(cur.BTC_ARS > 0);
 
     // Test YadioConvert rate source
     await setPreferredCurrency(FiatUnit.LBP);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY }));
+    cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
     assert.ok(cur.BTC_LBP > 0);
 
     // Test Exir rate source
     await setPreferredCurrency(FiatUnit.IRT);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY }));
+    cur = await getUserPreference({ key: EXCHANGE_RATES_STORAGE_KEY });
     assert.ok(cur.BTC_IRT > 0);
   });
 });
