@@ -233,7 +233,7 @@ const ElectrumSettings: React.FC = () => {
 
   const HeaderRight = useMemo(
     () => (
-      <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={toolTipActions}>
+      <ToolTipMenu testID="HeaderRight" isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={toolTipActions}>
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
       </ToolTipMenu>
     ),
@@ -470,6 +470,7 @@ const ElectrumSettings: React.FC = () => {
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
+      testID="ElectrumSettingsScrollView"
     >
       <ListItem
         Component={PressableWrapper}
