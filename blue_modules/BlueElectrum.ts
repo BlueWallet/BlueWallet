@@ -141,7 +141,7 @@ export async function isDisabled(): Promise<boolean> {
 }
 
 export async function setDisabled(value = true) {
-  // Set the value in DefaultPreference
+  // Set the value using setUserPreference
   await setUserPreference({ key: ELECTRUM_CONNECTION_DISABLED, value, useGroupContainer: false });
 }
 
