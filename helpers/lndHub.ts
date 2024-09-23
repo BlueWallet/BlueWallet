@@ -11,7 +11,7 @@ export const getLNDHub = async (): Promise<string | undefined> => {
       key: BlueApp.LNDHUB,
       migrateToGroupContainer: true,
     });
-    return String(value) ?? undefined;
+    return String(value);
   } catch (error) {
     console.error('Error getting LNDHub preference:', (error as Error).message);
     return undefined;

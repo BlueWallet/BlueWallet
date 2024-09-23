@@ -164,10 +164,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       .catch(error => console.error('Error fetching hand-off usage:', error));
 
     getUserPreference({ key: STORAGE_KEY, useGroupContainer: false })
-      .then(lang => {
-        lang = String(lang) ?? 'en';
+      .then(value => {
+        const lang = value ?? 'en';
         console.debug('SettingsContext lang:', lang);
-        setLanguage(lang);
+        setLanguage(lang as string);
       })
       .catch(error => console.error('Error fetching language setting:', error));
 
