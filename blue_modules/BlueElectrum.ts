@@ -160,9 +160,9 @@ function getNextPeer() {
 }
 
 async function getSavedPeer(): Promise<Peer | null> {
-  const host = (await getUserPreference({ key: ELECTRUM_HOST, useGroupContainer: true, migrateToGroupContainer: true })) as string;
-  const tcpPort = (await getUserPreference({ key: ELECTRUM_TCP_PORT, useGroupContainer: true, migrateToGroupContainer: true })) as string;
-  const sslPort = (await getUserPreference({ key: ELECTRUM_SSL_PORT, useGroupContainer: true, migrateToGroupContainer: true })) as string;
+  const host = (await getUserPreference({ key: ELECTRUM_HOST, useGroupContainer: true, migrateToGroupContainer: true })) ?? '';
+  const tcpPort = (await getUserPreference({ key: ELECTRUM_TCP_PORT, useGroupContainer: true, migrateToGroupContainer: true })) ?? '';
+  const sslPort = (await getUserPreference({ key: ELECTRUM_SSL_PORT, useGroupContainer: true, migrateToGroupContainer: true })) ?? '';
 
   if (!host) {
     return null;
