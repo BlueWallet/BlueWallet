@@ -169,11 +169,11 @@ async function getSavedPeer(): Promise<Peer | null> {
   }
 
   if (sslPort) {
-    return { host, ssl: sslPort };
+    return { host: host as string, ssl: sslPort as string };
   }
 
   if (tcpPort) {
-    return { host, tcp: tcpPort };
+    return { host: host as string, tcp: tcpPort as string };
   }
 
   return null;
@@ -193,13 +193,21 @@ export async function connectMain(): Promise<void> {
   try {
     if (usingPeer.host.endsWith('onion')) {
       const randomPeer = getCurrentPeer();
-      await setUserPreference({ key: ELECTRUM_HOST, value: randomPeer.host, useGroupContainer: true });
-      await setUserPreference({ key: ELECTRUM_TCP_PORT, value: randomPeer.tcp ?? '', useGroupContainer: true });
-      await setUserPreference({ key: ELECTRUM_SSL_PORT, value: randomPeer.ssl ?? '', useGroupContainer: true });
+      const preferences = [
+        { key: ELECTRUM_HOST, value: randomPeer.host },
+        { key: ELECTRUM_TCP_PORT, value: randomPeer.tcp ?? '' },
+        { key: ELECTRUM_SSL_PORT, value: randomPeer.ssl ?? '' },
+      ];
+
+      await Promise.all(preferences.map(pref => setUserPreference({ ...pref, useGroupContainer: true })));
     } else {
-      await setUserPreference({ key: ELECTRUM_HOST, value: usingPeer.host, useGroupContainer: true });
-      await setUserPreference({ key: ELECTRUM_TCP_PORT, value: usingPeer.tcp ?? '', useGroupContainer: true });
-      await setUserPreference({ key: ELECTRUM_SSL_PORT, value: usingPeer.ssl ?? '', useGroupContainer: true });
+      const preferences = [
+        { key: ELECTRUM_HOST, value: usingPeer.host },
+        { key: ELECTRUM_TCP_PORT, value: usingPeer.tcp ?? '' },
+        { key: ELECTRUM_SSL_PORT, value: usingPeer.ssl ?? '' },
+      ];
+
+      await Promise.all(preferences.map(pref => setUserPreference({ ...pref, useGroupContainer: true })));
     }
   } catch (e) {
     // Must be running on Android

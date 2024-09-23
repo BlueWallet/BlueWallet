@@ -17,9 +17,9 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Enable Electrum Server</string>
+			<string>Offline Mode</string>
 			<key>Key</key>
-			<string>electrumServerEnabled</string>
+			<string>electrum_disabled</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>

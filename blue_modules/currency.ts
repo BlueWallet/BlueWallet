@@ -18,7 +18,8 @@ export interface CurrencyRate {
 
 interface ExchangeRates {
   [key: string]: number | boolean | undefined;
-  LAST_UPDATED_ERROR: boolean;
+  LAST_UPDATED?: number;
+  LAST_UPDATED_ERROR?: boolean;
 }
 
 let preferredFiatCurrency: FiatUnitType = FiatUnit.USD;
@@ -57,8 +58,8 @@ async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
       key: EXCHANGE_RATES_STORAGE_KEY,
       useGroupContainer: true,
       migrateToGroupContainer: true,
-    })) as string;
-    exchangeRates = rates ? JSON.parse(rates) : { LAST_UPDATED_ERROR: false };
+    })) as ExchangeRates;
+    exchangeRates = rates ?? { LAST_UPDATED_ERROR: false };
   } catch (_) {
     exchangeRates = { LAST_UPDATED_ERROR: false };
   }
@@ -102,8 +103,8 @@ async function updateExchangeRate(): Promise<void> {
 
   try {
     const rate = await getFiatRate(preferredFiatCurrency.endPointKey);
-    exchangeRates[LAST_UPDATED] = Date.now();
     exchangeRates[BTC_PREFIX + preferredFiatCurrency.endPointKey] = rate;
+    exchangeRates.LAST_UPDATED = Date.now();
     exchangeRates.LAST_UPDATED_ERROR = false;
 
     await setUserPreference({
@@ -113,46 +114,37 @@ async function updateExchangeRate(): Promise<void> {
     });
   } catch (error) {
     console.error('Error encountered when attempting to update exchange rate...', error);
-
-    const rate = JSON.parse(
-      ((await getUserPreference({
-        key: EXCHANGE_RATES_STORAGE_KEY,
-        useGroupContainer: true,
-        migrateToGroupContainer: true,
-      })) as string) || '{}',
-    );
-
-    rate.LAST_UPDATED_ERROR = true;
     exchangeRates.LAST_UPDATED_ERROR = true;
-
-    await setUserPreference({
-      key: EXCHANGE_RATES_STORAGE_KEY,
-      value: JSON.stringify(rate),
-      useGroupContainer: true,
-    });
   }
 }
 
 async function isRateOutdated(): Promise<boolean> {
   try {
-    try {
-        const rate = (await getUserPreference({
-            key: EXCHANGE_RATES_STORAGE_KEY,
-            useGroupContainer: true,
-            migrateToGroupContainer: true,
-        })) as string;
+    const rateString = (await getUserPreference({
+      key: EXCHANGE_RATES_STORAGE_KEY,
+      useGroupContainer: true,
+      migrateToGroupContainer: true,
+    })) as ExchangeRates;
 
-        let parsedRate = {};
-        if (rate) {
-            parsedRate = JSON.parse(rate);
-        }
-
-        return parsedRate.LAST_UPDATED_ERROR || Date.now() - (parsedRate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
-    } catch (error) {
-        console.error('Failed to parse exchange rates from storage', error);
-        return true;
+    if (!rateString) {
+      console.error('No exchange rate data found.');
+      return true;
     }
-  } catch {
+
+    const rateData: ExchangeRates = rateString;
+    if (rateData.LAST_UPDATED_ERROR) {
+      return true;
+    }
+
+    const lastUpdatedTime = rateData.LAST_UPDATED;
+    if (!lastUpdatedTime) {
+      console.error('Last updated timestamp is missing.');
+      return true;
+    }
+
+    return Date.now() - lastUpdatedTime >= 31 * 60 * 1000;
+  } catch (error) {
+    console.error('Failed to parse exchange rates from storage', error);
     return true;
   }
 }
