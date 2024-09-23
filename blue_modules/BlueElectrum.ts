@@ -137,7 +137,7 @@ async function _getRealm() {
 
 export async function isDisabled(): Promise<boolean> {
   const value = await getUserPreference({ key: ELECTRUM_CONNECTION_DISABLED, useGroupContainer: false });
-  return value as boolean;
+  return Boolean(value);
 }
 
 export async function setDisabled(value = true) {
