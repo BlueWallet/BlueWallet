@@ -42,15 +42,6 @@ jest.mock('react-native-watch-connectivity', () => {
   };
 });
 
-jest.mock('react-native', () => {
-  const ReactNative = jest.requireActual('react-native');
-  return Object.defineProperty(ReactNative, 'Settings', {
-    get: jest.fn(() => {
-      return { get: jest.fn(), set: jest.fn(), watchKeys: jest.fn() };
-    }),
-  });
-});
-
 jest.mock('react-native-secure-key-store', () => {
   return {};
 });
@@ -83,7 +74,9 @@ jest.mock('react-native-quick-actions', () => {
 jest.mock('react-native-default-preference', () => {
   return {
     setName: jest.fn(),
+    get: jest.fn(),
     set: jest.fn(),
+    clear: jest.fn(),
   };
 });
 

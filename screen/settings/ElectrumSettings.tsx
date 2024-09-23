@@ -7,14 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
@@ -36,6 +35,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Icon } from '@rneui/themed';
 import { Header } from '../../components/Header';
+import AddressInput from '../../components/AddressInput';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -90,12 +90,6 @@ const ElectrumSettings: React.FC = () => {
     explain: {
       color: colors.feeText,
     },
-    serverRow: {
-      color: colors.foregroundColor,
-    },
-    bottomDivider: {
-      backgroundColor: colors.inputBorderColor,
-    },
   });
 
   useEffect(() => {
@@ -104,9 +98,12 @@ const ElectrumSettings: React.FC = () => {
       const savedHost = (await getUserPreference({ key: BlueElectrum.ELECTRUM_HOST, useGroupContainer: true })) as string;
       const savedPort = await getUserPreference({ key: BlueElectrum.ELECTRUM_TCP_PORT, useGroupContainer: true });
       const savedSslPort = await getUserPreference({ key: BlueElectrum.ELECTRUM_SSL_PORT, useGroupContainer: true });
-      const serverHistoryStr = (await getUserPreference({ key: BlueElectrum.ELECTRUM_SERVER_HISTORY, useGroupContainer: true })) as string;
+      const serverHistoryStr = (await getUserPreference({
+        key: BlueElectrum.ELECTRUM_SERVER_HISTORY,
+        useGroupContainer: true,
+      })) as ElectrumServerItem[];
       const offlineMode = await BlueElectrum.isDisabled();
-      const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
+      const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ?? [];
 
       // Set state from preferences
       setHost(savedHost || '');
@@ -163,6 +160,7 @@ const ElectrumSettings: React.FC = () => {
     await setUserPreference({ key: BlueElectrum.ELECTRUM_SERVER_HISTORY, value: JSON.stringify([]), useGroupContainer: true });
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setServerHistory([]);
+    await save();
     setIsLoading(false);
   };
 
@@ -254,13 +252,16 @@ const ElectrumSettings: React.FC = () => {
     setIsLoading(false);
   };
 
-  const selectServer = (value: string) => {
-    const parsedServer = JSON.parse(value) as ElectrumServerItem;
-    setHost(parsedServer.host);
-    setPort(parsedServer.port);
-    setSslPort(parsedServer.sslPort);
-    save();
-  };
+  const selectServer = useCallback(
+    (value: string) => {
+      const parsedServer = JSON.parse(value) as ElectrumServerItem;
+      setHost(parsedServer.host);
+      setPort(parsedServer.port);
+      setSslPort(parsedServer.sslPort);
+      save();
+    },
+    [save],
+  );
 
   const clearHistoryAlert = () => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
@@ -318,22 +319,24 @@ const ElectrumSettings: React.FC = () => {
     setIsOfflineMode(value);
   };
 
+  const ElectrumServerItems = useMemo(
+    () =>
+      serverHistory.map((value, i) => (
+        <ListItem
+          bottomDivider={false}
+          onPress={() => selectServer(JSON.stringify(value))}
+          key={i}
+          title={`${value.host}:${value.port || value.sslPort}`}
+          disabled={isLoading || (host === value.host && (port === value.port || sslPort === value.sslPort))}
+          checkmark={host === value.host && (port === value.port || sslPort === value.sslPort)}
+        />
+      )),
+    [host, isLoading, port, selectServer, serverHistory, sslPort],
+  );
+
   const renderElectrumSettings = () => {
-    const ElectrumServerItems = serverHistory.map((value, i) => (
-      <View key={i} style={styles.electrumServerItem}>
-        <Text style={[styles.serverRow, stylesHook.serverRow]} numberOfLines={1} ellipsizeMode="middle">
-          {`${value.host}:${value.port || value.sslPort}`}
-        </Text>
-
-        <TouchableOpacity accessibilityRole="button" style={styles.selectButton} onPress={() => selectServer(JSON.stringify(value))}>
-          <BlueText>{loc.settings.electrum_select}</BlueText>
-        </TouchableOpacity>
-      </View>
-    ));
-
     return (
       <>
-        <View style={[styles.bottomDivider, stylesHook.bottomDivider]} />
         <Header leftText={loc.settings.electrum_status} />
         <BlueCard>
           <View style={styles.connectWrap}>
@@ -350,30 +353,23 @@ const ElectrumSettings: React.FC = () => {
             {config.host}:{config.port}
           </BlueText>
         </BlueCard>
-        <View style={[styles.bottomDivider, stylesHook.bottomDivider]} />
 
         <View style={styles.headerContainer}>
           <Header leftText={loc.settings.electrum_preferred_server} />
         </View>
         <BlueCard>
-          <View style={[styles.inputWrap, stylesHook.inputWrap]}>
-            <TextInput
-              placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
-              value={host}
-              onChangeText={text => setHost(text.trim())}
-              numberOfLines={1}
-              style={[styles.inputText, stylesHook.inputText]}
-              editable={!isLoading}
-              placeholderTextColor="#81868e"
-              autoCorrect={false}
-              autoCapitalize="none"
-              underlineColorAndroid="transparent"
-              inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-              testID="HostInput"
-              onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
-              onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
-            />
-          </View>
+          <AddressInput
+            placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
+            address={host}
+            onChangeText={text => setHost(text.trim())}
+            editable={!isLoading}
+            onBarScanned={importScan}
+            keyboardType="default" // Adjust if needed
+            onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
+            onFocus={() => setIsAndroidAddressKeyboardVisible(true)} // Add if you have an onFocus prop
+            inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+            isLoading={isLoading}
+          />
           <BlueSpacing20 />
           <View style={styles.portWrap}>
             <View style={[styles.inputWrap, stylesHook.inputWrap]}>
@@ -417,8 +413,6 @@ const ElectrumSettings: React.FC = () => {
           <BlueText>{loc.settings.electrum_preferred_server_description}</BlueText>
           <BlueSpacing20 />
           {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
-          <BlueSpacing40 />
-          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         </BlueCard>
 
         {Platform.select({
@@ -501,11 +495,6 @@ const styles = StyleSheet.create({
   hostname: {
     textAlign: 'center',
   },
-  bottomDivider: {
-    borderBottomWidth: 0.5,
-    marginVertical: 20,
-    height: 1,
-  },
   container: {
     paddingTop: 6,
     paddingBottom: 6,
@@ -535,31 +524,16 @@ const styles = StyleSheet.create({
     minHeight: 36,
     height: 36,
   },
-  serverRow: {
-    flexGrow: 2,
-    maxWidth: '80%',
-  },
   serverHistoryTitle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
-  },
-  electrumServerItem: {
-    flexDirection: 'row',
-    paddingVertical: 20,
-    borderBottomWidth: 0.5,
-    flexWrap: 'nowrap',
   },
   textConnectionStatus: {
     fontWeight: 'bold',
   },
   usePort: {
     marginHorizontal: 16,
-  },
-  selectButton: {
-    flexGrow: 1,
-    marginLeft: 16,
-    alignItems: 'flex-end',
   },
   headerContainer: {
     paddingVertical: 16,

@@ -1,4 +1,3 @@
-import { Platform, Settings } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
@@ -41,17 +40,14 @@ export const getUserPreference = async ({
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   }
 
-  if (Platform.OS === 'android' || useGroupContainer) {
-    storedValue = (await DefaultPreference.get(key)) ?? null;
-  } else if (Platform.OS === 'ios') {
-    storedValue = (Settings.get(key) as string | undefined) ?? null;
-  }
+  storedValue = (await DefaultPreference.get(key)) ?? null;
+
   // If the value is found, parse it if necessary
   if (storedValue !== null) {
     return parseStoredValue(storedValue);
   }
 
-  // If no value is found in DefaultPreference or Settings, check AsyncStorage
+  // If no value is found in DefaultPreference, check AsyncStorage
   storedValue = await AsyncStorage.getItem(key);
 
   if (storedValue !== null) {
@@ -93,7 +89,7 @@ const parseStoredValue = (value: string): string | boolean | object => {
 };
 
 /**
- * Sets the value for a given key in the appropriate storage (DefaultPreference for Android, Settings for iOS).
+ * Sets the value for a given key in the appropriate storage (DefaultPreference for Android and iOS).
  * If `useGroupContainer` is true, DefaultPreference will use the group container for both platforms.
  * If the value is a boolean, '1' is set for true and the key is cleared for false.
  * After setting the value, it clears it from AsyncStorage if it exists.
@@ -114,11 +110,7 @@ export const setUserPreference = async ({ key, value, useGroupContainer = false 
     }
   }
 
-  if (Platform.OS === 'android' || useGroupContainer) {
-    await DefaultPreference.set(key, value as string);
-  } else if (Platform.OS === 'ios') {
-    Settings.set({ [key]: value });
-  }
+  await DefaultPreference.set(key, value as string);
 
   // Check if the key exists in AsyncStorage and remove it if present
   const asyncStorageValue = await AsyncStorage.getItem(key);
@@ -128,7 +120,7 @@ export const setUserPreference = async ({ key, value, useGroupContainer = false 
 };
 
 /**
- * Clears the value for a given key in the appropriate storage (DefaultPreference for Android, Settings for iOS).
+ * Clears the value for a given key in the appropriate storage (DefaultPreference for Android and iOS).
  * If `useGroupContainer` is true, DefaultPreference will use the group container for both platforms.
  * @param params - The preference key and options.
  */
@@ -137,9 +129,5 @@ export const clearUserPreference = async ({ key, useGroupContainer = false }: Us
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   }
 
-  if (Platform.OS === 'android' || useGroupContainer) {
-    await DefaultPreference.clear(key);
-  } else if (Platform.OS === 'ios') {
-    Settings.set({ [key]: '' });
-  }
+  await DefaultPreference.clear(key);
 };
