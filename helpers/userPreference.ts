@@ -4,7 +4,7 @@ import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
 interface UserPreferenceParams {
   key: string;
-  value?: string | boolean;
+  value?: string | boolean | object;
   useGroupContainer?: boolean;
   migrateToGroupContainer?: boolean;
 }
@@ -96,6 +96,10 @@ const parseStoredValue = (value: string): string | boolean | object => {
  * @param params - The preference key, value, and options.
  */
 export const setUserPreference = async ({ key, value, useGroupContainer = false }: UserPreferenceParams): Promise<void> => {
+  if (typeof value === 'object') {
+    value = JSON.stringify(value);
+  }
+
   if (useGroupContainer) {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   }
