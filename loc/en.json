@@ -29,9 +29,6 @@
     "qr_custom_input_button": "Tap 10 times to enter custom input",
     "unlock": "Unlock"
   },
-  "alert": {
-    "default": "Alert"
-  },
   "azteco": {
     "codeIs": "Your voucher code is",
     "errorBeforeRefeem": "Before redeeming, you must first add a Bitcoin wallet.",
