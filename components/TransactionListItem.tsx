@@ -26,7 +26,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 
 interface TransactionListItemProps {
-  itemPriceUnit: BitcoinUnit;
+  itemPriceUnit?: BitcoinUnit;
   walletID: string;
   item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
   searchQuery?: string;

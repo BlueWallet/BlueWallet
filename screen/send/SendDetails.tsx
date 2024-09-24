@@ -1371,7 +1371,7 @@ const SendDetails = () => {
           feeRate={feeRate}
           setCustomFee={setCustomFee}
           setFeePrecalc={setFeePrecalc}
-          feeUnit={feeUnit || BitcoinUnit.BTC}
+          feeUnit={units[scrollIndex.current]}
         />
       </View>
       <DismissKeyboardInputAccessory />

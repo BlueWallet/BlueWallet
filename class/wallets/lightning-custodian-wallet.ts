@@ -579,14 +579,17 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
   }
 
-  static async isValidNodeAddress(address: string) {
-    const response = await fetch((address?.endsWith('/') ? address.slice(0, -1) : address) + '/getinfo', {
+  static async isValidNodeAddress(address: string): Promise<boolean> {
+    const normalizedAddress = new URL('/getinfo', address.replace(/([^:]\/)\/+/g, '$1'));
+
+    const response = await fetch(normalizedAddress.toString(), {
       method: 'GET',
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
     });
+
     const json = await response.json();
     if (!json) {
       throw new Error('API failure: ' + response.statusText);
@@ -595,6 +598,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json.code && json.code !== 1) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
+
     return true;
   }
 
