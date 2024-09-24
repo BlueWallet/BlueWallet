@@ -13,6 +13,9 @@ interface SettingsBlockExplorerCustomUrlListItemProps {
   onPress: () => void;
   checkmark?: boolean;
   isLoading?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  inputRef?: React.RefObject<TextInput>;
 }
 
 const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCustomUrlListItemProps> = ({
@@ -24,6 +27,9 @@ const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCust
   onPress,
   checkmark = false,
   isLoading = false,
+  onFocus,
+  onBlur,
+  inputRef,
 }) => {
   const { colors } = useTheme();
   const styleHook = StyleSheet.create({
@@ -34,11 +40,11 @@ const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCust
     },
     containerStyle: {
       backgroundColor: colors.background,
-      minHeight: checkmark ? 140 : 60,
+      minHeight: selected ? 140 : 60,
     },
     checkmarkContainer: {
       justifyContent: 'center',
-      alignItems: 'center', //
+      alignItems: 'center',
     },
     checkmarkStyle: {
       backgroundColor: 'transparent',
@@ -68,6 +74,7 @@ const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCust
       {selected && (
         <View style={[styles.uri, styleHook.uri]}>
           <TextInput
+            ref={inputRef}
             value={customUrl}
             placeholder={loc._.enter_url}
             onChangeText={onCustomUrlChange}
@@ -82,6 +89,8 @@ const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCust
             autoCorrect={false}
             underlineColorAndroid="transparent"
             onSubmitEditing={onSubmitCustomUrl}
+            onFocus={onFocus}
+            onBlur={onBlur}
             testID="CustomURIInput"
           />
         </View>

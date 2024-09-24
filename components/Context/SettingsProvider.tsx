@@ -14,7 +14,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { LayoutAnimation } from 'react-native';
-import { BLOCK_EXPLORERS, getBlockExplorer, saveBlockExplorer } from '../../models/blockExplorer';
+import {  BLOCK_EXPLORERS, getBlockExplorer, saveBlockExplorer } from '../../models/blockExplorer';
 
 // DefaultPreference and AsyncStorage get/set
 
