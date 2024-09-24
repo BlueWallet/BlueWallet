@@ -27,9 +27,6 @@
     "qr_custom_input_button": "Tapnij 10 razy aby wprowadzić własne dane",
     "unlock": "Odblokuj"
   },
-  "alert": {
-    "default": "Powiadomienie"
-  },
   "azteco": {
     "codeIs": "Kod twojego vouchera to",
     "errorBeforeRefeem": "Zanim wykorzystasz kod rabatowy, musisz dodać najpierw portfel Bitcoinowy",
