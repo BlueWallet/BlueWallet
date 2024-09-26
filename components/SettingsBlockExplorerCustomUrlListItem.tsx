@@ -1,125 +1,89 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity } from 'react-native';
-import { ListItem as RNElementsListItem } from '@rneui/themed';
+import { StyleSheet, TextInput, View, Switch } from 'react-native';
+import { ListItem } from '@rneui/themed';
 import { useTheme } from './themes';
 import loc from '../loc';
 
-interface SettingsBlockExplorerCustomUrlListItemProps {
-  title: string;
-  customUrl?: string;
-  onCustomUrlChange?: (url: string) => void;
-  onSubmitCustomUrl?: () => void;
-  selected: boolean;
-  onPress: () => void;
-  checkmark?: boolean;
-  isLoading?: boolean;
-  onFocus?: () => void;
-  onBlur?: () => void;
+interface SettingsBlockExplorerCustomUrlItemProps {
+  isCustomEnabled: boolean;
+  onSwitchToggle: (value: boolean) => void;
+  customUrl: string;
+  onCustomUrlChange: (url: string) => void;
+  onSubmitCustomUrl: () => void;
   inputRef?: React.RefObject<TextInput>;
 }
 
-const SettingsBlockExplorerCustomUrlListItem: React.FC<SettingsBlockExplorerCustomUrlListItemProps> = ({
-  title,
+const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUrlItemProps> = ({
+  isCustomEnabled,
+  onSwitchToggle,
   customUrl,
   onCustomUrlChange,
   onSubmitCustomUrl,
-  selected,
-  onPress,
-  checkmark = false,
-  isLoading = false,
-  onFocus,
-  onBlur,
   inputRef,
 }) => {
   const { colors } = useTheme();
-  const styleHook = StyleSheet.create({
-    uri: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    containerStyle: {
-      backgroundColor: colors.background,
-      minHeight: selected ? 140 : 60,
-    },
-    checkmarkContainer: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    checkmarkStyle: {
-      backgroundColor: 'transparent',
-      borderWidth: 0,
-    },
-  });
 
   return (
-    <TouchableOpacity onPress={onPress}>
-      <RNElementsListItem containerStyle={styleHook.containerStyle} bottomDivider>
-        <RNElementsListItem.Content>
-          <RNElementsListItem.Title style={[styles.title, { color: colors.text }]}>{title}</RNElementsListItem.Title>
-        </RNElementsListItem.Content>
-        {checkmark && (
-          <View style={styleHook.checkmarkContainer}>
-            <RNElementsListItem.CheckBox
-              iconRight
-              iconType="octaicon"
-              checkedIcon="check"
-              checked
-              containerStyle={styleHook.checkmarkStyle}
-            />
-          </View>
-        )}
-      </RNElementsListItem>
+    <>
+      <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
+        <ListItem.Content>
+          <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
+        </ListItem.Content>
+        <Switch
+          accessible
+          accessibilityRole="switch"
+          accessibilityState={{ checked: isCustomEnabled }}
+          onValueChange={onSwitchToggle}
+          value={isCustomEnabled}
+        />
+      </ListItem>
 
-      {selected && (
-        <View style={[styles.uri, styleHook.uri]}>
+      {isCustomEnabled && (
+        <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
           <TextInput
             ref={inputRef}
             value={customUrl}
             placeholder={loc._.enter_url}
             onChangeText={onCustomUrlChange}
             numberOfLines={1}
-            style={styles.uriText}
-            placeholderTextColor="#81868e"
-            editable={!isLoading}
+            style={[styles.uriText, { color: colors.text }]}
+            placeholderTextColor={colors.placeholderTextColor}
             textContentType="URL"
-            autoFocus
             clearButtonMode="while-editing"
             autoCapitalize="none"
             autoCorrect={false}
             underlineColorAndroid="transparent"
             onSubmitEditing={onSubmitCustomUrl}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            testID="CustomURIInput"
+            editable={isCustomEnabled}
           />
         </View>
       )}
-    </TouchableOpacity>
+    </>
   );
 };
 
+export default SettingsBlockExplorerCustomUrlItem;
+
 const styles = StyleSheet.create({
+  container: {
+    minHeight: 60,
+    paddingVertical: 10,
+  },
   title: {
     fontSize: 16,
     fontWeight: '500',
   },
-  uri: {
+  uriContainer: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
     borderRadius: 4,
+    marginHorizontal: 15,
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    alignItems: 'center',
   },
   uriText: {
     flex: 1,
-    color: '#81868e',
-    marginHorizontal: 8,
     minHeight: 36,
-    height: 36,
   },
 });
-
-export default SettingsBlockExplorerCustomUrlListItem;

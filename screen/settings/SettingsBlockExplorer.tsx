@@ -1,111 +1,205 @@
-import React, { useState, useRef } from 'react';
-import { FlatList, Alert, StyleSheet, TextInput } from 'react-native';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
+import { SectionList, StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation } from 'react-native';
 import ListItem from '../../components/ListItem';
-import SettingsBlockExplorerCustomUrlListItem from '../../components/SettingsBlockExplorerCustomUrlListItem';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
+import {
+  getBlockExplorersList,
+  BlockExplorer,
+  isValidUrl,
+  normalizeUrl,
+  BLOCK_EXPLORERS,
+  removeBlockExplorer,
+} from '../../models/blockExplorer';
+import presentAlert from '../../components/Alert';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useSettings } from '../../hooks/context/useSettings';
-import { blockExplorers } from '../../models/blockExplorer';
+import SettingsBlockExplorerCustomUrlItem from '../../components/SettingsBlockExplorerCustomUrlListItem';
+import { Header } from '../../components/Header';
 
-const normalizeUrl = (url: string) => url.replace(/\/+$/, '');
+type BlockExplorerItem = BlockExplorer | string;
 
-const isValidUrl = (url: string) => {
-  const urlPattern = /^(https?:\/\/)/;
-  return urlPattern.test(url);
-};
+interface SectionData extends SectionListData<BlockExplorerItem> {
+  title?: string;
+  data: BlockExplorerItem[];
+}
 
 const SettingsBlockExplorer: React.FC = () => {
-  const { selectedBlockExplorer, setBlockExplorerStorage } = useSettings();
-  const [customUrlInput, setCustomUrlInput] = useState<string>(selectedBlockExplorer || '');
-  const [prevSelectedBlockExplorer, setPrevSelectedBlockExplorer] = useState<string>(selectedBlockExplorer); // Use prevSelectedBlockExplorer
-  const [isCustomSelected, setIsCustomSelected] = useState<boolean>(false);
-  const customUrlInputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
+  const { selectedBlockExplorer, setBlockExplorerStorage } = useSettings();
+  const customUrlInputRef = useRef<TextInput>(null);
+  const [customUrl, setCustomUrl] = useState<string>(selectedBlockExplorer.key === 'custom' ? selectedBlockExplorer.url : '');
+  const [isCustomEnabled, setIsCustomEnabled] = useState<boolean>(selectedBlockExplorer.key === 'custom');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const isSelectedExplorer = (url: string | null) => {
-    if (!url && selectedBlockExplorer === customUrlInput) return true;
-    return normalizeUrl(selectedBlockExplorer) === normalizeUrl(url || '');
-  };
+  const predefinedExplorers = getBlockExplorersList().filter(explorer => explorer.key !== 'custom');
 
-  const handleExplorerPress = async (key: string, url: string | null) => {
-    if (key === 'custom') {
-      setIsCustomSelected(true);
-      setPrevSelectedBlockExplorer(selectedBlockExplorer); // Store previous selection
-      return;
-    }
-    setCustomUrlInput('');
-    setIsCustomSelected(false);
-    const success = await setBlockExplorerStorage(url!);
-    if (!success) {
-      Alert.alert(loc.errors.error, loc.settings.block_explorer_error_saving_custom);
-    }
-  };
+  const sections: SectionData[] = [
+    {
+      title: loc._.suggested,
+      data: predefinedExplorers,
+    },
+    {
+      title: loc.wallets.details_advanced,
+      data: ['custom'],
+    },
+  ];
 
-  const handleCustomUrlChange = (url: string) => {
-    setCustomUrlInput(url);
-  };
+  const handleExplorerPress = useCallback(
+    async (explorer: BlockExplorer) => {
+      const success = await setBlockExplorerStorage(explorer);
+      if (success) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        setIsCustomEnabled(false);
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+      }
+    },
+    [setBlockExplorerStorage],
+  );
 
-  const handleSubmitCustomUrl = async () => {
-    if (!customUrlInput || !isValidUrl(customUrlInput)) {
-      Alert.alert(loc.errors.error, loc.settings.block_explorer_invalid_custom_url);
+  const handleCustomUrlChange = useCallback((url: string) => {
+    setCustomUrl(url);
+  }, []);
+
+  const handleSubmitCustomUrl = useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    const customUrlNormalized = normalizeUrl(customUrl);
+
+    if (!isValidUrl(customUrlNormalized)) {
+      presentAlert({ message: loc.settings.block_explorer_invalid_custom_url });
       customUrlInputRef.current?.focus();
-      await setBlockExplorerStorage(prevSelectedBlockExplorer); // Revert to previous block explorer
+      setIsSubmitting(false);
       return;
     }
-    const success = await setBlockExplorerStorage(customUrlInput);
-    if (!success) {
-      Alert.alert(loc.errors.error, loc.settings.block_explorer_error_saving_custom);
-    }
-  };
 
-  const handleCustomUrlBlur = async () => {
-    if (isValidUrl(customUrlInput)) {
-      setIsCustomSelected(false);
+    const customExplorer: BlockExplorer = {
+      key: 'custom',
+      name: 'Custom',
+      url: customUrlNormalized,
+    };
+
+    const success = await setBlockExplorerStorage(customExplorer);
+
+    if (success) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
-      await handleSubmitCustomUrl(); // Revert to previous block explorer if invalid
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
     }
-  };
+    setIsSubmitting(false);
+  }, [customUrl, setBlockExplorerStorage, isSubmitting]);
 
-  const handleCustomUrlFocus = () => {
-    setIsCustomSelected(true);
-  };
+  const handleCustomSwitchToggle = useCallback(
+    async (value: boolean) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setIsCustomEnabled(value);
+      if (value) {
+        await removeBlockExplorer();
+        customUrlInputRef.current?.focus();
+      } else {
+        const defaultExplorer = BLOCK_EXPLORERS.default;
+        const success = await setBlockExplorerStorage(defaultExplorer);
+        if (success) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        } else {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          if (!isSubmitting) {
+            presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+          }
+        }
+      }
+    },
+    [setBlockExplorerStorage, isSubmitting],
+  );
 
-  const renderItem = ({ item }: { item: { name: string; key: string; url: string | null } }) => {
-    if (item.key === 'custom') {
+  useEffect(() => {
+    return () => {
+      if (isCustomEnabled) {
+        const customUrlNormalized = normalizeUrl(customUrl);
+        if (!isValidUrl(customUrlNormalized)) {
+          (async () => {
+            const success = await setBlockExplorerStorage(BLOCK_EXPLORERS.default);
+            if (!success) {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+            }
+          })();
+        }
+      }
+    };
+  }, [customUrl, isCustomEnabled, setBlockExplorerStorage]);
+
+  const renderItem = useCallback(
+    ({ item, section }: SectionListRenderItemInfo<BlockExplorerItem, SectionData>) => {
+      if (section.title === loc._.suggested) {
+        const explorer = item as BlockExplorer;
+        const isSelected = !isCustomEnabled && normalizeUrl(selectedBlockExplorer.url || '') === normalizeUrl(explorer.url || '');
+        return (
+          <ListItem
+            title={explorer.name}
+            onPress={() => handleExplorerPress(explorer)}
+            checkmark={isSelected}
+            disabled={isCustomEnabled}
+            containerStyle={[{ backgroundColor: colors.background }, styles.rowHeight]}
+          />
+        );
+      } else {
+        return (
+          <SettingsBlockExplorerCustomUrlItem
+            isCustomEnabled={isCustomEnabled}
+            onSwitchToggle={handleCustomSwitchToggle}
+            customUrl={customUrl}
+            onCustomUrlChange={handleCustomUrlChange}
+            onSubmitCustomUrl={handleSubmitCustomUrl}
+            inputRef={customUrlInputRef}
+          />
+        );
+      }
+    },
+    [
+      selectedBlockExplorer,
+      isCustomEnabled,
+      handleExplorerPress,
+      colors.background,
+      handleCustomSwitchToggle,
+      customUrl,
+      handleCustomUrlChange,
+      handleSubmitCustomUrl,
+    ],
+  );
+
+  // @ts-ignore: renderSectionHeader type is not correct
+  const renderSectionHeader = useCallback(({ section }) => {
+    const { title } = section;
+    if (title) {
       return (
-        <SettingsBlockExplorerCustomUrlListItem
-          title={item.name}
-          selected={isCustomSelected}
-          customUrl={customUrlInput}
-          onCustomUrlChange={handleCustomUrlChange}
-          onSubmitCustomUrl={handleSubmitCustomUrl}
-          onPress={() => handleExplorerPress(item.key, item.url)}
-          onFocus={handleCustomUrlFocus}
-          onBlur={handleCustomUrlBlur}
-          inputRef={customUrlInputRef}
-          checkmark={isSelectedExplorer(null)}
-        />
+        <View style={styles.container}>
+          <Header leftText={title} />
+        </View>
       );
     }
-
-    return (
-      <ListItem
-        title={item.name}
-        onPress={() => handleExplorerPress(item.key, item.url)}
-        checkmark={isSelectedExplorer(item.url)}
-        containerStyle={{ backgroundColor: colors.background }}
-      />
-    );
-  };
+    return null;
+  }, []);
 
   return (
-    <FlatList
-      data={blockExplorers}
-      keyExtractor={item => item.key}
+    <SectionList<BlockExplorerItem, SectionData>
+      sections={sections}
+      keyExtractor={(item, index) => {
+        if (typeof item === 'string') {
+          return `custom-${index}`;
+        } else {
+          return item.key;
+        }
+      }}
       renderItem={renderItem}
+      renderSectionHeader={renderSectionHeader}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[styles.root, { backgroundColor: colors.background }]}
+      stickySectionHeadersEnabled={false}
     />
   );
 };
@@ -113,7 +207,13 @@ const SettingsBlockExplorer: React.FC = () => {
 export default SettingsBlockExplorer;
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
+  },
+  container: {
+    paddingTop: 24,
+  },
+  rowHeight: {
+    minHeight: 60,
   },
 });
