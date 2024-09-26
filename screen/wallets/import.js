@@ -138,15 +138,13 @@ const WalletsImport = () => {
 
   // ToolTipMenu actions for advanced options
   const toolTipActions = useMemo(() => {
-    const askPassphraseAction = CommonToolTipActions.Passphrase;
+    const askPassphraseAction = { ...CommonToolTipActions.Passphrase };
     askPassphraseAction.menuState = askPassphraseMenuState;
-
-    const searchAccountsAction = CommonToolTipActions.SearchAccount;
+    const searchAccountsAction = { ...CommonToolTipActions.SearchAccount };
     searchAccountsAction.menuState = searchAccountsMenuState;
-
-    const clearClipboard = CommonToolTipActions.ClearClipboard;
-    clearClipboard.menuState = clearClipboardMenuState;
-    return [askPassphraseAction, searchAccountsAction, clearClipboard];
+    const clearClipboardAction = { ...CommonToolTipActions.ClearClipboard };
+    clearClipboardAction.menuState = clearClipboardMenuState;
+    return [askPassphraseAction, searchAccountsAction, clearClipboardAction];
   }, [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState]);
 
   const HeaderRight = useMemo(
