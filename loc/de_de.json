@@ -27,9 +27,6 @@
     "qr_custom_input_button": "10x antippen für individuelle Eingabe",
     "unlock": "Entsperren"
   },
-  "alert": {
-    "default": "Warnung"
-  },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
     "errorBeforeRefeem": "Vor dem Einlösen zuerst eine Bitcoin Wallet hinzufügen.",

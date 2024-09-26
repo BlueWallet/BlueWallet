@@ -1,6 +1,5 @@
 import { Alert as RNAlert, Platform, ToastAndroid } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import loc from '../loc';
 
 export enum AlertType {
   Alert,
@@ -29,7 +28,7 @@ const presentAlert = ({
       ToastAndroid.show(message, ToastAndroid.LONG);
       break;
     default:
-      RNAlert.alert(title ?? loc.alert.default, message);
+      RNAlert.alert(title ?? message, title && message ? message : undefined);
       break;
   }
 };

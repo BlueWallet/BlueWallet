@@ -27,9 +27,6 @@
     "qr_custom_input_button": "Pulsa 10 veces para ingresar una entrada personalizada",
     "unlock": "Desbloquear"
   },
-  "alert": {
-    "default": "Alerta"
-  },
   "azteco": {
     "codeIs": "Tu código de cupón es",
     "errorBeforeRefeem": "Antes de canjear, primero debes agregar una billetera Bitcoin.",
