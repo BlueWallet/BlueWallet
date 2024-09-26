@@ -91,7 +91,11 @@ const WalletsImport = () => {
 
   const importMnemonic = text => {
     if (clearClipboardMenuState) {
-      Clipboard.setString('');
+      try {
+        Clipboard.setString('');
+      } catch (error) {
+        console.error('Failed to clear clipboard:', error);
+      }
     }
     navigation.navigate('ImportWalletDiscovery', { importText: text, askPassphraseMenuState, searchAccountsMenuState });
   };
