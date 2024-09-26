@@ -20,6 +20,7 @@ const keys = {
   SaveChanges: 'saveChanges',
   PaymentsCode: 'paymentsCode',
   ResetToDefault: 'resetToDefault',
+  ClearHistory: 'clearHistory',
 };
 
 const icons = {
@@ -67,6 +68,9 @@ const icons = {
   },
   PaymentsCode: {
     iconValue: 'qrcode',
+  },
+  ClearHistory: {
+    iconValue: 'trash',
   },
 };
 
@@ -168,5 +172,10 @@ export const CommonToolTipActions = {
   ResetToDefault: {
     id: keys.ResetToDefault,
     text: loc.settings.electrum_reset,
+  },
+  ClearHistory: {
+    id: keys.ClearHistory,
+    text: loc.settings.electrum_clear,
+    icon: icons.ClearHistory,
   },
 };

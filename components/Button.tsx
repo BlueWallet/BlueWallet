@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from './themes';
@@ -17,6 +17,7 @@ interface ButtonProps extends TouchableOpacityProps {
   title?: string;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
+  showActivityIndicator?: boolean;
 }
 
 export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, ButtonProps>((props, ref) => {
@@ -40,7 +41,9 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
     color: fontColor,
   };
 
-  const buttonView = (
+  const buttonView = !props.showActivityIndicator ? (
+    <ActivityIndicator size="small" color={textStyle.color} />
+  ) : (
     <>
       {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
       {props.title && <Text style={textStyle}>{props.title}</Text>}

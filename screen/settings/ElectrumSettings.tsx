@@ -1,26 +1,13 @@
-import React, { useState, useEffect, useContext, useMemo, useCallback } from 'react';
-import {
-  Alert,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Alert, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
-import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import { StorageContext } from '../../components/Context/StorageProvider';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
@@ -34,11 +21,14 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import ToolTipMenu from '../../components/TooltipMenu';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Icon } from '@rneui/themed';
+import { Divider, Icon } from '@rneui/themed';
 import { Header } from '../../components/Header';
 import AddressInput from '../../components/AddressInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
+import { Action } from '../../components/types';
+import { useStorage } from '../../hooks/context/useStorage';
+import ListItem, { PressableWrapper } from '../../components/ListItem';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -62,7 +52,7 @@ const ElectrumSettings: React.FC = () => {
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
-  const { setIsElectrumDisabled } = useContext(StorageContext);
+  const { setIsElectrumDisabled } = useStorage();
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -90,14 +80,10 @@ const ElectrumSettings: React.FC = () => {
     usePort: {
       color: colors.foregroundColor,
     },
-    explain: {
-      color: colors.feeText,
-    },
   });
 
   useEffect(() => {
     const fetchData = async () => {
-      // Initial fetch of preferences and server settings
       const savedHost = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_HOST);
       const savedPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
       const savedSslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
@@ -106,17 +92,14 @@ const ElectrumSettings: React.FC = () => {
       const offlineMode = await BlueElectrum.isDisabled();
       const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
-      // Set state
       setHost(savedHost || '');
       setPort(savedPort ? Number(savedPort) : undefined);
       setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
       setServerHistory(parsedServerHistory);
       setIsOfflineMode(offlineMode);
 
-      // Fetch the Electrum configuration
       setConfig(await BlueElectrum.getConfig());
 
-      // Start a periodic update of the Electrum configuration
       const configInterval = setInterval(async () => {
         setConfig(await BlueElectrum.getConfig());
       }, 500);
@@ -125,10 +108,8 @@ const ElectrumSettings: React.FC = () => {
       setIsLoading(false);
     };
 
-    // Execute the data fetching
     fetchData();
 
-    // Clean up interval on component unmount
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
@@ -136,7 +117,6 @@ const ElectrumSettings: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Handle server separately to avoid reset on other state
     if (server) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
       Alert.alert(
@@ -155,14 +135,14 @@ const ElectrumSettings: React.FC = () => {
         { cancelable: false },
       );
     }
-  }, [server]); // Only runs when server changes
+  }, [server]);
 
-  const clearHistory = async () => {
+  const clearHistory = useCallback(async () => {
     setIsLoading(true);
     await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
     setServerHistory([]);
     setIsLoading(false);
-  };
+  }, []);
 
   const serverExists = useCallback(
     (value: ElectrumServerItem) => {
@@ -190,13 +170,17 @@ const ElectrumSettings: React.FC = () => {
         if (!serverExists({ host, port, sslPort })) {
           const newServerHistory = [...serverHistory, { host, port, sslPort }];
           await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(newServerHistory));
+          setServerHistory(newServerHistory);
         }
         await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
         await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
         await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port?.toString() || '');
         await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort?.toString() || '');
       }
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      presentAlert({ message: loc.settings.electrum_saved, type: AlertType.Toast });
     } catch (error) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: (error as Error).message, type: AlertType.Toast });
     }
     setIsLoading(false);
@@ -209,18 +193,66 @@ const ElectrumSettings: React.FC = () => {
     save();
   }, [save]);
 
+  const selectServer = useCallback(
+    (value: string) => {
+      const parsedServer = JSON.parse(value) as ElectrumServerItem;
+      setHost(parsedServer.host);
+      setPort(parsedServer.port);
+      setSslPort(parsedServer.sslPort);
+      save();
+    },
+    [save],
+  );
+
+  const clearHistoryAlert = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+    Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
+      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+      { text: loc.settings.electrum_clear_alert_ok, onPress: () => clearHistory() },
+    ]);
+  }, [clearHistory]);
+
   const onPressMenuItem = useCallback(
     (id: string) => {
       switch (id) {
         case CommonToolTipActions.ResetToDefault.id:
           resetToDefault();
           break;
+        case CommonToolTipActions.ClearHistory.id:
+          clearHistoryAlert();
+          break;
+        default:
+          try {
+            selectServer(id);
+          } catch (error) {
+            console.warn('Unknown menu item selected:', id);
+          }
+          break;
       }
     },
-    [resetToDefault],
+    [clearHistoryAlert, resetToDefault, selectServer],
   );
 
-  const toolTipActions = useMemo(() => [CommonToolTipActions.ResetToDefault], []);
+  const toolTipActions = useMemo(() => {
+    const actions: Action[] = [CommonToolTipActions.ResetToDefault];
+
+    if (serverHistory.length > 0) {
+      const serverSubactions: Action[] = serverHistory.map(value => ({
+        id: JSON.stringify(value),
+        text: `${value.host}`,
+        subtitle: `${value.port || value.sslPort}`,
+        menuState: `${host}${port}${sslPort}` === `${value.host}${value.port}${value.sslPort}`,
+        disabled: isLoading || (host === value.host && (port === value.port || sslPort === value.sslPort)),
+      }));
+
+      actions.push({
+        id: 'server_history',
+        text: loc.settings.electrum_history,
+        subactions: [CommonToolTipActions.ClearHistory, ...serverSubactions],
+      });
+    }
+    return actions;
+  }, [host, isLoading, port, serverHistory, sslPort]);
 
   const HeaderRight = useMemo(
     () => (
@@ -243,25 +275,6 @@ const ElectrumSettings: React.FC = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     presentAlert({ message: JSON.stringify(features, null, 2) });
     setIsLoading(false);
-  };
-
-  const selectServer = useCallback(
-    (value: string) => {
-      const parsedServer = JSON.parse(value) as ElectrumServerItem;
-      setHost(parsedServer.host);
-      setPort(parsedServer.port);
-      setSslPort(parsedServer.sslPort);
-      save();
-    },
-    [save],
-  );
-
-  const clearHistoryAlert = () => {
-    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-    Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
-      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-      { text: loc.settings.electrum_clear_alert_ok, onPress: () => clearHistory() },
-    ]);
   };
 
   const onBarScanned = (value: string) => {
@@ -312,25 +325,14 @@ const ElectrumSettings: React.FC = () => {
     setIsOfflineMode(value);
   };
 
-  const ElectrumServerItems = useMemo(
-    () =>
-      serverHistory.map((value, i) => (
-        <ListItem
-          bottomDivider={false}
-          onPress={() => selectServer(JSON.stringify(value))}
-          key={i}
-          title={`${value.host}:${value.port || value.sslPort}`}
-          disabled={isLoading || (host === value.host && (port === value.port || sslPort === value.sslPort))}
-          checkmark={host === value.host && (port === value.port || sslPort === value.sslPort)}
-        />
-      )),
-    [host, isLoading, port, selectServer, serverHistory, sslPort],
-  );
-
   const renderElectrumSettings = () => {
     return (
       <>
+        <Divider />
+        <BlueSpacing20 />
         <Header leftText={loc.settings.electrum_status} />
+        <BlueSpacing20 />
+
         <BlueCard>
           <View style={styles.connectWrap}>
             <View style={[styles.container, config.connected === 1 ? stylesHook.containerConnected : stylesHook.containerDisconnected]}>
@@ -341,25 +343,31 @@ const ElectrumSettings: React.FC = () => {
               </BlueText>
             </View>
           </View>
-          <BlueSpacing20 />
+          <BlueSpacing10 />
           <BlueText style={[styles.hostname, stylesHook.hostname]} onPress={checkServer}>
             {config.host}:{config.port}
           </BlueText>
         </BlueCard>
+        <BlueSpacing20 />
 
-        <View style={styles.headerContainer}>
-          <Header leftText={loc.settings.electrum_preferred_server} />
-        </View>
+        <Divider />
+        <BlueSpacing10 />
+        <BlueSpacing20 />
+
+        <Header leftText={loc.settings.electrum_preferred_server} />
         <BlueCard>
+          <BlueText>{loc.settings.electrum_preferred_server_description}</BlueText>
+          <BlueSpacing20 />
           <AddressInput
+            testID="HostInput"
             placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
             address={host}
             onChangeText={text => setHost(text.trim())}
             editable={!isLoading}
             onBarScanned={importScan}
-            keyboardType="default" // Adjust if needed
+            keyboardType="default"
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
-            onFocus={() => setIsAndroidAddressKeyboardVisible(true)} // Add if you have an onFocus prop
+            onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
             isLoading={isLoading}
           />
@@ -403,9 +411,8 @@ const ElectrumSettings: React.FC = () => {
           </View>
         </BlueCard>
         <BlueCard>
-          <BlueText>{loc.settings.electrum_preferred_server_description}</BlueText>
           <BlueSpacing20 />
-          {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+          <Button showActivityIndicator disabled={isLoading} testID="Save" onPress={save} title={loc.settings.save} />
         </BlueCard>
 
         {Platform.select({
@@ -436,17 +443,6 @@ const ElectrumSettings: React.FC = () => {
             />
           ),
         })}
-        {ElectrumServerItems.length > 0 && !isLoading && (
-          <BlueCard>
-            <View style={styles.serverHistoryTitle}>
-              <BlueText style={stylesHook.explain}>{loc.settings.electrum_history}</BlueText>
-              <TouchableOpacity accessibilityRole="button" onPress={clearHistoryAlert}>
-                <BlueText>{loc.settings.electrum_clear}</BlueText>
-              </TouchableOpacity>
-            </View>
-            {ElectrumServerItems}
-          </BlueCard>
-        )}
       </>
     );
   };
@@ -468,10 +464,10 @@ const ElectrumSettings: React.FC = () => {
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
         disabled={isLoading}
+        bottomDivider={false}
+        subtitle={loc.settings.electrum_offline_description}
       />
-      <BlueCard>
-        <BlueText>{loc.settings.electrum_offline_description}</BlueText>
-      </BlueCard>
+
       {!isOfflineMode && renderElectrumSettings()}
     </ScrollView>
   );
@@ -517,19 +513,11 @@ const styles = StyleSheet.create({
     minHeight: 36,
     height: 36,
   },
-  serverHistoryTitle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-  },
   textConnectionStatus: {
     fontWeight: 'bold',
   },
   usePort: {
     marginHorizontal: 16,
-  },
-  headerContainer: {
-    paddingVertical: 16,
   },
 });
 
