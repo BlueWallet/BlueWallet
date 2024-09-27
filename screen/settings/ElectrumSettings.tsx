@@ -146,7 +146,7 @@ const ElectrumSettings: React.FC = () => {
 
   const serverExists = useCallback(
     (value: ElectrumServerItem) => {
-      return serverHistory.some(s => `${s.host}${s.port}${s.sslPort}` === `${value.host}${value.port}${value.sslPort}`);
+      return serverHistory.some(s => `${s.host}:${s.port}:${s.sslPort}` === `${value.host}:${value.port}:${value.sslPort}`);
     },
     [serverHistory],
   );
