@@ -89,10 +89,12 @@ const WalletsImport = () => {
     importMnemonic(textToImport);
   };
 
-  const importMnemonic = text => {
+  const importMnemonic = async text => {
     if (clearClipboardMenuState) {
       try {
-        Clipboard.setString('');
+        if (await Clipboard.hasString()) {
+          Clipboard.setString('');
+        }
       } catch (error) {
         console.error('Failed to clear clipboard:', error);
       }
