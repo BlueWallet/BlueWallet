@@ -166,7 +166,7 @@
     "realm": "12.13.1",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
-    "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17",
+    "silent-payments": "github:BlueWallet/SilentPayments#8bf48d2",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
     "stream-browserify": "3.0.0",
     "url": "0.11.4",
