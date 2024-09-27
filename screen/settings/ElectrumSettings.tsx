@@ -421,7 +421,7 @@ const ElectrumSettings: React.FC = () => {
         </BlueCard>
         <BlueCard>
           <BlueSpacing20 />
-          <Button showActivityIndicator disabled={isLoading} testID="Save" onPress={save} title={loc.settings.save} />
+          <Button showActivityIndicator={isLoading} disabled={isLoading} testID="Save" onPress={save} title={loc.settings.save} />
         </BlueCard>
 
         {Platform.select({
