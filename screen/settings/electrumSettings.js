@@ -416,10 +416,9 @@ export default class ElectrumSettings extends Component {
             value: this.state.isOfflineMode,
             testID: 'ElectrumConnectionEnabledSwitch',
           }}
+          subtitle={loc.settings.electrum_offline_description}
         />
-        <BlueCard>
-          <BlueText>{loc.settings.electrum_offline_description}</BlueText>
-        </BlueCard>
+
         {!this.state.isOfflineMode && this.renderElectrumSettings()}
       </ScrollView>
     );
