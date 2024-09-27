@@ -260,13 +260,11 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       <BottomModal
         ref={modalRef}
         onDismiss={onModalDismiss}
-        grabber={false}
         showCloseButton={!isSuccess}
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         scrollRef={scrollView}
-        dismissible={false}
-        sizes={[Math.min(440, Dimensions.get('window').height * 0.6)]}
+        sizes={['75%']}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
