@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
@@ -11,6 +11,7 @@ import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
+import useAnimateOnChange from '../hooks/useAnimateOnChange';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -36,8 +37,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
-        .catch((e: Error) => {
-          console.log('This LNDhub wallet does not have an onchain address API.');
+        .catch(() => {
+          console.error('This LNDhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
     }
@@ -160,43 +161,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   }, [wallet.type]);
 
-  // Custom hook to store previous value
-  const usePrevious = (value: any) => {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    }, [value]);
-    return ref.current;
-  };
-
-  // Use previous values to determine if updates have occurred
-  const prevBalance = usePrevious(balance);
-  useEffect(() => {
-    if (prevBalance !== undefined && prevBalance !== balance) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-  }, [balance, prevBalance]);
-
-  const prevHideBalance = usePrevious(wallet.hideBalance);
-  useEffect(() => {
-    if (prevHideBalance !== undefined && prevHideBalance !== wallet.hideBalance) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-  }, [wallet.hideBalance, prevHideBalance]);
-
-  const prevUnit = usePrevious(unit);
-  useEffect(() => {
-    if (prevUnit !== undefined && prevUnit !== unit) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-  }, [unit, prevUnit]);
-
-  const prevWalletID = usePrevious(wallet.getID?.());
-  useEffect(() => {
-    if (prevWalletID !== undefined && prevWalletID !== initialWallet.getID?.()) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-  }, [initialWallet, prevWalletID]);
+  useAnimateOnChange(balance);
+  useAnimateOnChange(wallet.hideBalance);
+  useAnimateOnChange(unit);
+  useAnimateOnChange(wallet.getID?.());
 
   return (
     <LinearGradient
@@ -224,9 +192,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             ) : (
               <View>
                 <Text
+                  // @ts-ignore: // force component recreation on balance change. To fix right-to-left languages, like Farsis
+                  key={balance}
                   testID="WalletBalance"
-                  // @ts-ignore: Ugh
-                  key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
                   numberOfLines={1}
                   minimumFontScale={0.5}
                   adjustsFontSizeToFit
