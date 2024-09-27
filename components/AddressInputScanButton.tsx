@@ -41,7 +41,6 @@ export const AddressInputScanButton = ({
 
   const onMenuItemPressed = useCallback(
     (action: string) => {
-      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
         case actionKeys.ScanQR:
           scanButtonTapped();

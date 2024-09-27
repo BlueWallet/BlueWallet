@@ -54,7 +54,7 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   DefaultView: undefined;
-  ElectrumSettings: { server: ElectrumServerItem };
+  ElectrumSettings: { server?: ElectrumServerItem };
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
