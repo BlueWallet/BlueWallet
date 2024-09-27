@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, ReactNode } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
 import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -168,7 +168,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       if (!footer) return undefined;
 
       if (React.isValidElement(footer)) {
-        return footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
+        return <View style={styles.footerContainer}>{footer}</View>;
       } else if (typeof footer === 'function') {
         const ModalFooterComponent = footer as ComponentType<any>;
         return <ModalFooterComponent />;
@@ -177,7 +177,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       return undefined;
     };
 
-    const FooterComponent = Platform.OS !== 'android' && renderFooter();
+    const footerComponent = renderFooter();
 
     return (
       <TrueSheet
@@ -187,11 +187,11 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-        FooterComponent={FooterComponent as ReactElement}
+        FooterComponent={footerComponent as ReactElement}
+        contentContainerStyle={styles.childrenContainer}
         {...props}
       >
-        <View style={styles.childrenContainer}>{children}</View>
-        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
+        {children}
         {renderHeader()}
       </TrueSheet>
     );
@@ -202,8 +202,9 @@ export default BottomModal;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    alignItems: 'center',
     justifyContent: 'center',
+    margin: 36,
+    minHeight: 36,
   },
   headerContainer: {
     position: 'absolute',

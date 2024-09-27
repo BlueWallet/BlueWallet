@@ -266,10 +266,11 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         backgroundColor={colors.modal}
         scrollRef={scrollView}
         dismissible={false}
+        sizes={[440]}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
-              <Animated.View style={[{ opacity: explanationOpacity }, styles.feeModalFooterSpacing]}>
+              <Animated.View style={{ opacity: explanationOpacity }}>
                 <SecondButton
                   title={loc.settings.i_understand}
                   onPress={handleTransitionToCreatePassword}
@@ -294,12 +295,12 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         }
       >
         {!isSuccess && (
-          <Animated.View style={[animatedViewStyle, styles.minHeight]}>
+          <Animated.View style={animatedViewStyle}>
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Animated.ScrollView style={styles.explanationScrollView} ref={scrollView}>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                <Animated.ScrollView ref={scrollView} nestedScrollEnabled>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1}>
                     {loc.settings.encrypt_storage_explanation_description_line1}
                   </Text>
                   <Text style={[styles.description, stylesHook.feeModalCustomText]}>
@@ -398,9 +399,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  minHeight: {
-    minHeight: 260,
-  },
+
   feeModalFooter: {
     paddingHorizontal: 16,
   },
@@ -445,8 +444,5 @@ const styles = StyleSheet.create({
   checkmark: {
     color: 'white',
     fontSize: 30,
-  },
-  explanationScrollView: {
-    maxHeight: 200,
   },
 });
