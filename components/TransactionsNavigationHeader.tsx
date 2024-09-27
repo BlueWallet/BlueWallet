@@ -240,7 +240,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
-            {unit === BitcoinUnit.LOCAL_CURRENCY ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD : unit}
+            {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
           </Text>
         </TouchableOpacity>
       </View>
@@ -256,11 +256,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
       )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity
-          style={styles.manageFundsButton}
-          accessibilityRole="button"
-          onPress={() => handleManageFundsPressed()}
-        >
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
