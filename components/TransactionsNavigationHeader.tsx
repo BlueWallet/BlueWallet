@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
@@ -44,8 +44,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet]);
 
   useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
     setWallet(initialWallet);
   }, [initialWallet]);
 
@@ -61,7 +59,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [unit, wallet]);
 
   const handleBalanceVisibility = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
   }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
@@ -76,7 +73,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onWalletUnitChange(newWalletPreferredUnit);
   };
 
@@ -116,7 +112,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, []);
 
   const balance = useMemo(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const hideBalance = wallet.hideBalance;
     const balanceFormatted =
       unit === BitcoinUnit.LOCAL_CURRENCY
