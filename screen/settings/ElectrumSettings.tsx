@@ -379,6 +379,15 @@ const ElectrumSettings: React.FC = () => {
                 value={sslPort?.toString() === '' || sslPort === undefined ? port?.toString() || '' : sslPort?.toString() || ''}
                 onChangeText={text => {
                   const parsed = Number(text.trim());
+                  if (isNaN(parsed)) {
+                    // Handle invalid input, e.g., set to undefined or show an error
+                    if (sslPort === undefined) {
+                      setPort(undefined);
+                    } else {
+                      setSslPort(undefined);
+                    }
+                    return;
+                  }
                   if (sslPort === undefined) {
                     setPort(parsed);
                     setSslPort(undefined);
