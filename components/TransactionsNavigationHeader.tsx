@@ -160,22 +160,14 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   }, [wallet.type]);
 
-// Custom hook to store previous value
-const usePrevious = <T>(value: T): T | undefined => {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-};
-
-const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
-  wallet: initialWallet,
-  onWalletUnitChange,
-  onManageFundsPressed,
-  onWalletBalanceVisibilityChange,
-  unit = BitcoinUnit.BTC,
-}) => {
+  // Custom hook to store previous value
+  const usePrevious = (value: any) => {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    }, [value]);
+    return ref.current;
+  };
 
   // Use previous values to determine if updates have occurred
   const prevBalance = usePrevious(balance);
