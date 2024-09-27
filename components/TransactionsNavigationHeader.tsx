@@ -259,7 +259,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <TouchableOpacity
           style={styles.manageFundsButton}
           accessibilityRole="button"
-          onPress={handleManageFundsPressed}
+          onPress={() => handleManageFundsPressed()}
         >
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
