@@ -25,11 +25,10 @@ import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -228,9 +227,7 @@ const WalletsAdd: React.FC = () => {
 
   const HeaderRight = useMemo(
     () => (
-      <ToolTipMenu
-        isButton
-        isMenuPrimaryAction
+      <HeaderMenuButton
         onPressMenuItem={(id: string) => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           if (id === HDSegwitBech32Wallet.type) {
@@ -246,11 +243,9 @@ const WalletsAdd: React.FC = () => {
           }
         }}
         actions={toolTipActions}
-      >
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
+      />
     ),
-    [colors.foregroundColor, handleOnLightningButtonPressed, navigateToEntropy, toolTipActions],
+    [handleOnLightningButtonPressed, navigateToEntropy, toolTipActions],
   );
 
   useEffect(() => {

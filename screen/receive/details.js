@@ -35,9 +35,8 @@ import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -167,12 +166,9 @@ const ReceiveDetails = () => {
   }, [onEnablePaymentsCodeSwitchValue]);
 
   const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={[toolTipActions]}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
-    ),
-    [colors.foregroundColor, onPressMenuItem, toolTipActions],
+    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
+
+    [onPressMenuItem, toolTipActions],
   );
 
   const handleClose = useCallback(() => {
