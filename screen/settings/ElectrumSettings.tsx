@@ -4,7 +4,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert, { AlertType } from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
@@ -179,19 +179,32 @@ const ElectrumSettings: React.FC = () => {
         await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort?.toString() || '');
       }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      presentAlert({ message: loc.settings.electrum_saved, type: AlertType.Toast });
+      presentAlert({ message: loc.settings.electrum_saved });
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (error as Error).message, type: AlertType.Toast });
+      presentAlert({ message: (error as Error).message });
     }
     setIsLoading(false);
   }, [host, port, sslPort, serverExists, serverHistory]);
 
   const resetToDefault = useCallback(() => {
-    setPort(undefined);
-    setHost('');
-    setSslPort(undefined);
-    save();
+    Alert.alert(loc.settings.electrum_reset, loc.settings.electrum_reset_to_default, [
+      {
+        text: loc._.cancel,
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {
+        text: loc._.ok,
+        style: 'destructive',
+        onPress: async () => {
+          setHost('');
+          setPort(undefined);
+          setSslPort(undefined);
+          await save();
+        },
+      },
+    ]);
   }, [save]);
 
   const selectServer = useCallback(
