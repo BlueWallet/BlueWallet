@@ -266,7 +266,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         backgroundColor={colors.modal}
         scrollRef={scrollView}
         dismissible={false}
-        sizes={[440]}
+        sizes={[Math.min(440, Dimensions.get('window').height * 0.6)]}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
