@@ -41,7 +41,7 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
     color: fontColor,
   };
 
-  const buttonView = !props.showActivityIndicator ? (
+  const buttonView = props.showActivityIndicator ? (
     <ActivityIndicator size="small" color={textStyle.color} />
   ) : (
     <>
