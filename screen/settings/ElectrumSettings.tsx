@@ -18,10 +18,9 @@ import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } fr
 import { useTheme } from '../../components/themes';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import ToolTipMenu from '../../components/TooltipMenu';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Divider, Icon } from '@rneui/themed';
+import { Divider } from '@rneui/themed';
 import { Header } from '../../components/Header';
 import AddressInput from '../../components/AddressInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,6 +28,7 @@ import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -152,6 +152,7 @@ const ElectrumSettings: React.FC = () => {
   );
 
   const save = useCallback(async () => {
+    Keyboard.dismiss();
     setIsLoading(true);
 
     try {
@@ -255,12 +256,8 @@ const ElectrumSettings: React.FC = () => {
   }, [host, isLoading, port, serverHistory, sslPort]);
 
   const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu testID="HeaderRight" isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={toolTipActions}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
-    ),
-    [colors.foregroundColor, onPressMenuItem, toolTipActions],
+    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
+    [onPressMenuItem, toolTipActions],
   );
 
   useEffect(() => {
@@ -301,6 +298,7 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const onSSLPortChange = (value: boolean) => {
+    Keyboard.dismiss();
     if (value) {
       setPort(undefined);
       setSslPort(port);
@@ -344,7 +342,7 @@ const ElectrumSettings: React.FC = () => {
             </View>
           </View>
           <BlueSpacing10 />
-          <BlueText style={[styles.hostname, stylesHook.hostname]} onPress={checkServer}>
+          <BlueText style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
             {config.host}:{config.port}
           </BlueText>
         </BlueCard>
