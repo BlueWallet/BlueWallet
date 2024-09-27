@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View, LayoutAnimation } from 'react-native';
+import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View  } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
