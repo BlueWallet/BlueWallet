@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -44,8 +44,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet]);
 
   useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
     setWallet(initialWallet);
   }, [initialWallet]);
 
@@ -61,7 +59,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [unit, wallet]);
 
   const handleBalanceVisibility = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
   }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
@@ -76,7 +73,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onWalletUnitChange(newWalletPreferredUnit);
   };
 
@@ -116,7 +112,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, []);
 
   const balance = useMemo(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const hideBalance = wallet.hideBalance;
     const balanceFormatted =
       unit === BitcoinUnit.LOCAL_CURRENCY
@@ -165,6 +160,44 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   }, [wallet.type]);
 
+  // Custom hook to store previous value
+  const usePrevious = (value: any) => {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    }, [value]);
+    return ref.current;
+  };
+
+  // Use previous values to determine if updates have occurred
+  const prevBalance = usePrevious(balance);
+  useEffect(() => {
+    if (prevBalance !== undefined && prevBalance !== balance) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [balance, prevBalance]);
+
+  const prevHideBalance = usePrevious(wallet.hideBalance);
+  useEffect(() => {
+    if (prevHideBalance !== undefined && prevHideBalance !== wallet.hideBalance) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [wallet.hideBalance, prevHideBalance]);
+
+  const prevUnit = usePrevious(unit);
+  useEffect(() => {
+    if (prevUnit !== undefined && prevUnit !== unit) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [unit, prevUnit]);
+
+  const prevWalletID = usePrevious(wallet.getID?.());
+  useEffect(() => {
+    if (prevWalletID !== undefined && prevWalletID !== initialWallet.getID?.()) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [initialWallet, prevWalletID]);
+
   return (
     <LinearGradient
       colors={WalletGradient.gradientsFor(wallet.type)}
@@ -207,7 +240,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
-            {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
+            {unit === BitcoinUnit.LOCAL_CURRENCY ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD : unit}
           </Text>
         </TouchableOpacity>
       </View>
@@ -223,7 +256,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
       )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
+        <TouchableOpacity
+          style={styles.manageFundsButton}
+          accessibilityRole="button"
+          onPress={() => handleManageFundsPressed()}
+        >
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
