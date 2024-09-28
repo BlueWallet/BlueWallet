@@ -127,7 +127,6 @@ const SendDetails = () => {
 
   const handleProceed = async () => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-    await feeWarningRef.current?.dismiss();
     // Proceed with the transaction creation
     createPsbtTransaction();
   };
@@ -586,7 +585,6 @@ const SendDetails = () => {
 
   const createPsbtTransaction = async () => {
     if (!wallet) return;
-    await feeWarningRef.current?.dismiss();
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);

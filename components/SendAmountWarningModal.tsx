@@ -1,9 +1,14 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, I18nManager, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, I18nManager, Animated, UIManager, Platform } from 'react-native';
 import { useTheme } from '../components/themes';
 import BottomModal, { BottomModalHandle } from '../components/BottomModal';
 import loc from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes, stopHapticFeedback } from '../blue_modules/hapticFeedback';
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export interface SendAmountWarningHandle {
   present: () => void;
@@ -36,7 +41,7 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       Animated.timing(buttonAnim, {
         toValue: 1,
         duration: 3000, // 3 seconds
-        useNativeDriver: false,
+        useNativeDriver: true,
       }).start(() => {
         setIsButtonEnabled(true);
         Animated.timing(progressOpacityAnim, {
@@ -81,11 +86,6 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
     outputRange: ['rgba(255, 0, 0, 0)', 'rgba(255, 0, 0, 0.5)'],
   });
 
-  const buttonProgressWidth = buttonAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-  });
-
   const buttonStyle = isButtonEnabled
     ? [styles.button, { backgroundColor: colors.buttonBackgroundColor }]
     : [styles.button, styles.buttonDisabled];
@@ -96,22 +96,38 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       onClose={onCancel}
       grabber={false}
       dismissible={false}
+      contentContainerStyle={{ backgroundColor: colors.modal }}
       footer={
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity testID="HighFeeWarningContinueButton" style={buttonStyle} onPress={onProceed} disabled={!isButtonEnabled}>
+          <TouchableOpacity
+            testID="HighFeeWarningContinueButton"
+            style={buttonStyle}
+            onPress={onProceed}
+            disabled={!isButtonEnabled}
+            activeOpacity={isButtonEnabled ? 0.7 : 1}
+            accessibilityState={{ disabled: !isButtonEnabled }}
+          >
+            {/* Progress Bar */}
             {!isButtonEnabled && (
-              <Animated.View
-                style={[
-                  styles.buttonProgress,
-                  {
-                    width: buttonProgressWidth,
-                    opacity: progressOpacityAnim,
-                  },
-                ]}
-              />
+              <View style={styles.progressContainer}>
+                <Animated.View
+                  style={[
+                    styles.buttonProgress,
+                    {
+                      transform: [{ scaleX: buttonAnim }],
+                      opacity: progressOpacityAnim,
+                    },
+                  ]}
+                />
+              </View>
             )}
             <Text
-              style={[styles.buttonText, { color: isButtonEnabled ? colors.buttonTextColor : colors.buttonDisabledTextColor || '#888' }]}
+              style={[
+                styles.buttonText,
+                {
+                  color: isButtonEnabled ? colors.buttonTextColor : colors.buttonDisabledTextColor || '#888',
+                },
+              ]}
             >
               {loc._.continue}
             </Text>
@@ -175,16 +191,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
+    position: 'relative',
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#ccc', // Gray color for disabled state
+  },
+  progressContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    overflow: 'hidden',
   },
   buttonProgress: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
+    height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    transform: [{ scaleX: 0 }],
   },
   buttonText: {
     fontSize: 16,
