@@ -99,7 +99,11 @@ const WalletsImport = () => {
         console.error('Failed to clear clipboard:', error);
       }
     }
-    navigation.navigate('ImportWalletDiscovery', { importText: text, askPassphraseMenuState, searchAccountsMenuState });
+    navigation.navigate('ImportWalletDiscovery', {
+      importText: text,
+      askPassphrase: askPassphraseMenuState,
+      searchAccounts: searchAccountsMenuState,
+    });
   };
 
   const onBarScanned = value => {
@@ -131,6 +135,7 @@ const WalletsImport = () => {
 
   const toolTipOnPressMenuItem = useCallback(
     menuItem => {
+      Keyboard.dismiss();
       if (menuItem === CommonToolTipActions.Passphrase.id) {
         setAskPassphraseMenuState(!askPassphraseMenuState);
       } else if (menuItem === CommonToolTipActions.SearchAccount.id) {
@@ -144,11 +149,11 @@ const WalletsImport = () => {
 
   // ToolTipMenu actions for advanced options
   const toolTipActions = useMemo(() => {
-    const askPassphraseAction = { ...CommonToolTipActions.Passphrase };
+    const askPassphraseAction = CommonToolTipActions.Passphrase;
     askPassphraseAction.menuState = askPassphraseMenuState;
-    const searchAccountsAction = { ...CommonToolTipActions.SearchAccount };
+    const searchAccountsAction = CommonToolTipActions.SearchAccount;
     searchAccountsAction.menuState = searchAccountsMenuState;
-    const clearClipboardAction = { ...CommonToolTipActions.ClearClipboard };
+    const clearClipboardAction = CommonToolTipActions.ClearClipboard;
     clearClipboardAction.menuState = clearClipboardMenuState;
     return [askPassphraseAction, searchAccountsAction, clearClipboardAction];
   }, [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState]);
