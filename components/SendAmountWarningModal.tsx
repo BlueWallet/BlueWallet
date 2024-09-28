@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, I18nManager, Animated } from 'react-native';
 import { useTheme } from '../components/themes';
 import BottomModal, { BottomModalHandle } from '../components/BottomModal';
@@ -22,13 +22,33 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
   const hapticIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const glowAnim = useRef(new Animated.Value(0)).current;
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const buttonAnim = useRef(new Animated.Value(0)).current;
+  const progressOpacityAnim = useRef(new Animated.Value(1)).current;
 
   useImperativeHandle(ref, () => ({
     present: () => {
       modalRef.current?.present();
+      setIsButtonEnabled(false);
+      buttonAnim.setValue(0);
+      progressOpacityAnim.setValue(1);
+
+      Animated.timing(buttonAnim, {
+        toValue: 1,
+        duration: 3000, // 3 seconds
+        useNativeDriver: false,
+      }).start(() => {
+        setIsButtonEnabled(true);
+        Animated.timing(progressOpacityAnim, {
+          toValue: 0,
+          duration: 500, // 0.5 seconds
+          useNativeDriver: true,
+        }).start();
+      });
+
       hapticIntervalRef.current = setInterval(() => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-      }, 500); // 500ms interval for "heart beat" effect due to severity of warning
+      }, 500);
 
       Animated.loop(
         Animated.sequence([
@@ -47,6 +67,7 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
     },
     dismiss: async () => {
       await modalRef.current?.dismiss();
+      buttonAnim.stopAnimation();
       if (hapticIntervalRef.current) {
         clearInterval(hapticIntervalRef.current);
         hapticIntervalRef.current = null;
@@ -60,6 +81,15 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
     outputRange: ['rgba(255, 0, 0, 0)', 'rgba(255, 0, 0, 0.5)'],
   });
 
+  const buttonProgressWidth = buttonAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
+
+  const buttonStyle = isButtonEnabled
+    ? [styles.button, { backgroundColor: colors.buttonBackgroundColor }]
+    : [styles.button, styles.buttonDisabled];
+
   return (
     <BottomModal
       ref={modalRef}
@@ -68,12 +98,23 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       dismissible={false}
       footer={
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            testID="HighFeeWarningContinueButton"
-            style={[styles.button, { backgroundColor: colors.buttonBackgroundColor }]}
-            onPress={onProceed}
-          >
-            <Text style={[styles.buttonText, { color: colors.buttonTextColor }]}>{loc._.continue}</Text>
+          <TouchableOpacity testID="HighFeeWarningContinueButton" style={buttonStyle} onPress={onProceed} disabled={!isButtonEnabled}>
+            {!isButtonEnabled && (
+              <Animated.View
+                style={[
+                  styles.buttonProgress,
+                  {
+                    width: buttonProgressWidth,
+                    opacity: progressOpacityAnim,
+                  },
+                ]}
+              />
+            )}
+            <Text
+              style={[styles.buttonText, { color: isButtonEnabled ? colors.buttonTextColor : colors.buttonDisabledTextColor || '#888' }]}
+            >
+              {loc._.continue}
+            </Text>
           </TouchableOpacity>
         </View>
       }
@@ -127,15 +168,29 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
     borderRadius: 5,
     marginHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonProgress: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+    zIndex: 1,
   },
 });
 
