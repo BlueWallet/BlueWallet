@@ -153,7 +153,7 @@
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.6.1",
     "react-native-rate": "1.2.12",
-    "react-native-reanimated": "3.15.3",
+    "react-native-reanimated": "3.15.4",
     "react-native-safe-area-context": "4.11.0",
     "react-native-screens": "3.34.0",
     "react-native-secure-key-store": "github:BlueWallet/react-native-secure-key-store#2076b4849e88aa0a78e08bfbb4ce3923e0925cbc",
