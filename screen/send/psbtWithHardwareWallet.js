@@ -15,7 +15,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -215,16 +215,7 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const openScanner = () => {
-    requestCameraAuthorization().then(() => {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          showFileImportButton: false,
-          onBarScanned,
-        },
-      });
-    });
+    scanQrHelper(route.name, false, onBarScanned);
   };
 
   if (txHex) return _renderBroadcastHex();
