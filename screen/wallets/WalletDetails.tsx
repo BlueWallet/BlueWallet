@@ -78,7 +78,7 @@ const WalletDetails: React.FC = () => {
       if (wallet.getDerivationPath) {
         // @ts-expect-error: Need to fix later
         const path = wallt.getDerivationPath();
-        return path.lengthe > 0 ? path : null;
+        return path.length > 0 ? path : null;
       }
       return null;
     } catch (e) {
