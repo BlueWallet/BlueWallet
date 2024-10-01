@@ -16,33 +16,42 @@ export const useNFC = () => {
 
         const isEnabled = await NfcManager.isEnabled();
         setEnabled(isEnabled);
-      } catch (error) {
-        console.warn(error);
+      } catch (error: any) {
+        console.warn(error.message);
       }
     };
 
     startNfc();
 
-    return () => {
-      NfcManager.setEventListener(NfcTech.Ndef, null);
-    };
+    // return () => {
+    //   NfcManager.setEventListener(NfcTech.Ndef, null);
+    // };
   }, []);
 
-  const readTag = useCallback(async () => {
+  const startReading = useCallback(async () => {
+    console.log('starting NFC scan...');
     setIsScanning(true);
+    setTagData(null);
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
       setTagData(tag);
-    } catch (error) {
-      console.warn(error);
+      console.log('NFC read:', JSON.stringify(tag));
+    } catch (error: any) {
+      console.warn(error.message);
     } finally {
-      await NfcManager.cancelTechnologyRequest();
+      NfcManager.cancelTechnologyRequest();
       setIsScanning(false);
     }
   }, []);
 
-  const writeTag = useCallback(async (message: string) => {
+  const stopReading = useCallback(async () => {
+    console.log('stopped NFC scan');
+    NfcManager.cancelTechnologyRequest();
+    setIsScanning(false);
+  }, []);
+
+  /* const writeTag = useCallback(async (message: string) => {
     setIsScanning(true);
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
@@ -55,14 +64,15 @@ export const useNFC = () => {
       await NfcManager.cancelTechnologyRequest();
       setIsScanning(false);
     }
-  }, []);
+  }, []); */
 
   return {
     supported,
     enabled,
     isScanning,
     tagData,
-    readTag,
-    writeTag,
+    startReading,
+    stopReading,
+    // writeTag,
   };
 };

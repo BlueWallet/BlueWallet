@@ -52,7 +52,7 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const { enabled, supported, readTag } = useNFC();
+  const { enabled, supported, startReading } = useNFC();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -131,12 +131,12 @@ const AddressInput = ({
             });
           break;
         case CommonToolTipActions.NFC.id:
-          readTag();
+          startReading();
           break;
       }
       Keyboard.dismiss();
     },
-    [launchedBy, onBarScanned, onChangeText, readTag, scanButtonTapped],
+    [launchedBy, onBarScanned, onChangeText, startReading, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
