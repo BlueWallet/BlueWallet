@@ -215,8 +215,9 @@ const PsbtWithHardwareWallet = () => {
     }
   };
 
-  const openScanner = () => {
-    scanQrHelper(route.name, false, onBarScanned);
+  const openScanner = async () => {
+    const scannedData = await scanQrHelper(route.name, true);
+    onBarScanned({ data: scannedData });
   };
 
   if (txHex) return _renderBroadcastHex();

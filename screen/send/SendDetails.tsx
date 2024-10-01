@@ -39,7 +39,7 @@ import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -679,22 +679,13 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = () => {
+  const importQrTransaction = async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    requestCameraAuthorization().then(() => {
-      feeModalRef.current?.dismiss();
-
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: importQrTransactionOnBarScanned,
-          showFileImportButton: false,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    importQrTransactionOnBarScanned(data);
   };
 
   const importQrTransactionOnBarScanned = (ret: any) => {
@@ -852,15 +843,8 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = async () => {
-    await requestCameraAuthorization().then(() => {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    onBarScanned(data);
   };
 
   const handleAddRecipient = () => {

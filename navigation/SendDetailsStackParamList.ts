@@ -79,18 +79,4 @@ export type SendDetailsStackParamList = {
   PaymentCodeList: {
     walletID: string;
   };
-  ScanQRCodeRoot: {
-    screen: string;
-    params: {
-      isLoading?: boolean;
-      cameraStatusGranted?: boolean;
-      backdoorPressed?: boolean;
-      launchedBy?: string;
-      urTotal?: number;
-      urHave?: number;
-      backdoorText?: string;
-      showFileImportButton?: boolean;
-      onBarScanned: (data: string) => void;
-    };
-  };
 };
