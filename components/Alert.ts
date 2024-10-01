@@ -5,6 +5,7 @@ export enum AlertType {
   Alert,
   Toast,
 }
+
 const presentAlert = ({
   title,
   message,
@@ -23,13 +24,21 @@ const presentAlert = ({
   if (Platform.OS !== 'android') {
     type = AlertType.Alert;
   }
+
   switch (type) {
     case AlertType.Toast:
       ToastAndroid.show(message, ToastAndroid.LONG);
       break;
     default:
-      RNAlert.alert(title ?? message, title && message ? message : undefined);
+      if (Platform.OS === 'android') {
+        // Android-specific behavior: If no title, use an empty string as the title
+        RNAlert.alert(title || '', message);
+      } else {
+        // For other platforms, use default logic
+        RNAlert.alert(title ?? message, title && message ? message : undefined);
+      }
       break;
   }
 };
+
 export default presentAlert;
