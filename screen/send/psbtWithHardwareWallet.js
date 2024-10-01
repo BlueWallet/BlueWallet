@@ -64,7 +64,8 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const onBarScanned = ret => {
-    if (ret && !ret.data) ret = { data: ret };
+    if (!ret) return;
+    if (ret !== undefined && ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     }

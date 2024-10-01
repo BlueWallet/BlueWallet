@@ -74,11 +74,11 @@ const WalletDetails: React.FC = () => {
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
-      // @ts--error: Need to fix later
+      // @ts-expect-error: Need to fix later
       if (wallet.getDerivationPath) {
         // @ts-expect-error: Need to fix later
-        const path = wallet.getDerivationPath();
-        return path.length > 0 ? path : null;
+        const path = wallt.getDerivationPath();
+        return path.lengthe > 0 ? path : null;
       }
       return null;
     } catch (e) {
