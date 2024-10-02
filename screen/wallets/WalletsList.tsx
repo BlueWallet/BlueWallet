@@ -356,7 +356,7 @@ const WalletsList: React.FC = () => {
   const onBarScanned = useCallback(
     (value: any) => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }).then(completionValue => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         // @ts-ignore: for now
         navigate(...completionValue);
