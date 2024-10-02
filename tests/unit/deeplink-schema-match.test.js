@@ -2,17 +2,42 @@ import assert from 'assert';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import fs from 'fs';
 
-// Mock dependencies as needed
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
     connectMain: jest.fn(),
   };
 });
 
-// Import the filesystem module for reading fixture files
+jest.mock('../../NavigationService', () => ({
+  navigate: jest.fn(),
+  dispatch: jest.fn(),
+}));
 
-describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', function (suffix) {
-  describe('hasSchema', () => {
+const addWallet = jest.fn();
+const saveToDisk = jest.fn();
+const setSharedCosigner = jest.fn();
+
+const wallets = [
+  {
+    getID: () => 'wallet1',
+    getLabel: () => 'Wallet 1',
+    type: 'bitcoin',
+    hideBalance: false,
+    getBalance: () => 1000,
+    getPreferredBalanceUnit: () => 'BTC',
+  },
+  {
+    getID: () => 'wallet2',
+    getLabel: () => 'Wallet 2',
+    type: 'bitcoin',
+    hideBalance: true,
+    getBalance: () => 0,
+    getPreferredBalanceUnit: () => 'BTC',
+  },
+];
+
+describe.each(['', '//'])('unit - DeepLinkSchemaMatch with suffix "%s"', function (suffix) {
+  describe(`hasSchema with suffix "${suffix}"`, () => {
     it('should recognize valid Bitcoin and Lightning schemas', () => {
       // Bitcoin Addresses
       assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
@@ -24,7 +49,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
       // Lightning Invoices
       assert.ok(
         DeeplinkSchemaMatch.hasSchema(
-          `lightning:${suffix}lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde`,
+          `lightning:${suffix}lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4`,
         ),
       );
 
@@ -42,13 +67,13 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
       );
       assert.ok(
         DeeplinkSchemaMatch.hasSchema(
-          `bluewallet:lightning:${suffix}lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde`,
+          `bluewallet:lightning:${suffix}lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4`,
         ),
       );
     });
   });
 
-  describe('isBitcoinAddress', () => {
+  describe(`isBitcoinAddress with suffix "${suffix}"`, () => {
     it('should validate valid Bitcoin addresses', () => {
       // P2PKH
       assert.ok(DeeplinkSchemaMatch.isBitcoinAddress('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
@@ -64,7 +89,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('isLightningInvoice', () => {
+  describe(`isLightningInvoice with suffix "${suffix}"`, () => {
     it('should validate valid Lightning invoices', () => {
       assert.ok(
         DeeplinkSchemaMatch.isLightningInvoice(
@@ -74,7 +99,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('isLnUrl', () => {
+  describe(`isLnUrl with suffix "${suffix}"`, () => {
     it('should recognize valid LNURLs', () => {
       assert.ok(
         DeeplinkSchemaMatch.isLnUrl(
@@ -84,7 +109,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('navigationRouteFor', () => {
+  describe(`navigationForRoute with suffix "${suffix}"`, () => {
     it('should correctly navigate based on various deeplinks', async () => {
       const events = [
         {
@@ -289,7 +314,12 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
       ];
 
       for (const event of events) {
-        const navValue = await DeeplinkSchemaMatch.navigationRouteFor(event.argument);
+        const navValue = await DeeplinkSchemaMatch.navigationRouteFor(event.argument, {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
         assert.deepStrictEqual(navValue, event.expected);
       }
 
@@ -303,7 +333,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('bip21decode', () => {
+  describe(`bip21decode with suffix "${suffix}"`, () => {
     it('should correctly decode BIP21 URIs', () => {
       let decoded = DeeplinkSchemaMatch.bip21decode(`bitcoin:${suffix}1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar`);
       assert.deepStrictEqual(decoded, {
@@ -330,7 +360,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('bip21encode', () => {
+  describe(`bip21encode with suffix "${suffix}"`, () => {
     it('should correctly encode BIP21 URIs without options', () => {
       const encoded = DeeplinkSchemaMatch.bip21encode('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
       assert.strictEqual(encoded, 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
@@ -353,7 +383,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('decodeBitcoinUri', () => {
+  describe(`decodeBitcoinUri with suffix "${suffix}"`, () => {
     it('should correctly decode Bitcoin URIs', () => {
       assert.deepStrictEqual(
         DeeplinkSchemaMatch.decodeBitcoinUri(
@@ -379,7 +409,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('isTXNFile and related file checks', () => {
+  describe(`isTXNFile and related file checks with suffix "${suffix}"`, () => {
     it('should correctly identify transaction files', () => {
       // .txn files
       assert.ok(DeeplinkSchemaMatch.isTXNFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.txn'));
@@ -409,7 +439,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('deeplink actions', () => {
+  describe(`deeplink actions with suffix "${suffix}"`, () => {
     it('should correctly extract server and URL from deeplink actions', () => {
       // Testing getServerFromSetElectrumServerAction
       assert.strictEqual(DeeplinkSchemaMatch.getServerFromSetElectrumServerAction('sgasdgasdgasd'), false);
@@ -448,7 +478,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('hasNeededJsonKeysForMultiSigSharing', () => {
+  describe(`hasNeededJsonKeysForMultiSigSharing with suffix "${suffix}"`, () => {
     it('should correctly validate JSON for multi-sig sharing', () => {
       // Valid JSON with required keys
       const isAllowed1 = '{"xfp":"ffffffff", "path":"m/84\'/0\'/0\'", "xpub":"Zpubsnkjansdjnjnekjwcnwkjnc"}';
@@ -464,7 +494,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
     });
   });
 
-  describe('isBothBitcoinAndLightning', () => {
+  describe(`isBothBitcoinAndLightning with suffix "${suffix}"`, () => {
     it('should correctly identify combined Bitcoin and Lightning URIs', () => {
       const rez = DeeplinkSchemaMatch.isBothBitcoinAndLightning(
         `bitcoin:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4`,
@@ -476,7 +506,7 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
       });
 
       const rez2 = DeeplinkSchemaMatch.isBothBitcoinAndLightning(
-        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=lnbc1p3wkfy3dqqpp5030v53xsdhsgjkzelyle7ektmem38974498vnqdt2jaz24trw39qsp502jqj4k6nr7axqymhkf3ax70jxfx6jza4jygvc66njzhfs4tsa2q9qrsgqcqpcxqy8ayqrzjqv06k0m23t593pngl0jt7n9wznp64fqngvctz7vts8nq4tukvtljqz2zhyqqxqgqqsqqqqqqqqqqqqqq9grzjqtsjy9p55gdceevp36fvdmrkxqvzfhy8ak2tgc5zgtjtra9xlaz97zkcyvqqprsqqvqqqqqqqqqqqqqq9gy3x4n6rv6rcn53ldev96aurls3c66kpx74wa4uwcwu92jgktpqe8ncqpzj8jg6sunygzm320cdutnvgsrc6xv286evhrxefsxxuz0ssqwtm6dq&amount=0`,
+        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=LNBC1P3WKFY3DQQPP5030V53XSDHSGJKZELYLE7EKTMEM38974498VNQDT2JAZ24TRW39QSP502JQJ4K6NR7AXQYMHKF3AX70JXFX6JZA4JYGVC66NJZHFS4TSA2Q9QRSGQCQPCXQY8AYQRZJQV06K0M23T593PNGL0JT7N9WZNP64FQNGVCTZ7VTS8NQ4TUKVTLJQZ2ZHYQQXQGQQSQQQQQQQQQQQQQQ9GRZJQTSJY9P55GDCEEVP36FVDMRKXQVZFHY8AK2TGC5ZGTJTRA9XLAZ97ZKCYVQQPRSQQVQQQQQQQQQQQQQQ9GY3X4N6RV6RCN53LDEV96AURLS3C66KPX74WA4UWCWU92JGKTPQE8NCQPZJ8JG6SUNYGZM320CDUTNVGSRC6XV286EVHRXEFSXXUZ0SSQWTM6DQ&amount=0`,
       );
       assert.deepStrictEqual(rez2, {
         bitcoin: 'bitcoin:bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?',
@@ -485,22 +515,22 @@ describe.each(['', '//'])('unit - DeeplinkSchemaMatch with suffix "%s"', functio
       });
 
       const rez3 = DeeplinkSchemaMatch.isBothBitcoinAndLightning(
-        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=lnbc1p3wkfy3dqqpp5030v53xsdhsgjkzelyle7ektmem38974498vnqdt2jaz24trw39qsp502jqj4k6nr7axqymhkf3ax70jxfx6jza4jygvc66njzhfs4tsa2q9qrsgqcqpcxqy8ayqrzjqv06k0m23t593pngl0jt7n9wznp64fqngvctz7vts8nq4tukvtljqz2zhyqqxqgqqsqqqqqqqqqqqqqq9grzjqtsjy9p55gdceevp36fvdmrkxqvzfhy8ak2tgc5zgtjtra9xlaz97zkcyvqqprsqqvqqqqqqqqqqqqqq9gy3x4n6rv6rcn53ldev96aurls3c66kpx74wa4uwcwu92jgktpqe8ncqpzj8jg6sunygzm320cdutnvgsrc6xv286evhrxefsxxuz0ssqwtm6dq`,
+        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=LNBC1P3WKFY3DQQPP5030V53XSDHSGJKZELYLE7EKTMEM38974498VNQDT2JAZ24TRW39QSP502JQJ4K6NR7AXQYMHKF3AX70JXFX6JZA4JYGVC66NJZHFS4TSA2Q9QRSGQCQPCXQY8AYQRZJQV06K0M23T593PNGL0JT7N9WZNP64FQNGVCTZ7VTS8NQ4TUKVTLJQZ2ZHYQQXQGQQSQQQQQQQQQQQQQQ9GRZJQTSJY9P55GDCEEVP36FVDMRKXQVZFHY8AK2TGC5ZGTJTRA9XLAZ97ZKCYVQQPRSQQVQQQQQQQQQQQQQQ9GY3X4N6RV6RCN53LDEV96AURLS3C66KPX74WA4UWCWU92JGKTPQE8NCQPZJ8JG6SUNYGZM320CDUTNVGSRC6XV286EVHRXEFSXXUZ0SSQWTM6DQ`,
       );
       assert.deepStrictEqual(rez3, {
         bitcoin: 'bitcoin:bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?',
         lndInvoice:
-          'lightning:lnbc1p3wkfy3dqqpp5030v53xsdhsgjkzelyle7ektmem38974498vnqdt2jaz24trw39qsp502jqj4k6nr7axqymhkf3ax70jxfx6jza4jygvc66njzhfs4tsa2q9qrsgqcqpcxqy8ayqrzjqv06k0m23t593pngl0jt7n9wznp64fqngvctz7vts8nq4tukvtljqz2zhyqqxqgqqsqqqqqqqqqqqqqq9grzjqtsjy9p55gdceevp36fvdmrkxqvzfhy8ak2tgc5zgtjtra9xlaz97zkcyvqqprsqqvqqqqqqqqqqqqqq9gy3x4n6rv6rcn53ldev96aurls3c66kpx74wa4uwcwu92jgktpqe8ncqpzj8jg6sunygzm320cdutnvgsrc6xv286evhrxefsxxuz0ssqwtm6dq',
+          'lightning:LNBC1P3WKFY3DQQPP5030V53XSDHSGJKZELYLE7EKTMEM38974498VNQDT2JAZ24TRW39QSP502JQJ4K6NR7AXQYMHKF3AX70JXFX6JZA4JYGVC66NJZHFS4TSA2Q9QRSGQCQPCXQY8AYQRZJQV06K0M23T593PNGL0JT7N9WZNP64FQNGVCTZ7VTS8NQ4TUKVTLJQZ2ZHYQQXQGQQSQQQQQQQQQQQQQQ9GRZJQTSJY9P55GDCEEVP36FVDMRKXQVZFHY8AK2TGC5ZGTJTRA9XLAZ97ZKCYVQQPRSQQVQQQQQQQQQQQQQQ9GY3X4N6RV6RCN53LDEV96AURLS3C66KPX74WA4UWCWU92JGKTPQE8NCQPZJ8JG6SUNYGZM320CDUTNVGSRC6XV286EVHRXEFSXXUZ0SSQWTM6DQ',
       });
 
       // No amount
       const rez4 = DeeplinkSchemaMatch.isBothBitcoinAndLightning(
-        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=lnbc1p3wkfy3dqqpp5030v53xsdhsgjkzelyle7ektmem38974498vnqdt2jaz24trw39qsp502jqj4k6nr7axqymhkf3ax70jxfx6jza4jygvc66njzhfs4tsa2q9qrsgqcqpcxqy8ayqrzjqv06k0m23t593pngl0jt7n9wznp64fqngvctz7vts8nq4tukvtljqz2zhyqqxqgqqsqqqqqqqqqqqqqq9grzjqtsjy9p55gdceevp36fvdmrkxqvzfhy8ak2tgc5zgtjtra9xlaz97zkcyvqqprsqqvqqqqqqqqqqqqqq9gy3x4n6rv6rcn53ldev96aurls3c66kpx74wa4uwcwu92jgktpqe8ncqpzj8jg6sunygzm320cdutnvgsrc6xv286evhrxefsxxuz0ssqwtm6dq`,
+        `bitcoin:${suffix}bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?lightning=LNBC1P3WKFY3DQQPP5030V53XSDHSGJKZELYLE7EKTMEM38974498VNQDT2JAZ24TRW39QSP502JQJ4K6NR7AXQYMHKF3AX70JXFX6JZA4JYGVC66NJZHFS4TSA2Q9QRSGQCQPCXQY8AYQRZJQV06K0M23T593PNGL0JT7N9WZNP64FQNGVCTZ7VTS8NQ4TUKVTLJQZ2ZHYQQXQGQQSQQQQQQQQQQQQQQ9GRZJQTSJY9P55GDCEEVP36FVDMRKXQVZFHY8AK2TGC5ZGTJTRA9XLAZ97ZKCYVQQPRSQQVQQQQQQQQQQQQQQ9GY3X4N6RV6RCN53LDEV96AURLS3C66KPX74WA4UWCWU92JGKTPQE8NCQPZJ8JG6SUNYGZM320CDUTNVGSRC6XV286EVHRXEFSXXUZ0SSQWTM6DQ`,
       );
       assert.deepStrictEqual(rez4, {
         bitcoin: 'bitcoin:bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk?',
         lndInvoice:
-          'lightning:lnbc1p3wkfy3dqqpp5030v53xsdhsgjkzelyle7ektmem38974498vnqdt2jaz24trw39qsp502jqj4k6nr7axqymhkf3ax70jxfx6jza4jygvc66njzhfs4tsa2q9qrsgqcqpcxqy8ayqrzjqv06k0m23t593pngl0jt7n9wznp64fqngvctz7vts8nq4tukvtljqz2zhyqqxqgqqsqqqqqqqqqqqqqq9grzjqtsjy9p55gdceevp36fvdmrkxqvzfhy8ak2tgc5zgtjtra9xlaz97zkcyvqqprsqqvqqqqqqqqqqqqqq9gy3x4n6rv6rcn53ldev96aurls3c66kpx74wa4uwcwu92jgktpqe8ncqpzj8jg6sunygzm320cdutnvgsrc6xv286evhrxefsxxuz0ssqwtm6dq',
+          'lightning:LNBC1P3WKFY3DQQPP5030V53XSDHSGJKZELYLE7EKTMEM38974498VNQDT2JAZ24TRW39QSP502JQJ4K6NR7AXQYMHKF3AX70JXFX6JZA4JYGVC66NJZHFS4TSA2Q9QRSGQCQPCXQY8AYQRZJQV06K0M23T593PNGL0JT7N9WZNP64FQNGVCTZ7VTS8NQ4TUKVTLJQZ2ZHYQQXQGQQSQQQQQQQQQQQQQQ9GRZJQTSJY9P55GDCEEVP36FVDMRKXQVZFHY8AK2TGC5ZGTJTRA9XLAZ97ZKCYVQQPRSQQVQQQQQQQQQQQQQQ9GY3X4N6RV6RCN53LDEV96AURLS3C66KPX74WA4UWCWU92JGKTPQE8NCQPZJ8JG6SUNYGZM320CDUTNVGSRC6XV286EVHRXEFSXXUZ0SSQWTM6DQ',
       });
     });
   });
