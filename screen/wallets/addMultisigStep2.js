@@ -469,8 +469,10 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    const scanned = await scanQrHelper(name, true, undefined);
-    onBarScanned({ data: scanned });
+    const scanned = await scanQrHelper(name, true);
+    if (scanned) {
+      onBarScanned(scanned);
+    }
   };
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {

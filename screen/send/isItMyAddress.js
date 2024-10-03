@@ -5,7 +5,7 @@ import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -57,16 +57,7 @@ const IsItMyAddress = () => {
   };
 
   const importScan = () => {
-    requestCameraAuthorization().then(() => {
-      navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: name,
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    });
+    scanQrHelper(name, true, onBarScanned);
   };
 
   const clearAddressInput = () => {
