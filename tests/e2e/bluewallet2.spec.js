@@ -220,23 +220,23 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
 
     // lest add another two outputs
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
 
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
 
     // remove last output, check if second output is shown
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
     await yo('Transaction1');
 
     // adding it again
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
@@ -245,7 +245,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // remove second output
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
     await sleep(5000);
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
 
     // creating and verifying. tx should have 3 outputs
@@ -297,7 +297,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // first send MAX output
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
 
@@ -320,7 +320,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // add second output with amount
     await device.pressBack();
     await device.pressBack();
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
@@ -365,7 +365,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Sign a transaction')).tap();
 
     // tapping 5 times invisible button is a backdoor:
@@ -486,14 +486,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await yo('SendButton');
 
     await element(by.id('SendButton')).tap();
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Insert Contact')).tap();
     await element(by.id('ContactListItem0')).tap();
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
 
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Insert Contact')).tap();
     await element(by.id('ContactListItem1')).tap();
     await element(by.id('BitcoinAmountInput')).atIndex(1).typeText('0.0002\n');
@@ -644,7 +644,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await yo('SendButton');
     await element(by.id('SendButton')).tap();
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Coin Control')).tap();
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
@@ -663,7 +663,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('test2')).atIndex(0).tap();
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:
@@ -697,7 +697,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await yo('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:

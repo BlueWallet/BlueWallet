@@ -55,7 +55,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
-    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Import Transaction (QR)')).tap(); // opens camera
 
     // produced by real Keystone device using MNEMONICS_KEYSTONE
