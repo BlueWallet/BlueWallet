@@ -4,7 +4,7 @@ import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, ScrollV
 import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import {
@@ -96,16 +96,11 @@ const WalletsImport = () => {
     setTimeout(() => importMnemonic(value), 500);
   };
 
-  const importScan = () => {
-    requestCameraAuthorization().then(() =>
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          showFileImportButton: true,
-        },
-      }),
-    );
+  const importScan = async () => {
+    const data = await scanQrHelper(navigation, true);
+    if (data) {
+      onBarScanned(data);
+    }
   };
 
   const speedBackdoorTap = () => {
