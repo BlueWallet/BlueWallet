@@ -98,7 +98,9 @@ const WalletsImport = () => {
 
   const importScan = async () => {
     const data = await scanQrHelper(navigation, true);
-    onBarScanned(data);
+    if (data) {
+      onBarScanned(data);
+    }
   };
 
   const speedBackdoorTap = () => {

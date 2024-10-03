@@ -72,7 +72,7 @@ const AddressInput = ({
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
     Keyboard.dismiss();
-    if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+    if (launchedBy) scanQrHelper(launchedBy, true).then(value => onBarScanned({ data: value }));
   }, [launchedBy, onBarScanned, scanButtonTapped]);
 
   const onMenuItemPressed = useCallback(
