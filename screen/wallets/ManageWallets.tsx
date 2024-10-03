@@ -499,7 +499,7 @@ const ManageWallets: React.FC = () => {
 
   return (
     <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
-      <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+      <NestableScrollContainer contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets scrollEnabled>
         {renderHeader}
         <NestableDraggableFlatList
           data={state.tempOrder.filter((item): item is WalletItem => item.type === ItemType.WalletSection)}
