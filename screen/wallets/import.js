@@ -97,7 +97,7 @@ const WalletsImport = () => {
   };
 
   const importScan = async () => {
-    const data = await scanQrHelper(navigation, onBarScanned, loc.send.scan_address);
+    const data = await scanQrHelper(route.name, true);
     onBarScanned(data);
   };
 
