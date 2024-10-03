@@ -11,11 +11,10 @@ import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
-import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import ToolTipMenu from '../../components/TooltipMenu';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 const WalletsImport = () => {
   const navigation = useExtendedNavigation();
@@ -140,18 +139,8 @@ const WalletsImport = () => {
   }, [askPassphrase, searchAccounts]);
 
   const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu
-        isButton
-        testID="HeaderRightButton"
-        isMenuPrimaryAction
-        onPressMenuItem={toolTipOnPressMenuItem}
-        actions={toolTipActions}
-      >
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
-    ),
-    [toolTipOnPressMenuItem, toolTipActions, colors.foregroundColor],
+    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
+    [toolTipOnPressMenuItem, toolTipActions],
   );
 
   // Adding the ToolTipMenu to the header
