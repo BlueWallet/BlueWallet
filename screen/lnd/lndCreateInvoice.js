@@ -25,7 +25,7 @@ import AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
@@ -325,16 +325,8 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToScanQRCode = () => {
-    requestCameraAuthorization().then(() => {
-      NavigationService.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: processLnurl,
-          launchedBy: name,
-        },
-      });
-      Keyboard.dismiss();
-    });
+    scanQrHelper(name, true, processLnurl);
+    Keyboard.dismiss();
   };
 
   const renderScanClickable = () => {
