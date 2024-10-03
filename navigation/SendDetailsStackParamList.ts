@@ -35,7 +35,7 @@ export type SendDetailsStackParamList = {
   };
   PsbtWithHardwareWallet: {
     memo?: string;
-    walletID?: string;
+    walletID: string;
     launchedBy?: string;
     psbt?: Psbt;
     txhex?: string;
