@@ -678,9 +678,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
     );
-    await element(by.id('HeaderRightButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Passphrase')).tap();
-    await element(by.id('HeaderRightButton')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Search accounts')).tap();
     await element(by.id('HeaderRightButton')).tap();
     await element(by.text('Clear clipboard on import')).tap();

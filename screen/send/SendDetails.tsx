@@ -24,7 +24,6 @@ import {
 import DocumentPicker from 'react-native-document-picker';
 import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
-
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -40,7 +39,6 @@ import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
-import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -58,6 +56,7 @@ import SelectFeeModal from '../../components/SelectFeeModal';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -1055,18 +1054,7 @@ const SendDetails = () => {
   const setHeaderRightOptions = () => {
     navigation.setOptions({
       // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <ToolTipMenu
-          disabled={isLoading}
-          isButton
-          isMenuPrimaryAction
-          onPressMenuItem={headerRightOnPress}
-          actions={headerRightActions()}
-          testID="advancedOptionsMenuButton"
-        >
-          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-        </ToolTipMenu>
-      ),
+      headerRight: () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
     });
   };
 
@@ -1498,11 +1486,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-  },
-  advancedOptions: {
-    minWidth: 40,
-    height: 40,
-    justifyContent: 'center',
   },
   frozenContainer: {
     flexDirection: 'row',

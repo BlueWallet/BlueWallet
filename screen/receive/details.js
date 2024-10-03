@@ -35,9 +35,8 @@ import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { Icon } from '@rneui/themed';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -157,7 +156,7 @@ const ReceiveDetails = () => {
 
   const toolTipActions = useMemo(() => {
     const action = CommonToolTipActions.PaymentCode;
-    action.menuState = wallet.isBIP47Enabled();
+    action.menuState = wallet?.isBIP47Enabled();
     return [action];
   }, [wallet]);
 
@@ -167,12 +166,9 @@ const ReceiveDetails = () => {
   }, [onEnablePaymentsCodeSwitchValue]);
 
   const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={onPressMenuItem} actions={[toolTipActions]}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </ToolTipMenu>
-    ),
-    [colors.foregroundColor, onPressMenuItem, toolTipActions],
+    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
+
+    [onPressMenuItem, toolTipActions],
   );
 
   const handleClose = useCallback(() => {
@@ -195,11 +191,11 @@ const ReceiveDetails = () => {
   );
 
   useEffect(() => {
-    wallet.allowBIP47() &&
-      !wallet.isBIP47Enabled() &&
+    wallet?.allowBIP47() &&
+      wallet?.isBIP47Enabled() &&
       setOptions({
-        headerLeft: () => (wallet.isBIP47Enabled() ? null : HeaderLeft),
-        headerRight: () => (wallet.isBIP47Enabled() ? HeaderLeft : HeaderRight),
+        headerLeft: () => (wallet?.isBIP47Enabled() ? null : HeaderLeft),
+        headerRight: () => (wallet?.isBIP47Enabled() ? HeaderLeft : HeaderRight),
       });
   }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
@@ -480,7 +476,7 @@ const ReceiveDetails = () => {
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"
       >
-        {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+        {wallet?.allowBIP47() && wallet?.isBIP47Enabled() && (
           <View style={styles.tabsContainer}>
             <SegmentedControl
               values={segmentControlValues}
