@@ -41,29 +41,34 @@ const NotificationSettings: React.FC = () => {
   };
 
   const onNotificationsSwitch = async (value: boolean) => {
-    setNotificationsEnabled(value);
-    if (value) {
-      // User is enabling notifications
-      // @ts-ignore: refactor later
-      await Notifications.cleanUserOptOutFlag();
-      // @ts-ignore: refactor later
-      if (await Notifications.getPushToken()) {
-        // we already have a token, so we just need to reenable ALL level on groundcontrol:
+    try {
+      setNotificationsEnabled(value);
+      if (value) {
+        // User is enabling notifications
         // @ts-ignore: refactor later
-        await Notifications.setLevels(true);
+        await Notifications.cleanUserOptOutFlag();
+        // @ts-ignore: refactor later
+        if (await Notifications.getPushToken()) {
+          // we already have a token, so we just need to reenable ALL level on groundcontrol:
+          // @ts-ignore: refactor later
+          await Notifications.setLevels(true);
+        } else {
+          // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
+          // @ts-ignore: refactor later
+          await Notifications.tryToObtainPermissions();
+        }
       } else {
-        // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
+        // User is disabling notifications
         // @ts-ignore: refactor later
-        await Notifications.tryToObtainPermissions();
+        await Notifications.setLevels(false);
       }
-    } else {
-      // User is disabling notifications
-      // @ts-ignore: refactor later
-      await Notifications.setLevels(false);
-    }
 
-    // @ts-ignore: refactor later
-    setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      // @ts-ignore: refactor later
+      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+    } catch (error) {
+      console.error(error);
+      presentAlert({ message: error.message });
+    }
   };
 
   useEffect(() => {
