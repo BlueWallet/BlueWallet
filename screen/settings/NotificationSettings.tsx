@@ -85,9 +85,9 @@ const NotificationSettings: React.FC = () => {
             // @ts-ignore:  refactor later
             JSON.stringify(await Notifications.getStoredNotifications()),
         );
-      } catch (e: any) {
-        console.debug(e);
-        presentAlert({ message: e.message });
+      } catch (e) {
+        console.error(e);
+        presentAlert({ message: (e as Error).message });
       } finally {
         setIsLoading(false);
       }
