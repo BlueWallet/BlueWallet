@@ -296,9 +296,8 @@
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
     "rate": "Rate",
-
-    "push_notifications_explanation": "By enabling notifications, the addresses for all wallets in the app and transaction IDs from any transactions made with the app after enabling notifications will be sent to our server.\nThis is necessary so that we can notify you of updates such as incoming Bitcoin or transaction confirmations.\n\nOnly wallet addresses and transaction IDs created after enabling notifications are transmitted—nothing prior is gathered.\n\nDisabling notifications will remove all of this information from the server."
-,    "selfTest": "Self-Test",
+    "push_notifications_explanation": "By enabling notifications, your device token will be sent to our server, along with wallet addresses and transaction IDs for all wallets and transactions made after enabling notifications. The device token is used to send notifications, and the wallet information allows us to notify you about incoming Bitcoin or transaction confirmations.\n\nOnly information from after you enable notifications is transmitted—nothing from before is collected.\n\nDisabling notifications will remove all of this information from the server. Additionally, deleting a wallet from the app will also remove its associated information from the server.",
+    "selfTest": "Self-Test",
     "save": "Save",
     "saved": "Saved",
     "success_transaction_broadcasted": "Your transaction has been successfully broadcasted!",
