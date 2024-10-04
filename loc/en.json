@@ -309,6 +309,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
+    "notifications_subtitle": "Incoming payments and transaction confirmations",
     "no_and_dont_ask": "No, and do not ask me again.",
     "ask_me_later": "Ask me later."
   },

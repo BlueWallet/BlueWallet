@@ -128,6 +128,7 @@ const NotificationSettings: React.FC = () => {
       <ListItem
         Component={PressableWrapper}
         title={loc.settings.notifications}
+        subtitle={loc.notifications.notifications_subtitle}
         disabled={isLoading}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
       />
