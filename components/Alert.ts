@@ -74,24 +74,28 @@ const presentAlert = (() => {
       triggerHapticFeedback(hapticFeedback);
     }
 
-    if (Platform.OS !== 'android') {
-      type = AlertType.Alert;
-    }
-
-    // Wrap all buttons with cache clearing logic
-    const wrappedButtons = buttons.map(wrapButtonWithCacheClear);
+    // Ensure that there's at least one button (required for both iOS and Android)
+    const wrappedButtons = buttons.length > 0 ? buttons.map(wrapButtonWithCacheClear) : [
+      {
+        text: 'OK',
+        onPress: () => clearCache(), // Default OK button clears cache
+      },
+    ];
 
     switch (type) {
       case AlertType.Toast:
-        ToastAndroid.show(message, ToastAndroid.LONG);
-        clearCache();
+        if (Platform.OS === 'android') {
+          ToastAndroid.show(message, ToastAndroid.LONG);
+          clearCache(); // Clear cache after showing toast
+        }
         break;
       default:
-        if (Platform.OS === 'android') {
-          RNAlert.alert(title || '', message, wrappedButtons, options);
-        } else {
-          RNAlert.alert(title ?? message, title && message ? message : undefined, wrappedButtons, options);
-        }
+        RNAlert.alert(
+          title ?? message, // iOS specific: title defaults to message if undefined
+          title && message ? message : undefined, // Show message only if title is present
+          wrappedButtons, // Use the wrapped buttons
+          options
+        );
         break;
     }
   };
