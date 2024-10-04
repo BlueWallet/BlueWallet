@@ -26,6 +26,21 @@ const presentAlert = (() => {
     options?: AlertOptions;
   } | null = null;
 
+  const clearCache = () => {
+    lastAlertParams = null;
+  };
+
+  const wrapButtonWithCacheClear = (button: AlertButton): AlertButton => {
+    const originalOnPress = button.onPress;
+    return {
+      ...button,
+      onPress: () => {
+        clearCache(); // Clear cache when the button is pressed
+        originalOnPress?.(); // Execute original onPress logic
+      },
+    };
+  };
+
   return ({
     title,
     message,
@@ -63,15 +78,19 @@ const presentAlert = (() => {
       type = AlertType.Alert;
     }
 
+    // Wrap all buttons with cache clearing logic
+    const wrappedButtons = buttons.map(wrapButtonWithCacheClear);
+
     switch (type) {
       case AlertType.Toast:
         ToastAndroid.show(message, ToastAndroid.LONG);
+        clearCache();
         break;
       default:
         if (Platform.OS === 'android') {
-          RNAlert.alert(title || '', message, buttons, options);
+          RNAlert.alert(title || '', message, wrappedButtons, options);
         } else {
-          RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
+          RNAlert.alert(title ?? message, title && message ? message : undefined, wrappedButtons, options);
         }
         break;
     }
