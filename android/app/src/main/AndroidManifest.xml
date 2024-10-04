@@ -95,6 +95,8 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
+
+            <!-- Main launcher intent filter -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -108,6 +110,20 @@
                 <data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.psbt" />
             </intent-filter>
 
+            <!-- Intent filter for other custom schemes (bitcoin, bluewallet, etc.) -->
+            <intent-filter tools:ignore="AppLinkUrlError">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bitcoin" />
+                <data android:scheme="lightning" />
+                <data android:scheme="bluewallet" />
+                <data android:scheme="lapp" />
+                <data android:scheme="blue" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+
             <!-- Intent filter for importing other file types (but not launching the app) -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
@@ -115,6 +131,7 @@
                 <data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.*" />
             </intent-filter>
 
+            <!-- Intent filter for handling PSBT files -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
