@@ -67,7 +67,7 @@ const NotificationSettings: React.FC = () => {
       setNotificationsEnabled(await Notifications.isNotificationsEnabled());
     } catch (error) {
       console.error(error);
-      presentAlert({ message: error.message });
+      presentAlert({ message: (error as Error).message });
     }
   };
 
