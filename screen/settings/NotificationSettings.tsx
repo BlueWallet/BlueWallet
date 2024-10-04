@@ -190,7 +190,7 @@ const NotificationSettings: React.FC = () => {
     </ScrollView>
   );
 };
-1;
+
 const styles = StyleSheet.create({
   uri: {
     flexDirection: 'row',
