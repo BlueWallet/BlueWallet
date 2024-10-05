@@ -5,7 +5,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   findNodeHandle,
   FlatList,
@@ -568,18 +567,21 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err: any) {
       setIsLoading(false);
-      const anchor = findNodeHandle(scrollView.current);
-      if (anchor) {
-        ActionSheet.showActionSheetWithOptions(
-          {
-            title: loc.errors.error,
-            message: Err.message,
-            anchor,
-            options: [loc._.ok],
-          },
-          () => {},
-        );
+      if (scrollView.current) {
+        const anchor = findNodeHandle(scrollView.current);
+        if (anchor) {
+          ActionSheet.showActionSheetWithOptions(
+            {
+              title: loc.errors.error,
+              message: Err.message,
+              anchor,
+              options: [loc._.ok],
+            },
+            () => {},
+          );
+        }
       }
+
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
@@ -795,22 +797,23 @@ const SendDetails = () => {
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
-      Alert.alert(
-        '',
-        loc.multisig.cosign_this_transaction,
-        [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-        { cancelable: false },
-      );
+      if (scrollView.current) {
+        const anchor = findNodeHandle(scrollView.current);
+        if (anchor) {
+          ActionSheet.showActionSheetWithOptions(
+            {
+              title: loc.multisig.cosign_this_transaction,
+              options: [loc._.cancel, loc._.ok],
+              cancelButtonIndex: 0,
+              anchor,
+            },
+
+            buttonIndex => {
+              resolve(buttonIndex === 1);
+            },
+          );
+        }
+      }
     });
   };
 
