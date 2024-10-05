@@ -3,10 +3,22 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  Image,
+  LayoutAnimation,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Badge, Icon, Text } from '@rneui/themed';
 
 import {
+  btcToSatoshi,
   fiatToBTC,
   getCurrencySymbol,
   isRateOutdated,
@@ -18,7 +30,8 @@ import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
 import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { useTheme } from './themes';
+import { BlueCurrentTheme, useTheme } from './themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 dayjs.extend(localizedFormat);
 
@@ -60,9 +73,17 @@ class AmountInput extends Component {
     AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
   };
 
-  constructor() {
-    super();
-    this.state = { mostRecentFetchedRate: Date(), isRateOutdated: false, isRateBeingUpdated: false };
+  constructor(props) {
+    super(props);
+    this.state = {
+      mostRecentFetchedRate: Date(),
+      isRateOutdated: false,
+      isRateBeingUpdated: false,
+      showErrorMessage: false,
+      shakeAnimation: new Animated.Value(0),
+      fadeAnimation: new Animated.Value(0),
+      opacityAnimation: new Animated.Value(1),
+    };
   }
 
   componentDidMount() {
@@ -195,6 +216,29 @@ class AmountInput extends Component {
     }
   };
 
+  startFadeAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(this.state.opacityAnimation, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.opacityAnimation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  };
+
+  stopFadeAnimation = () => {
+    // Reset opacityAnimation and stop animation
+    this.state.opacityAnimation.stopAnimation();
+    this.state.opacityAnimation.setValue(1); // Reset to fully visible
+  };
+
   updateRate = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     this.setState({ isRateBeingUpdated: true }, async () => {
@@ -211,10 +255,102 @@ class AmountInput extends Component {
     });
   };
 
+  triggerError = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ showErrorMessage: true }, () => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      Animated.sequence([
+        Animated.timing(this.state.shakeAnimation, {
+          toValue: 10,
+          duration: 50,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.shakeAnimation, {
+          toValue: -10,
+          duration: 50,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.shakeAnimation, {
+          toValue: 7,
+          duration: 50,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.state.shakeAnimation, {
+          toValue: -7,
+          duration: 50,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.spring(this.state.shakeAnimation, {
+          toValue: 0,
+          useNativeDriver: true,
+          friction: 5,
+        }),
+      ]).start();
+
+      this.startFadeAnimation();
+
+      Animated.timing(this.state.fadeAnimation, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  handleBlur = () => {
+    const { unit, amount } = this.props;
+    let amountInSatoshis = 0;
+
+    if (unit === BitcoinUnit.BTC) {
+      amountInSatoshis = btcToSatoshi(amount);
+    } else if (unit === BitcoinUnit.SATS) {
+      amountInSatoshis = parseInt(amount, 10);
+    }
+
+    // Show error if amount is 500 or less satoshis
+    if (amountInSatoshis <= 500) {
+      this.triggerError();
+    } else {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      this.setState({ showErrorMessage: false });
+
+      Animated.timing(this.state.fadeAnimation, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+
+      this.stopFadeAnimation();
+    }
+
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    }
+  };
+
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
     let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    const { shakeAnimation, showErrorMessage, fadeAnimation, opacityAnimation } = this.state;
+
+    const shakeStyle = {
+      transform: [
+        {
+          translateX: shakeAnimation,
+        },
+      ],
+    };
+    const fadeStyle = {
+      opacity: fadeAnimation,
+    };
+    const opacityStyle = {
+      opacity: opacityAnimation,
+    };
 
     // if main display is sat or btc - secondary display is fiat
     // if main display is fiat - secondary dislay is btc
@@ -253,8 +389,8 @@ class AmountInput extends Component {
         disabled={this.props.pointerEvents === 'none'}
         onPress={() => this.textInput.focus()}
       >
-        <>
-          <View style={styles.root}>
+        <View>
+          <Animated.View style={[styles.root, shakeStyle]}>
             {!disabled && <View style={[styles.center, stylesHook.center]} />}
             <View style={styles.flex}>
               <View style={styles.container}>
@@ -269,13 +405,10 @@ class AmountInput extends Component {
                     keyboardType="numeric"
                     adjustsFontSizeToFit
                     onChangeText={this.handleChangeText}
-                    onBlur={() => {
-                      if (this.props.onBlur) this.props.onBlur();
-                    }}
+                    onBlur={this.handleBlur}
                     onFocus={() => {
                       if (this.props.onFocus) this.props.onFocus();
                     }}
-                    placeholder="0"
                     maxLength={this.maxLength()}
                     ref={textInput => (this.textInput = textInput)}
                     editable={!this.props.isLoading && !disabled}
@@ -312,7 +445,7 @@ class AmountInput extends Component {
                 <Image source={require('../img/round-compare-arrows-24-px.png')} />
               </TouchableOpacity>
             )}
-          </View>
+          </Animated.View>
           {this.state.isRateOutdated && (
             <View style={styles.outdatedRateContainer}>
               <Badge status="warning" />
@@ -332,7 +465,17 @@ class AmountInput extends Component {
               </TouchableOpacity>
             </View>
           )}
-        </>
+          {showErrorMessage && (
+            <Animated.View style={[styles.amountLowContainer, fadeStyle]}>
+              <View style={styles.spacing8} />
+              <Animated.View style={opacityStyle}>
+                <Badge status="error" />
+              </Animated.View>
+              <View style={styles.spacing8} />
+              <Text style={styles.errorText}>{loc.send.details_amount_field_is_less_than_minimum_amount_sat}</Text>
+            </Animated.View>
+          )}
+        </View>
       </TouchableWithoutFeedback>
     );
   }
@@ -351,6 +494,14 @@ const styles = StyleSheet.create({
   },
   spacing8: {
     width: 8,
+  },
+  amountLowContainer: {
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 16,
+    backgroundColor: BlueCurrentTheme.colors.outgoingBackgroundColor,
   },
   disabledButton: {
     opacity: 0.5,
@@ -387,6 +538,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     alignSelf: 'center',
     justifyContent: 'center',
+  },
+  errorText: {
+    color: BlueCurrentTheme.colors.outgoingTextColor,
+    margin: 16,
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   secondaryRoot: {
     alignItems: 'center',

@@ -542,10 +542,24 @@ const SendDetails = () => {
       }
 
       if (error) {
-        scrollView.current?.scrollToIndex({ index });
-        setIsLoading(false);
-        presentAlert({ title: loc.errors.error, message: error });
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        if (scrollView.current) {
+          scrollView.current?.scrollToIndex({ index });
+          setIsLoading(false);
+          const anchor = findNodeHandle(scrollView.current);
+          if (anchor) {
+            ActionSheet.showActionSheetWithOptions(
+              {
+                title: loc.errors.error,
+                message: error,
+                anchor,
+                options: [loc._.ok],
+              },
+              () => {},
+            );
+          }
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        }
+
         return;
       }
     }
@@ -554,7 +568,18 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err: any) {
       setIsLoading(false);
-      presentAlert({ title: loc.errors.error, message: Err.message });
+      const anchor = findNodeHandle(scrollView.current);
+      if (anchor) {
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc.errors.error,
+            message: Err.message,
+            anchor,
+            options: [loc._.ok],
+          },
+          () => {},
+        );
+      }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
