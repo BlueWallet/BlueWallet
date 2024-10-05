@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import { HDSegwitBech32Wallet } from '../../class';
+import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import startImport from '../../class/wallet-import';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -15,20 +15,38 @@ import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
+import { navigate } from '../../NavigationService';
 
-const ImportWalletDiscovery = () => {
-  const navigation = useExtendedNavigation();
+type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
+type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
+
+type TReturn = {
+  cancelled?: boolean;
+  stopped?: boolean;
+  wallets: TWallet[];
+};
+
+type ImportTask = {
+  promise: Promise<TReturn>;
+  stop: () => void;
+};
+
+const ImportWalletDiscovery: React.FC = () => {
+  const navigation = useExtendedNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const route = useRoute();
+  const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
-  const task = useRef();
+  const task = useRef<ImportTask | null>(null);
   const { addAndSaveWallet } = useStorage();
-  const [loading, setLoading] = useState(true);
-  const [wallets, setWallets] = useState([]);
-  const [password, setPassword] = useState();
-  const [selected, setSelected] = useState(0);
-  const [progress, setProgress] = useState();
-  const importing = useRef(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [wallets, setWallets] = useState<Array<{ wallet: TWallet; subtitle: string; id: string }>>([]);
+  const [password, setPassword] = useState<string | undefined>();
+  const [selected, setSelected] = useState<number>(0);
+  const [progress, setProgress] = useState<string | undefined>();
+  const importing = useRef<boolean>(false);
   const bip39 = useMemo(() => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
@@ -44,32 +62,41 @@ const ImportWalletDiscovery = () => {
     },
   });
 
-  const saveWallet = wallet => {
+  const saveWallet = (wallet: TWallet) => {
     if (importing.current) return;
     importing.current = true;
     addAndSaveWallet(wallet);
-    navigation.getParent().pop();
+    navigate('WalletsList');
   };
 
   useEffect(() => {
-    const onProgress = data => setProgress(data);
+    const onProgress = (data: string) => setProgress(data);
 
-    const onWallet = wallet => {
+    const onWallet = (wallet: TWallet | THDWalletForWatchOnly) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       const id = wallet.getID();
-      let subtitle;
+      let subtitle: string | undefined;
       try {
-        subtitle = wallet.getDerivationPath?.();
+        // For watch-only wallets, display the descriptor or xpub
+        if (wallet.type === WatchOnlyWallet.type) {
+          if (wallet.isHd() && wallet.getSecret()) {
+            subtitle = wallet.getSecret(); // Display descriptor
+          } else {
+            subtitle = wallet.getAddress(); // Display address
+          }
+        } else {
+          subtitle = (wallet as THDWalletForWatchOnly).getDerivationPath?.();
+        }
       } catch (e) {}
-      setWallets(w => [...w, { wallet, subtitle, id }]);
+      setWallets(w => [...w, { wallet, subtitle: subtitle || '', id }]);
     };
 
-    const onPassword = async (title, subtitle) => {
+    const onPassword = async (title: string, subtitle: string) => {
       try {
         const pass = await prompt(title, subtitle);
         setPassword(pass);
         return pass;
-      } catch (e) {
+      } catch (e: any) {
         if (e.message === 'Cancel Pressed') {
           navigation.goBack();
         }
@@ -84,7 +111,7 @@ const ImportWalletDiscovery = () => {
     task.current.promise
       .then(({ cancelled, wallets: w }) => {
         if (cancelled) return;
-        if (w.length === 1) saveWallet(w[0]); // instantly save wallet if only one has been discovered
+        if (w.length === 1) saveWallet(w[0]); // Instantly save wallet if only one has been discovered
         if (w.length === 0) {
           triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
         }
@@ -99,16 +126,22 @@ const ImportWalletDiscovery = () => {
         IdleTimerManager.setIdleTimerDisabled(false);
       });
 
-    return () => task.current.stop();
+    return () => {
+      if (task.current) {
+        task.current.stop();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCustomDerivation = () => {
-    task.current.stop();
+    if (task.current) {
+      task.current.stop();
+    }
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item, index }: { item: { wallet: TWallet; subtitle: string; id: string }; index: number }) => (
     <WalletToImport
       key={item.id}
       title={item.wallet.typeReadable}
@@ -121,22 +154,45 @@ const ImportWalletDiscovery = () => {
     />
   );
 
-  const keyExtractor = w => w.id;
+  const keyExtractor = (w: { id: string }) => w.id;
+
+  const ListHeaderComponent = useMemo(
+    () => (
+      <>
+        {wallets.length > 0 ? (
+          <>
+            <BlueSpacing20 />
+            <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
+            <BlueSpacing10 />
+          </>
+        ) : null}
+      </>
+    ),
+    [wallets.length],
+  );
+
+  const ListEmptyComponent = useMemo(
+    () => (
+      <View style={styles.noWallets}>
+        <BlueText style={styles.center}>{loc.wallets.import_discovery_no_wallets}</BlueText>
+        <BlueSpacing20 />
+      </View>
+    ),
+    [],
+  );
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
-      <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
-      <BlueSpacing20 />
-
-      {!loading && wallets.length === 0 ? (
-        <View style={styles.noWallets}>
-          <BlueFormLabel>{loc.wallets.import_discovery_no_wallets}</BlueFormLabel>
-        </View>
-      ) : (
-        <FlatList contentContainerStyle={styles.flatListContainer} data={wallets} keyExtractor={keyExtractor} renderItem={renderItem} />
-      )}
-
+      <FlatList
+        ListHeaderComponent={ListHeaderComponent}
+        contentContainerStyle={styles.flatListContainer}
+        data={wallets}
+        ListEmptyComponent={ListEmptyComponent}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        automaticallyAdjustContentInsets
+        contentInsetAdjustmentBehavior="always"
+      />
       <View style={[styles.center, stylesHook.center]}>
         {loading && (
           <>
@@ -169,7 +225,6 @@ const ImportWalletDiscovery = () => {
 
 const styles = StyleSheet.create({
   root: {
-    paddingTop: 40,
     flex: 1,
   },
   flatListContainer: {
