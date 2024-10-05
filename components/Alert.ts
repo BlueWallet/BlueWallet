@@ -1,5 +1,6 @@
 import { Alert as RNAlert, Platform, ToastAndroid } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import loc from '../loc';
 
 export enum AlertType {
   Alert,
@@ -28,17 +29,6 @@ const presentAlert = (() => {
 
   const clearCache = () => {
     lastAlertParams = null;
-  };
-
-  const wrapButtonWithCacheClear = (button: AlertButton): AlertButton => {
-    const originalOnPress = button.onPress;
-    return {
-      ...button,
-      onPress: () => {
-        clearCache(); // Clear cache when the button is pressed
-        originalOnPress?.(); // Execute original onPress logic
-      },
-    };
   };
 
   return ({
@@ -75,27 +65,25 @@ const presentAlert = (() => {
     }
 
     // Ensure that there's at least one button (required for both iOS and Android)
-    const wrappedButtons = buttons.length > 0 ? buttons.map(wrapButtonWithCacheClear) : [
-      {
-        text: 'OK',
-        onPress: () => clearCache(), // Default OK button clears cache
-      },
-    ];
+    const wrappedButtons =
+      buttons.length > 0
+        ? buttons
+        : [
+            {
+              text: loc._.ok,
+              onPress: () => {},
+            },
+          ];
 
     switch (type) {
       case AlertType.Toast:
         if (Platform.OS === 'android') {
           ToastAndroid.show(message, ToastAndroid.LONG);
-          clearCache(); // Clear cache after showing toast
+          clearCache();
         }
         break;
       default:
-        RNAlert.alert(
-          title ?? message, // iOS specific: title defaults to message if undefined
-          title && message ? message : undefined, // Show message only if title is present
-          wrappedButtons, // Use the wrapped buttons
-          options
-        );
+        RNAlert.alert(title ?? message, title && message ? message : undefined, wrappedButtons, options);
         break;
     }
   };
