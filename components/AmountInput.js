@@ -1,9 +1,5 @@
-import BigNumber from 'bignumber.js';
-import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Easing,
   Image,
@@ -15,8 +11,12 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { Badge, Icon, Text } from '@rneui/themed';
-
 import {
   btcToSatoshi,
   fiatToBTC,
@@ -28,7 +28,7 @@ import {
 } from '../blue_modules/currency';
 import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
-import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
+import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { BlueCurrentTheme, useTheme } from './themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -83,6 +83,7 @@ class AmountInput extends Component {
       shakeAnimation: new Animated.Value(0),
       fadeAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
+      opacityAnimationWarning: new Animated.Value(1),
     };
   }
 
@@ -94,6 +95,18 @@ class AmountInput extends Component {
       .finally(() => {
         isRateOutdated().then(isRateOutdatedValue => this.setState({ isRateOutdated: isRateOutdatedValue }));
       });
+  }
+
+  componentDidUpdate(_, prevState) {
+    // Start fade animation if either showErrorMessage or isRateOutdated is true
+    if ((this.state.showErrorMessage || this.state.isRateOutdated) && !prevState.showErrorMessage && !prevState.isRateOutdated) {
+      this.startFadeAnimation();
+    }
+
+    // Stop fade animation if neither showErrorMessage nor isRateOutdated is true
+    if (!this.state.showErrorMessage && !this.state.isRateOutdated && (prevState.showErrorMessage || prevState.isRateOutdated)) {
+      this.stopFadeAnimation();
+    }
   }
 
   /**
@@ -217,7 +230,7 @@ class AmountInput extends Component {
   };
 
   startFadeAnimation = () => {
-    Animated.loop(
+    this.fadeAnimationLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(this.state.opacityAnimation, {
           toValue: 0,
@@ -230,13 +243,16 @@ class AmountInput extends Component {
           useNativeDriver: true,
         }),
       ]),
-    ).start();
+    );
+    this.fadeAnimationLoop.start();
   };
 
   stopFadeAnimation = () => {
-    // Reset opacityAnimation and stop animation
-    this.state.opacityAnimation.stopAnimation();
-    this.state.opacityAnimation.setValue(1); // Reset to fully visible
+    if (this.fadeAnimationLoop) {
+      this.fadeAnimationLoop.stop();
+      this.fadeAnimationLoop = null;
+      this.state.opacityAnimation.setValue(1);
+    }
   };
 
   updateRate = () => {
@@ -375,11 +391,21 @@ class AmountInput extends Component {
 
     if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we don't want to display NaN
 
+    const inputTextColor = showErrorMessage
+      ? colors.outgoingBackgroundColor
+      : disabled
+        ? colors.buttonDisabledTextColor
+        : colors.alternativeTextColor2;
+
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
-      localCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
-      input: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2, fontSize: amount.length > 10 ? 20 : 36 },
-      cryptoCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
+      localCurrency: {
+        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingBackgroundColor : colors.alternativeTextColor2,
+      },
+      input: { color: inputTextColor, fontSize: amount.length > 10 ? 20 : 36 },
+      cryptoCurrency: {
+        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingBackgroundColor : colors.alternativeTextColor2,
+      },
     });
 
     return (
@@ -448,21 +474,27 @@ class AmountInput extends Component {
           </Animated.View>
           {this.state.isRateOutdated && (
             <View style={styles.outdatedRateContainer}>
-              <Badge status="warning" />
+              <Animated.View style={opacityStyle}>
+                <Badge status="warning" />
+              </Animated.View>
               <View style={styles.spacing8} />
               <BlueText>
                 {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('l LT') })}
               </BlueText>
               <View style={styles.spacing8} />
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc._.refresh}
-                onPress={this.updateRate}
-                disabled={this.state.isRateBeingUpdated}
-                style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
-              >
-                <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
-              </TouchableOpacity>
+              {this.state.isRateBeingUpdated ? (
+                <ActivityIndicator />
+              ) : (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={loc._.refresh}
+                  onPress={this.updateRate}
+                  disabled={this.state.isRateBeingUpdated}
+                  style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
+                >
+                  <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
+                </TouchableOpacity>
+              )}
             </View>
           )}
           {showErrorMessage && (
@@ -472,7 +504,9 @@ class AmountInput extends Component {
                 <Badge status="error" />
               </Animated.View>
               <View style={styles.spacing8} />
-              <Text style={styles.errorText}>{loc.send.details_amount_field_is_less_than_minimum_amount_sat}</Text>
+              <Text style={styles.errorText}>
+                {loc.formatString(loc.send.details_amount_field_is_less_than_minimum_amount_sat, { amount: formatBalance(500, unit) })}
+              </Text>
             </Animated.View>
           )}
         </View>
