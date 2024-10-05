@@ -462,7 +462,6 @@ export class BlueApp {
               unserializedWallet = new HDSegwitBech32Wallet();
               unserializedWallet.setSecret(tempObj.secret.replace('ldk://', ''));
               break;
-            case LegacyWallet.type:
             default:
               unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
               break;
