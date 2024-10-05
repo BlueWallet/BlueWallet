@@ -452,8 +452,26 @@ export class BlueApp {
             } else {
               console.log('wallet does not have a baseURI. Continuing init...');
             }
-            unserializedWallet.init();
-            break;
+            case 'lightningLdk':
+              // since ldk wallets are deprecated and removed, we need to handle a case when such wallet still exists in storage
+
+              unserializedWallet = new HDSegwitBech32Wallet();
+              unserializedWallet.setSecret(tempObj.secret.replace('ldk://', ''));
+              break;
+            case LegacyWallet.type:
+            default:
+              unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
+              break;
+          }
+        } catch (error) {
+          console.warn('Failed to deserialize wallet with type:', tempObj.type, error);
+          try {
+            // Fallback to using LegacyWallet
+            unserializedWallet = new LegacyWallet();
+            unserializedWallet.setSecret(tempObj.secret);
+          } catch (legacyError) {
+            console.error('Failed to deserialize as LegacyWallet:', legacyError);
+            continue; // Skip this wallet if even the fallback fails
           }
           case 'lightningLdk':
             // since ldk wallets are deprecated and removed, we need to handle a case when such wallet still exists in storage
