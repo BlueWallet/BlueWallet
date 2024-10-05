@@ -10,7 +10,6 @@ import {
   FlatList,
   I18nManager,
   Keyboard,
-  LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -56,6 +55,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import useAnimateOnChange from '../../hooks/useAnimateOnChange';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -111,6 +111,10 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+
+  useAnimateOnChange(isLoading);
+  useAnimateOnChange(networkTransactionFeesIsLoading);
+  useAnimateOnChange(utxo);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
@@ -263,7 +267,6 @@ const SendDetails = () => {
       })
       .catch(e => console.log('loading recommendedFees error', e))
       .finally(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setNetworkTransactionFeesIsLoading(false);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1162,7 +1165,6 @@ const SendDetails = () => {
             number={utxo.length}
             onContainerPress={handleCoinControl}
             onClose={() => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setUtxo(null);
             }}
           />
