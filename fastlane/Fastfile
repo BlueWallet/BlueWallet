@@ -306,9 +306,10 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Build the application"
   lane :build_app_lane do
-    UI.message("Building the application...")
+  Dir.chdir(project_root) do
+    UI.message("Building the application from: #{Dir.pwd}")
+    
     build_app(
       scheme: "BlueWallet",
       workspace: "ios/BlueWallet.xcworkspace",
@@ -333,7 +334,17 @@ platform :ios do
       output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
       buildlog_path: "./build_logs"
     )
-  
+    
+    # Verify IPA existence
+    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+    unless File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    end
+    
+    UI.message("IPA successfully created at: #{ipa_path}")
+  end
+end
+
     # Verify IPA existence
     ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
     unless File.exist?(ipa_path)
