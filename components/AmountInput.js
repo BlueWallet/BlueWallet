@@ -503,7 +503,7 @@ class AmountInput extends Component {
                   accessibilityLabel={loc._.refresh}
                   onPress={this.updateRate}
                   disabled={this.state.isRateBeingUpdated}
-                  style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
+                  style={styles.enabledButon}
                 >
                   <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
                 </TouchableOpacity>
@@ -549,9 +549,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 16,
     backgroundColor: BlueCurrentTheme.colors.outgoingBackgroundColor,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   enabledButon: {
     opacity: 1,
