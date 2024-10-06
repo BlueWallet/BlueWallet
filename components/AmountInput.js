@@ -342,7 +342,6 @@ class AmountInput extends Component {
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
     const { shakeAnimation, showErrorMessage, opacityAnimation, isRateOutdated } = this.state;
 
     const shakeStyle = {
@@ -355,6 +354,8 @@ class AmountInput extends Component {
     const opacityStyle = {
       opacity: opacityAnimation,
     };
+    
+    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     switch (unit) {
       case BitcoinUnit.BTC: {
