@@ -54,6 +54,7 @@ export type DetailViewStackParamList = {
   About: undefined;
   DefaultView: undefined;
   ElectrumSettings: undefined;
+  SettingsBlockExplorer: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {

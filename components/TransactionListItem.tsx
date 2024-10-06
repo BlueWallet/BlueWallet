@@ -43,7 +43,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const { navigate } = useExtendedNavigation<NavigationProps>();
     const menuRef = useRef<ToolTipMenuProps>();
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
-    const { language } = useSettings();
+    const { language, selectedBlockExplorer } = useSettings();
     const containerStyle = useMemo(
       () => ({
         backgroundColor: 'transparent',
@@ -253,16 +253,16 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
     const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle ?? ''), [subtitle]);
     const handleOnViewOnBlockExplorer = useCallback(() => {
-      const url = `https://mempool.space/tx/${item.hash}`;
+      const url = `${selectedBlockExplorer}/tx/${item.hash}`;
       Linking.canOpenURL(url).then(supported => {
         if (supported) {
           Linking.openURL(url);
         }
       });
-    }, [item.hash]);
+    }, [item.hash, selectedBlockExplorer]);
     const handleCopyOpenInBlockExplorerPress = useCallback(() => {
-      Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
-    }, [item.hash]);
+      Clipboard.setString(`${selectedBlockExplorer}/tx/${item.hash}`);
+    }, [item.hash, selectedBlockExplorer]);
 
     const onToolTipPress = useCallback(
       (id: any) => {
