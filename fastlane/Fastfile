@@ -318,7 +318,7 @@ platform :ios do
       skip_profile_detection: true,
       include_symbols: true,
       export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: "./ios/export_options.plist", # Adjust path if necessary
+      export_options: "./ios/export_options.plist",
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
       output_directory: "./build",
       output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
@@ -326,7 +326,7 @@ platform :ios do
     )
     
     # Verify IPA existence
-    ipa_path = "./ios/build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
     unless File.exist?(ipa_path)
       UI.user_error!("IPA file not found at path: #{ipa_path}")
     end
