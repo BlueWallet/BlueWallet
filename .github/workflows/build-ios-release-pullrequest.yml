@@ -149,14 +149,14 @@ jobs:
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
 
-      - name: List ./build/ contents
-        run: ls -la ./build/
+      - name: List ./ios/build/ contents
+        run: ls -la ./ios/build/
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-          path: ./build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          path: ./ios/build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
 
   testflight-upload:
     needs: build

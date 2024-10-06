@@ -329,13 +329,13 @@ platform :ios do
         }
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build",
+      output_directory: "ios/build",
       output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-      buildlog_path: "./build_logs"
+      buildlog_path: "ios/build_logs"
     )
     
     # Verify IPA existence
-    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+    ipa_path = "./ios/build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
     unless File.exist?(ipa_path)
       UI.user_error!("IPA file not found at path: #{ipa_path}")
     end
