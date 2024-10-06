@@ -10,6 +10,7 @@
     "never": "Nunca",
     "of": "{number} de {total}",
     "ok": "OK",
+    "enter_url": "Introducir URL",
     "storage_is_encrypted": "Tu almacenamiento está encriptado. Se requiere contraseña para descifrarlo.",
     "yes": "Sí",
     "no": "No",
@@ -25,7 +26,8 @@
     "pick_file": "Escoge un archivo",
     "enter_amount": "Ingresa la cantidad",
     "qr_custom_input_button": "Pulsa 10 veces para ingresar una entrada personalizada",
-    "unlock": "Desbloquear"
+    "unlock": "Desbloquear",
+    "suggested": "Sugerido"
   },
   "azteco": {
     "codeIs": "Tu código de cupón es",
@@ -206,8 +208,10 @@
     "performance_score": "Puntuación de rendimiento: {num}",
     "run_performance_test": "Prueba de rendimiento",
     "about_selftest": "Ejecutar auto-prueba",
+    "block_explorer_invalid_custom_url": "La URL proporcionada no es válida. Ingresa una URL válida que comience con http:// o https://.",
     "about_selftest_electrum_disabled": "La autocomprobación no está disponible con el modo sin conexión de Electrum. Desactiva el modo sin conexión y vuelve a intentarlo. ",
     "about_selftest_ok": "Todas las pruebas internas han pasado satisfactoriamente. La billetera funciona bien.",
+
     "about_sm_github": "GitHub",
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
@@ -259,6 +263,9 @@
     "encrypt_storage_explanation_description_line1": "Habilitar el cifrado de almacenamiento agrega una capa adicional de protección a tu aplicación al proteger la forma en que se almacenan tus datos en tu dispositivo. Esto hace que sea más difícil para cualquier persona acceder a tu información sin permiso.",
     "encrypt_storage_explanation_description_line2": "Sin embargo, es importante saber que este cifrado sólo protege el acceso a tus billeteras almacenadas en el llavero del dispositivo. No pone una contraseña ni ninguna protección adicional en las billeteras.",
     "i_understand": "Entiendo",
+    "block_explorer": "Explorador de bloques",
+    "block_explorer_preferred": "Utiliza el explorador de bloques preferido",
+    "block_explorer_error_saving_custom": "Error al guardar el explorador de bloques preferido",
     "encrypt_title": "Seguridad",
     "encrypt_tstorage": "Almacenamiento",
     "encrypt_use": "Usar {type}",
