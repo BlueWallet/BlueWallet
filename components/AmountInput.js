@@ -27,11 +27,11 @@ import {
   updateExchangeRate,
 } from '../blue_modules/currency';
 import { BlueText } from '../BlueComponents';
-import confirm from '../helpers/confirm';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { BlueCurrentTheme, useTheme } from './themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import ActionSheet from '../screen/ActionSheet';
 
 dayjs.extend(localizedFormat);
 
@@ -180,7 +180,9 @@ class AmountInput extends Component {
   textInput = React.createRef();
 
   handleTextInputOnPress = () => {
-    this.textInput.current.focus();
+    if (this.textInput && this.textInput.current) {
+      this.textInput.current.focus();
+    }
   };
 
   handleChangeText = text => {
@@ -224,9 +226,20 @@ class AmountInput extends Component {
   };
 
   resetAmount = async () => {
-    if (await confirm(loc.send.reset_amount, loc.send.reset_amount_confirm)) {
-      this.props.onChangeText();
-    }
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.send.reset_amount,
+        message: loc.send.reset_amount_confirm,
+        options: [loc.send.reset_amount, loc._.cancel],
+        destructiveButtonIndex: 0,
+        cancelButtonIndex: 0,
+      },
+      async buttonIndex => {
+        if (buttonIndex === 0) {
+          this.props.onChangeText();
+        }
+      },
+    );
   };
 
   startFadeAnimation = () => {
@@ -413,7 +426,7 @@ class AmountInput extends Component {
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
         disabled={this.props.pointerEvents === 'none'}
-        onPress={() => this.textInput.focus()}
+        onPress={this.handleTextInputOnPress}
       >
         <View>
           <Animated.View style={[styles.root, shakeStyle]}>
