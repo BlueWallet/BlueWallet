@@ -99,12 +99,18 @@ class AmountInput extends Component {
 
   componentDidUpdate(_, prevState) {
     // Start fade animation if either showErrorMessage or isRateOutdated is true
-    if ((this.state.showErrorMessage || this.state.isRateOutdated) && !prevState.showErrorMessage && !prevState.isRateOutdated) {
+    if (
+      (this.state.showErrorMessage && !prevState.showErrorMessage) ||
+      (this.state.isRateOutdated && !prevState.isRateOutdated)
+    ) {
       this.startFadeAnimation();
     }
 
     // Stop fade animation if neither showErrorMessage nor isRateOutdated is true
-    if (!this.state.showErrorMessage && !this.state.isRateOutdated && (prevState.showErrorMessage || prevState.isRateOutdated)) {
+    if (
+      (!this.state.showErrorMessage && prevState.showErrorMessage) ||
+      (!this.state.isRateOutdated && prevState.isRateOutdated)
+    ) {
       this.stopFadeAnimation();
     }
   }
