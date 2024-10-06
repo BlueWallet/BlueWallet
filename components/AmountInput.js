@@ -230,7 +230,7 @@ class AmountInput extends Component {
       {
         title: loc.send.reset_amount,
         message: loc.send.reset_amount_confirm,
-        options: [loc.send.reset_amount, loc._.cancel],
+        options: [loc._.ok, loc._.cancel],
         destructiveButtonIndex: 0,
         cancelButtonIndex: 0,
       },
