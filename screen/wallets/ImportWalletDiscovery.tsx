@@ -226,7 +226,7 @@ const ImportWalletDiscovery: React.FC = () => {
             disabled={wallets?.length === 0}
             title={loc.wallets.import_do_import}
             onPress={() => {
-              if (!wallets) return;
+              if (wallets.length === 0) return;
               saveWallet(wallets[selected].wallet);
             }}
           />
