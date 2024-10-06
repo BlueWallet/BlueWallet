@@ -143,23 +143,20 @@ jobs:
           echo "PROJECT_VERSION: ${{ env.PROJECT_VERSION }}"
           echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
 
-      - name: List current directory contents
-        run: ls -la ./
-        working-directory: .
-
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
-        working-directory: .
+        # Ensure the working directory is set correctly
+        working-directory: fastlane
 
-      - name: List ./ios/build/ contents
-        run: ls -la ./ios/build/
-        working-directory: .
+      - name: List Build Directory Contents
+        run: ls -la ./build/
+        working-directory: fastlane
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-          path: ./ios/build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          path: ./build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
 
   testflight-upload:
     needs: build

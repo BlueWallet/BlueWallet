@@ -318,20 +318,11 @@ platform :ios do
       skip_profile_detection: true,
       include_symbols: true,
       export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
-        }
-      },
+      export_options: "./ios/export_options.plist", # Adjust path if necessary
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "ios/build",
+      output_directory: "./build",
       output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-      buildlog_path: "ios/build_logs"
+      buildlog_path: "./build_logs"
     )
     
     # Verify IPA existence
