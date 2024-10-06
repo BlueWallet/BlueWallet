@@ -21,7 +21,7 @@ import {
   btcToSatoshi,
   fiatToBTC,
   getCurrencySymbol,
-  isRateOutdated,
+  isRateOutdated as checkIsRateOutdated,
   mostRecentFetchedRate,
   satoshiToBTC,
   updateExchangeRate,
@@ -39,7 +39,7 @@ class AmountInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
     /**
-     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
+     * amount is a string that's always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
      */
     amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     /**
@@ -48,7 +48,7 @@ class AmountInput extends Component {
      */
     onChangeText: PropTypes.func.isRequired,
     /**
-     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
+     * callback that's fired to notify of currently selected denomination, returns <BitcoinUnit.*>
      */
     onAmountUnitChange: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
@@ -60,7 +60,7 @@ class AmountInput extends Component {
   };
 
   /**
-   * cache of conversions  fiat amount => satoshi
+   * cache of conversions fiat amount => satoshi
    * @type {{}}
    */
   static conversionCache = {};
@@ -81,9 +81,8 @@ class AmountInput extends Component {
       isRateBeingUpdated: false,
       showErrorMessage: false,
       shakeAnimation: new Animated.Value(0),
-      fadeAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
-      opacityAnimationWarning: new Animated.Value(1),
+      hasInteracted: false,
     };
   }
 
@@ -93,30 +92,25 @@ class AmountInput extends Component {
         this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
       })
       .finally(() => {
-        isRateOutdated().then(isRateOutdatedValue => this.setState({ isRateOutdated: isRateOutdatedValue }));
+        checkIsRateOutdated().then(isRateOutdatedValue => this.setState({ isRateOutdated: isRateOutdatedValue }));
       });
   }
 
-  componentDidUpdate(_, prevState) {
-    // Start fade animation if either showErrorMessage or isRateOutdated is true
-    if (
-      (this.state.showErrorMessage && !prevState.showErrorMessage) ||
-      (this.state.isRateOutdated && !prevState.isRateOutdated)
-    ) {
-      this.startFadeAnimation();
+  componentDidUpdate(prevProps, prevState) {
+    const { showErrorMessage, isRateOutdated } = this.state;
+
+    if ((showErrorMessage && !prevState.showErrorMessage) || (isRateOutdated && !prevState.isRateOutdated)) {
+      this.startShakeAnimation();
     }
 
-    // Stop fade animation if neither showErrorMessage nor isRateOutdated is true
-    if (
-      (!this.state.showErrorMessage && prevState.showErrorMessage) ||
-      (!this.state.isRateOutdated && prevState.isRateOutdated)
-    ) {
-      this.stopFadeAnimation();
+    // Stop shake animation if both showErrorMessage and isRateOutdated become false
+    if (!showErrorMessage && prevState.showErrorMessage && !isRateOutdated && prevState.isRateOutdated) {
+      this.stopShakeAnimation();
     }
   }
 
   /**
-   * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
+   * Recalculate old amount value (denominated in `previousUnit`) to new denomination `newUnit`
    * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
    *
    * @param previousUnit {string} one of {BitcoinUnit.*}
@@ -124,37 +118,42 @@ class AmountInput extends Component {
    */
   onAmountUnitChange(previousUnit, newUnit) {
     const amount = this.props.amount || 0;
-    const log = `${amount}(${previousUnit}) ->`;
     let sats = 0;
+
     switch (previousUnit) {
-      case BitcoinUnit.BTC:
+      case BitcoinUnit.BTC: {
         sats = new BigNumber(amount).multipliedBy(100000000).toString();
         break;
+      }
       case BitcoinUnit.SATS:
         sats = amount;
         break;
-      case BitcoinUnit.LOCAL_CURRENCY:
+      case BitcoinUnit.LOCAL_CURRENCY: {
         sats = new BigNumber(fiatToBTC(amount)).multipliedBy(100000000).toString();
         break;
+      }
+      default:
+        sats = '0';
     }
+
     if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[amount + previousUnit]) {
-      // cache hit! we reuse old value that supposedly doesnt have rounding errors
+      // cache hit! we reuse old value that supposedly doesn't have rounding errors
       sats = AmountInput.conversionCache[amount + previousUnit];
     }
 
     const newInputValue = formatBalancePlain(sats, newUnit, false);
-    console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
+      // Cache conversion to prevent rounding errors
       AmountInput.conversionCache[newInputValue + newUnit] = amount;
     }
+
     this.props.onChangeText(newInputValue);
     this.props.onAmountUnitChange(newUnit);
   }
 
   /**
-   * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
+   * Cycle currently selected denomination: BTC -> SAT -> LOCAL_CURRENCY -> BTC
    */
   changeAmountUnit = () => {
     let previousUnit = this.props.unit;
@@ -192,6 +191,10 @@ class AmountInput extends Component {
   };
 
   handleChangeText = text => {
+    if (!this.state.hasInteracted) {
+      this.setState({ hasInteracted: true });
+    }
+
     text = text.trim();
     if (this.props.unit !== BitcoinUnit.LOCAL_CURRENCY) {
       text = text.replace(',', '.');
@@ -210,7 +213,7 @@ class AmountInput extends Component {
     } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
       text = text.replace(/,/gi, '.');
       if (text.split('.').length > 2) {
-        // too many dots. stupid code to remove all but first dot:
+        // Remove all but the first dot
         let rez = '';
         let first = true;
         for (const part of text.split('.')) {
@@ -225,7 +228,7 @@ class AmountInput extends Component {
       if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
         text = text.replace(/^(0+)/g, '');
       }
-      text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
+      text = text.replace(/[^\d.,-]/g, ''); // Remove all but numbers, dots & commas
       text = text.replace(/(\..*)\./g, '$1');
     }
     this.props.onChangeText(text);
@@ -238,40 +241,48 @@ class AmountInput extends Component {
         message: loc.send.reset_amount_confirm,
         options: [loc._.ok, loc._.cancel],
         destructiveButtonIndex: 0,
-        cancelButtonIndex: 0,
+        cancelButtonIndex: 1,
       },
       async buttonIndex => {
         if (buttonIndex === 0) {
-          this.props.onChangeText();
+          this.props.onChangeText('');
         }
       },
     );
   };
 
-  startFadeAnimation = () => {
-    this.fadeAnimationLoop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(this.state.opacityAnimation, {
-          toValue: 0,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this.state.opacityAnimation, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    this.fadeAnimationLoop.start();
-  };
-
-  stopFadeAnimation = () => {
-    if (this.fadeAnimationLoop) {
-      this.fadeAnimationLoop.stop();
-      this.fadeAnimationLoop = null;
-      this.state.opacityAnimation.setValue(1);
-    }
+  startShakeAnimation = () => {
+    Animated.sequence([
+      Animated.timing(this.state.shakeAnimation, {
+        toValue: 10,
+        duration: 50,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.state.shakeAnimation, {
+        toValue: -10,
+        duration: 50,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.state.shakeAnimation, {
+        toValue: 7,
+        duration: 50,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.state.shakeAnimation, {
+        toValue: -7,
+        duration: 50,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+      Animated.spring(this.state.shakeAnimation, {
+        toValue: 0,
+        useNativeDriver: true,
+        friction: 5,
+      }),
+    ]).start();
   };
 
   updateRate = () => {
@@ -285,54 +296,20 @@ class AmountInput extends Component {
         });
       } finally {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        this.setState({ isRateBeingUpdated: false, isRateOutdated: await isRateOutdated() });
+        checkIsRateOutdated().then(isRateOutdatedValue => {
+          this.setState({ isRateBeingUpdated: false, isRateOutdated: isRateOutdatedValue });
+        });
       }
     });
   };
 
   triggerError = () => {
+    if (!this.state.hasInteracted) return;
+
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     this.setState({ showErrorMessage: true }, () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      Animated.sequence([
-        Animated.timing(this.state.shakeAnimation, {
-          toValue: 10,
-          duration: 50,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this.state.shakeAnimation, {
-          toValue: -10,
-          duration: 50,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this.state.shakeAnimation, {
-          toValue: 7,
-          duration: 50,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this.state.shakeAnimation, {
-          toValue: -7,
-          duration: 50,
-          easing: Easing.linear,
-          useNativeDriver: true,
-        }),
-        Animated.spring(this.state.shakeAnimation, {
-          toValue: 0,
-          useNativeDriver: true,
-          friction: 5,
-        }),
-      ]).start();
-
-      this.startFadeAnimation();
-
-      Animated.timing(this.state.fadeAnimation, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      this.startShakeAnimation();
     });
   };
 
@@ -344,6 +321,9 @@ class AmountInput extends Component {
       amountInSatoshis = btcToSatoshi(amount);
     } else if (unit === BitcoinUnit.SATS) {
       amountInSatoshis = parseInt(amount, 10);
+    } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
+      const btcAmount = fiatToBTC(parseFloat(amount));
+      amountInSatoshis = btcToSatoshi(btcAmount);
     }
 
     // Show error if amount is 500 or less satoshis
@@ -352,14 +332,6 @@ class AmountInput extends Component {
     } else {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       this.setState({ showErrorMessage: false });
-
-      Animated.timing(this.state.fadeAnimation, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-
-      this.stopFadeAnimation();
     }
 
     if (this.props.onBlur) {
@@ -371,7 +343,7 @@ class AmountInput extends Component {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
     let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
-    const { shakeAnimation, showErrorMessage, fadeAnimation, opacityAnimation } = this.state;
+    const { shakeAnimation, showErrorMessage, opacityAnimation, isRateOutdated } = this.state;
 
     const shakeStyle = {
       transform: [
@@ -380,35 +352,32 @@ class AmountInput extends Component {
         },
       ],
     };
-    const fadeStyle = {
-      opacity: fadeAnimation,
-    };
     const opacityStyle = {
       opacity: opacityAnimation,
     };
 
-    // if main display is sat or btc - secondary display is fiat
-    // if main display is fiat - secondary dislay is btc
-    let sat;
     switch (unit) {
-      case BitcoinUnit.BTC:
-        sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+      case BitcoinUnit.BTC: {
+        const sats = new BigNumber(amount).multipliedBy(100000000).toString();
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sats, BitcoinUnit.LOCAL_CURRENCY, false);
         break;
+      }
       case BitcoinUnit.SATS:
         secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
-      case BitcoinUnit.LOCAL_CURRENCY:
+      case BitcoinUnit.LOCAL_CURRENCY: {
         secondaryDisplayCurrency = fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
         if (AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesn't have rounding errors
-          const sats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
-          secondaryDisplayCurrency = satoshiToBTC(sats);
+          const cachedSats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
+          secondaryDisplayCurrency = satoshiToBTC(cachedSats);
         }
         break;
+      }
+      default:
+        secondaryDisplayCurrency = '';
     }
 
-    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we don't want to display NaN
+    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // Avoid displaying NaN
 
     const inputTextColor = showErrorMessage
       ? colors.outgoingBackgroundColor
@@ -419,11 +388,11 @@ class AmountInput extends Component {
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
       localCurrency: {
-        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingBackgroundColor : colors.alternativeTextColor2,
+        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingTextColor : colors.alternativeTextColor2,
       },
-      input: { color: inputTextColor, fontSize: amount.length > 10 ? 20 : 36 },
+      input: { color: inputTextColor, fontSize: amount.toString().length > 10 ? 20 : 36 },
       cryptoCurrency: {
-        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingBackgroundColor : colors.alternativeTextColor2,
+        color: disabled ? colors.buttonDisabledTextColor : showErrorMessage ? colors.outgoingTextColor : colors.alternativeTextColor2,
       },
     });
 
@@ -457,10 +426,10 @@ class AmountInput extends Component {
                     maxLength={this.maxLength()}
                     ref={textInput => (this.textInput = textInput)}
                     editable={!this.props.isLoading && !disabled}
-                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : ''}
+                    placeholder="0"
                     placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
                     style={[styles.input, stylesHook.input]}
-                    placeholder="0"
                   />
                 ) : (
                   <Pressable onPress={this.resetAmount}>
@@ -492,7 +461,7 @@ class AmountInput extends Component {
               </TouchableOpacity>
             )}
           </Animated.View>
-          {this.state.isRateOutdated && (
+          {isRateOutdated && (
             <View style={styles.outdatedRateContainer}>
               <Animated.View style={opacityStyle}>
                 <Badge status="warning" />
@@ -510,7 +479,7 @@ class AmountInput extends Component {
                   accessibilityLabel={loc._.refresh}
                   onPress={this.updateRate}
                   disabled={this.state.isRateBeingUpdated}
-                  style={styles.enabledButon}
+                  style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
                 >
                   <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
                 </TouchableOpacity>
@@ -518,7 +487,7 @@ class AmountInput extends Component {
             </View>
           )}
           {showErrorMessage && (
-            <Animated.View style={[styles.amountLowContainer, fadeStyle]}>
+            <View style={styles.amountLowContainer}>
               <View style={styles.spacing8} />
               <Animated.View style={opacityStyle}>
                 <Badge status="error" />
@@ -527,7 +496,7 @@ class AmountInput extends Component {
               <Text style={styles.errorText}>
                 {loc.formatString(loc.send.details_amount_field_is_less_than_minimum_amount_sat, { amount: formatBalance(500, unit) })}
               </Text>
-            </Animated.View>
+            </View>
           )}
         </View>
       </TouchableWithoutFeedback>
@@ -559,6 +528,9 @@ const styles = StyleSheet.create({
   },
   enabledButon: {
     opacity: 1,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   outdatedRateContainer: {
     flexDirection: 'row',
@@ -619,7 +591,6 @@ const AmountInputWithStyle = props => {
   return <AmountInput {...props} colors={colors} />;
 };
 
-// expose static methods
 AmountInputWithStyle.conversionCache = AmountInput.conversionCache;
 AmountInputWithStyle.getCachedSatoshis = AmountInput.getCachedSatoshis;
 AmountInputWithStyle.setCachedSatoshis = AmountInput.setCachedSatoshis;
