@@ -138,16 +138,13 @@ const ImportWalletDiscovery: React.FC = () => {
       });
 
     return () => {
-      if (task.current) {
-        task.current.stop();
-      }
+      task.current?.stop();
     };
   }, [askPassphrase, importText, navigation, saveWallet, searchAccounts]);
 
   const handleCustomDerivation = () => {
-    if (task.current) {
-      task.current.stop();
-    }
+    task.current?.stop();
+
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 
