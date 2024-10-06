@@ -307,7 +307,6 @@ platform :ios do
   end
 
   lane :build_app_lane do
-  Dir.chdir(project_root) do
     UI.message("Building the application from: #{Dir.pwd}")
     
     build_app(
@@ -335,15 +334,6 @@ platform :ios do
       buildlog_path: "./build_logs"
     )
     
-    # Verify IPA existence
-    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-    unless File.exist?(ipa_path)
-      UI.user_error!("IPA file not found at path: #{ipa_path}")
-    end
-    
-    UI.message("IPA successfully created at: #{ipa_path}")
-  end
-
     # Verify IPA existence
     ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
     unless File.exist?(ipa_path)
