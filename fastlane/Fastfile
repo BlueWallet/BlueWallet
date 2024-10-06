@@ -329,11 +329,18 @@ platform :ios do
         }
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build", # Directory where the IPA file will be stored
-
+      output_directory: "./build",
       output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
       buildlog_path: "./build_logs"
     )
+  
+    # Verify IPA existence
+    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+    unless File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    end
+  
+    UI.message("IPA successfully created at: #{ipa_path}")
   end
 
   desc "Upload to TestFlight without Processing Wait"
