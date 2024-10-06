@@ -164,7 +164,7 @@ const ImportWalletDiscovery: React.FC = () => {
     />
   );
 
-  const keyExtractor = (w: { id: string }) => w.id;
+  const keyExtractor = (w: WalletEntry) => w.id;
 
   const ListHeaderComponent = useMemo(
     () => (
