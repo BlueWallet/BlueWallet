@@ -460,6 +460,7 @@ class AmountInput extends Component {
                     value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
                     placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
                     style={[styles.input, stylesHook.input]}
+                    placeholder="0"
                   />
                 ) : (
                   <Pressable onPress={this.resetAmount}>
