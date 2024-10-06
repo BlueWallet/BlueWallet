@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
@@ -34,6 +34,12 @@ type ImportTask = {
   stop: () => void;
 };
 
+type WalletEntry = {
+  wallet: TWallet | THDWalletForWatchOnly;
+  subtitle: string;
+  id: string;
+};
+
 const ImportWalletDiscovery: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProp>();
   const { colors } = useTheme();
@@ -42,7 +48,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const task = useRef<ImportTask | null>(null);
   const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState<boolean>(true);
-  const [wallets, setWallets] = useState<Array<{ wallet: TWallet; subtitle: string; id: string }>>([]);
+  const [wallets, setWallets] = useState<WalletEntry[]>([]);
   const [password, setPassword] = useState<string | undefined>();
   const [selected, setSelected] = useState<number>(0);
   const [progress, setProgress] = useState<string | undefined>();
@@ -62,12 +68,15 @@ const ImportWalletDiscovery: React.FC = () => {
     },
   });
 
-  const saveWallet = (wallet: TWallet) => {
-    if (importing.current) return;
-    importing.current = true;
-    addAndSaveWallet(wallet);
-    navigate('WalletsList');
-  };
+  const saveWallet = useCallback(
+    (wallet: TWallet | THDWalletForWatchOnly) => {
+      if (importing.current) return;
+      importing.current = true;
+      addAndSaveWallet(wallet);
+      navigate('WalletsList');
+    },
+    [addAndSaveWallet],
+  );
 
   useEffect(() => {
     const onProgress = (data: string) => setProgress(data);
@@ -76,6 +85,7 @@ const ImportWalletDiscovery: React.FC = () => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       const id = wallet.getID();
       let subtitle: string | undefined;
+
       try {
         // For watch-only wallets, display the descriptor or xpub
         if (wallet.type === WatchOnlyWallet.type) {
@@ -88,6 +98,7 @@ const ImportWalletDiscovery: React.FC = () => {
           subtitle = (wallet as THDWalletForWatchOnly).getDerivationPath?.();
         }
       } catch (e) {}
+
       setWallets(w => [...w, { wallet, subtitle: subtitle || '', id }]);
     };
 
@@ -131,8 +142,7 @@ const ImportWalletDiscovery: React.FC = () => {
         task.current.stop();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [askPassphrase, importText, navigation, saveWallet, searchAccounts]);
 
   const handleCustomDerivation = () => {
     if (task.current) {
@@ -141,7 +151,7 @@ const ImportWalletDiscovery: React.FC = () => {
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 
-  const renderItem = ({ item, index }: { item: { wallet: TWallet; subtitle: string; id: string }; index: number }) => (
+  const renderItem = ({ item, index }: { item: WalletEntry; index: number }) => (
     <WalletToImport
       key={item.id}
       title={item.wallet.typeReadable}
@@ -159,7 +169,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const ListHeaderComponent = useMemo(
     () => (
       <>
-        {wallets.length > 0 ? (
+        {wallets && wallets.length > 0 ? (
           <>
             <BlueSpacing20 />
             <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
@@ -168,7 +178,7 @@ const ImportWalletDiscovery: React.FC = () => {
         ) : null}
       </>
     ),
-    [wallets.length],
+    [wallets],
   );
 
   const ListEmptyComponent = useMemo(
@@ -213,9 +223,12 @@ const ImportWalletDiscovery: React.FC = () => {
         <BlueSpacing10 />
         <View style={styles.buttonContainer}>
           <Button
-            disabled={wallets.length === 0}
+            disabled={wallets?.length === 0}
             title={loc.wallets.import_do_import}
-            onPress={() => saveWallet(wallets[selected].wallet)}
+            onPress={() => {
+              if (!wallets) return;
+              saveWallet(wallets[selected].wallet);
+            }}
           />
         </View>
       </View>
