@@ -343,7 +343,6 @@ platform :ios do
     
     UI.message("IPA successfully created at: #{ipa_path}")
   end
-end
 
     # Verify IPA existence
     ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
