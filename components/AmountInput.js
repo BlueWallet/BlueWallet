@@ -104,7 +104,7 @@ class AmountInput extends Component {
     }
 
     // Stop shake animation if both showErrorMessage and isRateOutdated become false
-    if (!showErrorMessage && prevState.showErrorMessage && !isRateOutdated && prevState.isRateOutdated) {
+    if ((!showErrorMessage && prevState.showErrorMessage) || (!isRateOutdated && prevState.isRateOutdated)) {
       this.stopShakeAnimation();
     }
   }
@@ -354,7 +354,7 @@ class AmountInput extends Component {
     const opacityStyle = {
       opacity: opacityAnimation,
     };
-    
+
     let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     switch (unit) {
@@ -364,12 +364,16 @@ class AmountInput extends Component {
         break;
       }
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(
+          (Number.isNaN(Number(amount)) ? 0 : amount).toString(),
+          BitcoinUnit.LOCAL_CURRENCY,
+          false,
+        );
         break;
       case BitcoinUnit.LOCAL_CURRENCY: {
-        secondaryDisplayCurrency = fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
-        if (AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          const cachedSats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
+        secondaryDisplayCurrency = fiatToBTC(parseFloat(Number.isNaN(Number(amount)) ? 0 : amount));
+        if (AmountInput.conversionCache[Number.isNaN(Number(amount)) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          const cachedSats = AmountInput.conversionCache[Number.isNaN(Number(amount)) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
           secondaryDisplayCurrency = satoshiToBTC(cachedSats);
         }
         break;
