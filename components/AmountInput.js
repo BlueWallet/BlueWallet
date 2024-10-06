@@ -478,8 +478,7 @@ class AmountInput extends Component {
                   accessibilityRole="button"
                   accessibilityLabel={loc._.refresh}
                   onPress={this.updateRate}
-                  disabled={this.state.isRateBeingUpdated}
-                  style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
+                  style={styles.enabledButon}
                 >
                   <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
                 </TouchableOpacity>
@@ -528,9 +527,6 @@ const styles = StyleSheet.create({
   },
   enabledButon: {
     opacity: 1,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   outdatedRateContainer: {
     flexDirection: 'row',
