@@ -143,10 +143,13 @@ jobs:
           echo "PROJECT_VERSION: ${{ env.PROJECT_VERSION }}"
           echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
 
+      - name: List current directory contents
+        run: ls -la ./
+
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
 
-      - name: List Build Directory Contents
+      - name: List ./build/ contents
         run: ls -la ./build/
 
       - name: Upload IPA as Artifact
