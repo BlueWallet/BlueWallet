@@ -31,8 +31,6 @@ function Notifications(props) {
     return false;
   };
 
-  Notifications.isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
-
   /**
    * Calls `configure`, which tries to obtain push token, save it, and registers all associated with
    * notifications callbacks
@@ -131,7 +129,7 @@ function Notifications(props) {
    * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
    */
   Notifications.tryToObtainPermissions = async function (anchor) {
-    if (!Notifications.isNotificationsCapable) return false;
+    if (!isNotificationsCapable) return false;
     if (await Notifications.getPushToken()) {
       // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
       if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
@@ -440,5 +438,7 @@ function Notifications(props) {
   })();
   return null;
 }
+
+export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
 export default Notifications;
