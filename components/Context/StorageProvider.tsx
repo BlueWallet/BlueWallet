@@ -91,7 +91,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         setWallets(w);
       });
     },
-    [txMetadata, counterpartyMetadata],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [txMetadata.current, counterpartyMetadata.current],
   );
 
   const addWallet = useCallback((wallet: TWallet) => {
