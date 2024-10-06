@@ -10,6 +10,7 @@
     "never": "Never",
     "of": "{number} of {total}",
     "ok": "OK",
+    "enter_url": "Enter URL",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "yes": "Yes",
     "save": "Save",
@@ -24,7 +25,8 @@
     "pick_file": "Choose a file",
     "enter_amount": "Enter amount",
     "qr_custom_input_button": "Tap 10 times to enter custom input",
-    "unlock": "Unlock"
+    "unlock": "Unlock",
+    "suggested": "Suggested"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -205,8 +207,10 @@
     "performance_score": "Performance score: {num}",
     "run_performance_test": "Test performance",
     "about_selftest": "Run self-test",
+    "block_explorer_invalid_custom_url": "The URL provided is invalid. Please enter a valid URL starting with http:// or https://.",
     "about_selftest_electrum_disabled": "Self-testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",
+
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram channel",
@@ -258,6 +262,9 @@
     "encrypt_storage_explanation_description_line1": "Enabling Storage Encryption adds an extra layer of protection to your app by securing the way your data is stored on your device. This makes it harder for anyone to access your information without permission.",
     "encrypt_storage_explanation_description_line2": "However, it's important to know that this encryption only protects the access to your wallets stored on the device's keychain. It doesn't put a password or any extra protection on the wallets themselves.",
     "i_understand": "I understand",
+    "block_explorer": "Block Explorer",
+    "block_explorer_preferred": "Use preferred block explorer",
+    "block_explorer_error_saving_custom": "Error saving preferred block explorer",
     "encrypt_title": "Security",
     "encrypt_tstorage": "Storage",
     "encrypt_use": "Use {type}",

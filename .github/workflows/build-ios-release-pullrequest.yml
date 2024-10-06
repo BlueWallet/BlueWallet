@@ -34,7 +34,7 @@ jobs:
       
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 15.4
+          xcode-version: 16.0
       
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -127,14 +127,14 @@ jobs:
         
       - name: Expected IPA file name
         run: |
-          echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
+          echo "IPA file name: BlueWallet_${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          path: ./build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
 
   testflight-upload:
     needs: build
@@ -167,7 +167,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
-          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
+          name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
           path: ./
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
