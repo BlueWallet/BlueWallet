@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Dimensions,
-  findNodeHandle,
   FlatList,
   I18nManager,
   Keyboard,
@@ -547,18 +546,16 @@ const SendDetails = () => {
         if (scrollView.current) {
           scrollView.current?.scrollToIndex({ index });
           setIsLoading(false);
-          const anchor = findNodeHandle(scrollView.current);
-          if (anchor) {
-            ActionSheet.showActionSheetWithOptions(
-              {
-                title: loc.errors.error,
-                message: error,
-                anchor,
-                options: [loc._.ok],
-              },
-              () => {},
-            );
-          }
+
+          ActionSheet.showActionSheetWithOptions(
+            {
+              title: loc.errors.error,
+              message: error,
+              options: [loc._.ok],
+            },
+            () => {},
+          );
+
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         }
 
@@ -571,18 +568,14 @@ const SendDetails = () => {
     } catch (Err: any) {
       setIsLoading(false);
       if (scrollView.current) {
-        const anchor = findNodeHandle(scrollView.current);
-        if (anchor) {
-          ActionSheet.showActionSheetWithOptions(
-            {
-              title: loc.errors.error,
-              message: Err.message,
-              anchor,
-              options: [loc._.ok],
-            },
-            () => {},
-          );
-        }
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc.errors.error,
+            message: Err.message,
+            options: [loc._.ok],
+          },
+          () => {},
+        );
       }
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -800,23 +793,17 @@ const SendDetails = () => {
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
-      if (scrollView.current) {
-        const anchor = findNodeHandle(scrollView.current);
-        if (anchor) {
-          ActionSheet.showActionSheetWithOptions(
-            {
-              title: loc.multisig.cosign_this_transaction,
-              options: [loc._.cancel, loc._.ok],
-              cancelButtonIndex: 0,
-              anchor,
-            },
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title: loc.multisig.cosign_this_transaction,
+          options: [loc._.cancel, loc._.ok],
+          cancelButtonIndex: 0,
+        },
 
-            buttonIndex => {
-              resolve(buttonIndex === 1);
-            },
-          );
-        }
-      }
+        buttonIndex => {
+          resolve(buttonIndex === 1);
+        },
+      );
     });
   };
 
@@ -1080,13 +1067,11 @@ const SendDetails = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
 
-    const anchor = findNodeHandle(scrollView.current);
     const options = {
       title: loc.send.details_adv_full,
       message,
       options: [loc._.cancel, loc._.ok],
       cancelButtonIndex: 0,
-      anchor: anchor ?? undefined,
     };
 
     ActionSheet.showActionSheetWithOptions(options, buttonIndex => {
