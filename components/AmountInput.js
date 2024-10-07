@@ -8,7 +8,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import BigNumber from 'bignumber.js';
@@ -97,14 +96,15 @@ class AmountInput extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { showErrorMessage, isRateOutdated } = this.state;
+    const { showErrorMessage, isRateOutdated: currentIsRateOutdated } = this.state;
 
-    if ((showErrorMessage && !prevState.showErrorMessage) || (isRateOutdated && !prevState.isRateOutdated)) {
+    // Start shake animation if either showErrorMessage or isRateOutdated becomes true
+    if ((showErrorMessage && !prevState.showErrorMessage) || (currentIsRateOutdated && !prevState.isRateOutdated)) {
       this.startShakeAnimation();
     }
 
     // Stop shake animation if both showErrorMessage and isRateOutdated become false
-    if ((!showErrorMessage && prevState.showErrorMessage) || (!isRateOutdated && prevState.isRateOutdated)) {
+    if (!showErrorMessage && prevState.showErrorMessage && !currentIsRateOutdated && prevState.isRateOutdated) {
       this.stopShakeAnimation();
     }
   }
@@ -285,6 +285,11 @@ class AmountInput extends Component {
     ]).start();
   };
 
+  stopShakeAnimation = () => {
+    // No specific stop action needed for shake animation as it's a sequence
+    // It completes automatically
+  };
+
   updateRate = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     this.setState({ isRateBeingUpdated: true }, async () => {
@@ -342,7 +347,7 @@ class AmountInput extends Component {
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
-    const { shakeAnimation, showErrorMessage, opacityAnimation, isRateOutdated } = this.state;
+    const { shakeAnimation, showErrorMessage, opacityAnimation, isRateOutdated: rateIsOutdated } = this.state;
 
     const shakeStyle = {
       transform: [
@@ -402,113 +407,115 @@ class AmountInput extends Component {
     });
 
     return (
-      <TouchableWithoutFeedback
+      <View
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
-        disabled={this.props.pointerEvents === 'none'}
-        onPress={this.handleTextInputOnPress}
+        style={styles.touchableContainer}
+        onStartShouldSetResponder={() => true}
+        onResponderRelease={this.handleTextInputOnPress}
       >
-        <View>
-          <Animated.View style={[styles.root, shakeStyle]}>
-            {!disabled && <View style={[styles.center, stylesHook.center]} />}
-            <View style={styles.flex}>
-              <View style={styles.container}>
-                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                  <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol() + ' '}</Text>
-                )}
-                {amount !== BitcoinUnit.MAX ? (
-                  <TextInput
-                    {...this.props}
-                    caretHidden
-                    testID="BitcoinAmountInput"
-                    keyboardType="numeric"
-                    adjustsFontSizeToFit
-                    onChangeText={this.handleChangeText}
-                    onBlur={this.handleBlur}
-                    onFocus={() => {
-                      if (this.props.onFocus) this.props.onFocus();
-                    }}
-                    maxLength={this.maxLength()}
-                    ref={textInput => (this.textInput = textInput)}
-                    editable={!this.props.isLoading && !disabled}
-                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : ''}
-                    placeholder="0"
-                    placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                    style={[styles.input, stylesHook.input]}
-                  />
-                ) : (
-                  <Pressable onPress={this.resetAmount}>
-                    <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
-                  </Pressable>
-                )}
-                {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                  <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
-                )}
-              </View>
-              <View style={styles.secondaryRoot}>
-                <Text style={styles.secondaryText}>
-                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                    ? removeTrailingZeros(secondaryDisplayCurrency)
-                    : secondaryDisplayCurrency}
-                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
-                </Text>
-              </View>
-            </View>
-            {!disabled && amount !== BitcoinUnit.MAX && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc._.change_input_currency}
-                testID="changeAmountUnitButton"
-                style={styles.changeAmountUnit}
-                onPress={this.changeAmountUnit}
-              >
-                <Image source={require('../img/round-compare-arrows-24-px.png')} />
-              </TouchableOpacity>
-            )}
-          </Animated.View>
-          {isRateOutdated && (
-            <View style={styles.outdatedRateContainer}>
-              <Animated.View style={opacityStyle}>
-                <Badge status="warning" />
-              </Animated.View>
-              <View style={styles.spacing8} />
-              <BlueText>
-                {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('l LT') })}
-              </BlueText>
-              <View style={styles.spacing8} />
-              {this.state.isRateBeingUpdated ? (
-                <ActivityIndicator />
+        <Animated.View style={[styles.root, shakeStyle]}>
+          {!disabled && <View style={[styles.center, stylesHook.center]} />}
+          <View style={styles.flex}>
+            <View style={styles.container}>
+              {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+                <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol() + ' '}</Text>
+              )}
+              {amount !== BitcoinUnit.MAX ? (
+                <TextInput
+                  {...this.props}
+                  caretHidden
+                  testID="BitcoinAmountInput"
+                  keyboardType="numeric"
+                  adjustsFontSizeToFit
+                  onChangeText={this.handleChangeText}
+                  onBlur={this.handleBlur}
+                  onFocus={() => {
+                    if (this.props.onFocus) this.props.onFocus();
+                  }}
+                  maxLength={this.maxLength()}
+                  ref={textInput => (this.textInput = textInput)}
+                  editable={!this.props.isLoading && !disabled}
+                  value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : ''}
+                  placeholder="0"
+                  placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
+                  style={[styles.input, stylesHook.input]}
+                />
               ) : (
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel={loc._.refresh}
-                  onPress={this.updateRate}
-                  style={styles.enabledButon}
-                >
-                  <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
-                </TouchableOpacity>
+                <Pressable onPress={this.resetAmount}>
+                  <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                </Pressable>
+              )}
+              {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+                <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
               )}
             </View>
-          )}
-          {showErrorMessage && (
-            <View style={styles.amountLowContainer}>
-              <View style={styles.spacing8} />
-              <Animated.View style={opacityStyle}>
-                <Badge status="error" />
-              </Animated.View>
-              <View style={styles.spacing8} />
-              <Text style={styles.errorText}>
-                {loc.formatString(loc.send.details_amount_field_is_less_than_minimum_amount_sat, { amount: formatBalance(500, unit) })}
+            <View style={styles.secondaryRoot}>
+              <Text style={styles.secondaryText}>
+                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
+                  ? removeTrailingZeros(secondaryDisplayCurrency)
+                  : secondaryDisplayCurrency}
+                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
               </Text>
             </View>
+          </View>
+          {!disabled && amount !== BitcoinUnit.MAX && (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={loc._.change_input_currency}
+              testID="changeAmountUnitButton"
+              style={styles.changeAmountUnit}
+              onPress={this.changeAmountUnit}
+            >
+              <Image source={require('../img/round-compare-arrows-24-px.png')} />
+            </TouchableOpacity>
           )}
-        </View>
-      </TouchableWithoutFeedback>
+        </Animated.View>
+        {rateIsOutdated && (
+          <View style={styles.outdatedRateContainer}>
+            <Animated.View style={opacityStyle}>
+              <Badge status="warning" />
+            </Animated.View>
+            <View style={styles.spacing8} />
+            <BlueText>
+              {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('l LT') })}
+            </BlueText>
+            <View style={styles.spacing8} />
+            {this.state.isRateBeingUpdated ? (
+              <ActivityIndicator />
+            ) : (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.refresh}
+                onPress={this.updateRate}
+                style={styles.enabledButon}
+              >
+                <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+        {showErrorMessage && (
+          <View style={styles.amountLowContainer}>
+            <View style={styles.spacing8} />
+            <Animated.View style={opacityStyle}>
+              <Badge status="error" />
+            </Animated.View>
+            <View style={styles.spacing8} />
+            <Text style={styles.errorText}>
+              {loc.formatString(loc.send.details_amount_field_is_less_than_minimum_amount_sat, { amount: formatBalance(500, unit) })}
+            </Text>
+          </View>
+        )}
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  touchableContainer: {
+    flex: 1,
+  },
   root: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -592,6 +599,7 @@ const AmountInputWithStyle = props => {
   return <AmountInput {...props} colors={colors} />;
 };
 
+// Expose static methods
 AmountInputWithStyle.conversionCache = AmountInput.conversionCache;
 AmountInputWithStyle.getCachedSatoshis = AmountInput.getCachedSatoshis;
 AmountInputWithStyle.setCachedSatoshis = AmountInput.setCachedSatoshis;
