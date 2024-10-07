@@ -118,7 +118,17 @@ task copyFiatUnits(type: Copy) {
 
 preBuild.dependsOn(copyFiatUnits)
 
+
+repositories {
+    // Define the relative path to the folder where the .aar file is located
+    flatDir {
+        dirs '../../blue_modules/libportal-react-native/android/lib'
+    }
+}
+
+
 dependencies {
+    implementation(name: 'lib-release', ext: 'aar')
 		androidTestImplementation('com.wix:detox:+')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
