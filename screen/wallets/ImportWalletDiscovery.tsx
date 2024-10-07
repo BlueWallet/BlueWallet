@@ -140,7 +140,8 @@ const ImportWalletDiscovery: React.FC = () => {
     return () => {
       task.current?.stop();
     };
-  }, [askPassphrase, importText, navigation, saveWallet, searchAccounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCustomDerivation = () => {
     task.current?.stop();
