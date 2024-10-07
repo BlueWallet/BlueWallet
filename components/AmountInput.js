@@ -99,18 +99,12 @@ class AmountInput extends Component {
     const { showErrorMessage, isRateOutdated: currentIsRateOutdated } = this.state;
 
     // Start shake animation if either showErrorMessage or isRateOutdated becomes true
-    if (
-      (showErrorMessage && !prevState.showErrorMessage) ||
-      (currentIsRateOutdated && !prevState.isRateOutdated)
-    ) {
+    if ((showErrorMessage && !prevState.showErrorMessage) || (currentIsRateOutdated && !prevState.isRateOutdated)) {
       this.startShakeAnimation();
     }
 
     // Stop shake animation if both showErrorMessage and isRateOutdated become false
-    if (
-      (!showErrorMessage && prevState.showErrorMessage) &&
-      (!currentIsRateOutdated && prevState.isRateOutdated)
-    ) {
+    if (!showErrorMessage && prevState.showErrorMessage && !currentIsRateOutdated && prevState.isRateOutdated) {
       this.stopShakeAnimation();
     }
   }
@@ -419,6 +413,8 @@ class AmountInput extends Component {
         style={styles.touchableContainer}
         onStartShouldSetResponder={() => true}
         onResponderRelease={this.handleTextInputOnPress}
+        accessibilityRole="button"
+        accessibilityLabel={loc._.enter_amount}
       >
         <Animated.View style={[styles.root, shakeStyle]}>
           {!disabled && <View style={[styles.center, stylesHook.center]} />}
