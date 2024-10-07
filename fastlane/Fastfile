@@ -345,10 +345,8 @@ platform :ios do
       ipa_path = ipa_files.first
       UI.message("IPA successfully found at: #{ipa_path}")
       ENV['IPA_OUTPUT_PATH'] = File.expand_path(ipa_path)
-    end
-    end
+  end
   
-
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
     attempts = 0
