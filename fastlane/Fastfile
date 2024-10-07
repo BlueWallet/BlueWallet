@@ -328,6 +328,10 @@ platform :ios do
         output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
         buildlog_path: "./ios/build_logs"
       )
+      
+            # Diagnostic: List build directory contents
+      UI.message("Listing build directory contents:")
+      sh("ls -la ./")
   
       # Diagnostic: List build directory contents
       UI.message("Listing build directory contents:")
