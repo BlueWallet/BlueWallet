@@ -315,7 +315,7 @@ platform :ios do
   
       build_app(
         scheme: "BlueWallet",
-        workspace: "./ios/BlueWallet.xcworkspace",
+        workspace: "./BlueWallet.xcworkspace",
         export_method: "app-store",
         include_bitcode: false,
         configuration: "Release",
