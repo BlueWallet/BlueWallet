@@ -307,32 +307,43 @@ platform :ios do
   end
 
   lane :build_app_lane do
-    UI.message("Building the application from: #{Dir.pwd}")
-    
-    build_app(
-      scheme: "BlueWallet",
-      workspace: "ios/BlueWallet.xcworkspace",
-      export_method: "app-store",
-      include_bitcode: false,
-      configuration: "Release",
-      skip_profile_detection: true,
-      include_symbols: true,
-      export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: "./ios/export_options.plist",
-      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build",
-      output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-      buildlog_path: "./build_logs"
-    )
-    
-    # Verify IPA existence
-    ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-    unless File.exist?(ipa_path)
-      UI.user_error!("IPA file not found at path: #{ipa_path}")
-    end
+    Dir.chdir(project_root) do
+      UI.message("Building the application from: #{Dir.pwd}")
   
-    UI.message("IPA successfully created at: #{ipa_path}")
+      # Diagnostic: List ios directory contents
+      UI.message("Listing ios directory contents:")
+      sh("ls -la ios/")
+  
+      build_app(
+        scheme: "BlueWallet",
+        workspace: "ios/BlueWallet.xcworkspace",
+        export_method: "app-store",
+        include_bitcode: false,
+        configuration: "Release",
+        skip_profile_detection: true,
+        include_symbols: true,
+        export_team_id: ENV["ITC_TEAM_ID"],
+        export_options: "./ios/export_options.plist", # Path to the plist
+        xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+        output_directory: "./build",
+        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        buildlog_path: "./build_logs"
+      )
+  
+      # Diagnostic: List build directory contents
+      UI.message("Listing build directory contents:")
+      sh("ls -la ./build/")
+  
+      # Verify IPA existence
+      ipa_path = "./build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+      unless File.exist?(ipa_path)
+        UI.user_error!("IPA file not found at path: #{ipa_path}")
+      end
+  
+      UI.message("IPA successfully created at: #{ipa_path}")
+    end
   end
+  
 
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do

@@ -143,12 +143,14 @@ jobs:
           echo "PROJECT_VERSION: ${{ env.PROJECT_VERSION }}"
           echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
 
+      - name: List ios directory contents before build
+        run: ls -la ios/
+
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
-        # Ensure the working directory is set correctly
         working-directory: fastlane
 
-      - name: List Build Directory Contents
+      - name: List build directory contents after build
         run: ls -la ./build/
         working-directory: fastlane
 
