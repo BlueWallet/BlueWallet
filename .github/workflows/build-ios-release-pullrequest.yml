@@ -148,11 +148,9 @@ jobs:
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
-        working-directory: fastlane
 
       - name: List build directory contents after build
         run: ls -la ./build/
-        working-directory: fastlane
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v4
