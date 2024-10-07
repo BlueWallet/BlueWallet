@@ -105,13 +105,10 @@ const NotificationSettings = () => {
       <ListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
+        subtitle={loc.settings.groundcontrol_explanation}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
       />
       <BlueSpacing20 />
-
-      <BlueCard>
-        <BlueText>{loc.settings.groundcontrol_explanation}</BlueText>
-      </BlueCard>
 
       <ButtonRNElements
         icon={{

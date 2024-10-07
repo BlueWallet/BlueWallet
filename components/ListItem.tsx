@@ -98,6 +98,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
         color: colors.alternativeTextColor,
         fontWeight: '400',
+        paddingVertical: switchProps ? 8 : 0,
+        lineHeight: 20,
         fontSize: 14,
       },
 
@@ -130,7 +132,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           </RNElementsListItem.Title>
           {subtitle && (
             <RNElementsListItem.Subtitle
-              numberOfLines={subtitleNumberOfLines ?? 1}
+              numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)}
               accessible={switchProps === undefined}
               style={stylesHook.subtitle}
             >
@@ -152,7 +154,9 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           <>
             {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
             {rightIcon && <Avatar icon={rightIcon} />}
-            {switchProps && <Switch {...memoizedSwitchProps} accessibilityLabel={title} accessible accessibilityRole="switch" />}
+            {switchProps && (
+              <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+            )}
             {checkmark && (
               <RNElementsListItem.CheckBox
                 iconRight
@@ -215,6 +219,9 @@ const styles = StyleSheet.create({
   },
   margin8: {
     margin: 8,
+  },
+  margin16: {
+    marginLeft: 16,
   },
   width16: { width: 16 },
 });

@@ -2,7 +2,6 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useReducer } from 'react';
 import { ScrollView, TouchableWithoutFeedback, View } from 'react-native';
-import { BlueCard, BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
@@ -105,10 +104,9 @@ const DefaultView: React.FC = () => {
             value: state.isViewAllWalletsSwitchEnabled,
             disabled: wallets.length <= 0,
           }}
+          subtitle={loc.settings.default_desc}
         />
-        <BlueCard>
-          <BlueText>{loc.settings.default_desc}</BlueText>
-        </BlueCard>
+
         {!state.isViewAllWalletsSwitchEnabled && (
           <ListItem
             title={loc.settings.default_info}

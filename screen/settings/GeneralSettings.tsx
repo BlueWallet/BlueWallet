@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -50,14 +50,10 @@ const GeneralSettings: React.FC = () => {
             title={loc.settings.general_continuity}
             Component={PressableWrapper}
             switch={{ onValueChange: onHandOffUseEnabledChange, value: isHandOffUseEnabled }}
+            subtitle={loc.settings.general_continuity_e}
           />
-          <BlueCard>
-            <BlueText>{loc.settings.general_continuity_e}</BlueText>
-          </BlueCard>
-          <BlueSpacing20 />
         </>
       ) : null}
-      <BlueSpacing20 />
       <ListItem
         Component={PressableWrapper}
         title="Legacy URv1 QR"
