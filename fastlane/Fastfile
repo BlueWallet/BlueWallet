@@ -346,7 +346,6 @@ platform :ios do
       UI.message("IPA successfully found at: #{ipa_path}")
       ENV['IPA_OUTPUT_PATH'] = File.expand_path(ipa_path)
     end
-  end
   
 
   desc "Upload to TestFlight without Processing Wait"
