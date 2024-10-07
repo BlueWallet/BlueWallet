@@ -20,7 +20,7 @@ import {
   btcToSatoshi,
   fiatToBTC,
   getCurrencySymbol,
-  isRateOutdated as checkIsRateOutdated,
+  isRateOutdated as checkIsRateOutdated, // Renamed to avoid shadowing
   mostRecentFetchedRate,
   satoshiToBTC,
   updateExchangeRate,
@@ -81,7 +81,7 @@ class AmountInput extends Component {
       showErrorMessage: false,
       shakeAnimation: new Animated.Value(0),
       opacityAnimation: new Animated.Value(1),
-      hasInteracted: false,
+      hasInteracted: false, // New state to track first interaction
     };
   }
 
@@ -99,12 +99,18 @@ class AmountInput extends Component {
     const { showErrorMessage, isRateOutdated: currentIsRateOutdated } = this.state;
 
     // Start shake animation if either showErrorMessage or isRateOutdated becomes true
-    if ((showErrorMessage && !prevState.showErrorMessage) || (currentIsRateOutdated && !prevState.isRateOutdated)) {
+    if (
+      (showErrorMessage && !prevState.showErrorMessage) ||
+      (currentIsRateOutdated && !prevState.isRateOutdated)
+    ) {
       this.startShakeAnimation();
     }
 
     // Stop shake animation if both showErrorMessage and isRateOutdated become false
-    if (!showErrorMessage && prevState.showErrorMessage && !currentIsRateOutdated && prevState.isRateOutdated) {
+    if (
+      (!showErrorMessage && prevState.showErrorMessage) &&
+      (!currentIsRateOutdated && prevState.isRateOutdated)
+    ) {
       this.stopShakeAnimation();
     }
   }
@@ -360,6 +366,7 @@ class AmountInput extends Component {
       opacity: opacityAnimation,
     };
 
+    // Calculate secondaryDisplayCurrency before using it
     let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     switch (unit) {
@@ -370,15 +377,16 @@ class AmountInput extends Component {
       }
       case BitcoinUnit.SATS:
         secondaryDisplayCurrency = formatBalanceWithoutSuffix(
-          (Number.isNaN(Number(amount)) ? 0 : amount).toString(),
+          Number.isNaN(Number(amount)) ? '0' : amount.toString(),
           BitcoinUnit.LOCAL_CURRENCY,
           false,
         );
         break;
       case BitcoinUnit.LOCAL_CURRENCY: {
-        secondaryDisplayCurrency = fiatToBTC(parseFloat(Number.isNaN(Number(amount)) ? 0 : amount));
-        if (AmountInput.conversionCache[Number.isNaN(Number(amount)) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          const cachedSats = AmountInput.conversionCache[Number.isNaN(Number(amount)) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
+        const parsedAmount = Number.isNaN(Number(amount)) ? 0 : parseFloat(amount);
+        secondaryDisplayCurrency = fiatToBTC(parsedAmount);
+        if (AmountInput.conversionCache[`${parsedAmount}${BitcoinUnit.LOCAL_CURRENCY}`]) {
+          const cachedSats = AmountInput.conversionCache[`${parsedAmount}${BitcoinUnit.LOCAL_CURRENCY}`];
           secondaryDisplayCurrency = satoshiToBTC(cachedSats);
         }
         break;
@@ -408,8 +416,6 @@ class AmountInput extends Component {
 
     return (
       <View
-        accessibilityRole="button"
-        accessibilityLabel={loc._.enter_amount}
         style={styles.touchableContainer}
         onStartShouldSetResponder={() => true}
         onResponderRelease={this.handleTextInputOnPress}
@@ -488,7 +494,7 @@ class AmountInput extends Component {
                 accessibilityRole="button"
                 accessibilityLabel={loc._.refresh}
                 onPress={this.updateRate}
-                style={styles.enabledButon}
+                style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
               >
                 <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
               </TouchableOpacity>
@@ -539,6 +545,9 @@ const styles = StyleSheet.create({
   },
   enabledButon: {
     opacity: 1,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   outdatedRateContainer: {
     flexDirection: 'row',
