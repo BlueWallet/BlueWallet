@@ -144,7 +144,7 @@ jobs:
           echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
 
       - name: List ios directory contents before build
-        run: ls -la ios/
+        run: ls -la ./
         working-directory: ios
 
       - name: Build App
