@@ -9,7 +9,7 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    Dir.chdir(project_root) do
+
       keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
       UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
@@ -307,7 +307,6 @@ platform :ios do
   end
 
   lane :build_app_lane do
-  Dir.chdir(project_root) do
     UI.message("Building the application from: #{Dir.pwd}")
 
     # Diagnostic: List ios directory contents before build
@@ -348,7 +347,6 @@ platform :ios do
       ENV['IPA_OUTPUT_PATH'] = File.expand_path(ipa_path)
     end
   end
-end
   
 
   desc "Upload to TestFlight without Processing Wait"
