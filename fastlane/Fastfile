@@ -307,7 +307,6 @@ platform :ios do
   end
 
   lane :build_app_lane do
-    Dir.chdir(project_root) do
       UI.message("Building the application from: #{Dir.pwd}")
   
       # Diagnostic: List ios directory contents
@@ -341,7 +340,6 @@ platform :ios do
       end
   
       UI.message("IPA successfully created at: #{ipa_path}")
-    end
   end
   
 
