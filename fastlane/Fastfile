@@ -331,7 +331,7 @@ platform :ios do
   
       # Diagnostic: List build directory contents
       UI.message("Listing build directory contents:")
-      sh("ls -la ios/build/")
+      sh("ls -la ./ios/build/")
 
       UI.message("Listing ios directory contents:")
 
