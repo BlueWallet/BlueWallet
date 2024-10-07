@@ -338,11 +338,12 @@ platform :ios do
       UI.message("Listing build directory contents:")
       sh("ls -la ../")
       
-      # Diagnostic: List build directory contents
+      # Diagnostic: List ios directory contents
       UI.message("Listing build directory contents:")
       sh("ls -la ../ios/build/")
 
 
+      sh("ls -la ../ios/")
       # Verify IPA existence
       ipa_path = "../ios/build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
       unless File.exist?(ipa_path)
