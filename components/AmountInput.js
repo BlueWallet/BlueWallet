@@ -360,8 +360,7 @@ class AmountInput extends Component {
       opacity: opacityAnimation,
     };
 
-    // Calculate secondaryDisplayCurrency before using it
-    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    let secondaryDisplayCurrency;
 
     switch (unit) {
       case BitcoinUnit.BTC: {
@@ -413,8 +412,8 @@ class AmountInput extends Component {
         style={styles.touchableContainer}
         onStartShouldSetResponder={() => true}
         onResponderRelease={this.handleTextInputOnPress}
-        accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
+        accessibilityRole="button"
       >
         <Animated.View style={[styles.root, shakeStyle]}>
           {!disabled && <View style={[styles.center, stylesHook.center]} />}
@@ -486,12 +485,7 @@ class AmountInput extends Component {
             {this.state.isRateBeingUpdated ? (
               <ActivityIndicator />
             ) : (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc._.refresh}
-                onPress={this.updateRate}
-                style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
-              >
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.refresh} onPress={this.updateRate}>
                 <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
               </TouchableOpacity>
             )}
@@ -538,12 +532,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 16,
     backgroundColor: BlueCurrentTheme.colors.outgoingBackgroundColor,
-  },
-  enabledButon: {
-    opacity: 1,
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
   outdatedRateContainer: {
     flexDirection: 'row',
