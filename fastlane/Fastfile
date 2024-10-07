@@ -307,51 +307,48 @@ platform :ios do
   end
 
   lane :build_app_lane do
-      UI.message("Building the application from: #{Dir.pwd}")
-  
-      # Diagnostic: List ios directory contents
-      UI.message("Listing ios directory contents:")
-      sh("ls -la ./")
-  
-      build_app(
-        scheme: "BlueWallet",
-        workspace: "./ios/BlueWallet.xcworkspace",
-        export_method: "app-store",
-        include_bitcode: false,
-        configuration: "Release",
-        skip_profile_detection: true,
-        include_symbols: true,
-        export_team_id: ENV["ITC_TEAM_ID"],
-        export_options: "./ios/export_options.plist", # Path to the plist
-        xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-        output_directory: "./ios/build",
-        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-        buildlog_path: "./ios/build_logs"
-      )
-      
-            # Diagnostic: List build directory contents
-      UI.message("Listing  directory contents:")
-      sh("ls -la ./")
-  
-        
-            # Diagnostic: List .. directory contents
-      UI.message("Listing build directory contents:")
-      sh("ls -la ../")
-      
-      # Diagnostic: List ios directory contents
-      UI.message("Listing build directory contents:")
-      sh("ls -la ../ios/build/")
+  Dir.chdir(project_root) do
+    UI.message("Building the application from: #{Dir.pwd}")
 
+    # Diagnostic: List ios directory contents before build
+    UI.message("Listing ios directory contents:")
+    sh("ls -la ios/")
 
-      sh("ls -la ../ios/")
-      # Verify IPA existence
-      ipa_path = "../ios/build/BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-      unless File.exist?(ipa_path)
-        UI.user_error!("IPA file not found at path: #{ipa_path}")
-      end
-  
-      UI.message("IPA successfully created at: #{ipa_path}")
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "ios/BlueWallet.xcworkspace",
+      export_method: "app-store",
+      include_bitcode: false,
+      configuration: "Release",
+      skip_profile_detection: true,
+      include_symbols: true,
+      export_team_id: ENV["ITC_TEAM_ID"],
+      export_options: "./ios/export_options.plist", # Ensure this path is correct
+      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+      output_directory: "./ios/build", # Updated output directory
+      output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+      buildlog_path: "./ios/build_logs" # Updated build log path
+    )
+
+    # Diagnostic: List build directory contents after build
+    UI.message("Listing build directory contents:")
+    sh("ls -la ./ios/build/")
+
+    # Recursively search for the IPA within ios/build
+    ipa_glob = "./ios/build/**/*.ipa"
+    ipa_files = Dir.glob(ipa_glob)
+
+    if ipa_files.empty?
+      UI.user_error!("No IPA file found in the build directory '#{ipa_glob}'")
+    elsif ipa_files.size > 1
+      UI.user_error!("Multiple IPA files found in the build directory: #{ipa_files.join(', ')}. Please ensure only one IPA is generated.")
+    else
+      ipa_path = ipa_files.first
+      UI.message("IPA successfully found at: #{ipa_path}")
+      ENV['IPA_OUTPUT_PATH'] = File.expand_path(ipa_path)
+    end
   end
+end
   
 
   desc "Upload to TestFlight without Processing Wait"
