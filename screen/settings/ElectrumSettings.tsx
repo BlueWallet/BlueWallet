@@ -110,11 +110,24 @@ const ElectrumSettings: React.FC = () => {
 
     fetchData();
 
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useEffect(() => {
+      let configInterval: NodeJS.Timeout | null = null;
+      const fetchData = async () => {
+        // ... existing code ...
+
+        configInterval = setInterval(async () => {
+          setConfig(await BlueElectrum.getConfig());
+        }, 500);
+
+        setIsLoading(false);
+      };
+
+      fetchData();
+
+      return () => {
+        if (configInterval) clearInterval(configInterval);
+      };
+    }, []);
 
   useEffect(() => {
     if (server) {
