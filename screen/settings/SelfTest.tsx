@@ -1,98 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-import { PortalSdk, type NfcOut, type CardStatus } from 'libportal';
+import { StyleSheet, Text, View } from 'react-native';
+import { type CardStatus } from 'libportal';
 import Button from '../../components/Button.tsx';
-
-const sdk = new PortalSdk(true);
-let keepReading = true;
-
-function livenessCheck(): Promise<NfcOut> {
-  return new Promise((_resolve, reject) => {
-    const interval = setInterval(() => {
-      NfcManager.getTag()
-        .then(() => NfcManager.transceive([0x30, 0xed]))
-        .catch(() => {
-          NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
-          clearInterval(interval);
-
-          reject(new Error('Removed tag'));
-        });
-    }, 250);
-  });
-}
-
-async function manageTag() {
-  await sdk.newTag();
-  const check = livenessCheck();
-
-  while (keepReading) {
-    const msg = await Promise.race([sdk.poll(), check]);
-    // console.trace('>', msg.data);
-    const result = await NfcManager.nfcAHandler.transceive(msg.data);
-    // console.trace('<', result);
-    await sdk.incomingData(msg.msgIndex, result);
-    await new Promise(resolve => setTimeout(resolve, 250)); // chance for UI to propagate
-  }
-}
-
-async function listenForTags() {
-  while (keepReading) {
-    console.info('Looking for a Portal...');
-
-    try {
-      await NfcManager.registerTagEvent();
-      await NfcManager.requestTechnology(NfcTech.NfcA, {});
-      await manageTag();
-    } catch (ex) {
-      console.warn('Oops!', ex);
-    } finally {
-      await NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 250)); // chance for UI to propagate
-  }
-}
+import * as PortalDevice from '../../blue_modules/portal-device.ts';
 
 function SelfTest() {
   const [status, setStatus] = useState<CardStatus | null>(null);
-  const [isReading, setIsReading] = useState<boolean>(true);
+  const [, setRedraw] = useState<number>(0);
 
   async function getStatus() {
-    setStatus(await sdk.getStatus());
+    setStatus(await PortalDevice.getStatus());
   }
 
   useEffect(() => {
-    NfcManager.isSupported().then(value => {
-      if (value) {
-        console.log('NFC read starting...');
-        NfcManager.start().then(listenForTags);
-      } else {
-        throw new Error('NFC not supported');
-      }
-    });
+    PortalDevice.init()?.then(() => setRedraw(Math.random()));
   }, []);
 
   return (
     <View style={styles.wrapper}>
       <Button onPress={() => getStatus()} title="getStatus" />
 
-      {isReading ? (
+      {PortalDevice.isReading() ? (
         <Button
           title="stop reading NFC device"
-          onPress={() => {
-            keepReading = false;
-            setIsReading(false);
-            NfcManager.cancelTechnologyRequest({ delayMsAndroid: 0 });
+          onPress={async () => {
+            PortalDevice.stopReading();
+            setRedraw(Math.random());
           }}
         />
       ) : (
         <Button
           title="start reading NFC device"
-          onPress={() => {
-            setIsReading(true);
-            keepReading = true;
-            listenForTags();
+          onPress={async () => {
+            PortalDevice.startReading();
+            setRedraw(Math.random());
           }}
         />
       )}
@@ -100,14 +41,14 @@ function SelfTest() {
       <Button
         title="unlock portal"
         onPress={() => {
-          sdk.unlock('1');
+          PortalDevice.unlock('1');
         }}
       />
 
       <Button
         title="publicDescriptors"
         onPress={() => {
-          sdk.publicDescriptors().then(d => {
+          PortalDevice.publicDescriptors().then(d => {
             alert(JSON.stringify(d.external, null, 2));
           });
         }}
