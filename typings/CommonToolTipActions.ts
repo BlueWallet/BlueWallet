@@ -19,6 +19,8 @@ const keys = {
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
   PaymentsCode: 'paymentsCode',
+  ResetToDefault: 'resetToDefault',
+  ClearHistory: 'clearHistory',
 };
 
 const icons = {
@@ -66,6 +68,9 @@ const icons = {
   },
   PaymentsCode: {
     iconValue: 'qrcode',
+  },
+  ClearHistory: {
+    iconValue: 'trash',
   },
 };
 
@@ -163,5 +168,14 @@ export const CommonToolTipActions = {
     text: loc.bip47.purpose,
     icon: icons.PaymentsCode,
     menuState: false,
+  },
+  ResetToDefault: {
+    id: keys.ResetToDefault,
+    text: loc.settings.electrum_reset,
+  },
+  ClearHistory: {
+    id: keys.ClearHistory,
+    text: loc.settings.electrum_clear,
+    icon: icons.ClearHistory,
   },
 };

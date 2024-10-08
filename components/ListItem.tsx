@@ -98,6 +98,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
         color: colors.alternativeTextColor,
         fontWeight: '400',
+        paddingVertical: 2,
         fontSize: 14,
       },
 
@@ -130,7 +131,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           </RNElementsListItem.Title>
           {subtitle && (
             <RNElementsListItem.Subtitle
-              numberOfLines={subtitleNumberOfLines ?? 1}
+              numberOfLines={subtitleNumberOfLines ?? 2}
               accessible={switchProps === undefined}
               style={stylesHook.subtitle}
             >
