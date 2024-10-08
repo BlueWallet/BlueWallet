@@ -49,7 +49,6 @@ const ElectrumSettings: React.FC = () => {
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled } = useStorage();
@@ -83,6 +82,7 @@ const ElectrumSettings: React.FC = () => {
   });
 
   useEffect(() => {
+    let configInterval: NodeJS.Timeout | null = null;
     const fetchData = async () => {
       const savedHost = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_HOST);
       const savedPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
@@ -99,35 +99,19 @@ const ElectrumSettings: React.FC = () => {
       setIsOfflineMode(offlineMode);
 
       setConfig(await BlueElectrum.getConfig());
-
-      const configInterval = setInterval(async () => {
+      configInterval = setInterval(async () => {
         setConfig(await BlueElectrum.getConfig());
       }, 500);
 
-      setIntervalId(configInterval);
       setIsLoading(false);
     };
 
     fetchData();
 
-    useEffect(() => {
-      let configInterval: NodeJS.Timeout | null = null;
-      const fetchData = async () => {
-        // ... existing code ...
-
-        configInterval = setInterval(async () => {
-          setConfig(await BlueElectrum.getConfig());
-        }, 500);
-
-        setIsLoading(false);
-      };
-
-      fetchData();
-
-      return () => {
-        if (configInterval) clearInterval(configInterval);
-      };
-    }, []);
+    return () => {
+      if (configInterval) clearInterval(configInterval);
+    };
+  }, []);
 
   useEffect(() => {
     if (server) {
