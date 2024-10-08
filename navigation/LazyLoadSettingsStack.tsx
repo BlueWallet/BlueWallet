@@ -3,6 +3,7 @@ import React, { lazy, Suspense } from 'react';
 import Currency from '../screen/settings/Currency';
 import Language from '../screen/settings/Language';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator'; // Assume you have this component for loading indication
+import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
 
 const Settings = lazy(() => import('../screen/settings/Settings'));
 const GeneralSettings = lazy(() => import('../screen/settings/GeneralSettings'));
@@ -43,6 +44,12 @@ export const LicensingComponent = () => (
 export const NetworkSettingsComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <NetworkSettings />
+  </Suspense>
+);
+
+export const BlockExplorerSettingsComponent = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <SettingsBlockExplorer />
   </Suspense>
 );
 

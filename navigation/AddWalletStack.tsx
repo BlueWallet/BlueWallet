@@ -21,9 +21,16 @@ import {
 export type AddWalletStackParamList = {
   AddWallet: undefined;
   ImportWallet: undefined;
-  ImportWalletDiscovery: undefined;
+  ImportWalletDiscovery: {
+    importText: string;
+    askPassphrase: boolean;
+    searchAccounts: boolean;
+  };
   ImportSpeed: undefined;
-  ImportCustomDerivationPath: undefined;
+  ImportCustomDerivationPath: {
+    importText: string;
+    password: string | undefined;
+  };
   PleaseBackup: undefined;
   PleaseBackupLNDHub: undefined;
   ProvideEntropy: undefined;
