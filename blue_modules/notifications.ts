@@ -224,7 +224,7 @@ export const tryToObtainPermissions = async (anchor?: React.RefObject<any>, onPr
  * @returns {Promise<any>} Response object from API call
  */
 export const majorTomToGroundControl = async (addresses: string[], hashes: string[], txids: string[]): Promise<any> => {
-  if (!addresses.length || !hashes.length || !txids.length) {
+  if (!addresses.length && !hashes.length && !txids.length) {
     throw new Error('No addresses, hashes, or txids provided');
   }
 
