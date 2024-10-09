@@ -325,8 +325,13 @@ export const getDefaultUri = (): string => {
  * @returns {Promise<void>}
  */
 export const saveUri = async (uri: string): Promise<void> => {
-  baseURI = uri || groundControlUri; // Use the provided URI or default
-  await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI_KEY, uri);
+  if (uri && uri.trim()) {
+    baseURI = uri;
+    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI_KEY, uri);
+  } else {
+    baseURI = groundControlUri;
+    await AsyncStorage.removeItem(GROUNDCONTROL_BASE_URI_KEY);
+  }
 };
 
 /**
