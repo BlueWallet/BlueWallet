@@ -1,5 +1,5 @@
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-import { PortalSdk, type NfcOut, type CardStatus } from 'libportal';
+import { PortalSdk, type NfcOut, type CardStatus } from 'libportal-react-native';
 
 const sdk = new PortalSdk(true);
 let keepReading = false;

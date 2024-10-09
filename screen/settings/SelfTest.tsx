@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { type CardStatus } from 'libportal';
+import { type CardStatus } from 'libportal-react-native';
 import Button from '../../components/Button.tsx';
 import * as PortalDevice from '../../blue_modules/portal-device.ts';
 
