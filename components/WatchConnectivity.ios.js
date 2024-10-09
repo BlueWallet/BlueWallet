@@ -7,13 +7,13 @@ import {
   useReachability,
   watchEvents,
 } from 'react-native-watch-connectivity';
-import Notifications from '../blue_modules/notifications';
 import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { isNotificationsEnabled, majorTomToGroundControl } from '../blue_modules/notifications';
 
 function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
@@ -117,9 +117,9 @@ function WatchConnectivity() {
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         try {
           // Let's verify if notifications are already configured. Otherwise the watch app will freeze waiting for user approval in iOS app
-          if (await Notifications.isNotificationsEnabled()) {
+          if (await isNotificationsEnabled()) {
             const decoded = await wallet.decodeInvoice(invoiceRequest);
-            Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+            majorTomToGroundControl([], [decoded.payment_hash], []);
           }
         } catch (e) {
           console.log('WatchConnectivity - Running in Simulator');
