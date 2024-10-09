@@ -606,8 +606,10 @@ export const initializeNotifications = async (onProcessNotifications: () => void
   // Fetching to see if app uses a custom GroundControl server, not the default one
   try {
     const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI_KEY);
-    if (baseUriStored) {
+    if (baseUriStored && baseUriStored.trim()) {
       baseURI = baseUriStored;
+    } else {
+      baseURI = groundControlUri;
     }
   } catch (error) {
     console.error('Error retrieving GroundControl URI:', error);
