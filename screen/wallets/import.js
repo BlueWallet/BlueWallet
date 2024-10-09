@@ -103,6 +103,7 @@ const WalletsImport = () => {
         params: {
           launchedBy: route.name,
           showFileImportButton: true,
+          showNfcButton: true,
         },
       }),
     );

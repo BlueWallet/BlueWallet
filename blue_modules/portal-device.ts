@@ -85,8 +85,10 @@ export const stopReading = () => {
 };
 
 export const getStatus = async (): Promise<CardStatus> => {
+  if (!keepReading) throw new Error('getStatus(): not reading');
+
   return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error('Timeout')), 10_000);
+    const timeout = setTimeout(() => reject(new Error('Timeout')), 2_000);
 
     sdk.getStatus().then((result: CardStatus) => {
       clearTimeout(timeout);
