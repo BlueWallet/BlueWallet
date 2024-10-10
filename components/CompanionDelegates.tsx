@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import { CommonActions } from '@react-navigation/native';
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
@@ -8,7 +6,15 @@ import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import Notifications from '../blue_modules/notifications';
+import {
+  addNotification,
+  getStoredNotifications,
+  clearStoredNotifications,
+  setApplicationIconBadgeNumber,
+  getDeliveredNotifications,
+  removeAllDeliveredNotifications,
+  initializeNotifications,
+} from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
@@ -16,6 +22,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import { Notification } from 'react-native-notifications';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -23,7 +30,6 @@ const HandOffComponentListener = lazy(() => import('../components/HandOffCompone
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
-// @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 
 const ClipboardContentType = Object.freeze({
@@ -36,32 +42,33 @@ const CompanionDelegates = () => {
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
+  /**
+   * Processes push notifications by fetching, handling, and navigating based on payload.
+   */
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    // @ts-ignore: Notifications type is not defined
-    const notifications2process = await Notifications.getStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    await Notifications.clearStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    Notifications.setApplicationIconBadgeNumber(0);
-    // @ts-ignore: Notifications type is not defined
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000);
+
+    const notifications2process: Notification[] = (await getStoredNotifications()) as Notification[];
+    await clearStoredNotifications();
+    setApplicationIconBadgeNumber(0);
+
+    const deliveredNotifications: Notification[] = (await getDeliveredNotifications()) as Notification[];
+    setTimeout(() => removeAllDeliveredNotifications(), 5000);
 
     for (const payload of notifications2process) {
+      // @ts-ignore: fix later
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
       console.log('processing push notification:', payload);
       let wallet;
-      switch (+payload.type) {
+      switch (+payload.payload.type) {
         case 2:
         case 3:
-          wallet = wallets.find(w => w.weOwnAddress(payload.address));
+          wallet = wallets.find(w => w.weOwnAddress(payload.payload.address));
           break;
         case 1:
         case 4:
-          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+          wallet = wallets.find(w => w.weOwnTransaction(payload.payload.txid || payload.payload.hash));
           break;
       }
 
@@ -69,7 +76,7 @@ const CompanionDelegates = () => {
         const walletID = wallet.getID();
         fetchAndSaveWalletTransactions(walletID);
         if (wasTapped) {
-          if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+          if (payload.payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
             navigationRef.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
@@ -84,7 +91,7 @@ const CompanionDelegates = () => {
               screen: 'ReceiveDetails',
               params: {
                 walletID,
-                address: payload.address,
+                address: payload.payload.address,
               },
             });
           }
@@ -103,6 +110,9 @@ const CompanionDelegates = () => {
     return false;
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
+  /**
+   * Handles deep links by navigating to appropriate routes.
+   */
   const handleOpenURL = useCallback(
     (event: { url: string }) => {
       DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
@@ -115,6 +125,9 @@ const CompanionDelegates = () => {
     [addWallet, saveToDisk, setSharedCosigner, wallets],
   );
 
+  /**
+   * Shows an alert for clipboard content if it's a Bitcoin address or Lightning invoice.
+   */
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
@@ -143,6 +156,9 @@ const CompanionDelegates = () => {
     [handleOpenURL],
   );
 
+  /**
+   * Handles app state changes to process notifications and clipboard content.
+   */
   const handleAppStateChange = useCallback(
     async (nextAppState: AppStateStatus | undefined) => {
       if (wallets.length === 0) return;
@@ -187,21 +203,29 @@ const CompanionDelegates = () => {
     [processPushNotifications, showClipboardAlert, wallets],
   );
 
+  /**
+   * Handles incoming notifications by saving them and processing if in foreground.
+   */
   const onNotificationReceived = useCallback(
-    async (notification: { data: { data: any } }) => {
-      const payload = Object.assign({}, notification, notification.data);
-      if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-      // @ts-ignore: Notifications type is not defined
-      payload.foreground = true;
+    async (notification: Notification) => {
+      const payload = { ...notification.payload };
+      // @ts-ignore: fix later
+      payload.foreground = notification.foreground;
+      // @ts-ignore: fix later
+      payload.userInteraction = notification.userInteraction;
 
-      // @ts-ignore: Notifications type is not defined
-      await Notifications.addNotification(payload);
-      // @ts-ignore: Notifications type is not defined
-      if (payload.foreground) await processPushNotifications();
+      await addNotification(payload);
+      // @ts-ignore: fix later
+      if (notification.foreground) {
+        await processPushNotifications();
+      }
     },
     [processPushNotifications],
   );
 
+  /**
+   * Adds event listeners for deep links, app state changes, and notifications.
+   */
   const addListeners = useCallback(() => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
@@ -215,6 +239,10 @@ const CompanionDelegates = () => {
   }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
 
   useEffect(() => {
+    initializeNotifications(processPushNotifications).catch(error => {
+      console.error('Failed to initialize notifications:', error);
+    });
+
     const subscriptions = addListeners();
 
     return () => {
@@ -222,19 +250,16 @@ const CompanionDelegates = () => {
       subscriptions.appStateSubscription?.remove();
       subscriptions.notificationSubscription?.remove();
     };
-  }, [addListeners]);
+  }, [addListeners, processPushNotifications]);
 
   return (
-    <>
-      <Notifications onProcessNotifications={processPushNotifications} />
-      <Suspense fallback={null}>
-        <MenuElements />
-        <DeviceQuickActions />
-        <HandOffComponentListener />
-        <WidgetCommunication />
-        <WatchConnectivity />
-      </Suspense>
-    </>
+    <Suspense fallback={null}>
+      <MenuElements />
+      <DeviceQuickActions />
+      <HandOffComponentListener />
+      <WidgetCommunication />
+      <WatchConnectivity />
+    </Suspense>
   );
 };
 

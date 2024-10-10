@@ -5,7 +5,6 @@ import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } fro
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import {
   BlueBigCheckmark,
   BlueButtonLink,
@@ -24,6 +23,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -76,8 +76,7 @@ const Broadcast: React.FC = () => {
 
           setBroadcastResult(BROADCAST_RESULT.success);
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: fix later
-          Notifications.majorTomToGroundControl([], [], [txid]);
+          majorTomToGroundControl([], [], [txid]);
         } else {
           setBroadcastResult(BROADCAST_RESULT.error);
         }

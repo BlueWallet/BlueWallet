@@ -17,7 +17,6 @@ import { Icon } from '@rneui/themed';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
@@ -31,6 +30,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
@@ -192,8 +192,8 @@ const LNDCreateInvoice = () => {
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
       /** @type LightningCustodianWallet */
       const decoded = await wallet.current.decodeInvoice(invoiceRequest);
-      await Notifications.tryToObtainPermissions(createInvoiceRef);
-      Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+      await tryToObtainPermissions(createInvoiceRef);
+      majorTomToGroundControl([], [decoded.payment_hash], []);
 
       // send to lnurl-withdraw callback url if that exists
       if (lnurlParams) {

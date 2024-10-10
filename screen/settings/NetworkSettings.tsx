@@ -25,7 +25,7 @@ const NetworkSettings: React.FC = () => {
       <ListItem title={loc.settings.block_explorer} onPress={navigateToBlockExplorerSettings} testID="BlockExplorerSettings" chevron />
       <ListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
       <ListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
-      {isNotificationsCapable && (
+      {isNotificationsCapable() && (
         <ListItem
           title={loc.settings.notifications}
           onPress={() => navigation.navigate('NotificationSettings')}

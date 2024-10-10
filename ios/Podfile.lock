@@ -1319,6 +1319,8 @@ PODS:
     - React-Core
   - react-native-menu (1.1.2):
     - React
+  - react-native-notifications (5.1.0):
+    - React-Core
   - react-native-qrcode-local-image (1.0.4):
     - React
   - react-native-randombytes (3.6.1):
@@ -1849,6 +1851,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
+  - react-native-notifications (from `../node_modules/react-native-notifications`)
   - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2006,6 +2009,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ios-context-menu"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
+  react-native-notifications:
+    :path: "../node_modules/react-native-notifications"
   react-native-qrcode-local-image:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   react-native-randombytes:
@@ -2168,6 +2173,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 2fbbafdae7a7c6db9d25df2f2b1db4442d2ca2ad
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-menu: d32728a357dfb360cf01cd5979cf7713c5acbb95
+  react-native-notifications: 4601a5a8db4ced6ae7cfc43b44d35fe437ac50c4
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 851c62c48dce80ccaa5637b6aa5991a1bc36eca9
