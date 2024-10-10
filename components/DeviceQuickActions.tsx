@@ -132,7 +132,7 @@ function DeviceQuickActions() {
           console.warn('No navigation parameters returned for the given deeplink.');
         }
       })
-      .catch((error: any) => {
+      .catch((error: unknown) => {
         console.error('Failed to handle deep link:', error);
       });
   };
