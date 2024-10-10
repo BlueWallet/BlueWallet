@@ -9,7 +9,7 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    Dir.chdir(project_root) do
+
       keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
       UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
@@ -149,7 +149,6 @@ platform :android do
       end
     end
   end
-end
 
 
 platform :ios do
@@ -306,36 +305,87 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Build the application"
+  
   lane :build_app_lane do
-    UI.message("Building the application...")
-    build_app(
-      scheme: "BlueWallet",
-      workspace: "ios/BlueWallet.xcworkspace",
-      export_method: "app-store",
-      include_bitcode: false,
-      configuration: "Release",
-      skip_profile_detection: true,
-      include_symbols: true,
-      export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
-        }
-      },
-      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build", # Directory where the IPA file will be stored
+    Dir.chdir(project_root) do
+      UI.message("Building the application from: #{Dir.pwd}")
 
-      output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-      buildlog_path: "./build_logs"
-    )
+      # Diagnostic: List ios directory contents before build
+      UI.message("Listing ios directory contents:")
+      sh("ls -la ios/")
+
+      # Ensure build directories exist
+      sh("mkdir -p ios/build_logs/")
+      sh("mkdir -p ios/build/")
+
+      # Verify the workspace exists at the expected absolute path
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      unless File.exist?(workspace_path)
+        UI.user_error!("Workspace does not exist at #{workspace_path}")
+      end
+      UI.message("Workspace exists at #{workspace_path}")
+
+      # Verify export_options.plist exists
+      export_options_path = File.join(project_root, "ios", "export_options.plist")
+      unless File.exist?(export_options_path)
+        UI.user_error!("Export options plist does not exist at #{export_options_path}")
+      end
+      UI.message("Export options plist exists at #{export_options_path}")
+
+      # Call build_app and capture the result
+      begin
+        result = build_app(
+          scheme: "BlueWallet",
+          workspace: workspace_path,
+          export_method: "app-store",
+          include_bitcode: false,
+          configuration: "Release",
+          skip_profile_detection: false, # Changed to false
+          include_symbols: true,
+          export_team_id: ENV["ITC_TEAM_ID"],
+          export_options: export_options_path,
+          xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+          output_directory: File.join(project_root, "ios", "build"),
+          output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          silent: false, # Ensure verbose output
+          clean: true    # Clean the build before building
+        )
+      rescue => e
+        UI.user_error!("build_app failed: #{e.message}")
+      end
+
+      # Check if 'result' contains the IPA path
+      if result && result[:ipa] && File.exist?(result[:ipa])
+        ipa_path = result[:ipa]
+        UI.message("IPA successfully found at: #{ipa_path}")
+        ENV['IPA_OUTPUT_PATH'] = ipa_path
+      else
+        # Attempt to find the IPA manually
+        expected_ipa_path = File.join(project_root, "ios", "build", "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa")
+        if File.exist?(expected_ipa_path)
+          ipa_path = expected_ipa_path
+          UI.message("IPA found at expected path: #{ipa_path}")
+          ENV['IPA_OUTPUT_PATH'] = ipa_path
+        else
+          # Attempt to find the IPA in the build directory
+          ipa_path = Dir.glob(File.join(project_root, "ios", "build", "*.ipa")).first
+          if ipa_path
+            UI.message("IPA found at: #{ipa_path}")
+            ENV['IPA_OUTPUT_PATH'] = ipa_path
+          else
+            UI.user_error!("IPA not found after build_app. Expected at: #{expected_ipa_path}")
+          end
+        end
+      end
+
+      # Diagnostic: List build directory contents after build
+      UI.message("Listing build directory contents:")
+      sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
+    end
   end
-
+  
+  
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
     attempts = 0
