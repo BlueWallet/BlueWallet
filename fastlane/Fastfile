@@ -304,6 +304,8 @@ platform :ios do
     UI.message("Installing CocoaPods dependencies...")
     cocoapods(podfile: "ios/Podfile")
   end
+
+  
   lane :build_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building the application from: #{Dir.pwd}")
@@ -314,36 +316,63 @@ platform :ios do
   
       # Verify the workspace exists at the expected absolute path
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-      if File.exist?(workspace_path)
-        UI.message("Workspace exists at #{workspace_path}")
-      else
+      unless File.exist?(workspace_path)
         UI.user_error!("Workspace does not exist at #{workspace_path}")
       end
+      UI.message("Workspace exists at #{workspace_path}")
   
-      build_app(
+      # Verify export_options.plist exists
+      export_options_path = File.join(project_root, "ios", "export_options.plist")
+      unless File.exist?(export_options_path)
+        UI.user_error!("Export options plist does not exist at #{export_options_path}")
+      end
+      UI.message("Export options plist exists at #{export_options_path}")
+  
+      # Call gym and capture the result
+      result = build_app(
         scheme: "BlueWallet",
-        workspace: workspace_path, # Use absolute path here
+        workspace: workspace_path,
         export_method: "app-store",
         include_bitcode: false,
         configuration: "Release",
         skip_profile_detection: true,
         include_symbols: true,
         export_team_id: ENV["ITC_TEAM_ID"],
-        export_options: File.join(project_root, "ios", "export_options.plist"), # Ensure correct path
+        export_options: export_options_path,
         xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
         output_directory: File.join(project_root, "ios", "build"),
         output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-        buildlog_path: File.join(project_root, "ios", "build_logs")
+        buildlog_path: File.join(project_root, "ios", "build_logs"),
+        silent: false, # Ensure verbose output
+        clean: true    # Clean the build before building
       )
+  
+      # Check if 'result' contains the IPA path
+      ipa_path = result[:ipa]
+      if ipa_path && File.exist?(ipa_path)
+        UI.message("IPA successfully found at: #{ipa_path}")
+        ENV['IPA_OUTPUT_PATH'] = ipa_path
+      else
+        # Attempt to find the IPA manually
+        expected_ipa_path = File.join(project_root, "ios", "build", "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa")
+        if File.exist?(expected_ipa_path)
+          UI.message("IPA found at expected path: #{expected_ipa_path}")
+          ENV['IPA_OUTPUT_PATH'] = expected_ipa_path
+        else
+          # Attempt to find the IPA in the build directory
+          ipa_path = Dir.glob(File.join(project_root, "ios", "build", "*.ipa")).first
+          if ipa_path
+            UI.message("IPA found at: #{ipa_path}")
+            ENV['IPA_OUTPUT_PATH'] = ipa_path
+          else
+            UI.user_error!("IPA not found after build_app. Expected at: #{expected_ipa_path}")
+          end
+        end
+      end
   
       # Diagnostic: List build directory contents after build
       UI.message("Listing build directory contents:")
       sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
-  
-      # Use helper method to find the IPA
-      ipa_path = find_ipa(File.join(project_root, "ios", "build"))
-      UI.message("IPA successfully found at: #{ipa_path}")
-      ENV['IPA_OUTPUT_PATH'] = File.expand_path(ipa_path)
     end
   end
   
