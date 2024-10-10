@@ -105,12 +105,24 @@ const CompanionDelegates = () => {
 
   const handleOpenURL = useCallback(
     (event: { url: string }) => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
+      DeeplinkSchemaMatch.navigationRouteFor(event, {
         wallets,
         addWallet,
         saveToDisk,
         setSharedCosigner,
-      });
+      })
+        // @ts-ignore: DeeplinkSchemaMatch type is not defined
+        .then((navigationParams: [string, any] | undefined) => {
+          if (navigationParams) {
+            const [route, params] = navigationParams;
+            navigationRef.navigate(route, params);
+          } else {
+            console.warn('No navigation parameters returned for the given deeplink.');
+          }
+        })
+        .catch((error: any) => {
+          console.error('Failed to navigate deeplink:', error);
+        });
     },
     [addWallet, saveToDisk, setSharedCosigner, wallets],
   );
