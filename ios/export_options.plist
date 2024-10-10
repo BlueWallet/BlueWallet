@@ -8,6 +8,14 @@
     <string>manual</string>
     <key>teamID</key>
     <string>A7W54YZ4WU</string>
+     <key>uploadSymbols</key>
+    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>thinning</key>
+    <string>none</string>
+    <key>destination</key>
+    <string>export</string>
     <key>provisioningProfiles</key>
     <dict>
       <key>io.bluewallet.bluewallet</key>
