@@ -6,6 +6,8 @@
     <string>app-store</string>
     <key>signingStyle</key>
     <string>manual</string>
+    <key>teamID</key>
+    <string>A7W54YZ4WU</string>
     <key>provisioningProfiles</key>
     <dict>
       <key>io.bluewallet.bluewallet</key>

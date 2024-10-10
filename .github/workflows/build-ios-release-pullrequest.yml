@@ -60,7 +60,7 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
-
+      
       - name: Display release-notes.txt
         run: cat release-notes.txt
 
@@ -102,7 +102,7 @@ jobs:
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
-
+      
       - name: Check Cache Status for Provisioning Profiles
         run: |
           if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
@@ -150,11 +150,15 @@ jobs:
       - name: Build App
         run: bundle exec fastlane ios build_app_lane --verbose
 
-      - name: List build directory contents after build
-        run: ls -la ./build/
-        working-directory: ios
+      - name: Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_logs
+          path: ./ios/build_logs/
 
       - name: Upload IPA as Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
