@@ -305,6 +305,8 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
+  platform :ios do
+
   lane :build_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building the application from: #{Dir.pwd}")
@@ -316,6 +318,13 @@ platform :ios do
       # Ensure build directories exist
       sh("mkdir -p ios/build_logs/")
       sh("mkdir -p ios/build/")
+
+      # Define archive path without spaces
+      timestamp = Time.now.strftime("%Y%m%d%H%M%S")
+      archive_filename = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}_#{timestamp}.xcarchive"
+      archive_path = File.join(project_root, "ios", "build", archive_filename)
+
+      UI.message("Archive will be stored at: #{archive_path}")
 
       # Verify the workspace exists at the expected absolute path
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
@@ -347,6 +356,7 @@ platform :ios do
           output_directory: File.join(project_root, "ios", "build"),
           output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
           buildlog_path: File.join(project_root, "ios", "build_logs"),
+          archive_path: archive_path, # Explicitly define archive path
           silent: false, # Ensure verbose output
           clean: true    # Clean the build before building
         )
@@ -383,7 +393,8 @@ platform :ios do
       sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
     end
   end
-  
+
+end
   
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
