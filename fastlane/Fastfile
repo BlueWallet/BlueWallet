@@ -310,7 +310,7 @@ platform :ios do
     UI.message("Building the application from: #{Dir.pwd}")
 
     workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-    export_options_path = File.join(project_root, "ios", "exportOptions.plist")
+    export_options_path = File.join(project_root, "ios", "export_options.plist")
 
     begin
       result = build_ios_app(
