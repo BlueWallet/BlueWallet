@@ -150,6 +150,7 @@ const EncryptStorage = () => {
           <ListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
             Component={TouchableWithoutFeedback}
+            testID="UseBiometricSwitch"
             switch={{
               value: biometricEnabled,
               onValueChange: onUseBiometricSwitch,

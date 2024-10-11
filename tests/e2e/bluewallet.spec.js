@@ -721,3 +721,72 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });
+
+it('can enable biometrics, authenticate on app launch, and disable biometrics', async () => {
+  const lockFile = '/tmp/travislock.' + hashIt('t8');
+  if (process.env.TRAVIS) {
+    if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+  }
+
+  await device.launchApp({ delete: true });
+  await waitFor(element(by.id('WalletsList')))
+    .toBeVisible()
+    .withTimeout(300 * 1000);
+  await yo('WalletsList');
+
+  await helperCreateWallet();
+  await expect(element(by.id('cr34t3d'))).toBeVisible();
+
+  // Step 3: Enable biometrics
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('SecurityButton')).tap();
+  await expect(element(by.id('UseBiometricSwitch'))).toBeVisible();
+  await element(by.id('UseBiometricSwitch')).tap();
+
+  try {
+    await element(by.text('OK')).tap();
+  } catch (_) {
+    // If no prompt appears, continue
+  }
+
+  if (process.env.TRAVIS) require('fs').writeFileSync(lockFile, '1');
+
+  await device.launchApp({ newInstance: false, newSession: false });
+  await device.terminateApp();
+
+  // Step 5: Reopen the app, which should prompt for biometrics
+  await device.launchApp();
+
+  if (device.getPlatform() === 'ios') {
+    await device.enableBiometric();
+  } else {
+    await device.mockBiometric();
+  }
+
+  await waitFor(element(by.id('WalletsList')))
+    .toBeVisible()
+    .withTimeout(300 * 1000);
+
+  await expect(element(by.id('cr34t3d'))).toBeVisible();
+
+  // Step 8: Disable biometrics
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('SecurityButton')).tap();
+  await expect(element(by.id('UseBiometricSwitch'))).toBeVisible();
+  await element(by.id('UseBiometricSwitch')).tap();
+
+  // Handle any confirmation prompts
+  try {
+    await element(by.text('OK')).tap();
+  } catch (_) {
+    // If no prompt appears, continue
+  }
+
+  // Cleanup: Delete the created wallet
+  await device.pressBack();
+  await device.pressBack();
+  await helperDeleteWallet('cr34t3d');
+
+  // Finalize the lock file
+  if (process.env.TRAVIS) require('fs').writeFileSync(lockFile, '1');
+});
