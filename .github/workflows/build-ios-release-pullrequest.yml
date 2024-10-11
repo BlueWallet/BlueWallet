@@ -197,7 +197,7 @@ jobs:
 
       - name: Upload to TestFlight
         run: |
-          bundle exec fastlane upload_to_testflight_lane ipa:${{ env.IPA_OUTPUT_PATH }}
+          bundle exec fastlane ios upload_to_testflight_lane ipa:${{ env.IPA_OUTPUT_PATH }}
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}

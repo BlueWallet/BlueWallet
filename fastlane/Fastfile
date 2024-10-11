@@ -354,7 +354,7 @@ end
 # ===========================
 
 desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
+lane :upload_to_testflight_lane do |options|
   attempts = 0
   max_attempts = 3
   begin
@@ -386,7 +386,6 @@ lane :upload_to_testflight_lane do
       raise exception
     end
   end
-end
 
 desc "Deploy to TestFlight"
 lane :deploy do |options|
@@ -530,4 +529,5 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+end
 end
