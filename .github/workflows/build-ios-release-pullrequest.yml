@@ -1,4 +1,4 @@
-lname: Build Release and Upload to TestFlight (iOS)
+name: Build Release and Upload to TestFlight (iOS)
 
 on:
   push:
