@@ -205,3 +205,21 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Post PR Comment
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
