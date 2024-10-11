@@ -155,7 +155,7 @@ jobs:
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
           path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
-
+ 
   testflight-upload:
     needs: build
     runs-on: macos-latest
@@ -165,29 +165,9 @@ jobs:
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      IPA_OUTPUT_PATH: ${{ needs.build.outputs.ipa_output_path }}
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
-
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-
-      - name: Cache Ruby Gems
-        uses: actions/cache@v4
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-
-      - name: Install Dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
 
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
@@ -195,9 +175,14 @@ jobs:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
           path: ./ # Download the IPA file to the current working directory
 
-      - name: Upload to TestFlight
+      - name: Set IPA Path for Upload
         run: |
-          bundle exec fastlane ios upload_to_testflight_lane ipa:${{ env.IPA_OUTPUT_PATH }}
+          IPA_PATH=$(find ./ -name "*.ipa" | head -n 1)
+          echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
+          echo "IPA path set to: $IPA_PATH"
+
+      - name: Upload to TestFlight
+        run: bundle exec fastlane upload_to_testflight_lane
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -206,7 +191,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           IPA_OUTPUT_PATH: ${{ env.IPA_OUTPUT_PATH }}
-          
+
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6

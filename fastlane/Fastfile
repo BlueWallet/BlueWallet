@@ -305,28 +305,25 @@ platform :ios do
   end
 
   desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  # Fetch IPA path from environment variable
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-
-  # Validate that the IPA file exists
-  if ipa_path.nil? || !File.exist?(ipa_path)
-    UI.user_error!("IPA file not found at path: #{ipa_path}")
+  lane :upload_to_testflight_lane do
+    ipa_path = ENV['IPA_OUTPUT_PATH']
+  
+    if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    end
+  
+    UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+  
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      ipa: ipa_path,
+      username: ENV['APPLE_ID'],   
+      team_id: ENV['ITC_TEAM_ID'],
+      app_identifier: 'io.bluewallet.bluewallet'
+    )
+  
+    UI.success("Successfully uploaded IPA to TestFlight!")
   end
-
-  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-
-  # Upload IPA to TestFlight
-  upload_to_testflight(
-    skip_waiting_for_build_processing: true,
-    ipa: ipa_path,
-    username: ENV['APPLE_ID'],   
-    team_id: ENV['ITC_TEAM_ID'],
-    app_identifier: 'io.bluewallet.bluewallet'
-  )
-
-  UI.success("Successfully uploaded IPA to TestFlight!")
-end
 
 desc "Build the iOS app"
 lane :build_app_lane do
