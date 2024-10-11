@@ -1,30 +1,34 @@
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { ScrollView } from 'react-native';
-
-import Notifications from '../../blue_modules/notifications';
+import { isNotificationsCapable } from '../../blue_modules/notifications';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
-const NetworkSettings = () => {
-  const { navigate } = useNavigation();
+const NetworkSettings: React.FC = () => {
+  const navigation = useExtendedNavigation();
 
   const navigateToElectrumSettings = () => {
-    navigate('ElectrumSettings');
+    navigation.navigate('ElectrumSettings');
   };
 
   const navigateToLightningSettings = () => {
-    navigate('LightningSettings');
+    navigation.navigate('LightningSettings');
+  };
+
+  const navigateToBlockExplorerSettings = () => {
+    navigation.navigate('SettingsBlockExplorer');
   };
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+      <ListItem title={loc.settings.block_explorer} onPress={navigateToBlockExplorerSettings} testID="BlockExplorerSettings" chevron />
       <ListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
       <ListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
-      {Notifications.isNotificationsCapable && (
+      {isNotificationsCapable && (
         <ListItem
           title={loc.settings.notifications}
-          onPress={() => navigate('NotificationSettings')}
+          onPress={() => navigation.navigate('NotificationSettings')}
           testID="NotificationSettings"
           chevron
         />

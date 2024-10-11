@@ -15,18 +15,19 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled, wallets } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation();
   const route = useRoute();
-  const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
+  const { walletID, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
@@ -60,7 +61,7 @@ const PsbtWithHardwareWallet = () => {
   });
 
   const _combinePSBT = receivedPSBT => {
-    return fromWallet.combinePsbt(psbt, receivedPSBT);
+    return wallet.combinePsbt(psbt, receivedPSBT);
   };
 
   const onBarScanned = ret => {
@@ -104,7 +105,7 @@ const PsbtWithHardwareWallet = () => {
     if (deepLinkPSBT) {
       const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
+        const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
         presentAlert({ message: Err });
@@ -128,7 +129,7 @@ const PsbtWithHardwareWallet = () => {
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      const result = await fromWallet.broadcastTx(txHex);
+      const result = await wallet.broadcastTx(txHex);
       if (result) {
         setIsLoading(false);
         const txDecoded = bitcoin.Transaction.fromHex(txHex);
@@ -139,7 +140,7 @@ const PsbtWithHardwareWallet = () => {
         }
         navigation.navigate('Success', { amount: undefined });
         await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
-        fetchAndSaveWalletTransactions(fromWallet.getID());
+        fetchAndSaveWalletTransactions(wallet.getID());
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
@@ -214,17 +215,11 @@ const PsbtWithHardwareWallet = () => {
     }
   };
 
-  const openScanner = () => {
-    requestCameraAuthorization().then(() => {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          showFileImportButton: false,
-          onBarScanned,
-        },
-      });
-    });
+  const openScanner = async () => {
+    const data = await scanQrHelper(route.name, true);
+    if (data) {
+      onBarScanned(data);
+    }
   };
 
   if (txHex) return _renderBroadcastHex();

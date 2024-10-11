@@ -26,7 +26,7 @@ function scanQrHelper(
       if (useMerge) {
         const onBarScanned = function (data: any) {
           setTimeout(() => resolve(data.data || data), 1);
-          navigationRef.navigate({ name: currentScreenName, params: {}, merge: true });
+          navigationRef.navigate({ name: currentScreenName, params: data, merge: true });
         };
 
         params = {

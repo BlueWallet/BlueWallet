@@ -24,7 +24,6 @@ import {
 import DocumentPicker from 'react-native-document-picker';
 import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
-
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -40,8 +39,7 @@ import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -58,6 +56,7 @@ import SelectFeeModal from '../../components/SelectFeeModal';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -601,7 +600,6 @@ const SendDetails = () => {
 
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
-      feeModalRef.current?.dismiss();
 
       // @ts-ignore idk how to fix FIXME?
 
@@ -609,14 +607,12 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
-      feeModalRef.current?.dismiss();
-
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
-        fromWallet: wallet,
+        walletID: wallet.getID(),
         psbt,
         launchedBy: routeParams.launchedBy,
       });
@@ -625,8 +621,6 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === MultisigHDWallet.type) {
-      feeModalRef.current?.dismiss();
-
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -651,7 +645,6 @@ const SendDetails = () => {
       // (ez can be the case for single-address wallet when doing self-payment for consolidation)
       recipients = outputs;
     }
-    feeModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -680,22 +673,13 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = () => {
+  const importQrTransaction = async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    requestCameraAuthorization().then(() => {
-      feeModalRef.current?.dismiss();
-
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: importQrTransactionOnBarScanned,
-          showFileImportButton: false,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    importQrTransactionOnBarScanned(data);
   };
 
   const importQrTransactionOnBarScanned = (ret: any) => {
@@ -708,8 +692,6 @@ const SendDetails = () => {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
     } else {
-      feeModalRef.current?.dismiss();
-
       // psbt base64?
 
       // we construct PSBT object and pass to next screen
@@ -718,7 +700,7 @@ const SendDetails = () => {
 
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
-        fromWallet: wallet,
+        walletID: wallet.getID(),
         psbt,
       });
       setIsLoading(false);
@@ -752,7 +734,7 @@ const SendDetails = () => {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         const txhex = psbt.extractTransaction().toHex();
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
         setIsLoading(false);
 
         return;
@@ -763,7 +745,7 @@ const SendDetails = () => {
         // so user can do smth with it:
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, psbt });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt });
         setIsLoading(false);
 
         return;
@@ -772,7 +754,7 @@ const SendDetails = () => {
       if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex: file });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
         setIsLoading(false);
 
         return;
@@ -853,15 +835,8 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = async () => {
-    await requestCameraAuthorization().then(() => {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    onBarScanned(data);
   };
 
   const handleAddRecipient = () => {
@@ -1055,18 +1030,7 @@ const SendDetails = () => {
   const setHeaderRightOptions = () => {
     navigation.setOptions({
       // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <ToolTipMenu
-          disabled={isLoading}
-          isButton
-          isMenuPrimaryAction
-          onPressMenuItem={headerRightOnPress}
-          actions={headerRightActions()}
-          testID="advancedOptionsMenuButton"
-        >
-          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-        </ToolTipMenu>
-      ),
+      headerRight: () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
     });
   };
 
@@ -1185,8 +1149,6 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              feeModalRef.current?.dismiss();
-
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
@@ -1498,11 +1460,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-  },
-  advancedOptions: {
-    minWidth: 40,
-    height: 40,
-    justifyContent: 'center',
   },
   frozenContainer: {
     flexDirection: 'row',
