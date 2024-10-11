@@ -13,12 +13,14 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const Success = () => {
   const pop = () => {
     getParent().pop();
   };
   const { colors } = useTheme();
+  const { selectedBlockExplorer } = useSettings();
   const { getParent } = useNavigation();
   const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop, txid } = useRoute().params;
   const stylesHook = StyleSheet.create({
@@ -52,7 +54,7 @@ const Success = () => {
         <HandOffComponent
           title={loc.transactions.details_title}
           type={HandOffActivityType.ViewInBlockExplorer}
-          url={`https://mempool.space/tx/${txid}`}
+          url={`${selectedBlockExplorer}/tx/${txid}`}
         />
       )}
     </SafeArea>

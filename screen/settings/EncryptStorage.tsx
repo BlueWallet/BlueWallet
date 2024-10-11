@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
 import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -13,6 +11,9 @@ import PromptPasswordConfirmationModal, {
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
 import { popToTop } from '../../NavigationService';
+import presentAlert from '../../components/Alert';
+import { Header } from '../../components/Header';
+import { BlueSpacing20 } from '../../BlueComponents';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -71,9 +72,6 @@ const EncryptStorage = () => {
   const styleHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
-    },
-    headerText: {
-      color: colors.foregroundColor,
     },
   });
 
@@ -139,15 +137,6 @@ const EncryptStorage = () => {
     navigate('PlausibleDeniability');
   };
 
-  const renderPasscodeExplanation = () => {
-    return Platform.OS === 'android' && Platform.Version >= 30 ? (
-      <>
-        <BlueText />
-        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
-      </>
-    ) : null;
-  };
-
   return (
     <ScrollView
       contentContainerStyle={[styles.root, styleHooks.root]}
@@ -157,26 +146,30 @@ const EncryptStorage = () => {
       <View style={styles.paddingTop} />
       {state.deviceBiometricCapable && (
         <>
-          <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
-            {loc.settings.biometrics}
-          </Text>
+          <Header leftText={loc.settings.biometrics} />
           <ListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
             Component={TouchableWithoutFeedback}
-            switch={{ value: biometricEnabled, onValueChange: onUseBiometricSwitch, disabled: state.currentLoadingSwitch !== null }}
+            switch={{
+              value: biometricEnabled,
+              onValueChange: onUseBiometricSwitch,
+              disabled: state.currentLoadingSwitch !== null,
+            }}
             isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
             containerStyle={[styles.row, styleHooks.root]}
+            subtitle={
+              <>
+                <Text style={styles.subtitleText}>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</Text>
+                {Platform.OS === 'android' && Platform.Version >= 30 && (
+                  <Text style={styles.subtitleText}>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</Text>
+                )}
+              </>
+            }
           />
-          <BlueCard>
-            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</BlueText>
-            {renderPasscodeExplanation()}
-          </BlueCard>
-          <BlueSpacing20 />
         </>
       )}
-      <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
-        {loc.settings.encrypt_tstorage}
-      </Text>
+      <BlueSpacing20 />
+      <Header leftText={loc.settings.encrypt_tstorage} />
       <ListItem
         testID="EncyptedAndPasswordProtected"
         title={loc.settings.encrypt_enc_and_pass}
@@ -211,7 +204,7 @@ const EncryptStorage = () => {
               dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
               success = true;
             } catch (error) {
-              presentAlert({ title: loc.errors.error, message: (error as Error).message });
+              presentAlert({ message: (error as Error).message });
               success = false;
             }
           } else if (state.modalType === MODAL_TYPES.ENTER_PASSWORD) {
@@ -243,12 +236,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   paddingTop: { paddingTop: 19 },
-  headerText: {
-    fontWeight: 'bold',
-    fontSize: 30,
-    marginLeft: 17,
-  },
   row: { minHeight: 60 },
+  subtitleText: {
+    fontSize: 14,
+    marginTop: 5,
+  },
 });
 
 export default EncryptStorage;

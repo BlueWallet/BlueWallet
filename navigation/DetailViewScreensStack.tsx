@@ -31,6 +31,7 @@ import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import {
   AboutComponent,
+  BlockExplorerSettingsComponent,
   CurrencyComponent,
   DefaultViewComponent,
   ElectrumSettingsComponent,
@@ -304,6 +305,12 @@ const DetailViewStackScreensStack = () => {
         component={NetworkSettingsComponent}
         options={navigationStyle({ title: loc.settings.network })(theme)}
       />
+      <DetailViewStack.Screen
+        name="SettingsBlockExplorer"
+        component={BlockExplorerSettingsComponent}
+        options={navigationStyle({ title: loc.settings.block_explorer })(theme)}
+      />
+
       <DetailViewStack.Screen name="About" component={AboutComponent} options={navigationStyle({ title: loc.settings.about })(theme)} />
       <DetailViewStack.Screen
         name="DefaultView"

@@ -31,6 +31,7 @@ export const BlueDefaultTheme = {
     outgoingForegroundColor: '#d0021b',
     successColor: '#37c0a1',
     failedColor: '#ff0000',
+    placeholderTextColor: '#81868e',
     shadowColor: '#000000',
     inverseForegroundColor: '#ffffff',
     hdborderColor: '#68BBE1',
