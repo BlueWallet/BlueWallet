@@ -304,8 +304,8 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Build the iOS app"
-  lane :build_app_lane do
+desc "Build the iOS app"
+lane :build_app_lane do
   Dir.chdir(project_root) do
     UI.message("Building the application from: #{Dir.pwd}")
 
@@ -313,7 +313,7 @@ platform :ios do
     export_options_path = File.join(project_root, "ios", "export_options.plist")
 
     begin
-      result = build_ios_app(
+      build_ios_app(
         scheme: "BlueWallet",
         workspace: workspace_path,
         export_method: "app-store",
@@ -334,14 +334,15 @@ platform :ios do
       UI.user_error!("build_ios_app failed: #{e.message}")
     end
 
-    # Directly get IPA path from the result
-    ipa_path = result[:ipa]
+    # Use the environment variable directly for IPA output
+    ipa_path = File.join(project_root, "ios", "build", "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa")
+
     if ipa_path && File.exist?(ipa_path)
       UI.message("IPA successfully found at: #{ipa_path}")
       ENV['IPA_OUTPUT_PATH'] = ipa_path
       sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
     else
-      UI.user_error!("IPA not found after build_ios_app. Expected at: #{File.join(project_root, 'ios', 'build', "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa")}")
+      UI.user_error!("IPA not found after build_ios_app. Expected at: #{ipa_path}")
     end
   end
 end
