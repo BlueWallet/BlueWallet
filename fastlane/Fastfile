@@ -305,9 +305,7 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  platform :ios do
-
-    lane :build_app_lane do
+  lane :build_app_lane do
       Dir.chdir(project_root) do
         UI.message("Building the application from: #{Dir.pwd}")
   
@@ -333,9 +331,9 @@ platform :ios do
         end
         UI.message("Export options plist exists at #{export_options_path}")
   
-        # Call build_app and capture the result
+        # Call build_ios_app and capture the result
         begin
-          result = build_app(
+          result = build_ios_app(
             scheme: "BlueWallet",
             workspace: workspace_path,
             export_method: "app-store",
@@ -353,7 +351,7 @@ platform :ios do
             clean: true    # Clean the build before building
           )
         rescue => e
-          UI.user_error!("build_app failed: #{e.message}")
+          UI.user_error!("build_ios_app failed: #{e.message}")
         end
   
         # Check if 'result' contains the IPA path
@@ -375,7 +373,7 @@ platform :ios do
               UI.message("IPA found at: #{ipa_path}")
               ENV['IPA_OUTPUT_PATH'] = ipa_path
             else
-              UI.user_error!("IPA not found after build_app. Expected at: #{expected_ipa_path}")
+              UI.user_error!("IPA not found after build_ios_app. Expected at: #{expected_ipa_path}")
             end
           end
         end
@@ -385,9 +383,9 @@ platform :ios do
         sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
       end
     end
-end
-end
   
+  end
+
   desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
     attempts = 0
