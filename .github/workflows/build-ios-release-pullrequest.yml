@@ -17,16 +17,15 @@ jobs:
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
+      ipa_output_path: ${{ steps.build_app.outputs.ipa_output_path }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
-      ipa_output_path: ${{ github.workspace }}/BlueWallet_${{ steps.determine_marketing_version.outputs.project_version }}_${{ steps.generate_build_number.outputs.build_number }}.ipa
-
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Fetches all history
 
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
@@ -63,64 +62,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: Display Release Notes
-        run: cat release-notes.txt
-
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
-
-      - name: Set Up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane ios create_temp_keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-
-      - name: Setup Provisioning Profiles
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane ios setup_provisioning_profiles
-
-      - name: Cache Provisioning Profiles
-        id: cache_provisioning_profiles
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
-      - name: Check Cache Status for Provisioning Profiles
-        run: |
-          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
-            echo "Provisioning profiles were restored from cache."
-          else
-            echo "No cache found for provisioning profiles. A new cache will be created."
-          fi
-
-      - name: Verify Provisioning Profiles Exist
-        run: |
-          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
-            echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning\ Profiles
-          else
-            echo "Provisioning profiles directory does not exist."
-          fi
+          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
 
       - name: Generate Build Number Based on Timestamp
         id: generate_build_number
@@ -140,17 +87,11 @@ jobs:
           echo "project_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
         working-directory: ios
 
-      - name: Verify Environment Variables
-        run: |
-          echo "PROJECT_VERSION: ${{ env.PROJECT_VERSION }}"
-          echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
-
-      - name: List iOS Directory Contents Before Build
-        run: ls -la ./
-        working-directory: ios
-
       - name: Build App
-        run: bundle exec fastlane ios build_app_lane --verbose
+        id: build_app
+        run: |
+          bundle exec fastlane ios build_app_lane --verbose
+          echo "ipa_output_path=$IPA_OUTPUT_PATH" >> $GITHUB_OUTPUT # Set the IPA output path for future jobs
 
       - name: Upload Build Logs
         if: always()
@@ -158,13 +99,6 @@ jobs:
         with:
           name: build_logs
           path: ./ios/build_logs/
-
-      - name: Upload IPA as Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: BlueWallet_${{ env.PROJECT_VERSION }}_${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ${{ env.IPA_OUTPUT_PATH }}
 
   testflight-upload:
     needs: build
@@ -175,7 +109,6 @@ jobs:
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      IPA_OUTPUT_PATH: ${{ github.workspace }}/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
@@ -203,38 +136,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ${{ env.IPA_OUTPUT_PATH }}
-
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          path: ./ # Download the IPA file to the current working directory
 
       - name: Upload to TestFlight
-        env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.json
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane upload_to_testflight_lane
-
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+        run: |
+          bundle exec fastlane upload_to_testflight_lane ipa:$IPA_OUTPUT_PATH
