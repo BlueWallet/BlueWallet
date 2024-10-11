@@ -87,6 +87,48 @@ jobs:
           echo "project_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
         working-directory: ios
 
+      - name: Create Temporary Keychain
+        run: bundle exec fastlane ios create_temp_keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Setup Provisioning Profiles
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          bundle exec fastlane ios setup_provisioning_profiles
+
+      - name: Cache Provisioning Profiles
+        id: cache_provisioning_profiles
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/MobileDevice/Provisioning\ Profiles
+          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-provisioning-profiles-
+
+      - name: Check Cache Status for Provisioning Profiles
+        run: |
+          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
+            echo "Provisioning profiles were restored from cache."
+          else
+            echo "No cache found for provisioning profiles. A new cache will be created."
+          fi
+
+      - name: Verify Provisioning Profiles Exist
+        run: |
+          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
+            echo "Provisioning profiles are available in the cache."
+            ls -la ~/Library/MobileDevice/Provisioning\ Profiles
+          else
+            echo "Provisioning profiles directory does not exist."
+          fi
+
       - name: Build App
         id: build_app
         run: |
@@ -100,6 +142,13 @@ jobs:
           name: build_logs
           path: ./ios/build_logs/
 
+      - name: Upload IPA as Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
+
   testflight-upload:
     needs: build
     runs-on: macos-latest
@@ -109,6 +158,7 @@ jobs:
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+      IPA_OUTPUT_PATH: ${{ needs.build.outputs.ipa_output_path }}
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
@@ -140,4 +190,11 @@ jobs:
 
       - name: Upload to TestFlight
         run: |
-          bundle exec fastlane upload_to_testflight_lane ipa:$IPA_OUTPUT_PATH
+          bundle exec fastlane upload_to_testflight_lane ipa:${{ env.IPA_OUTPUT_PATH }}
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
