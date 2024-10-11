@@ -305,8 +305,6 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  platform :ios do
-
   lane :build_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building the application from: #{Dir.pwd}")
@@ -360,7 +358,7 @@ platform :ios do
         UI.user_error!("build_app failed: #{e.message}")
       end
   end
-
+end
 end
   
   desc "Upload to TestFlight without Processing Wait"
