@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-          path: ./ios/build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          path: ${{ env.IPA_OUTPUT_PATH }}
         
   testflight-upload:
     needs: build
