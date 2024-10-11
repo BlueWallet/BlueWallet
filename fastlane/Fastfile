@@ -311,10 +311,6 @@ platform :ios do
     Dir.chdir(project_root) do
       UI.message("Building the application from: #{Dir.pwd}")
 
-      # Diagnostic: List ios directory contents before build
-      UI.message("Listing ios directory contents:")
-      sh("ls -la ios/")
-
       # Ensure build directories exist
       sh("mkdir -p ios/build_logs/")
       sh("mkdir -p ios/build/")
@@ -363,35 +359,6 @@ platform :ios do
       rescue => e
         UI.user_error!("build_app failed: #{e.message}")
       end
-
-      # Check if 'result' contains the IPA path
-      if result && result[:ipa] && File.exist?(result[:ipa])
-        ipa_path = result[:ipa]
-        UI.message("IPA successfully found at: #{ipa_path}")
-        ENV['IPA_OUTPUT_PATH'] = ipa_path
-      else
-        # Attempt to find the IPA manually
-        expected_ipa_path = File.join(project_root, "ios", "build", "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa")
-        if File.exist?(expected_ipa_path)
-          ipa_path = expected_ipa_path
-          UI.message("IPA found at expected path: #{ipa_path}")
-          ENV['IPA_OUTPUT_PATH'] = ipa_path
-        else
-          # Attempt to find the IPA in the build directory
-          ipa_path = Dir.glob(File.join(project_root, "ios", "build", "*.ipa")).first
-          if ipa_path
-            UI.message("IPA found at: #{ipa_path}")
-            ENV['IPA_OUTPUT_PATH'] = ipa_path
-          else
-            UI.user_error!("IPA not found after build_app. Expected at: #{expected_ipa_path}")
-          end
-        end
-      end
-
-      # Diagnostic: List build directory contents after build
-      UI.message("Listing build directory contents:")
-      sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
-    end
   end
 
 end
