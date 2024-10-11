@@ -163,7 +163,7 @@ jobs:
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
           path: ./ios/build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-
+        
   testflight-upload:
     needs: build
     runs-on: macos-latest
