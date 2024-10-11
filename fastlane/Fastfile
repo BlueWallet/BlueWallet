@@ -43,19 +43,19 @@ platform :android do
       new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
       File.write(build_gradle_path, new_build_gradle_contents)
   
-      # Get the branch name and default to 'master' if empty
-      branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[\/\\:?*"<>|]/, '_')
-      if branch_name.nil? || branch_name.empty?
-        branch_name = 'master'
-      end
-  
-      # Append branch name only if it's not 'master'
-      if branch_name != 'master'
-        signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
-      else
+      # Get the branch name
+      branch_name = ENV['GITHUB_HEAD_REF'] || ENV['GITHUB_REF_NAME'] || `git rev-parse --abbrev-ref HEAD`.strip
+      branch_name = 'master' if branch_name.nil? || branch_name.empty?
+
+      # Sanitize the branch name
+      branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '-')
+
+      # Construct the APK filename
+      if ['master', 'main'].include?(branch_name)
         signed_apk_name = "BlueWallet-#{version_name}-#{build_number}.apk"
+      else
+        signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
       end
-  
       # Continue with the build process
       Dir.chdir("android") do
         UI.message("Building APK...")
