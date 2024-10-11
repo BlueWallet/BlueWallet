@@ -384,11 +384,256 @@ platform :ios do
     end
   end
 
-end
+  desc "Build Mac Catalyst App"
+  lane :build_mac_app_lane do
+    Dir.chdir(project_root) do
+      UI.message("Building the Mac Catalyst application from: #{Dir.pwd}")
 
-# ===========================
-#       Global Lanes
-# ===========================
+      # Diagnostic: List ios directory contents before build
+      UI.message("Listing ios directory contents:")
+      sh("ls -la ios/")
+
+      # Ensure build directories exist
+      sh("mkdir -p ios/build_logs/")
+      sh("mkdir -p ios/build/")
+
+      # Verify the workspace exists at the expected absolute path
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      unless File.exist?(workspace_path)
+        UI.user_error!("Workspace does not exist at #{workspace_path}")
+      end
+      UI.message("Workspace exists at #{workspace_path}")
+
+      # Verify export_options.plist exists
+      export_options_path = File.join(project_root, "ios", "export_options.plist")
+      unless File.exist?(export_options_path)
+        UI.user_error!("Export options plist does not exist at #{export_options_path}")
+      end
+      UI.message("Export options plist exists at #{export_options_path}")
+
+      # Call build_mac_app and capture the result
+      begin
+        result = build_mac_app(
+          scheme: "BlueWalletMac", # Ensure you have a Mac Catalyst scheme
+          workspace: workspace_path,
+          export_method: "app-store",
+          include_bitcode: false,
+          configuration: "Release",
+          skip_profile_detection: false, # Allow Fastlane to detect profiles
+          include_symbols: true,
+          export_team_id: ENV["ITC_TEAM_ID"],
+          export_options: export_options_path,
+          xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+          output_directory: File.join(project_root, "ios", "build"),
+          output_name: "BlueWalletMac_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.pkg", # .pkg for Mac apps
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          silent: false, # Ensure verbose output
+          clean: true    # Clean the build before building
+        )
+      rescue => e
+        UI.user_error!("build_mac_app failed: #{e.message}")
+      end
+
+      # Check if 'result' contains the pkg path
+      if result && result[:pkg] && File.exist?(result[:pkg])
+        pkg_path = result[:pkg]
+        UI.message("Pkg successfully found at: #{pkg_path}")
+        ENV['PKG_OUTPUT_PATH'] = pkg_path
+      else
+        # Attempt to find the pkg manually
+        expected_pkg_path = File.join(project_root, "ios", "build", "BlueWalletMac_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.pkg")
+        if File.exist?(expected_pkg_path)
+          pkg_path = expected_pkg_path
+          UI.message("Pkg found at expected path: #{pkg_path}")
+          ENV['PKG_OUTPUT_PATH'] = pkg_path
+        else
+          # Attempt to find the pkg in the build directory
+          pkg_path = Dir.glob(File.join(project_root, "ios", "build", "*.pkg")).first
+          if pkg_path
+            UI.message("Pkg found at: #{pkg_path}")
+            ENV['PKG_OUTPUT_PATH'] = pkg_path
+          else
+            UI.user_error!("Pkg not found after build_mac_app. Expected at: #{expected_pkg_path}")
+          end
+        end
+      end
+
+      # Diagnostic: List build directory contents after build
+      UI.message("Listing build directory contents:")
+      sh("ls -la #{File.join(project_root, 'ios', 'build')}/")
+    end
+  end
+
+  desc "Upload Mac Catalyst App to Mac App Store"
+  lane :upload_mac_app_store_lane do
+    Dir.chdir(project_root) do
+      pkg_path = ENV['PKG_OUTPUT_PATH']
+      UI.user_error!("PKG_OUTPUT_PATH environment variable is missing") if pkg_path.nil?
+
+      UI.message("Uploading Mac Catalyst App to Mac App Store: #{pkg_path}...")
+      deliver(
+        force: true,
+        submit_for_review: false, # Set to true if you want to submit for review immediately
+        skip_screenshots: true,
+        skip_metadata: true,
+        app: "BlueWalletMac", # Ensure this matches your App Store Connect app name
+        pkg: pkg_path
+      )
+      UI.message("Mac Catalyst App uploaded successfully.")
+    end
+  end
+
+  desc "Deploy to TestFlight and Mac App Store"
+  lane :deploy do |options|
+    UI.message("Starting deployment process...")
+
+    # Update WWDR Certificate
+    update_wwdr_certificate
+
+    # Setup App Store Connect API Key
+    setup_app_store_connect_api_key
+
+    # Setup Provisioning Profiles
+    setup_provisioning_profiles
+
+    # Clear Derived Data
+    clear_derived_data_lane
+
+    # Increment Build Number
+    increment_build_number_lane
+
+    # Install CocoaPods if not already installed
+    unless File.directory?("Pods")
+      install_pods
+    end
+
+    # Build the iOS App
+    build_app_lane
+
+    # Build the Mac Catalyst App
+    build_mac_app_lane
+
+    # Upload IPA to TestFlight
+    upload_to_testflight_lane
+
+    # Upload Mac Catalyst App to Mac App Store
+    upload_mac_app_store_lane
+
+    # Clean up and delete the temporary keychain
+    delete_keychain(name: "temp_keychain")
+
+    # Mark deployment as completed for the current commit
+    last_commit = last_git_commit
+    already_built_flag = ".already_built_#{last_commit[:sha]}"
+    File.write(already_built_flag, Time.now.to_s)
+  end
+
+  desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
+  lane :update_release_notes do |options|
+    require 'spaceship'
+
+    UI.message("Logging in to App Store Connect...")
+    Spaceship::ConnectAPI.login
+
+    app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
+
+    UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
+
+    # Retry logic for fetching or creating the edit version
+    retries = 5
+    begin
+      prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+      
+      if prepare_version.nil?
+        UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
+        latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+        new_version_number = (latest_version.version_string.to_f + 0.1).to_s
+        prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
+        UI.message("Created new version: #{new_version_number}")
+      else
+        UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
+      end
+    rescue => e
+      retries -= 1
+      if retries > 0
+        delay = 20
+        UI.message("Cannot find edit app info... Retrying after #{delay} seconds (remaining: #{retries})")
+        sleep(delay)
+        retry
+      else
+        UI.user_error!("Failed to fetch or create the app version: #{e.message}")
+      end
+    end
+
+    # Extract existing metadata
+    localized_metadata = prepare_version.get_app_store_version_localizations
+
+    # Get enabled locales
+    enabled_locales = localized_metadata.map(&:locale)
+
+    # Define release notes
+    release_notes_text = options[:release_notes]
+    if release_notes_text.nil? || release_notes_text.strip.empty?
+      release_notes_path = "../../release-notes.txt"
+      unless File.exist?(release_notes_path)
+        UI.error("Release notes file does not exist at path: #{release_notes_path}")
+        UI.user_error!("No release notes provided and no file found. Failing the lane.")
+      end
+      release_notes_text = File.read(release_notes_path)
+    end
+
+    # Define localized release notes
+    localized_release_notes = {
+      'en-US' => release_notes_text, # English (U.S.) - Primary
+      'ar-SA' => release_notes_text, # Arabic
+      'zh-Hans' => release_notes_text, # Chinese (Simplified)
+      'hr' => release_notes_text, # Croatian
+      'da' => release_notes_text, # Danish
+      'nl-NL' => release_notes_text, # Dutch
+      'fi' => release_notes_text, # Finnish
+      'fr-FR' => release_notes_text, # French
+      'de-DE' => release_notes_text, # German
+      'el' => release_notes_text, # Greek
+      'he' => release_notes_text, # Hebrew
+      'hu' => release_notes_text, # Hungarian
+      'it' => release_notes_text, # Italian
+      'ja' => release_notes_text, # Japanese
+      'ms' => release_notes_text, # Malay
+      'nb' => release_notes_text, # Norwegian
+      'pl' => release_notes_text, # Polish
+      'pt-BR' => release_notes_text, # Portuguese (Brazil)
+      'pt-PT' => release_notes_text, # Portuguese (Portugal)
+      'ro' => release_notes_text, # Romanian
+      'ru' => release_notes_text, # Russian
+      'es-MX' => release_notes_text, # Spanish (Mexico)
+      'es-ES' => release_notes_text, # Spanish (Spain)
+      'sv' => release_notes_text, # Swedish
+      'th' => release_notes_text, # Thai
+    }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
+
+    # Review release notes updates
+    UI.message("Review the following release notes updates:")
+    localized_release_notes.each do |locale, notes|
+      UI.message("Locale: #{locale} - Notes: #{notes}")
+    end
+
+    unless options[:force_yes]
+      confirm = UI.confirm("Do you want to proceed with these release notes updates?")
+      UI.user_error!("User aborted the lane.") unless confirm
+    end
+
+    # Update release notes in App Store Connect
+    localized_release_notes.each do |locale, notes|
+      app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
+      if app_store_version_localization
+        app_store_version_localization.update(attributes: { "whats_new" => notes })
+      else
+        UI.error("No localization found for locale #{locale}")
+      end
+    end
+  end
+
+end
 
 desc "Upload IPA to TestFlight"
 lane :upload_to_testflight_lane do
@@ -419,7 +664,7 @@ lane :upload_to_testflight_lane do
   end
 end
 
-desc "Deploy to TestFlight"
+desc "Deploy to TestFlight and Mac App Store"
 lane :deploy do |options|
   UI.message("Starting deployment process...")
 
@@ -446,8 +691,14 @@ lane :deploy do |options|
   # Build the iOS App
   build_app_lane
 
+  # Build the Mac Catalyst App
+  build_mac_app_lane
+
   # Upload IPA to TestFlight
   upload_to_testflight_lane
+
+  # Upload Mac Catalyst App to Mac App Store
+  upload_mac_app_store_lane
 
   # Clean up and delete the temporary keychain
   delete_keychain(name: "temp_keychain")
