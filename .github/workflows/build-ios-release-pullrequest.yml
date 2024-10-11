@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+lname: Build Release and Upload to TestFlight (iOS)
 
 on:
   push:
@@ -21,31 +21,32 @@ jobs:
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
-      - name: Checkout project
+      - name: Checkout Project
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
-      
-      - name: Specify node version
+
+      - name: Specify Node.js Version
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: Setup Xcode version
-        uses: maxim-lobanov/setup-xcode@v1.6.0
-            
-      - name: Set up Ruby
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 16.0
+
+      - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-      
-      - name: Install dependencies with Bundler
+
+      - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
 
-      - name: Install node_modules
+      - name: Install Node Modules
         run: npm install --omit=dev --yes
 
       - name: Install CocoaPods Dependencies
@@ -59,8 +60,8 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
-      
-      - name: Display release-notes.txt
+
+      - name: Display Release Notes
         run: cat release-notes.txt
 
       - name: Get Latest Commit Message
@@ -70,7 +71,7 @@ jobs:
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
           echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
 
-      - name: Set up Git Authentication
+      - name: Set Up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
@@ -101,7 +102,7 @@ jobs:
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
-      
+
       - name: Check Cache Status for Provisioning Profiles
         run: |
           if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
@@ -119,7 +120,7 @@ jobs:
             echo "Provisioning profiles directory does not exist."
           fi
 
-      - name: Generate Build Number based on timestamp
+      - name: Generate Build Number Based on Timestamp
         id: generate_build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
@@ -142,7 +143,7 @@ jobs:
           echo "PROJECT_VERSION: ${{ env.PROJECT_VERSION }}"
           echo "NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}"
 
-      - name: List ios directory contents before build
+      - name: List iOS Directory Contents Before Build
         run: ls -la ./
         working-directory: ios
 
@@ -173,10 +174,10 @@ jobs:
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
-      - name: Checkout project
+      - name: Checkout Project
         uses: actions/checkout@v4
 
-      - name: Set up Ruby
+      - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
@@ -190,7 +191,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gems-
 
-      - name: Install dependencies with Bundler
+      - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
