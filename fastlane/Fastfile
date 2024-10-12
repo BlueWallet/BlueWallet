@@ -297,6 +297,28 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
+  desc "Upload IPA to TestFlight"
+lane :upload_to_testflight_lane do
+  ipa_path = ENV['IPA_OUTPUT_PATH']
+
+  # Check if IPA exists before proceeding
+  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+    UI.user_error!("IPA file not found at path: #{ipa_path}")
+  end
+
+  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+
+  upload_to_testflight(
+    skip_waiting_for_build_processing: true,
+    ipa: ipa_path,
+    username: ENV['APPLE_ID'],
+    team_id: ENV['ITC_TEAM_ID'],
+    app_identifier: 'io.bluewallet.bluewallet'
+  )
+
+  UI.success("Successfully uploaded IPA to TestFlight!")
+end
+
   desc "Build the iOS app"
 lane :build_app_lane do
   Dir.chdir(project_root) do
@@ -306,7 +328,7 @@ lane :build_app_lane do
     export_options_path = File.join(project_root, "ios", "export_options.plist")
 
     begin
-      result = build_ios_app(
+      build_ios_app(
         scheme: "BlueWallet",
         workspace: workspace_path,
         export_method: "app-store",
@@ -337,28 +359,6 @@ lane :build_app_lane do
       UI.user_error!("IPA not found after build_ios_app.")
     end
   end
-end
-
-desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-
-  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
-    UI.user_error!("IPA file not found at path: #{ipa_path}")
-  end
-
-  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-
-  upload_to_testflight(
-    skip_waiting_for_build_processing: true,
-    ipa: ipa_path,
-    username: ENV['APPLE_ID'],
-    team_id: ENV['ITC_TEAM_ID'],
-    app_identifier: 'io.bluewallet.bluewallet'
-  )
-
-  UI.success("Successfully uploaded IPA to TestFlight!")
-end
 end
 
 # ===========================
