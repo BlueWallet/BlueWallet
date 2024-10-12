@@ -216,8 +216,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
     // poor man's little-endian conversion:
     // ¯\_(ツ)_/¯
-
-    const value =
+    return (
       masterFingerprintHex[6] +
       masterFingerprintHex[7] +
       masterFingerprintHex[4] +
@@ -225,9 +224,8 @@ export class WatchOnlyWallet extends LegacyWallet {
       masterFingerprintHex[2] +
       masterFingerprintHex[3] +
       masterFingerprintHex[0] +
-      masterFingerprintHex[1];
-    this.masterFingerprint = value as unknown as number;
-    return value;
+      masterFingerprintHex[1]
+    );
   }
 
   isHd() {

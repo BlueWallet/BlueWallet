@@ -4,6 +4,7 @@ import {
   Alert,
   I18nManager,
   InteractionManager,
+  LayoutAnimation,
   ScrollView,
   StyleSheet,
   Switch,
@@ -65,7 +66,6 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-
   const { setOptions, navigate, addListener } = useExtendedNavigation();
   const { colors } = useTheme();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
@@ -86,6 +86,7 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet]);
   const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState<boolean>(false);
+  const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
 
   const onMenuWillShow = () => setIsToolTipMenuVisible(true);
   const onMenuWillHide = () => setIsToolTipMenuVisible(false);
@@ -97,24 +98,19 @@ const WalletDetails: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+        if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
           // @ts-expect-error: Need to fix later
           if (wallet.getMasterFingerprintHex) {
             // @ts-expect-error: Need to fix later
-            const newMasterFingerprintValue = wallet.getMasterFingerprintHex();
-            setMasterFingerprint(newMasterFingerprintValue);
-            if (!(newMasterFingerprintValue === 0 || newMasterFingerprintValue === '00000000')) {
-              // this means a new master fingerprint was set. lets cache it
-              saveToDisk();
-            }
-          } else {
-            setMasterFingerprint(undefined);
+            setMasterFingerprint(wallet.getMasterFingerprintHex());
           }
+        } else {
+          setMasterFingerprint(undefined);
         }
       });
 
       return () => task.cancel();
-    }, [saveToDisk, wallet]),
+    }, [isMasterFingerPrintVisible, wallet]),
   );
 
   const stylesHook = StyleSheet.create({
@@ -383,6 +379,11 @@ const WalletDetails: React.FC = () => {
     return `${label}-history.csv`;
   }, [wallet]);
 
+  const onViewMasterFingerPrintPress = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsMasterFingerPrintVisible(true);
+  };
+
   return (
     <ScrollView
       automaticallyAdjustKeyboardInsets
@@ -489,11 +490,10 @@ const WalletDetails: React.FC = () => {
                       wallet.setHideTransactionsInWalletsList(!value);
                       setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
                     }
-
                     try {
                       await saveToDisk();
-                    } catch (error: unknown) {
-                      console.error((error as Error).message);
+                    } catch (error: any) {
+                      console.log(error.message);
                     }
                   }}
                 />
@@ -558,7 +558,13 @@ const WalletDetails: React.FC = () => {
                 {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
                   <View style={styles.marginRight16}>
                     <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
-                    <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                    {isMasterFingerPrintVisible ? (
+                      <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                    ) : (
+                      <TouchableOpacity onPress={onViewMasterFingerPrintPress}>
+                        <BlueText>{loc.multisig.view}</BlueText>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
 
@@ -636,7 +642,6 @@ const WalletDetails: React.FC = () => {
                   />
                 </>
               )}
-
               {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
                 <>
                   <BlueSpacing20 />

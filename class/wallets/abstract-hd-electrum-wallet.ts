@@ -1538,14 +1538,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
    */
   getMasterFingerprintHex() {
-    if (this.masterFingerprint) {
-      return this.masterFingerprint;
-    } else {
-      const seed = this._getSeed();
-      const value = AbstractHDElectrumWallet.seedToFingerprint(seed);
-      this.masterFingerprint = value as unknown as number;
-      return value;
-    }
+    const seed = this._getSeed();
+    return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 
   /**
