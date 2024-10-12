@@ -509,4 +509,5 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+  end
 end
