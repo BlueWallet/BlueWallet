@@ -196,11 +196,11 @@ jobs:
   
       - name: Set IPA Path Environment Variable
         run: |
-          echo "IPA_OUTPUT_PATH=BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+          echo "IPA_OUTPUT_PATH=./BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
   
       - name: Upload to TestFlight
         run: |
-          bundle exec fastlane upload_to_testflight_lane
+          bundle exec fastlane ios upload_to_testflight_lane
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
