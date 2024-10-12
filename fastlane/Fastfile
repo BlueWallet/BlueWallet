@@ -1,4 +1,4 @@
-# Define app identifiers once for reuse across lanes
+ñ# Define app identifiers once for reuse across lanes
 def app_identifiers
   [
     "io.bluewallet.bluewallet",
@@ -158,13 +158,6 @@ end
 
 platform :ios do
 
-  before_all do |lane, options|
-    UI.message("Setting up for all lanes...")
-    UI.message("Discarding all untracked changes before running any lane...")
-    sh("git clean -fd")
-    sh("git checkout -- .")
-  end
-
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
@@ -304,25 +297,46 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH'].strip # Trim any extra spaces or slashes
+  desc "Build the iOS app"
+lane :build_app_lane do
+  Dir.chdir(project_root) do
+    UI.message("Building the application from: #{Dir.pwd}")
 
-  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
-    UI.user_error!("IPA file not found at path: #{ipa_path}")
+    workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+    export_options_path = File.join(project_root, "ios", "export_options.plist")
+
+    begin
+      result = build_ios_app(
+        scheme: "BlueWallet",
+        workspace: workspace_path,
+        export_method: "app-store",
+        include_bitcode: false,
+        configuration: "Release",
+        skip_profile_detection: false,
+        include_symbols: true,
+        export_team_id: ENV["ITC_TEAM_ID"],
+        export_options: export_options_path,
+        output_directory: File.join(project_root, "ios", "build"),
+        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        buildlog_path: File.join(project_root, "ios", "build_logs"),
+        silent: false,
+        clean: true
+      )
+    rescue => e
+      UI.user_error!("build_ios_app failed: #{e.message}")
+    end
+
+    # Use File.join to construct paths without extra slashes
+    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+
+    if ipa_path && File.exist?(ipa_path)
+      UI.message("IPA successfully found at: #{ipa_path}")
+      ENV['IPA_OUTPUT_PATH'] = ipa_path
+      sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
+    else
+      UI.user_error!("IPA not found after build_ios_app.")
+    end
   end
-
-  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-
-  upload_to_testflight(
-    skip_waiting_for_build_processing: true,
-    ipa: ipa_path, # Pass the cleaned IPA path
-    username: ENV['APPLE_ID'],   
-    team_id: ENV['ITC_TEAM_ID'],
-    app_identifier: 'io.bluewallet.bluewallet'
-  )
-
-  UI.success("Successfully uploaded IPA to TestFlight!")
 end
 
 desc "Build the iOS app"
