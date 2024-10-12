@@ -169,6 +169,25 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
 
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Cache Ruby Gems
+        uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Install Dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
