@@ -1,4 +1,4 @@
-ñ# Define app identifiers once for reuse across lanes
+# Define app identifiers once for reuse across lanes
 def app_identifiers
   [
     "io.bluewallet.bluewallet",
