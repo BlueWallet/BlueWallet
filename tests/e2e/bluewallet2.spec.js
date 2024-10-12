@@ -56,10 +56,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
 
     // created. verifying:
     await yo('TransactionValue');
@@ -109,10 +105,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await yo('PayjoinSwitch');
@@ -144,10 +137,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await yo('PayjoinSwitch');
@@ -176,10 +166,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -253,10 +240,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
 
     await element(by.id('TransactionDetailsButton')).tap();
     const txhex = await extractTextFromElementById('TxhexInput');
@@ -305,10 +288,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     // created. verifying:
     await yo('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -329,10 +309,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
     } catch (_) {}
     // created. verifying:
     await yo('TransactionDetailsButton');
@@ -506,10 +482,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
 
     await element(by.id('CreateTransactionButton')).tap();
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -600,10 +573,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
 
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
     // created. verifying:
     await yo('TransactionValue');
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
@@ -673,10 +642,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -707,10 +673,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
-    try {
-      await waitFor(element(by.id('HighFeeWarningTitle'))).toBeVisible();
-      await element(by.id('HighFeeWarningContinueButton')).tap();
-    } catch (_) {}
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex2 = await extractTextFromElementById('TxhexInput');
