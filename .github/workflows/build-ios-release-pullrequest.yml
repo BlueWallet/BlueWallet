@@ -168,13 +168,13 @@ jobs:
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
-
+  
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-
+  
       - name: Cache Ruby Gems
         uses: actions/cache@v4
         with:
@@ -182,26 +182,25 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
-
+  
       - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
-
+  
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ./ # Download the IPA file to the current working directory
-
-      - name: Set IPA Path for Upload
+          path: ./ios/build
+  
+      - name: Set IPA Path Environment Variable
         run: |
-          IPA_PATH=$(find ./ -name "*.ipa" | head -n 1)
-          echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
-          echo "IPA path set to: $IPA_PATH"
-
+          echo "IPA_OUTPUT_PATH=./ios/build/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+  
       - name: Upload to TestFlight
-        run: bundle exec fastlane ios upload_to_testflight_lane
+        run: |
+          bundle exec fastlane upload_to_testflight_lane
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -209,8 +208,8 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          IPA_OUTPUT_PATH: ${{ env.IPA_OUTPUT_PATH }}
-
+          IPA_OUTPUT_PATH: ${{ env.IPA_OUTPUT_PATH }}  # Using the environment variable set in the previous step
+  
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
