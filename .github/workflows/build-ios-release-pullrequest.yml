@@ -201,7 +201,7 @@ jobs:
           echo "IPA path set to: $IPA_PATH"
 
       - name: Upload to TestFlight
-        run: bundle exec fastlane upload_to_testflight_lane
+        run: bundle exec fastlane ios upload_to_testflight_lane
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
