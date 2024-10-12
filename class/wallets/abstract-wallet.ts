@@ -46,6 +46,7 @@ export class AbstractWallet {
   _hideTransactionsInWalletsList: boolean;
   _utxoMetadata: Record<string, UtxoMetadata>;
   use_with_hardware_wallet: boolean;
+
   masterFingerprint: number;
 
   constructor() {
@@ -502,12 +503,15 @@ export class AbstractWallet {
   }
 
   getMasterFingerprintFromHex(hexValue: string): number {
+    if (this.masterFingerprint !== 0) return this.masterFingerprint as number;
     if (hexValue.length < 8) hexValue = '0' + hexValue;
     const b = Buffer.from(hexValue, 'hex');
     if (b.length !== 4) throw new Error('invalid fingerprint hex');
 
     hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
+    const value = parseInt(hexValue, 16);
 
-    return parseInt(hexValue, 16);
+    this.masterFingerprint = value;
+    return value;
   }
 }
