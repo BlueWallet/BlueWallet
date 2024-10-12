@@ -10,6 +10,7 @@
     "never": "nie",
     "of": "{number} von {total}",
     "ok": "OK",
+    "enter_url": "URL eingeben",
     "storage_is_encrypted": "Zum Entschlüsseln des Speichers das Passwort eingeben.",
     "yes": "Ja",
     "no": "Nein",
@@ -25,7 +26,8 @@
     "pick_file": "Datei auswählen",
     "enter_amount": "Betrag eingeben",
     "qr_custom_input_button": "10x antippen für individuelle Eingabe",
-    "unlock": "Entsperren"
+    "unlock": "Entsperren",
+    "suggested": "Vorgeschlagen"
   },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
@@ -206,8 +208,10 @@
     "performance_score": "Leistungskennzahl: {num}",
     "run_performance_test": "Leistung testen",
     "about_selftest": "Selbsttest ausführen",
+    "block_explorer_invalid_custom_url": "Ungültige URL. Geben Sie eine gültige URL ein, die mit http:// oder https:// beginnt.",
     "about_selftest_electrum_disabled": "Deaktiviere den Electrum Offline-Modus, um den Selbsttest durchführen zu können.",
     "about_selftest_ok": "Alle internen Tests verliefen erfolgreich. Das Wallet funktioniert gut.",
+
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram-Channel",
@@ -259,6 +263,9 @@
     "encrypt_storage_explanation_description_line1": "Die Aktivierung der Speicherverschlüsselung fügt Ihrer App ein zusätzlicher Schutz hinzu. Die Art und Weise, wie die Daten auf Ihrem Gerät gespeichert werden, macht es anderen damit schwieriger, ohne Erlaubnis darauf zuzugreifen.",
     "encrypt_storage_explanation_description_line2": "Diese Verschlüsselung betrifft den Zugriff auf die im Gerät gespeicherten Schlüssel, schützt also die Wallets. Die Wallet selbst werden dabei nicht mit einem Passwort oder einem anderen zusätzlichen Schutz versehen.",
     "i_understand": "Ich habe verstanden",
+    "block_explorer": "Block-Explorer",
+    "block_explorer_preferred": "Bevorzugten Block-Explorer verwenden",
+    "block_explorer_error_saving_custom": "Fehler beim Speichern des bevorzugten Block-Explorers.",
     "encrypt_title": "Sicherheit",
     "encrypt_tstorage": "Speicher",
     "encrypt_use": "Benutze {type}",
