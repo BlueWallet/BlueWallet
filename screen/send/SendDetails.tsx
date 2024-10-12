@@ -5,13 +5,10 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
-  findNodeHandle,
   FlatList,
   I18nManager,
   Keyboard,
-  LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -57,6 +54,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import useAnimateOnChange from '../../hooks/useAnimateOnChange';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -112,6 +110,10 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+
+  useAnimateOnChange(isLoading);
+  useAnimateOnChange(networkTransactionFeesIsLoading);
+  useAnimateOnChange(utxo);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
@@ -264,7 +266,6 @@ const SendDetails = () => {
       })
       .catch(e => console.log('loading recommendedFees error', e))
       .finally(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setNetworkTransactionFeesIsLoading(false);
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -542,10 +543,22 @@ const SendDetails = () => {
       }
 
       if (error) {
-        scrollView.current?.scrollToIndex({ index });
-        setIsLoading(false);
-        presentAlert({ title: loc.errors.error, message: error });
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        if (scrollView.current) {
+          scrollView.current?.scrollToIndex({ index });
+          setIsLoading(false);
+
+          ActionSheet.showActionSheetWithOptions(
+            {
+              title: loc.errors.error,
+              message: error,
+              options: [loc._.ok],
+            },
+            () => {},
+          );
+
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        }
+
         return;
       }
     }
@@ -554,7 +567,17 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err: any) {
       setIsLoading(false);
-      presentAlert({ title: loc.errors.error, message: Err.message });
+      if (scrollView.current) {
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc.errors.error,
+            message: Err.message,
+            options: [loc._.ok],
+          },
+          () => {},
+        );
+      }
+
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
@@ -770,21 +793,16 @@ const SendDetails = () => {
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
-      Alert.alert(
-        '',
-        loc.multisig.cosign_this_transaction,
-        [
-          {
-            text: loc._.no,
-            style: 'cancel',
-            onPress: () => resolve(false),
-          },
-          {
-            text: loc._.yes,
-            onPress: () => resolve(true),
-          },
-        ],
-        { cancelable: false },
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title: loc.multisig.cosign_this_transaction,
+          options: [loc._.cancel, loc._.ok],
+          cancelButtonIndex: 0,
+        },
+
+        buttonIndex => {
+          resolve(buttonIndex === 1);
+        },
       );
     });
   };
@@ -1049,13 +1067,11 @@ const SendDetails = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
 
-    const anchor = findNodeHandle(scrollView.current);
     const options = {
       title: loc.send.details_adv_full,
       message,
       options: [loc._.cancel, loc._.ok],
       cancelButtonIndex: 0,
-      anchor: anchor ?? undefined,
     };
 
     ActionSheet.showActionSheetWithOptions(options, buttonIndex => {
@@ -1134,7 +1150,6 @@ const SendDetails = () => {
             number={utxo.length}
             onContainerPress={handleCoinControl}
             onClose={() => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setUtxo(null);
             }}
           />
