@@ -192,11 +192,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ./ios/build
+          path: ./
   
       - name: Set IPA Path Environment Variable
         run: |
-          echo "IPA_OUTPUT_PATH=./ios/build/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+          echo "IPA_OUTPUT_PATH=BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
   
       - name: Upload to TestFlight
         run: |
