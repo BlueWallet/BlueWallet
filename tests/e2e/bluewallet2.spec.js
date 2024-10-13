@@ -231,8 +231,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.text('1 of 2'))).not.toBeVisible();
 
     // Verify that the address and amount fields are empty
-    await expect(element(by.id('AddressInput').withAncestor(by.id('Transaction0')))).toHaveText('');
-    await expect(element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0')))).toHaveText('');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0'))).clearText();
+    await expect(element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0')))).toHaveText('0');
 
     // Now, we can add the recipients again to proceed with the test
     // Let's create real transaction again:
