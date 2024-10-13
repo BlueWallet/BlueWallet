@@ -203,7 +203,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
-    // lest add another two outputs
+    // lets add another two outputs
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
@@ -213,13 +213,38 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
-    // remove last output, check if second output is shown
+    // Now testing 'Remove All Recipients' functionality
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Remove Recipient')).tap();
-    await yo('Transaction1');
+    await element(by.text('Remove All Recipients')).tap();
 
-    // adding it again
+    // Confirm the alert dialog
+    await sup('Are you sure you want to remove all recipients?');
+    await element(by.text('OK')).tap();
+
+    // Verify that only one recipient remains (the default empty one)
+    await expect(element(by.id('Transaction0'))).toBeVisible();
+    await expect(element(by.id('Transaction1'))).not.toBeVisible();
+    await expect(element(by.id('Transaction2'))).not.toBeVisible();
+
+    // Verify that the address and amount fields are empty
+    await expect(element(by.id('AddressInput').withAncestor(by.id('Transaction0')))).toHaveText('');
+    await expect(element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0')))).toHaveText('');
+
+    // Now, we can add the recipients again to proceed with the test
+    // let's create real transaction:
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction0'))).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0'))).replaceText('0.0001\n');
+
+    // let's add another two outputs
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Add Recipient')).tap();
+    await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
@@ -227,10 +252,23 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
     // remove second output
+    // Swipe horizontally to Transaction2
+    await element(by.id('Transaction0')).swipe('left'); // Swipe to Transaction1
+    await element(by.id('Transaction1')).swipe('left'); // Swipe to Transaction2
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
-    await sleep(5000);
+    await sleep(500); // Wait for the swipe animation
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
+
+    // Swipe back to Transaction1
+    await element(by.id('Transaction1')).swipe('right');
+
+    // adding it again
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Add Recipient')).tap();
+    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
     // creating and verifying. tx should have 3 outputs
     if (process.env.TRAVIS) await sleep(5000);
