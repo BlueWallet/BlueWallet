@@ -207,9 +207,6 @@ platform :ios do
 
     platform = "ios"
 
-    # Remove local master branch if it exists to avoid conflicts
-    sh("git branch -D master || true")
-
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
       match(
@@ -222,6 +219,7 @@ platform :ios do
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
         readonly: true,
+        force_for_new_devices: true, 
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
       )
