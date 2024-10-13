@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useRoute } from '@react-navigation/native';
-import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -23,6 +23,8 @@ const IsItMyAddress: React.FC = () => {
   const { name } = useRoute();
   const { colors } = useTheme();
   const scanButtonRef = useRef<any>();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const firstWalletRef = useRef<View>(null);
 
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
@@ -88,8 +90,44 @@ const IsItMyAddress: React.FC = () => {
 
   const isCheckAddressDisabled = address.trim().length === 0 || (matchingWallets !== undefined && address.trim() === resultCleanAddress);
 
+  useEffect(() => {
+    if (matchingWallets && matchingWallets.length > 0 && scrollViewRef.current && firstWalletRef.current) {
+      firstWalletRef.current.measureLayout(scrollViewRef.current.getInnerViewNode(), (x, y) => {
+        scrollViewRef.current?.scrollTo({ x: 0, y: y - 20, animated: true });
+      });
+    }
+  }, [matchingWallets]);
+
+  const renderFormattedText = (text: string, values: { [key: string]: string }) => {
+    const regex = /\{(\w+)\}/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let index = 0;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(<Text key={`text-${index++}`}>{text.substring(lastIndex, match.index)}</Text>);
+      }
+      const value = values[match[1]];
+      if (value) {
+        parts.push(
+          <Text key={`bold-${index++}`} style={styles.boldText} selectable>
+            {value}
+          </Text>,
+        );
+      }
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < text.length) {
+      parts.push(<Text key={`text-${index++}`}>{text.substring(lastIndex)}</Text>);
+    }
+    return parts;
+  };
+
   return (
     <ScrollView
+      ref={scrollViewRef}
       contentContainerStyle={styles.wrapper}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
@@ -126,19 +164,24 @@ const IsItMyAddress: React.FC = () => {
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
         <BlueSpacing40 />
 
-        {matchingWallets !== undefined && matchingWallets.length > 0 && <Divider />}
-        <BlueSpacing40 />
+        {matchingWallets !== undefined && matchingWallets.length > 0 && (
+          <>
+            <Divider />
+            <BlueSpacing40 />
+          </>
+        )}
         {matchingWallets !== undefined &&
           (matchingWallets.length > 0 ? (
-            matchingWallets.map(wallet => (
-              <View key={wallet.getID()}>
-                <BlueText>
+            matchingWallets.map((wallet, index) => (
+              <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined}>
+                <BlueText selectable style={styles.resultText}>
                   {resultCleanAddress &&
-                    loc.formatString(loc.is_it_my_address.owns, {
+                    renderFormattedText(loc.is_it_my_address.owns, {
                       label: wallet.getLabel(),
                       address: resultCleanAddress,
                     })}
                 </BlueText>
+                <BlueSpacing10 />
                 <WalletCarouselItem
                   item={wallet}
                   onPress={item => {
@@ -149,7 +192,7 @@ const IsItMyAddress: React.FC = () => {
               </View>
             ))
           ) : (
-            <BlueText>{loc.is_it_my_address.no_wallet_owns_address}</BlueText>
+            <BlueText style={styles.resultText}>{loc.is_it_my_address.no_wallet_owns_address}</BlueText>
           ))}
       </BlueCard>
     </ScrollView>
@@ -187,5 +230,12 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+  resultText: {
+    marginVertical: 10,
+    textAlign: 'center',
   },
 });
