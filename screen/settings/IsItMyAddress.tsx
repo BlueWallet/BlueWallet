@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   resultText: {
+    textAlignVertical: 'center',
     marginVertical: 10,
     textAlign: 'center',
   },
