@@ -218,7 +218,7 @@ platform :ios do
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
+        readonly: false,
         force_for_new_devices: true, 
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
