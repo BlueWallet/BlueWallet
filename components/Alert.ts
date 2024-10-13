@@ -38,6 +38,7 @@ const presentAlert = (() => {
     hapticFeedback,
     buttons = [],
     options = { cancelable: false },
+    forceClearCache = false,
   }: {
     title?: string;
     message: string;
@@ -45,8 +46,10 @@ const presentAlert = (() => {
     hapticFeedback?: HapticFeedbackTypes;
     buttons?: AlertButton[];
     options?: AlertOptions;
+    forceClearCache?: boolean;
   }) => {
     if (
+      !forceClearCache &&
       lastAlertParams &&
       lastAlertParams.title === title &&
       lastAlertParams.message === message &&
@@ -75,6 +78,9 @@ const presentAlert = (() => {
             },
           ];
 
+    // Correctly adjust button order based on the platform
+    const adjustedButtons = Platform.OS === 'android' ? wrappedButtons.slice().reverse() : wrappedButtons;
+
     switch (type) {
       case AlertType.Toast:
         if (Platform.OS === 'android') {
@@ -83,7 +89,7 @@ const presentAlert = (() => {
         }
         break;
       default:
-        RNAlert.alert(title ?? message, title && message ? message : undefined, wrappedButtons, options);
+        RNAlert.alert(title ?? message, title && message ? message : undefined, adjustedButtons, options);
         break;
     }
   };

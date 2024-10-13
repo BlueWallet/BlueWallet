@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
@@ -7,20 +7,22 @@ import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import presentAlert from '../../components/Alert';
 
+type RouteProps = RouteProp<DetailViewStackParamList, 'IsItMyAddress'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'IsItMyAddress'>;
 
 const IsItMyAddress: React.FC = () => {
   const { wallets } = useStorage();
-  const { navigate } = useExtendedNavigation<NavigationProp>();
-  const { name } = useRoute();
+  const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<RouteProps>();
   const { colors } = useTheme();
   const scanButtonRef = useRef<any>();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -37,6 +39,20 @@ const IsItMyAddress: React.FC = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
+
+  useEffect(() => {
+    if (route.params?.address && route.params.address !== address) {
+      setAddress(route.params.address);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params?.address]);
+
+  useEffect(() => {
+    const currentAddress = route.params?.address;
+    if (currentAddress !== address) {
+      navigation.setParams({ address });
+    }
+  }, [address, navigation, route.params?.address]);
 
   const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
@@ -60,7 +76,28 @@ const IsItMyAddress: React.FC = () => {
     if (matching.length > 0) {
       setMatchingWallets(matching);
       setResultCleanAddress(cleanAddress);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({
+        message: loc.is_it_my_address.no_wallet_owns_address,
+        buttons: [
+          {
+            text: loc.receive.reset,
+            onPress: () => {
+              clearAddressInput();
+            },
+            style: 'destructive',
+          },
+          {
+            text: loc._.ok,
+            onPress: () => {},
+            style: 'cancel',
+          },
+        ],
+        options: { cancelable: true },
+        forceClearCache: true,
+      });
       setMatchingWallets([]);
       setResultCleanAddress(undefined);
     }
@@ -68,11 +105,10 @@ const IsItMyAddress: React.FC = () => {
 
   const onBarScanned = (value: string) => {
     setAddress(value);
-    setResultCleanAddress(value);
   };
 
   const importScan = async () => {
-    const data = await scanQrHelper(name, true);
+    const data = await scanQrHelper(route.name, true, undefined, true);
     if (data) {
       onBarScanned(data);
     }
@@ -80,7 +116,7 @@ const IsItMyAddress: React.FC = () => {
 
   const viewQRCode = () => {
     if (!resultCleanAddress) return;
-    navigate('ReceiveDetailsRoot', {
+    navigation.navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
         address: resultCleanAddress,
@@ -88,7 +124,7 @@ const IsItMyAddress: React.FC = () => {
     });
   };
 
-  const isCheckAddressDisabled = address.trim().length === 0 || (matchingWallets !== undefined && address.trim() === resultCleanAddress);
+  const isCheckAddressDisabled = address.trim().length === 0;
 
   useEffect(() => {
     if (matchingWallets && matchingWallets.length > 0 && scrollViewRef.current && firstWalletRef.current) {
@@ -140,7 +176,7 @@ const IsItMyAddress: React.FC = () => {
             multiline
             editable
             placeholder={loc.is_it_my_address.enter_address}
-            placeholderTextColor="#81868e"
+            placeholderTextColor={colors.placeholderTextColor}
             value={address}
             onChangeText={handleUpdateAddress}
             testID="AddressInput"
@@ -171,28 +207,28 @@ const IsItMyAddress: React.FC = () => {
           </>
         )}
         {matchingWallets !== undefined &&
-          (matchingWallets.length > 0 ? (
-            matchingWallets.map((wallet, index) => (
-              <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined}>
-                <BlueText selectable style={styles.resultText}>
-                  {resultCleanAddress &&
-                    renderFormattedText(loc.is_it_my_address.owns, {
-                      label: wallet.getLabel(),
-                      address: resultCleanAddress,
-                    })}
-                </BlueText>
-                <BlueSpacing10 />
-                <WalletCarouselItem
-                  item={wallet}
-                  onPress={item => {
-                    navigate('WalletTransactions', { walletID: item.getID(), walletType: item.type });
-                  }}
-                />
-                <BlueSpacing20 />
-              </View>
-            ))
-          ) : (
-            <BlueText style={styles.resultText}>{loc.is_it_my_address.no_wallet_owns_address}</BlueText>
+          matchingWallets.length > 0 &&
+          matchingWallets.map((wallet, index) => (
+            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.walletContainer}>
+              <BlueText selectable style={styles.resultText}>
+                {resultCleanAddress &&
+                  renderFormattedText(loc.is_it_my_address.owns, {
+                    label: wallet.getLabel(),
+                    address: resultCleanAddress,
+                  })}
+              </BlueText>
+              <BlueSpacing10 />
+              <WalletCarouselItem
+                item={wallet}
+                onPress={item => {
+                  navigation.navigate('WalletTransactions', {
+                    walletID: item.getID(),
+                    walletType: item.type,
+                  });
+                }}
+              />
+              <BlueSpacing20 />
+            </View>
           ))}
       </BlueCard>
     </ScrollView>
@@ -235,8 +271,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   resultText: {
-    textAlignVertical: 'center',
     marginVertical: 10,
     textAlign: 'center',
+  },
+  walletContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
 });
