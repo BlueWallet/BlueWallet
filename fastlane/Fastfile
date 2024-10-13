@@ -207,9 +207,6 @@ platform :ios do
 
     platform = "ios"
 
-    # Remove local master branch if it exists to avoid conflicts
-    sh("git branch -D master || true")
-
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
       match(
