@@ -483,7 +483,7 @@ const TransactionStatus = () => {
       <HandOffComponent
         title={loc.transactions.details_title}
         type={HandOffActivityType.ViewInBlockExplorer}
-        url={`${selectedBlockExplorer}/tx/${tx.hash}`}
+        url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
       />
 
       <View style={styles.container}>
