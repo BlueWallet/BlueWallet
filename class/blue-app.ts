@@ -2,8 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import createHash from 'create-hash';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
-import Keychain from 'react-native-keychain';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import Keychain, { Result } from 'react-native-keychain';
 import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
@@ -96,31 +95,55 @@ export class BlueApp {
   }
 
   async migrateKeys() {
-    // do not migrate keys if we are not in RN env
     if (!isReactNative) {
       return;
     }
-
-    for (const key of BlueApp.keys2migrate) {
+  
+    // List all keys that need to be migrated
+    const keysToMigrate = [
+      'data',
+      'data_encrypted',
+      BlueApp.HANDOFF_STORAGE_KEY,
+      BlueApp.DO_NOT_TRACK,
+      // Add any other keys you use
+    ];
+  
+    for (const key of keysToMigrate) {
       try {
+        // Attempt to get the value from RNSecureKeyStore
         const value = await RNSecureKeyStore.get(key);
         if (value) {
-          await AsyncStorage.setItem(key, value);
+          // Store the value securely using Keychain
+          await this.setItem(key, value);
+          // Remove the key from RNSecureKeyStore after migration
           await RNSecureKeyStore.remove(key);
+          console.debug(`Migrated key: ${key}`);
         }
-      } catch (_) {}
+      } catch (error) {
+        console.warn(`Error migrating key ${key}:`, error);
+      }
     }
   }
+  
 
   /**
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  setItem = (key: string, value: any): Promise<any> => {
+
+  setItem = async (key: string, value: any): Promise<void> => {
     if (isReactNative) {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+      try {
+        await Keychain.setGenericPassword(key, value, {
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+          service: key,
+        });
+      } catch (error) {
+        console.error(`Error setting item ${key}:`, error);
+        throw error; // or handle the error appropriately
+      }
     } else {
-      return AsyncStorage.setItem(key, value);
+      await AsyncStorage.setItem(key, value);
     }
   };
 
@@ -128,43 +151,57 @@ export class BlueApp {
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
    */
-  getItem = (key: string): Promise<any> => {
+  getItem = async (key: string): Promise<any> => {
     if (isReactNative) {
-      return RNSecureKeyStore.get(key);
+      const credentials = await Keychain.getGenericPassword({ service: key });
+      if (credentials) {
+        return credentials.password;
+      } else {
+        return null;
+      }
     } else {
       return AsyncStorage.getItem(key);
+    }
+  };
+
+
+  removeItem = async (key: string): Promise<void> => {
+    if (isReactNative) {
+      await Keychain.resetGenericPassword({ service: key });
+    } else {
+      await AsyncStorage.removeItem(key);
     }
   };
 
   getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
     let value;
     try {
-      return await this.getItem(key);
-    } catch (error: any) {
-      console.warn('error reading', key, error.message);
-      console.warn('fallback to realm');
-      const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey('KeyValue', key); // search for a realm object with a primary key
-      value = obj?.value;
-      realmKeyValue.close();
-      if (value) {
-        // @ts-ignore value.length
-        console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
+      value = await this.getItem(key);
+      if (value !== null) {
         return value;
       }
-      return null;
+    } catch (error) {
+      console.warn('Error reading', key, (error as Error).message);
     }
+    console.warn('Fallback to realm');
+    const realmKeyValue = await this.openRealmKeyValue();
+    const obj = realmKeyValue.objectForPrimaryKey('KeyValue', key);
+    value = obj?.value;
+    realmKeyValue.close();
+    if (value) {
+      console.warn('Successfully recovered data from realm for key', key);
+    }
+    return value;
   };
 
   storageIsEncrypted = async (): Promise<boolean> => {
     let data;
     try {
       data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
-    } catch (error: any) {
-      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
+    } catch (error) {
+      console.warn('Error reading encryption flag:', (error as Error).message);
       return false;
     }
-
     return Boolean(data);
   };
 
@@ -884,14 +921,18 @@ export class BlueApp {
 
   isHandoffEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(BlueApp.HANDOFF_STORAGE_KEY));
+      return !!(await this.getItem(BlueApp.HANDOFF_STORAGE_KEY));
     } catch (_) {}
     return false;
   };
 
   setIsHandoffEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(BlueApp.HANDOFF_STORAGE_KEY, value ? '1' : '');
-  };
+    if (value) {
+      await this.setItem(BlueApp.HANDOFF_STORAGE_KEY, '1');
+    } else {
+      await this.removeItem(BlueApp.HANDOFF_STORAGE_KEY);
+    }
+  }
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {

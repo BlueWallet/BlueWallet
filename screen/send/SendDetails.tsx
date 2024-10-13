@@ -556,7 +556,7 @@ const SendDetails = () => {
 
   const MenuButton = useMemo(() => {
     return <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions} />;
-  }, [headerRightActions, headerRightOnPress, isLoading]);
+  }, [headerRightActions, headerRightOnPress]);
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({

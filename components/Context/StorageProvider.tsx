@@ -53,6 +53,7 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
+  removeItem: typeof BlueApp.removeItem;
 }
 
 export enum WalletTransactionsStatus {
@@ -260,6 +261,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       addAndSaveWallet,
       setItem: BlueApp.setItem,
       getItem: BlueApp.getItem,
+      removeItem: BlueApp.removeItem,
       fetchWalletBalances: BlueApp.fetchWalletBalances,
       fetchWalletTransactions: BlueApp.fetchWalletTransactions,
       fetchAndSaveWalletTransactions,
