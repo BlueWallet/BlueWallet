@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
-import IdleTimerManager from 'react-native-idle-timer';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
@@ -19,6 +18,8 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { navigate } from '../../NavigationService';
+import { keepAwake } from 'react-native-screen-capture';
+import usePrivacy from '../../hooks/usePrivacy';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -53,6 +54,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const [selected, setSelected] = useState<number>(0);
   const [progress, setProgress] = useState<string | undefined>();
   const importing = useRef<boolean>(false);
+  const { disableBlur } = usePrivacy();
   const bip39 = useMemo(() => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
@@ -115,8 +117,7 @@ const ImportWalletDiscovery: React.FC = () => {
       }
     };
 
-    IdleTimerManager.setIdleTimerDisabled(true);
-
+    keepAwake(true);
     task.current = startImport(importText, askPassphrase, searchAccounts, onProgress, onWallet, onPassword);
 
     task.current.promise
@@ -134,7 +135,7 @@ const ImportWalletDiscovery: React.FC = () => {
       .finally(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setLoading(false);
-        IdleTimerManager.setIdleTimerDisabled(false);
+        keepAwake(false);
       });
 
     return () => {
@@ -145,7 +146,8 @@ const ImportWalletDiscovery: React.FC = () => {
 
   const handleCustomDerivation = () => {
     task.current?.stop();
-
+    keepAwake(false);
+    disableBlur();
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 
