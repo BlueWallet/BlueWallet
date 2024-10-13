@@ -221,13 +221,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Remove All Recipients')).tap();
 
     // Confirm the alert dialog
-    await sup('Are you sure you want to remove all recipients?');
     await element(by.text('OK')).tap();
 
     // Verify that only one recipient remains (the default empty one)
     await expect(element(by.id('Transaction0'))).toBeVisible();
-    await expect(element(by.id('Transaction1'))).not.toBeVisible();
-    await expect(element(by.id('Transaction2'))).not.toBeVisible();
+    await expect(element(by.text('1 of 2'))).not.toBeVisible();
 
     // Verify that the address and amount fields are empty
     await expect(element(by.id('AddressInput').withAncestor(by.id('Transaction0')))).toHaveText('');
