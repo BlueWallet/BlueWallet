@@ -599,7 +599,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Details')).tap();
     await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
     await element(by.id('TransactionDetailsMemoInput')).typeText('test1');
-    await element.by.id('TransactionDetailsMemoSaveButton').tapReturnKey();
+    await element(by.id('TransactionDetailsMemoInput')).tapReturnKey();
 
     // Terminate and reopen the app to confirm the note is persisted
     await device.launchApp({ newInstance: true });
