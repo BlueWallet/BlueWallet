@@ -36,11 +36,11 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
+      disallowScreenshot(true); 
       // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;
       }
-      disallowScreenshot(true);
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const walletXpub = wallet.getXpub();
