@@ -8,7 +8,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -33,7 +33,6 @@ const WalletXpub: React.FC = () => {
   const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const lastWalletIdRef = useRef<string | undefined>();
-  const { enableBlur, disableBlur } = usePrivacy();
 
   useFocusEffect(
     useCallback(() => {
@@ -41,7 +40,7 @@ const WalletXpub: React.FC = () => {
       if (lastWalletIdRef.current === walletID) {
         return;
       }
-      enableBlur();
+      disallowScreenshot(true);
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const walletXpub = wallet.getXpub();
@@ -57,9 +56,9 @@ const WalletXpub: React.FC = () => {
       lastWalletIdRef.current = walletID;
       return () => {
         task.cancel();
-        disableBlur();
+        disallowScreenshot(false);
       };
-    }, [walletID, enableBlur, wallet, xpub, navigation, disableBlur]),
+    }, [walletID, wallet, xpub, navigation]),
   );
 
   useEffect(() => {

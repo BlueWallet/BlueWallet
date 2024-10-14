@@ -7,7 +7,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 
@@ -18,7 +18,6 @@ const PleaseBackupLNDHub = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
-  const { enableBlur, disableBlur } = usePrivacy();
 
   const handleBackButton = useCallback(() => {
     navigation.getParent().pop();
@@ -39,13 +38,13 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    enableBlur();
+    disallowScreenshot(true);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      disableBlur();
+      disallowScreenshot(false);
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [disableBlur, enableBlur, handleBackButton]);
+  }, [handleBackButton]);
 
   const pop = () => navigation.getParent().pop();
 
