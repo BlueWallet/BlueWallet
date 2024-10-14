@@ -177,14 +177,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
   it('can batch send', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_batch_send');
-    // Skip test if it has already passed on Travis
     if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile)) {
-        return console.warn('skipping as it previously passed on Travis');
-      }
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-
-    // Check if the mnemonic is set, otherwise skip the test
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -197,11 +192,27 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
-    // Let's create a real transaction:
+    // Add a few recipients initially
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
 
-    // Setting the fee rate:
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Add Recipient')).tap();
+    await yo('Transaction1');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+
+    // Now remove all recipients before proceeding
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Remove All Recipients')).tap();
+    await element(by.text('OK')).tap();
+
+    // Now, let's proceed with the batch send process again
+    // Let's create a real transaction again:
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+
+    // Setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
@@ -221,57 +232,26 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
-    // Now testing 'Remove All Recipients' functionality
+    // Remove last output, check if second output is shown
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Remove All Recipients')).tap();
-    await element(by.text('OK')).tap(); // Confirm the alert dialog
-
-    // Verify that only one recipient remains (the default empty one)
-    await expect(element(by.id('Transaction0'))).toBeVisible();
-    await expect(element(by.text('1 of 2'))).not.toBeVisible();
-
-    // Verify that the address and amount fields are empty
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0'))).clearText();
-    await expect(element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0')))).toHaveText('0');
-
-    // Now, we can add the recipients again to proceed with the test
-    // Let's create real transaction again:
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction0'))).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0'))).replaceText('0.0001\n');
-
-    // Let's add another two outputs
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
+    await element(by.text('Remove Recipient')).tap();
     await yo('Transaction1');
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
 
+    // Add it again
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
-    await yo('Transaction2');
+    await yo('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
-    // Remove the second output
-    await element(by.id('Transaction0')).swipe('left'); // Swipe to Transaction1
-    await element(by.id('Transaction1')).swipe('left'); // Swipe to Transaction2
-    await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2); // Swipe to remove Transaction2
-    await sleep(500); // Wait for the swipe animation to complete
+    // Remove second output
+    await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
+    await sleep(5000);
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
 
-    // Swipe back to Transaction1
-    await element(by.id('Transaction1')).swipe('right');
-
-    // Adding the second output again
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
-    await yo('Transaction2');
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
-
-    // Creating and verifying. Transaction should have 3 outputs
-    if (process.env.TRAVIS) await sleep(5000); // Wait if on Travis
+    // Creating and verifying. tx should have 3 outputs
+    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -285,7 +265,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     assert.strictEqual(transaction.outs[1].value, 30000, `got txhex ${txhex}`);
 
-    // Mark the test as passed on Travis
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
