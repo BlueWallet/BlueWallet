@@ -36,7 +36,7 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(true); 
+      disallowScreenshot(true);
       // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;

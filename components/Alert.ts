@@ -1,20 +1,10 @@
-import { Alert as RNAlert, Platform, ToastAndroid } from 'react-native';
+import { Alert as RNAlert, Platform, ToastAndroid, AlertButton, AlertOptions } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
 
 export enum AlertType {
   Alert,
   Toast,
-}
-
-interface AlertButton {
-  text: string;
-  onPress?: () => void;
-  style?: 'default' | 'cancel' | 'destructive';
-}
-
-interface AlertOptions {
-  cancelable?: boolean;
 }
 
 const presentAlert = (() => {
@@ -31,6 +21,14 @@ const presentAlert = (() => {
     lastAlertParams = null;
   };
 
+  const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
+    if (Platform.OS === 'ios') {
+      RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
+    } else {
+      RNAlert.alert(title ?? '', message, buttons, options);
+    }
+  };
+
   return ({
     title,
     message,
@@ -38,6 +36,7 @@ const presentAlert = (() => {
     hapticFeedback,
     buttons = [],
     options = { cancelable: false },
+    allowRepeat = true,
   }: {
     title?: string;
     message: string;
@@ -45,45 +44,38 @@ const presentAlert = (() => {
     hapticFeedback?: HapticFeedbackTypes;
     buttons?: AlertButton[];
     options?: AlertOptions;
+    allowRepeat?: boolean;
   }) => {
-    if (
-      lastAlertParams &&
-      lastAlertParams.title === title &&
-      lastAlertParams.message === message &&
-      lastAlertParams.type === type &&
-      lastAlertParams.hapticFeedback === hapticFeedback &&
-      JSON.stringify(lastAlertParams.buttons) === JSON.stringify(buttons) &&
-      JSON.stringify(lastAlertParams.options) === JSON.stringify(options)
-    ) {
-      return; // Skip showing the alert if the content is the same as the last one
+    const currentAlertParams = { title, message, type, hapticFeedback, buttons, options };
+
+    if (!allowRepeat && lastAlertParams && JSON.stringify(lastAlertParams) === JSON.stringify(currentAlertParams)) {
+      return;
     }
 
-    lastAlertParams = { title, message, type, hapticFeedback, buttons, options };
+    if (JSON.stringify(lastAlertParams) !== JSON.stringify(currentAlertParams)) {
+      clearCache();
+    }
+
+    lastAlertParams = currentAlertParams;
 
     if (hapticFeedback) {
       triggerHapticFeedback(hapticFeedback);
     }
 
-    // Ensure that there's at least one button (required for both iOS and Android)
-    const wrappedButtons =
-      buttons.length > 0
-        ? buttons
-        : [
-            {
-              text: loc._.ok,
-              onPress: () => {},
-            },
-          ];
+    const wrappedButtons: AlertButton[] = buttons.length > 0 ? buttons : [{ text: loc._.ok, onPress: () => {}, style: 'default' }];
 
     switch (type) {
       case AlertType.Toast:
         if (Platform.OS === 'android') {
           ToastAndroid.show(message, ToastAndroid.LONG);
           clearCache();
+        } else {
+          // For iOS, treat Toast as a normal alert
+          showAlert(title, message, wrappedButtons, options);
         }
         break;
       default:
-        RNAlert.alert(title ?? message, title && message ? message : undefined, wrappedButtons, options);
+        showAlert(title, message, wrappedButtons, options);
         break;
     }
   };
