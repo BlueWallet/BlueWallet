@@ -253,7 +253,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
     const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle ?? ''), [subtitle]);
     const handleOnViewOnBlockExplorer = useCallback(() => {
-      const url = `${selectedBlockExplorer}/tx/${item.hash}`;
+      const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
       Linking.canOpenURL(url).then(supported => {
         if (supported) {
           Linking.openURL(url);
@@ -261,7 +261,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       });
     }, [item.hash, selectedBlockExplorer]);
     const handleCopyOpenInBlockExplorerPress = useCallback(() => {
-      Clipboard.setString(`${selectedBlockExplorer}/tx/${item.hash}`);
+      Clipboard.setString(`${selectedBlockExplorer.url}/tx/${item.hash}`);
     }, [item.hash, selectedBlockExplorer]);
 
     const onToolTipPress = useCallback(

@@ -133,7 +133,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerTitle: loc.transactions.details_title,
-          headerRight: () => DetailButton,
         })(theme)}
       />
       <DetailViewStack.Screen
