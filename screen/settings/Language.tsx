@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { FlatList, NativeSyntheticEvent, StyleSheet } from 'react-native';
+import { FlatList, Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -33,6 +33,7 @@ const Language = () => {
   }, [language]);
 
   const onLanguageSelect = (item: TLanguage) => {
+    Keyboard.dismiss();
     const currentLanguage = AvailableLanguages.find(l => l.value === language);
     setLanguageStorage(item.value).then(() => {
       if (currentLanguage?.isRTL !== item.isRTL) {
