@@ -187,52 +187,70 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await device.launchApp({ newInstance: true });
 
-    // go inside the wallet
+    // Go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
-    // lets create real transaction:
+    // Add a few recipients initially
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
 
-    // setting fee rate:
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Add Recipient')).tap();
+    await yo('Transaction1');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+
+    // Now remove all recipients before proceeding
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Remove All Recipients')).tap();
+    await element(by.text('OK')).tap();
+
+    // Now, let's proceed with the batch send process again
+    // Let's create a real transaction again:
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+
+    // Setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
-    // lest add another two outputs
+    // Let's add another two outputs
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
-    await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
+    await yo('Transaction1'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
 
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
-    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+    await yo('Transaction2'); // Adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
-    // remove last output, check if second output is shown
+    // Remove last output, check if second output is shown
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
     await yo('Transaction1');
 
-    // adding it again
+    // Add it again
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
-    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+    await yo('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
-    // remove second output
+    // Remove second output
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
     await sleep(5000);
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
 
-    // creating and verifying. tx should have 3 outputs
+    // Creating and verifying. tx should have 3 outputs
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
