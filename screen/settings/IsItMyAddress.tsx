@@ -96,7 +96,6 @@ const IsItMyAddress: React.FC = () => {
           },
         ],
         options: { cancelable: true },
-        forceClearCache: true,
       });
       setMatchingWallets([]);
       setResultCleanAddress(undefined);
