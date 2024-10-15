@@ -16,7 +16,7 @@ import { BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
@@ -26,7 +26,6 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
-  const { enableBlur, disableBlur } = usePrivacy();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -48,11 +47,11 @@ const SendCreate = () => {
 
   useEffect(() => {
     console.log('send/create - useEffect');
-    enableBlur();
+    disallowScreenshot(true);
     return () => {
-      disableBlur();
+      disallowScreenshot(false);
     };
-  }, [disableBlur, enableBlur]);
+  }, []);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;

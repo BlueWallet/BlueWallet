@@ -8,7 +8,7 @@ import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
@@ -25,7 +25,6 @@ const WalletExport: React.FC = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const appState = useRef(AppState.currentState);
-  const { enableBlur, disableBlur } = usePrivacy();
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -55,7 +54,7 @@ const WalletExport: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      enableBlur();
+      disallowScreenshot(true);
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           if (!wallet.getUserHasSavedExport()) {
@@ -67,7 +66,7 @@ const WalletExport: React.FC = () => {
       });
       return () => {
         task.cancel();
-        disableBlur();
+        disallowScreenshot(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
