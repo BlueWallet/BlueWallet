@@ -252,7 +252,7 @@ const ElectrumSettings: React.FC = () => {
         id: JSON.stringify(value),
         text: `${value.host}`,
         subtitle: `${value.port || value.sslPort}`,
-        menuState: `${host}${port}${sslPort}` === `${value.host}${value.port}${value.sslPort}`,
+        menuState: `${host}:${port}:${sslPort}` === `${value.host}:${value.port}:${value.sslPort}`,
         disabled: isLoading || (host === value.host && (port === value.port || sslPort === value.sslPort)),
       }));
 
