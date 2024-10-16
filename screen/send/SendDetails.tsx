@@ -57,6 +57,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -852,6 +853,24 @@ const SendDetails = () => {
     }, 0);
   };
 
+  const onRemoveAllRecipientsConfirmed = useCallback(() => {
+    setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]);
+  }, []);
+
+  const handleRemoveAllRecipients = useCallback(() => {
+    Alert.alert(loc.send.details_recipients_title, loc.send.details_add_recc_rem_all_alert_description, [
+      {
+        text: loc._.cancel,
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {
+        text: loc._.ok,
+        onPress: onRemoveAllRecipientsConfirmed,
+      },
+    ]);
+  }, [onRemoveAllRecipientsConfirmed]);
+
   const handleRemoveRecipient = () => {
     if (addresses.length > 1) {
       const newAddresses = [...addresses];
@@ -933,9 +952,9 @@ const SendDetails = () => {
   // Header Right Button
 
   const headerRightOnPress = (id: string) => {
-    if (id === SendDetails.actionKeys.AddRecipient) {
+    if (id === CommonToolTipActions.AddRecipient.id) {
       handleAddRecipient();
-    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
+    } else if (id === CommonToolTipActions.RemoveRecipient.id) {
       handleRemoveRecipient();
     } else if (id === SendDetails.actionKeys.SignPSBT) {
       handlePsbtSign();
@@ -955,6 +974,8 @@ const SendDetails = () => {
       handleCoinControl();
     } else if (id === SendDetails.actionKeys.InsertContact) {
       handleInsertContact();
+    } else if (id === CommonToolTipActions.RemoveAllRecipients.id) {
+      handleRemoveAllRecipients();
     }
   };
 
@@ -1007,19 +1028,13 @@ const SendDetails = () => {
       if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
         transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
       }
-      actions.push(transactionActions, [
-        {
-          id: SendDetails.actionKeys.AddRecipient,
-          text: loc.send.details_add_rec_add,
-          icon: SendDetails.actionIcons.AddRecipient,
-        },
-        {
-          id: SendDetails.actionKeys.RemoveRecipient,
-          text: loc.send.details_add_rec_rem,
-          disabled: addresses.length < 2,
-          icon: SendDetails.actionIcons.RemoveRecipient,
-        },
-      ]);
+      actions.push(transactionActions);
+
+      const recipientActions: Action[] = [CommonToolTipActions.AddRecipient, CommonToolTipActions.RemoveRecipient];
+      if (addresses.length > 1) {
+        recipientActions.push(CommonToolTipActions.RemoveAllRecipients);
+      }
+      actions.push(recipientActions);
     }
 
     actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
@@ -1355,8 +1370,6 @@ SendDetails.actionKeys = {
   InsertContact: 'InsertContact',
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
-  AddRecipient: 'AddRecipient',
-  RemoveRecipient: 'RemoveRecipient',
   AllowRBF: 'AllowRBF',
   ImportTransaction: 'ImportTransaction',
   ImportTransactionMultsig: 'ImportTransactionMultisig',
@@ -1369,8 +1382,6 @@ SendDetails.actionIcons = {
   InsertContact: { iconValue: 'at.badge.plus' },
   SignPSBT: { iconValue: 'signature' },
   SendMax: 'SendMax',
-  AddRecipient: { iconValue: 'person.badge.plus' },
-  RemoveRecipient: { iconValue: 'person.badge.minus' },
   AllowRBF: 'AllowRBF',
   ImportTransaction: { iconValue: 'square.and.arrow.down' },
   ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
