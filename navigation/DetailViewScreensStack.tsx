@@ -14,7 +14,7 @@ import LnurlAuth from '../screen/lnd/lnurlAuth';
 import LnurlPay from '../screen/lnd/lnurlPay';
 import LnurlPaySuccess from '../screen/lnd/lnurlPaySuccess';
 import Broadcast from '../screen/send/Broadcast';
-import IsItMyAddress from '../screen/send/isItMyAddress';
+import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
 import TransactionDetails from '../screen/transactions/TransactionDetails';
@@ -133,7 +133,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerTitle: loc.transactions.details_title,
-          headerRight: () => DetailButton,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -200,6 +199,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="IsItMyAddress"
         component={IsItMyAddress}
+        initialParams={{ address: undefined }}
         options={navigationStyle({ title: loc.is_it_my_address.title })(theme)}
       />
       <DetailViewStack.Screen

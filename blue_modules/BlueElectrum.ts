@@ -299,6 +299,7 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
     return;
   }
   presentAlert({
+    allowRepeat: false,
     title: loc.errors.network,
     message: loc.formatString(
       usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,

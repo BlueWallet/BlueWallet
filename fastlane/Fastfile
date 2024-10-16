@@ -1,75 +1,75 @@
+# Define app identifiers once for reuse across lanes
 def app_identifiers
-  ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
+  [
+    "io.bluewallet.bluewallet",
+    "io.bluewallet.bluewallet.watch",
+    "io.bluewallet.bluewallet.watch.extension",
+    "io.bluewallet.bluewallet.Stickers",
+    "io.bluewallet.bluewallet.MarketWidget"
+  ]
 end
 
 default_platform(:android)
 project_root = File.expand_path("..", __dir__)
 
+# ===========================
+#       Android Lanes
+# ===========================
+
 platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    Dir.chdir(project_root) do
-      keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
-      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
+    keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
+    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
-      Dir.chdir("android") do
-        UI.message("Creating keystore hex file...")
+    Dir.chdir("android") do
+      UI.message("Creating keystore from HEX...")
+      File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
-        File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
-
-        sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
-          UI.user_error!("Error reverting hex to keystore") unless status.success?
-        end
-        UI.message("Keystore created successfully.")
-
-        File.delete("bluewallet-release-key.keystore.hex")
+      sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
+        UI.user_error!("Error reverting hex to keystore") unless status.success?
       end
+      UI.message("Keystore created successfully.")
+
+      File.delete("bluewallet-release-key.keystore.hex")
     end
   end
 
+  desc "Update version, build number, and sign APK"
   lane :update_version_build_and_sign_apk do
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
-  
-      # Get the version name from build.gradle
+
+      # Extract versionName from build.gradle
       version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-  
-      # Manually update the versionCode in build.gradle
+
+      # Update versionCode in build.gradle
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
       build_gradle_path = "android/app/build.gradle"
       build_gradle_contents = File.read(build_gradle_path)
       new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
       File.write(build_gradle_path, new_build_gradle_contents)
-  
-      # Get the branch name and default to 'master' if empty
+
+      # Determine branch name
       branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[\/\\:?*"<>|]/, '_')
-      if branch_name.nil? || branch_name.empty?
-        branch_name = 'master'
-      end
-  
-      # Append branch name only if it's not 'master'
-      if branch_name != 'master'
-        signed_apk_name = "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk"
-      else
-        signed_apk_name = "BlueWallet-#{version_name}-#{build_number}.apk"
-      end
-  
-      # Continue with the build process
+      branch_name = 'master' if branch_name.nil? || branch_name.empty?
+
+      # Define APK name based on branch
+      signed_apk_name = branch_name != 'master' ? "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" : "BlueWallet-#{version_name}-#{build_number}.apk"
+
+      # Build APK
       Dir.chdir("android") do
         UI.message("Building APK...")
-        gradle(
-          task: "assembleRelease",
-          project_dir: "android"
-        )
+        gradle(task: "assembleRelease", project_dir: "android")
         UI.message("APK build completed.")
-        
-        # Define the output paths
+
+        # Define paths
         unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
         signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
-  
-        # Rename the unsigned APK to include the version and build number
+
+        # Rename APK
         if File.exist?(unsigned_apk_path)
           UI.message("Renaming APK to #{signed_apk_name}...")
           FileUtils.mv(unsigned_apk_path, signed_apk_path)
@@ -78,8 +78,8 @@ platform :android do
           UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
           next
         end
-  
-        # Sign the APK using apksigner
+
+        # Sign APK
         UI.message("Signing APK with apksigner...")
         apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
         sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
@@ -91,33 +91,32 @@ platform :android do
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
-      # Fetch the APK path from environment variables
+      # Determine APK path
       apk_path = ENV['APK_PATH']
-  
-      # Attempt to find the APK if not provided
       if apk_path.nil? || apk_path.empty?
-        UI.message("No APK path provided, attempting to find the artifact...")
+        UI.message("No APK path provided, searching for APK...")
         apk_path = `find ./ -name "*.apk"`.strip
         UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
       end
-  
+
+      # Upload to BrowserStack
       UI.message("Uploading APK to BrowserStack: #{apk_path}...")
       upload_to_browserstack_app_live(
         file_path: apk_path,
         browserstack_username: ENV['BROWSERSTACK_USERNAME'],
         browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
       )
-  
-      # Extract the BrowserStack URL from the output
+
+      # Extract BrowserStack URL
       app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
       UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
-  
-      # Prepare necessary values for the PR comment
+
+      # Prepare PR comment
       apk_filename = File.basename(apk_path)
-      apk_download_url = ENV['APK_OUTPUT_PATH'] # Assuming this path is accessible to the PR
+      apk_download_url = ENV['APK_OUTPUT_PATH'] # Ensure this path is accessible
       browserstack_hashed_id = app_url.gsub('bs://', '')
       pr_number = ENV['GITHUB_PR_NUMBER']
-  
+
       comment = <<~COMMENT
         ### APK Successfully Uploaded to BrowserStack
         
@@ -127,16 +126,17 @@ platform :android do
         - [Google Pixel 7 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Google Pixel 8 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Google Pixel 3a (Android 9.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-  
+    
         - [Samsung Galaxy Z Fold 5 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Z Fold 6 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Tab S9 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-  
+    
         **Filename**: [#{apk_filename}](#{apk_download_url})
         **BrowserStack App URL**: #{app_url}
       COMMENT
-  
+
+      # Post PR comment if PR number is available
       if pr_number
         begin
           sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
@@ -149,17 +149,14 @@ platform :android do
       end
     end
   end
+
 end
 
+# ===========================
+#       iOS Lanes
+# ===========================
 
 platform :ios do
-
-  before_all do |lane, options|
-    UI.message("Setting up for all lanes...")
-    UI.message("Discarding all untracked changes before running any lane...")
-    sh("git clean -fd")
-    sh("git checkout -- .")
-  end
 
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
@@ -167,18 +164,19 @@ platform :ios do
 
     csv_path = "../../devices.txt" # Update this with the actual path to your file
 
-    # Registering devices using the devices_file parameter
+    # Register devices using the devices_file parameter
     register_devices(
       devices_file: csv_path
     )
 
     UI.message("Devices registered successfully.")
 
+    # Update provisioning profiles for all app identifiers
     app_identifiers.each do |app_identifier|
       match(
         type: "development", 
         app_identifier: app_identifier,
-        readonly: false, # This will regenerate the provisioning profile if needed
+        readonly: false, # Regenerate provisioning profile if needed
         force_for_new_devices: true,
         clone_branch_directly: true
       )
@@ -190,7 +188,7 @@ platform :ios do
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
     UI.message("Creating a temporary keychain...")
-  
+
     create_keychain(
       name: "temp_keychain",
       password: ENV["KEYCHAIN_PASSWORD"],
@@ -199,32 +197,23 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
-  
+
     UI.message("Temporary keychain created successfully.")
   end
 
   desc "Synchronize certificates and provisioning profiles"
-  lane :setup_provisioning_profiles do |options|
+  lane :setup_provisioning_profiles do
     UI.message("Setting up provisioning profiles...")
-    target_to_app_identifier = {
-      'BlueWallet' => 'io.bluewallet.bluewallet',
-      'BlueWalletWatch' => 'io.bluewallet.bluewallet.watch',
-      'BlueWalletWatchExtension' => 'io.bluewallet.bluewallet.watch.extension',
-      'Stickers' => 'io.bluewallet.bluewallet.Stickers',
-      'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
-    }
 
-    platform = options[:platform] || "ios" # Default to iOS if not specified
-  
-    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
-    sh("git branch -D master || true")
-  
-    target_to_app_identifier.each do |target, app_identifier|
+    platform = "ios"
+
+    # Iterate over app identifiers to fetch provisioning profiles
+    app_identifiers.each do |app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
         type: "appstore",
-        clone_branch_directly: true, # Skip if the branch already exists (Exit 128 error)
+        clone_branch_directly: true, # Skip if the branch already exists
         platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
@@ -255,7 +244,6 @@ platform :ios do
       app_identifier: app_identifiers,
       readonly: true,
       clone_branch_directly: true
-
     )
   end
 
@@ -306,94 +294,116 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Build the application"
-  lane :build_app_lane do
-    UI.message("Building the application...")
-    build_app(
-      scheme: "BlueWallet",
-      workspace: "ios/BlueWallet.xcworkspace",
-      export_method: "app-store",
-      include_bitcode: false,
-      configuration: "Release",
-      skip_profile_detection: true,
-      include_symbols: true,
-      export_team_id: ENV["ITC_TEAM_ID"],
-      export_options: {
-        signingStyle: "manual",
-        provisioningProfiles: {
-          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
-          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
-        }
-      },
-      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build", # Directory where the IPA file will be stored
+  desc "Upload IPA to TestFlight"
+lane :upload_to_testflight_lane do
+  ipa_path = ENV['IPA_OUTPUT_PATH']
+  changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
-      output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-      buildlog_path: "./build_logs"
-    )
+  # Check if IPA exists before proceeding
+  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+    UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
 
-  desc "Upload to TestFlight without Processing Wait"
-  lane :upload_to_testflight_lane do
-    attempts = 0
-    max_attempts = 3
+  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+
+  upload_to_testflight(
+    api_key_path: "./appstore_api_key.json",
+    ipa: ipa_path,
+    skip_waiting_for_build_processing: true, # Do not wait for processing
+    changelog: changelog
+  )
+
+  UI.success("Successfully uploaded IPA to TestFlight!")
+end
+
+  desc "Build the iOS app"
+lane :build_app_lane do
+  Dir.chdir(project_root) do
+    UI.message("Building the application from: #{Dir.pwd}")
+
+    workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+    export_options_path = File.join(project_root, "ios", "export_options.plist")
+
     begin
-      UI.message("Uploading to TestFlight without processing wait...")
-      changelog = ENV["LATEST_COMMIT_MESSAGE"]
-      ipa_path = "./BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-
-      upload_to_testflight(
-        api_key_path: "./appstore_api_key.json",
-        ipa: ipa_path,
-        skip_waiting_for_build_processing: true, # Do not wait for processing
-        changelog: changelog
+      build_ios_app(
+        scheme: "BlueWallet",
+        workspace: workspace_path,
+        export_method: "app-store",
+        include_bitcode: false,
+        configuration: "Release",
+        skip_profile_detection: false,
+        include_symbols: true,
+        export_team_id: ENV["ITC_TEAM_ID"],
+        export_options: export_options_path,
+        output_directory: File.join(project_root, "ios", "build"),
+        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        buildlog_path: File.join(project_root, "ios", "build_logs"),
+        silent: false,
+        clean: true
       )
-    rescue => exception
-      attempts += 1
-      if attempts <= max_attempts
-        wait_time = 180 # 3 minutes in seconds
-        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
-        sleep(wait_time)
-        retry
-      else
-        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
-        raise exception
-      end
-    end
-  end
-
-  desc "Deploy to TestFlight"
-  lane :deploy do |options|
-    UI.message("Starting build process...")
-
-    # Update the WWDR certificate
-    update_wwdr_certificate
-
-    setup_app_store_connect_api_key
-    setup_provisioning_profiles
-    clear_derived_data_lane
-    increment_build_number_lane
-
-    unless File.directory?("Pods")
-      install_pods
+    rescue => e
+      UI.user_error!("build_ios_app failed: #{e.message}")
     end
 
-    build_app_lane
-    upload_to_testflight_lane
+    # Use File.join to construct paths without extra slashes
+    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
 
-    # Clean up and delete the temporary keychain
-    delete_keychain(name: "temp_keychain")
+    if ipa_path && File.exist?(ipa_path)
+      UI.message("IPA successfully found at: #{ipa_path}")
+      ENV['IPA_OUTPUT_PATH'] = ipa_path
+      sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
+    else
+      UI.user_error!("IPA not found after build_ios_app.")
+    end
+  end
+end
 
-    # Mark deployment as completed for the current commit
-    last_commit = last_git_commit
-    already_built_flag = ".already_built_#{last_commit[:sha]}"
-    File.write(already_built_flag, Time.now.to_s)
+# ===========================
+#       Global Lanes
+# ===========================
+
+
+
+desc "Deploy to TestFlight"
+lane :deploy do |options|
+  UI.message("Starting deployment process...")
+
+  # Update WWDR Certificate
+  update_wwdr_certificate
+
+  # Setup App Store Connect API Key
+  setup_app_store_connect_api_key
+
+  # Setup Provisioning Profiles
+  setup_provisioning_profiles
+
+  # Clear Derived Data
+  clear_derived_data_lane
+
+  # Increment Build Number
+  increment_build_number_lane
+
+  # Install CocoaPods if not already installed
+  unless File.directory?("Pods")
+    install_pods
   end
 
-  desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
+  # Build the iOS App
+  build_app_lane
+
+  # Upload IPA to TestFlight
+  upload_to_testflight_lane
+
+  # Clean up and delete the temporary keychain
+  delete_keychain(name: "temp_keychain")
+
+  # Mark deployment as completed for the current commit
+  last_commit = last_git_commit
+  already_built_flag = ".already_built_#{last_commit[:sha]}"
+  File.write(already_built_flag, Time.now.to_s)
+end
+
+desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
 lane :update_release_notes do |options|
   require 'spaceship'
 
@@ -402,16 +412,13 @@ lane :update_release_notes do |options|
 
   app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
 
-  unless app
-    UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}")
-  end
+  UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
 
   # Retry logic for fetching or creating the edit version
   retries = 5
   begin
     prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
     
-    # If no "Prepare for Submission" version is found, create a new one
     if prepare_version.nil?
       UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
       latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
@@ -436,12 +443,11 @@ lane :update_release_notes do |options|
   # Extract existing metadata
   localized_metadata = prepare_version.get_app_store_version_localizations
 
-  # Get all the enabled locales for the app version
+  # Get enabled locales
   enabled_locales = localized_metadata.map(&:locale)
 
-  # Define valid language codes and filter them based on enabled locales
+  # Define release notes
   release_notes_text = options[:release_notes]
-
   if release_notes_text.nil? || release_notes_text.strip.empty?
     release_notes_path = "../../release-notes.txt"
     unless File.exist?(release_notes_path)
@@ -451,6 +457,7 @@ lane :update_release_notes do |options|
     release_notes_text = File.read(release_notes_path)
   end
 
+  # Define localized release notes
   localized_release_notes = {
     'en-US' => release_notes_text, # English (U.S.) - Primary
     'ar-SA' => release_notes_text, # Arabic
@@ -479,7 +486,7 @@ lane :update_release_notes do |options|
     'th' => release_notes_text, # Thai
   }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
 
-  # Review what's going to be updated
+  # Review release notes updates
   UI.message("Review the following release notes updates:")
   localized_release_notes.each do |locale, notes|
     UI.message("Locale: #{locale} - Notes: #{notes}")
@@ -487,21 +494,17 @@ lane :update_release_notes do |options|
 
   unless options[:force_yes]
     confirm = UI.confirm("Do you want to proceed with these release notes updates?")
-    unless confirm
-      UI.user_error!("User aborted the lane.")
-    end
+    UI.user_error!("User aborted the lane.") unless confirm
   end
 
-  # Update release notes in App Store Connect and skip all other metadata
+  # Update release notes in App Store Connect
   localized_release_notes.each do |locale, notes|
     app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
-
     if app_store_version_localization
       app_store_version_localization.update(attributes: { "whats_new" => notes })
     else
       UI.error("No localization found for locale #{locale}")
     end
   end
-end
-
+  end
 end

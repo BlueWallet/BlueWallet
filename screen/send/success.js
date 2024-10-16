@@ -54,7 +54,7 @@ const Success = () => {
         <HandOffComponent
           title={loc.transactions.details_title}
           type={HandOffActivityType.ViewInBlockExplorer}
-          url={`${selectedBlockExplorer}/tx/${txid}`}
+          url={`${selectedBlockExplorer.url}/tx/${txid}`}
         />
       )}
     </SafeArea>
