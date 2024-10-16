@@ -278,9 +278,14 @@ const ElectrumSettings: React.FC = () => {
 
   const checkServer = async () => {
     setIsLoading(true);
-    const features = await BlueElectrum.serverFeatures();
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    presentAlert({ message: JSON.stringify(features, null, 2) });
+    try {
+      const features = await BlueElectrum.serverFeatures();
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+      presentAlert({ message: JSON.stringify(features, null, 2) });
+    } catch (error) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: loc.settings.electrum_server_error });
+    }
     setIsLoading(false);
   };
 
