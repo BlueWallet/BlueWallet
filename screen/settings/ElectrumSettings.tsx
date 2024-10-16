@@ -284,7 +284,7 @@ const ElectrumSettings: React.FC = () => {
       presentAlert({ message: JSON.stringify(features, null, 2) });
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.electrum_server_error });
+      presentAlert({ message: (error as Error).message });
     }
     setIsLoading(false);
   };
