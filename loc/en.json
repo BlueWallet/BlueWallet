@@ -211,6 +211,8 @@
     "performance_score": "Performance score: {num}",
     "run_performance_test": "Test performance",
     "about_selftest": "Run self-test",
+    "select_wallet_for_action_button": "Select Wallet for Action Button",
+    "no_wallet_selected": "No wallet selected",
     "block_explorer_invalid_custom_url": "The URL provided is invalid. Please enter a valid URL starting with http:// or https://.",
     "about_selftest_electrum_disabled": "Self-testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",

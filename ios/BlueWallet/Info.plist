@@ -319,5 +319,14 @@
     <false/>
     <key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>
     <false/>
+    <key>NSAppIntents</key>
+    <array>
+        <dict>
+            <key>INIntentClassName</key>
+            <string>ShowQRCodeIntent</string>
+            <key>IntentName</key>
+            <string>Show QR Code</string>
+        </dict>
+    </array>
 </dict>
 </plist>
