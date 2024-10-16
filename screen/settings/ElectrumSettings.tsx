@@ -153,6 +153,16 @@ const ElectrumSettings: React.FC = () => {
     setIsLoading(true);
 
     try {
+      if (!host) {
+        presentAlert({ message: loc.settings.electrum_host_required });
+        setIsLoading(false);
+        return;
+      }
+      if (!port && !sslPort) {
+        presentAlert({ message: loc.settings.electrum_port_required });
+        setIsLoading(false);
+        return;
+      }
       if (!host && !port && !sslPort) {
         await AsyncStorage.removeItem(BlueElectrum.ELECTRUM_HOST);
         await AsyncStorage.removeItem(BlueElectrum.ELECTRUM_TCP_PORT);
