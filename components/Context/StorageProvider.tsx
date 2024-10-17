@@ -9,6 +9,7 @@ import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
+import { checkAndUpdateReceiveBitcoinIntent } from '../../helpers/intents';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -216,6 +217,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     },
     [saveToDisk, wallets],
   );
+
+  useEffect(() => {
+    if (walletsInitialized) {
+      checkAndUpdateReceiveBitcoinIntent(wallets);
+    }
+  }, [walletsInitialized, wallets]);
 
   const addAndSaveWallet = useCallback(
     async (w: TWallet) => {

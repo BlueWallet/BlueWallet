@@ -143,7 +143,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
         {rightTitle && (
           <View style={styles.margin8}>
-            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
+            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0} >
               {rightTitle}
             </RNElementsListItem.Title>
           </View>

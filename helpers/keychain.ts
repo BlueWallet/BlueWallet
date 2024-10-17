@@ -1,47 +1,45 @@
 import * as Keychain from 'react-native-keychain';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { DEFAULT_SERVICE } from './intents';
 
-const DEFAULT_SERVICE = 'io.bluewallet.bluewallet'; // Generic service identifier
-const ACCESS_GROUP = 'group.io.bluewallet.bluewallet'; // Keychain access group
+const ACCESS_GROUP = GROUP_IO_BLUEWALLET;
 
 /**
- * Stores any key-value pair in the Keychain.
- * @param {Record<string, string>} data - Dictionary-style object where keys are the keychain keys and values are the data to store.
- * @param {string} service - Service identifier for Keychain. Defaults to a generic service.
+ * Stores key-value pairs in the Keychain.
+ * @param {Record<string, string>} data - Dictionary-style object where keys are the Keychain keys and values are the data to store.
  */
-export const storeInKeychain = async (
-  data: Record<string, string>,
-  service: string = DEFAULT_SERVICE,
-): Promise<void> => {
+export const storeInKeychain = async (data: Record<string, string>, service: string = DEFAULT_SERVICE): Promise<void> => {
   try {
-    // Store each key-value pair
     for (const [key, value] of Object.entries(data)) {
-      await Keychain.setGenericPassword(key, value, {
-        service: `${service}.${key}`, // Unique service for each key
-        accessGroup: ACCESS_GROUP,
-      });
+      if (typeof value === 'string') {
+        await Keychain.setGenericPassword(key, value, {
+          service: `${service}.${key}`,
+          accessGroup: ACCESS_GROUP,
+        });
+      }
     }
-    console.log('Data successfully stored in Keychain.');
   } catch (error) {
     console.error('Error storing data in Keychain', error);
   }
 };
 
 /**
- * Retrieves the data associated with the specified key.
- * @param {string} key - Key to retrieve the value for.
- * @param {string} service - Service identifier for Keychain. Defaults to a generic service.
- * @returns {Promise<string | null>}
+ * Retrieves a value from the Keychain by key.
+ * @param {string} key - The key to retrieve from the Keychain.
+ * @returns {Promise<Record<string, string> | null>} - The value from Keychain or null if not found.
  */
-export const getFromKeychain = async (
-  key: string,
-  service: string = DEFAULT_SERVICE,
-): Promise<string | null> => {
+export const getFromKeychain = async (key: string): Promise<Record<string, string> | null> => {
   try {
     const credentials = await Keychain.getGenericPassword({
-      service: `${service}.${key}`, // Unique service for each key
+      service: `${DEFAULT_SERVICE}.${key}`,
       accessGroup: ACCESS_GROUP,
     });
-    return credentials ? credentials.password : null;
+    if (credentials) {
+      return {
+        [credentials.username]: credentials.password,
+      } as Record<string, string>;
+    }
+    return null;
   } catch (error) {
     console.error('Error retrieving data from Keychain', error);
     return null;
@@ -49,17 +47,13 @@ export const getFromKeychain = async (
 };
 
 /**
- * Deletes the data associated with the specified key from the Keychain.
- * @param {string} key - Key to delete from the Keychain.
- * @param {string} service - Service identifier for Keychain. Defaults to a generic service.
+ * Deletes a value from the Keychain by key.
+ * @param {string} key - The key to delete from the Keychain.
  */
-export const deleteFromKeychain = async (
-  key: string,
-  service: string = DEFAULT_SERVICE,
-): Promise<void> => {
+export const deleteFromKeychain = async (key: string): Promise<void> => {
   try {
     await Keychain.resetGenericPassword({
-      service: `${service}.${key}`, // Unique service for each key
+      service: `${DEFAULT_SERVICE}.${key}`,
       accessGroup: ACCESS_GROUP,
     });
     console.log('Data successfully deleted from Keychain.');
