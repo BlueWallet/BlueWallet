@@ -105,6 +105,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await yo('PayjoinSwitch');
@@ -136,6 +137,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await yo('PayjoinSwitch');
@@ -164,6 +166,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -303,6 +306,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -496,6 +500,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
 
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -654,6 +659,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -684,6 +690,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex2 = await extractTextFromElementById('TxhexInput');
