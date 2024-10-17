@@ -19,6 +19,8 @@ const keys = {
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
   PaymentsCode: 'paymentsCode',
+  ResetToDefault: 'resetToDefault',
+  ClearHistory: 'clearHistory',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
@@ -69,6 +71,9 @@ const icons = {
   },
   PaymentsCode: {
     iconValue: 'qrcode',
+  },
+  ClearHistory: {
+    iconValue: 'trash',
   },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
@@ -184,5 +189,14 @@ export const CommonToolTipActions = {
     text: loc.bip47.purpose,
     icon: icons.PaymentsCode,
     menuState: false,
+  },
+  ResetToDefault: {
+    id: keys.ResetToDefault,
+    text: loc.settings.electrum_reset,
+  },
+  ClearHistory: {
+    id: keys.ClearHistory,
+    text: loc.settings.electrum_clear,
+    icon: icons.ClearHistory,
   },
 };
