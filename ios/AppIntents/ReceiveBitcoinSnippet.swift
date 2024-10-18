@@ -1,25 +1,25 @@
 import SwiftUI
+import CoreImage.CIFilterBuiltins
 
 @available(iOS 16.4, *)
 struct ReceiveBitcoinSnippet: View {
     let qrCode: String
-    let label: String
     
+    @Environment(\.colorScheme) var colorScheme
+
     var body: some View {
         VStack {
-            Text(label)
-                .font(.headline) // Use headline for the label
-                .padding(.bottom, 10)
-
             if let qrImage = generateQRCode(from: qrCode) {
                 Image(uiImage: qrImage)
+                    .interpolation(.none)
                     .resizable()
                     .frame(width: 200, height: 200)
                     .aspectRatio(contentMode: .fit)
                     .overlay(
-                        Image("AppIcon")  // Add your app icon in the overlay
+                        Image("SplashIcon")
                             .resizable()
                             .frame(width: 50, height: 50)
+                            .background(Color.white.opacity(0.75))
                     )
             } else {
                 Text("Unable to generate QR code.")
@@ -31,15 +31,28 @@ struct ReceiveBitcoinSnippet: View {
                 .font(.subheadline)
                 .padding(.top, 10)
                 .multilineTextAlignment(.center)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
         }
         .padding()
     }
-  
-    // Build styled address helper
+
+    private func generateQRCode(from string: String) -> UIImage? {
+        let data = string.data(using: .ascii)
+        let filter = CIFilter.qrCodeGenerator()
+        filter.setValue(data, forKey: "inputMessage")
+        if let outputImage = filter.outputImage {
+            let scaledImage = outputImage.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
+            let context = CIContext()
+            if let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) {
+                return UIImage(cgImage: cgImage)
+            }
+        }
+        return nil
+    }
+
     private func buildStyledAddress(qrCode: String) -> some View {
         let firstFour = Text(qrCode.prefix(4)).fontWeight(.heavy).monospaced()
         let lastFour = Text(qrCode.suffix(4)).fontWeight(.heavy).monospaced()
-        
         let middle = qrCode.dropFirst(4).dropLast(4)
         let halfIndex = middle.index(middle.startIndex, offsetBy: middle.count / 2)
         let firstMiddle = Text(middle[..<halfIndex]).monospaced()
@@ -63,21 +76,5 @@ struct ReceiveBitcoinSnippet: View {
         .lineLimit(nil)
         .multilineTextAlignment(.center)
         .padding(.vertical, 10)
-    }
-
-    // QR code generation helper
-    private func generateQRCode(from string: String) -> UIImage? {
-        let data = string.data(using: .ascii)
-        let filter = CIFilter(name: "CIQRCodeGenerator")
-        filter?.setValue(data, forKey: "inputMessage")
-        filter?.setValue("L", forKey: "inputCorrectionLevel") // Error correction level
-
-        if let outputImage = filter?.outputImage {
-            let context = CIContext()
-            if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
-                return UIImage(cgImage: cgImage)
-            }
-        }
-        return nil
     }
 }

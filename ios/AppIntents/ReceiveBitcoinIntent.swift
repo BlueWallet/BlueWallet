@@ -26,8 +26,8 @@ struct ReceiveBitcoinIntent: AppIntent {
         }
 
         // Return the SwiftUI view with the snippet data.
-        return .result(dialog: IntentDialog("Here is your Bitcoin address.")) {
-            ReceiveBitcoinSnippet(qrCode: qrCodeData.address, label: qrCodeData.label)
+      return .result(dialog: IntentDialog(stringLiteral: qrCodeData.label)) {
+            ReceiveBitcoinSnippet(qrCode: qrCodeData.address)
         }
     }
 }
