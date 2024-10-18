@@ -52,7 +52,7 @@ export type DetailViewStackParamList = {
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
-  DefaultView: undefined;
+  ShortcutsSettings: undefined;
   ElectrumSettings: undefined;
   SettingsBlockExplorer: undefined;
   EncryptStorage: undefined;

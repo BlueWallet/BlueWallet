@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { BlueSpacing20 } from '../../BlueComponents';
@@ -7,6 +7,8 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const styles = StyleSheet.create({
   root: {
@@ -14,10 +16,12 @@ const styles = StyleSheet.create({
   },
 });
 
+type NavigationProps = NavigationProp<DetailViewStackParamList, 'GeneralSettings'>;
+
 const GeneralSettings: React.FC = () => {
   const { wallets } = useStorage();
   const { isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage, isLegacyURv1Enabled, setIsLegacyURv1EnabledStorage } = useSettings();
-  const { navigate } = useNavigation();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
 
   const navigateToPrivacy = () => {
@@ -40,7 +44,7 @@ const GeneralSettings: React.FC = () => {
       {wallets.length > 0 && (
         <>
           {/* @ts-ignore: Fix later */}
-          <ListItem onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
+          <ListItem onPress={() => navigate('ShortcutsSettings')} title={loc.settings.shortcuts_title} chevron />
         </>
       )}
       <ListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />

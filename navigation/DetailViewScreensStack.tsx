@@ -33,7 +33,7 @@ import {
   AboutComponent,
   BlockExplorerSettingsComponent,
   CurrencyComponent,
-  DefaultViewComponent,
+  ShortcutSettingsComponent,
   ElectrumSettingsComponent,
   EncryptStorageComponent,
   GeneralSettingsComponent,
@@ -313,9 +313,9 @@ const DetailViewStackScreensStack = () => {
 
       <DetailViewStack.Screen name="About" component={AboutComponent} options={navigationStyle({ title: loc.settings.about })(theme)} />
       <DetailViewStack.Screen
-        name="DefaultView"
-        component={DefaultViewComponent}
-        options={navigationStyle({ title: loc.settings.default_title })(theme)}
+        name="ShortcutsSettings"
+        component={ShortcutSettingsComponent}
+        options={navigationStyle({ title: loc.settings.shortcuts_title })(theme)}
       />
       <DetailViewStack.Screen
         name="ElectrumSettings"

@@ -28,8 +28,13 @@ const useOnAppLaunch = () => {
   }, [STORAGE_KEY]);
 
   const setSelectedDefaultWallet = useCallback(
-    async (value: string): Promise<void> => {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    async (value: string | undefined): Promise<void> => {
+      if (value) {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+
+      } else {
+        await AsyncStorage.removeItem(STORAGE_KEY);
+      }
     },
     [STORAGE_KEY],
   ); // No external dependencies
