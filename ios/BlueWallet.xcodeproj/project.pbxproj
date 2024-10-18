@@ -124,6 +124,7 @@
 		B478BBE02CC1F88100542A2F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBDE2CC1F88100542A2F /* KeychainService.swift */; };
 		B478BBE12CC1F88100542A2F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBDE2CC1F88100542A2F /* KeychainService.swift */; };
 		B478BBEA2CC2044D00542A2F /* ReceiveBitcoinIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */; };
+		B478BBEC2CC2255F00542A2F /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
@@ -353,6 +354,7 @@
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
 		B478BBDE2CC1F88100542A2F /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBitcoinIntent.swift; sourceTree = "<group>"; };
+		B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
@@ -450,7 +452,7 @@
 		13B07FAE1A68108700A75B9A /* BlueWallet */ = {
 			isa = PBXGroup;
 			children = (
-				B425799C2CBF68C100F5C0E4 /* Intents */,
+				B425799C2CBF68C100F5C0E4 /* AppIntents */,
 				B461B850299599F800E431AA /* AppDelegate.h */,
 				B461B851299599F800E431AA /* AppDelegate.mm */,
 				32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */,
@@ -693,12 +695,13 @@
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
-		B425799C2CBF68C100F5C0E4 /* Intents */ = {
+		B425799C2CBF68C100F5C0E4 /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
+				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
 				B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */,
 			);
-			path = Intents;
+			path = AppIntents;
 			sourceTree = "<group>";
 		};
 		B43D03242258474500FBAA95 /* Objects */ = {
@@ -1180,6 +1183,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B478BBEC2CC2255F00542A2F /* AppShortcuts.swift in Sources */,
 				B44033E92BCC371A00162242 /* MarketData.swift in Sources */,
 				B44033CA2BCC350A00162242 /* Currency.swift in Sources */,
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,

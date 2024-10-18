@@ -14,7 +14,8 @@ struct ReceiveBitcoinIntent: AppIntent {
         Summary("Receive Bitcoin from your selected wallet")
     }
 
-    func perform() async throws -> some IntentResult & ProvidesDialog {
+
+  func perform() async throws -> some IntentResult & ProvidesDialog {
         // Fetch wallet data (address and label) from Keychain
         guard let qrCodeData = KeychainService.shared.fetchQRCodeData() else {
             return .result(dialog: IntentDialog("No wallet data found. Please set up your wallet in BlueWallet."))
