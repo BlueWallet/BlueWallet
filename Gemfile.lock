@@ -5,7 +5,7 @@ GEM
       base64
       nkf
       rexml
-    activesupport (7.2.1)
+    activesupport (7.2.1.1)
       base64
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.3.1)
@@ -24,7 +24,7 @@ GEM
     artifactory (3.0.17)
     atomos (0.1.3)
     aws-eventstream (1.3.0)
-    aws-partitions (1.989.0)
+    aws-partitions (1.991.0)
     aws-sdk-core (3.209.1)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
@@ -33,7 +33,7 @@ GEM
     aws-sdk-kms (1.94.0)
       aws-sdk-core (~> 3, >= 3.207.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.167.0)
+    aws-sdk-s3 (1.168.0)
       aws-sdk-core (~> 3, >= 3.207.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -299,7 +299,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 6.1.7.5, != 7.1.0)
   cocoapods (>= 1.13, != 1.15.1, != 1.15.0)
-  fastlane
+  fastlane (>= 2.224.0)
   fastlane-plugin-browserstack
   rubyzip (= 2.3.2)
 
