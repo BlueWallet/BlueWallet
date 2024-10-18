@@ -27,7 +27,7 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
     return;
   }
 
-  const currentLabel = currentWallet.getLabel();
+  const currentLabel = currentWallet.getLabel().replace(/[^a-zA-Z0-9 ]/g, ''); // Handle special characters
   const currentAddress = await currentWallet.getAddressAsync();
 
   if (storedLabel !== currentLabel || storedAddress !== currentAddress) {
