@@ -3,59 +3,73 @@ import Foundation
 
 class KeychainService {
     static let shared = KeychainService()
-    private let accessGroup = "group.io.bluewallet.bluewallet"
+    private let accessGroup = "A7W54YZ4WU.group.io.bluewallet.bluewallet"
 
     private init() {}
 
-  func fetchQRCodeData() -> (label: String, address: String)? {
-      let query: [String: Any] = [
-          kSecClass as String: kSecClassGenericPassword,
-          kSecAttrService as String: "io.bluewallet.bluewallet.receivebitcoin",
-          kSecAttrAccessGroup as String: accessGroup,
-          kSecReturnAttributes as String: true,
-          kSecReturnData as String: true
-      ]
+    // Fetch QR code data
+    func fetchQRCodeData() -> (label: String, address: String)? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrAccessGroup as String: accessGroup,
+            kSecReturnAttributes as String: true,
+            kSecReturnData as String: true
+        ]
 
-      var item: CFTypeRef?
-      let status = SecItemCopyMatching(query as CFDictionary, &item)
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
 
-      if status == errSecSuccess, let existingItem = item as? [String: Any],
-         let data = existingItem[kSecValueData as String] as? Data,
-         let qrDataString = String(data: data, encoding: .utf8) {
-          let components = qrDataString.split(separator: ",")
-          if components.count >= 2 {
-              return (label: String(components[0]), address: String(components[1]))
-          }
-      } else {
-          print("Keychain query failed with status: \(status)")
-      }
-      return nil
-  }
-  func saveQRCodeData(label: String, address: String) -> Result<Bool, Error> {
-      let qrDataString = "\(label),\(address)"
-      guard let qrData = qrDataString.data(using: .utf8) else {
-          print("Failed to encode data")
-          return .failure(KeychainError.invalidData)
-      }
+        if status == errSecSuccess, let existingItem = item as? [String: Any],
+           let data = existingItem[kSecValueData as String] as? Data,
+           let qrDataString = String(data: data, encoding: .utf8) {
+            
+            let components = qrDataString.split(separator: ",").map { String($0).removingPercentEncoding ?? String($0) }
+            if components.count >= 2 {
+                return (label: components[1], address: components[0])
+            }
+        }
+        return nil
+    }
 
-      let query: [String: Any] = [
-          kSecClass as String: kSecClassGenericPassword,
-          kSecAttrService as String: "io.bluewallet.bluewallet.receivebitcoin",
-          kSecAttrAccessGroup as String: accessGroup,
-          kSecValueData as String: qrData
-      ]
+    // Save QR code data
+    func saveQRCodeData(label: String, address: String) -> Result<Bool, Error> {
+        let qrDataString = "\(address.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""),\(label.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")"
+        guard let qrData = qrDataString.data(using: .utf8) else { return .failure(KeychainError.invalidData) }
 
-      let status = SecItemAdd(query as CFDictionary, nil)
-      if status == errSecSuccess {
-          print("Data saved successfully.")
-          return .success(true)
-      } else {
-          print("Failed to save data with status: \(status)")
-          return .failure(KeychainError.unableToSave(status))
-      }
-  }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrAccessGroup as String: accessGroup,
+            kSecValueData as String: qrData
+        ]
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        if status == errSecSuccess {
+            return .success(true)
+        } else {
+            return .failure(KeychainError.unableToSave(status))
+        }
+    }
+
+    // Delete QR code data
+    func deleteQRCodeData() -> Result<Bool, Error> {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrAccessGroup as String: accessGroup
+        ]
+
+        let status = SecItemDelete(query as CFDictionary)
+        if status == errSecSuccess {
+            return .success(true)
+        } else {
+            return .failure(KeychainError.unableToDelete(status))
+        }
+    }
 }
 
+// Custom error types for Keychain operations
 enum KeychainError: Error {
     case invalidData
     case unableToSave(OSStatus)

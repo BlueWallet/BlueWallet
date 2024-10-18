@@ -101,14 +101,23 @@ const ShortcutSettings: React.FC = () => {
 
   useEffect(() => {
     const fetchReceiveBitcoinIntentData = async () => {
-      const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
-      if (storedData) {
-        const wallet = wallets.find(w => w.getID() === storedData.walletID);
-        dispatch({ type: ActionType.SetIntentWalletLabel, payload: wallet?.getLabel() || loc.settings.no_wallet_selected });
-        dispatch({ type: ActionType.SetUseReceiveBitcoinIntentSwitch, payload: true });
-      }
+      // Slight delay to ensure app initialization
+      setTimeout(async () => {
+        const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+        if (storedData) {
+          const wallet = wallets.find(w => w.getID() === storedData.walletID);
+          dispatch({
+            type: ActionType.SetIntentWalletLabel,
+            payload: wallet?.getLabel() || loc.settings.no_wallet_selected,
+          });
+          dispatch({
+            type: ActionType.SetUseReceiveBitcoinIntentSwitch,
+            payload: true,
+          });
+        }
+      }, 500); // Delay of 500ms
     };
-
+  
     fetchReceiveBitcoinIntentData();
   }, [wallets]);
 

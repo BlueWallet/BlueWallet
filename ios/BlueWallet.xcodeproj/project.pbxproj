@@ -126,6 +126,9 @@
 		B478BBEA2CC2044D00542A2F /* ReceiveBitcoinIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */; };
 		B478BBEC2CC2255F00542A2F /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
+		B48A81682CC28B68009366D1 /* ReceiveBitcoinSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */; };
+		B48A816A2CC28DA3009366D1 /* ScanQRCodeIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A81692CC28DA3009366D1 /* ScanQRCodeIntent.swift */; };
+		B48A816C2CC28F91009366D1 /* SendBitcoinIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A816B2CC28F91009366D1 /* SendBitcoinIntent.swift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -356,6 +359,9 @@
 		B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBitcoinIntent.swift; sourceTree = "<group>"; };
 		B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
+		B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBitcoinSnippet.swift; sourceTree = "<group>"; };
+		B48A81692CC28DA3009366D1 /* ScanQRCodeIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRCodeIntent.swift; sourceTree = "<group>"; };
+		B48A816B2CC28F91009366D1 /* SendBitcoinIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendBitcoinIntent.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
@@ -698,6 +704,9 @@
 		B425799C2CBF68C100F5C0E4 /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
+				B48A816B2CC28F91009366D1 /* SendBitcoinIntent.swift */,
+				B48A81692CC28DA3009366D1 /* ScanQRCodeIntent.swift */,
+				B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */,
 				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
 				B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */,
 			);
@@ -1201,6 +1210,8 @@
 				B44033C42BCC332400162242 /* Balance.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
 				B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */,
+				B48A81682CC28B68009366D1 /* ReceiveBitcoinSnippet.swift in Sources */,
+				B48A816C2CC28F91009366D1 /* SendBitcoinIntent.swift in Sources */,
 				B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
@@ -1210,6 +1221,7 @@
 				B44033E42BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033BF2BCC32F800162242 /* BitcoinUnit.swift in Sources */,
 				B44034052BCC389200162242 /* XMLParserDelegate.swift in Sources */,
+				B48A816A2CC28DA3009366D1 /* ScanQRCodeIntent.swift in Sources */,
 				B44033F92BCC379200162242 /* WidgetDataStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
