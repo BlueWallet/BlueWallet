@@ -1,19 +1,11 @@
 import { getFromKeychain, storeInKeychain, deleteFromKeychain } from './keychain';
 import { TWallet } from '../class/wallets/types';
 
-export const DEFAULT_SERVICE = 'io.bluewallet.bluewallet.receivebitcoin';
-const INTENT_KEY = 'io.bluewallet.bluewallet.receivebitcoin';
-/**
- * Helper function to check if the Receive Bitcoin Intent is enabled.
- * If enabled, it will verify if there's any change in the wallet information (ID, label, address).
- * If any change is detected, it updates the Keychain information accordingly.
- * If the wallet was deleted or is no longer available, it removes the data from Keychain.
- * @returns {Promise<void>}
- */
-export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Promise<void> => {
-  const intentKey = INTENT_KEY;
+export const RECEIVE_BITCOIN_INTENT_KEY = 'receivebitcoin';
 
-  const storedData = await getFromKeychain(intentKey);
+export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Promise<void> => {
+  const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+
   if (!storedData) {
     console.debug('Receive Bitcoin Intent is not enabled.');
     return;
@@ -23,7 +15,7 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
 
   if (!storedLabel || !storedAddress || !storedWalletID) {
     console.debug('Stored data is incomplete. Removing intent data from the Keychain.');
-    await deleteFromKeychain(intentKey);
+    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
     return;
   }
 
@@ -31,7 +23,7 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
 
   if (!currentWallet) {
     console.debug('The wallet was deleted. Removing intent data from the Keychain.');
-    await deleteFromKeychain(intentKey);
+    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
     return;
   }
 
@@ -44,9 +36,10 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
       {
         address: currentAddress || '',
         label: currentLabel || '',
-        walletID: storedWalletID || '',
+        walletID: currentWallet.getID() || '',
       },
-      intentKey 
+      RECEIVE_BITCOIN_INTENT_KEY,
+      true
     );
   } else {
     console.debug('No changes detected in the wallet.');

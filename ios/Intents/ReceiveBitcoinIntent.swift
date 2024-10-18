@@ -1,7 +1,8 @@
 import AppIntents
 import SwiftUI
+import UIKit
 
-@available(iOS 16.0, *)
+@available(iOS 16.4, *)
 struct ReceiveBitcoinIntent: AppIntent {
     static var title: LocalizedStringResource = "Receive Bitcoin"
     
@@ -13,66 +14,41 @@ struct ReceiveBitcoinIntent: AppIntent {
         Summary("Receive Bitcoin from your selected wallet")
     }
 
-    func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
-        // Fetch the wallet information (label and address) from Keychain
-        guard let qrCodeData = KeychainManager.shared.fetchQRCodeData() else {
-            return .dialog("No wallet data found. Please set up your wallet in BlueWallet.")
-                .snippet(FailureView(errorMessage: "No wallet data found."))
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        // Fetch wallet data (address and label) from Keychain
+        guard let qrCodeData = KeychainService.shared.fetchQRCodeData() else {
+            return .result(dialog: IntentDialog("No wallet data found. Please set up your wallet in BlueWallet."))
         }
 
-        // Ensure both label and address exist
+        // Ensure both label and address are available
         guard !qrCodeData.label.isEmpty, !qrCodeData.address.isEmpty else {
-            return .dialog("Incomplete wallet data. Ensure both label and address are set.")
-                .snippet(FailureView(errorMessage: "Missing label or address."))
+            return .result(dialog: IntentDialog("Incomplete wallet data. Ensure both label and address are set."))
         }
 
-        // Success: Display the wallet label and QR code
-        return .dialog("Here is your Bitcoin address:")
-            .snippet(ReceiveBitcoinView(qrCode: qrCodeData.address, label: qrCodeData.label))
-    }
-}
-
-// The SwiftUI view for displaying the wallet QR code and label
-@available(iOS 16.0, *)
-struct ReceiveBitcoinView: View {
-    let qrCode: String
-    let label: String
-    
-    var body: some View {
-        VStack {
-            Text(label)
-                .font(.title)
-                .padding(.bottom, 10)
-
-            if let qrImage = generateQRCode(from: qrCode) {
-                Image(uiImage: qrImage)
-                    .resizable()
-                    .frame(width: 200, height: 200)
-                    .aspectRatio(contentMode: .fit)
-                    .overlay(
-                        Image("Splashicon")
-                            .resizable()
-                            .frame(width: 50, height: 50)
-                    )
-            } else {
-                Text("Unable to generate QR code.")
-                    .font(.body)
-                    .foregroundColor(.red)
-            }
-
-            Text(buildStyledAddress(qrCode: qrCode))
-                .font(.subheadline)
-                .padding(.top, 10)
-                .multilineTextAlignment(.center)
+        // Generate the QR code for the address (stored in memory)
+        guard let qrCodeImage = generateQRCode(from: qrCodeData.address) else {
+            return .result(dialog: IntentDialog("Unable to generate QR code for the Bitcoin address."))
         }
-        .padding()
+
+        // Convert the image to base64 to embed in the dialog
+        guard let qrCodeBase64String = qrCodeImage.jpegData(compressionQuality: 0.8)?.base64EncodedString() else {
+            return .result(dialog: IntentDialog("Failed to encode QR code as image."))
+        }
+
+        let formattedAddress = formatAddressForDisplay(qrCodeData.address)
+        let dialogMessage = "\(qrCodeData.label)\nBitcoin Address: \(formattedAddress)\n\nQR Code:\n[data:image/jpeg;base64,\(qrCodeBase64String)]"
+
+        // Show the dialog with the QR code and formatted address
+      return .result(dialog: IntentDialog(stringLiteral: dialogMessage))
     }
-    
-    // Helper function to generate a QR code from a string
+
+    // Helper method for QR code generation (stores image in memory)
     private func generateQRCode(from string: String) -> UIImage? {
         let data = string.data(using: .ascii)
         let filter = CIFilter(name: "CIQRCodeGenerator")
         filter?.setValue(data, forKey: "inputMessage")
+        filter?.setValue("L", forKey: "inputCorrectionLevel") // Error correction level
+
         if let outputImage = filter?.outputImage {
             let context = CIContext()
             if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
@@ -81,25 +57,17 @@ struct ReceiveBitcoinView: View {
         }
         return nil
     }
-}
 
-// Failure view to display when wallet data is missing or incomplete
-@available(iOS 16.0, *)
-struct FailureView: View {
-    let errorMessage: String
-    
-    var body: some View {
-        VStack {
-            Text("Error")
-                .font(.title)
-                .foregroundColor(.red)
-                .padding()
+    // Helper method to format the address for display
+    private func formatAddressForDisplay(_ address: String) -> String {
+        let firstFour = address.prefix(4)
+        let lastFour = address.suffix(4)
+        let middle = address.dropFirst(4).dropLast(4)
+        let halfIndex = middle.index(middle.startIndex, offsetBy: middle.count / 2)
 
-            Text(errorMessage)
-                .font(.body)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .padding()
-        }
+        let firstMiddle = middle[..<halfIndex]
+        let secondMiddle = middle[halfIndex...]
+
+        return "\(firstFour) \(firstMiddle)\n\(secondMiddle) \(lastFour)"
     }
 }

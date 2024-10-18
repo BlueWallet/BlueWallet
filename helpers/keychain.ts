@@ -1,63 +1,76 @@
 import * as Keychain from 'react-native-keychain';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
-import { DEFAULT_SERVICE } from './intents';
 
-const ACCESS_GROUP = GROUP_IO_BLUEWALLET;
+export const APP_INTENTS = ['receivebitcoin'];
 
-/**
- * Stores key-value pairs in the Keychain.
- * @param {Record<string, string>} data - Dictionary-style object where keys are the Keychain keys and values are the data to store.
- */
-export const storeInKeychain = async (data: Record<string, string>, service: string = DEFAULT_SERVICE): Promise<void> => {
+export const storeInKeychain = async (
+  data: { address: string; label: string; walletID: string },
+  service: string,
+  useAccessGroup: boolean = false
+): Promise<Error | null> => {
+  const { address, label, walletID } = data;
+  const qrDataString = `${address},${label},${walletID}`; // Properly concatenating the values
+
+  const keychainOptions: Keychain.Options = {
+    service,
+    accessGroup: useAccessGroup ? GROUP_IO_BLUEWALLET : undefined, 
+  };
+
   try {
-    for (const [key, value] of Object.entries(data)) {
-      if (typeof value === 'string') {
-        await Keychain.setGenericPassword(key, value, {
-          service: `${service}.${key}`,
-          accessGroup: ACCESS_GROUP,
-        });
-      }
+    console.debug('Storing in keychain with service:', service, 'and accessGroup:', keychainOptions.accessGroup);
+    const result = await Keychain.setGenericPassword('qrData', qrDataString, keychainOptions);
+    if (!result) {
+      throw new Error('Failed to store data in keychain');
     }
+    console.debug('Successfully stored data in keychain:', qrDataString);
+    return null; // Success, no errors
   } catch (error) {
-    console.error('Error storing data in Keychain', error);
+    console.error('Error storing data in keychain:', error);
+    return Promise.reject(error); // Return the error object
   }
 };
 
-/**
- * Retrieves a value from the Keychain by key.
- * @param {string} key - The key to retrieve from the Keychain.
- * @returns {Promise<Record<string, string> | null>} - The value from Keychain or null if not found.
- */
-export const getFromKeychain = async (key: string): Promise<Record<string, string> | null> => {
+export const getFromKeychain = async (
+  key: string,
+  useAccessGroup: boolean = false
+): Promise<{ address: string; label: string; walletID: string } | null> => {
+  const keychainOptions: Keychain.Options = {
+    service: key,
+    accessGroup: useAccessGroup ? 'group.io.bluewallet.bluewallet' : undefined, // Ensure access group matches
+  };
+
   try {
-    const credentials = await Keychain.getGenericPassword({
-      service: `${DEFAULT_SERVICE}.${key}`,
-      accessGroup: ACCESS_GROUP,
-    });
+    console.debug('Fetching from keychain with service:', key, 'and accessGroup:', keychainOptions.accessGroup);
+    const credentials = await Keychain.getGenericPassword(keychainOptions);
+
     if (credentials) {
-      return {
-        [credentials.username]: credentials.password,
-      } as Record<string, string>;
+      console.debug('Keychain data found:', credentials.password);
+      const [address, label, walletID] = credentials.password.split(',');
+      return { address, label, walletID };
+    } else {
+      console.debug('No credentials found in keychain');
     }
+
     return null;
   } catch (error) {
-    console.error('Error retrieving data from Keychain', error);
+    console.error('Error retrieving data from keychain:', error);
     return null;
   }
 };
 
-/**
- * Deletes a value from the Keychain by key.
- * @param {string} key - The key to delete from the Keychain.
- */
-export const deleteFromKeychain = async (key: string): Promise<void> => {
+export const deleteFromKeychain = async (key: string, useAccessGroup: boolean = false): Promise<void | Error> => {
   try {
+    const accessGroup = useAccessGroup && APP_INTENTS.includes(key) ? GROUP_IO_BLUEWALLET : undefined;
+
+    console.debug('Deleting from keychain with service:', `${GROUP_IO_BLUEWALLET}.${key}`, 'and accessGroup:', accessGroup);
     await Keychain.resetGenericPassword({
-      service: `${DEFAULT_SERVICE}.${key}`,
-      accessGroup: ACCESS_GROUP,
+      service: `${GROUP_IO_BLUEWALLET}.${key}`,
+      accessGroup,
     });
-    console.log('Data successfully deleted from Keychain.');
+
+    console.debug('Data successfully deleted from keychain.');
   } catch (error) {
-    console.error('Error deleting data from Keychain', error);
+    console.error('Error deleting data from keychain:', error);
+    return Promise.reject(error);
   }
 };

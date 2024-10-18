@@ -1,4 +1,4 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import { BlueSpacing20 } from '../../BlueComponents';

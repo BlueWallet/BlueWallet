@@ -1,15 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useReducer, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, View, Platform } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
 import ListItem from '../../components/ListItem';
 import { useStorage } from '../../hooks/context/useStorage';
-import { storeInKeychain, getFromKeychain } from '../../helpers/keychain'; // Ensure getFromKeychain is imported
+import { storeInKeychain, getFromKeychain, deleteFromKeychain } from '../../helpers/keychain';
 import DeviceInfo from 'react-native-device-info';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import presentAlert from '../../components/Alert';
+import selectWallet from '../../helpers/select-wallet';
+import { Chain } from '../../models/bitcoinUnits';
+import { RECEIVE_BITCOIN_INTENT_KEY } from '../../helpers/intents';
 
 type RootStackParamList = {
   SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };
@@ -64,6 +67,7 @@ const ShortcutSettings: React.FC = () => {
   const { navigate } = useNavigation<ShortcutSettingsNavigationProp>();
   const { wallets } = useStorage();
   const { getSelectedDefaultWallet, setSelectedDefaultWallet } = useOnAppLaunch();
+  const { name } = useRoute();
 
   useEffect(() => {
     const checkEnvironment = async () => {
@@ -81,9 +85,14 @@ const ShortcutSettings: React.FC = () => {
   useEffect(() => {
     const initializeDefaultWallet = async () => {
       const walletID = await getSelectedDefaultWallet();
-      const selectedWallet = wallets.find(wallet => wallet.getID() === walletID);
-      if (selectedWallet) {
-        dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
+      if (!walletID) {
+        dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: true });
+      } else {
+        const selectedWallet = wallets.find(wallet => wallet.getID() === walletID);
+        if (selectedWallet) {
+          dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
+          dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: false });
+        }
       }
     };
 
@@ -92,21 +101,25 @@ const ShortcutSettings: React.FC = () => {
 
   useEffect(() => {
     const fetchReceiveBitcoinIntentData = async () => {
-      const storedData = await getFromKeychain('io.bluewallet.bluewallet.receivebitcoin');
+      const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
       if (storedData) {
-        dispatch({ type: ActionType.SetIntentWalletLabel, payload: storedData.label });
+        const wallet = wallets.find(w => w.getID() === storedData.walletID);
+        dispatch({ type: ActionType.SetIntentWalletLabel, payload: wallet?.getLabel() || loc.settings.no_wallet_selected });
         dispatch({ type: ActionType.SetUseReceiveBitcoinIntentSwitch, payload: true });
       }
     };
 
     fetchReceiveBitcoinIntentData();
-  }, []);
+  }, [wallets]);
 
-  const selectWalletForReceiveBitcoinIntent = () => {
+  const selectWalletForReceiveBitcoinIntent = async () => {
     if (wallets.length === 0) {
       presentAlert({ message: loc.settings.no_wallet_available });
     } else {
-      navigate('SelectWallet', { onWalletSelect: onWalletSelectForReceiveBitcoinIntent, onChainRequireSend: false });
+      const wallet = await selectWallet(navigate, name, Chain.ONCHAIN);
+      if (wallet) {
+        await onWalletSelectForReceiveBitcoinIntent(wallet);
+      }
     }
   };
 
@@ -114,7 +127,7 @@ const ShortcutSettings: React.FC = () => {
     if (wallets.length === 0) {
       presentAlert({ message: loc.settings.no_wallet_available });
     } else {
-      navigate('SelectWallet', { onWalletSelect: onWalletSelectForDefault, onChainRequireSend: false });
+      selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelectForDefault);
     }
   };
 
@@ -122,14 +135,19 @@ const ShortcutSettings: React.FC = () => {
     const walletAddress = await wallet.getAddressAsync();
 
     if (typeof walletAddress === 'string') {
-      await storeInKeychain(
+      const error = await storeInKeychain(
         { address: walletAddress, label: wallet.getLabel(), walletID: wallet.getID() },
-        'io.bluewallet.bluewallet.receivebitcoin',
+        RECEIVE_BITCOIN_INTENT_KEY,
+        true, // Access group usage
       );
-      dispatch({ type: ActionType.SetIntentWalletLabel, payload: wallet.getLabel() });
-      dispatch({ type: ActionType.SetUseReceiveBitcoinIntentSwitch, payload: true });
+
+      if (error) {
+        presentAlert({ message: error.message }); // Display the specific error message to the user
+      } else {
+        dispatch({ type: ActionType.SetIntentWalletLabel, payload: wallet.getLabel() });
+        dispatch({ type: ActionType.SetUseReceiveBitcoinIntentSwitch, payload: true });
+      }
     }
-    pop();
   };
 
   const onWalletSelectForDefault = async (wallet: TWallet) => {
@@ -142,7 +160,7 @@ const ShortcutSettings: React.FC = () => {
 
     if (!value) {
       dispatch({ type: ActionType.SetIntentWalletLabel, payload: loc.settings.no_wallet_selected });
-      storeInKeychain({ address: '', label: '' }, 'io.bluewallet.bluewallet.receivebitcoin');
+      await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
     } else {
       const firstWallet = wallets[0];
       if (firstWallet) {
@@ -152,7 +170,6 @@ const ShortcutSettings: React.FC = () => {
       }
     }
   };
-
   const onViewAllWalletsSwitchValueChanged = async (value: boolean) => {
     dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
 
@@ -166,6 +183,9 @@ const ShortcutSettings: React.FC = () => {
       if (selectedWallet) {
         dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
       }
+    } else {
+      await setSelectedDefaultWallet(undefined);
+      dispatch({ type: ActionType.SetDefaultWalletLabel, payload: loc.settings.no_wallet_selected });
     }
   };
 
@@ -175,14 +195,14 @@ const ShortcutSettings: React.FC = () => {
         {isSupportedEnvironment && (
           <View>
             <ListItem
-              title={loc.settings.default_wallets}
+              title={loc.settings.view_wallet_transactions}
               Component={TouchableWithoutFeedback}
               switch={{
                 onValueChange: onViewAllWalletsSwitchValueChanged,
                 value: state.isViewAllWalletsSwitchEnabled,
                 disabled: wallets.length <= 0,
               }}
-              subtitle={loc.settings.default_desc}
+              subtitle={loc.settings.summary_transactions}
             />
 
             {!state.isViewAllWalletsSwitchEnabled && (
