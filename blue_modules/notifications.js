@@ -147,7 +147,7 @@ function Notifications(props) {
       ActionSheet.showActionSheetWithOptions(
         {
           title: loc.settings.notifications,
-          message: loc.notifications.would_you_like_to_receive_notifications,
+          message: `${loc.notifications.would_you_like_to_receive_notifications}\n${loc.settings.push_notifications_explanation}`,
           options,
           cancelButtonIndex: 0, // Assuming 'no and don't ask' is still treated as the cancel action
           anchor: anchor ? findNodeHandle(anchor.current) : undefined,

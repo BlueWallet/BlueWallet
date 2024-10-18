@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform } from 'react-native';
+import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
 
 import {
   CurrencyRate,
@@ -87,6 +87,7 @@ const Currency: React.FC = () => {
       isLoading={isSavingNewPreferredCurrency && selectedCurrency.endPointKey === item.endPointKey}
       subtitle={item.country}
       onPress={async () => {
+        Keyboard.dismiss();
         setIsSavingNewPreferredCurrency(item);
         try {
           await getFiatRate(item.endPointKey);

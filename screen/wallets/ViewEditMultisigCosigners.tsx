@@ -41,7 +41,7 @@ import prompt from '../../helpers/prompt';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -78,7 +78,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     Why the container view ? It was the easiest to get the ref for. No other reason.
   */
   const discardChangesRef = useRef<View>(null);
-  const { enableBlur, disableBlur } = usePrivacy();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -190,7 +189,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (hasLoaded.current) return;
       setIsLoading(true);
 
-      enableBlur();
+      disallowScreenshot(true);
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {
@@ -206,7 +205,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setIsLoading(false);
       });
       return () => {
-        disableBlur();
+        disallowScreenshot(false);
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps

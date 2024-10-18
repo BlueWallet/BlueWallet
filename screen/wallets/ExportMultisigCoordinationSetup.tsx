@@ -7,7 +7,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
@@ -75,7 +75,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();
-  const { enableBlur, disableBlur } = usePrivacy();
+
   const navigation = useNavigation();
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
@@ -99,7 +99,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(() => {
-        enableBlur();
+        disallowScreenshot(true);
         if (wallet) {
           setTimeout(async () => {
             try {
@@ -125,7 +125,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
       return () => {
         task.cancel();
-        disableBlur();
+        disallowScreenshot(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
