@@ -138,7 +138,7 @@ const ShortcutSettings: React.FC = () => {
       const error = await storeInKeychain(
         { address: walletAddress, label: wallet.getLabel(), walletID: wallet.getID() },
         RECEIVE_BITCOIN_INTENT_KEY,
-        true, 
+        true,
       );
 
       if (error) {
