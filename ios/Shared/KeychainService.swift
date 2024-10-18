@@ -7,12 +7,11 @@ class KeychainService {
 
     private init() {}
 
-    // Fetch the QR code data from the keychain with the access group
   func fetchQRCodeData() -> (label: String, address: String)? {
       let query: [String: Any] = [
           kSecClass as String: kSecClassGenericPassword,
-          kSecAttrService as String: "io.bluewallet.bluewallet.receivebitcoin", // Check this service name
-          kSecAttrAccessGroup as String: accessGroup, // Ensure access group matches the app's entitlement
+          kSecAttrService as String: "io.bluewallet.bluewallet.receivebitcoin",
+          kSecAttrAccessGroup as String: accessGroup,
           kSecReturnAttributes as String: true,
           kSecReturnData as String: true
       ]
@@ -28,11 +27,10 @@ class KeychainService {
               return (label: String(components[0]), address: String(components[1]))
           }
       } else {
-          print("Keychain query failed with status: \(status)") // Add error logging here
+          print("Keychain query failed with status: \(status)")
       }
       return nil
   }
-    // Save QR code data with access group
   func saveQRCodeData(label: String, address: String) -> Result<Bool, Error> {
       let qrDataString = "\(label),\(address)"
       guard let qrData = qrDataString.data(using: .utf8) else {
@@ -58,7 +56,6 @@ class KeychainService {
   }
 }
 
-// Custom error types for Keychain-related operations
 enum KeychainError: Error {
     case invalidData
     case unableToSave(OSStatus)

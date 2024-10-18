@@ -138,11 +138,11 @@ const ShortcutSettings: React.FC = () => {
       const error = await storeInKeychain(
         { address: walletAddress, label: wallet.getLabel(), walletID: wallet.getID() },
         RECEIVE_BITCOIN_INTENT_KEY,
-        true, // Access group usage
+        true, 
       );
 
       if (error) {
-        presentAlert({ message: error.message }); // Display the specific error message to the user
+        presentAlert({ message: error.message });
       } else {
         dispatch({ type: ActionType.SetIntentWalletLabel, payload: wallet.getLabel() });
         dispatch({ type: ActionType.SetUseReceiveBitcoinIntentSwitch, payload: true });
