@@ -58,10 +58,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('CreateTransactionButton')).tap();
 
     // Expect the high fee warning modal to be visible
-    await expect(element(by.id('SendAmountWarningModal'))).toBeVisible();
+    await expect(element(by.id('HighFeeWarningContinueButton'))).toBeVisible();
 
     // Close the high fee warning modal by tapping Proceed
-    await element(by.id('ProceedButton')).tap();
+    await element(by.id('ModalDoneButton')).tap();
 
     // Revert the fee back to a normal value
     const normalFee = '10000'; // Set back to a more reasonable fee
