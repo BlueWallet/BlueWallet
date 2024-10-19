@@ -13,25 +13,5 @@ struct WalletAppShortcuts: AppShortcutsProvider {
             shortTitle: "Receive Bitcoin",
             systemImageName: "bitcoinsign.circle"
         )
-        
-        AppShortcut(
-            intent: ScanQRCodeIntent(),
-            phrases: [
-                "Open QR Scanner in \(.applicationName)",
-                "Scan QR code with \(.applicationName)"
-            ],
-            shortTitle: "Scan QR Code",
-            systemImageName: "qrcode.viewfinder"
-        )
-        
-        AppShortcut(
-            intent: SendBitcoinIntent(),
-            phrases: [
-                "Send Bitcoin in \(.applicationName)",
-                "Send funds in \(.applicationName)"
-            ],
-            shortTitle: "Send Bitcoin",
-            systemImageName: "paperplane"
-        )
     }
 }

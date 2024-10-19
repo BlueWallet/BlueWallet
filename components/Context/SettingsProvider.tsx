@@ -15,6 +15,10 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { LayoutAnimation } from 'react-native';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
+import { deleteFromKeychain, getFromKeychain, storeInKeychain } from '../../helpers/keychain';
+import { TWallet } from '../../class/wallets/types';
+import { RECEIVE_BITCOIN_INTENT_KEY } from '../../helpers/intents';
+import { ReceiveBitcoinIntent } from '../../typings/intents';
 
 // DefaultPreference and AsyncStorage get/set
 
@@ -61,6 +65,30 @@ export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
   return BitcoinUnit.BTC;
 };
 
+const fetchReceiveBitcoinIntent = async (): Promise<ReceiveBitcoinIntent | undefined> => {
+  const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+  return storedData || undefined;
+};
+
+const updateReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
+  if (wallet) {
+    const walletAddress = await wallet.getAddressAsync();
+    if (walletAddress) {
+      await storeInKeychain(
+        {
+          address: walletAddress,
+          label: wallet.getLabel(),
+          walletID: wallet.getID(),
+        },
+        RECEIVE_BITCOIN_INTENT_KEY,
+        true,
+      );
+    }
+  } else {
+    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+  }
+};
+
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
   setPreferredFiatCurrencyStorage: (currency: TFiatUnit) => Promise<void>;
@@ -88,6 +116,8 @@ interface SettingsContextType {
   setIsDrawerShouldHide: (value: boolean) => void;
   selectedBlockExplorer: BlockExplorer;
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
+  receiveBitcoinIntent: ReceiveBitcoinIntent | undefined;
+  setReceiveBitcoinIntent: (wallet: TWallet | undefined) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -117,6 +147,8 @@ const defaultSettingsContext: SettingsContextType = {
   setIsDrawerShouldHide: () => {},
   selectedBlockExplorer: BLOCK_EXPLORERS.default,
   setBlockExplorerStorage: async (explorer: BlockExplorer) => false,
+  receiveBitcoinIntent: undefined,
+  setReceiveBitcoinIntent: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -149,9 +181,25 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
 
+  const [receiveBitcoinIntent, setReceiveBitcoinIntentState] = useState<ReceiveBitcoinIntent | undefined>(undefined);
+
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
 
+  useEffect(() => {
+    const initializeReceiveBitcoinIntent = async () => {
+      const initialData = await fetchReceiveBitcoinIntent();
+      setReceiveBitcoinIntentState(initialData);
+    };
+
+    initializeReceiveBitcoinIntent();
+  }, []);
+
+  const setReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
+    await updateReceiveBitcoinIntent(wallet);
+    const updatedData = await fetchReceiveBitcoinIntent();
+    setReceiveBitcoinIntentState(updatedData);
+  };
   useEffect(() => {
     getIsHandOffUseEnabled()
       .then(handOff => {
@@ -321,6 +369,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     return success;
   }, []);
+
   const value = useMemo(
     () => ({
       preferredFiatCurrency,
@@ -349,6 +398,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      receiveBitcoinIntent,
+      setReceiveBitcoinIntent,
     }),
     [
       preferredFiatCurrency,
@@ -377,6 +428,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      receiveBitcoinIntent,
     ],
   );
 
