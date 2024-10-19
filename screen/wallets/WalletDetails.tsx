@@ -169,7 +169,17 @@ const WalletDetails: React.FC = () => {
     const checkEnvironment = async () => {
       try {
         const systemVersion = await DeviceInfo.getSystemVersion();
-        const majorVersion = parseInt(systemVersion.split('.')[0], 10);
+        let majorVersion = parseInt(systemVersion, 10);
+        if (isNaN(majorVersion)) {
+          const versionParts = systemVersion.split('.');
+          if (versionParts.length > 0) {
+            majorVersion = parseInt(versionParts[0], 10);
+          }
+        }
+        if (isNaN(majorVersion)) {
+          console.error('Invalid system version format:', systemVersion);
+          return;
+        }
         if ((Platform.OS === 'ios' && majorVersion >= 16) || Platform.OS === 'macos') {
           setIsSupportedEnvironment(true);
         }
