@@ -25,7 +25,6 @@ const ShortcutSettings: React.FC = () => {
   useEffect(() => {
     const checkEnvironment = async () => {
       const systemVersion = await DeviceInfo.getSystemVersion();
-      const systemVersion = await DeviceInfo.getSystemVersion();
       const majorVersionPart = systemVersion.split('.')[0];
       const majorVersion = parseInt(majorVersionPart, 10);
 
