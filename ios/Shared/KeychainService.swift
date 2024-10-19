@@ -60,6 +60,8 @@ class KeychainService {
         let status = SecItemDelete(query as CFDictionary)
         if status == errSecSuccess {
             return .success(true)
+        } else if status == errSecItemNotFound {
+            return .success(true)
         } else {
             return .failure(KeychainError.unableToDelete(status))
         }
