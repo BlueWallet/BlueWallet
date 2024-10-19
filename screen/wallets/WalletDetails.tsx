@@ -419,16 +419,16 @@ const WalletDetails: React.FC = () => {
   };
 
   const handleOpenShortcuts = async () => {
-    const url = 'shortcuts://io.bluewallet.bluewallet';
+    const url = 'shortcuts://';
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         await Linking.openURL(url);
       } else {
-        Alert.alert('Shortcuts app is not installed.');
+        presentAlert({ message: loc.wallets.shortcuts_not_installed });
       }
     } catch (error) {
-      Alert.alert('An error occurred while trying to open the Shortcuts app.');
+      presentAlert({ message: loc.wallets.shortcuts_open_error });
     }
   };
 

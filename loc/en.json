@@ -426,6 +426,8 @@
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
     "wallets": "Wallets",
+    "shortcuts_not_installed": "The Shortcuts app is not installed on your device. Please install it from the App Store and try again.",
+    "shortcuts_open_error": "An error occurred while trying to open the Shortcuts app.",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Use with Hardware Wallet",
     "details_yes_delete": "Yes, delete",
