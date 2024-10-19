@@ -1,6 +1,5 @@
 export interface ReceiveBitcoinIntent {
-    label: string;
-    walletID: string;
-    address: string;
-  }
-  
+  label: string;
+  walletID: string;
+  address: string;
+}

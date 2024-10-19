@@ -7,11 +7,10 @@ class KeychainService {
 
     private init() {}
 
-    // Fetch QR code data
     func fetchQRCodeData() -> (label: String, address: String)? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrService as String: "receivebitcoin",
             kSecAttrAccessGroup as String: accessGroup,
             kSecReturnAttributes as String: true,
             kSecReturnData as String: true
@@ -32,14 +31,13 @@ class KeychainService {
         return nil
     }
 
-    // Save QR code data
     func saveQRCodeData(label: String, address: String) -> Result<Bool, Error> {
         let qrDataString = "\(address.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""),\(label.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? "")"
         guard let qrData = qrDataString.data(using: .utf8) else { return .failure(KeychainError.invalidData) }
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrService as String: "receivebitcoin",
             kSecAttrAccessGroup as String: accessGroup,
             kSecValueData as String: qrData
         ]
@@ -52,11 +50,10 @@ class KeychainService {
         }
     }
 
-    // Delete QR code data
     func deleteQRCodeData() -> Result<Bool, Error> {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin", // Use 'receivebitcoin' as the service
+            kSecAttrService as String: "receivebitcoin",
             kSecAttrAccessGroup as String: accessGroup
         ]
 
@@ -69,7 +66,6 @@ class KeychainService {
     }
 }
 
-// Custom error types for Keychain operations
 enum KeychainError: Error {
     case invalidData
     case unableToSave(OSStatus)

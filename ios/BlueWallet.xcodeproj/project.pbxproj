@@ -701,8 +701,8 @@
 			isa = PBXGroup;
 			children = (
 				B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */,
-				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
 				B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */,
+				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
 			);
 			path = AppIntents;
 			sourceTree = "<group>";

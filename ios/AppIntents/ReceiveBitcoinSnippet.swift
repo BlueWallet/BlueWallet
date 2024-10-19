@@ -19,7 +19,7 @@ struct ReceiveBitcoinSnippet: View {
                         Image("SplashIcon")
                             .resizable()
                             .frame(width: 50, height: 50)
-                            .background(Color.white.opacity(0.75))
+                            .background(colorScheme == .dark ? Color.black.opacity(0.75) : Color.white.opacity(0.75))
                     )
             } else {
                 Text("Unable to generate QR code.")
@@ -34,6 +34,9 @@ struct ReceiveBitcoinSnippet: View {
                 .foregroundColor(colorScheme == .dark ? .white : .black)
         }
         .padding()
+        .background(colorScheme == .dark ? Color.black : Color.white)
+        .cornerRadius(10)
+        .shadow(color: colorScheme == .dark ? Color.white.opacity(0.3) : Color.black.opacity(0.1), radius: 5) 
     }
 
     private func generateQRCode(from string: String) -> UIImage? {
