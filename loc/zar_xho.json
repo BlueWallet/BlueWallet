@@ -20,14 +20,10 @@
     "close": "Kufutshane",
     "change_input_currency": "Guqula imali yokufaka",
     "refresh": "Hlaziya",
-    "more": "Kaninzi",
     "pick_image": "Khetha umfanekiso kwithala leencwadi",
     "pick_file": "Khetha ifayile",
     "enter_amount": "Faka imali",
     "qr_custom_input_button": "Cofa amaxesha ali-10 ukufaka igalelo lesiqhelo"
-  },
-  "alert": {
-    "default": "Isilumkiso"
   },
   "azteco": {
     "codeIs": "Ikhowudi yakho yevawutsha ithi",
@@ -46,14 +42,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Ukudala igumbi lokugcina elifihlakeleyo",
-    "create_password": "Yenza inombolo yokuvula",
     "create_password_explanation": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
     "help": "Phantsi kweemeko unokunyaneliswa ukuba uchaze a inombolo yokuvula. BlueWallet ukugcina imali yakho ikhuselekile, unokudala enye ukugcinwa kwekhowudi, ngegama eligqithisiweyo. Phantsi kwefuthe, unako ukutyhila le phasiwedi kumntu wesithatu. Ukuba ungenayo BlueWallet, iya kuvula ukugcinwa kwetyala ‘entsha’. Oku kuya kubonakala Umlenze kumntu wesithathu kodwa uza kugcina ngasese ukugcinwa kwakho ngemali ekhuselekile..",
     "help2": "Igumbi lokugcina elitsha liza kusebenza ngokupheleleyo, kwaye unako ukugcina okunye ‘ + ‘lxabiso elincinci apho likhangeleka ngakumbi.",
     "password_should_not_match": "Inombolo yakho yokuvula igumbi lokugcina inkohliso akumele ifane ne nombolo yokuvula  igumbi lakho  elinyanisekileyo",
-    "passwords_do_not_match": "Inombolo yokuvula ayihambelani, zama kwakhona",
-    "confirm_password": "Phinda inombolo yokuvula",
-    "success": "Iphumelele",
     "title": "Ukuphika"
   },
   "receive": {
@@ -90,15 +82,11 @@
     "about": "Malunga",
     "currency": "Lwemali",
     "electrum_clear_alert_cancel": "Rhoxisa",
-    "general_adv_mode": "Enable advanced mode",
     "header": "Izicwangciso",
     "language": "Ulwimi",
     "lightning_settings": "Izixhobo zokukhanyisa",
     "password": "Inombolo yokuvula",
-    "password_explain": "Ukudala iinombolo yokuvula oyisebenzisayo ukucima ukugcina",
-    "passwords_do_not_match": "Inombolo yokuvula azifani",
     "plausible_deniability": "Ukuphika...",
-    "confirm_password": "Phina inombolo yokuvula",
     "save": "ndoloza"
   },
   "transactions": {
@@ -125,7 +113,6 @@
     "details_delete": "Cima",
     "details_export_backup": "Ukuthumela ngaphandle / yokugcina",
     "details_no_cancel": "Hayi, rhoxisa",
-    "details_save": "Gcina",
     "details_show_xpub": "Bonise ingxowa XPUB",
     "details_title": "Ingxowa",
     "wallets": "Ingxowa",

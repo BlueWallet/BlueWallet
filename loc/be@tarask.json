@@ -17,9 +17,6 @@
     "success": "Посьпех",
     "wallet_key": "Ключ ад кашалька"
   },
-  "alert": {
-    "default": "Папярэджанне"
-  },
   "azteco": {
     "codeIs": "Ваш код ваўчара",
     "errorBeforeRefeem": "Перад выплатай вы павінны спачатку дадаць кашалёк Bitcoin.",
@@ -41,9 +38,6 @@
   "lnd": {
     "expired": "Скончыўся"
   },
-  "plausibledeniability": {
-    "success": "Посьпех"
-  },
   "send": {
     "broadcastError": "Памылка",
     "broadcastSuccess": "Посьпех",
@@ -54,7 +48,6 @@
     "save": "Захаваць"
   },
   "wallets": {
-    "add_entropy": "Энтрапія",
-    "details_save": "Захаваць"
+    "add_entropy": "Энтрапія"
   }
 }
