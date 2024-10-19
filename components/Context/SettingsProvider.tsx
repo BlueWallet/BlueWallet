@@ -188,13 +188,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     const initializeReceiveBitcoinIntent = async () => {
-      const initialData = await fetchReceiveBitcoinIntent();
-      setReceiveBitcoinIntentState(initialData);
+      try {
+        const initialData = await fetchReceiveBitcoinIntent();
+        setReceiveBitcoinIntentState(initialData);
+      } catch (error) {
+        console.error('Error initializing receive Bitcoin intent:', error);
+      }
     };
 
     initializeReceiveBitcoinIntent();
   }, []);
-
   const setReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
     await updateReceiveBitcoinIntent(wallet);
     const updatedData = await fetchReceiveBitcoinIntent();
