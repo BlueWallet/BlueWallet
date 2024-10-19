@@ -5,7 +5,7 @@
     "enter_password": "Indtast adgangskode",
     "never": "aldrig",
     "ok": "OK",
-    "storage_is_encrypted": "_.storage_is_encrypted",
+    "storage_is_encrypted": "Lageret er krypteret. Indtast adgangskode for at dekryptere",
     "save": "save",
     "success": "Succes"
   },
