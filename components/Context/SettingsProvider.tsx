@@ -76,21 +76,25 @@ const fetchReceiveBitcoinIntent = async (): Promise<ReceiveBitcoinIntent | undef
 };
 
 const updateReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
-  if (wallet) {
-    const walletAddress = await wallet.getAddressAsync();
-    if (walletAddress) {
-      await storeInKeychain(
-        {
-          address: walletAddress,
-          label: wallet.getLabel(),
-          walletID: wallet.getID(),
-        },
-        RECEIVE_BITCOIN_INTENT_KEY,
-        true,
-      );
+  try {
+    if (wallet) {
+      const walletAddress = await wallet.getAddressAsync();
+      if (walletAddress) {
+        await storeInKeychain(
+          {
+            address: walletAddress,
+            label: wallet.getLabel(),
+            walletID: wallet.getID(),
+          },
+          RECEIVE_BITCOIN_INTENT_KEY,
+          true,
+        );
+      }
+    } else {
+      await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
     }
-  } else {
-    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+  } catch (error) {
+    console.error('Error updating receive Bitcoin intent:', error);
   }
 };
 
