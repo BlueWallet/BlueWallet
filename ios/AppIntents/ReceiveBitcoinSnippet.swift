@@ -40,7 +40,7 @@ struct ReceiveBitcoinSnippet: View {
     }
 
     private func generateQRCode(from string: String) -> UIImage? {
-        let data = string.data(using: .ascii)
+        let data = string.data(using: .utf8)
         let filter = CIFilter.qrCodeGenerator()
         filter.setValue(data, forKey: "inputMessage")
         if let outputImage = filter.outputImage {
