@@ -84,12 +84,16 @@ const ShortcutSettings: React.FC = () => {
     if (!value) {
       const firstWallet = wallets[0];
       if (firstWallet) {
-        await setSelectedDefaultWallet(firstWallet.getID());
-        setDefaultWallet(firstWallet);
+        await Promise.all([
+          setSelectedDefaultWallet(firstWallet.getID()),
+          setDefaultWallet(firstWallet)
+        ]);
       }
     } else {
-      await setSelectedDefaultWallet(undefined);
-      setDefaultWallet(null);
+      await Promise.all([
+        setSelectedDefaultWallet(undefined),
+        setDefaultWallet(null)
+      ]);
     }
   };
 
