@@ -13,16 +13,16 @@ struct ReceiveBitcoinIntent: AppIntent {
         Summary("Receive Bitcoin from your selected wallet in your BlueWallet settings > General > Shortcuts.")
     }
 
-    func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView {
+    func perform() async throws -> some IntentResult & ProvidesDialog & ShowsSnippetView & ReturnsValue<String> {
         guard let qrCodeData = KeychainService.shared.fetchQRCodeData() else {
-            return .result(dialog: IntentDialog("No wallet selected. Please choose a wallet to use in your BlueWallet settings > General > Shortcuts."))
+            return .result(value: "", dialog: IntentDialog("No wallet selected. Please choose a wallet to use in your BlueWallet settings > General > Shortcuts."))
         }
 
         guard !qrCodeData.label.isEmpty, !qrCodeData.address.isEmpty else {
-            return .result(dialog: IntentDialog("Something went wrong. Please choose a wallet to use in your BlueWallet settings > General > Shortcuts."))
+            return .result(value: "", dialog: IntentDialog("It seems something went wrong. Please choose a wallet to use in your BlueWallet settings > General > Shortcuts."))
         }
 
-        return .result(dialog: IntentDialog(stringLiteral: qrCodeData.label)) {
+      return .result(value: qrCodeData.address, dialog: IntentDialog(stringLiteral: qrCodeData.label)) {
             ReceiveBitcoinSnippet(qrCode: qrCodeData.address)
         }
     }
