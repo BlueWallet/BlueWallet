@@ -154,10 +154,14 @@ const WalletDetails: React.FC = () => {
   }, [walletID]);
 
   const onUseForShortcutsSwitchValueChanged = async (value: boolean) => {
-    if (value) {
-      await setReceiveBitcoinIntent(wallet);
-    } else {
-      await setReceiveBitcoinIntent(undefined);
+    try {
+      if (value) {
+        await setReceiveBitcoinIntent(wallet);
+      } else {
+        await setReceiveBitcoinIntent(undefined);
+      }
+    } catch (error) {
+      console.error('Failed to set receiveBitcoinIntent:', error);
     }
   };
 
