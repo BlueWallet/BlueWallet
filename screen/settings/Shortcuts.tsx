@@ -25,7 +25,15 @@ const ShortcutSettings: React.FC = () => {
   useEffect(() => {
     const checkEnvironment = async () => {
       const systemVersion = await DeviceInfo.getSystemVersion();
-      const majorVersion = parseInt(systemVersion.split('.')[0], 10);
+      const systemVersion = await DeviceInfo.getSystemVersion();
+      const majorVersionPart = systemVersion.split('.')[0];
+      const majorVersion = parseInt(majorVersionPart, 10);
+
+      if (isNaN(majorVersion)) {
+        console.warn('Unable to parse system version:', systemVersion);
+        setIsSupportedEnvironment(false);
+        return;
+      }
       if ((Platform.OS === 'ios' && majorVersion >= 16) || Platform.OS === 'macos') {
         setIsSupportedEnvironment(true);
       }
