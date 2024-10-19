@@ -198,11 +198,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     initializeReceiveBitcoinIntent();
   }, []);
-  const setReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
+
+  const setReceiveBitcoinIntent = useCallback(async (wallet: TWallet | undefined) => {
     await updateReceiveBitcoinIntent(wallet);
     const updatedData = await fetchReceiveBitcoinIntent();
     setReceiveBitcoinIntentState(updatedData);
-  };
+  }, []);
+
   useEffect(() => {
     getIsHandOffUseEnabled()
       .then(handOff => {
@@ -428,10 +430,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
       isDrawerShouldHide,
-      setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
       receiveBitcoinIntent,
+      setReceiveBitcoinIntent,
     ],
   );
 
