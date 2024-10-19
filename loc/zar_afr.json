@@ -17,11 +17,7 @@
     "seed": "Saad",
     "success": "Sukses",
     "wallet_key": "Beursie sleutel",
-    "more": "Meer",
     "enter_amount": "Sit die bedrag in"
-  },
-  "alert": {
-    "default": "Aandag"
   },
   "azteco": {
     "codeIs": "Jou koepon kode is",
@@ -68,14 +64,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Skep fantasie berging wagwoord",
-    "create_password": "Skep ‘n wagwoord",
     "create_password_explanation": "Die wagwoord vir fop berging moet verskil van die wagwoord vir hoof berging",
     "help": "Onder sekere omstandighede mag jy dalk geforseer word om jou wagwoord te deel teen jou wil. Om jou te beskerm kan Bluewallet ‘n tweede “fop” beursie skep wat as skerm kan dien. Indien jy hierdie wagwoord deel sal die 3de party nie toegang tot jou hoof fondse kry nie.",
     "help2": "Fop berging is heeltemal funksioneel",
     "password_should_not_match": "Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.",
-    "passwords_do_not_match": "Wagwoorde vergelyk nie, probeer weer",
-    "confirm_password": "Hervoer wagwoord",
-    "success": "Sukses",
     "title": "Geloofwaardige Ontkenbaarheid"
   },
   "pleasebackup": {
@@ -141,7 +133,6 @@
     "input_paste": "Plak",
     "permission_camera_message": "Ons het jou toestemming nodig om jou kamera te gebruik. ",
     "psbt_sign": "Teken ñ transaksie",
-    "permission_storage_later": "Vra my later. ",
     "success_done": "Klaar"
   },
   "settings": {
@@ -149,15 +140,11 @@
     "currency": "Geldeenheid",
     "electrum_clear_alert_cancel": "Kanselleer",
     "electrum_clear": "Maak skoon",
-    "general_adv_mode": "Enable advanced mode",
     "header": "instellings",
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",
     "password": "Wagwoord",
-    "password_explain": "Skep die wagwoord wat jy sal gebruik om jou berging te de-enkripteer",
-    "passwords_do_not_match": "Wagwoorde stem nie oor een nie",
     "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
-    "confirm_password": "Hervoer wagwoord",
     "save": "stoor"
   },
   "notifications": {
@@ -178,7 +165,6 @@
     "add_create": "Skep",
     "add_entropy": "Entropie",
     "add_import_wallet": "Beursie Invoer",
-    "add_lndhub_error": "Die voorgestelde knoop-punt se adres is 'n ongeldige LNDhub knoop-punt.",
     "add_lndhub_placeholder": "Jou Knoop-punt Adres",
     "add_title": "skep beursie",
     "add_wallet_name": "beursie naam",
@@ -188,7 +174,6 @@
     "details_delete": "Vernietig",
     "details_export_backup": "voer uit / kopieer",
     "details_no_cancel": "Nee, kanseleerl",
-    "details_save": "Berg",
     "details_show_xpub": "Wys beursie XPUB",
     "details_title": "Beursiet",
     "wallets": "beursies",
