@@ -62,14 +62,7 @@ class DeeplinkSchemaMatch {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
         const action = event.url.split('widget?action=')[1];
-        if (action === 'openScanQRCode') {
-          completionHandler([
-            'ScanQRCodeRoot',
-            {
-              screen: 'ScanQRCode',
-            },
-          ]);
-        } else if (wallet.chain === Chain.ONCHAIN) {
+        if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
               'SendDetailsRoot',
