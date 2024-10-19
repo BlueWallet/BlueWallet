@@ -66,8 +66,13 @@ export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
 };
 
 const fetchReceiveBitcoinIntent = async (): Promise<ReceiveBitcoinIntent | undefined> => {
-  const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
-  return storedData || undefined;
+  try {
+    const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+    return storedData || undefined;
+  } catch (error) {
+    console.error('Error fetching receive Bitcoin intent:', error);
+    return undefined;
+  }
 };
 
 const updateReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
