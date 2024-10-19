@@ -214,7 +214,6 @@
     "block_explorer_invalid_custom_url": "La URL proporcionada no es válida. Ingresa una URL válida que comience con http:// o https://.",
     "about_selftest_electrum_disabled": "La autocomprobación no está disponible con el modo sin conexión de Electrum. Desactiva el modo sin conexión y vuelve a intentarlo. ",
     "about_selftest_ok": "Todas las pruebas internas han pasado satisfactoriamente. La billetera funciona bien.",
-
     "about_sm_github": "GitHub",
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
@@ -549,7 +548,7 @@
     "input_fp": "Ingresa huella digital",
     "input_fp_explain": "Omitir para usar el predeterminado (00000000)",
     "input_path": "Insertar Ruta de Derivación",
-    "input_path_explain": "Omitir para usar el predeterminado ({predeterminado})",
+    "input_path_explain": "Omitir para usar el predeterminado ({default})",
     "ms_help": "Ayuda",
     "ms_help_title": "Cómo funcionan las Bóvedas Multifirma: Consejos y Trucos",
     "ms_help_text": "Una billetera con varias llaves para mayor seguridad o custodia compartida",
@@ -647,7 +646,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

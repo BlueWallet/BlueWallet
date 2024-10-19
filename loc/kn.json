@@ -19,8 +19,5 @@
   "settings": {
     "electrum_clear_alert_cancel": "ರದ್ದುಮಾಡಿ",
     "save": "ಉಳಿಸಿ"
-  },
-  "wallets": {
-    "details_save": "ಉಳಿಸಿ"
   }
 }

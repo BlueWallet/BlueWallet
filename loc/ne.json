@@ -19,13 +19,9 @@
     "close": "बन्द",
     "change_input_currency": "इनपुट मुद्रा परिवर्तन गर्नुहोस्",
     "refresh": "रिफ्रेस गर्नुहोस",
-    "more": "अरु",
     "pick_file": "एउटा फाइल छान्नुहोस्",
     "enter_amount": "रकम राख्नुहोस्",
     "qr_custom_input_button": "अनुकूल इनपुट प्रविष्ट गर्न 10 पटक ट्याप गर्नुहोस्"
-  },
-  "alert": {
-    "default": "सचेत"
   },
   "azteco": {
     "codeIs": "तपाईंको भाउचर कोड",
@@ -68,14 +64,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "ईन्क्रिप्टेड स्टोरेज सिर्जना गर्नुहोस्",
-    "create_password": "पासवर्ड बनाउनुहोस्",
     "create_password_explanation": "नक्कली स्टोरेजको पासवर्ड तपाईको मुख्य स्टोरेजको पासवर्डसँग मेल खानु हुँदैन।",
     "help": "केहि परिस्थितिहरूमा, तपाइँ पासवर्ड खुलासा गर्न बाध्य हुन सक्छ। आफ्नो कोइन सुरक्षित राख्नको लागि, BlueWallet फरक पासवर्डको साथ अर्को इन्क्रिप्टेड स्टोरेज सिर्जना गर्न सक्छ। दबाबमा, तपाईंले तेस्रो पक्षलाई यो पासवर्ड खुलासा गर्न सक्नुहुन्छ। यदि BlueWallet मा प्रविष्ट गरियो भने, यसले नयाँ \"नक्कली\" स्टोरेज अनलक गर्नेछ। यो तेस्रो पक्षलाई वैध देखिन्छ, तर यसले गोप्य रूपमा सिक्काको साथ तपाईंको मुख्य स्टोरेज सुरक्षित राख्नेछ।",
     "help2": "नयाँ स्टोरेज पूर्ण रूपमा कार्यात्मक हुनेछ, र तपाईंले त्यहाँ केही न्यूनतम रकमहरू स्टोर गर्न सक्नुहुन्छ ताकि यो अझ विश्वासयोग्य देखिन्छ।",
     "password_should_not_match": "पासवर्ड हाल प्रयोगमा छ। कृपया फरक पासवर्ड प्रयास गर्नुहोस्।",
-    "passwords_do_not_match": "पासवर्डहरू मेल खाएन। फेरि प्रयास गर्नुहोस।",
-    "confirm_password": "पासवर्ड पुन: लेख्नुहोस",
-    "success": "सफल",
     "title": "व्यावहारिक अस्वीकार्यता"
   },
   "pleasebackup": {
@@ -158,7 +150,6 @@
     "permission_camera_message": "हामीलाई तपाईंको क्यामेरा प्रयोग गर्न तपाईंको अनुमति चाहिन्छ।",
     "psbt_sign": "लेनदेनमा हस्ताक्षर गर्नुहोस्",
     "open_settings": "सेटिङ्हरू खोल्नुहोस्",
-    "permission_storage_message": "यो फाइल सेव गर्नको लागि BlueWallet लाई तपाइँको अनुमति चाहिन्छ।",
     "permission_storage_denied_message": "BlueWallet यो फाइल सेव गर्न असमर्थ भयो। कृपया आफ्नो यन्त्र सेटिङहरू खोल्नुहोस् र Storage Permission गर्न अनुमति गर्नुहोस्।",
     "permission_storage_title": "Storage Access Permission ",
     "psbt_clipboard": "क्लिपबोर्डमा प्रतिलिपि गर्नुहोस्",
@@ -171,7 +162,6 @@
     "reset_amount": "रकम रिसेट गर्नुहोस्",
     "reset_amount_confirm": "के तपाइँ रकम रिसेट गर्न चाहनुहुन्छ?",
     "success_done": "सकियो",
-    "txSaved": "लेनदेन फाइल ({filePath}) तपाईंको डाउनलोड फोल्डरमा सुरक्षित गरिएको छ।",
     "problem_with_psbt": "PSBT मा समस्या"
   },
   "settings": {
@@ -187,7 +177,6 @@
     "about_sm_discord": "विवाद सर्भर",
     "about_sm_telegram": "टेलिग्राम च्यानल",
     "about_sm_twitter": "हामीलाई twitter मा फलोगर्नुहोस्",
-    "advanced_options": "विकास विकल्प",
     "biometrics": "बायोमेट्रिक्स",
     "biom_10times": "तपाईंले आफ्नो पासवर्ड १० पटक प्रविष्ट गर्ने प्रयास गर्नुभएको छ। तपाईं आफ्नो भण्डारण रिसेट गर्न चाहनुहुन्छ? यसले सबै वालेटहरू हटाउनेछ र तपाईंको भण्डारण डिक्रिप्ट गर्नेछ।",
     "biom_conf_identity": "आफ्नो पहिचान पुष्टि गर्नुहोस्।",
@@ -208,7 +197,7 @@
     "electrum_clear_alert_ok": "ठिक छ",
     "electrum_select": "छान्नुहोस्",
     "electrum_reset": "चूकेमा रिसेट गर्नुहोस्",
-    "electrum_unable_to_connect": "जडान गर्न असमर्थ {सर्भर}.",
+    "electrum_unable_to_connect": "जडान गर्न असमर्थ {server}.",
     "electrum_history": "सर्भर इतिहास",
     "electrum_reset_to_default": "के तपाइँ तपाइँको इलेक्ट्रम सेटिङहरू पूर्वनिर्धारितमा रिसेट गर्न निश्चित हुनुहुन्छ?",
     "electrum_clear": "सफा",
@@ -217,7 +206,6 @@
     "encrypt_tstorage": "स्टोरेज",
     "encrypt_use": "प्रयोग गर्नुहोस् {type}",
     "encrypt_use_expl": "{type} लेनदेन, अनलक, निर्यात, वा वालेट मेटाउनु अघि तपाइँको पहिचान पुष्टि गर्न प्रयोग गरिनेछ। इन्क्रिप्टेड स्टोरेज अनलक गर्न {type} प्रयोग गरिने छैन।",
-    "general_adv_mode": "अग्रिम मोड",
     "general_continuity": "निरन्तरता",
     "header": "सेटिङहरू",
     "language": "भाषा",
@@ -227,12 +215,10 @@
     "network": "नेटवर्क",
     "notifications": "सूचनाहरू",
     "password": "पासवर्ड",
-    "passwords_do_not_match": "पासवर्ड मिल्दैन।",
     "plausible_deniability": "व्यावहारिक अस्वीकार्यता",
     "privacy": "गोपनीयता",
     "privacy_quickactions": "वालेट सर्टकटहरू",
     "rate": "दर",
-    "confirm_password": "पासवर्ड पुन: लेख्नुहोस",
     "save": "सेव",
     "saved": "बचत गरियो",
     "total_balance": "पूरा रकम"
@@ -255,7 +241,6 @@
     "details_copy_note": "नोट कापी",
     "date": "मिति",
     "details_received": "प्राप्त भयो",
-    "transaction_saved": "बचत गरियो",
     "details_title": "लेनदेन",
     "pending": "पेनदिंग",
     "list_title": "लेनदेन",
@@ -266,6 +251,7 @@
     "add_bitcoin": "बिटकोइन",
     "add_bitcoin_explain": "सजिलो र शक्तिशाली बिटकोइन वालेट",
     "add_create": "सिर्जना गर्नुहोस्",
+    "total_balance": "पूरा रकम",
     "add_entropy": "एन्ट्रोपी",
     "add_import_wallet": "वालेट आयात गर्नुहोस्",
     "add_lightning": "लाइटनिङ",
@@ -282,14 +268,12 @@
     "details_delete_wallet": "वालेट हटाउनुहोस्",
     "details_master_fingerprint": "मास्टर फिंगरप्रिन्ट",
     "details_no_cancel": "होइन, रद्द गर्नुहोस्",
-    "details_save": "सेव",
     "details_show_xpub": "वालेटको XPUB देखाउनुहोस्",
     "details_show_addresses": "ठेगानाहरू देखाउनुहोस्",
     "details_title": "वालेट",
     "wallets": "वालेटहरू",
     "details_type": "टाइप गर्नुहोस्",
     "details_use_with_hardware_wallet": "हार्डवेयर वालेटको साथ प्रयोग गर्नुहोस्",
-    "details_wallet_updated": "वालेट अपडेट ",
     "details_yes_delete": "हो, मेटाउनुहोस्",
     "export_title": "वालेट निर्यात",
     "import_discovery_title": "आविष्कार",
@@ -312,8 +296,11 @@
     "pull_to_refresh": "नवीकरण गर्न तान्नुहोस्",
     "add_ln_wallet_first": "तपाईंले पहिले लाइटनिङ वालेट थप्नुपर्छ।"
   },
+  "total_balance_view": {
+    "title": "पूरा रकम"
+  },
   "multisig": {
-    "fee_btc": "{संख्या} BTC",
+    "fee_btc": "{number} BTC",
     "confirm": "पक्का ",
     "header": "पठाउनुहोस्",
     "view": "हेर्नुहोस्",

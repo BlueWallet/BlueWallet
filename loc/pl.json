@@ -295,7 +295,6 @@
     "privacy_clipboard_explanation": "Włącz skróty jeżeli adres lub faktura są znalezione w schowku.",
     "privacy_do_not_track": "Wyłącz analitykę",
     "privacy_do_not_track_explanation": "Informacje dotyczące wydajności i niezawodności nie będą przesyłane do analizy.",
-    "push_notifications": "Powiadomienia Push",
     "rate": "Kurs",
     "selfTest": "Autotest",
     "save": "Zapisz",
@@ -334,7 +333,6 @@
     "details_outputs": "Wyjścia",
     "date": "Data",
     "details_received": "Otrzymano",
-    "transaction_saved": "Zapisano",
     "details_show_in_block_explorer": "Zobacz w eksploratorze bloków",
     "details_title": "Transakcja",
     "incoming_transaction": "Transakcja przychodząca",
@@ -409,7 +407,6 @@
     "details_master_fingerprint": "Główny odcisk palca",
     "details_multisig_type": "multisig",
     "details_no_cancel": "Nie, anuluj",
-    "details_save": "Zapisz",
     "details_show_xpub": "Pokaż XPUB portfela",
     "details_show_addresses": "Pokaż adresy",
     "details_title": "Portfel",
@@ -638,7 +635,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }

@@ -48,12 +48,8 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Creu storfa wedi encryptio",
-    "create_password": "Creu cyfrinair",
     "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa",
-    "password_should_not_match": "Mae'r cyfrinair yn cael ei ddefnyddio'n barod. Tria gyfrinair gwahanol.",
-    "passwords_do_not_match": "Cyfrineiriau ddim yn gweddu. Tria eto.",
-    "confirm_password": "Ail-deipio'r cyfrinair",
-    "success": "Llwyddiant"
+    "password_should_not_match": "Mae'r cyfrinair yn cael ei ddefnyddio'n barod. Tria gyfrinair gwahanol."
   },
   "pleasebackup": {
     "title": "Mae dy waled wedi cael ei chreu."
@@ -131,10 +127,7 @@
     "network_broadcast": "Darlledu Trafodyn",
     "notifications": "Hysbysebion",
     "password": "Cyfrinair",
-    "password_explain": "Creu'r cyfrinair y byddi'n defnyddio i ddadgryptio'r storfa.",
-    "passwords_do_not_match": "Cyfrineiriau ddim yn cyfateb.",
     "privacy": "Prefiatrwydd",
-    "confirm_password": "Ail-deipio cyfrinair",
     "save": "Safio",
     "saved": "Wedi Safio",
     "total_balance": "Balans Llawn"
@@ -148,7 +141,6 @@
     "details_inputs": "Mewnbynau",
     "details_outputs": "Allbynau",
     "details_received": "Derbynwyd",
-    "transaction_saved": "Wedi Safio",
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
     "pending": "Disgwyl",
@@ -158,6 +150,7 @@
   "wallets": {
     "add_bitcoin_explain": "Waled Bitcoin syml a cryf",
     "add_create": "Creu",
+    "total_balance": "Balans Llawn",
     "add_import_wallet": "Mewnforio waled",
     "add_lightning": "Mellten",
     "add_lightning_explain": "Er mwyn gwario yn syth",
@@ -173,7 +166,6 @@
     "details_delete": "Gwaredu",
     "details_delete_wallet": "Gwaredu Waled",
     "details_no_cancel": "Na, canslo",
-    "details_save": "Safio",
     "details_show_addresses": "Dangos cyfeiriadau",
     "wallets": "Waledi",
     "details_type": "Math",
@@ -199,6 +191,9 @@
     "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd.",
     "pull_to_refresh": "Tynnu i Adnewyddu",
     "warning_do_not_disclose": "Rhybudd! Paid ei ddatgelu."
+  },
+  "total_balance_view": {
+    "title": "Balans Llawn"
   },
   "multisig": {
     "confirm": "Cadarnhau",
