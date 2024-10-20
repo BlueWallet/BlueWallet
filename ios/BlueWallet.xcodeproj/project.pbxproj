@@ -127,6 +127,7 @@
 		B478BBEC2CC2255F00542A2F /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
 		B48A81682CC28B68009366D1 /* WalletAddressSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */; };
+		B495BC282CC4921E00AD95F3 /* GenerateQRCodeIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B495BC272CC4921E00AD95F3 /* GenerateQRCodeIntent.swift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -359,6 +360,7 @@
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
 		B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressSnippet.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
+		B495BC272CC4921E00AD95F3 /* GenerateQRCodeIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateQRCodeIntent.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
@@ -700,6 +702,7 @@
 		B425799C2CBF68C100F5C0E4 /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
+				B495BC272CC4921E00AD95F3 /* GenerateQRCodeIntent.swift */,
 				B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */,
 				B478BBE92CC2044D00542A2F /* WalletAddressItent.swift */,
 				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
@@ -1194,6 +1197,7 @@
 				6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
+				B495BC282CC4921E00AD95F3 /* GenerateQRCodeIntent.swift in Sources */,
 				B478BBE12CC1F88100542A2F /* KeychainService.swift in Sources */,
 				B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,

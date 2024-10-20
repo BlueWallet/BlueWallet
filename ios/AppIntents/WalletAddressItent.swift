@@ -60,8 +60,6 @@ struct WalletAddressIntent: AppIntent {
 
         let bitcoinAddress = qrCodeData.address // Read-only address
 
-        let result = WalletAddressResult(label: qrCodeData.label, address: bitcoinAddress)
-
         return .result(value: bitcoinAddress, dialog: dialog(for: qrCodeData.label)) {
             WalletAddressSnippet(qrCode: bitcoinAddress)
         }

@@ -315,6 +315,14 @@
 			<key>IntentDescription</key>
 			<string>Quickly display your Bitcoin wallet&apos;s receive QR code for easy transactions. You can select which wallet to use in the BlueWallet app&apos;s settings.</string>
 		</dict>
+		<dict>
+			<key>INIntentClassName</key>
+			<string>GenerateQRCodeIntent</string>
+			<key>IntentName</key>
+			<string>Generate QR Code</string>
+			<key>IntentDescription</key>
+			<string>Generates a QR code for a Bitcoin address from your wallet and exports it as an image.</string>
+		</dict>
 	</array>
 </dict>
 </plist>

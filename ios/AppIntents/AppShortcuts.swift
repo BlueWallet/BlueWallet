@@ -13,5 +13,14 @@ struct WalletAppShortcuts: AppShortcutsProvider {
             shortTitle: "Wallet Address",
             systemImageName: "bitcoinsign.circle"
         )
-    }
+      AppShortcut(
+        intent: GenerateQRCodeIntent(),
+          phrases: [
+              "Generate QR Code in \(.applicationName)",
+              "Get address as QR Code in \(.applicationName)"
+          ],
+          shortTitle: "Generate QR Code",
+          systemImageName: "qrcode"
+      )
+  }
 }
