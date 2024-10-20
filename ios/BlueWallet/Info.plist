@@ -307,14 +307,14 @@
 	<false/>
 	<key>NSAppIntents</key>
 	<array>
- <dict>
-            <key>INIntentClassName</key>
-            <string>ReceiveBitcoinIntent</string>
-            <key>IntentName</key>
-            <string>Receive Bitcoin</string>
-            <key>IntentDescription</key>
-            <string>Quickly display your Bitcoin wallet's receive QR code for easy transactions. You can select which wallet to use in the BlueWallet app's settings.</string> <!-- Layman-friendly description -->
-        </dict>
+		<dict>
+			<key>INIntentClassName</key>
+			<string>WalletAddressIntent</string>
+			<key>IntentName</key>
+			<string>Wallet Address</string>
+			<key>IntentDescription</key>
+			<string>Quickly display your Bitcoin wallet&apos;s receive QR code for easy transactions. You can select which wallet to use in the BlueWallet app&apos;s settings.</string>
+		</dict>
 	</array>
 </dict>
 </plist>

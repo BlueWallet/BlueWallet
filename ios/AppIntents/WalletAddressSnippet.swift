@@ -2,7 +2,7 @@ import SwiftUI
 import CoreImage.CIFilterBuiltins
 
 @available(iOS 16.4, *)
-struct ReceiveBitcoinSnippet: View {
+struct WalletAddressSnippet: View {
     let qrCode: String
     
     @Environment(\.colorScheme) var colorScheme

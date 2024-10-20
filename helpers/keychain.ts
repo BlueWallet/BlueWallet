@@ -4,7 +4,7 @@ export const GROUP_IO_BLUEWALLET = 'A7W54YZ4WU.group.io.bluewallet.bluewallet';
 
 export const storeInKeychain = async (
   data: { address: string; label: string; walletID: string },
-  service = 'receivebitcoin',
+  service = 'walletaddress',
   useAccessGroup = true
 ): Promise<Error | null> => {
   const { address, label, walletID } = data;
@@ -28,7 +28,7 @@ export const storeInKeychain = async (
 };
 
 export const getFromKeychain = async (
-  key = 'receivebitcoin',
+  key = 'walletaddress',
   useAccessGroup = true
 ): Promise<{ address: string; label: string; walletID: string } | null> => {
   const keychainOptions: Keychain.Options = {
@@ -51,7 +51,7 @@ export const getFromKeychain = async (
   }
 };
 
-export const deleteFromKeychain = async (key = 'receivebitcoin', useAccessGroup = true): Promise<void | Error> => {
+export const deleteFromKeychain = async (key = 'walletaddress', useAccessGroup = true): Promise<void | Error> => {
   try {
     await Keychain.resetGenericPassword({
       service: key,

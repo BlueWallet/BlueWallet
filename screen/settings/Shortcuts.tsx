@@ -18,7 +18,7 @@ const ShortcutSettings: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { name } = useRoute();
   const { setSelectedDefaultWallet, getSelectedDefaultWallet } = useOnAppLaunch();
-  const { receiveBitcoinIntent, setReceiveBitcoinIntent } = useSettings();
+  const { walletAddressIntent, setWalletAddressIntent } = useSettings();
   const [isSupportedEnvironment, setIsSupportedEnvironment] = useState(false);
   const [defaultWallet, setDefaultWallet] = useState<TWallet | null>(null);
 
@@ -53,13 +53,13 @@ const ShortcutSettings: React.FC = () => {
     initializeDefaultWallet();
   }, [wallets, getSelectedDefaultWallet]);
 
-  const selectWalletForReceiveBitcoinIntent = async () => {
+  const selectWalletForWalletAddressIntent = async () => {
     if (wallets.length === 0) {
       presentAlert({ message: loc.settings.no_wallet_available });
     } else {
       const wallet = await selectWallet(navigate, name, Chain.ONCHAIN);
       if (wallet) {
-        await setReceiveBitcoinIntent(wallet);
+        await setWalletAddressIntent(wallet);
       }
     }
   };
@@ -76,14 +76,14 @@ const ShortcutSettings: React.FC = () => {
     }
   };
 
-  const onReceiveBitcoinIntentSwitchValueChanged = async (value: boolean) => {
+  const onWalletAddressIntentSwitchValueChanged = async (value: boolean) => {
     if (value) {
       const firstWallet = wallets[0];
       if (firstWallet) {
-        await setReceiveBitcoinIntent(firstWallet);
+        await setWalletAddressIntent(firstWallet);
       }
     } else {
-      await setReceiveBitcoinIntent(undefined);
+      await setWalletAddressIntent(undefined);
     }
   };
 
@@ -126,22 +126,22 @@ const ShortcutSettings: React.FC = () => {
               />
             )}
 
-            {/* Section: Receive Bitcoin Intent */}
+            {/* Section: Wallet Address Intent */}
             <ListItem
-              title={loc.settings.receive_bitcoin_intent}
+              title={loc.settings.wallet_address_intent}
               Component={TouchableWithoutFeedback}
               switch={{
-                onValueChange: onReceiveBitcoinIntentSwitchValueChanged,
-                value: receiveBitcoinIntent !== undefined,
+                onValueChange: onWalletAddressIntentSwitchValueChanged,
+                value: walletAddressIntent !== undefined,
               }}
-              subtitle={loc.settings.enable_receive_bitcoin_intent_desc}
+              subtitle={loc.settings.wallet_address_intent_desc}
             />
 
-            {receiveBitcoinIntent && (
+            {walletAddressIntent && (
               <ListItem
                 title={loc.wallets.select_wallet}
-                rightTitle={receiveBitcoinIntent?.label}
-                onPress={selectWalletForReceiveBitcoinIntent}
+                rightTitle={walletAddressIntent?.label}
+                onPress={selectWalletForWalletAddressIntent}
                 chevron
                 disabled={wallets.length <= 0}
               />

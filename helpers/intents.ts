@@ -1,10 +1,10 @@
 import { getFromKeychain, storeInKeychain, deleteFromKeychain } from './keychain';
 import { TWallet } from '../class/wallets/types';
 
-export const RECEIVE_BITCOIN_INTENT_KEY = 'receivebitcoin';
+export const WALLET_ADDRESS_INTENT_KEY = 'walletaddress';
 
-export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Promise<void> => {
-  const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+export const checkAndUpdateWalletAddressIntent = async (wallets: TWallet[]): Promise<void> => {
+  const storedData = await getFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
 
   if (!storedData) {
     console.debug('Receive Bitcoin Intent is not enabled.');
@@ -15,7 +15,7 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
 
   if (!storedLabel || !storedAddress || !storedWalletID) {
     console.debug('Stored data is incomplete. Removing intent data from the Keychain.');
-    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+    await deleteFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
     return;
   }
 
@@ -23,7 +23,7 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
 
   if (!currentWallet) {
     console.debug('The wallet was deleted. Removing intent data from the Keychain.');
-    await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+    await deleteFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
     return;
   }
 
@@ -38,8 +38,8 @@ export const checkAndUpdateReceiveBitcoinIntent = async (wallets: TWallet[]): Pr
         label: currentLabel || '',
         walletID: currentWallet.getID() || '',
       },
-      RECEIVE_BITCOIN_INTENT_KEY,
-      true
+      WALLET_ADDRESS_INTENT_KEY,
+      true,
     );
   } else {
     console.debug('No changes detected in the wallet.');

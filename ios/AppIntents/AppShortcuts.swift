@@ -5,12 +5,12 @@ struct WalletAppShortcuts: AppShortcutsProvider {
     @AppShortcutsBuilder
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: ReceiveBitcoinIntent(),
+            intent: WalletAddressIntent(),
             phrases: [
-                "Receive Bitcoin in \(.applicationName)",
+                "Wallet Address in \(.applicationName)",
                 "Get Bitcoin address in \(.applicationName)"
             ],
-            shortTitle: "Receive Bitcoin",
+            shortTitle: "Wallet Address",
             systemImageName: "bitcoinsign.circle"
         )
     }

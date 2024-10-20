@@ -10,7 +10,7 @@ class KeychainService {
     func fetchQRCodeData() -> (label: String, address: String)? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin",
+            kSecAttrService as String: "walletaddress",
             kSecAttrAccessGroup as String: accessGroup,
             kSecReturnAttributes as String: true,
             kSecReturnData as String: true
@@ -37,7 +37,7 @@ class KeychainService {
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin",
+            kSecAttrService as String: "walletaddress",
             kSecAttrAccessGroup as String: accessGroup,
             kSecValueData as String: qrData
         ]
@@ -53,7 +53,7 @@ class KeychainService {
     func deleteQRCodeData() -> Result<Bool, Error> {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: "receivebitcoin",
+            kSecAttrService as String: "walletaddress",
             kSecAttrAccessGroup as String: accessGroup
         ]
 

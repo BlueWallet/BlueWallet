@@ -17,8 +17,8 @@ import { LayoutAnimation } from 'react-native';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import { deleteFromKeychain, getFromKeychain, storeInKeychain } from '../../helpers/keychain';
 import { TWallet } from '../../class/wallets/types';
-import { RECEIVE_BITCOIN_INTENT_KEY } from '../../helpers/intents';
-import { ReceiveBitcoinIntent } from '../../typings/intents';
+import { WALLET_ADDRESS_INTENT_KEY } from '../../helpers/intents';
+import { WalletAddressIntent } from '../../typings/intents';
 
 // DefaultPreference and AsyncStorage get/set
 
@@ -65,9 +65,9 @@ export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
   return BitcoinUnit.BTC;
 };
 
-const fetchReceiveBitcoinIntent = async (): Promise<ReceiveBitcoinIntent | undefined> => {
+const fetchWalletAddressIntent = async (): Promise<WalletAddressIntent | undefined> => {
   try {
-    const storedData = await getFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+    const storedData = await getFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
     return storedData || undefined;
   } catch (error) {
     console.error('Error fetching receive Bitcoin intent:', error);
@@ -75,7 +75,7 @@ const fetchReceiveBitcoinIntent = async (): Promise<ReceiveBitcoinIntent | undef
   }
 };
 
-const updateReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
+const updateWalletAddressIntent = async (wallet: TWallet | undefined) => {
   try {
     if (wallet) {
       const walletAddress = await wallet.getAddressAsync();
@@ -86,12 +86,12 @@ const updateReceiveBitcoinIntent = async (wallet: TWallet | undefined) => {
             label: wallet.getLabel(),
             walletID: wallet.getID(),
           },
-          RECEIVE_BITCOIN_INTENT_KEY,
+          WALLET_ADDRESS_INTENT_KEY,
           true,
         );
       }
     } else {
-      await deleteFromKeychain(RECEIVE_BITCOIN_INTENT_KEY, true);
+      await deleteFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
     }
   } catch (error) {
     console.error('Error updating receive Bitcoin intent:', error);
@@ -125,8 +125,8 @@ interface SettingsContextType {
   setIsDrawerShouldHide: (value: boolean) => void;
   selectedBlockExplorer: BlockExplorer;
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
-  receiveBitcoinIntent: ReceiveBitcoinIntent | undefined;
-  setReceiveBitcoinIntent: (wallet: TWallet | undefined) => Promise<void>;
+  walletAddressIntent: WalletAddressIntent | undefined;
+  setWalletAddressIntent: (wallet: TWallet | undefined) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -156,8 +156,8 @@ const defaultSettingsContext: SettingsContextType = {
   setIsDrawerShouldHide: () => {},
   selectedBlockExplorer: BLOCK_EXPLORERS.default,
   setBlockExplorerStorage: async (explorer: BlockExplorer) => false,
-  receiveBitcoinIntent: undefined,
-  setReceiveBitcoinIntent: async () => {},
+  walletAddressIntent: undefined,
+  setWalletAddressIntent: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -190,28 +190,28 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
 
-  const [receiveBitcoinIntent, setReceiveBitcoinIntentState] = useState<ReceiveBitcoinIntent | undefined>(undefined);
+  const [walletAddressIntent, setWalletAddressIntentState] = useState<WalletAddressIntent | undefined>(undefined);
 
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
-    const initializeReceiveBitcoinIntent = async () => {
+    const initializeWalletAddressIntent = async () => {
       try {
-        const initialData = await fetchReceiveBitcoinIntent();
-        setReceiveBitcoinIntentState(initialData);
+        const initialData = await fetchWalletAddressIntent();
+        setWalletAddressIntentState(initialData);
       } catch (error) {
         console.error('Error initializing receive Bitcoin intent:', error);
       }
     };
 
-    initializeReceiveBitcoinIntent();
+    initializeWalletAddressIntent();
   }, []);
 
-  const setReceiveBitcoinIntent = useCallback(async (wallet: TWallet | undefined) => {
-    await updateReceiveBitcoinIntent(wallet);
-    const updatedData = await fetchReceiveBitcoinIntent();
-    setReceiveBitcoinIntentState(updatedData);
+  const setWalletAddressIntent = useCallback(async (wallet: TWallet | undefined) => {
+    await updateWalletAddressIntent(wallet);
+    const updatedData = await fetchWalletAddressIntent();
+    setWalletAddressIntentState(updatedData);
   }, []);
 
   useEffect(() => {
@@ -412,8 +412,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
-      receiveBitcoinIntent,
-      setReceiveBitcoinIntent,
+      walletAddressIntent,
+      setWalletAddressIntent,
     }),
     [
       preferredFiatCurrency,
@@ -441,8 +441,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
-      receiveBitcoinIntent,
-      setReceiveBitcoinIntent,
+      walletAddressIntent,
+      setWalletAddressIntent,
     ],
   );
 

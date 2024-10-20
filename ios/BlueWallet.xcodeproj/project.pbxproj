@@ -123,10 +123,10 @@
 		B478BBDF2CC1F88100542A2F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBDE2CC1F88100542A2F /* KeychainService.swift */; };
 		B478BBE02CC1F88100542A2F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBDE2CC1F88100542A2F /* KeychainService.swift */; };
 		B478BBE12CC1F88100542A2F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBDE2CC1F88100542A2F /* KeychainService.swift */; };
-		B478BBEA2CC2044D00542A2F /* ReceiveBitcoinIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */; };
+		B478BBEA2CC2044D00542A2F /* WalletAddressItent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBE92CC2044D00542A2F /* WalletAddressItent.swift */; };
 		B478BBEC2CC2255F00542A2F /* AppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
-		B48A81682CC28B68009366D1 /* ReceiveBitcoinSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */; };
+		B48A81682CC28B68009366D1 /* WalletAddressSnippet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -354,10 +354,10 @@
 		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
 		B478BBDE2CC1F88100542A2F /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
-		B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBitcoinIntent.swift; sourceTree = "<group>"; };
+		B478BBE92CC2044D00542A2F /* WalletAddressItent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressItent.swift; sourceTree = "<group>"; };
 		B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShortcuts.swift; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
-		B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveBitcoinSnippet.swift; sourceTree = "<group>"; };
+		B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAddressSnippet.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
@@ -700,8 +700,8 @@
 		B425799C2CBF68C100F5C0E4 /* AppIntents */ = {
 			isa = PBXGroup;
 			children = (
-				B48A81672CC28B68009366D1 /* ReceiveBitcoinSnippet.swift */,
-				B478BBE92CC2044D00542A2F /* ReceiveBitcoinIntent.swift */,
+				B48A81672CC28B68009366D1 /* WalletAddressSnippet.swift */,
+				B478BBE92CC2044D00542A2F /* WalletAddressItent.swift */,
 				B478BBEB2CC2255F00542A2F /* AppShortcuts.swift */,
 			);
 			path = AppIntents;
@@ -1198,13 +1198,13 @@
 				B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				B478BBEA2CC2044D00542A2F /* ReceiveBitcoinIntent.swift in Sources */,
+				B478BBEA2CC2044D00542A2F /* WalletAddressItent.swift in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
 				B44033C42BCC332400162242 /* Balance.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
 				B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */,
-				B48A81682CC28B68009366D1 /* ReceiveBitcoinSnippet.swift in Sources */,
+				B48A81682CC28B68009366D1 /* WalletAddressSnippet.swift in Sources */,
 				B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,

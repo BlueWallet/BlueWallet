@@ -58,7 +58,7 @@ const WalletDetails: React.FC = () => {
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
   const walletRef = useRef<TWallet | undefined>(wallets.find(w => w.getID() === walletID));
   const wallet = walletRef.current as TWallet;
-  const { receiveBitcoinIntent, setReceiveBitcoinIntent } = useSettings();
+  const { walletAddressIntent, setWalletAddressIntent } = useSettings();
   const [isSupportedEnvironment, setIsSupportedEnvironment] = useState(false);
 
   const [walletUseWithHardwareWallet, setWalletUseWithHardwareWallet] = useState<boolean>(
@@ -156,12 +156,12 @@ const WalletDetails: React.FC = () => {
   const onUseForShortcutsSwitchValueChanged = async (value: boolean) => {
     try {
       if (value) {
-        await setReceiveBitcoinIntent(wallet);
+        await setWalletAddressIntent(wallet);
       } else {
-        await setReceiveBitcoinIntent(undefined);
+        await setWalletAddressIntent(undefined);
       }
     } catch (error) {
-      console.error('Failed to set receiveBitcoinIntent:', error);
+      console.error('Failed to set walletAddressIntent:', error);
     }
   };
 
@@ -596,7 +596,7 @@ const WalletDetails: React.FC = () => {
                 {/* Section: Use Wallet for Shortcuts */}
                 <View style={styles.shortcutsContainer}>
                   <BlueText>{loc.settings.use_for_shortcuts}</BlueText>
-                  <Switch value={receiveBitcoinIntent?.walletID === walletID} onValueChange={onUseForShortcutsSwitchValueChanged} />
+                  <Switch value={walletAddressIntent?.walletID === walletID} onValueChange={onUseForShortcutsSwitchValueChanged} />
                 </View>
               </View>
             )}
