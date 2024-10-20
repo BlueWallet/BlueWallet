@@ -72,7 +72,38 @@ func generateQRCode(from string: String) -> UIImage? {
         let context = CIContext()
 
         if let cgImage = context.createCGImage(scaledImage, from: scaledImage.extent) {
-            return UIImage(cgImage: cgImage)
+            let qrCodeImage = UIImage(cgImage: cgImage)
+
+            let iconSize = CGSize(width: 80, height: 80)
+            let containerSize = CGSize(width: iconSize.width + 15, height: iconSize.height + 15)
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: 400, height: 400))
+
+            return renderer.image { context in
+                context.cgContext.setFillColor(UIColor.clear.cgColor)
+                context.fill(CGRect(x: 0, y: 0, width: 400, height: 400))
+
+                qrCodeImage.draw(in: CGRect(origin: .zero, size: CGSize(width: 400, height: 400)))
+
+                let containerOrigin = CGPoint(
+                    x: (400 - containerSize.width) / 2,
+                    y: (400 - containerSize.height) / 2
+                )
+                let containerRect = CGRect(origin: containerOrigin, size: containerSize)
+
+                UIColor.white.setFill()
+                context.fill(containerRect)
+
+                UIColor.black.setStroke()
+                context.stroke(containerRect)
+
+                if let appIcon = UIImage(named: "SplashIcon") {
+                    let iconOrigin = CGPoint(
+                        x: containerOrigin.x + 7.5,
+                        y: containerOrigin.y + 7.5
+                    )
+                    appIcon.draw(in: CGRect(origin: iconOrigin, size: iconSize))
+                }
+            }
         }
     }
     return nil

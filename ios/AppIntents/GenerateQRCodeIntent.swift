@@ -136,25 +136,65 @@ func renderBitcoinAddressQRCodeSnippetAsImageCoreGraphics(
 }
 
 private func drawStyledAddress(qrCode: String, context: UIGraphicsImageRendererContext, size: CGSize, qrCodeOrigin: CGPoint) {
+    let fontSize: CGFloat = 14
+    let fontBold = UIFont.monospacedSystemFont(ofSize: fontSize, weight: .bold)
+    let fontRegular = UIFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+    let attributesBold: [NSAttributedString.Key: Any] = [
+        .font: fontBold,
+        .foregroundColor: UIColor.black
+    ]
+    let attributesNormal: [NSAttributedString.Key: Any] = [
+        .font: fontRegular,
+        .foregroundColor: UIColor.black
+    ]
     let firstFour = String(qrCode.prefix(4))
     let lastFour = String(qrCode.suffix(4))
-    let middle = qrCode.dropFirst(4).dropLast(4)
-    let halfIndex = middle.index(middle.startIndex, offsetBy: middle.count / 2)
-    let firstMiddle = String(middle[..<halfIndex])
-    let secondMiddle = String(middle[halfIndex...])
+    let middle = String(qrCode.dropFirst(4).dropLast(4))
+    let middleLength = middle.count
+    var minWidthDifference: CGFloat = CGFloat.greatestFiniteMagnitude
+    var bestFirstMiddle = ""
+    var bestSecondMiddle = ""
 
-    let addressString = "\(firstFour)  \(firstMiddle) \(secondMiddle) \(lastFour)"
-    
-    let attributesBold: [NSAttributedString.Key: Any] = [
-        .font: UIFont.boldSystemFont(ofSize: 14),
-        .foregroundColor: UIColor.black
-    ]
-    
-    let attributesNormal: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 14),
-        .foregroundColor: UIColor.black
-    ]
-    
-    var yOffset = qrCodeOrigin.y + 200 + 10
-    addressString.draw(at: CGPoint(x: (size.width - addressString.size(withAttributes: attributesNormal).width) / 2, y: yOffset), withAttributes: attributesNormal)
+    for splitIndex in 0...middleLength {
+        let firstMiddle = String(middle.prefix(splitIndex))
+        let secondMiddle = String(middle.dropFirst(splitIndex))
+
+        let firstLine = NSMutableAttributedString()
+        firstLine.append(NSAttributedString(string: firstFour, attributes: attributesBold))
+        firstLine.append(NSAttributedString(string: firstMiddle, attributes: attributesNormal))
+
+        let secondLine = NSMutableAttributedString()
+        secondLine.append(NSAttributedString(string: secondMiddle, attributes: attributesNormal))
+        secondLine.append(NSAttributedString(string: lastFour, attributes: attributesBold))
+
+        let firstLineWidth = firstLine.size().width
+        let secondLineWidth = secondLine.size().width
+        let widthDifference = abs(firstLineWidth - secondLineWidth)
+
+        if widthDifference < minWidthDifference {
+            minWidthDifference = widthDifference
+            bestFirstMiddle = firstMiddle
+            bestSecondMiddle = secondMiddle
+        }
+    }
+
+    let firstLineAttributedString = NSMutableAttributedString()
+    firstLineAttributedString.append(NSAttributedString(string: firstFour, attributes: attributesBold))
+    firstLineAttributedString.append(NSAttributedString(string: bestFirstMiddle, attributes: attributesNormal))
+
+    let secondLineAttributedString = NSMutableAttributedString()
+    secondLineAttributedString.append(NSAttributedString(string: bestSecondMiddle, attributes: attributesNormal))
+    secondLineAttributedString.append(NSAttributedString(string: lastFour, attributes: attributesBold))
+
+    let firstLineSize = firstLineAttributedString.size()
+    let secondLineSize = secondLineAttributedString.size()
+    let maxLineWidth = max(firstLineSize.width, secondLineSize.width)
+
+    let yOffsetFirstLine = qrCodeOrigin.y + 200 + 10
+    let lineHeight = firstLineSize.height
+    let yOffsetSecondLine = yOffsetFirstLine + lineHeight + 5
+    let xPosition = (size.width - maxLineWidth) / 2
+
+    firstLineAttributedString.draw(at: CGPoint(x: xPosition, y: yOffsetFirstLine))
+    secondLineAttributedString.draw(at: CGPoint(x: xPosition, y: yOffsetSecondLine))
 }
