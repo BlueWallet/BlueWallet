@@ -42,7 +42,7 @@ struct WalletAddressIntent: AppIntent {
     static var title: LocalizedStringResource = "Wallet Address"
 
     static var description = IntentDescription(
-        "Display the Bitcoin wallet label and adress as a QR code from your selected wallet in BlueWallet."
+        "Display the Bitcoin wallet label and address as a QR code from your selected wallet in BlueWallet."
     )
 
     static var parameterSummary: some ParameterSummary {

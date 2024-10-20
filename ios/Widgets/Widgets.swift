@@ -10,6 +10,7 @@ import WidgetKit
 import SwiftUI
 
 @main
+@available(iOS 18.0, *)
 struct Widgets: WidgetBundle {
     @WidgetBundleBuilder
     var body: some Widget {
@@ -17,6 +18,7 @@ struct Widgets: WidgetBundle {
         WalletInformationWidget()
         MarketWidget()
         WalletInformationAndMarketWidget()
+        WalletAddressControlWidget()
     }
 }
 
