@@ -18,9 +18,7 @@
     "wasnt_paid_and_expired": "You nor quick pay this invoice and e don kalas"
   },
   "plausibledeniability": {
-    "password_should_not_match": "You dey use this password, run another password wey you never use.",
-    "passwords_do_not_match": "Abobi your password nor match",
-    "success": "You correct"
+    "password_should_not_match": "You dey use this password, run another password wey you never use."
   },
   "receive": {
     "maxSats": "Maximum amount na {max} sats",

@@ -35,9 +35,6 @@
     "error": "Viga",
     "network": "Võrgu viga"
   },
-  "plausibledeniability": {
-    "success": "Toiming õnnestus"
-  },
   "send": {
     "broadcastError": "Viga",
     "broadcastSuccess": "Toiming õnnestus",
@@ -48,7 +45,6 @@
     "save": "Salvesta"
   },
   "wallets": {
-    "add_entropy": "Entroopia",
-    "details_save": "Salvesta"
+    "add_entropy": "Entroopia"
   }
 }

@@ -10,7 +10,6 @@
     "success": "مۏوفق بی",
     "wallet_key": "کلٛیل کیف پیلٛ",
     "refresh": "وانۊ کردن",
-    "more": "بؽشتر",
     "enter_amount": "مقدارن بزݩ"
   },
   "azteco": {
@@ -45,10 +44,7 @@
     "wasnt_paid_and_expired": "اؽ سۊرت هساو پرداخت نبیه ۉ مونقزی بیه."
   },
   "plausibledeniability": {
-    "password_should_not_match": "رزم ها وه کار مؽره. یه رزم هنی نه وه کار بیر.",
-    "passwords_do_not_match": "رزمیات چی یک نؽسن، دۏورته امتهانشو بکو.",
-    "confirm_password": "رزمن دۏورته هؽل بکو",
-    "success": "مۏوفق بی"
+    "password_should_not_match": "رزم ها وه کار مؽره. یه رزم هنی نه وه کار بیر."
   },
   "pleasebackup": {
     "ask_no": "نه، مه نارم.",
@@ -80,8 +76,7 @@
     "fee_fast": "زلٛ",
     "fee_medium": "مؽنجا",
     "header": "کلٛ کردن",
-    "psbt_sign": "امزا کردن تراکونش",
-    "permission_storage_later": "دماتر دم بپورس."
+    "psbt_sign": "امزا کردن تراکونش"
   },
   "settings": {
     "about_selftest": "ره ونن خوش آزمایی",
@@ -89,7 +84,6 @@
     "about_sm_github": "گیت هاب",
     "about_sm_discord": "سرور دیسکورد",
     "about_sm_telegram": "تورگه تلگرام",
-    "advanced_options": "گژکیا پؽش رته",
     "biometrics": "بیومتریک",
     "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",
     "currency": "واهد پیلٛ",
@@ -99,7 +93,6 @@
     "electrum_offline_mode": "هالت آفلاین",
     "use_ssl": "SSL نه وه کار بییر",
     "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموݩ بۊئه؟",
-    "set_lndhub_as_default": "{server} سی سرور پؽش فرز LNDhub ساموݩ بۊئه؟",
     "electrum_settings_server": "سرور الکترام",
     "electrum_status": "وزیت",
     "electrum_clear_alert_title": "ویرگار پاک بۊئه؟",
@@ -109,7 +102,6 @@
     "electrum_history": "ویرگار سرور",
     "encrypt_title": "امنیت",
     "encrypt_use": "{type} نه وه کار بییر",
-    "general_adv_mode": "هالت پؽش رته",
     "header": "سامونیا",
     "language": "زوݩ",
     "lightning_settings": "سامونیا لایتنینگ",
@@ -121,7 +113,6 @@
     "privacy_read_clipboard": "ونن ویرگه",
     "privacy_system_settings": "سامونیا دسگا",
     "rate": "نرخ",
-    "confirm_password": "رزمن دۏورته هؽل بکو",
     "widgets": "اوزارکیا",
     "tools": "اوزاریا"
   },
