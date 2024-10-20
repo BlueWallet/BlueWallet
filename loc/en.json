@@ -237,7 +237,7 @@
     "wallet_address_intent_desc": "Quickly display your Bitcoin receiving address as a QR code via the Shortcuts app.",
     "shortcuts_title": "Shortcuts",
     "electrum_connected": "Connected",
-    "use_for_shortcuts": "Use this wallet for the Shortcuts app",
+    "use_for_shortcuts": "Use with the Shortcuts app",
     "electrum_connected_not": "Not Connected",
     "electrum_error_connect": "Cannot connect to the provided Electrum server",
     "lndhub_uri": "E.g., {example}",

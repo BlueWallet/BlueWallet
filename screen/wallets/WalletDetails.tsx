@@ -591,7 +591,7 @@ const WalletDetails: React.FC = () => {
             {isSupportedEnvironment && (
               <View>
                 <TouchableOpacity onPress={handleOpenShortcuts}>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.settings.shortcuts_title.toLowerCase()}</Text>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.settings.shortcuts_title}</Text>
                 </TouchableOpacity>
                 {/* Section: Use Wallet for Shortcuts */}
                 <View style={styles.shortcutsContainer}>
