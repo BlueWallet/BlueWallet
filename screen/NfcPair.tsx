@@ -9,8 +9,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import prompt from '../helpers/prompt.ts';
 import loc from '../loc';
 
-let statusIntervalPaused = false;
-
 function NfcPair() {
   // @ts-ignore wtf
   const { launchedBy, onReturn } = useRoute().params;
@@ -18,33 +16,22 @@ function NfcPair() {
   const [status, setStatus] = useState<CardStatus | null>(null);
   const [, setRedraw] = useState<number>(0);
 
-  /* async function getStatus() {
+  async function getStatus() {
     setStatus(await PortalDevice.getStatus());
-  } */
+  }
 
   useEffect(() => {
     console.log('NfcPair launched by', launchedBy);
-    PortalDevice.init()?.then(() => setRedraw(Math.random()));
-
-    // reading status from Portal device every few seconds
-    const statusTimer = setInterval(() => {
-      if (statusIntervalPaused) return;
-
-      PortalDevice.getStatus()
-        .then((stat: CardStatus) => {
-          console.log('status returned: ', stat);
-          setStatus(stat);
-          setRedraw(Math.random());
-        })
-        .catch(console.error);
-    }, 3000);
+    PortalDevice.startReading()?.then(() => {
+      getStatus();
+      // setRedraw(Math.random());
+    });
 
     // Cleanup function
     return () => {
-      clearInterval(statusTimer);
       stopReading();
     };
-  }, []);
+  }, [launchedBy]);
 
   return (
     <View style={styles.wrapper}>
@@ -83,11 +70,8 @@ function NfcPair() {
           onPress={async () => {
             const password = await prompt(loc._.enter_password, '', true);
             if (password) {
-              statusIntervalPaused = true;
               PortalDevice.unlock(password)
-                .then(() => {
-                  statusIntervalPaused = false;
-                })
+                .then(() => getStatus())
                 .catch(alert);
             }
           }}
@@ -98,7 +82,6 @@ function NfcPair() {
         <Button
           title="Pair!"
           onPress={() => {
-            statusIntervalPaused = true;
             PortalDevice.publicDescriptors()
               .then((data: Descriptors) => {
                 console.log('publicDescriptors=', data);
