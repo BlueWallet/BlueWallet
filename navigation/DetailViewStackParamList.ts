@@ -16,7 +16,7 @@ export type DetailViewStackParamList = {
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: { scannedData?: string };
-  IsItMyAddress: undefined;
+  IsItMyAddress: { address?: string };
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {
@@ -54,6 +54,7 @@ export type DetailViewStackParamList = {
   About: undefined;
   DefaultView: undefined;
   ElectrumSettings: undefined;
+  SettingsBlockExplorer: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
@@ -76,7 +77,7 @@ export type DetailViewStackParamList = {
   ReceiveDetailsRoot: {
     screen: 'ReceiveDetails';
     params: {
-      walletID: string;
+      walletID?: string;
       address: string;
     };
   };

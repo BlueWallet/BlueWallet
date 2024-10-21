@@ -4,8 +4,8 @@ import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, ScrollV
 import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import usePrivacy from '../../hooks/usePrivacy';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import {
   DoneAndDismissKeyboardInputAccessory,
@@ -28,7 +28,6 @@ const WalletsImport = () => {
   const [, setSpeedBackdoor] = useState(0);
   const [searchAccounts, setSearchAccounts] = useState(false);
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const { enableBlur, disableBlur } = usePrivacy();
 
   // Styles
   const styles = StyleSheet.create({
@@ -60,11 +59,11 @@ const WalletsImport = () => {
   });
 
   useEffect(() => {
-    enableBlur();
+    disallowScreenshot(true);
     return () => {
-      disableBlur();
+      disallowScreenshot(false);
     };
-  }, [disableBlur, enableBlur]);
+  }, []);
 
   useEffect(() => {
     if (triggerImport) importButtonPressed();
@@ -96,17 +95,11 @@ const WalletsImport = () => {
     setTimeout(() => importMnemonic(value), 500);
   };
 
-  const importScan = () => {
-    requestCameraAuthorization().then(() =>
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          showFileImportButton: true,
-          showNfcButton: true,
-        },
-      }),
-    );
+  const importScan = async () => {
+    const data = await scanQrHelper(navigation, true, true);
+    if (data) {
+      onBarScanned(data);
+    }
   };
 
   const speedBackdoorTap = () => {

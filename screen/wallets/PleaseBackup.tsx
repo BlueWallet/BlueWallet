@@ -3,7 +3,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import usePrivacy from '../../hooks/usePrivacy';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 
@@ -13,7 +13,6 @@ const PleaseBackup: React.FC = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
-  const { enableBlur, disableBlur } = usePrivacy();
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -38,10 +37,10 @@ const PleaseBackup: React.FC = () => {
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-    enableBlur();
+    disallowScreenshot(true);
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-      disableBlur();
+      disallowScreenshot(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

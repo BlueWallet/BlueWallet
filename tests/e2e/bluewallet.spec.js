@@ -153,7 +153,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('IsItMyAddress')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('CheckAddress')).tap();
-    await expect(element(by.id('Result'))).toHaveText('None of the available wallets own the provided address.');
+    await expect(element(by.text('None of the available wallets own the provided address.'))).toBeVisible();
+    await element(by.text('OK')).tap();
     await device.pressBack();
     await device.pressBack();
 
@@ -178,6 +179,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await yo('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
     await element(by.id('cr34t3d')).tap();
+    await yo('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have.')).tap();
     try {
@@ -506,7 +508,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('CreateButton')).tap();
     await yo('Multisig Vault');
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
-
+    await yo('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have.')).tap();
     try {
@@ -571,6 +573,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // sending...
 
+    await yo('SendButton');
     await element(by.id('SendButton')).tap();
 
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');

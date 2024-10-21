@@ -39,7 +39,7 @@ import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -57,6 +57,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -600,7 +601,6 @@ const SendDetails = () => {
 
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
-      feeModalRef.current?.dismiss();
 
       // @ts-ignore idk how to fix FIXME?
 
@@ -608,14 +608,12 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
-      feeModalRef.current?.dismiss();
-
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
-        fromWallet: wallet,
+        walletID: wallet.getID(),
         psbt,
         launchedBy: routeParams.launchedBy,
       });
@@ -624,8 +622,6 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === MultisigHDWallet.type) {
-      feeModalRef.current?.dismiss();
-
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -650,7 +646,6 @@ const SendDetails = () => {
       // (ez can be the case for single-address wallet when doing self-payment for consolidation)
       recipients = outputs;
     }
-    feeModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -679,22 +674,13 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = () => {
+  const importQrTransaction = async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    requestCameraAuthorization().then(() => {
-      feeModalRef.current?.dismiss();
-
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned: importQrTransactionOnBarScanned,
-          showFileImportButton: false,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    importQrTransactionOnBarScanned(data);
   };
 
   const importQrTransactionOnBarScanned = (ret: any) => {
@@ -707,8 +693,6 @@ const SendDetails = () => {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
     } else {
-      feeModalRef.current?.dismiss();
-
       // psbt base64?
 
       // we construct PSBT object and pass to next screen
@@ -717,7 +701,7 @@ const SendDetails = () => {
 
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
-        fromWallet: wallet,
+        walletID: wallet.getID(),
         psbt,
       });
       setIsLoading(false);
@@ -751,7 +735,7 @@ const SendDetails = () => {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         const txhex = psbt.extractTransaction().toHex();
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
         setIsLoading(false);
 
         return;
@@ -762,7 +746,7 @@ const SendDetails = () => {
         // so user can do smth with it:
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, psbt });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt });
         setIsLoading(false);
 
         return;
@@ -771,7 +755,7 @@ const SendDetails = () => {
       if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex: file });
+        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
         setIsLoading(false);
 
         return;
@@ -852,15 +836,8 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = async () => {
-    await requestCameraAuthorization().then(() => {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    });
+    const data = await scanQrHelper(route.name, true);
+    onBarScanned(data);
   };
 
   const handleAddRecipient = () => {
@@ -875,6 +852,24 @@ const SendDetails = () => {
       });
     }, 0);
   };
+
+  const onRemoveAllRecipientsConfirmed = useCallback(() => {
+    setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]);
+  }, []);
+
+  const handleRemoveAllRecipients = useCallback(() => {
+    Alert.alert(loc.send.details_recipients_title, loc.send.details_add_recc_rem_all_alert_description, [
+      {
+        text: loc._.cancel,
+        onPress: () => {},
+        style: 'cancel',
+      },
+      {
+        text: loc._.ok,
+        onPress: onRemoveAllRecipientsConfirmed,
+      },
+    ]);
+  }, [onRemoveAllRecipientsConfirmed]);
 
   const handleRemoveRecipient = () => {
     if (addresses.length > 1) {
@@ -916,7 +911,7 @@ const SendDetails = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
-    const scannedData = await scanQrHelper(name, true, undefined);
+    const scannedData = await scanQrHelper(name, true, false, undefined);
     if (!scannedData) return setIsLoading(false);
 
     let tx;
@@ -957,9 +952,9 @@ const SendDetails = () => {
   // Header Right Button
 
   const headerRightOnPress = (id: string) => {
-    if (id === SendDetails.actionKeys.AddRecipient) {
+    if (id === CommonToolTipActions.AddRecipient.id) {
       handleAddRecipient();
-    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
+    } else if (id === CommonToolTipActions.RemoveRecipient.id) {
       handleRemoveRecipient();
     } else if (id === SendDetails.actionKeys.SignPSBT) {
       handlePsbtSign();
@@ -979,6 +974,8 @@ const SendDetails = () => {
       handleCoinControl();
     } else if (id === SendDetails.actionKeys.InsertContact) {
       handleInsertContact();
+    } else if (id === CommonToolTipActions.RemoveAllRecipients.id) {
+      handleRemoveAllRecipients();
     }
   };
 
@@ -1031,19 +1028,13 @@ const SendDetails = () => {
       if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
         transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
       }
-      actions.push(transactionActions, [
-        {
-          id: SendDetails.actionKeys.AddRecipient,
-          text: loc.send.details_add_rec_add,
-          icon: SendDetails.actionIcons.AddRecipient,
-        },
-        {
-          id: SendDetails.actionKeys.RemoveRecipient,
-          text: loc.send.details_add_rec_rem,
-          disabled: addresses.length < 2,
-          icon: SendDetails.actionIcons.RemoveRecipient,
-        },
-      ]);
+      actions.push(transactionActions);
+
+      const recipientActions: Action[] = [CommonToolTipActions.AddRecipient, CommonToolTipActions.RemoveRecipient];
+      if (addresses.length > 1) {
+        recipientActions.push(CommonToolTipActions.RemoveAllRecipients);
+      }
+      actions.push(recipientActions);
     }
 
     actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
@@ -1173,8 +1164,6 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              feeModalRef.current?.dismiss();
-
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
@@ -1381,8 +1370,6 @@ SendDetails.actionKeys = {
   InsertContact: 'InsertContact',
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
-  AddRecipient: 'AddRecipient',
-  RemoveRecipient: 'RemoveRecipient',
   AllowRBF: 'AllowRBF',
   ImportTransaction: 'ImportTransaction',
   ImportTransactionMultsig: 'ImportTransactionMultisig',
@@ -1395,8 +1382,6 @@ SendDetails.actionIcons = {
   InsertContact: { iconValue: 'at.badge.plus' },
   SignPSBT: { iconValue: 'signature' },
   SendMax: 'SendMax',
-  AddRecipient: { iconValue: 'person.badge.plus' },
-  RemoveRecipient: { iconValue: 'person.badge.minus' },
   AllowRBF: 'AllowRBF',
   ImportTransaction: { iconValue: 'square.and.arrow.down' },
   ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },

@@ -14,7 +14,7 @@ import LnurlAuth from '../screen/lnd/lnurlAuth';
 import LnurlPay from '../screen/lnd/lnurlPay';
 import LnurlPaySuccess from '../screen/lnd/lnurlPaySuccess';
 import Broadcast from '../screen/send/Broadcast';
-import IsItMyAddress from '../screen/send/isItMyAddress';
+import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
 import TransactionDetails from '../screen/transactions/TransactionDetails';
@@ -31,6 +31,7 @@ import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import {
   AboutComponent,
+  BlockExplorerSettingsComponent,
   CurrencyComponent,
   DefaultViewComponent,
   ElectrumSettingsComponent,
@@ -134,7 +135,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerTitle: loc.transactions.details_title,
-          headerRight: () => DetailButton,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -201,6 +201,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="IsItMyAddress"
         component={IsItMyAddress}
+        initialParams={{ address: undefined }}
         options={navigationStyle({ title: loc.is_it_my_address.title })(theme)}
       />
       <DetailViewStack.Screen
@@ -306,6 +307,12 @@ const DetailViewStackScreensStack = () => {
         component={NetworkSettingsComponent}
         options={navigationStyle({ title: loc.settings.network })(theme)}
       />
+      <DetailViewStack.Screen
+        name="SettingsBlockExplorer"
+        component={BlockExplorerSettingsComponent}
+        options={navigationStyle({ title: loc.settings.block_explorer })(theme)}
+      />
+
       <DetailViewStack.Screen name="About" component={AboutComponent} options={navigationStyle({ title: loc.settings.about })(theme)} />
       <DetailViewStack.Screen
         name="DefaultView"

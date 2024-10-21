@@ -56,14 +56,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "สร้างที่เก็บข้อมูลเทียม",
-    "create_password": "สร้างรหัสผ่าน",
     "create_password_explanation": "รหัสผ่านสำหรับที่เก็บข้อมูลเทียมไม่ควรตรงกับรหัสผ่านที่ใช้กับที่เก็บข้อมูลเทียมจริง",
     "help": "ภายใต้บางสถานการ์ณ, คุณอาจจะจำเป็นต้องเปิดเผยรหัสผ่าน. เพื่อเก็บเหรียญให้ปลอดถัย บูลวอลเล็ทสามารถสร้างที่เก็บข้อมูลอีกแห่งหนึ่งโดยใช้รหัสผ่านคนละอัน. ภายใต้สถานการ์ณที่จำเป็น คุณสามารถเปิดเลยรหัสผ่านนี้กับบุคคลที่สาม. และเมื่อใส่รหัสผ่านนี้ใน บลูวอลเล็ท ที่เก็บข้อมูลเทียมจะถูกเปิด. และน่าจะเป็นที่ยอมรับได้ต่อบุคลที่สาม, วิธีนี้จะทำให้ที่เก็บข้อมูลหลักมีความปลอดภัยและเป็นความลับ.",
     "help2": "ที่เก็บข้อมูลอันใหม่จะทำงานได้สมบูรณ์ และคุณสามารถเก็บจำนวนเงินขั้นต่ำได้ โดยที่มีความน่าเชื่อถือ.",
     "password_should_not_match": "รหัสผ่านสำหรับที่เก็บข้อมูลเทียมไม่ควรตรงกับรหัสผ่านที่ใช้กับที่เก็บข้อมูลเทียมจริง",
-    "passwords_do_not_match": "รหัสผ่านไม่ตรงกัน ",
-    "confirm_password": "ใส่รหัสผ่านอีกครั้ง ใส่รหัสผ่านอีกครั้ง",
-    "success": "สำเร็จ",
     "title": "การปฏิเสธที่เป็นไปได้"
   },
   "pleasebackup": {
@@ -136,8 +132,7 @@
     "psbt_tx_export": "ส่งไปที่ไฟล์",
     "psbt_tx_open": "เปิดธุรกรรมที่ลงนามไว้แล้ว",
     "psbt_tx_scan": "สแกนธุรกรรมที่ลงนามไว้แล้ว",
-    "success_done": "สำเร็จ",
-    "txSaved": "ธุรกรรมนี้ได้บันทึกใน {filePath}"
+    "success_done": "สำเร็จ"
   },
   "settings": {
     "about": "เกี่ยวกับ",
@@ -149,7 +144,6 @@
     "about_sm_github": "กิตฮับ",
     "about_sm_telegram": "เทเลแกรมแช็ท",
     "about_sm_twitter": "ติดตามเราในทวิตเตอร์",
-    "advanced_options": "ตัวเลือกขั้นสูง",
     "biometrics": "Biometrics",
     "biom_conf_identity": "กรุณายืนยันตัวตนของท่าน",
     "currency": "สกุลเงิน",
@@ -174,7 +168,6 @@
     "encrypt_tstorage": "ที่เก็บข้อมูล",
     "encrypt_use": "ใช้ {type}",
     "general": "ทั่วไป",
-    "general_adv_mode": "โหมดขั้นสูง",
     "general_continuity": "ความต่อเนื่อง",
     "header": "ตั้งค่า",
     "language": "ภาษา",
@@ -186,14 +179,10 @@
     "notifications": "แจ้งเตือน",
     "open_link_in_explorer": "ไปที่เอ๊กโพเลอร์",
     "password": "รหัสผ่าน",
-    "password_explain": "สร้างรหัสผ่านที่จะใช้ในการเข้ารหัสที่เก็บข้อมูล",
-    "passwords_do_not_match": "รหัสผ่านไม่ตรงกัน",
     "plausible_deniability": "การปฏิเสธที่เป็นไปได้...",
     "privacy": "ความเป็นส่วนตัว",
     "privacy_read_clipboard": "อ่านค่าจากคลิปบอร์ด",
     "privacy_system_settings": "ตั้งค่าระบบ",
-    "push_notifications": "การแจ้งเตือนแบบ Push",
-    "confirm_password": "ใส่รหัสผ่านอีกครั้ง",
     "save": "บันทึก",
     "saved": "บันทึกแล้ว",
     "total_balance": "ยอดรวม"
@@ -212,7 +201,6 @@
     "details_inputs": "อินพุท",
     "details_outputs": "เอ้าพุท",
     "details_received": "ได้รับแล้ว",
-    "transaction_saved": "บันทึกแล้ว",
     "details_show_in_block_explorer": "แสดงด้วย block explorer",
     "details_title": "ธุรกรรม",
     "details_to": "เอ้าพุท",
@@ -228,10 +216,10 @@
     "add_bitcoin": "บิตคอยน์",
     "add_bitcoin_explain": "กระเป๋าเงินบิตคอยน์ที่เรียบง่ายและทรงพลัง",
     "add_create": "สร้าง",
+    "total_balance": "ยอดรวม",
     "add_entropy": "เอนโทรปี",
     "add_import_wallet": "นำเข้ากระเป๋าสตางค์",
     "add_lightning": "ไลท์นิง",
-    "add_lndhub": "เชื่อมต่ปไปที่ LNDhub ของท่าน",
     "add_lndhub_placeholder": "แอดเดรสของโหนดของท่าน",
     "add_title": "เพิ่มกระเป๋าสตางค์",
     "add_wallet_name": "ชื่อกระเป๋าสตางค์",
@@ -245,13 +233,11 @@
     "details_export_backup": "ส่งออก / สำรอง",
     "details_master_fingerprint": "ลายนิ้วมือต้นแบบ",
     "details_no_cancel": "ไม่ใช่, ยกเลิก",
-    "details_save": "เก็บ",
     "details_show_xpub": "แสดง XPUB ของกระเป๋าสตางค์",
     "details_title": "กระเป๋าสตางค์",
     "wallets": "กระเป๋าสตางค์",
     "details_type": "ชนิด",
     "details_use_with_hardware_wallet": "ใช้ด้วยกระเป๋าฮาร์ดแวร์",
-    "details_wallet_updated": "อัพเดทกระเป๋าสตางค์แล้ว",
     "details_yes_delete": "ใช่, ลบเลย",
     "enter_bip38_password": "ใส่รหัสผ่านเพื่อถอดรหัส",
     "export_title": "ส่งออกกระเป๋าสตางค์",
@@ -281,8 +267,11 @@
     "add_ln_wallet_first": "คุณต้องเพิ่มกระเป๋าเงินไลท์นิงก่อน",
     "xpub_title": "XPUB ของกระเป๋าสตางค์"
   },
+  "total_balance_view": {
+    "title": "ยอดรวม"
+  },
   "multisig": {
-    "multisig_vault": "ห้องนิรภัย",
+    "multisig_vault": "ห้องนิรภัยหลายลายเซ็น",
     "default_label": "ห้องนิรภัยหลายลายเซ็น",
     "multisig_vault_explain": "ความปลอดภัยที่ดีที่สุดสำหรับเงินจำนวนมาก",
     "provide_signature": "ใส่ลายเซ็น",
