@@ -18,6 +18,7 @@ const keys = {
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
+  ClearClipboard: 'clearClipboard',
   PaymentsCode: 'paymentsCode',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
@@ -33,6 +34,9 @@ const icons = {
   },
   Clipboard: {
     iconValue: 'doc.on.doc',
+  },
+  ClearClipboard: {
+    iconValue: 'clipboard',
   },
   Link: {
     iconValue: 'link',
@@ -184,5 +188,11 @@ export const CommonToolTipActions = {
     text: loc.bip47.purpose,
     icon: icons.PaymentsCode,
     menuState: false,
+  },
+  ClearClipboard: {
+    id: keys.ClearClipboard,
+    text: loc.wallets.clear_clipboard_on_import,
+    icon: icons.ClearClipboard,
+    menuState: true,
   },
 };
