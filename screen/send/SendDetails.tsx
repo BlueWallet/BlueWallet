@@ -1272,6 +1272,8 @@ const SendDetails = () => {
           /* @ts-ignore marcos fixme */
           inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           launchedBy={name}
+          showOwnership
+          wallets={wallet}
           editable={isEditable}
         />
         {addresses.length > 1 && (

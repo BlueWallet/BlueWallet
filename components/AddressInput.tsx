@@ -1,5 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+// components/AddressInput.tsx
+
+import React from 'react';
+import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
@@ -8,10 +10,12 @@ import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_
 import Clipboard from '@react-native-clipboard/clipboard';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
+import AddressOwnershipButton from './AddressOwnershipButton'; // Import the OwnershipButton component
+import { TWallet } from '../class/wallets/types'; // Ensure correct path
 
 interface AddressInputProps {
   isLoading?: boolean;
-  address?: string;
+  address: string;
   placeholder?: string;
   onChangeText: (text: string) => void;
   onBarScanned: (ret: { data?: any }) => void;
@@ -34,9 +38,11 @@ interface AddressInputProps {
     | 'twitter'
     | 'web-search'
     | 'visible-password';
+  showOwnership?: boolean; // New prop to control ownership validation/UI
+  wallets?: TWallet[]; // Pass the list of wallets to AddressOwnershipButton
 }
 
-const AddressInput = ({
+const AddressInput: React.FC<AddressInputProps> = ({
   isLoading = false,
   address = '',
   placeholder = loc.send.details_address,
@@ -48,7 +54,9 @@ const AddressInput = ({
   inputAccessoryViewID,
   onBlur = () => {},
   keyboardType = 'default',
-}: AddressInputProps) => {
+  showOwnership = false, // Default to false
+  wallets = [], // Default to empty array
+}) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {
@@ -64,68 +72,84 @@ const AddressInput = ({
     },
   });
 
-  const onBlurEditing = () => {
+  /**
+   * Handles the blur event for the TextInput.
+   */
+  const handleBlur = () => {
     onBlur();
+    Keyboard.dismiss();
+    // Ownership handling is managed by AddressOwnershipButton
+  };
+
+  /**
+   * Handles the press event for the tooltip menu.
+   */
+  const toolTipOnPress = async () => {
+    await scanButtonTapped();
+    Keyboard.dismiss();
+    if (launchedBy) {
+      const value = await scanQrHelper(launchedBy, true);
+      onBarScanned({ data: value });
+    }
+  };
+
+  /**
+   * Handles the selection of a menu item from the tooltip menu.
+   *
+   * @param {string} action - The action identifier.
+   */
+  const onMenuItemPressed = async (action: string) => {
+    if (onBarScanned === undefined) throw new Error('onBarScanned is required');
+    switch (action) {
+      case actionKeys.ScanQR:
+        scanButtonTapped();
+        if (launchedBy) {
+          try {
+            const value = await scanQrHelper(launchedBy);
+            onBarScanned({ data: value });
+          } catch (error: any) {
+            presentAlert({ message: error.message });
+          }
+        }
+        break;
+      case actionKeys.CopyFromClipboard:
+        try {
+          const clipboardContent = await Clipboard.getString();
+          onChangeText(clipboardContent);
+        } catch (error: any) {
+          presentAlert({ message: error.message });
+        }
+        break;
+      case actionKeys.ChoosePhoto:
+        try {
+          const image = await showImagePickerAndReadImage();
+          if (image) {
+            onChangeText(image);
+          }
+        } catch (error: any) {
+          presentAlert({ message: error.message });
+        }
+        break;
+      case actionKeys.ImportFile:
+        try {
+          const file = await showFilePickerAndReadFile();
+          if (file.data) {
+            onChangeText(file.data);
+          }
+        } catch (error: any) {
+          presentAlert({ message: error.message });
+        }
+        break;
+      default:
+        break;
+    }
     Keyboard.dismiss();
   };
 
-  const toolTipOnPress = useCallback(async () => {
-    await scanButtonTapped();
-    Keyboard.dismiss();
-    if (launchedBy) scanQrHelper(launchedBy, true).then(value => onBarScanned({ data: value }));
-  }, [launchedBy, onBarScanned, scanButtonTapped]);
-
-  const onMenuItemPressed = useCallback(
-    (action: string) => {
-      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
-      switch (action) {
-        case actionKeys.ScanQR:
-          scanButtonTapped();
-          if (launchedBy) {
-            scanQrHelper(launchedBy)
-              .then(value => onBarScanned({ data: value }))
-              .catch(error => {
-                presentAlert({ message: error.message });
-              });
-          }
-
-          break;
-        case actionKeys.CopyFromClipboard:
-          Clipboard.getString()
-            .then(onChangeText)
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
-          break;
-        case actionKeys.ChoosePhoto:
-          showImagePickerAndReadImage()
-            .then(value => {
-              if (value) {
-                onChangeText(value);
-              }
-            })
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
-          break;
-        case actionKeys.ImportFile:
-          showFilePickerAndReadFile()
-            .then(value => {
-              if (value.data) {
-                onChangeText(value.data);
-              }
-            })
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
-          break;
-      }
-      Keyboard.dismiss();
-    },
-    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
-  );
-
-  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
+  /**
+   * Determines the style for the scan button.
+   */
+  const buttonStyle = React.useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -140,7 +164,7 @@ const AddressInput = ({
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
-        onBlur={onBlurEditing}
+        onBlur={handleBlur}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType={keyboardType}
@@ -163,9 +187,15 @@ const AddressInput = ({
           </Text>
         </ToolTipMenu>
       ) : null}
+      {/* Conditionally render the OwnershipButton */}
+      {showOwnership && wallets.length > 0 && (
+        <AddressOwnershipButton address={address} wallets={wallets} style={styles.ownershipButton} />
+      )}
     </View>
   );
 };
+
+export default AddressInput;
 
 const styles = StyleSheet.create({
   root: {
@@ -178,6 +208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
     borderRadius: 4,
+    paddingRight: 8, // Added padding to accommodate the OwnershipButton
   },
   input: {
     flex: 1,
@@ -198,6 +229,11 @@ const styles = StyleSheet.create({
   scanText: {
     marginLeft: 4,
   },
+  ownershipButton: {
+    // Minimal styling to align with the existing layout
+    marginLeft: 8,
+    width: 'auto',
+  },
 });
 
 const actionKeys = {
@@ -209,16 +245,16 @@ const actionKeys = {
 
 const actionIcons = {
   ScanQR: {
-    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
+    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'camera',
   },
   ImportFile: {
-    iconValue: 'doc',
+    iconValue: 'document',
   },
   ChoosePhoto: {
-    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
+    iconValue: Platform.OS === 'ios' ? 'image' : 'image',
   },
   Clipboard: {
-    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
+    iconValue: Platform.OS === 'ios' ? 'clipboard' : 'document-text',
   },
 };
 
@@ -244,5 +280,3 @@ const actions = [
     icon: actionIcons.ImportFile,
   },
 ];
-
-export default AddressInput;
