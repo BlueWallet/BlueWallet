@@ -107,6 +107,11 @@ export const publicDescriptors = async () => {
   return sdk.publicDescriptors();
 };
 
+export const signPsbt = async (psbt: string) => {
+  assert(sdk, 'sdk is null');
+  return sdk.signPsbt(psbt);
+};
+
 export const isReading = () => {
   return keepReading;
 };

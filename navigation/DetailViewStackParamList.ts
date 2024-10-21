@@ -103,10 +103,12 @@ export type DetailViewStackParamList = {
   };
   ManageWallets: undefined;
   NfcPair: {
-    screen: string;
-    params: {
-      launchedBy: string;
-      onReturn: (data: string) => void;
-    };
+    launchedBy: string;
+    onReturn: (data: string) => void;
+  };
+  NfcSignPsbt: {
+    launchedBy: string;
+    onReturn: (data: string) => void;
+    psbt: string;
   };
 };

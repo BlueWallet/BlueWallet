@@ -62,6 +62,7 @@ import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import NfcPair from '../screen/NfcPair';
+import NfcSignPsbt from '../screen/NfcSignPsbt.tsx';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
@@ -392,6 +393,17 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="NfcPair"
         component={NfcPair}
+        options={navigationStyle({
+          headerBackVisible: false,
+          gestureEnabled: false,
+          presentation: 'containedModal',
+          title: 'NFC',
+          statusBarStyle: 'auto',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="NfcSignPsbt"
+        component={NfcSignPsbt}
         options={navigationStyle({
           headerBackVisible: false,
           gestureEnabled: false,
