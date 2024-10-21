@@ -32,11 +32,12 @@ function scanQrHelper(
 
         params = {
           showFileImportButton: Boolean(showFileImportButton),
+          showNfcButton,
           onDismiss,
           onBarScanned,
         };
       } else {
-        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton) };
+        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton), showNfcButton };
       }
 
       navigationRef.navigate({
