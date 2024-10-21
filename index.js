@@ -12,7 +12,7 @@ if (!Error.captureStackTrace) {
   Error.captureStackTrace = () => {};
 }
 
-LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
+LogBox.ignoreLogs(['']);
 
 const BlueAppComponent = () => {
   useEffect(() => {

@@ -325,7 +325,7 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToScanQRCode = () => {
-    scanQrHelper(name, true, processLnurl);
+    scanQrHelper(name, true, false, processLnurl);
     Keyboard.dismiss();
   };
 

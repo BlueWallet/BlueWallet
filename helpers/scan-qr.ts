@@ -16,6 +16,7 @@ import { navigationRef } from '../NavigationService';
 function scanQrHelper(
   currentScreenName: string,
   showFileImportButton = true,
+  showNfcButton = false,
   onDismiss?: () => void,
   useMerge = true,
 ): Promise<string | null> {
@@ -31,11 +32,12 @@ function scanQrHelper(
 
         params = {
           showFileImportButton: Boolean(showFileImportButton),
+          showNfcButton,
           onDismiss,
           onBarScanned,
         };
       } else {
-        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton) };
+        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton), showNfcButton };
       }
 
       navigationRef.navigate({

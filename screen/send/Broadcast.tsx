@@ -103,7 +103,7 @@ const Broadcast: React.FC = () => {
   };
 
   const handleQRScan = () => {
-    scanQrHelper(name, true, undefined, false);
+    scanQrHelper(name, true, false, undefined, false);
   };
 
   let status;

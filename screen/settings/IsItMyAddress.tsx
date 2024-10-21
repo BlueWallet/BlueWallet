@@ -109,7 +109,7 @@ const IsItMyAddress: React.FC = () => {
   };
 
   const importScan = async () => {
-    const data = await scanQrHelper(route.name, true, undefined, true);
+    const data = await scanQrHelper(route.name, true, false, undefined, true);
     if (data) {
       onBarScanned(data);
     }
