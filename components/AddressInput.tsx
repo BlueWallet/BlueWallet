@@ -70,6 +70,18 @@ const AddressInput = ({
   });
 
   const onBlurEditing = () => {
+    const validateAddressWithFeedback = (address: string) => {
+      const isValid = DeeplinkSchemaMatch.isBitcoinAddress(address) || 
+                     DeeplinkSchemaMatch.isLightningInvoice(address);
+      
+      triggerHapticFeedback(
+        isValid 
+          ? HapticFeedbackTypes.NotificationSuccess
+          : HapticFeedbackTypes.NotificationError
+      );
+      return isValid;
+    };
+
     if (DeeplinkSchemaMatch.isBitcoinAddress(address) || DeeplinkSchemaMatch.isLightningInvoice(address)) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
