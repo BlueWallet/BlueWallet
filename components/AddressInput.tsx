@@ -70,23 +70,14 @@ const AddressInput = ({
   });
 
   const onBlurEditing = () => {
-    const validateAddressWithFeedback = (address: string) => {
-      const isValid = DeeplinkSchemaMatch.isBitcoinAddress(address) || 
-                     DeeplinkSchemaMatch.isLightningInvoice(address);
-      
-      triggerHapticFeedback(
-        isValid 
-          ? HapticFeedbackTypes.NotificationSuccess
-          : HapticFeedbackTypes.NotificationError
-      );
+    const validateAddressWithFeedback = (value: string) => {
+      const isValid = DeeplinkSchemaMatch.isBitcoinAddress(value) || DeeplinkSchemaMatch.isLightningInvoice(value);
+
+      triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
       return isValid;
     };
 
-    if (DeeplinkSchemaMatch.isBitcoinAddress(address) || DeeplinkSchemaMatch.isLightningInvoice(address)) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    } else {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-    }
+    validateAddressWithFeedback(address);
     onBlur();
     Keyboard.dismiss();
   };

@@ -61,7 +61,7 @@ const TotalWalletsBalance: React.FC = () => {
   }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
 
   const onPressMenuItem = useMemo(
-    () => async (id: string) => {
+    () => async (id: string | number) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
@@ -99,7 +99,7 @@ const TotalWalletsBalance: React.FC = () => {
       <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
         <View style={styles.container}>
           <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id.toString())}>
+          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
             <Text style={[styles.balance, styleHooks.balance]}>
               {formattedBalance}{' '}
               {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (

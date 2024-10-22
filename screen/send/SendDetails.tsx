@@ -994,19 +994,19 @@ const SendDetails = () => {
     const importActions = [
       {
         ...CommonToolTipActions.ImportTransaction,
-        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet.isHd()),
+        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet?.isHd()),
       },
       {
         ...CommonToolTipActions.ImportTransactionQR,
-        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet.isHd()),
+        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet?.isHd()),
       },
       {
         ...CommonToolTipActions.ImportTransactionMultsig,
-        hidden: !(wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
+        hidden: !(wallet?.type === MultisigHDWallet.type && wallet?.howManySignaturesCanWeMake() > 0),
       },
       {
         ...CommonToolTipActions.CoSignTransaction,
-        hidden: !(wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
+        hidden: !(wallet?.type === MultisigHDWallet.type && wallet?.howManySignaturesCanWeMake() > 0),
       },
     ];
 
