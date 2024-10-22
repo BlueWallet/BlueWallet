@@ -167,9 +167,6 @@ const AddressInput = ({
         onBlur={onBlurEditing}
         autoCapitalize="none"
         autoCorrect={false}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType={keyboardType}
         keyboardType={keyboardType}
       />
       {editable ? (
