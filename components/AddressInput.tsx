@@ -3,9 +3,6 @@ import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 're
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
-import { useTheme } from './themes';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
-import Clipboard from '@react-native-clipboard/clipboard';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
 
