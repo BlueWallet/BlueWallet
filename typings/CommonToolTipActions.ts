@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import loc from '../loc';
 
 const keys = {
@@ -22,6 +23,10 @@ const keys = {
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
+  ScanQR: 'scan_qr',
+  CopyFromClipboard: 'copy_from_clipboard',
+  ChoosePhoto: 'choose_photo',
+  ImportFile: 'import_file',
 };
 
 const icons = {
@@ -30,9 +35,6 @@ const icons = {
   },
   EyeSlash: {
     iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
   },
   Link: {
     iconValue: 'link',
@@ -73,6 +75,18 @@ const icons = {
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
+  ScanQR: {
+    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
+  },
+  ImportFile: {
+    iconValue: 'doc',
+  },
+  ChoosePhoto: {
+    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
+  },
+  Clipboard: {
+    iconValue: Platform.OS === 'ios' ? 'doc.on.doc' : 'ic_menu_file',
+  },
 };
 
 export const CommonToolTipActions = {
@@ -184,5 +198,27 @@ export const CommonToolTipActions = {
     text: loc.bip47.purpose,
     icon: icons.PaymentsCode,
     menuState: false,
+  },
+  ScanQR: {
+    id: keys.ScanQR,
+    text: loc.wallets.list_long_scan,
+    icon: icons.ScanQR,
+  },
+  CopyFromClipboard: {
+    id: keys.CopyFromClipboard,
+    text: loc.wallets.list_long_clipboard,
+    icon: icons.Clipboard,
+    subtitle: '',
+    hidden: false,
+  },
+  ChoosePhoto: {
+    id: keys.ChoosePhoto,
+    text: loc.wallets.list_long_choose,
+    icon: icons.ChoosePhoto,
+  },
+  ImportFile: {
+    id: keys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: icons.ImportFile,
   },
 };
