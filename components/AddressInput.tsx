@@ -80,10 +80,15 @@ const AddressInput = ({
   };
 
   const actions = useMemo(() => {
-    const availableActions = [CommonToolTipActions.ScanQR, CommonToolTipActions.ChoosePhoto, CommonToolTipActions.ImportFile];
-    const clipboardAction = CommonToolTipActions.CopyFromClipboard;
-    clipboardAction.hidden = !isClipboardGetContentEnabled;
-    availableActions.push(clipboardAction);
+    const availableActions = [
+      CommonToolTipActions.ScanQR,
+      CommonToolTipActions.ChoosePhoto,
+      CommonToolTipActions.ImportFile,
+      {
+        ...CommonToolTipActions.CopyFromClipboard,
+        hidden: !isClipboardGetContentEnabled,
+      },
+    ];
 
     return availableActions;
   }, [isClipboardGetContentEnabled]);
