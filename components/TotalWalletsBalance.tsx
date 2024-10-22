@@ -99,7 +99,7 @@ const TotalWalletsBalance: React.FC = () => {
       <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
         <View style={styles.container}>
           <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
+          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id.toString())}>
             <Text style={[styles.balance, styleHooks.balance]}>
               {formattedBalance}{' '}
               {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (

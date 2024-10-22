@@ -7,7 +7,7 @@ import { Action } from './types';
 
 interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
-  actions: Action[];
+  actions: Action[] | Action[][];
   disabled?: boolean;
 }
 
