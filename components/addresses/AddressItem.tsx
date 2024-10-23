@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
 import { ListItem } from '@rneui/themed';
 import Share from 'react-native-share';
@@ -18,6 +17,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 interface AddressItemProps {
   item: any;
@@ -54,9 +54,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     },
   });
 
-  const { navigate } = useNavigation<NavigationProps>();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
 
-  const navigateToReceive = () => {
+  const navigateToReceive = useCallback(() => {
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -64,9 +64,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         address: item.address,
       },
     });
-  };
+  }, [navigate, walletID, item.address]);
 
-  const navigateToSignVerify = () => {
+  const navigateToSignVerify = useCallback(() => {
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -74,7 +74,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         address: item.address,
       },
     });
-  };
+  }, [navigate, walletID, item.address]);
 
   const menuActions = useMemo(
     () =>
@@ -95,15 +95,15 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
 
   const balance = formatBalance(item.balance, balanceUnit, true);
 
-  const handleCopyPress = () => {
+  const handleCopyPress = useCallback(() => {
     Clipboard.setString(item.address);
-  };
+  }, [item.address]);
 
-  const handleSharePress = () => {
+  const handleSharePress = useCallback(() => {
     Share.open({ message: item.address }).catch(error => console.log(error));
-  };
+  }, [item.address]);
 
-  const handleCopyPrivkeyPress = () => {
+  const handleCopyPrivkeyPress = useCallback(() => {
     const wallet = wallets.find(w => w.getID() === walletID);
     if (!wallet) {
       presentAlert({ message: 'Internal error: cant find wallet' });
@@ -121,30 +121,31 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     } catch (error: any) {
       presentAlert({ message: error.message });
     }
-  };
+  }, [wallets, walletID, item.address]);
 
-  const onToolTipPress = async (id: string) => {
-    if (id === CommonToolTipActions.CopyTXID.id) {
-      handleCopyPress();
-    } else if (id === CommonToolTipActions.Share.id) {
-      handleSharePress();
-    } else if (id === CommonToolTipActions.SignVerify.id) {
-      navigateToSignVerify();
-    } else if (id === CommonToolTipActions.ExportPrivateKey.id) {
-      if (await confirm(loc.addresses.sensitive_private_key)) {
-        if (await isBiometricUseCapableAndEnabled()) {
-          if (!(await unlockWithBiometrics())) {
-            return;
+  const onToolTipPress = useCallback(
+    async (id: string) => {
+      if (id === CommonToolTipActions.CopyTXID.id) {
+        handleCopyPress();
+      } else if (id === CommonToolTipActions.Share.id) {
+        handleSharePress();
+      } else if (id === CommonToolTipActions.SignVerify.id) {
+        navigateToSignVerify();
+      } else if (id === CommonToolTipActions.ExportPrivateKey.id) {
+        if (await confirm(loc.addresses.sensitive_private_key)) {
+          if (await isBiometricUseCapableAndEnabled()) {
+            if (!(await unlockWithBiometrics())) {
+              return;
+            }
           }
+          handleCopyPrivkeyPress();
         }
-        handleCopyPrivkeyPress();
       }
-    }
-  };
+    },
+    [handleCopyPress, handleSharePress, navigateToSignVerify, handleCopyPrivkeyPress, isBiometricUseCapableAndEnabled],
+  );
 
-  const renderPreview = () => {
-    return <QRCodeComponent value={item.address} isMenuAvailable={false} />;
-  };
+  const renderPreview = useCallback(() => <QRCodeComponent value={item.address} isMenuAvailable={false} />, [item.address]);
 
   return (
     <ToolTipMenu
