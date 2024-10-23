@@ -11,6 +11,7 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
 
@@ -41,8 +42,7 @@ class MainApplication : Application(), ReactApplication {
         super.onCreate()
         val sharedI18nUtilInstance = I18nUtil.getInstance()
         sharedI18nUtilInstance.allowRTL(applicationContext, true)
-        SoLoader.init(this, /* native exopackage */ false)
-
+        SoLoader.init(this, OpenSourceMergedSoMapping)
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             load()
