@@ -108,45 +108,34 @@ const CompanionDelegates = () => {
     async (event: { url: string }): Promise<void> => {
       const { url } = event;
 
-      if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.jpeg'))) {
-        try {
-          const response = await fetch(url);
-          const imageData = await response.blob();
+      if (url) {
+        const decodedUrl = decodeURIComponent(url);
+        const fileName = decodedUrl.split('/').pop()?.toLowerCase();
 
-          const reader = new FileReader();
-          reader.onloadend = async () => {
-            const base64Image = reader.result as string;
-            const base64Data = base64Image.replace(/^data:image\/jpeg;base64,/, ''); //
-            try {
-              const values = await RNQRGenerator.detect({
-                base64: base64Data,
-              });
+        if (fileName && (fileName.endsWith('.jpg') || fileName.endsWith('.png') || fileName.endsWith('.jpeg'))) {
+          try {
+            const values = await RNQRGenerator.detect({
+              uri: decodedUrl,
+            });
 
-              if (values && values.values.length > 0) {
-                DeeplinkSchemaMatch.navigationRouteFor(
-                  { url: values.values[0] },
-                  (value: [string, any]) => navigationRef.navigate(...value),
-                  {
-                    wallets,
-                    addWallet,
-                    saveToDisk,
-                    setSharedCosigner,
-                  },
-                );
-              } else {
-                console.log('No QR code detected in the image.');
-              }
-            } catch (error) {
-              console.error('Error detecting QR code:', error);
+            if (values && values.values.length > 0) {
+              DeeplinkSchemaMatch.navigationRouteFor(
+                { url: values.values[0] },
+                (value: [string, any]) => navigationRef.navigate(...value),
+                {
+                  wallets,
+                  addWallet,
+                  saveToDisk,
+                  setSharedCosigner,
+                },
+              );
             }
-          };
-          reader.readAsDataURL(imageData);
-        } catch (error) {
-          console.error('Error fetching image:', error);
+          } catch (error) {
+            console.error('Error detecting QR code:', error);
+          }
         }
       } else {
-        // Handle other deeplinks if it's not an image
-        DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
+        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
           wallets,
           addWallet,
           saveToDisk,
@@ -156,7 +145,6 @@ const CompanionDelegates = () => {
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
-
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
