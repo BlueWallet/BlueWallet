@@ -260,7 +260,7 @@ const CoinControl = () => {
   const navigation = useExtendedNavigation();
   const { width } = useWindowDimensions();
   const bottomModalRef = useRef(null);
-  const { walletID, onUTXOChoose } = useRoute().params;
+  const { walletID } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
   // sort by height ascending, txid , vout ascending
@@ -329,8 +329,13 @@ const CoinControl = () => {
 
   const handleUseCoin = async u => {
     setOutput(null);
-    navigation.pop();
-    onUTXOChoose(u);
+    navigation.navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: {
+        utxos: u,
+      },
+      merge: true,
+    });
   };
 
   const handleMassFreeze = () => {
@@ -476,7 +481,7 @@ const styles = StyleSheet.create({
   padding: {
     padding: 16,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 490 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 530 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
