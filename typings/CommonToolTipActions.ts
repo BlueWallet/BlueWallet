@@ -37,6 +37,10 @@ const keys = {
   ImportTransactionQR: 'import_transaction_qr',
   CoinControl: 'coin_control',
   CoSignTransaction: 'co_sign_transaction',
+  CopyToClipboard: 'copyToClipboard',
+  Share: 'share',
+  SignVerify: 'signVerify',
+  ExportPrivateKey: 'exportPrivateKey',
 };
 
 const icons: { [key: string]: { iconValue: string } } = {
@@ -62,14 +66,17 @@ const icons: { [key: string]: { iconValue: string } } = {
   ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
   CoinControl: { iconValue: 'switch.2' },
   CoSignTransaction: { iconValue: 'signature' },
-  PaymentCode: { iconValue: 'qrcode' },
+  PaymentCode: { iconValue: 'qrcode.viewfinder' },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
-  ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera' },
+  ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
   ImportFile: { iconValue: 'doc' },
   ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery' },
   Clipboard: { iconValue: Platform.OS === 'ios' ? 'doc.on.doc' : 'ic_menu_file' },
+  ExportPrivateKey: { iconValue: 'key' },
+  Share: { iconValue: 'square.and.arrow.up' },
+  Signature: { iconValue: 'signature' },
 };
 
 export const CommonToolTipActions: { [key: string]: Action } = {
@@ -258,5 +265,25 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     text: loc.cc.header,
     icon: icons.CoinControl,
     hidden: false,
+  },
+  CopyToClipboard: {
+    id: keys.CopyToClipboard,
+    text: loc.transactions.details_copy,
+    icon: icons.Clipboard,
+  },
+  Share: {
+    id: keys.Share,
+    text: loc.receive.details_share,
+    icon: icons.Share,
+  },
+  SignVerify: {
+    id: keys.SignVerify,
+    text: loc.addresses.sign_title,
+    icon: icons.Signature,
+  },
+  ExportPrivateKey: {
+    id: keys.ExportPrivateKey,
+    text: loc.addresses.copy_private_key,
+    icon: icons.ExportPrivateKey,
   },
 };

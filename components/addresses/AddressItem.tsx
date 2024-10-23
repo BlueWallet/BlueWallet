@@ -12,15 +12,14 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
 import QRCodeComponent from '../QRCodeComponent';
 import { useTheme } from '../themes';
-import { Action } from '../types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../TooltipMenu';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 interface AddressItemProps {
-  // todo: fix `any` after addresses.js is converted to the church of holy typescript
   item: any;
   balanceUnit: BitcoinUnit;
   walletID: string;
@@ -77,7 +76,22 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     });
   };
 
-  const menuActions = useMemo(() => getAvailableActions({ allowSignVerifyMessage }), [allowSignVerifyMessage]);
+  const menuActions = useMemo(
+    () =>
+      [
+        CommonToolTipActions.CopyTXID,
+        CommonToolTipActions.Share,
+        {
+          ...CommonToolTipActions.SignVerify,
+          hidden: !allowSignVerifyMessage,
+        },
+        {
+          ...CommonToolTipActions.ExportPrivateKey,
+          hidden: !allowSignVerifyMessage,
+        },
+      ].filter(action => !action.hidden),
+    [allowSignVerifyMessage],
+  );
 
   const balance = formatBalance(item.balance, balanceUnit, true);
 
@@ -110,20 +124,19 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const onToolTipPress = async (id: string) => {
-    if (id === actionKeys.CopyToClipboard) {
+    if (id === CommonToolTipActions.CopyTXID.id) {
       handleCopyPress();
-    } else if (id === actionKeys.Share) {
+    } else if (id === CommonToolTipActions.Share.id) {
       handleSharePress();
-    } else if (id === actionKeys.SignVerify) {
+    } else if (id === CommonToolTipActions.SignVerify.id) {
       navigateToSignVerify();
-    } else if (id === actionKeys.ExportPrivateKey) {
+    } else if (id === CommonToolTipActions.ExportPrivateKey.id) {
       if (await confirm(loc.addresses.sensitive_private_key)) {
         if (await isBiometricUseCapableAndEnabled()) {
           if (!(await unlockWithBiometrics())) {
             return;
           }
         }
-
         handleCopyPrivkeyPress();
       }
     }
@@ -133,60 +146,34 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     return <QRCodeComponent value={item.address} isMenuAvailable={false} />;
   };
 
-  const render = () => {
-    return (
-      <ToolTipMenu
-        title={item.address}
-        actions={menuActions}
-        onPressMenuItem={onToolTipPress}
-        renderPreview={renderPreview}
-        onPress={navigateToReceive}
-        isButton
-      >
-        <ListItem key={item.key} containerStyle={stylesHook.container}>
-          <ListItem.Content style={stylesHook.list}>
-            <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
-              <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
-              <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
-            </ListItem.Title>
-            <View style={styles.subtitle}>
-              <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
-            </View>
-          </ListItem.Content>
-          <View>
-            <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
-            <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
-              {loc.addresses.transactions}: {item.transactions}
-            </Text>
+  return (
+    <ToolTipMenu
+      title={item.address}
+      actions={menuActions}
+      onPressMenuItem={onToolTipPress}
+      renderPreview={renderPreview}
+      onPress={navigateToReceive}
+      isButton
+    >
+      <ListItem key={item.key} containerStyle={stylesHook.container}>
+        <ListItem.Content style={stylesHook.list}>
+          <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
+            <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
+            <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
+          </ListItem.Title>
+          <View style={styles.subtitle}>
+            <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
           </View>
-        </ListItem>
-      </ToolTipMenu>
-    );
-  };
-
-  return render();
-};
-
-const actionKeys = {
-  Share: 'share',
-  CopyToClipboard: 'copyToClipboard',
-  SignVerify: 'signVerify',
-  ExportPrivateKey: 'exportPrivateKey',
-};
-
-const actionIcons = {
-  Signature: {
-    iconValue: 'signature',
-  },
-  Share: {
-    iconValue: 'square.and.arrow.up',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
-  },
-  ExportPrivateKey: {
-    iconValue: 'key',
-  },
+        </ListItem.Content>
+        <View>
+          <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
+          <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
+            {loc.addresses.transactions}: {item.transactions}
+          </Text>
+        </View>
+      </ListItem>
+    </ToolTipMenu>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -208,38 +195,5 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-
-const getAvailableActions = ({ allowSignVerifyMessage }: { allowSignVerifyMessage: boolean }): Action[] => {
-  const actions = [
-    {
-      id: actionKeys.CopyToClipboard,
-      text: loc.transactions.details_copy,
-      icon: actionIcons.Clipboard,
-    },
-    {
-      id: actionKeys.Share,
-      text: loc.receive.details_share,
-      icon: actionIcons.Share,
-    },
-  ];
-
-  if (allowSignVerifyMessage) {
-    actions.push({
-      id: actionKeys.SignVerify,
-      text: loc.addresses.sign_title,
-      icon: actionIcons.Signature,
-    });
-  }
-
-  if (allowSignVerifyMessage) {
-    actions.push({
-      id: actionKeys.ExportPrivateKey,
-      text: loc.addresses.copy_private_key,
-      icon: actionIcons.ExportPrivateKey,
-    });
-  }
-
-  return actions;
-};
 
 export { AddressItem };
