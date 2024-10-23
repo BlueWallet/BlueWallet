@@ -57,6 +57,7 @@ import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } fr
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { Action } from '../../components/types';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -980,57 +981,67 @@ const SendDetails = () => {
 
   const headerRightActions = () => {
     if (!wallet) return [];
-    const transactionActions = [
-      {
-        ...CommonToolTipActions.SendMax,
-        hidden: !(isEditable && Number(wallet.getBalance()) > 0),
-      },
-      {
-        ...CommonToolTipActions.AllowRBF,
-        hidden: !(wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
-        menuState: isTransactionReplaceable,
-      },
-    ];
 
-    const importActions = [
-      {
-        ...CommonToolTipActions.ImportTransaction,
-        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
-      },
-      {
-        ...CommonToolTipActions.ImportTransactionQR,
-        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
-      },
-      {
-        ...CommonToolTipActions.ImportTransactionMultsig,
-        hidden: !(wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
-      },
-      {
-        ...CommonToolTipActions.CoSignTransaction,
-        hidden: !(wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
-      },
-    ];
+    const walletActions: Action[][] = [];
 
-    const recipientActions = [
-      CommonToolTipActions.AddRecipient,
-      CommonToolTipActions.RemoveRecipient,
-      {
-        ...CommonToolTipActions.RemoveAllRecipients,
-        hidden: addresses.length <= 1,
-      },
-    ];
+    const recipientActions: Action[] = [CommonToolTipActions.AddRecipient, CommonToolTipActions.RemoveRecipient];
 
-    const walletActions = [
+    if (addresses.length > 1) {
+      recipientActions.push(CommonToolTipActions.RemoveAllRecipients);
+    }
+    walletActions.push(recipientActions);
+
+    if (isEditable && Number(wallet.getBalance()) > 0) {
+      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+      const sendMaxAction: Action[] = [
+        {
+          ...CommonToolTipActions.SendMax,
+          disabled: wallet.getBalance() === 0 || isSendMaxUsed,
+        },
+      ];
+      walletActions.push(sendMaxAction);
+    }
+
+    if (wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined) {
+      const rbfAction: Action[] = [
+        {
+          ...CommonToolTipActions.AllowRBF,
+          menuState: isTransactionReplaceable,
+        },
+      ];
+      walletActions.push(rbfAction);
+    }
+
+    const transactionActions: Action[] = [];
+    if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
+      transactionActions.push(CommonToolTipActions.ImportTransaction, CommonToolTipActions.ImportTransactionQR);
+    }
+
+    if (wallet.type === MultisigHDWallet.type) {
+      transactionActions.push(CommonToolTipActions.ImportTransactionMultsig);
+      if (wallet.howManySignaturesCanWeMake() > 0) {
+        transactionActions.push(CommonToolTipActions.CoSignTransaction);
+      }
+    }
+
+    if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
+      transactionActions.push(CommonToolTipActions.SignPSBT);
+    }
+
+    if (transactionActions.length > 0) {
+      walletActions.push(transactionActions);
+    }
+
+    const specificWalletActions: Action[] = [
       {
         ...CommonToolTipActions.InsertContact,
         hidden: !(isEditable && wallet.allowBIP47() && wallet.isBIP47Enabled()),
       },
       CommonToolTipActions.CoinControl,
     ];
+    walletActions.push(specificWalletActions);
 
-    const availableActions = [walletActions, transactionActions, importActions, recipientActions];
-
-    return availableActions;
+    return walletActions;
   };
 
   const setHeaderRightOptions = () => {
