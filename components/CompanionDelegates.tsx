@@ -113,7 +113,7 @@ const CompanionDelegates = () => {
         const decodedUrl = decodeURIComponent(url);
         const fileName = decodedUrl.split('/').pop()?.toLowerCase();
 
-        if (fileName && (fileName.endsWith('.jpg') || fileName.endsWith('.png') || fileName.endsWith('.jpeg'))) {
+        if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
           try {
             const values = await RNQRGenerator.detect({
               uri: decodedUrl,
