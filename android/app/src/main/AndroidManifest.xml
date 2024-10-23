@@ -109,7 +109,16 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.psbt" />
             </intent-filter>
-
+            
+              <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" android:mimeType="image/jpeg" />
+                <data android:scheme="file" android:mimeType="image/png" />
+                <data android:scheme="file" android:mimeType="image/jpg" />
+            </intent-filter>
+            
             <!-- Intent filter for other custom schemes (bitcoin, bluewallet, etc.) -->
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
