@@ -22,7 +22,7 @@ const keys = {
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
-  CopyFromClipboard: 'copyFromClipboard',
+  PasteFromClipboard: 'pasteFromClipboard',
 };
 
 const icons = {
@@ -74,7 +74,7 @@ const icons = {
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
-  CopyFromClipboard: { iconValue: 'doc.on.clipboard' },
+  PasteFromClipboard: { iconValue: 'document.on.clipboard' },
 };
 
 export const CommonToolTipActions = {
@@ -187,9 +187,9 @@ export const CommonToolTipActions = {
     icon: icons.PaymentsCode,
     menuState: false,
   },
-  CopyFromClipboard: {
-    id: keys.CopyFromClipboard,
+  PasteFromClipboard: {
+    id: keys.PasteFromClipboard,
     text: loc.transactions.details_copy_amount,
-    icon: icons.CopyFromClipboard,
+    icon: icons.PasteFromClipboard,
   },
 };
