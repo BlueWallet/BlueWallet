@@ -455,8 +455,7 @@ const SendDetails = () => {
         u[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
         return [...u];
       });
-      setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC }); // there used to be `options.message` here as well. bug?
-      setParams({ payjoinUrl: options.pj || '' });
+      setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
       setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
     }
