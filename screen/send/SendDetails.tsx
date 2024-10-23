@@ -955,23 +955,23 @@ const SendDetails = () => {
       handleAddRecipient();
     } else if (id === CommonToolTipActions.RemoveRecipient.id) {
       handleRemoveRecipient();
-    } else if (id === SendDetails.actionKeys.SignPSBT) {
+    } else if (id === CommonToolTipActions.SignPSBT.id) {
       handlePsbtSign();
-    } else if (id === SendDetails.actionKeys.SendMax) {
+    } else if (id === CommonToolTipActions.SendMax.id) {
       onUseAllPressed();
-    } else if (id === SendDetails.actionKeys.AllowRBF) {
+    } else if (id === CommonToolTipActions.AllowRBF.id) {
       onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
-    } else if (id === SendDetails.actionKeys.ImportTransaction) {
+    } else if (id === CommonToolTipActions.ImportTransaction.id) {
       importTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
+    } else if (id === CommonToolTipActions.ImportTransactionQR.id) {
       importQrTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
+    } else if (id === CommonToolTipActions.ImportTransactionMultsig.id) {
       importTransactionMultisig();
-    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
+    } else if (id === CommonToolTipActions.CoSignTransaction.id) {
       importTransactionMultisigScanQr();
-    } else if (id === SendDetails.actionKeys.CoinControl) {
+    } else if (id === CommonToolTipActions.CoinControl.id) {
       handleCoinControl();
-    } else if (id === SendDetails.actionKeys.InsertContact) {
+    } else if (id === CommonToolTipActions.InsertContact.id) {
       handleInsertContact();
     } else if (id === CommonToolTipActions.RemoveAllRecipients.id) {
       handleRemoveAllRecipients();
@@ -1355,29 +1355,6 @@ const SendDetails = () => {
 };
 
 export default SendDetails;
-
-SendDetails.actionKeys = {
-  InsertContact: 'InsertContact',
-  SignPSBT: 'SignPSBT',
-  SendMax: 'SendMax',
-  AllowRBF: 'AllowRBF',
-  ImportTransaction: 'ImportTransaction',
-  ImportTransactionMultsig: 'ImportTransactionMultisig',
-  ImportTransactionQR: 'ImportTransactionQR',
-  CoinControl: 'CoinControl',
-  CoSignTransaction: 'CoSignTransaction',
-};
-
-SendDetails.actionIcons = {
-  InsertContact: { iconValue: 'at.badge.plus' },
-  SignPSBT: { iconValue: 'signature' },
-  SendMax: 'SendMax',
-  AllowRBF: 'AllowRBF',
-  ImportTransaction: { iconValue: 'square.and.arrow.down' },
-  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
-  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
-  CoinControl: { iconValue: 'switch.2' },
-};
 
 const styles = StyleSheet.create({
   root: {
