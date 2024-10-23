@@ -326,7 +326,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     const cancelButtonIndex = 0;
 
     if (!isClipboardEmpty) {
-      options.push(loc.wallets.list_long_clipboard);
+      options.push(loc.wallets.paste_from_clipboard);
     }
 
     ActionSheet.showActionSheetWithOptions(

@@ -262,7 +262,7 @@ const actions = [
   },
   {
     id: actionKeys.CopyFromClipboard,
-    text: loc.wallets.list_long_clipboard,
+    text: loc.wallets.paste_from_clipboard,
     icon: actionIcons.Clipboard,
   },
   {
