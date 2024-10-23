@@ -163,6 +163,14 @@ jest.mock('react-native-ios-context-menu', () => {
   return {};
 });
 
+export default {
+  detect: jest.fn(() =>
+    Promise.resolve({
+      values: ['mocked-qr-code'],
+    }),
+  ),
+};
+
 jest.mock('react-native-haptic-feedback', () => {
   return {
     trigger: jest.fn(),
