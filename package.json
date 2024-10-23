@@ -19,7 +19,7 @@
     "@react-native/typescript-config": "0.76.0",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",
-    "metro-react-native-babel-preset": "0.73.10",	
+    "metro-react-native-babel-preset": "0.76.8",	
     "@jest/reporters": "^27.5.1",
     "@react-native/js-polyfills": "^0.75.4",
     "@react-native/metro-babel-transformer": "^0.75.4",
