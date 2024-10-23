@@ -262,7 +262,7 @@ const SendDetails = () => {
     setChangeAddress(null);
     setParams({
       utxos: null,
-      isTransactionReplaceable: wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf ? true : undefined,
+      isTransactionReplaceable: wallet.type === HDSegwitBech32Wallet.type && !routeParams.isTransactionReplaceable ? true : undefined,
     });
     // update wallet UTXO
     wallet
