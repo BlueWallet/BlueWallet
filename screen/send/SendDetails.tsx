@@ -979,14 +979,15 @@ const SendDetails = () => {
   };
 
   const headerRightActions = () => {
+    if (!wallet) return [];
     const transactionActions = [
       {
         ...CommonToolTipActions.SendMax,
-        hidden: !(isEditable && Number(wallet?.getBalance()) > 0),
+        hidden: !(isEditable && Number(wallet.getBalance()) > 0),
       },
       {
         ...CommonToolTipActions.AllowRBF,
-        hidden: !(wallet?.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
+        hidden: !(wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
         menuState: isTransactionReplaceable,
       },
     ];
@@ -994,19 +995,19 @@ const SendDetails = () => {
     const importActions = [
       {
         ...CommonToolTipActions.ImportTransaction,
-        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet?.isHd()),
+        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
       },
       {
         ...CommonToolTipActions.ImportTransactionQR,
-        hidden: !(wallet?.type === WatchOnlyWallet.type && wallet?.isHd()),
+        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
       },
       {
         ...CommonToolTipActions.ImportTransactionMultsig,
-        hidden: !(wallet?.type === MultisigHDWallet.type && wallet?.howManySignaturesCanWeMake() > 0),
+        hidden: !(wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
       },
       {
         ...CommonToolTipActions.CoSignTransaction,
-        hidden: !(wallet?.type === MultisigHDWallet.type && wallet?.howManySignaturesCanWeMake() > 0),
+        hidden: !(wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
       },
     ];
 
@@ -1022,7 +1023,7 @@ const SendDetails = () => {
     const walletActions = [
       {
         ...CommonToolTipActions.InsertContact,
-        hidden: !(isEditable && wallet?.allowBIP47() && wallet?.isBIP47Enabled()),
+        hidden: !(isEditable && wallet.allowBIP47() && wallet.isBIP47Enabled()),
       },
       CommonToolTipActions.CoinControl,
     ];
