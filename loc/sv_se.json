@@ -289,7 +289,7 @@
     "details_outputs": "Outputs",
     "date": "Datum",
     "details_received": "Mottaget",
-    "details_show_in_block_explorer": "Visa i block explorer",
+    "details_view_in_browser": "Visa i block explorer",
     "details_title": "Transaktion",
     "details_to": "Output",
     "enable_offline_signing": "Den här plånboken används inte i samband med en offlinesignering. Skulle du vilja aktivera det nu?",

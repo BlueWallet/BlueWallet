@@ -345,7 +345,7 @@
     "details_outputs": "Outputs",
     "date": "Date",
     "details_received": "Received",
-    "details_show_in_block_explorer": "View in Block Explorer",
+    "details_view_in_browser": "View in Browser",
     "details_title": "Transaction",
     "incoming_transaction": "Incoming Transaction",
     "outgoing_transaction": "Outgoing Transaction",

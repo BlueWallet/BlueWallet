@@ -333,7 +333,7 @@
     "details_outputs": "Wyjścia",
     "date": "Data",
     "details_received": "Otrzymano",
-    "details_show_in_block_explorer": "Zobacz w eksploratorze bloków",
+    "details_view_in_browser": "Zobacz w eksploratorze bloków",
     "details_title": "Transakcja",
     "incoming_transaction": "Transakcja przychodząca",
     "outgoing_transaction": "Transakcja wychodząca",

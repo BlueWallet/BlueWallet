@@ -156,7 +156,7 @@
     "details_inputs": "Vstupy",
     "details_outputs": "Výstupy",
     "details_received": "Prijaté",
-    "details_show_in_block_explorer": "Ukázať v block exploreri",
+    "details_view_in_browser": "Ukázať v block exploreri",
     "details_title": "Transakcia",
     "details_to": "Výstup",
     "pending": "Čaká...",

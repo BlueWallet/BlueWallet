@@ -280,7 +280,7 @@
     "details_outputs": "Izhodi",
     "date": "Datum",
     "details_received": "Prejeto",
-    "details_show_in_block_explorer": "Prikaži v raziskovalcu blokov",
+    "details_view_in_browser": "Prikaži v raziskovalcu blokov",
     "details_title": "Transakcija",
     "details_to": "Izhod",
     "enable_offline_signing": "Ta denarnica se ne uporablja skupaj s podpisovanjem brez povezave (offline). Ali ga želite omogočiti?",

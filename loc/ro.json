@@ -262,7 +262,7 @@
     "details_inputs": "Input-uri",
     "details_outputs": "Output-uri",
     "details_received": "Primit",
-    "details_show_in_block_explorer": "Afișează în Block Explorer",
+    "details_view_in_browser": "Afișează în Block Explorer",
     "details_title": "Tranzacție",
     "details_to": "Output",
     "enable_offline_signing": "Acest portofel nu este folosit în legătură cu o semnare offline. Ai vrea să activezi asta acum?",

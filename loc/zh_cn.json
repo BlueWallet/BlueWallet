@@ -241,7 +241,7 @@
     "details_inputs": "输入",
     "details_outputs": "输出",
     "details_received": "已收到",
-    "details_show_in_block_explorer": "在区块浏览器查看",
+    "details_view_in_browser": "在区块浏览器查看",
     "details_title": "转账",
     "details_to": "输出",
     "enable_offline_signing": "此钱包未与线下签名结合使用。您想立即启用它吗？",

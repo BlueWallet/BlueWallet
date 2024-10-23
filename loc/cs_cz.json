@@ -344,7 +344,7 @@
     "details_outputs": "Výstupy",
     "date": "Datum",
     "details_received": "Přijato",
-    "details_show_in_block_explorer": "Zobrazit v průzkumníku bloků",
+    "details_view_in_browser": "Zobrazit v průzkumníku bloků",
     "details_title": "Transakce",
     "incoming_transaction": "Příchozí transakce",
     "outgoing_transaction": "Odchozí transakce",

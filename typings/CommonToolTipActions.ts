@@ -92,7 +92,7 @@ export const CommonToolTipActions: { [key: string]: Action } = {
   },
   OpenInBlockExplorer: {
     id: keys.OpenInBlockExplorer,
-    text: loc.transactions.details_show_in_block_explorer,
+    text: loc.transactions.details_view_in_browser,
     icon: icons.Link,
   },
   ExpandNote: {

@@ -280,7 +280,7 @@
     "details_outputs": "Outputs",
     "date": "Fecha",
     "details_received": "Recibido",
-    "details_show_in_block_explorer": "Mostrar en explorador de bloques",
+    "details_view_in_browser": "Mostrar en explorador de bloques",
     "details_title": "Transaccion",
     "details_to": "Destino",
     "enable_offline_signing": "Esta billetera no se está usando en conjunción con una firma offline. ¿Quieres activarlo ahora? ",
