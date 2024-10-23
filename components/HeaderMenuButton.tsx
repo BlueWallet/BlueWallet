@@ -1,19 +1,35 @@
 import React from 'react';
+import { Pressable, Platform } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
 import { Icon } from '@rneui/themed';
-import { Platform } from 'react-native';
 import { Action } from './types';
 
 interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
-  actions: Action[] | Action[][];
+  actions?: Action[] | Action[][];
   disabled?: boolean;
 }
 
 const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, actions, disabled }) => {
   const { colors } = useTheme();
   const styleProps = Platform.OS === 'android' ? { iconStyle: { transform: [{ rotate: '90deg' }] } } : {};
+
+  if (!actions || actions.length === 0) {
+    return (
+      <Pressable
+        testID="HeaderMenuButton"
+        disabled={disabled}
+        android_ripple={{ color: colors.lightButton }}
+        style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+      >
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
+      </Pressable>
+    );
+  }
+
+  const menuActions = Array.isArray(actions[0]) ? (actions as Action[][]) : (actions as Action[]);
+
   return (
     <ToolTipMenu
       testID="HeaderMenuButton"
@@ -21,7 +37,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       isButton
       isMenuPrimaryAction
       onPressMenuItem={onPressMenuItem}
-      actions={actions}
+      actions={menuActions}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
     </ToolTipMenu>
