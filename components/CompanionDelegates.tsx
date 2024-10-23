@@ -16,6 +16,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import RNQRGenerator from 'rn-qr-generator';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -104,15 +105,56 @@ const CompanionDelegates = () => {
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
   const handleOpenURL = useCallback(
-    (event: { url: string }) => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
+    async (event: { url: string }): Promise<void> => {
+      const { url } = event;
+
+      if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.jpeg'))) {
+        try {
+          const response = await fetch(url);
+          const imageData = await response.blob();
+
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const base64Image = reader.result as string;
+            const base64Data = base64Image.replace(/^data:image\/jpeg;base64,/, ''); //
+            try {
+              const values = await RNQRGenerator.detect({
+                base64: base64Data,
+              });
+
+              if (values && values.values.length > 0) {
+                DeeplinkSchemaMatch.navigationRouteFor(
+                  { url: values.values[0] },
+                  (value: [string, any]) => navigationRef.navigate(...value),
+                  {
+                    wallets,
+                    addWallet,
+                    saveToDisk,
+                    setSharedCosigner,
+                  },
+                );
+              } else {
+                console.log('No QR code detected in the image.');
+              }
+            } catch (error) {
+              console.error('Error detecting QR code:', error);
+            }
+          };
+          reader.readAsDataURL(imageData);
+        } catch (error) {
+          console.error('Error fetching image:', error);
+        }
+      } else {
+        // Handle other deeplinks if it's not an image
+        DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
+      }
     },
-    [addWallet, saveToDisk, setSharedCosigner, wallets],
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   const showClipboardAlert = useCallback(

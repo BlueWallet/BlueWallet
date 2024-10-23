@@ -31,6 +31,22 @@
                 <string>io.bluewallet.psbt</string>
             </array>
         </dict>
+         <!-- Image file types -->
+    <dict>
+        <key>CFBundleTypeIconFiles</key>
+        <array/>
+        <key>CFBundleTypeName</key>
+        <string>Image</string>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string> 
+        <key>LSItemContentTypes</key>
+        <array>
+            <string>public.jpeg</string>
+            <string>public.image</string>
+        </array>
+    </dict>
         <!-- TXN file type -->
         <dict>
             <key>CFBundleTypeIconFiles</key>
@@ -158,7 +174,7 @@
         </dict>
     </dict>
     <key>NSCameraUsageDescription</key>
-    <string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
+    <string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
     <key>NSFaceIDUsageDescription</key>
     <string>In order to use FaceID please confirm your permission.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
@@ -209,7 +225,7 @@
     </array>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <true/>
-    
+
     <!-- Define exported types (UTIs) for file types -->
     <key>UTExportedTypeDeclarations</key>
     <array>
@@ -306,6 +322,8 @@
                     <string>application/json</string>
                 </array>
             </dict>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
         </dict>
     </array>
 
