@@ -5,9 +5,9 @@ import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
-import { useTheme } from './themes';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useTheme } from './themes';
 
 interface AddressInputProps {
   isLoading?: boolean;
