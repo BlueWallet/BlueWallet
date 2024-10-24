@@ -107,15 +107,20 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([address], [], []);
+      try {
+        await Notifications.tryToObtainPermissions(receiveAddressButton);
+        Notifications.majorTomToGroundControl([address], [], []);
+      } catch (error) {
+        console.error('Error obtaining notifications permissions:', error);
+      }
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
           if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-        } catch (_) {}
+        } catch (error) {
+          console.warn('Error fetching wallet address (ONCHAIN):', error);
+        }
         if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
@@ -125,9 +130,10 @@ const ReceiveDetails = () => {
         try {
           await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
           newAddress = wallet.getAddress();
-        } catch (_) {}
+        } catch (error) {
+          console.warn('Error fetching wallet address (OFFCHAIN):', error);
+        }
         if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet.getAddress();
         } else {
@@ -135,8 +141,12 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([newAddress], [], []);
+      try {
+        await Notifications.tryToObtainPermissions(receiveAddressButton);
+        Notifications.majorTomToGroundControl([newAddress], [], []);
+      } catch (error) {
+        console.error('Error obtaining notifications permissions:', error);
+      }
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
@@ -167,7 +177,6 @@ const ReceiveDetails = () => {
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
-
     [onPressMenuItem, toolTipActions],
   );
 
@@ -271,7 +280,7 @@ const ReceiveDetails = () => {
           }
         }
       } catch (error) {
-        console.debug(error);
+        console.debug('Error checking balance:', error);
       }
     }, intervalMs);
 
@@ -363,10 +372,14 @@ const ReceiveDetails = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(async () => {
-        if (wallet) {
-          obtainWalletAddress();
-        } else if (!wallet && address) {
-          setAddressBIP21Encoded(address);
+        try {
+          if (wallet) {
+            await obtainWalletAddress();
+          } else if (!wallet && address) {
+            setAddressBIP21Encoded(address);
+          }
+        } catch (error) {
+          console.error('Error during focus effect:', error);
         }
       });
       return () => {
@@ -423,7 +436,7 @@ const ReceiveDetails = () => {
 
   const handleShareButtonPressed = () => {
     Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
-      console.debug(error),
+      console.debug('Error sharing:', error),
     );
   };
 

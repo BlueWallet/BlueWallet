@@ -190,24 +190,54 @@ function Notifications(props) {
    * @returns {Promise<object>} Response object from API rest call
    */
   Notifications.majorTomToGroundControl = async function (addresses, hashes, txids) {
-    if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
-      throw new Error('no addresses or hashes or txids provided');
-    const pushToken = await Notifications.getPushToken();
-    if (!pushToken || !pushToken.token || !pushToken.os) return;
+    try {
+      if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
+        throw new Error('No addresses, hashes, or txids provided');
+      }
 
-    const response = await fetch(`${baseURI}/majorTomToGroundControl`, {
-      method: 'POST',
-      headers: _getHeaders(),
-      body: JSON.stringify({
+      const pushToken = await Notifications.getPushToken();
+      if (!pushToken || !pushToken.token || !pushToken.os) {
+        return;
+      }
+
+      const requestBody = JSON.stringify({
         addresses,
         hashes,
         txids,
         token: pushToken.token,
         os: pushToken.os,
-      }),
-    });
+      });
 
-    return response.json();
+      let response;
+      try {
+        response = await fetch(`${baseURI}/majorTomToGroundControl`, {
+          method: 'POST',
+          headers: _getHeaders(),
+          body: requestBody,
+        });
+      } catch (networkError) {
+        console.error('Network request failed:', networkError);
+        throw networkError;
+      }
+
+      if (!response.ok) {
+        return;
+      }
+
+      const responseText = await response.text();
+      if (responseText) {
+        try {
+          return JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('Error parsing response JSON:', jsonError);
+          throw jsonError;
+        }
+      } else {
+        return {}; // Return an empty object if there is no response body
+      }
+    } catch (error) {
+      console.error('Error in majorTomToGroundControl:', error);
+    }
   };
 
   /**
