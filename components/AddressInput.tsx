@@ -1,8 +1,8 @@
 import React from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import loc from '../loc';
-import { useTheme } from './themes';
 import { AddressInputScanButton } from './AddressInputScanButton';
+import { useTheme } from './themes';
 
 interface AddressInputProps {
   isLoading?: boolean;
