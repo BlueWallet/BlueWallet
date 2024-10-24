@@ -1,4 +1,6 @@
+import { Platform } from 'react-native';
 import loc from '../loc';
+import { Action } from '../components/types';
 
 const keys = {
   CopyTXID: 'copyTX_ID',
@@ -18,64 +20,66 @@ const keys = {
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
-  PaymentsCode: 'paymentsCode',
+  PaymentCode: 'paymentCode',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
+  ScanQR: 'scan_qr',
+  CopyFromClipboard: 'copy_from_clipboard',
+  ChoosePhoto: 'choose_photo',
+  ImportFile: 'import_file',
+  InsertContact: 'insert_contact',
+  SignPSBT: 'sign_psbt',
+  SendMax: 'send_max',
+  AllowRBF: 'allow_rbf',
+  ImportTransaction: 'import_transaction',
+  ImportTransactionMultsig: 'import_transaction_multisig',
+  ImportTransactionQR: 'import_transaction_qr',
+  CoinControl: 'coin_control',
+  CoSignTransaction: 'co_sign_transaction',
+  CopyToClipboard: 'copyToClipboard',
+  Share: 'share',
+  SignVerify: 'signVerify',
+  ExportPrivateKey: 'exportPrivateKey',
 };
 
-const icons = {
-  Eye: {
-    iconValue: 'eye',
-  },
-  EyeSlash: {
-    iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
-  },
-  Link: {
-    iconValue: 'link',
-  },
-  Note: {
-    iconValue: 'note.text',
-  },
-  ManageWallets: {
-    iconValue: 'slider.horizontal.3',
-  },
-  ImportWallet: {
-    iconValue: 'square.and.arrow.down.on.square',
-  },
-  ViewInBitcoin: {
-    iconValue: 'bitcoinsign.circle',
-  },
-  ViewInFiat: {
-    iconValue: 'coloncurrencysign.circle',
-  },
-  Entropy: {
-    iconValue: 'dice',
-  },
-  SearchAccount: {
-    iconValue: 'magnifyingglass',
-  },
-  Passphrase: {
-    iconValue: 'rectangle.and.pencil.and.ellipsis',
-  },
-  MoreInfo: {
-    iconValue: 'info.circle',
-  },
-  SaveChanges: {
-    iconValue: 'checkmark',
-  },
-  PaymentsCode: {
-    iconValue: 'qrcode',
-  },
+const icons: { [key: string]: { iconValue: string } } = {
+  Eye: { iconValue: 'eye' },
+  EyeSlash: { iconValue: 'eye.slash' },
+  Link: { iconValue: 'link' },
+  Note: { iconValue: 'note.text' },
+  ManageWallets: { iconValue: 'slider.horizontal.3' },
+  ImportWallet: { iconValue: 'square.and.arrow.down.on.square' },
+  ViewInBitcoin: { iconValue: 'bitcoinsign.circle' },
+  ViewInFiat: { iconValue: 'coloncurrencysign.circle' },
+  Entropy: { iconValue: 'dice' },
+  SearchAccount: { iconValue: 'magnifyingglass' },
+  Passphrase: { iconValue: 'rectangle.and.pencil.and.ellipsis' },
+  MoreInfo: { iconValue: 'info.circle' },
+  SaveChanges: { iconValue: 'checkmark' },
+  InsertContact: { iconValue: 'at.badge.plus' },
+  SignPSBT: { iconValue: 'signature' },
+  SendMax: { iconValue: 'dial.high' },
+  AllowRBF: { iconValue: 'arrowshape.up.circle' },
+  ImportTransaction: { iconValue: 'square.and.arrow.down' },
+  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
+  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
+  CoinControl: { iconValue: 'switch.2' },
+  CoSignTransaction: { iconValue: 'signature' },
+  PaymentCode: { iconValue: 'qrcode.viewfinder' },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
+  ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
+  ImportFile: { iconValue: 'doc' },
+  ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery' },
+  Clipboard: { iconValue: Platform.OS === 'ios' ? 'doc.on.doc' : 'ic_menu_file' },
+  ExportPrivateKey: { iconValue: 'key' },
+  Share: { iconValue: 'square.and.arrow.up' },
+  Signature: { iconValue: 'signature' },
 };
 
-export const CommonToolTipActions = {
+export const CommonToolTipActions: { [key: string]: Action } = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -88,7 +92,7 @@ export const CommonToolTipActions = {
   },
   OpenInBlockExplorer: {
     id: keys.OpenInBlockExplorer,
-    text: loc.transactions.details_show_in_block_explorer,
+    text: loc.transactions.details_view_in_browser,
     icon: icons.Link,
   },
   ExpandNote: {
@@ -180,9 +184,106 @@ export const CommonToolTipActions = {
     icon: icons.SaveChanges,
   },
   PaymentCode: {
-    id: keys.PaymentsCode,
+    id: keys.PaymentCode,
     text: loc.bip47.purpose,
-    icon: icons.PaymentsCode,
+    icon: icons.PaymentCode,
     menuState: false,
+  },
+  ScanQR: {
+    id: keys.ScanQR,
+    text: loc.wallets.list_long_scan,
+    icon: icons.ScanQR,
+  },
+  CopyFromClipboard: {
+    id: keys.CopyFromClipboard,
+    text: loc.wallets.list_long_clipboard,
+    icon: icons.Clipboard,
+    subtitle: '',
+    hidden: false,
+  },
+  ChoosePhoto: {
+    id: keys.ChoosePhoto,
+    text: loc.wallets.list_long_choose,
+    icon: icons.ChoosePhoto,
+  },
+  ImportFile: {
+    id: keys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: icons.ImportFile,
+  },
+  InsertContact: {
+    id: keys.InsertContact,
+    text: loc.send.details_insert_contact,
+    icon: icons.InsertContact,
+    hidden: true,
+  },
+  SignPSBT: {
+    id: keys.SignPSBT,
+    text: loc.send.psbt_sign,
+    icon: icons.SignPSBT,
+    hidden: true,
+  },
+  SendMax: {
+    id: keys.SendMax,
+    text: loc.send.details_adv_full,
+    icon: icons.SendMax,
+    hidden: true,
+  },
+  AllowRBF: {
+    id: keys.AllowRBF,
+    text: loc.send.details_adv_fee_bump,
+    icon: icons.AllowRBF,
+    hidden: true,
+    menuState: false,
+  },
+  ImportTransaction: {
+    id: keys.ImportTransaction,
+    text: loc.send.details_adv_import,
+    icon: icons.ImportTransaction,
+    hidden: true,
+  },
+  ImportTransactionQR: {
+    id: keys.ImportTransactionQR,
+    text: loc.send.details_adv_import_qr,
+    icon: icons.ImportTransactionQR,
+    hidden: true,
+  },
+  ImportTransactionMultsig: {
+    id: keys.ImportTransactionMultsig,
+    text: loc.send.details_adv_import,
+    icon: icons.ImportTransactionMultsig,
+    hidden: true,
+  },
+  CoSignTransaction: {
+    id: keys.CoSignTransaction,
+    text: loc.multisig.co_sign_transaction,
+    icon: icons.CoSignTransaction,
+    hidden: true,
+  },
+  CoinControl: {
+    id: keys.CoinControl,
+    text: loc.cc.header,
+    icon: icons.CoinControl,
+    hidden: false,
+  },
+  CopyToClipboard: {
+    id: keys.CopyToClipboard,
+    text: loc.transactions.details_copy,
+    icon: icons.Clipboard,
+  },
+  Share: {
+    id: keys.Share,
+    text: loc.receive.details_share,
+    icon: icons.Share,
+  },
+  SignVerify: {
+    id: keys.SignVerify,
+    text: loc.addresses.sign_title,
+    icon: icons.Signature,
+  },
+  ExportPrivateKey: {
+    id: keys.ExportPrivateKey,
+    text: loc.addresses.copy_private_key,
+    icon: icons.ExportPrivateKey,
   },
 };

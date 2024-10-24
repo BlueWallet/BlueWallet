@@ -347,7 +347,7 @@ const TransactionDetails = () => {
           onPress={handleOnOpenTransactionOnBlockExplorerTapped}
           buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
-          <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
+          <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>
         </ToolTipMenu>
       </BlueCard>
     </ScrollView>

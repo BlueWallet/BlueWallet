@@ -290,7 +290,7 @@
     "details_outputs": "المخرجات",
     "date": "التاريخ",
     "details_received": "التاريخ",
-    "details_show_in_block_explorer": "العرض في مستكشف الكتل",
+    "details_view_in_browser": "العرض في مستكشف الكتل",
     "details_title": "العملية",
     "details_to": "إلى",
     "enable_offline_signing": "هذه المحفظة لا يتم استعمالها مع التوقيع دون اتصال. هل ترغب في تمكينه الآن؟",

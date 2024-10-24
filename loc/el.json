@@ -223,7 +223,7 @@
     "details_from": "Εισερχόμενες διευθύνσεις",
     "date": "Ημερομηνία",
     "details_received": "Ελήφθη",
-    "details_show_in_block_explorer": "Προβολή στον block explorer",
+    "details_view_in_browser": "Προβολή στον block explorer",
     "details_title": "Συναλλαγή",
     "details_to": "Εξερχόμενες διευθύνσεις",
     "pending": "Σε επεξεργασία",

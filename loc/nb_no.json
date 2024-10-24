@@ -275,7 +275,7 @@
     "details_inputs": "Inndata",
     "details_outputs": "Utdata",
     "details_received": "Mottatt",
-    "details_show_in_block_explorer": "Vis i Block Explorer",
+    "details_view_in_browser": "Vis i Block Explorer",
     "details_title": "Transaksjon",
     "details_to": "Utdata",
     "enable_offline_signing": "Denne lommeboken brukes ikke i forbindelse med en offline-signering. Vil du aktivere det nå?",

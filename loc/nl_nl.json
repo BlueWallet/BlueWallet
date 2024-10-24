@@ -280,7 +280,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Ontvangen",
-    "details_show_in_block_explorer": "Weergeven in block explorer",
+    "details_view_in_browser": "Weergeven in block explorer",
     "details_title": "Transacties",
     "details_to": "Uitvoer",
     "enable_offline_signing": "Deze wallet wordt niet gebruikt in combinatie met een hardware wallet. Wilt u het gebruik inschakelen?",

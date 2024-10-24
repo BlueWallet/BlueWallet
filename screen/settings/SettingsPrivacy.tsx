@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
@@ -127,11 +127,7 @@ const SettingsPrivacy: React.FC = () => {
           disabled: isLoading === SettingsPrivacySection.All,
           testID: 'ClipboardSwitch',
         }}
-        subtitle={
-          <Pressable accessibilityRole="button">
-            <Text style={styles.subtitleText}>{loc.settings.privacy_clipboard_explanation}</Text>
-          </Pressable>
-        }
+        subtitle={loc.settings.privacy_clipboard_explanation}
       />
 
       <ListItem

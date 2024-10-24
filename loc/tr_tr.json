@@ -159,7 +159,7 @@
     "cpfp_create": "Oluştur",
     "details_copy": "Kopya",
     "details_from": "Girdi",
-    "details_show_in_block_explorer": "Blok gezgininde göster",
+    "details_view_in_browser": "Blok gezgininde göster",
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "pending": "Beklemede",

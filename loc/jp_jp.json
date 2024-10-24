@@ -339,7 +339,7 @@
     "details_outputs": "アウトプット",
     "date": "日付",
     "details_received": "受取り済",
-    "details_show_in_block_explorer": "Block Explorer で表示",
+    "details_view_in_browser": "Block Explorer で表示",
     "details_title": "取引",
     "incoming_transaction": "受取りトランザクション",
     "outgoing_transaction": "支払いトランザクション",

@@ -273,7 +273,7 @@
     "details_inputs": "입력",
     "details_outputs": "출력",
     "details_received": "받기 완료",
-    "details_show_in_block_explorer": "블록 익스플로러에서 보기",
+    "details_view_in_browser": "블록 익스플로러에서 보기",
     "details_title": "트랜잭션",
     "details_to": "출력",
     "enable_offline_signing": "이 지갑은 오프라인 서명과 함께 쓸수 없습니다. 지금 가능하도록 할까요?",

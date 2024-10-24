@@ -283,7 +283,7 @@
     "details_outputs": "Các đầu ra",
     "date": "Ngày",
     "details_received": "Đã nhận",
-    "details_show_in_block_explorer": "Xem trong Block Explorer",
+    "details_view_in_browser": "Xem trong Block Explorer",
     "details_title": "Giao dịch",
     "details_to": "Đầu ra",
     "enable_offline_signing": "Ví này không được sử dụng cùng với một bản ký ngoại tuyến. Bạn có muốn kích hoạt nó ngay bây giờ không?",

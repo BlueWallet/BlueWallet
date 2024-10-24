@@ -1,13 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useTheme } from './themes';
+import { useSettings } from '../hooks/context/useSettings';
+import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -50,6 +54,7 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
+  const { isClipboardGetContentEnabled } = useSettings();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -65,9 +70,31 @@ const AddressInput = ({
   });
 
   const onBlurEditing = () => {
+    const validateAddressWithFeedback = (value: string) => {
+      const isValid = DeeplinkSchemaMatch.isBitcoinAddress(value) || DeeplinkSchemaMatch.isLightningInvoice(value);
+
+      triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
+      return isValid;
+    };
+
+    validateAddressWithFeedback(address);
     onBlur();
     Keyboard.dismiss();
   };
+
+  const actions = useMemo(() => {
+    const availableActions = [
+      CommonToolTipActions.ScanQR,
+      CommonToolTipActions.ChoosePhoto,
+      CommonToolTipActions.ImportFile,
+      {
+        ...CommonToolTipActions.CopyFromClipboard,
+        hidden: !isClipboardGetContentEnabled,
+      },
+    ];
+
+    return availableActions;
+  }, [isClipboardGetContentEnabled]);
 
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
@@ -79,7 +106,7 @@ const AddressInput = ({
     (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
-        case actionKeys.ScanQR:
+        case CommonToolTipActions.ScanQR.id:
           scanButtonTapped();
           if (launchedBy) {
             scanQrHelper(launchedBy)
@@ -90,14 +117,14 @@ const AddressInput = ({
           }
 
           break;
-        case actionKeys.CopyFromClipboard:
+        case CommonToolTipActions.CopyFromClipboard.id:
           Clipboard.getString()
             .then(onChangeText)
             .catch(error => {
               presentAlert({ message: error.message });
             });
           break;
-        case actionKeys.ChoosePhoto:
+        case CommonToolTipActions.ChoosePhoto.id:
           showImagePickerAndReadImage()
             .then(value => {
               if (value) {
@@ -108,7 +135,7 @@ const AddressInput = ({
               presentAlert({ message: error.message });
             });
           break;
-        case actionKeys.ImportFile:
+        case CommonToolTipActions.ImportFile.id:
           showFilePickerAndReadFile()
             .then(value => {
               if (value.data) {
@@ -199,50 +226,5 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
-const actionKeys = {
-  ScanQR: 'scan_qr',
-  CopyFromClipboard: 'copy_from_clipboard',
-  ChoosePhoto: 'choose_photo',
-  ImportFile: 'import_file',
-};
-
-const actionIcons = {
-  ScanQR: {
-    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
-  },
-  ImportFile: {
-    iconValue: 'doc',
-  },
-  ChoosePhoto: {
-    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
-  },
-  Clipboard: {
-    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
-  },
-};
-
-const actions = [
-  {
-    id: actionKeys.ScanQR,
-    text: loc.wallets.list_long_scan,
-    icon: actionIcons.ScanQR,
-  },
-  {
-    id: actionKeys.CopyFromClipboard,
-    text: loc.wallets.list_long_clipboard,
-    icon: actionIcons.Clipboard,
-  },
-  {
-    id: actionKeys.ChoosePhoto,
-    text: loc.wallets.list_long_choose,
-    icon: actionIcons.ChoosePhoto,
-  },
-  {
-    id: actionKeys.ImportFile,
-    text: loc.wallets.import_file,
-    icon: actionIcons.ImportFile,
-  },
-];
 
 export default AddressInput;

@@ -61,7 +61,7 @@ const TotalWalletsBalance: React.FC = () => {
   }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
 
   const onPressMenuItem = useMemo(
-    () => async (id: string) => {
+    () => async (id: string | number) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:

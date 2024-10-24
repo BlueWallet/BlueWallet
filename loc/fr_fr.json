@@ -294,7 +294,7 @@
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
     "details_received": "Reçu",
-    "details_show_in_block_explorer": "Afficher dans le \"block explorer\"",
+    "details_view_in_browser": "Afficher dans le \"block explorer\"",
     "details_title": "Transaction",
     "details_to": "À",
     "enable_offline_signing": "Ce portefeuille n'est pas utilisé en conjonction avec une signature hors ligne. Voulez-vous l'activer maintenant ? ",

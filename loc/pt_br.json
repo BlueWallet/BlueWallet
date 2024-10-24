@@ -333,7 +333,7 @@
     "details_outputs": "Saídas",
     "date": "Data",
     "details_received": "Recebido",
-    "details_show_in_block_explorer": "Ver no Explorador de Blocos",
+    "details_view_in_browser": "Ver no Explorador de Blocos",
     "details_title": "Transação",
     "incoming_transaction": "Transação de Entrada",
     "outgoing_transaction": "Transação de Saída",
