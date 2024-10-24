@@ -15,6 +15,10 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { LayoutAnimation } from 'react-native';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
+import { deleteFromKeychain, getFromKeychain, storeInKeychain } from '../../helpers/keychain';
+import { TWallet } from '../../class/wallets/types';
+import { WALLET_ADDRESS_INTENT_KEY } from '../../helpers/intents';
+import { WalletAddressIntent } from '../../typings/intents';
 
 // DefaultPreference and AsyncStorage get/set
 
@@ -61,6 +65,39 @@ export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
   return BitcoinUnit.BTC;
 };
 
+const fetchWalletAddressIntent = async (): Promise<WalletAddressIntent | undefined> => {
+  try {
+    const storedData = await getFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
+    return storedData || undefined;
+  } catch (error) {
+    console.error('Error fetching receive Bitcoin intent:', error);
+    return undefined;
+  }
+};
+
+const updateWalletAddressIntent = async (wallet: TWallet | undefined) => {
+  try {
+    if (wallet) {
+      const walletAddress = await wallet.getAddressAsync();
+      if (walletAddress) {
+        await storeInKeychain(
+          {
+            address: walletAddress,
+            label: wallet.getLabel(),
+            walletID: wallet.getID(),
+          },
+          WALLET_ADDRESS_INTENT_KEY,
+          true,
+        );
+      }
+    } else {
+      await deleteFromKeychain(WALLET_ADDRESS_INTENT_KEY, true);
+    }
+  } catch (error) {
+    console.error('Error updating receive Bitcoin intent:', error);
+  }
+};
+
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
   setPreferredFiatCurrencyStorage: (currency: TFiatUnit) => Promise<void>;
@@ -88,6 +125,8 @@ interface SettingsContextType {
   setIsDrawerShouldHide: (value: boolean) => void;
   selectedBlockExplorer: BlockExplorer;
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
+  walletAddressIntent: WalletAddressIntent | undefined;
+  setWalletAddressIntent: (wallet: TWallet | undefined) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -117,6 +156,8 @@ const defaultSettingsContext: SettingsContextType = {
   setIsDrawerShouldHide: () => {},
   selectedBlockExplorer: BLOCK_EXPLORERS.default,
   setBlockExplorerStorage: async (explorer: BlockExplorer) => false,
+  walletAddressIntent: undefined,
+  setWalletAddressIntent: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -149,8 +190,29 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
 
+  const [walletAddressIntent, setWalletAddressIntentState] = useState<WalletAddressIntent | undefined>(undefined);
+
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
+
+  useEffect(() => {
+    const initializeWalletAddressIntent = async () => {
+      try {
+        const initialData = await fetchWalletAddressIntent();
+        setWalletAddressIntentState(initialData);
+      } catch (error) {
+        console.error('Error initializing receive Bitcoin intent:', error);
+      }
+    };
+
+    initializeWalletAddressIntent();
+  }, []);
+
+  const setWalletAddressIntent = useCallback(async (wallet: TWallet | undefined) => {
+    await updateWalletAddressIntent(wallet);
+    const updatedData = await fetchWalletAddressIntent();
+    setWalletAddressIntentState(updatedData);
+  }, []);
 
   useEffect(() => {
     getIsHandOffUseEnabled()
@@ -321,6 +383,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     return success;
   }, []);
+
   const value = useMemo(
     () => ({
       preferredFiatCurrency,
@@ -349,6 +412,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      walletAddressIntent,
+      setWalletAddressIntent,
     }),
     [
       preferredFiatCurrency,
@@ -374,9 +439,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
       isDrawerShouldHide,
-      setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      walletAddressIntent,
+      setWalletAddressIntent,
     ],
   );
 
