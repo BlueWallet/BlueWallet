@@ -991,16 +991,15 @@ const SendDetails = () => {
     }
     walletActions.push(recipientActions);
 
-    if (isEditable && Number(wallet.getBalance()) > 0) {
-      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
-      const sendMaxAction: Action[] = [
-        {
-          ...CommonToolTipActions.SendMax,
-          disabled: wallet.getBalance() === 0 || isSendMaxUsed,
-        },
-      ];
-      walletActions.push(sendMaxAction);
-    }
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+    const sendMaxAction: Action[] = [
+      {
+        ...CommonToolTipActions.SendMax,
+        disabled: wallet.getBalance() === 0 || isSendMaxUsed,
+        hidden: !isEditable || !(Number(wallet.getBalance()) > 0),
+      },
+    ];
+    walletActions.push(sendMaxAction);
 
     if (wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined) {
       const rbfAction: Action[] = [
