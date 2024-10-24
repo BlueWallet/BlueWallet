@@ -93,6 +93,7 @@ export type DetailViewStackParamList = {
       backdoorText?: string;
       onDismiss?: () => void;
       showFileImportButton: true;
+      showNfcButton: false;
       backdoorVisible?: boolean;
       animatedQRCodeData?: Record<string, any>;
     };
@@ -102,4 +103,13 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   ManageWallets: undefined;
+  NfcPair: {
+    launchedBy: string;
+    onReturn: (data: string) => void;
+  };
+  NfcSignPsbt: {
+    launchedBy: string;
+    onReturn: (data: string) => void;
+    psbt: string;
+  };
 };

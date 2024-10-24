@@ -73,7 +73,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [askPassphrase, setAskPassphrase] = useState(false);
   const data = useRef<any[]>();
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
+  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
     user tries to leave the screen with unsaved changes.
     Why the container view ? It was the easiest to get the ref for. No other reason.
   */
@@ -492,7 +492,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current?.dismiss();
-    const scanned = await scanQrHelper(route.name, true, undefined);
+    const scanned = await scanQrHelper(route.name, true, false, undefined);
     setImportText(String(scanned));
     provideMnemonicsModalRef.current?.present();
   };

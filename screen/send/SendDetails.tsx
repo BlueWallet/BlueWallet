@@ -911,7 +911,7 @@ const SendDetails = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
-    const scannedData = await scanQrHelper(name, true, undefined);
+    const scannedData = await scanQrHelper(name, true, false, undefined);
     if (!scannedData) return setIsLoading(false);
 
     let tx;

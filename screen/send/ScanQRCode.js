@@ -60,6 +60,16 @@ const styles = StyleSheet.create({
     left: 96,
     bottom: 48,
   },
+  NfcTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    right: 48,
+    bottom: 48,
+  },
   openSettingsContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -85,11 +95,12 @@ const styles = StyleSheet.create({
 });
 
 const ScanQRCode = () => {
+  const { name } = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
-  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, showFileImportButton, showNfcButton } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -294,6 +305,18 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
+  const showNfc = async () => {
+    navigation.navigate({
+      name: 'NfcPair',
+      params: {
+        launchedBy: name,
+        onReturn: data => {
+          onBarCodeRead({ data });
+        },
+      },
+    });
+  };
+
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
@@ -420,6 +443,13 @@ const ScanQRCode = () => {
           />
         </View>
       )}
+
+      {showNfcButton ? (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="NFC" style={styles.NfcTouch} onPress={showNfc}>
+          <Icon name="nfc" type="ionicons" color="#ffffff" />
+        </TouchableOpacity>
+      ) : null}
+
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc._.qr_custom_input_button}
