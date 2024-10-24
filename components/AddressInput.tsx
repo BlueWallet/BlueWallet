@@ -7,11 +7,11 @@ import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import { useTheme } from './themes';
 import { useSettings } from '../hooks/context/useSettings';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 
 interface AddressInputProps {
   isLoading?: boolean;
