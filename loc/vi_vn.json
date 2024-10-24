@@ -372,7 +372,7 @@
     "list_empty_txs2_lightning": "\nĐể bắt đầu sử dụng nó, chạm vào Quản lý tiền, và nạp tiền vào số dư của bạn. ",
     "list_latest_transaction": "Giao dịch mới nhất",
     "list_long_choose": "Chọn hình",
-    "list_long_clipboard": "Sao chép từ bảng tạm",
+    "paste_from_clipboard": "Sao chép từ bảng tạm",
     "list_long_scan": "Quét mã QR",
     "list_title": "Các ví",
     "list_tryagain": "Thử lại",

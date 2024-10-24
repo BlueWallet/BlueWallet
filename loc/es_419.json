@@ -460,7 +460,7 @@
     "list_empty_txs2_lightning": "\nPara comenzar a usarla, toca Administrar Fondos y recarga tu saldo.",
     "list_latest_transaction": "Última Transacción",
     "list_long_choose": "Elige una Foto",
-    "list_long_clipboard": "Copiar desde el Portapapeles",
+    "paste_from_clipboard": "Copiar desde el Portapapeles",
     "import_file": "Importar Archivo",
     "list_long_scan": "Escanear Código QR",
     "list_title": "Billeteras",

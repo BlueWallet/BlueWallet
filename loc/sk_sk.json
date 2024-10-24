@@ -209,7 +209,7 @@
     "list_empty_txs2_lightning": "\nKliknite na \"spravovať zostatok\" a naplňte si peňaženku.",
     "list_latest_transaction": "posledná transakcia",
     "list_long_choose": "Vyberte fotku",
-    "list_long_clipboard": "Skopírovať zo schránky",
+    "paste_from_clipboard": "Skopírovať zo schránky",
     "list_long_scan": "Skenovať QR kód",
     "list_title": "peňaženky",
     "list_tryagain": "Skúste znovu",

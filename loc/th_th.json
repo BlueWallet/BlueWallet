@@ -254,7 +254,7 @@
     "list_empty_txs2_lightning": "\nแตะที่ \"จัดการเงิน\" เพื่อเริ่มใช้งาน และเติมเงิน",
     "list_latest_transaction": "ธุรกรรมล่าสุด",
     "list_long_choose": "เลือกรูปภาพ",
-    "list_long_clipboard": "คัดลอกจากคลิปบอร์ด",
+    "paste_from_clipboard": "คัดลอกจากคลิปบอร์ด",
     "import_file": "นำเข้าไฟล์",
     "list_long_scan": "สแกนคิวอาร์โค้ด",
     "list_title": "กระเป๋าสตางค์",

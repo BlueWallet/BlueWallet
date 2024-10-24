@@ -455,7 +455,7 @@
     "list_empty_txs2_lightning": "\nDrücke zum Starten «Beträge verwalten», um das Wallet aufzuladen.",
     "list_latest_transaction": "Letzte Transaktion",
     "list_long_choose": "Foto auswählen",
-    "list_long_clipboard": "Aus der Zwischenablage kopieren",
+    "paste_from_clipboard": "Aus der Zwischenablage kopieren",
     "import_file": "Datei importieren",
     "list_long_scan": "QR Code scannen",
     "list_title": "Wallets",

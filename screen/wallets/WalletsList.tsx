@@ -365,7 +365,7 @@ const WalletsList: React.FC = () => {
     [navigate],
   );
 
-  const copyFromClipboard = useCallback(async () => {
+  const pasteFromClipboard = useCallback(async () => {
     onBarScanned(await BlueClipboard().getClipboardContent());
   }, [onBarScanned]);
 
@@ -374,7 +374,7 @@ const WalletsList: React.FC = () => {
 
     const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
     if (!isClipboardEmpty) {
-      options.push(loc.wallets.list_long_clipboard);
+      options.push(loc.wallets.paste_from_clipboard);
     }
 
     const props = { title: loc.send.header, options, cancelButtonIndex: 0 };
@@ -402,12 +402,12 @@ const WalletsList: React.FC = () => {
           break;
         case 3:
           if (!isClipboardEmpty) {
-            copyFromClipboard();
+            pasteFromClipboard();
           }
           break;
       }
     });
-  }, [copyFromClipboard, onBarScanned, routeName]);
+  }, [pasteFromClipboard, onBarScanned, routeName]);
 
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');

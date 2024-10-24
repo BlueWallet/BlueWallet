@@ -433,7 +433,7 @@
     "list_empty_txs2_lightning": "\nלהתחלת שימוש לחצו על \"ניהול כספים\" ומלאו את היתרה שלכם.",
     "list_latest_transaction": "פעולה אחרונה",
     "list_long_choose": "בחר תמונה",
-    "list_long_clipboard": "העתקה מלוח",
+    "paste_from_clipboard": "העתקה מלוח",
     "import_file": "יבוא קובץ",
     "list_long_scan": "סריקת קוד QR",
     "list_title": "ארנקים",

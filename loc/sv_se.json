@@ -378,7 +378,7 @@
     "list_empty_txs2_lightning": "\nFör att komma igång klicka på \"sätt in / ta ut\" ovan och sätt in dina första bitcoin.",
     "list_latest_transaction": "Senaste transaktion",
     "list_long_choose": "Välj Foto",
-    "list_long_clipboard": "Kopiera från Urklipp",
+    "paste_from_clipboard": "Kopiera från Urklipp",
     "import_file": "Importera fil",
     "list_long_scan": "Skanna QR kod",
     "list_title": "Plånböcker",

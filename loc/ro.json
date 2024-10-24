@@ -340,7 +340,7 @@
     "list_empty_txs2_lightning": "\nPentru a începe să utilizezi, apasă pe Administrează Fonduri și încarcă balanța.",
     "list_latest_transaction": "Ultima tranzacție",
     "list_long_choose": "Alege foto",
-    "list_long_clipboard": "Copiază din clipboard",
+    "paste_from_clipboard": "Copiază din clipboard",
     "import_file": "Importă fișier",
     "list_long_scan": "Scaneză cod QR",
     "list_title": "Portofele",
