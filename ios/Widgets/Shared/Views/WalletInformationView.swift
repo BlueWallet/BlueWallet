@@ -21,14 +21,15 @@ struct WalletInformationView: View {
     let amount = numberFormatter.string(from:  NSNumber(value: ((allWalletsBalance.balance / 100000000) * marketData.rate))) ?? ""
     return amount
   }
-  var formattedLatestTransactionTime: String {
+  
+  var formattedLatestTransactionTime: String? {
     if allWalletsBalance.latestTransactionTime.isUnconfirmed == true {
       return "Pending..."
     } else if allWalletsBalance.latestTransactionTime.epochValue == 0 {
-      return "Never"
+      return nil
     }
     guard let epochValue = allWalletsBalance.latestTransactionTime.epochValue else {
-      return "Never"
+      return nil
     }
     let forDate = Date(timeIntervalSince1970: TimeInterval(epochValue / 1000))
     let dateFormatter = RelativeDateTimeFormatter()
@@ -37,23 +38,26 @@ struct WalletInformationView: View {
     return dateFormatter.localizedString(for: forDate, relativeTo: Date())
   }
   
-    var body: some View {
-        VStack(alignment: .leading, spacing:nil , content: {
-            Text(allWalletsBalance.formattedBalanceBTC).font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray).lineLimit(1).minimumScaleFactor(0.01)
-          
-  
-          Text(formattedBalance).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
+  var body: some View {
+    VStack(alignment: .leading, spacing: nil, content: {
+      Text(allWalletsBalance.formattedBalanceBTC).font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray).lineLimit(1).minimumScaleFactor(0.01)
+      
+      Text(formattedBalance).lineLimit(1).foregroundColor(.textColor).font(Font.system(size: 28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
+      
       Spacer()
-        
-              Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
-              Text(formattedLatestTransactionTime).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
-        
-      }).frame(minWidth: 0,
-               maxWidth: .infinity,
-               minHeight: 0,
-               maxHeight: .infinity,
-               alignment: .topLeading)
-    }
+      
+      // Conditionally render latest transaction time if it's valid
+      if let latestTransaction = formattedLatestTransactionTime {
+        Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
+        Text(latestTransaction).lineLimit(1).foregroundColor(.textColor).font(Font.system(size: 13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
+      }
+    })
+    .frame(minWidth: 0,
+           maxWidth: .infinity,
+           minHeight: 0,
+           maxHeight: .infinity,
+           alignment: .topLeading)
+  }
 }
 
 struct WalletInformationView_Previews: PreviewProvider {

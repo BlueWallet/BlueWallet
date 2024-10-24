@@ -21,15 +21,15 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    guard let identifier = context as? Int else {
+    guard let identifier = context as? String else {
       pop()
       return
     }
     loadWalletDetails(identifier: identifier)
   }
   
-  private func loadWalletDetails(identifier: Int) {
-    let wallet = WatchDataSource.shared.wallets[identifier]
+  private func loadWalletDetails(identifier: String) {
+    let wallet = WatchDataSource.shared.wallets[Int(identifier)!]
     self.wallet = wallet
     updateWalletUI(wallet: wallet)
     updateTransactionsTable(forWallet: wallet)
@@ -78,7 +78,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   @objc func showBalanceMenuItemTapped() {
     guard let identifier = wallet?.identifier else { return }
-    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: false) { [weak self] _ in
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: String(identifier), hideBalance: false) { [weak self] _ in
       DispatchQueue.main.async {
         WatchDataSource.postDataUpdatedNotification()
         self?.loadWalletDetails(identifier: identifier)
@@ -88,7 +88,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   @objc func hideBalanceMenuItemTapped() {
     guard let identifier = wallet?.identifier else { return }
-    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: true) { [weak self] _ in
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: String(identifier), hideBalance: true) { [weak self] _ in
       DispatchQueue.main.async {
         WatchDataSource.postDataUpdatedNotification()
         self?.loadWalletDetails(identifier: identifier)
@@ -115,16 +115,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    if WatchDataSource.shared.companionWalletsInitialized {
       guard let wallet = wallet else { return }
       pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, ReceiveMethod.CreateInvoice))
-    } else {
-      WKInterfaceDevice.current().play(.failure)
-      presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
-        self?.dismiss()
-      })])
     }
-  }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
     guard let wallet = wallet else { return nil }

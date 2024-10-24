@@ -3,7 +3,6 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/6/19.
-
 //
 
 import WatchKit
@@ -17,6 +16,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   func applicationDidFinishLaunching() {
     scheduleNextReload()
     updatePreferredFiatCurrency()
+    
+    // Initialize Bugsnag based on user preference
     if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
       Bugsnag.start()
     }
@@ -28,7 +29,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   }
   
   private func fetchPreferredFiatUnit() -> FiatUnit? {
-    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+    // Fetch the preferred fiat currency unit from user defaults, default to USD
+    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"),
+       let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
       return preferredFiatUnit
     } else {
       return fiatUnit(currency: "USD")
@@ -37,10 +40,17 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
   private func updateMarketData(for fiatUnit: FiatUnit) {
     MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { (data, error) in
-      guard let data = data, let encodedData = try? PropertyListEncoder().encode(data) else { return }
+      guard let data = data, let encodedData = try? PropertyListEncoder().encode(data) else {
+        print("Failed to fetch market data or encode it: \(String(describing: error))")
+        return
+      }
+      
+      // Store the market data in user defaults
       let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
       groupUserDefaults?.set(encodedData, forKey: MarketData.string)
       groupUserDefaults?.synchronize()
+      
+      // Reload complications to reflect the updated market data
       ExtensionDelegate.reloadActiveComplications()
     }
   }
@@ -53,6 +63,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   }
   
   func nextReloadTime(after date: Date) -> Date {
+    // Calculate the next reload time (every 10 minutes)
     let calendar = Calendar(identifier: .gregorian)
     return calendar.date(byAdding: .minute, value: 10, to: date)!
   }
@@ -78,13 +89,12 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   }
   
   private func handleApplicationRefreshBackgroundTask(_ backgroundTask: WKApplicationRefreshBackgroundTask) {
-      scheduleNextReload()
-      guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else {
-          backgroundTask.setTaskCompletedWithSnapshot(false)
-          return
-      }
-      updateMarketData(for: fiatUnitUserDefaults)
+    scheduleNextReload()
+    guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else {
       backgroundTask.setTaskCompletedWithSnapshot(false)
+      return
+    }
+    updateMarketData(for: fiatUnitUserDefaults)
+    backgroundTask.setTaskCompletedWithSnapshot(false)
   }
-  
 }
