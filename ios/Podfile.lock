@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (8.0.0):
+  - BugsnagReactNative (8.1.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1707,7 +1707,7 @@ PODS:
     - React-utils (= 0.76.0)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.13.1):
+  - RealmJS (20.0.0):
     - React
   - RNCAsyncStorage (1.24.0):
     - DoubleConversion
@@ -2403,7 +2403,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
-  BugsnagReactNative: 06633523bca8f272de4aef62a6f4923c66b5f72f
+  BugsnagReactNative: 1a39e0788d5d15193c8b5cb67be6a6b4395c2fda
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
@@ -2484,7 +2484,7 @@ SPEC CHECKSUMS:
   ReactCodegen: dbfef1fef26f42c900bb1884fa149d49d501d64d
   ReactCommon: 429ca28cd813c31359c73ffac6dc24f93347d522
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 325a7b621587dd9945306d4cbfd6b641bc20e2dd
+  RealmJS: 6946b520bada5568b7e92a5242e138d3a19aa69f
   RNCAsyncStorage: 3ad840f7b17b45ca7ebbbb0e80948564a9513315
   RNCClipboard: e55ecafbf4e0e42409391a98aceea76278699036
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
