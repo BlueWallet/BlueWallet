@@ -161,7 +161,7 @@
     "react-native-vector-icons": "10.2.0",
     "react-native-watch-connectivity": "1.1.0",
     "readable-stream": "3.6.2",
-    "realm": "12.13.1",
+    "realm": "20.0.0",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
     "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17",
