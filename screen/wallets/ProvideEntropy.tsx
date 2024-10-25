@@ -307,6 +307,11 @@ const Entropy = () => {
       entropyTitle,
       [
         {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
           text: loc._.ok,
           onPress: async () => {
             if (remaining > 0) {
@@ -318,11 +323,6 @@ const Entropy = () => {
             navigation.pop();
             onGenerated(buf);
           },
-          style: 'default',
-        },
-        {
-          text: loc._.cancel,
-          onPress: () => {},
           style: 'default',
         },
       ],

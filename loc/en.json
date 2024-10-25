@@ -383,6 +383,8 @@
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
     "total_balance": "Total Balance",
+    "add_entropy_reset_title": "Reset Entropy",
+    "add_entropy_reset_message": "Changing the wallet type will reset the current entropy. Do you want to proceed?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "{bytes} bytes of entropy",
     "add_entropy_generated": "{gen} bytes of generated entropy",
