@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import {
   ActivityIndicator,
@@ -29,6 +28,9 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -98,6 +100,7 @@ const walletReducer = (state: State, action: TAction): State => {
   }
 };
 
+type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'AddWallet'>;
 const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
 
@@ -113,7 +116,7 @@ const WalletsAdd: React.FC = () => {
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
-  const { navigate, goBack, setOptions } = useNavigation();
+  const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -192,9 +195,15 @@ const WalletsAdd: React.FC = () => {
           style: 'cancel',
         },
         {
+          text: loc.settings.electrum_reset,
+          onPress: () => {
+            confirmResetEntropy(ButtonSelected.ONCHAIN);
+          },
+          style: 'destructive',
+        },
+        {
           text: loc.wallets.add_wallet_seed_length_12,
           onPress: () => {
-            // @ts-ignore: Return later to update
             navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 12 });
           },
           style: 'default',
@@ -202,14 +211,13 @@ const WalletsAdd: React.FC = () => {
         {
           text: loc.wallets.add_wallet_seed_length_24,
           onPress: () => {
-            // @ts-ignore: Return later to update
             navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 24 });
           },
         },
       ],
       { cancelable: true },
     );
-  }, [entropyGenerated, navigate]);
+  }, [confirmResetEntropy, entropyGenerated, navigate]);
 
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
@@ -249,10 +257,11 @@ const WalletsAdd: React.FC = () => {
     const entropyAction = {
       ...CommonToolTipActions.Entropy,
       text: entropyButtonText,
+      menuState: !!entropy,
     };
 
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyAction] : [walletAction];
-  }, [entropyButtonText, selectedIndex, selectedWalletType]);
+  }, [entropy, entropyButtonText, selectedIndex, selectedWalletType]);
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
@@ -361,7 +370,6 @@ const WalletsAdd: React.FC = () => {
         A(A.ENUM.CREATED_WALLET);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
-          // @ts-ignore: Return later to update
           navigate('PleaseBackup', {
             walletID: w.getID(),
           });
@@ -371,7 +379,6 @@ const WalletsAdd: React.FC = () => {
       }
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
-      // @ts-ignore: Return later to update
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
     }
   };
@@ -410,14 +417,12 @@ const WalletsAdd: React.FC = () => {
 
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    // @ts-ignore: Return later to update
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),
     });
   };
 
   const navigateToImportWallet = () => {
-    // @ts-ignore: Return later to update
     navigate('ImportWallet');
   };
 
@@ -435,6 +440,19 @@ const WalletsAdd: React.FC = () => {
   const onLearnMorePressed = () => {
     Linking.openURL('https://bluewallet.io/lightning/');
   };
+
+  const LightningButtonMemo = useMemo(
+    () => (
+      <WalletButton
+        buttonType="Lightning"
+        testID="ActivateLightningButton"
+        active={selectedWalletType === ButtonSelected.OFFCHAIN}
+        onPress={handleOnLightningButtonPressed}
+        size={styles.button}
+      />
+    ),
+    [selectedWalletType, handleOnLightningButtonPressed],
+  );
 
   return (
     <ScrollView style={stylesHook.root} testID="ScrollView" automaticallyAdjustKeyboardInsets>
@@ -468,15 +486,7 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        {selectedWalletType === ButtonSelected.OFFCHAIN && (
-          <WalletButton
-            buttonType="Lightning"
-            testID="ActivateLightningButton"
-            active={selectedWalletType === ButtonSelected.OFFCHAIN}
-            onPress={handleOnLightningButtonPressed}
-            size={styles.button}
-          />
-        )}
+        {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>
         {selectedWalletType === ButtonSelected.OFFCHAIN && (
