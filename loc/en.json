@@ -10,6 +10,7 @@
     "never": "Never",
     "of": "{number} of {total}",
     "ok": "OK",
+    "customize": "Customize",
     "enter_url": "Enter URL",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "yes": "Yes",
