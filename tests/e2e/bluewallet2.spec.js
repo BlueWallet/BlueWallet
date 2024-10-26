@@ -210,7 +210,27 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
 
-    // Creating and verifying. tx should have 3 outputs
+    // Insert tests for the fee being a huge amount, checking the high fee modal, then adjusting to previous amount
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('200\n'); // Set a very high fee rate
+    await element(by.text('OK')).tap();
+
+    // Verify high fee modal appears
+    await expect(element(by.id('HighFeeWarningTitle'))).toBeVisible();
+
+    // Wait 5 seconds before tapping the done button on the modal
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await element(by.id('ModalDoneButton')).tap(); // Tap the done button instead of continue
+
+    // Set the fee rate back to a lower amount
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).clearText();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n'); // Restore the original or lower fee rate
+    await element(by.text('OK')).tap();
+
+    // Creating and verifying transaction should have 3 outputs
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
