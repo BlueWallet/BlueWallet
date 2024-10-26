@@ -28,14 +28,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Stvori fejk enkriptirani spremnik",
-    "create_password": "Unesi lozinku",
     "create_password_explanation": "Lozinka za fejk spremnik treba biti drugačija od lozinke za oriđi spremnik",
     "help": "Pazi. Netko gadan te može u iznimnim okolnostima (pljačka, prijevremeni izbori, itd.) brutalno pritisnuti da mu otkriješ lozinku za svoj volet. BlueWallet ti čuva leđa buraz. Nemaš brige. Gledaj, stvoriti ćemo fejk volet sa drugačijom lozinkom. Haha, žišku? Pa kad se ovaj počne pjeniti, a ti vidiš da je vrag odnio šalu, samo mu podvali lozinku za ovaj drugi volet. Eto mu ga. Nek si cucla. ",
     "help2": "Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko misliš da je potrebno da izgleda uvjerljivo.",
     "password_should_not_match": "Lozinka za fejk spremnik treba biti drugačija od lozinke za oriđi spremnik",
-    "passwords_do_not_match": "Lozinke ne pašu, pokušaj ponovo",
-    "confirm_password": "Ponovi lozinku",
-    "success": "Uspjeh",
     "title": "Fejk volet"
   },
   "receive": {
@@ -73,15 +69,11 @@
     "about": "Informacije",
     "currency": "Valuta",
     "electrum_clear_alert_cancel": "Otkaži",
-    "general_adv_mode": "Enable advanced mode",
     "header": "Postavke",
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",
     "password": "Lozinka",
-    "password_explain": "Upiši lozinku koja će dekriptirati spremnik.",
-    "passwords_do_not_match": "Lozinke su različite",
     "plausible_deniability": "Fejk volet...",
-    "confirm_password": "Ponovi lozinku",
     "save": "Spremi"
   },
   "transactions": {
@@ -105,7 +97,6 @@
     "details_delete": "Obriši",
     "details_export_backup": "Izvoz / bekap",
     "details_no_cancel": "Ne, otiaži",
-    "details_save": "Spremi",
     "details_show_xpub": "Prikaži voletov XPUB",
     "details_title": "Volet",
     "wallets": "Voleti",
