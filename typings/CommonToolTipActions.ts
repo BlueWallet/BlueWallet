@@ -21,10 +21,13 @@ const keys = {
   PaymentsCode: 'paymentsCode',
   ResetToDefault: 'resetToDefault',
   ClearHistory: 'clearHistory',
+  ScanQR: 'scan_qr',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
   PasteFromClipboard: 'pasteFromClipboard',
+  ChoosePhoto: 'choosePhoto',
+  ImportFile: 'importFile',
 };
 
 const icons = {
@@ -80,6 +83,9 @@ const icons = {
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
   PasteFromClipboard: { iconValue: 'document.on.clipboard' },
+  ScanQR: { iconValue: 'qrcode.viewfinder' },
+  ChoosePhoto: { iconValue: 'photo.on.rectangle' },
+  ImportFile: { iconValue: 'doc.badge.plus' },
 };
 
 export const CommonToolTipActions = {
@@ -205,5 +211,20 @@ export const CommonToolTipActions = {
     id: keys.PasteFromClipboard,
     text: loc.transactions.details_copy_amount,
     icon: icons.PasteFromClipboard,
+  },
+  ScanQR: {
+    id: keys.ScanQR,
+    text: loc.send.details_scan,
+    icon: icons.ScanQR,
+  },
+  ChoosePhoto: {
+    id: keys.ChoosePhoto,
+    text: loc._.pick_image,
+    icon: icons.ChoosePhoto,
+  },
+  ImportFile: {
+    id: keys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: icons.ImportFile,
   },
 };

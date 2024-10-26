@@ -7,6 +7,9 @@ import { scanQrHelper } from '../helpers/scan-qr';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
 import { useTheme } from './themes';
+import RNQRGenerator from 'rn-qr-generator';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import { useSettings } from '../hooks/context/useSettings';
 
 interface AddressInputScanButtonProps {
   isLoading: boolean;
@@ -24,6 +27,7 @@ export const AddressInputScanButton = ({
   onChangeText,
 }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
+  const { isClipboardGetContentEnabled } = useSettings();
   const stylesHook = StyleSheet.create({
     scan: {
       backgroundColor: colors.scanLabel,
@@ -36,13 +40,28 @@ export const AddressInputScanButton = ({
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
     Keyboard.dismiss();
-    if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+    if (launchedBy) scanQrHelper(launchedBy, true).then(value => onBarScanned({ data: value }));
   }, [launchedBy, onBarScanned, scanButtonTapped]);
 
+  const actions = useMemo(() => {
+    const availableActions = [
+      CommonToolTipActions.ScanQR,
+      CommonToolTipActions.ChoosePhoto,
+      CommonToolTipActions.ImportFile,
+      {
+        ...CommonToolTipActions.PasteFromClipboard,
+        hidden: !isClipboardGetContentEnabled,
+      },
+    ];
+
+    return availableActions;
+  }, [isClipboardGetContentEnabled]);
+
   const onMenuItemPressed = useCallback(
-    (action: string) => {
+    async (action: string) => {
+      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
-        case actionKeys.ScanQR:
+        case CommonToolTipActions.ScanQR.id:
           scanButtonTapped();
           if (launchedBy) {
             scanQrHelper(launchedBy)
@@ -51,15 +70,46 @@ export const AddressInputScanButton = ({
                 presentAlert({ message: error.message });
               });
           }
+
           break;
-        case actionKeys.CopyFromClipboard:
-          Clipboard.getString()
-            .then(onChangeText)
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
+        case CommonToolTipActions.PasteFromClipboard.id:
+          try {
+            let getImage: string | null = null;
+
+            if (Platform.OS === 'android') {
+              getImage = await Clipboard.getImage();
+            } else {
+              const hasImage = await Clipboard.hasImage();
+              if (hasImage) {
+                getImage = await Clipboard.getImageJPG();
+              }
+            }
+
+            if (getImage) {
+              try {
+                const base64Data = getImage.replace(/^data:image\/jpeg;base64,/, '');
+
+                const values = await RNQRGenerator.detect({
+                  base64: base64Data,
+                });
+
+                if (values && values.values.length > 0) {
+                  onChangeText(values.values[0]);
+                } else {
+                  presentAlert({ message: loc.send.qr_error_no_qrcode });
+                }
+              } catch (error) {
+                presentAlert({ message: (error as Error).message });
+              }
+            } else {
+              const clipboardText = await Clipboard.getString();
+              onChangeText(clipboardText);
+            }
+          } catch (error) {
+            presentAlert({ message: (error as Error).message });
+          }
           break;
-        case actionKeys.ChoosePhoto:
+        case CommonToolTipActions.ChoosePhoto.id:
           showImagePickerAndReadImage()
             .then(value => {
               if (value) {
@@ -70,7 +120,7 @@ export const AddressInputScanButton = ({
               presentAlert({ message: error.message });
             });
           break;
-        case actionKeys.ImportFile:
+        case CommonToolTipActions.ImportFile.id:
           showFilePickerAndReadFile()
             .then(value => {
               if (value.data) {
@@ -124,48 +174,3 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
-const actionKeys = {
-  ScanQR: 'scan_qr',
-  CopyFromClipboard: 'copy_from_clipboard',
-  ChoosePhoto: 'choose_photo',
-  ImportFile: 'import_file',
-};
-
-const actionIcons = {
-  ScanQR: {
-    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
-  },
-  ImportFile: {
-    iconValue: 'doc',
-  },
-  ChoosePhoto: {
-    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
-  },
-  Clipboard: {
-    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
-  },
-};
-
-const actions = [
-  {
-    id: actionKeys.ScanQR,
-    text: loc.wallets.list_long_scan,
-    icon: actionIcons.ScanQR,
-  },
-  {
-    id: actionKeys.CopyFromClipboard,
-    text: loc.wallets.list_long_clipboard,
-    icon: actionIcons.Clipboard,
-  },
-  {
-    id: actionKeys.ChoosePhoto,
-    text: loc.wallets.list_long_choose,
-    icon: actionIcons.ChoosePhoto,
-  },
-  {
-    id: actionKeys.ImportFile,
-    text: loc.wallets.import_file,
-    icon: actionIcons.ImportFile,
-  },
-];
