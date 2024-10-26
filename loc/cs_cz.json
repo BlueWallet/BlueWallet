@@ -460,7 +460,7 @@
     "list_empty_txs2_lightning": "\nChcete-li ji začít používat, klepněte na „Správa prostředků“ a doplňte zůstatek.",
     "list_latest_transaction": "Poslední transakce",
     "list_long_choose": "Vybrat fotku",
-    "list_long_clipboard": "Kopírovat ze schránky",
+    "paste_from_clipboard": "Kopírovat ze schránky",
     "import_file": "Importovat soubor",
     "list_long_scan": "Naskenovat QR kód",
     "list_title": "Peněženky",
