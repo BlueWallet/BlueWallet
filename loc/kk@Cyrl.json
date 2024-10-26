@@ -11,7 +11,6 @@
     "no": "Жоқ",
     "save": "Сақтау",
     "close": "Жабу",
-    "more": "Толығырақ білу",
     "pick_file": "Файл таңдау"
   },
   "entropy": {
@@ -28,10 +27,6 @@
   },
   "lndViewInvoice": {
     "sats": "сат."
-  },
-  "plausibledeniability": {
-    "create_password": "Құпиясөз еңгізу",
-    "passwords_do_not_match": "Құпия сөздер сәйкес келмейді. Қайталап көріңіз."
   },
   "receive": {
     "details_create": "Жасау"
@@ -72,7 +67,6 @@
     "add_create": "Жасау",
     "details_address": "Адрес",
     "details_no_cancel": "Жоқ, бас тарту",
-    "details_save": "Сақтау",
     "import_do_import": "Еңгізу",
     "import_search_accounts": "Шот іздеу",
     "import_title": "Енгізу",

@@ -16,9 +16,6 @@
     "success": "Správne",
     "wallet_key": "Peňaženkový kľúč"
   },
-  "alert": {
-    "default": "Varovanie"
-  },
   "azteco": {
     "codeIs": "Váš voucher kód je",
     "success": "Správne"
@@ -52,13 +49,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvoriť falošné zašifrované úložisko",
-    "create_password": "Vytvoriť heslo",
     "create_password_explanation": "Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku",
     "help": "Za určitých okolností môžete byť donútení k prezradeniu hesla. K zaisteniu bezpečnosti vaších prostriedkov, BlueWallet môže vytvořiť ďalšie zašifrované úložiská s rozdielným heslom. V prípade potreby môžete toto heslo dať tretej strane. Pokiaľ bude zadané do BlueWallet, odomkne nové \"falošné\" úložisko. Toto bude vyzerať hodnoverne, ale udrží vaše pravé hlavné úložisko v bezpečí.",
     "help2": "Nové úložisko bude plne funkčné, môžete naň uložiť minimálnu čiastku, aby vyzeralo uveriteľnejšie.",
     "password_should_not_match": "Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku",
-    "confirm_password": "Heslo znovu",
-    "success": "Úspech",
     "title": "Plausible deniability..."
   },
   "pleasebackup": {
@@ -114,8 +108,7 @@
     "psbt_tx_export": "Exportovať do súboru",
     "psbt_tx_open": "Otvoriť podpísanú transakciu",
     "psbt_tx_scan": "Skenovať podpísanú transakciu",
-    "success_done": "Hotovo",
-    "txSaved": "Transakcia bola uložená do {filePath}"
+    "success_done": "Hotovo"
   },
   "settings": {
     "about": "O BlueWallet",
@@ -125,7 +118,6 @@
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Telegram chat",
     "about_sm_twitter": "Sledujte nás na Twitteri",
-    "advanced_options": "Pokročilé nastavenia",
     "currency": "Mena",
     "default_wallets": "Zobraziť všetky peňaženky",
     "electrum_saved": "Vaše zmeny boli úspešne uložené. Aby sa zmeny prejavili, môže byť potrebný reštart.",
@@ -139,7 +131,6 @@
     "encrypt_tstorage": "úložisko",
     "encrypt_use": "Použiť {type}",
     "general": "Všeobecné",
-    "general_adv_mode": "Povoliť rozšírené nastavenia",
     "header": "Nastavenia",
     "language": "Jazyk",
     "lightning_saved": "Vaše zmeny boli úspešne uložené.",
@@ -148,12 +139,8 @@
     "network_electrum": "Electrum server",
     "notifications": "Notifikácie",
     "password": "Heslo",
-    "password_explain": "Vytvorte si heslo k zašifrovanému úložisku.",
-    "passwords_do_not_match": "Hesla se nezhodujú",
     "plausible_deniability": "Plausible deniability...",
     "privacy_system_settings": "Systémové nastavenia",
-    "push_notifications": "Push notifikácie",
-    "confirm_password": "Heslo znovu",
     "save": "Uložiť",
     "saved": "Uložené"
   },
@@ -169,7 +156,6 @@
     "details_inputs": "Vstupy",
     "details_outputs": "Výstupy",
     "details_received": "Prijaté",
-    "transaction_saved": "Uložené",
     "details_show_in_block_explorer": "Ukázať v block exploreri",
     "details_title": "Transakcia",
     "details_to": "Výstup",
@@ -190,7 +176,6 @@
     "add_entropy_remain": "{gen} bytov vygenerovanej entropie. Zvyšných {rem} bytov sa získa zo systémového generátora náhodných čísel.",
     "add_import_wallet": "Importovať peňaženku",
     "add_lightning": "Lightning",
-    "add_lndhub": "Pripojiť sa na LNDhub",
     "add_lndhub_placeholder": "adresa uzla",
     "add_title": "pridať peňaženku",
     "add_wallet_name": "názov peňaženky",
@@ -204,7 +189,6 @@
     "details_export_backup": "Exportovať / zálohovať",
     "details_master_fingerprint": "Hlavný odtlačok prsta",
     "details_no_cancel": "Nie, zrušiť",
-    "details_save": "Uložiť",
     "details_show_xpub": "Ukázať XPUB",
     "details_title": "Peňaženka",
     "wallets": "peňaženky",
@@ -225,7 +209,7 @@
     "list_empty_txs2_lightning": "\nKliknite na \"spravovať zostatok\" a naplňte si peňaženku.",
     "list_latest_transaction": "posledná transakcia",
     "list_long_choose": "Vyberte fotku",
-    "list_long_clipboard": "Skopírovať zo schránky",
+    "paste_from_clipboard": "Skopírovať zo schránky",
     "list_long_scan": "Skenovať QR kód",
     "list_title": "peňaženky",
     "list_tryagain": "Skúste znovu",
