@@ -382,7 +382,7 @@
     "list_empty_txs2_lightning": "\nA kezdéshez kattints a \"Kezelés\"-re, és töltsd fel az egyenleged.",
     "list_latest_transaction": "utolsó tranzakció",
     "list_long_choose": "Válassz fényképet",
-    "list_long_clipboard": "Másolás vágólapról",
+    "paste_from_clipboard": "Másolás vágólapról",
     "import_file": "fájl importálása",
     "list_long_scan": "QR kód szkennelése",
     "list_title": "tárcák",
