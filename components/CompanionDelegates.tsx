@@ -16,6 +16,8 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import RNQRGenerator from 'rn-qr-generator';
+import presentAlert from './Alert';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -104,17 +106,51 @@ const CompanionDelegates = () => {
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
   const handleOpenURL = useCallback(
-    (event: { url: string }) => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
-    },
-    [addWallet, saveToDisk, setSharedCosigner, wallets],
-  );
+    async (event: { url: string }): Promise<void> => {
+      const { url } = event;
 
+      if (url) {
+        const decodedUrl = decodeURIComponent(url);
+        const fileName = decodedUrl.split('/').pop()?.toLowerCase();
+
+        if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
+          try {
+            const values = await RNQRGenerator.detect({
+              uri: decodedUrl,
+            });
+
+            if (values && values.values.length > 0) {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              DeeplinkSchemaMatch.navigationRouteFor(
+                { url: values.values[0] },
+                (value: [string, any]) => navigationRef.navigate(...value),
+                {
+                  wallets,
+                  addWallet,
+                  saveToDisk,
+                  setSharedCosigner,
+                },
+              );
+            } else {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              presentAlert({ message: loc.send.qr_error_no_qrcode });
+            }
+          } catch (error) {
+            console.error('Error detecting QR code:', error);
+          }
+        }
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
+      }
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
