@@ -25,7 +25,6 @@ const keys = {
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
   ScanQR: 'scan_qr',
-  CopyFromClipboard: 'copy_from_clipboard',
   ChoosePhoto: 'choose_photo',
   ImportFile: 'import_file',
   InsertContact: 'insert_contact',
@@ -41,6 +40,7 @@ const keys = {
   Share: 'share',
   SignVerify: 'signVerify',
   ExportPrivateKey: 'exportPrivateKey',
+  PasteFromClipboard: 'pasteFromClipboard',
 };
 
 const icons: { [key: string]: { iconValue: string } } = {
@@ -77,6 +77,7 @@ const icons: { [key: string]: { iconValue: string } } = {
   ExportPrivateKey: { iconValue: 'key' },
   Share: { iconValue: 'square.and.arrow.up' },
   Signature: { iconValue: 'signature' },
+  PasteFromClipboard: { iconValue: 'document.on.clipboard' },
 };
 
 export const CommonToolTipActions: { [key: string]: Action } = {
@@ -194,13 +195,6 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     text: loc.wallets.list_long_scan,
     icon: icons.ScanQR,
   },
-  CopyFromClipboard: {
-    id: keys.CopyFromClipboard,
-    text: loc.wallets.list_long_clipboard,
-    icon: icons.Clipboard,
-    subtitle: '',
-    hidden: false,
-  },
   ChoosePhoto: {
     id: keys.ChoosePhoto,
     text: loc.wallets.list_long_choose,
@@ -285,5 +279,10 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     id: keys.ExportPrivateKey,
     text: loc.addresses.copy_private_key,
     icon: icons.ExportPrivateKey,
+  },
+  PasteFromClipboard: {
+    id: keys.PasteFromClipboard,
+    text: loc.transactions.details_copy_amount,
+    icon: icons.PasteFromClipboard,
   },
 };

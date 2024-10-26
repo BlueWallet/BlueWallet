@@ -311,7 +311,7 @@
     "list_empty_txs2_lightning": "\n要开始使用它，请点击“管理资金”并充值。",
     "list_latest_transaction": "最近的交易",
     "list_long_choose": "选择图片",
-    "list_long_clipboard": "从剪贴板复制",
+    "paste_from_clipboard": "从剪贴板复制",
     "import_file": "导入文件",
     "list_long_scan": "扫描二维码",
     "list_title": "钱包",

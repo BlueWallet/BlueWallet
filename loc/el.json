@@ -282,7 +282,7 @@
     "list_empty_txs1": "Οι συναλλαγές θα εμφανιστούν εδώ,",
     "list_latest_transaction": "Τελευταία συναλλαγή",
     "list_long_choose": "Επιλογή φωτογραφίας",
-    "list_long_clipboard": "Αντιγραφή από το πρόχειρο",
+    "paste_from_clipboard": "Αντιγραφή από το πρόχειρο",
     "list_long_scan": "Σάρωση QR Code",
     "list_title": "Πορτοφόλια",
     "list_tryagain": "Προσπαθήστε ξανά",

@@ -359,7 +359,7 @@
     "list_empty_txs2_lightning": "\n사용하시려면 기금관리를 탭하신다음 잔고를 더해 주세요.",
     "list_latest_transaction": "최근 트랜잭션",
     "list_long_choose": "사진 선택하기",
-    "list_long_clipboard": "클립보드에서 복사",
+    "paste_from_clipboard": "클립보드에서 복사",
     "import_file": "화일 들여오기",
     "list_long_scan": "QR 코드 스캔",
     "list_title": "지갑",

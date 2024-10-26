@@ -409,7 +409,7 @@
     "list_empty_txs2_lightning": "Aloita lompakon käyttäminen napsauttamalla \"hallinnoi varoja\" ja lisää saldoasi.\n",
     "list_latest_transaction": "Viimeisin Siirtotapahtuma",
     "list_long_choose": "Valitse Kuva",
-    "list_long_clipboard": "Kopioi Leikepöydältä",
+    "paste_from_clipboard": "Kopioi Leikepöydältä",
     "import_file": "Tuo tiedosto",
     "list_long_scan": "Skannaa QR-koodi",
     "list_title": "lompakot",
