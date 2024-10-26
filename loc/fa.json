@@ -386,7 +386,7 @@
     "list_empty_txs2_lightning": "\nبرای شروع استفاده، روی «مدیریت دارایی» بزنید و موجودی خود را شارژ کنید.",
     "list_latest_transaction": "آخرین تراکنش",
     "list_long_choose": "انتخاب عکس",
-    "list_long_clipboard": "کپی از کلیپ‌بورد",
+    "paste_from_clipboard": "کپی از کلیپ‌بورد",
     "import_file": "واردکردن فایل",
     "list_long_scan": "اسکن کد QR",
     "list_title": "کیف پول‌ها",

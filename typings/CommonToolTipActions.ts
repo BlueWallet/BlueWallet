@@ -24,6 +24,7 @@ const keys = {
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
+  PasteFromClipboard: 'pasteFromClipboard',
 };
 
 const icons = {
@@ -78,6 +79,7 @@ const icons = {
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
+  PasteFromClipboard: { iconValue: 'document.on.clipboard' },
 };
 
 export const CommonToolTipActions = {
@@ -198,5 +200,10 @@ export const CommonToolTipActions = {
     id: keys.ClearHistory,
     text: loc.settings.electrum_clear,
     icon: icons.ClearHistory,
+  },
+  PasteFromClipboard: {
+    id: keys.PasteFromClipboard,
+    text: loc.transactions.details_copy_amount,
+    icon: icons.PasteFromClipboard,
   },
 };

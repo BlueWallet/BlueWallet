@@ -1,4 +1,3 @@
-import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import { Alert, Linking, Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
@@ -9,6 +8,7 @@ import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
+import RNQRGenerator from 'rn-qr-generator';
 
 const _sanitizeFileName = (fileName: string) => {
   // Remove any path delimiters and non-alphanumeric characters except for -, _, and .
@@ -128,14 +128,18 @@ export const showImagePickerAndReadImage = (): Promise<string | undefined> => {
         if (!response.didCancel) {
           const asset = response.assets?.[0] ?? {};
           if (asset.uri) {
-            const uri = asset.uri.toString().replace('file://', '');
-            LocalQRCode.decode(uri, (error: any, result: string) => {
-              if (!error) {
-                resolve(result);
-              } else {
+            RNQRGenerator.detect({
+              uri: decodeURI(asset.uri.toString()),
+            })
+              .then(result => {
+                if (result) {
+                  resolve(result.values[0]);
+                }
+              })
+              .catch(error => {
+                console.error(error);
                 reject(new Error(loc.send.qr_error_no_qrcode));
-              }
-            });
+              });
           }
         }
       },
@@ -183,13 +187,19 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
           return;
         }
         const uri2 = res.fileCopyUri.replace('file://', '');
-        LocalQRCode.decode(decodeURI(uri2), (error: any, result: string) => {
-          if (!error) {
-            resolve({ data: result, uri: fileCopyUri });
-          } else {
+
+        RNQRGenerator.detect({
+          uri: decodeURI(uri2),
+        })
+          .then(result => {
+            if (result) {
+              resolve({ data: result.values[0], uri: fileCopyUri });
+            }
+          })
+          .catch(error => {
+            console.error(error);
             resolve({ data: false, uri: false });
-          }
-        });
+          });
       });
     }
 
