@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (8.1.1):
+  - BugsnagReactNative (8.1.2):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -12,12 +12,12 @@ PODS:
   - hermes-engine (0.75.4):
     - hermes-engine/Pre-built (= 0.75.4)
   - hermes-engine/Pre-built (0.75.4)
-  - lottie-ios (4.4.1)
-  - lottie-react-native (6.7.2):
+  - lottie-ios (4.5.0)
+  - lottie-react-native (7.0.0):
     - DoubleConversion
     - glog
     - hermes-engine
-    - lottie-ios (= 4.4.1)
+    - lottie-ios (= 4.5.0)
     - RCT-Folly (= 2024.01.01.00)
     - RCTRequired
     - RCTTypeSafety
@@ -1592,7 +1592,7 @@ PODS:
     - React-Core
   - RealmJS (20.0.0):
     - React
-  - RNCAsyncStorage (1.24.0):
+  - RNCAsyncStorage (2.0.0):
     - React-Core
   - RNCClipboard (1.14.2):
     - React-Core
@@ -1600,7 +1600,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (11.1.0):
+  - RNDeviceInfo (13.2.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -1627,11 +1627,30 @@ PODS:
     - Yoga
   - RNHandoff (0.0.3):
     - React
-  - RNKeychain (8.2.0):
+  - RNKeychain (9.1.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNLocalize (3.2.1):
     - React-Core
-  - RNPermissions (4.1.5):
+  - RNPermissions (5.0.2):
     - React-Core
   - RNQrGenerator (1.4.2):
     - React
@@ -1770,8 +1789,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (10.2.1):
+  - RNShare (11.0.4):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNSVG (15.8.0):
     - React-Core
   - RNVectorIcons (10.2.0):
@@ -2143,7 +2181,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 4cb898d0bf20404aab1850c656dcea009429d6c1
-  BugsnagReactNative: c8b6afecdf4dc127246de7ebef082bc71d96ac51
+  BugsnagReactNative: d1d736effdbbf529126bc39a3a9ca23e305426dd
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
@@ -2151,8 +2189,8 @@ SPEC CHECKSUMS:
   fmt: 4c2741a687cc09f0634a2e2c72a838b99f1ff120
   glog: 69ef571f3de08433d766d614c73a9838a06bf7eb
   hermes-engine: ea92f60f37dba025e293cbe4b4a548fd26b610a0
-  lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
-  lottie-react-native: 31197e5c65aa7cb59e6affcefaf901588bb708c4
+  lottie-ios: a881093fab623c467d3bce374367755c272bdd59
+  lottie-react-native: 2a3335e7f3cfdc881f400b08c7e9e84d18920db1
   RCT-Folly: 4464f4d875961fce86008d45f4ecf6cef6de0740
   RCTDeprecation: 726d24248aeab6d7180dac71a936bbca6a994ed1
   RCTRequired: a94e7febda6db0345d207e854323c37e3a31d93b
@@ -2222,24 +2260,24 @@ SPEC CHECKSUMS:
   ReactCommon: 6a952e50c2a4b694731d7682aaa6c79bc156e4ad
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 6946b520bada5568b7e92a5242e138d3a19aa69f
-  RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
+  RNCAsyncStorage: d35c79ffba52c1013013e16b1fc295aec2feabb6
   RNCClipboard: 5e503962f0719ace8f7fdfe9c60282b526305c85
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
+  RNDeviceInfo: 29e01d5ae94bdb5a0f6c11a4c438132545b4df80
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 6dfe7692a191ee224748964127114edf057a1475
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
+  RNKeychain: 958a200b26c2df5036222105550290ac0ed98c90
   RNLocalize: 4f22418187ecd5ca693231093ff1d912d1b3c9bc
-  RNPermissions: 9fa74223844f437bc309e112994859dc47194829
+  RNPermissions: 81b5a3e2441f0be92f807519c0a4c4f693b5e57c
   RNQrGenerator: 5c12ab86443a07e923735800679da7b6fcaaeb31
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: 0d591ea1e150f36cb96d868d4e8d77272243d78a
   RNReanimated: f6a10979b3701f8029c71dbfe35d0ff4328dce4c
   RNScreens: 19719a9c326e925498ac3b2d35c4e50fe87afc06
-  RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
+  RNShare: eaeb5e7dc1618d19db6234da1af91fc60dd6bc0f
   RNSVG: 8b1a777d54096b8c2a0fd38fc9d5a454332bbb4d
   RNVectorIcons: 6382277afab3c54658e9d555ee0faa7a37827136
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
