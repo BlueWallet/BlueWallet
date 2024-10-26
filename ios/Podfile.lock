@@ -1592,7 +1592,7 @@ PODS:
     - React-utils (= 0.75.4)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.13.1):
+  - RealmJS (20.0.0):
     - React
   - RNCAsyncStorage (1.24.0):
     - React-Core
@@ -2217,7 +2217,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 4bcb34e6b5ebf6eef5cee34f55aa39991ea1c1f1
   ReactCommon: 6a952e50c2a4b694731d7682aaa6c79bc156e4ad
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 325a7b621587dd9945306d4cbfd6b641bc20e2dd
+  RealmJS: 6946b520bada5568b7e92a5242e138d3a19aa69f
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
   RNCClipboard: 5e503962f0719ace8f7fdfe9c60282b526305c85
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
