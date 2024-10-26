@@ -81,7 +81,7 @@ platform :android do
 
         # Sign APK
         UI.message("Signing APK with apksigner...")
-        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/35.0.0/apksigner"
         sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
         UI.message("APK signed successfully: #{signed_apk_path}")
       end
