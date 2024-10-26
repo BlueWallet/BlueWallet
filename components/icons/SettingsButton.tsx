@@ -32,7 +32,7 @@ const SettingsButton = () => {
     <ToolTipMenu onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel={loc.settings.default_title}
+        accessibilityLabel={loc.settings.header}
         testID="SettingsButton"
         style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         onPress={onPress}

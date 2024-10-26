@@ -4,13 +4,13 @@ import Currency from '../screen/settings/Currency';
 import Language from '../screen/settings/Language';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator'; // Assume you have this component for loading indication
 import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
+import ShortcutSettings from '../screen/settings/Shortcuts';
 
 const Settings = lazy(() => import('../screen/settings/Settings'));
 const GeneralSettings = lazy(() => import('../screen/settings/GeneralSettings'));
 const Licensing = lazy(() => import('../screen/settings/Licensing'));
 const NetworkSettings = lazy(() => import('../screen/settings/NetworkSettings'));
 const About = lazy(() => import('../screen/settings/About'));
-const DefaultView = lazy(() => import('../screen/settings/DefaultView'));
 const ElectrumSettings = lazy(() => import('../screen/settings/electrumSettings'));
 const EncryptStorage = lazy(() => import('../screen/settings/EncryptStorage'));
 const LightningSettings = lazy(() => import('../screen/settings/LightningSettings'));
@@ -59,9 +59,9 @@ export const AboutComponent = () => (
   </Suspense>
 );
 
-export const DefaultViewComponent = () => (
+export const ShortcutSettingsComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
-    <DefaultView />
+    <ShortcutSettings />
   </Suspense>
 );
 

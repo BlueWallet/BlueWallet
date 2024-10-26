@@ -5,6 +5,8 @@ import {
   I18nManager,
   InteractionManager,
   LayoutAnimation,
+  Linking,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -44,6 +46,8 @@ import { popToTop } from '../../NavigationService';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useSettings } from '../../hooks/context/useSettings';
+import DeviceInfo from 'react-native-device-info';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -54,6 +58,9 @@ const WalletDetails: React.FC = () => {
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
   const walletRef = useRef<TWallet | undefined>(wallets.find(w => w.getID() === walletID));
   const wallet = walletRef.current as TWallet;
+  const { walletAddressIntent, setWalletAddressIntent } = useSettings();
+  const [isSupportedEnvironment, setIsSupportedEnvironment] = useState(false);
+
   const [walletUseWithHardwareWallet, setWalletUseWithHardwareWallet] = useState<boolean>(
     wallet.useWithHardwareWalletEnabled ? wallet.useWithHardwareWalletEnabled() : false,
   );
@@ -145,6 +152,43 @@ const WalletDetails: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
+
+  const onUseForShortcutsSwitchValueChanged = async (value: boolean) => {
+    try {
+      if (value) {
+        await setWalletAddressIntent(wallet);
+      } else {
+        await setWalletAddressIntent(undefined);
+      }
+    } catch (error) {
+      console.error('Failed to set walletAddressIntent:', error);
+    }
+  };
+
+  useEffect(() => {
+    const checkEnvironment = async () => {
+      try {
+        const systemVersion = await DeviceInfo.getSystemVersion();
+        let majorVersion = parseInt(systemVersion, 10);
+        if (isNaN(majorVersion)) {
+          const versionParts = systemVersion.split('.');
+          if (versionParts.length > 0) {
+            majorVersion = parseInt(versionParts[0], 10);
+          }
+        }
+        if (isNaN(majorVersion)) {
+          console.error('Invalid system version format:', systemVersion);
+          return;
+        }
+        if ((Platform.OS === 'ios' && majorVersion >= 16) || Platform.OS === 'macos') {
+          setIsSupportedEnvironment(true);
+        }
+      } catch (error) {
+        console.error('Failed to get system version:', error);
+      }
+    };
+    checkEnvironment();
+  }, []);
 
   const navigateToOverviewAndDeleteWallet = () => {
     setIsLoading(true);
@@ -384,6 +428,20 @@ const WalletDetails: React.FC = () => {
     setIsMasterFingerPrintVisible(true);
   };
 
+  const handleOpenShortcuts = async () => {
+    const url = 'shortcuts://';
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        presentAlert({ message: loc.wallets.shortcuts_not_installed });
+      }
+    } catch (error) {
+      presentAlert({ message: loc.wallets.shortcuts_open_error });
+    }
+  };
+
   return (
     <ScrollView
       automaticallyAdjustKeyboardInsets
@@ -533,6 +591,19 @@ const WalletDetails: React.FC = () => {
                 </View>
               </>
             ) : null}
+
+            {isSupportedEnvironment && (
+              <View>
+                <TouchableOpacity onPress={handleOpenShortcuts}>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.settings.shortcuts_title}</Text>
+                </TouchableOpacity>
+                {/* Section: Use Wallet for Shortcuts */}
+                <View style={styles.shortcutsContainer}>
+                  <BlueText>{loc.settings.use_for_shortcuts}</BlueText>
+                  <Switch value={walletAddressIntent?.walletID === walletID} onValueChange={onUseForShortcutsSwitchValueChanged} />
+                </View>
+              </View>
+            )}
 
             <View>
               {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() && (
@@ -725,6 +796,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  shortcutsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',

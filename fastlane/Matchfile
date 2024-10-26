@@ -21,7 +21,7 @@ team_id(ENV["ITC_TEAM_ID"])
 
 # Set this to true if match should only read existing certificates and profiles
 # and not create new ones.
-readonly(true)
+readonly(false)
 
 # Optional: The Git branch that is used for match.
 # Default is 'master'.
