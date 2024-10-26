@@ -2,7 +2,7 @@
 
 import { NativeEventEmitter, NativeModules } from 'react-native';
 
-const { TransactionsMonitorEventEmitter, TransactionsMonitor: TransactionsMonitorModule } = NativeModules;
+const { TransactionsMonitorEventEmitter, TransactionsMonitor, LiveActivityManager } = NativeModules;
 
 interface TransactionConfirmedEvent {
   txid: string;
@@ -25,7 +25,6 @@ export const subscribeToTransactionConfirmed = (callback: (txid: string) => void
     callback(event.txid);
   });
 
-  // Return the unsubscribe function
   return () => {
     subscription.remove();
   };
@@ -36,12 +35,12 @@ export const subscribeToTransactionConfirmed = (callback: (txid: string) => void
  * @param txid - The transaction ID to monitor.
  */
 export const addExternalTxId = async (txid: string): Promise<void> => {
-  if (!TransactionsMonitorModule || !TransactionsMonitorModule.addExternalTxId) {
-    throw new Error('TransactionsMonitorModule or addExternalTxId method is not available.');
+  if (!TransactionsMonitor || !TransactionsMonitor.addExternalTxId) {
+    throw new Error('TransactionsMonitor or addExternalTxId method is not available.');
   }
 
   try {
-    await TransactionsMonitorModule.addExternalTxId(txid);
+    await TransactionsMonitor.addExternalTxId(txid);
     console.debug(`External txid ${txid} added for monitoring.`);
   } catch (error) {
     console.error(`Failed to add external txid ${txid}:`, error);
@@ -54,12 +53,12 @@ export const addExternalTxId = async (txid: string): Promise<void> => {
  * @param txid - The transaction ID to remove.
  */
 export const removeExternalTxId = async (txid: string): Promise<void> => {
-  if (!TransactionsMonitorModule || !TransactionsMonitorModule.removeExternalTxId) {
-    throw new Error('TransactionsMonitorModule or removeExternalTxId method is not available.');
+  if (!TransactionsMonitor || !TransactionsMonitor.removeExternalTxId) {
+    throw new Error('TransactionsMonitor or removeExternalTxId method is not available.');
   }
 
   try {
-    await TransactionsMonitorModule.removeExternalTxId(txid);
+    await TransactionsMonitor.removeExternalTxId(txid);
     console.debug(`External txid ${txid} removed from monitoring.`);
   } catch (error) {
     console.error(`Failed to remove external txid ${txid}:`, error);
@@ -72,12 +71,12 @@ export const removeExternalTxId = async (txid: string): Promise<void> => {
  * @returns Promise that resolves to an array of transaction IDs.
  */
 export const getAllTxIds = async (): Promise<string[]> => {
-  if (!TransactionsMonitorModule || !TransactionsMonitorModule.getAllTxIds) {
-    throw new Error('TransactionsMonitorModule or getAllTxIds method is not available.');
+  if (!TransactionsMonitor || !TransactionsMonitor.getAllTxIds) {
+    throw new Error('TransactionsMonitor or getAllTxIds method is not available.');
   }
 
   return new Promise<string[]>((resolve, reject) => {
-    TransactionsMonitorModule.getAllTxIds((error: string | null, txids: string[] | null) => {
+    TransactionsMonitor.getAllTxIds((error: string | null, txids: string[] | null) => {
       if (error) {
         reject(error);
       } else if (txids) {
@@ -95,19 +94,53 @@ export const getAllTxIds = async (): Promise<string[]> => {
  * @returns Promise that resolves to the number of confirmations.
  */
 export const fetchTransactionConfirmations = async (txid: string): Promise<number> => {
-  if (!TransactionsMonitorModule || !TransactionsMonitorModule.fetchConfirmations) {
-    throw new Error('TransactionsMonitorModule or fetchConfirmations method is not available.');
+  if (!TransactionsMonitor || !TransactionsMonitor.fetchConfirmations) {
+    throw new Error('TransactionsMonitor or fetchConfirmations method is not available.');
   }
 
   return new Promise<number>((resolve, reject) => {
-    TransactionsMonitorModule.fetchConfirmations(txid, (error: string | null, confirmations: number | null) => {
+    TransactionsMonitor.fetchConfirmations(txid, (error: string | null, confirmations: number | null) => {
       if (error) {
         reject(error);
       } else if (confirmations !== null) {
         resolve(confirmations);
       } else {
-        reject(new Error('No confirmations data received.'));
+        reject('No confirmations data received.');
       }
     });
   });
+};
+
+/**
+ * Starts the persistent Live Activity for Dynamic Island.
+ */
+export const startPersistentLiveActivity = async (): Promise<void> => {
+  if (!LiveActivityManager || !LiveActivityManager.startPersistentLiveActivity) {
+    throw new Error('LiveActivityManager or startPersistentLiveActivity method is not available.');
+  }
+
+  try {
+    await LiveActivityManager.startPersistentLiveActivity();
+    console.debug('Persistent Live Activity started.');
+  } catch (error) {
+    console.error('Failed to start Persistent Live Activity:', error);
+    throw error;
+  }
+};
+
+/**
+ * Ends the persistent Live Activity for Dynamic Island.
+ */
+export const endPersistentLiveActivity = async (): Promise<void> => {
+  if (!LiveActivityManager || !LiveActivityManager.endPersistentLiveActivity) {
+    throw new Error('LiveActivityManager or endPersistentLiveActivity method is not available.');
+  }
+
+  try {
+    await LiveActivityManager.endPersistentLiveActivity();
+    console.debug('Persistent Live Activity ended.');
+  } catch (error) {
+    console.error('Failed to end Persistent Live Activity:', error);
+    throw error;
+  }
 };

@@ -1,10 +1,4 @@
-//
-//  TransactionsMonitorLiveActivity.swift
-//  TransactionsMonitor
-//
-//  Created by Marcos Rodriguez on 10/26/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
+// TransactionsMonitorLiveActivity.swift
 
 import ActivityKit
 import WidgetKit
@@ -25,33 +19,34 @@ struct TransactionsMonitorLiveActivity: Widget {
         ActivityConfiguration(for: TransactionsMonitorAttributes.self) { context in
             // Lock screen/banner UI goes here
             VStack {
-                Text("Hello \(context.state.emoji)")
+                Text("Monitoring Transactions")
+                Text(context.state.emoji)
+                    .font(.largeTitle)
             }
             .activityBackgroundTint(Color.cyan)
             .activitySystemActionForegroundColor(Color.black)
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
+                // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    Text("🔍")
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
+                    Text("📈")
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom \(context.state.emoji)")
-                    // more content
+                    Text("Status: \(context.state.emoji)")
+                    // more content if needed
                 }
             } compactLeading: {
-                Text("L")
+                Text("🔍")
             } compactTrailing: {
-                Text("T \(context.state.emoji)")
+                Text("📈")
             } minimal: {
                 Text(context.state.emoji)
             }
-            .widgetURL(URL(string: "http://www.apple.com"))
+            .widgetURL(URL(string: "http://www.bluewallet.com"))
             .keylineTint(Color.red)
         }
     }
@@ -59,18 +54,18 @@ struct TransactionsMonitorLiveActivity: Widget {
 
 extension TransactionsMonitorAttributes {
     fileprivate static var preview: TransactionsMonitorAttributes {
-        TransactionsMonitorAttributes(name: "World")
+        TransactionsMonitorAttributes(name: "BlueWallet")
     }
 }
 
 extension TransactionsMonitorAttributes.ContentState {
     fileprivate static var smiley: TransactionsMonitorAttributes.ContentState {
         TransactionsMonitorAttributes.ContentState(emoji: "😀")
-     }
+    }
      
-     fileprivate static var starEyes: TransactionsMonitorAttributes.ContentState {
-         TransactionsMonitorAttributes.ContentState(emoji: "🤩")
-     }
+    fileprivate static var starEyes: TransactionsMonitorAttributes.ContentState {
+        TransactionsMonitorAttributes.ContentState(emoji: "🤩")
+    }
 }
 
 #Preview("Notification", as: .content, using: TransactionsMonitorAttributes.preview) {

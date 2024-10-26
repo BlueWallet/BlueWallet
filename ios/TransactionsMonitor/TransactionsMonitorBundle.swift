@@ -1,10 +1,4 @@
-//
-//  TransactionsMonitorBundle.swift
-//  TransactionsMonitor
-//
-//  Created by Marcos Rodriguez on 10/26/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
+// TransactionsMonitorBundle.swift
 
 import WidgetKit
 import SwiftUI
@@ -12,7 +6,7 @@ import SwiftUI
 @main
 struct TransactionsMonitorBundle: WidgetBundle {
     var body: some Widget {
-        TransactionsMonitor()
+        TransactionsMonitorWidget()
         TransactionsMonitorLiveActivity()
     }
 }

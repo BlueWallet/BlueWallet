@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 73;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -127,8 +127,6 @@
 		B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */; };
 		B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */; };
 		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
-		B4E2CA7B2CCC61F1009540B0 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CA7A2CCC61F1009540B0 /* KeychainManager.swift */; };
-		B4E2CA7C2CCC61F1009540B0 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CA7A2CCC61F1009540B0 /* KeychainManager.swift */; };
 		B4E2CA7D2CCC61F1009540B0 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CA7A2CCC61F1009540B0 /* KeychainManager.swift */; };
 		B4E2CA852CCC675E009540B0 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
 		B4E2CA862CCC6778009540B0 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
@@ -137,6 +135,9 @@
 		B4E2CAD82CCCA5F5009540B0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		B4E2CAD92CCCA5F5009540B0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		B4E2CAE62CCCA5F6009540B0 /* TransactionsMonitorExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B4E2CAD72CCCA5F5009540B0 /* TransactionsMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B4E2CAFD2CCD3FF4009540B0 /* ElectrumFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CAFB2CCD3FF4009540B0 /* ElectrumFetcher.swift */; };
+		B4E2CAFF2CCD4004009540B0 /* ElectrumFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CAFB2CCD3FF4009540B0 /* ElectrumFetcher.swift */; };
+		B4E2CB002CCD4012009540B0 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E2CA7A2CCC61F1009540B0 /* KeychainManager.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
 		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
@@ -377,6 +378,7 @@
 		B4E2CAC02CCCA57E009540B0 /* LiveActivityExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LiveActivityExtension.entitlements; sourceTree = "<group>"; };
 		B4E2CAD72CCCA5F5009540B0 /* TransactionsMonitorExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TransactionsMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4E2CAE72CCCA5F6009540B0 /* TransactionsMonitorExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TransactionsMonitorExtension.entitlements; sourceTree = "<group>"; };
+		B4E2CAFB2CCD3FF4009540B0 /* ElectrumFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectrumFetcher.swift; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -399,13 +401,27 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				LiveActivityManagerModule.m,
+				TransactionsMonitorEventEmitterModule.m,
+				TransactionsMonitorModule.m,
 			);
 			target = B4E2CAD62CCCA5F5009540B0 /* TransactionsMonitorExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		B4E2CB072CCD406C009540B0 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = B4E2CAD52CCCA5F5009540B0 /* Resources */;
+			membershipExceptions = (
+				TransactionsMonitorEventEmitterModule.m,
+				TransactionsMonitorModule.m,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		B4E2CADA2CCCA5F5009540B0 /* TransactionsMonitor */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B4E2CAE82CCCA5F7009540B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TransactionsMonitor; sourceTree = "<group>"; };
+		B4E2CADA2CCCA5F5009540B0 /* TransactionsMonitor */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B4E2CAE82CCCA5F7009540B0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, B4E2CB072CCD406C009540B0 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TransactionsMonitor; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -753,6 +769,7 @@
 		B44033C82BCC34AC00162242 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B4E2CAFB2CCD3FF4009540B0 /* ElectrumFetcher.swift */,
 				B4E2CA7A2CCC61F1009540B0 /* KeychainManager.swift */,
 				B450109A2C0FCD7E00619044 /* Utilities */,
 				6D2AA8062568B8E50090B089 /* Fiat */,
@@ -997,11 +1014,11 @@
 					};
 					B4E2CAD62CCCA5F5009540B0 = {
 						CreatedOnToolsVersion = 16.0;
+						LastSwiftMigration = 1600;
 					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BlueWallet" */;
-			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1038,6 +1055,7 @@
 				B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */,
 				B48A6A272C1DF01000030AB9 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
+			preferredProjectObjectVersion = 60;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1247,6 +1265,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B44033E92BCC371A00162242 /* MarketData.swift in Sources */,
+				B4E2CAFD2CCD3FF4009540B0 /* ElectrumFetcher.swift in Sources */,
 				B44033CA2BCC350A00162242 /* Currency.swift in Sources */,
 				B4E2CA862CCC6778009540B0 /* SwiftTCPClient.swift in Sources */,
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
@@ -1309,7 +1328,6 @@
 				B44033C62BCC332400162242 /* Balance.swift in Sources */,
 				B44033E62BCC36FF00162242 /* WalletData.swift in Sources */,
 				6DD410BF266CB13D0087DE03 /* Placeholders.swift in Sources */,
-				B4E2CA7C2CCC61F1009540B0 /* KeychainManager.swift in Sources */,
 				6DD410B0266CAF5C0087DE03 /* WalletInformationWidget.swift in Sources */,
 				6DD410B1266CAF5C0087DE03 /* MarketAPI+Electrum.swift in Sources */,
 				6DD410B8266CAF5C0087DE03 /* UserDefaultsExtension.swift in Sources */,
@@ -1355,7 +1373,6 @@
 				B44033E52BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033EF2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */,
-				B4E2CA7B2CCC61F1009540B0 /* KeychainManager.swift in Sources */,
 				B44033C52BCC332400162242 /* Balance.swift in Sources */,
 				6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */,
@@ -1368,6 +1385,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4E2CAFF2CCD4004009540B0 /* ElectrumFetcher.swift in Sources */,
+				B4E2CB002CCD4012009540B0 /* KeychainManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1578,7 +1597,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
@@ -1621,7 +1640,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
@@ -1666,7 +1685,7 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Widgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1722,7 +1741,7 @@
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Widgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1930,7 +1949,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
 			};
 			name = Debug;
 		};
@@ -1979,7 +1998,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
 			};
 			name = Release;
 		};
@@ -2026,7 +2045,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
 			};
 			name = Debug;
 		};
@@ -2073,7 +2092,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 8.7;
 			};
 			name = Release;
 		};
@@ -2086,18 +2105,21 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = TransactionsMonitorExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2108,7 +2130,7 @@
 				INFOPLIST_FILE = TransactionsMonitor/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TransactionsMonitor;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 BlueWallet. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2121,10 +2143,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TransactionsMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.TransactionsMonitor";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match Development io.bluewallet.bluewallet.TransactionsMonitor catalyst";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TransactionsMonitor/TransactionsMonitorExtension-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2140,6 +2165,7 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
@@ -2148,18 +2174,20 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = A7W54YZ4WU;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TransactionsMonitor/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TransactionsMonitor;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 BlueWallet. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2170,9 +2198,13 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TransactionsMonitor;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.TransactionsMonitor";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "match AppStore io.bluewallet.bluewallet.TransactionsMonitor catalyst";
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "TransactionsMonitor/TransactionsMonitorExtension-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

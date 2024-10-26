@@ -232,7 +232,7 @@ platform :ios do
       type: "development",
       platform: "catalyst",
       app_identifier: app_identifiers,
-      readonly: true,
+      readonly: false,
       clone_branch_directly: true
     )
   end
@@ -243,7 +243,7 @@ platform :ios do
       type: "appstore",
       platform: "catalyst",
       app_identifier: app_identifiers,
-      readonly: true,
+      readonly: false,
       clone_branch_directly: true
     )
   end

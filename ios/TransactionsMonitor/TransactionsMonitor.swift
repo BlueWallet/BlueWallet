@@ -1,85 +1,135 @@
 //
 //  TransactionsMonitor.swift
-//  TransactionsMonitor
+//  BlueWallet
 //
 //  Created by Marcos Rodriguez on 10/26/24.
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-import WidgetKit
-import SwiftUI
 
-struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+// TransactionsMonitor.swift
+
+import Foundation
+import React
+
+@objc(TransactionsMonitor)
+class TransactionsMonitor: NSObject {
+    
+    private let electrumFetcher: ElectrumFetcherProtocol
+    private let keychainManager: KeychainManager
+    private let service = "transactionData"
+    private let account = "transactions"
+    private let externalTxidsKey = "external_txids"
+    
+    override init() {
+        let settings = UserDefaultsGroup.getElectrumSettings()
+        let host = settings.host ?? "electrum.blockstream.info"
+        let port = settings.port ?? 50002
+        let useSSL = settings.sslPort != nil
+        self.electrumFetcher = ElectrumFetcher(host: host, port: port, useSSL: useSSL)
+        self.keychainManager = KeychainManager.shared
+        super.init()
     }
-
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
-        completion(entry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
-    }
-
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
-}
-
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let emoji: String
-}
-
-struct TransactionsMonitorEntryView : View {
-    var entry: Provider.Entry
-
-    var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Emoji:")
-            Text(entry.emoji)
-        }
-    }
-}
-
-struct TransactionsMonitor: Widget {
-    let kind: String = "TransactionsMonitor"
-
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                TransactionsMonitorEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                TransactionsMonitorEntryView(entry: entry)
-                    .padding()
-                    .background()
+    
+    @objc
+    func startMonitoringTransactions() {
+        Task {
+            do {
+                let allTxids = try await fetchAllTxids()
+                for txid in allTxids {
+                    await monitorTransaction(txid: txid)
+                }
+                print("TransactionsMonitor: Started monitoring \(allTxids.count) transactions.")
+            } catch {
+                print("TransactionsMonitor: Error fetching txids: \(error.localizedDescription)")
             }
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
     }
-}
-
-#Preview(as: .systemSmall) {
-    TransactionsMonitor()
-} timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
+    
+    @objc
+    func getAllTxIds(_ callback: @escaping RCTResponseSenderBlock) {
+        Task {
+            do {
+                let allTxids = try fetchAllTxidsSync()
+                callback([NSNull(), allTxids])
+            } catch {
+                callback([error.localizedDescription, NSNull()])
+            }
+        }
+    }
+    
+    @objc
+    func addExternalTxId(_ txid: String) {
+        Task {
+            do {
+                try await addExternalTxIdAsync(txid: txid)
+                print("TransactionsMonitor: External txid \(txid) added for monitoring.")
+            } catch {
+                print("TransactionsMonitor: Error adding external txid \(txid): \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    @objc
+    func removeExternalTxId(_ txid: String) {
+        Task {
+            do {
+                try await removeExternalTxIdAsync(txid: txid)
+                print("TransactionsMonitor: External txid \(txid) removed from monitoring.")
+            } catch {
+                print("TransactionsMonitor: Error removing external txid \(txid): \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func addExternalTxIdAsync(txid: String) async throws {
+        var externalTxids = try keychainManager.retrieveCodable(service: externalTxidsKey, account: account, type: [String].self) ?? []
+        externalTxids.append(txid)
+        try keychainManager.saveCodable(object: externalTxids, service: externalTxidsKey, account: account)
+        await monitorTransaction(txid: txid)
+    }
+    
+    private func removeExternalTxIdAsync(txid: String) async throws {
+        var externalTxids = try keychainManager.retrieveCodable(service: externalTxidsKey, account: account, type: [String].self) ?? []
+        if let index = externalTxids.firstIndex(of: txid) {
+            externalTxids.remove(at: index)
+            try keychainManager.saveCodable(object: externalTxids, service: externalTxidsKey, account: account)
+        } else {
+            throw NSError(domain: "TransactionsMonitor", code: -1, userInfo: [NSLocalizedDescriptionKey: "Txid not found in external monitoring"])
+        }
+    }
+    
+    private func fetchAllTxids() async throws -> [String] {
+        var txids: [String] = []
+        if let walletTxs = try keychainManager.retrieveCodable(service: service, account: account, type: [Transaction].self) {
+            txids += walletTxs.map { $0.txid }
+        }
+        if let externalTxids = try keychainManager.retrieveCodable(service: externalTxidsKey, account: account, type: [String].self) {
+            txids += externalTxids
+        }
+        return txids
+    }
+    
+    private func fetchAllTxidsSync() throws -> [String] {
+        var txids: [String] = []
+        if let walletTxs = try keychainManager.retrieveCodable(service: service, account: account, type: [Transaction].self) {
+            txids += walletTxs.map { $0.txid }
+        }
+        if let externalTxids = try keychainManager.retrieveCodable(service: externalTxidsKey, account: account, type: [String].self) {
+            txids += externalTxids
+        }
+        return txids
+    }
+    
+    private func monitorTransaction(txid: String) async {
+        do {
+            let confirmations = try await electrumFetcher.fetchTransactionConfirmations(txid: txid)
+            if confirmations > 0 {
+                TransactionsMonitorEventEmitter.sendTransactionConfirmedEvent(txid: txid)
+                try await removeExternalTxIdAsync(txid: txid)
+            }
+        } catch {
+            print("TransactionsMonitor: Error monitoring txid \(txid): \(error.localizedDescription)")
+        }
+    }
 }

@@ -67,7 +67,7 @@
 		<key>TransactionsMonitorExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>130</integer>
+			<integer>8</integer>
 		</dict>
 		<key>WalletInformationAndMarketWidget.xcscheme_^#shared#^_</key>
 		<dict>
