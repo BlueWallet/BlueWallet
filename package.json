@@ -85,7 +85,7 @@
     "@react-native-clipboard/clipboard": "1.14.3",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-menu/menu": "https://github.com/BlueWallet/menu.git#a33379d",
-    "@react-native/gradle-plugin": "0.75.4",
+    "@react-native/gradle-plugin": "0.76.0",
     "@react-native/metro-config": "0.75.4",
     "@react-navigation/drawer": "6.7.2",
     "@react-navigation/native": "6.1.18",
