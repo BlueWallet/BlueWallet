@@ -16,6 +16,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import TransactionsMonitor from './TransactionsMonitor';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -233,6 +234,7 @@ const CompanionDelegates = () => {
         <HandOffComponentListener />
         <WidgetCommunication />
         <WatchConnectivity />
+        <TransactionsMonitor />
       </Suspense>
     </>
   );

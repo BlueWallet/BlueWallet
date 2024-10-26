@@ -12,12 +12,13 @@
 #import "BlueWallet-Swift.h"
 #import "CustomSegmentedControlManager.h"
 
+
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
 @property (nonatomic, strong) NSUserDefaults *userDefaultsGroup;
 
 @end
-
+//
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -54,6 +55,11 @@
 
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
+  
+  TransactionsMonitor *transactionsMonitor = [[TransactionsMonitor alloc] init];
+  [transactionsMonitor startMonitoringTransactions];
+
+//
 
   [self setupUserDefaultsListener];
 

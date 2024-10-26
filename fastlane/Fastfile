@@ -5,7 +5,8 @@ def app_identifiers
     "io.bluewallet.bluewallet.watch",
     "io.bluewallet.bluewallet.watch.extension",
     "io.bluewallet.bluewallet.Stickers",
-    "io.bluewallet.bluewallet.MarketWidget"
+    "io.bluewallet.bluewallet.MarketWidget",
+    "io.bluewallet.bluewallet.TransactionsMonitor"
   ]
 end
 

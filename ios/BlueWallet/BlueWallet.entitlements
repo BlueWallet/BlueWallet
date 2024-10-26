@@ -18,5 +18,9 @@
 	<true/>
 	<key>com.apple.security.personal-information.photos-library</key>
 	<true/>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)group.io.bluewallet.bluewallet</string>
+	</array>
 </dict>
 </plist>
