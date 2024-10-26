@@ -159,15 +159,18 @@ jest.mock('realm', () => {
   };
 });
 
-jest.mock('react-native-idle-timer', () => {
-  return {
-    setIdleTimerDisabled: jest.fn(),
-  };
-});
-
 jest.mock('react-native-ios-context-menu', () => {
   return {};
 });
+
+jest.mock('rn-qr-generator', () => ({
+  detect: jest.fn((uri) => {
+    if (uri === 'invalid-image') {
+      return Promise.reject(new Error('Failed to decode QR code'));
+    }
+    return Promise.resolve({ values: ['mocked-qr-code'] });
+  }),
+}));
 
 jest.mock('react-native-haptic-feedback', () => {
   return {

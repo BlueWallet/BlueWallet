@@ -19,6 +19,10 @@ const keys = {
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
   PaymentsCode: 'paymentsCode',
+  RemoveAllRecipients: 'RemoveAllRecipients',
+  AddRecipient: 'AddRecipient',
+  RemoveRecipient: 'RemoveRecipient',
+  PasteFromClipboard: 'pasteFromClipboard',
 };
 
 const icons = {
@@ -67,6 +71,10 @@ const icons = {
   PaymentsCode: {
     iconValue: 'qrcode',
   },
+  RemoveAllRecipients: { iconValue: 'person.2.slash' },
+  AddRecipient: { iconValue: 'person.badge.plus' },
+  RemoveRecipient: { iconValue: 'person.badge.minus' },
+  PasteFromClipboard: { iconValue: 'document.on.clipboard' },
 };
 
 export const CommonToolTipActions = {
@@ -94,6 +102,16 @@ export const CommonToolTipActions = {
     id: keys.CopyAmount,
     text: loc.transactions.details_copy_amount,
     icon: icons.Clipboard,
+  },
+  AddRecipient: {
+    id: keys.AddRecipient,
+    text: loc.send.details_add_rec_add,
+    icon: icons.AddRecipient,
+  },
+  RemoveRecipient: {
+    id: keys.RemoveRecipient,
+    text: loc.send.details_add_rec_rem,
+    icon: icons.RemoveRecipient,
   },
   CopyNote: {
     id: keys.CopyNote,
@@ -135,6 +153,11 @@ export const CommonToolTipActions = {
     text: loc.wallets.add_entropy_provide,
     icon: icons.Entropy,
   },
+  RemoveAllRecipients: {
+    id: keys.RemoveAllRecipients,
+    text: loc.send.details_add_rec_rem_all,
+    icon: icons.RemoveAllRecipients,
+  },
   SearchAccount: {
     id: keys.SearchAccount,
     text: loc.wallets.import_search_accounts,
@@ -163,5 +186,10 @@ export const CommonToolTipActions = {
     text: loc.bip47.purpose,
     icon: icons.PaymentsCode,
     menuState: false,
+  },
+  PasteFromClipboard: {
+    id: keys.PasteFromClipboard,
+    text: loc.transactions.details_copy_amount,
+    icon: icons.PasteFromClipboard,
   },
 };

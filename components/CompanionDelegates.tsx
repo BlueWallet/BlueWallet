@@ -16,6 +16,8 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import RNQRGenerator from 'rn-qr-generator';
+import presentAlert from './Alert';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -104,27 +106,67 @@ const CompanionDelegates = () => {
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
   const handleOpenURL = useCallback(
-    (event: { url: string }) => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      })
-        // @ts-ignore: DeeplinkSchemaMatch type is not defined
-        .then((navigationParams: [string, any] | undefined) => {
-          if (navigationParams) {
-            const [route, params] = navigationParams;
-            navigationRef.navigate(route, params);
-          } else {
-            console.warn('No navigation parameters returned for the given deeplink.');
+    async (event: { url: string }): Promise<void> => {
+      const { url } = event;
+
+      if (url) {
+        const decodedUrl = decodeURIComponent(url);
+        const fileName = decodedUrl.split('/').pop()?.toLowerCase();
+
+        if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
+          try {
+            const values = await RNQRGenerator.detect({
+              uri: decodedUrl,
+            });
+
+            if (values && values.values.length > 0) {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              const navigationParams = await DeeplinkSchemaMatch.navigationRouteFor(
+                { url: values.values[0] },
+                {
+                  wallets,
+                  addWallet,
+                  saveToDisk,
+                  setSharedCosigner,
+                },
+              );
+
+              if (navigationParams) {
+                const [route, params] = navigationParams;
+                navigationRef.navigate(route, params);
+              } else {
+                console.warn('No navigation parameters returned for the given deeplink.');
+              }
+            } else {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              presentAlert({ message: loc.send.qr_error_no_qrcode });
+            }
+          } catch (error) {
+            console.error('Error detecting QR code:', error);
           }
-        })
-        .catch((error: any) => {
-          console.error('Failed to navigate deeplink:', error);
-        });
+        } else {
+          // Handling non-image URLs
+          try {
+            const navigationParams = await DeeplinkSchemaMatch.navigationRouteFor(event, {
+              wallets,
+              addWallet,
+              saveToDisk,
+              setSharedCosigner,
+            });
+
+            if (navigationParams) {
+              const [route, params] = navigationParams;
+              navigationRef.navigate(route, params);
+            } else {
+              console.warn('No navigation parameters returned for the given deeplink.');
+            }
+          } catch (error) {
+            console.error('Failed to navigate deeplink:', error);
+          }
+        }
+      }
     },
-    [addWallet, saveToDisk, setSharedCosigner, wallets],
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   const showClipboardAlert = useCallback(

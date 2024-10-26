@@ -147,7 +147,7 @@ function Notifications(props) {
       ActionSheet.showActionSheetWithOptions(
         {
           title: loc.settings.notifications,
-          message: loc.notifications.would_you_like_to_receive_notifications,
+          message: `${loc.notifications.would_you_like_to_receive_notifications}\n${loc.settings.push_notifications_explanation}`,
           options,
           cancelButtonIndex: 0, // Assuming 'no and don't ask' is still treated as the cancel action
           anchor: anchor ? findNodeHandle(anchor.current) : undefined,
@@ -190,24 +190,54 @@ function Notifications(props) {
    * @returns {Promise<object>} Response object from API rest call
    */
   Notifications.majorTomToGroundControl = async function (addresses, hashes, txids) {
-    if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
-      throw new Error('no addresses or hashes or txids provided');
-    const pushToken = await Notifications.getPushToken();
-    if (!pushToken || !pushToken.token || !pushToken.os) return;
+    try {
+      if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
+        throw new Error('No addresses, hashes, or txids provided');
+      }
 
-    const response = await fetch(`${baseURI}/majorTomToGroundControl`, {
-      method: 'POST',
-      headers: _getHeaders(),
-      body: JSON.stringify({
+      const pushToken = await Notifications.getPushToken();
+      if (!pushToken || !pushToken.token || !pushToken.os) {
+        return;
+      }
+
+      const requestBody = JSON.stringify({
         addresses,
         hashes,
         txids,
         token: pushToken.token,
         os: pushToken.os,
-      }),
-    });
+      });
 
-    return response.json();
+      let response;
+      try {
+        response = await fetch(`${baseURI}/majorTomToGroundControl`, {
+          method: 'POST',
+          headers: _getHeaders(),
+          body: requestBody,
+        });
+      } catch (networkError) {
+        console.error('Network request failed:', networkError);
+        throw networkError;
+      }
+
+      if (!response.ok) {
+        return;
+      }
+
+      const responseText = await response.text();
+      if (responseText) {
+        try {
+          return JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error('Error parsing response JSON:', jsonError);
+          throw jsonError;
+        }
+      } else {
+        return {}; // Return an empty object if there is no response body
+      }
+    } catch (error) {
+      console.error('Error in majorTomToGroundControl:', error);
+    }
   };
 
   /**

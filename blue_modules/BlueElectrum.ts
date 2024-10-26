@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { Alert } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Realm from 'realm';
@@ -299,13 +298,14 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
     );
     return;
   }
-  Alert.alert(
-    loc.errors.network,
-    loc.formatString(
+  presentAlert({
+    allowRepeat: false,
+    title: loc.errors.network,
+    message: loc.formatString(
       usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
       usingPeer ? { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` } : {},
     ),
-    [
+    buttons: [
       {
         text: loc.wallets.list_tryagain,
         onPress: () => {
@@ -318,10 +318,10 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
       {
         text: loc.settings.electrum_reset,
         onPress: () => {
-          Alert.alert(
-            loc.settings.electrum_reset,
-            loc.settings.electrum_reset_to_default,
-            [
+          presentAlert({
+            title: loc.settings.electrum_reset,
+            message: loc.settings.electrum_reset_to_default,
+            buttons: [
               {
                 text: loc._.cancel,
                 style: 'cancel',
@@ -340,16 +340,15 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
                     await DefaultPreference.clear(ELECTRUM_SSL_PORT);
                     await DefaultPreference.clear(ELECTRUM_TCP_PORT);
                   } catch (e) {
-                    // Must be running on Android
-                    console.log(e);
+                    console.log(e); // Must be running on Android
                   }
                   presentAlert({ message: loc.settings.electrum_saved });
                   setTimeout(connectMain, 500);
                 },
               },
             ],
-            { cancelable: true },
-          );
+            options: { cancelable: true },
+          });
           connectionAttempt = 0;
           mainClient.close() && mainClient.close();
         },
@@ -364,8 +363,8 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
         style: 'cancel',
       },
     ],
-    { cancelable: false },
-  );
+    options: { cancelable: false },
+  });
 };
 
 /**

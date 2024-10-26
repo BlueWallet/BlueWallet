@@ -3,11 +3,13 @@ import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 're
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
-import { useTheme } from './themes';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
-import Clipboard from '@react-native-clipboard/clipboard';
 import presentAlert from './Alert';
 import ToolTipMenu from './TooltipMenu';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import Clipboard from '@react-native-clipboard/clipboard';
+import RNQRGenerator from 'rn-qr-generator';
+import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
+import { useTheme } from './themes';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -76,7 +78,7 @@ const AddressInput = ({
   }, [launchedBy, onBarScanned, scanButtonTapped]);
 
   const onMenuItemPressed = useCallback(
-    (action: string) => {
+    async (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
         case actionKeys.ScanQR:
@@ -90,12 +92,42 @@ const AddressInput = ({
           }
 
           break;
-        case actionKeys.CopyFromClipboard:
-          Clipboard.getString()
-            .then(onChangeText)
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
+        case CommonToolTipActions.PasteFromClipboard.id:
+          try {
+            let getImage: string | null = null;
+
+            if (Platform.OS === 'android') {
+              getImage = await Clipboard.getImage();
+            } else {
+              const hasImage = await Clipboard.hasImage();
+              if (hasImage) {
+                getImage = await Clipboard.getImageJPG();
+              }
+            }
+
+            if (getImage) {
+              try {
+                const base64Data = getImage.replace(/^data:image\/jpeg;base64,/, '');
+
+                const values = await RNQRGenerator.detect({
+                  base64: base64Data,
+                });
+
+                if (values && values.values.length > 0) {
+                  onChangeText(values.values[0]);
+                } else {
+                  presentAlert({ message: loc.send.qr_error_no_qrcode });
+                }
+              } catch (error) {
+                presentAlert({ message: (error as Error).message });
+              }
+            } else {
+              const clipboardText = await Clipboard.getString();
+              onChangeText(clipboardText);
+            }
+          } catch (error) {
+            presentAlert({ message: (error as Error).message });
+          }
           break;
         case actionKeys.ChoosePhoto:
           showImagePickerAndReadImage()
@@ -202,7 +234,7 @@ const styles = StyleSheet.create({
 
 const actionKeys = {
   ScanQR: 'scan_qr',
-  CopyFromClipboard: 'copy_from_clipboard',
+  PasteFromClipboard: 'copy_from_clipboard',
   ChoosePhoto: 'choose_photo',
   ImportFile: 'import_file',
 };
@@ -229,8 +261,8 @@ const actions = [
     icon: actionIcons.ScanQR,
   },
   {
-    id: actionKeys.CopyFromClipboard,
-    text: loc.wallets.list_long_clipboard,
+    id: actionKeys.PasteFromClipboard,
+    text: loc.wallets.paste_from_clipboard,
     icon: actionIcons.Clipboard,
   },
   {

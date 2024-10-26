@@ -17,65 +17,88 @@ jobs:
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
+      ipa_output_path: ${{ steps.build_app.outputs.ipa_output_path }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
-      - name: Checkout project
+      - name: Checkout Project
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
-      
-      
-      - name: Specify node version
+
+      - name: Specify Node.js Version
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 16.0
-      
-      - name: Set up Ruby
+
+      - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-      
-      - name: Install dependencies with Bundler
+
+      - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
 
-      - name: Install node_modules
+      - name: Install Node Modules
         run: npm install --omit=dev --yes
 
       - name: Install CocoaPods Dependencies
         run: |
           bundle exec fastlane ios install_pods
+
       - name: Cache CocoaPods Pods
         uses: actions/cache@v4
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-      - name: Display release-notes.txt
-        run: cat release-notes.txt
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
-      - name: Set up Git Authentication
+          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
+      - name: Generate Build Number Based on Timestamp
+        id: generate_build_number
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Set Build Number
+        run: bundle exec fastlane ios increment_build_number_lane
+
+      - name: Determine Marketing Version
+        id: determine_marketing_version
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+          echo "project_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
+        working-directory: ios
+
+      - name: Set Up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
         run: |
           git config --global credential.helper 'cache --timeout=3600'
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
+
       - name: Create Temporary Keychain
         run: bundle exec fastlane ios create_temp_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
       - name: Setup Provisioning Profiles
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -86,14 +109,16 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
+
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
         uses: actions/cache@v4
         with:
-          path: ~/Library/MobileDevice/Provisioning Profiles
+          path: ~/Library/MobileDevice/Provisioning\ Profiles
           key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-provisioning-profiles-
+
       - name: Check Cache Status for Provisioning Profiles
         run: |
           if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
@@ -101,41 +126,36 @@ jobs:
           else
             echo "No cache found for provisioning profiles. A new cache will be created."
           fi
+
       - name: Verify Provisioning Profiles Exist
         run: |
           if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
             echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning Profiles
+            ls -la ~/Library/MobileDevice/Provisioning\ Profiles
           else
             echo "Provisioning profiles directory does not exist."
           fi
-      - name: Generate Build Number based on timestamp
-        id: generate_build_number
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-      - name: Set Build Number
-        run: bundle exec fastlane ios increment_build_number_lane
-      - name: Determine Marketing Version
-        id: determine_marketing_version
-        run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
-          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=project_version::$MARKETING_VERSION"
-        working-directory: ios
-        
-      - name: Expected IPA file name
-        run: |
-          echo "IPA file name: BlueWallet_${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
+
       - name: Build App
-        run: bundle exec fastlane ios build_app_lane
+        id: build_app
+        run: |
+          bundle exec fastlane ios build_app_lane --verbose
+          echo "ipa_output_path=$IPA_OUTPUT_PATH" >> $GITHUB_OUTPUT # Set the IPA output path for future jobs
+
+      - name: Upload Build Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_logs
+          path: ./ios/build_logs/
+
       - name: Upload IPA as Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-          path: ./build/BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-
+          path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
+ 
   testflight-upload:
     needs: build
     runs-on: macos-latest
@@ -146,13 +166,15 @@ jobs:
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
-      - name: Checkout project
+      - name: Checkout Project
         uses: actions/checkout@v4
-      - name: Set up Ruby
+
+      - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
           bundler-cache: true
+
       - name: Cache Ruby Gems
         uses: actions/cache@v4
         with:
@@ -160,19 +182,43 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
-      - name: Install dependencies with Bundler
+
+      - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
+
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ./
+          path: ./ # Download the IPA file to the current working directory
+
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+  
+      - name: Verify IPA File Download
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in current directory:"
+          ls -la ./
+      
+      - name: Set IPA Path Environment Variable
+        run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+
+      - name: Verify IPA Path Before Upload
+        run: |
+          if [ ! -f "$IPA_OUTPUT_PATH" ]; then
+            echo "IPA file not found at path: $IPA_OUTPUT_PATH"
+            exit 1
+          fi
+
       - name: Upload to TestFlight
-        env: 
+        run: |
+          ls -la $IPA_OUTPUT_PATH
+          bundle exec fastlane ios upload_to_testflight_lane
+        env:
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -182,7 +228,8 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
+          IPA_OUTPUT_PATH: ${{ env.IPA_OUTPUT_PATH }}
+
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
