@@ -38,14 +38,16 @@ const LNDViewAdditionalInvoiceInformation: React.FC = () => {
         .fetchInfo()
         .then(() => {
           const info = wallet.info_raw;
-          if (info && info.uris && info.uris[0]) {
+          // @ts-ignore: idk
+          if (info?.uris?.[0]) {
+            // @ts-ignore: idk
             setWalletInfo(info);
           } else {
             presentAlert({ message: loc.errors.network });
             goBack();
           }
         })
-        .catch(error => {
+        .catch((error: Error) => {
           console.error(error);
           presentAlert({ title: loc.errors.network, message: error.message });
           goBack();
@@ -60,11 +62,11 @@ const LNDViewAdditionalInvoiceInformation: React.FC = () => {
       ) : (
         <View style={styles.wrapper}>
           <View style={styles.qrcode}>
-            <QRCodeComponent value={walletInfo.uris![0]} size={300} />
+            <QRCodeComponent value={walletInfo.uris?.[0] ?? ''} size={300} />
           </View>
           <BlueSpacing20 />
           <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
-          <CopyTextToClipboard text={walletInfo.uris![0]} />
+          <CopyTextToClipboard text={walletInfo.uris?.[0] ?? ''} />
           <View style={styles.share}>
             <Button
               icon={{
@@ -74,7 +76,7 @@ const LNDViewAdditionalInvoiceInformation: React.FC = () => {
               }}
               onPress={async () => {
                 Share.share({
-                  message: walletInfo.uris![0],
+                  message: walletInfo.uris?.[0] ?? '',
                 });
               }}
               title={loc.receive.details_share}
