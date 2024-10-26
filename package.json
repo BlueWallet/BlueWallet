@@ -84,7 +84,7 @@
     "@react-native-async-storage/async-storage": "2.0.0",
     "@react-native-clipboard/clipboard": "1.14.2",
     "@react-native-community/push-notification-ios": "1.11.0",
-    "@react-native-menu/menu": "https://github.com/BlueWallet/menu.git#a33379d",
+    "@react-native-menu/menu": "https://github.com/BlueWallet/menu.git#6c39fc9",
     "@react-native/gradle-plugin": "0.75.4",
     "@react-native/metro-config": "0.75.4",
     "@react-navigation/drawer": "6.7.2",
