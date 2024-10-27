@@ -20,10 +20,15 @@ const keys = {
   SaveChanges: 'saveChanges',
   ClearClipboard: 'clearClipboard',
   PaymentsCode: 'paymentsCode',
+  ResetToDefault: 'resetToDefault',
+  ClearHistory: 'clearHistory',
+  ScanQR: 'scan_qr',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
   PasteFromClipboard: 'pasteFromClipboard',
+  ChoosePhoto: 'choosePhoto',
+  ImportFile: 'importFile',
 };
 
 const icons = {
@@ -75,10 +80,16 @@ const icons = {
   PaymentsCode: {
     iconValue: 'qrcode',
   },
+  ClearHistory: {
+    iconValue: 'trash',
+  },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
   PasteFromClipboard: { iconValue: 'document.on.clipboard' },
+  ScanQR: { iconValue: 'qrcode.viewfinder' },
+  ChoosePhoto: { iconValue: 'photo.on.rectangle' },
+  ImportFile: { iconValue: 'doc.badge.plus' },
 };
 
 export const CommonToolTipActions = {
@@ -141,16 +152,19 @@ export const CommonToolTipActions = {
     id: keys.ViewInFiat,
     text: loc.total_balance_view.view_in_fiat,
     icon: icons.ViewInFiat,
+    hidden: false,
   },
   ViewInSats: {
     id: keys.ViewInSats,
     text: loc.total_balance_view.view_in_sats,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   ViewInBitcoin: {
     id: keys.ViewInBitcoin,
     text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   Entropy: {
     id: keys.Entropy,
@@ -191,9 +205,33 @@ export const CommonToolTipActions = {
     icon: icons.PaymentsCode,
     menuState: false,
   },
+  ResetToDefault: {
+    id: keys.ResetToDefault,
+    text: loc.settings.electrum_reset,
+  },
+  ClearHistory: {
+    id: keys.ClearHistory,
+    text: loc.settings.electrum_clear,
+    icon: icons.ClearHistory,
+  },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,
     text: loc.transactions.details_copy_amount,
     icon: icons.PasteFromClipboard,
+  },
+  ScanQR: {
+    id: keys.ScanQR,
+    text: loc.send.details_scan,
+    icon: icons.ScanQR,
+  },
+  ChoosePhoto: {
+    id: keys.ChoosePhoto,
+    text: loc._.pick_image,
+    icon: icons.ChoosePhoto,
+  },
+  ImportFile: {
+    id: keys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: icons.ImportFile,
   },
 };
