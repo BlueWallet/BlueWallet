@@ -64,7 +64,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('ModalDoneButton')).tap();
 
     // Revert the fee back to a normal value
-    const normalFee = '10000'; // Set back to a more reasonable fee
+    const normalFee = '2'; // Set back to a more reasonable fee
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).clearText();
@@ -95,7 +95,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const totalIns = 69909; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
     const tx = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
+    assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), normalFee);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
 
     if (device.getPlatform() === 'ios') {
