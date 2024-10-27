@@ -27,8 +27,7 @@
     "enter_amount": "Enter amount",
     "qr_custom_input_button": "Tap 10 times to enter custom input",
     "unlock": "Unlock",
-    "suggested": "Suggested",
-    "dont_ask_again": "Don't ask again"
+    "suggested": "Suggested"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -229,10 +228,7 @@
     "biom_no_passcode": "Your device does not have a passcode or biometrics enabled. In order to proceed, please configure a passcode or biometric in the Settings app.",
     "biom_remove_decrypt": "All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?",
     "currency": "Currency",
-    "exchange_rate_error_title": "Exchange Rate Error",
-    "exchange_rate_error_message": "There was an error while obtaining the exchange rate for {currency}. It is recommended to select a different currency or try again later.",
-    "exchange_rate_error_message_reset_to": "Reset to {recommendedCurrency}",
-    "currency_source": "Price is obtained from",
+    "currency_source": "Rate is obtained from",
     "currency_fetch_error": "There was an error while obtaining the rate for the selected currency.",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
