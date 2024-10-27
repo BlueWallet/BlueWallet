@@ -5,7 +5,7 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 const LNDCreateInvoice = lazy(() => import('../screen/lnd/lndCreateInvoice'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 const LNDViewInvoice = lazy(() => import('../screen/lnd/lndViewInvoice'));
-const LNDViewAdditionalInvoiceInformation = lazy(() => import('../screen/lnd/lndViewAdditionalInvoiceInformation'));
+const LNDViewAdditionalInvoiceInformation = lazy(() => import('../screen/lnd/LNDViewAdditionalInvoiceInformation'));
 const LNDViewAdditionalInvoicePreImage = lazy(() => import('../screen/lnd/lndViewAdditionalInvoicePreImage'));
 
 export const LNDCreateInvoiceComponent = () => (

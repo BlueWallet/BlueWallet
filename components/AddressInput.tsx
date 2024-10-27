@@ -1,17 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
-import { scanQrHelper } from '../helpers/scan-qr';
+import React from 'react';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import loc from '../loc';
-import presentAlert from './Alert';
-import ToolTipMenu from './TooltipMenu';
-import { CommonToolTipActions } from '../typings/CommonToolTipActions';
-import Clipboard from '@react-native-clipboard/clipboard';
-import RNQRGenerator from 'rn-qr-generator';
+import { AddressInputScanButton } from './AddressInputScanButton';
 import { useTheme } from './themes';
-import { useSettings } from '../hooks/context/useSettings';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -24,6 +17,8 @@ interface AddressInputProps {
   editable?: boolean;
   inputAccessoryViewID?: string;
   onBlur?: () => void;
+  onFocus?: () => void;
+  testID?: string;
   keyboardType?:
     | 'default'
     | 'numeric'
@@ -43,6 +38,7 @@ interface AddressInputProps {
 const AddressInput = ({
   isLoading = false,
   address = '',
+  testID = 'AddressInput',
   placeholder = loc.send.details_address,
   onChangeText,
   onBarScanned,
@@ -51,21 +47,18 @@ const AddressInput = ({
   editable = true,
   inputAccessoryViewID,
   onBlur = () => {},
+  onFocus = () => {},
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const { isClipboardGetContentEnabled } = useSettings();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
-    scan: {
-      backgroundColor: colors.scanLabel,
-    },
-    scanText: {
-      color: colors.inverseForegroundColor,
+    input: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -82,143 +75,33 @@ const AddressInput = ({
     Keyboard.dismiss();
   };
 
-  const actions = useMemo(() => {
-    const availableActions = [
-      CommonToolTipActions.ScanQR,
-      CommonToolTipActions.ChoosePhoto,
-      CommonToolTipActions.ImportFile,
-      {
-        ...CommonToolTipActions.PasteFromClipboard,
-        hidden: !isClipboardGetContentEnabled,
-      },
-    ];
-
-    return availableActions;
-  }, [isClipboardGetContentEnabled]);
-
-  const toolTipOnPress = useCallback(async () => {
-    await scanButtonTapped();
-    Keyboard.dismiss();
-    if (launchedBy) scanQrHelper(launchedBy, true).then(value => onBarScanned({ data: value }));
-  }, [launchedBy, onBarScanned, scanButtonTapped]);
-
-  const onMenuItemPressed = useCallback(
-    async (action: string) => {
-      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
-      switch (action) {
-        case CommonToolTipActions.ScanQR.id:
-          scanButtonTapped();
-          if (launchedBy) {
-            scanQrHelper(launchedBy)
-              .then(value => onBarScanned({ data: value }))
-              .catch(error => {
-                presentAlert({ message: error.message });
-              });
-          }
-
-          break;
-        case CommonToolTipActions.PasteFromClipboard.id:
-          try {
-            let getImage: string | null = null;
-
-            if (Platform.OS === 'android') {
-              getImage = await Clipboard.getImage();
-            } else {
-              const hasImage = await Clipboard.hasImage();
-              if (hasImage) {
-                getImage = await Clipboard.getImageJPG();
-              }
-            }
-
-            if (getImage) {
-              try {
-                const base64Data = getImage.replace(/^data:image\/jpeg;base64,/, '');
-
-                const values = await RNQRGenerator.detect({
-                  base64: base64Data,
-                });
-
-                if (values && values.values.length > 0) {
-                  onChangeText(values.values[0]);
-                } else {
-                  presentAlert({ message: loc.send.qr_error_no_qrcode });
-                }
-              } catch (error) {
-                presentAlert({ message: (error as Error).message });
-              }
-            } else {
-              const clipboardText = await Clipboard.getString();
-              onChangeText(clipboardText);
-            }
-          } catch (error) {
-            presentAlert({ message: (error as Error).message });
-          }
-          break;
-        case CommonToolTipActions.ChoosePhoto.id:
-          showImagePickerAndReadImage()
-            .then(value => {
-              if (value) {
-                onChangeText(value);
-              }
-            })
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
-          break;
-        case CommonToolTipActions.ImportFile.id:
-          showFilePickerAndReadFile()
-            .then(value => {
-              if (value.data) {
-                onChangeText(value.data);
-              }
-            })
-            .catch(error => {
-              presentAlert({ message: error.message });
-            });
-          break;
-      }
-      Keyboard.dismiss();
-    },
-    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
-  );
-
-  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
-
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
-        testID="AddressInput"
+        testID={testID}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor="#81868e"
         value={address}
-        style={styles.input}
+        style={[styles.input, stylesHook.input]}
         editable={!isLoading && editable}
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
         onBlur={onBlurEditing}
+        onFocus={onFocus}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType={keyboardType}
       />
       {editable ? (
-        <ToolTipMenu
-          actions={actions}
-          isButton
-          onPressMenuItem={onMenuItemPressed}
-          testID="BlueAddressInputScanQrButton"
-          disabled={isLoading}
-          onPress={toolTipOnPress}
-          buttonStyle={buttonStyle}
-          accessibilityLabel={loc.send.details_scan}
-          accessibilityHint={loc.send.details_scan_hint}
-        >
-          <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </ToolTipMenu>
+        <AddressInputScanButton
+          isLoading={isLoading}
+          launchedBy={launchedBy}
+          scanButtonTapped={scanButtonTapped}
+          onBarScanned={onBarScanned}
+          onChangeText={onChangeText}
+        />
       ) : null}
     </View>
   );
@@ -231,7 +114,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     minHeight: 44,
     height: 44,
-    marginHorizontal: 20,
     alignItems: 'center',
     marginVertical: 8,
     borderRadius: 4,
@@ -240,20 +122,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
-    color: '#81868e',
-  },
-  scan: {
-    height: 36,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-  },
-  scanText: {
-    marginLeft: 4,
   },
 });
 

@@ -20,11 +20,13 @@ const keys = {
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
-  PaymentCode: 'paymentCode',
+  PaymentsCode: 'paymentsCode',
+  ResetToDefault: 'resetToDefault',
+  ClearHistory: 'clearHistory',
+  ScanQR: 'scan_qr',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
-  ScanQR: 'scan_qr',
   ChoosePhoto: 'choose_photo',
   ImportFile: 'import_file',
   InsertContact: 'insert_contact',
@@ -67,17 +69,23 @@ const icons: { [key: string]: { iconValue: string } } = {
   CoinControl: { iconValue: 'switch.2' },
   CoSignTransaction: { iconValue: 'signature' },
   PaymentCode: { iconValue: 'qrcode.viewfinder' },
+  PaymentsCode: {
+    iconValue: 'qrcode',
+  },
+  ClearHistory: {
+    iconValue: 'trash',
+  },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
   ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
-  ImportFile: { iconValue: 'doc' },
-  ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery' },
-  Clipboard: { iconValue: Platform.OS === 'ios' ? 'doc.on.doc' : 'ic_menu_file' },
+  ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo.on.rectangle' : 'ic_menu_gallery' },
+  Clipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_file' },
   ExportPrivateKey: { iconValue: 'key' },
   Share: { iconValue: 'square.and.arrow.up' },
   Signature: { iconValue: 'signature' },
   PasteFromClipboard: { iconValue: 'document.on.clipboard' },
+  ImportFile: { iconValue: 'document.viewfinder' },
 };
 
 export const CommonToolTipActions: { [key: string]: Action } = {
@@ -140,16 +148,19 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     id: keys.ViewInFiat,
     text: loc.total_balance_view.view_in_fiat,
     icon: icons.ViewInFiat,
+    hidden: false,
   },
   ViewInSats: {
     id: keys.ViewInSats,
     text: loc.total_balance_view.view_in_sats,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   ViewInBitcoin: {
     id: keys.ViewInBitcoin,
     text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   Entropy: {
     id: keys.Entropy,
@@ -184,10 +195,10 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     text: loc._.save,
     icon: icons.SaveChanges,
   },
-  PaymentCode: {
-    id: keys.PaymentCode,
+  PaymentsCode: {
+    id: keys.PaymentsCode,
     text: loc.bip47.purpose,
-    icon: icons.PaymentCode,
+    icon: icons.PaymentsCode,
     menuState: false,
   },
   ScanQR: {
@@ -279,6 +290,15 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     id: keys.ExportPrivateKey,
     text: loc.addresses.copy_private_key,
     icon: icons.ExportPrivateKey,
+  },
+  ResetToDefault: {
+    id: keys.ResetToDefault,
+    text: loc.settings.electrum_reset,
+  },
+  ClearHistory: {
+    id: keys.ClearHistory,
+    text: loc.settings.electrum_clear,
+    icon: icons.ClearHistory,
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,
