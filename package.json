@@ -13,7 +13,7 @@
     "@react-native/babel-preset": "^0.75.4",
     "@react-native/eslint-config": "^0.76.0",
     "@react-native/js-polyfills": "^0.75.4",
-    "@react-native/metro-babel-transformer": "^0.75.4",
+    "@react-native/metro-babel-transformer": "^0.76.0",
     "@react-native/typescript-config": "^0.75.4",
     "@types/bip38": "^3.1.2",
     "@types/bs58check": "^2.1.0",
