@@ -62,11 +62,16 @@ async function updateExchangeRate(): Promise<void> {
       }
     } else {
       // Handle unexpected errors without alerting the user
-      const rate = JSON.parse((await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)) || '{}');
-      rate.LAST_UPDATED_ERROR = true;
-      exchangeRates.LAST_UPDATED_ERROR = true;
-      await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
-    }
+      try {
+        const rate = JSON.parse((await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)) || '{}');
+        rate.LAST_UPDATED_ERROR = true;
+        exchangeRates.LAST_UPDATED_ERROR = true;
+        await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
+      } catch (parseError) {
+        console.error('Failed to parse exchange rates from storage', parseError);
+        exchangeRates.LAST_UPDATED_ERROR = true;
+        await AsyncStorage.removeItem(EXCHANGE_RATES_STORAGE_KEY);
+      }
   }
 }
 
