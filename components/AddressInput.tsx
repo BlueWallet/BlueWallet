@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
@@ -62,24 +62,15 @@ const AddressInput = ({
     },
   });
 
+  const validateAddressWithFeedback = useCallback((value: string) => {
+    const isValid = DeeplinkSchemaMatch.isBitcoinAddress(value) || DeeplinkSchemaMatch.isLightningInvoice(value);
+
+    triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
+    return isValid;
+  }, []);
+
   const onBlurEditing = () => {
-    const validateAddressWithFeedback = useCallback((value: string) => {
-      const isValid = DeeplinkSchemaMatch.isBitcoinAddress(value) || 
-        DeeplinkSchemaMatch.isLightningInvoice(value);
-
-      triggerHapticFeedback(
-        isValid 
-          ? HapticFeedbackTypes.NotificationSuccess 
-          : HapticFeedbackTypes.NotificationError
-      );
-      return isValid;
-    }, []);
-
-    const onBlurEditing = () => {
-      validateAddressWithFeedback(address);
-      onBlur();
-      Keyboard.dismiss();
-    };
+    validateAddressWithFeedback(address);
     onBlur();
     Keyboard.dismiss();
   };
