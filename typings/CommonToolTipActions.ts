@@ -68,7 +68,7 @@ const icons: { [key: string]: { iconValue: string } } = {
   ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
   CoinControl: { iconValue: 'switch.2' },
   CoSignTransaction: { iconValue: 'signature' },
-  PaymentCode: { iconValue: 'qrcode.viewfinder' },
+  PaymentsCode: { iconValue: 'qrcode.viewfinder' },
   PaymentsCode: {
     iconValue: 'qrcode',
   },
