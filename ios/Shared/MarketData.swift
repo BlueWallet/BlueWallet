@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct MarketData:Codable  {
+public struct MarketData:Codable  {
   var nextBlock: String
   var sats: String
   var price: String

@@ -1,6 +1,78 @@
 {
   "sourceLanguage" : "en_US",
   "strings" : {
+    "at %@" : {
+
+    },
+    "Balance" : {
+
+    },
+    "Bitcoin (%@)" : {
+
+    },
+    "BTC" : {
+
+    },
+    "Checked at %@" : {
+
+    },
+    "Current Bitcoin Market Rate" : {
+
+    },
+    "Current Bitcoin Price: %@" : {
+
+    },
+    "from" : {
+
+    },
+    "From %@" : {
+
+    },
+    "Last Updated" : {
+
+    },
+    "Latest transaction" : {
+
+    },
+    "Market" : {
+
+    },
+    "Market Rate" : {
+
+    },
+    "Next Block" : {
+
+    },
+    "Price" : {
+
+    },
+    "receive" : {
+
+    },
+    "Sats/%@" : {
+
+    },
+    "send" : {
+
+    },
+    "View the current Bitcoin market rate." : {
+
+    },
+    "View the current market information." : {
+
+    },
+    "View the current price of Bitcoin" : {
+
+    },
+    "View the current price of Bitcoin." : {
+
+    },
+    "View your accumulated balance." : {
+
+    },
+    "View your total wallet balance and network prices." : {
+
+    },
     "VIEW_ADDRESS_TRANSACTIONS_TITLE" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -56,6 +128,9 @@
           }
         }
       }
+    },
+    "Wallet and Market" : {
+
     }
   },
   "version" : "1.0"
