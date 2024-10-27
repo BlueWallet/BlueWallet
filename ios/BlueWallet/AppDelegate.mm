@@ -56,6 +56,7 @@
   center.delegate = self;
 
   [self setupUserDefaultsListener];
+  [self registerNotificationCategories];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
@@ -72,7 +73,25 @@
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
-} 
+}
+
+- (void)registerNotificationCategories {
+    // Define two actions: "View Address in Browser" and "View Transaction in Browser"
+    UNNotificationAction *viewAddressTransactionsAction = [UNNotificationAction actionWithIdentifier:@"VIEW_ADDRESS_TRANSACTIONS"
+                                                                                               title:NSLocalizedString(@"VIEW_ADDRESS_TRANSACTIONS_TITLE", nil)
+                                                                                             options:UNNotificationActionOptionForeground];
+
+    UNNotificationAction *viewTransactionDetailsAction = [UNNotificationAction actionWithIdentifier:@"VIEW_TRANSACTION_DETAILS"
+                                                                                            title:NSLocalizedString(@"VIEW_TRANSACTION_DETAILS_TITLE", nil)
+                                                                                          options:UNNotificationActionOptionForeground];
+
+    UNNotificationCategory *transactionCategory = [UNNotificationCategory categoryWithIdentifier:@"TRANSACTION_CATEGORY"
+                                                                                        actions:@[viewAddressTransactionsAction, viewTransactionDetailsAction]
+                                                                              intentIdentifiers:@[]
+                                                                                        options:UNNotificationCategoryOptionCustomDismissAction];
+
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithObject:transactionCategory]];
+}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
@@ -259,12 +278,37 @@
 {
  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
 }
-// Required for localNotification event
+
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
-didReceiveNotificationResponse:(UNNotificationResponse *)response
-         withCompletionHandler:(void (^)(void))completionHandler
+    didReceiveNotificationResponse:(UNNotificationResponse *)response
+             withCompletionHandler:(void (^)(void))completionHandler
 {
-  [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+    NSDictionary *userInfo = response.notification.request.content.userInfo;
+  NSString *blockExplorer = [[[NSUserDefaults standardUserDefaults] initWithSuiteName:@"group.io.bluewallet.bluewallet"] stringForKey:@"blockExplorer"];
+    if (blockExplorer == nil || [blockExplorer length] == 0) {
+        blockExplorer = @"https://www.mempool.space";
+    }
+    
+    NSString *address = userInfo[@"data"][@"address"];
+    NSString *txid = userInfo[@"data"][@"txid"];
+
+    if ([response.actionIdentifier isEqualToString:@"VIEW_ADDRESS_TRANSACTIONS"] && address) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/address/%@", blockExplorer, address];
+        NSURL *url = [NSURL URLWithString:urlString];
+        if ([[UIApplication sharedApplication] canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
+    else if ([response.actionIdentifier isEqualToString:@"VIEW_TRANSACTION_DETAILS"] && txid) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/tx/%@", blockExplorer, txid];
+        NSURL *url = [NSURL URLWithString:urlString];
+        if ([[UIApplication sharedApplication] canOpenURL:url]) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+    }
+
+    [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+    completionHandler();
 }
 
 // Clear cache on app launch

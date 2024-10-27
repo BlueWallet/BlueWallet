@@ -3,7 +3,12 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../clas
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export type SendDetailsParams = {
-  memo?: string;
+  transactionMemo?: string;
+  isTransactionReplaceable?: boolean;
+  payjoinUrl?: string;
+  feeUnit?: BitcoinUnit;
+  frozenBalance?: number;
+  amountUnit?: BitcoinUnit;
   address?: string;
   amount?: number;
   amountSats?: number;
@@ -11,6 +16,7 @@ export type SendDetailsParams = {
   noRbf?: boolean;
   walletID: string;
   launchedBy?: string;
+  utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
   addRecipientParams?: {
@@ -74,7 +80,6 @@ export type SendDetailsStackParamList = {
   };
   CoinControl: {
     walletID: string;
-    onUTXOChoose: (u: CreateTransactionUtxo[]) => void;
   };
   PaymentCodeList: {
     walletID: string;

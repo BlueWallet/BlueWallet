@@ -120,6 +120,11 @@
 		B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
 		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
+		B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
+		B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
+		B4742E992CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
+		B4742E9A2CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
+		B4742E9B2CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
@@ -131,7 +136,7 @@
 		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -347,6 +352,8 @@
 		B4549F352B82B10D002E3153 /* ci_post_clone.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
+		B4742E962CCDBE8300380EEE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B4742E9C2CCDC31300380EEE /* en_US */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en_US; path = en_US.lproj/Interface.strings; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
@@ -381,7 +388,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,6 +465,7 @@
 				6D32C5C42596CE2F008C077C /* EventEmitter.h */,
 				6D32C5C52596CE3A008C077C /* EventEmitter.m */,
 				84E05A832721191B001A0D3A /* Settings.bundle */,
+				B4742E962CCDBE8300380EEE /* Localizable.xcstrings */,
 			);
 			name = BlueWallet;
 			sourceTree = "<group>";
@@ -928,10 +936,9 @@
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BlueWallet" */;
 			compatibilityVersion = "Xcode 15.0";
-			developmentRegion = English;
+			developmentRegion = en_US;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 				af,
@@ -957,6 +964,8 @@
 				tr,
 				xh,
 				nb,
+				en_US,
+				"en-US",
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
@@ -985,6 +994,7 @@
 				6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */,
 				B440340F2BCC40A400162242 /* fiatUnits.json in Resources */,
 				84E05A842721191B001A0D3A /* Settings.bundle in Resources */,
+				B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */,
 				B41C2E562BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
@@ -995,6 +1005,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4742E9A2CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1005,6 +1016,7 @@
 			files = (
 				B41C2E582BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */,
 				B44034112BCC40A400162242 /* fiatUnits.json in Resources */,
+				B4742E9B2CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				6DD410B7266CAF5C0087DE03 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1013,6 +1025,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */,
 				B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */,
 			);
@@ -1024,6 +1037,7 @@
 			files = (
 				B41C2E572BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */,
 				B44034102BCC40A400162242 /* fiatUnits.json in Resources */,
+				B4742E992CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				B4EE583C226703320003363C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1336,6 +1350,7 @@
 				6D294A9B24D512770039E22B /* tr */,
 				6D294A9D24D5127F0039E22B /* xh */,
 				B4B31A352C77BBA000663334 /* nb */,
+				B4742E9C2CCDC31300380EEE /* en_US */,
 			);
 			name = Interface.storyboard;
 			sourceTree = "<group>";
@@ -1713,6 +1728,7 @@
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
@@ -1777,6 +1793,7 @@
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;

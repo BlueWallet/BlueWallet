@@ -9,7 +9,7 @@ export type PaymentCodeStackParamList = {
     amount: number;
     amountSats: number;
     unit: BitcoinUnit;
-    noRbf: boolean;
+    isTransactionReplaceable: boolean;
     launchedBy: string;
     isEditable: boolean;
     uri: string /* payjoin uri */;
