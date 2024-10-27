@@ -16,6 +16,9 @@
     "Checked at %@" : {
 
     },
+    "Currency: %@" : {
+
+    },
     "Current Bitcoin Market Rate" : {
 
     },
@@ -53,6 +56,9 @@
 
     },
     "send" : {
+
+    },
+    "Source: %@" : {
 
     },
     "View the current Bitcoin market rate." : {
