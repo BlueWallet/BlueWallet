@@ -308,5 +308,6 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     id: keys.ClearClipboard,
     text: loc.wallets.clear_clipboard_on_import,
     icon: icons.Clipboard,
+    menuState: true,
   },
 };
