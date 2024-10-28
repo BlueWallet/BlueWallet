@@ -74,15 +74,18 @@ struct CompactPriceView: View {
         VStack {
             Text(priceFormatted)
                 .font(.title)
+                .accessibilityLabel("Bitcoin price: \(priceFormatted)")
             Text(detailsText)
                 .font(.caption)
                 .foregroundColor(.gray)
+                .accessibilityLabel("Last updated \(lastUpdated) from \(dataSource)")
                 .padding(.top, 8)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: 200)
+        .frame(maxWidth: .infinity)
+        .frame(idealWidth: 200)
         .padding()
         .background(.ultraThinMaterial)
         .cornerRadius(10)
@@ -92,7 +95,9 @@ struct CompactPriceView: View {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = currencyCode
+        formatter.locale = Locale(identifier: Locale.current.identifier)
         formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 2
         return formatter.string(from: NSNumber(value: price)) ?? "--"
     }
 
