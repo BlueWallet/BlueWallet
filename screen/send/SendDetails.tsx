@@ -51,13 +51,13 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
-import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { Action } from '../../components/types';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -942,23 +942,23 @@ const SendDetails = () => {
       handleAddRecipient();
     } else if (id === CommonToolTipActions.RemoveRecipient.id) {
       handleRemoveRecipient();
-    } else if (id === SendDetails.actionKeys.SignPSBT) {
+    } else if (id === CommonToolTipActions.SignPSBT.id) {
       handlePsbtSign();
-    } else if (id === SendDetails.actionKeys.SendMax) {
+    } else if (id === CommonToolTipActions.SendMax.id) {
       onUseAllPressed();
-    } else if (id === SendDetails.actionKeys.AllowRBF) {
+    } else if (id === CommonToolTipActions.AllowRBF.id) {
       onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
-    } else if (id === SendDetails.actionKeys.ImportTransaction) {
+    } else if (id === CommonToolTipActions.ImportTransaction.id) {
       importTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
+    } else if (id === CommonToolTipActions.ImportTransactionQR.id) {
       importQrTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
+    } else if (id === CommonToolTipActions.ImportTransactionMultsig.id) {
       importTransactionMultisig();
-    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
+    } else if (id === CommonToolTipActions.CoSignTransaction.id) {
       importTransactionMultisigScanQr();
-    } else if (id === SendDetails.actionKeys.CoinControl) {
+    } else if (id === CommonToolTipActions.CoinControl.id) {
       handleCoinControl();
-    } else if (id === SendDetails.actionKeys.InsertContact) {
+    } else if (id === CommonToolTipActions.InsertContact.id) {
       handleInsertContact();
     } else if (id === CommonToolTipActions.RemoveAllRecipients.id) {
       handleRemoveAllRecipients();
@@ -966,66 +966,73 @@ const SendDetails = () => {
   };
 
   const headerRightActions = () => {
-    const actions: Action[] & Action[][] = [];
-    if (isEditable) {
-      if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
-        actions.push([
-          { id: SendDetails.actionKeys.InsertContact, text: loc.send.details_insert_contact, icon: SendDetails.actionIcons.InsertContact },
-        ]);
-      }
+    if (!wallet) return [];
 
-      if (Number(wallet?.getBalance()) > 0) {
-        const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+    const walletActions: Action[][] = [];
 
-        actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
-      }
-      if (wallet?.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined) {
-        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuState: !!isTransactionReplaceable }]);
-      }
-      const transactionActions = [];
-      if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
-        transactionActions.push(
-          {
-            id: SendDetails.actionKeys.ImportTransaction,
-            text: loc.send.details_adv_import,
-            icon: SendDetails.actionIcons.ImportTransaction,
-          },
-          {
-            id: SendDetails.actionKeys.ImportTransactionQR,
-            text: loc.send.details_adv_import_qr,
-            icon: SendDetails.actionIcons.ImportTransactionQR,
-          },
-        );
-      }
-      if (wallet?.type === MultisigHDWallet.type) {
-        transactionActions.push({
-          id: SendDetails.actionKeys.ImportTransactionMultsig,
-          text: loc.send.details_adv_import,
-          icon: SendDetails.actionIcons.ImportTransactionMultsig,
-        });
-      }
-      if (wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
-        transactionActions.push({
-          id: SendDetails.actionKeys.CoSignTransaction,
-          text: loc.multisig.co_sign_transaction,
-          icon: SendDetails.actionIcons.SignPSBT,
-        });
-      }
-      if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
-        transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
-      }
-      actions.push(transactionActions);
+    const recipientActions: Action[] = [
+      CommonToolTipActions.AddRecipient,
+      CommonToolTipActions.RemoveRecipient,
+      {
+        ...CommonToolTipActions.RemoveAllRecipients,
+        hidden: !(addresses.length > 1),
+      },
+    ];
+    walletActions.push(recipientActions);
 
-      const recipientActions: Action[] = [CommonToolTipActions.AddRecipient, CommonToolTipActions.RemoveRecipient];
-      if (addresses.length > 1) {
-        recipientActions.push(CommonToolTipActions.RemoveAllRecipients);
-      }
-      actions.push(recipientActions);
-    }
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+    const sendMaxAction: Action[] = [
+      {
+        ...CommonToolTipActions.SendMax,
+        disabled: wallet.getBalance() === 0 || isSendMaxUsed,
+        hidden: !isEditable || !(Number(wallet.getBalance()) > 0),
+      },
+    ];
+    walletActions.push(sendMaxAction);
 
-    actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
+    const rbfAction: Action[] = [
+      {
+        ...CommonToolTipActions.AllowRBF,
+        menuState: isTransactionReplaceable,
+        hidden: !(wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
+      },
+    ];
+    walletActions.push(rbfAction);
 
-    return actions;
+    const transactionActions: Action[] = [
+      {
+        ...CommonToolTipActions.ImportTransaction,
+        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
+      },
+      {
+        ...CommonToolTipActions.ImportTransactionQR,
+        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
+      },
+      {
+        ...CommonToolTipActions.ImportTransactionMultsig,
+        hidden: !(wallet.type === MultisigHDWallet.type),
+      },
+      {
+        ...CommonToolTipActions.CoSignTransaction,
+        hidden: !(wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0),
+      },
+      {
+        ...CommonToolTipActions.SignPSBT,
+        hidden: !(wallet as MultisigHDWallet)?.allowCosignPsbt(),
+      },
+    ];
+    walletActions.push(transactionActions);
+
+    const specificWalletActions: Action[] = [
+      {
+        ...CommonToolTipActions.InsertContact,
+        hidden: !(isEditable && wallet.allowBIP47() && wallet.isBIP47Enabled()),
+      },
+      CommonToolTipActions.CoinControl,
+    ];
+    walletActions.push(specificWalletActions);
+
+    return walletActions;
   };
 
   const setHeaderRightOptions = () => {
@@ -1353,29 +1360,6 @@ const SendDetails = () => {
 };
 
 export default SendDetails;
-
-SendDetails.actionKeys = {
-  InsertContact: 'InsertContact',
-  SignPSBT: 'SignPSBT',
-  SendMax: 'SendMax',
-  AllowRBF: 'AllowRBF',
-  ImportTransaction: 'ImportTransaction',
-  ImportTransactionMultsig: 'ImportTransactionMultisig',
-  ImportTransactionQR: 'ImportTransactionQR',
-  CoinControl: 'CoinControl',
-  CoSignTransaction: 'CoSignTransaction',
-};
-
-SendDetails.actionIcons = {
-  InsertContact: { iconValue: 'at.badge.plus' },
-  SignPSBT: { iconValue: 'signature' },
-  SendMax: 'SendMax',
-  AllowRBF: 'AllowRBF',
-  ImportTransaction: { iconValue: 'square.and.arrow.down' },
-  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
-  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
-  CoinControl: { iconValue: 'switch.2' },
-};
 
 const styles = StyleSheet.create({
   root: {

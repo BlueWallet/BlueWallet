@@ -237,7 +237,7 @@
     "details_inputs": "輸入",
     "details_outputs": "輸出",
     "details_received": "已收到",
-    "details_show_in_block_explorer": "區塊瀏覽器展示",
+    "details_view_in_browser": "區塊瀏覽器展示",
     "details_title": "轉賬",
     "details_to": "輸出",
     "enable_offline_signing": "此錢包未與線下簽名結合使用。您想立即啟用它嗎？",

@@ -165,7 +165,7 @@ const ReceiveDetails = () => {
   }, [showConfirmedBalance]);
 
   const toolTipActions = useMemo(() => {
-    const action = CommonToolTipActions.PaymentCode;
+    const action = CommonToolTipActions.PaymentsCode;
     action.menuState = wallet?.isBIP47Enabled();
     return [action];
   }, [wallet]);

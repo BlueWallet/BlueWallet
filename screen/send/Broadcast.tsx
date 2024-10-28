@@ -160,7 +160,7 @@ const Broadcast: React.FC = () => {
             <BlueSpacing20 />
           </BlueCard>
         )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer}/tx/${tx}`} />}
+        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
       </View>
     </SafeArea>
   );

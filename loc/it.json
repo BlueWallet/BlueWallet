@@ -288,7 +288,7 @@
     "details_outputs": "Output",
     "date": "Data",
     "details_received": "Ricevuto",
-    "details_show_in_block_explorer": "Mostra sul block explorer",
+    "details_view_in_browser": "Mostra sul block explorer",
     "details_title": "Transazione",
     "details_to": "A",
     "enable_offline_signing": "Questo wallet non sta venendo usato con la firma offline. Desideri attivarla adesso?",

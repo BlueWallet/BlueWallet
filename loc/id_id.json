@@ -259,7 +259,7 @@
     "details_inputs": "Input",
     "date": "Tanggal",
     "details_received": "Diterima",
-    "details_show_in_block_explorer": "Tampilkan di block explorer",
+    "details_view_in_browser": "Tampilkan di block explorer",
     "details_title": "Transaksi",
     "pending": "tertunda",
     "pending_with_amount": "Tertunda {amt1} ({amt2})",
