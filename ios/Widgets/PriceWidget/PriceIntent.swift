@@ -87,8 +87,6 @@ struct CompactPriceView: View {
         .frame(maxWidth: .infinity)
         .frame(idealWidth: 200)
         .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(10)
     }
 
     private var priceFormatted: String {
