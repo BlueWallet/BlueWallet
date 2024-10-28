@@ -48,8 +48,7 @@ struct PriceIntent: AppIntent {
             lastUpdated = formattedDate(from: data.lastUpdate)
 
         } catch {
-            Logger.shared.error("Price intent failed: \(error)")
-            throw error
+          throw PriceIntentError.fetchFailed
         }
 
         let formattedPrice = formatPrice(resultValue, currencyCode: currencyCode)
