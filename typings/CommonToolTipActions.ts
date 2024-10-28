@@ -84,6 +84,7 @@ const icons: { [key: string]: { iconValue: string } } = {
   Signature: { iconValue: 'signature' },
   PasteFromClipboard: { iconValue: 'document.on.clipboard' },
   ImportFile: { iconValue: 'document.viewfinder' },
+  ClearClipboard: { iconValue: 'clipboard' },
 };
 
 export const CommonToolTipActions: { [key: string]: Action } = {
@@ -302,5 +303,10 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     id: keys.PasteFromClipboard,
     text: loc.wallets.paste_from_clipboard,
     icon: icons.PasteFromClipboard,
+  },
+  ClearClipboard: {
+    id: keys.ClearClipboard,
+    text: loc.wallets.clear_clipboard_on_import,
+    icon: icons.Clipboard,
   },
 };
