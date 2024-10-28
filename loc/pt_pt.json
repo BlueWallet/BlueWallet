@@ -244,7 +244,7 @@
     "details_outputs": "Outputs",
     "date": "Data",
     "details_received": "Recebido",
-    "details_show_in_block_explorer": "Mostrar no block explorer",
+    "details_view_in_browser": "Mostrar no block explorer",
     "details_title": "detalhes",
     "details_to": "Para",
     "enable_offline_signing": "Esta carteira não está a ser utilizada em conjunto com uma assinatura offline. Deseja activá-la agora?",

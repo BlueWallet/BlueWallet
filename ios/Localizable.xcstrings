@@ -1,0 +1,62 @@
+{
+  "sourceLanguage" : "en_US",
+  "strings" : {
+    "VIEW_ADDRESS_TRANSACTIONS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Address in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ver dirección en el navegador"
+          }
+        }
+      }
+    },
+    "VIEW_IN_BROWSER_TITLE" : {
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver en el navegador"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir dans le navigateur"
+          }
+        }
+      }
+    },
+    "VIEW_TRANSACTION_DETAILS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Transaction in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ver transacción en el navegador"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
