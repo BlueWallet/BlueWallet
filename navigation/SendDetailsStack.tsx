@@ -17,6 +17,7 @@ import {
 } from './LazyLoadSendDetailsStack';
 import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -37,7 +38,7 @@ const SendDetailsStack = () => {
           statusBarStyle: 'light',
           closeButtonPosition: CloseButtonPosition.Left,
         })(theme)}
-        initialParams={{ isEditable: true }} // Correctly typed now
+        initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
       />
       <Stack.Screen
         name="Confirm"

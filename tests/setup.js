@@ -164,7 +164,7 @@ jest.mock('react-native-ios-context-menu', () => {
 });
 
 jest.mock('rn-qr-generator', () => ({
-  detect: jest.fn((uri) => {
+  detect: jest.fn(uri => {
     if (uri === 'invalid-image') {
       return Promise.reject(new Error('Failed to decode QR code'));
     }
