@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
 import { useTheme } from './themes';
+import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -60,7 +62,20 @@ const AddressInput = ({
     },
   });
 
+  const validateAddressWithFeedback = useCallback((value: string) => {
+    const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(value);
+    const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(value);
+    const isValid = isBitcoinAddress || isLightningInvoice;
+
+    triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
+    return {
+      isValid,
+      type: isBitcoinAddress ? 'bitcoin' : isLightningInvoice ? 'lightning' : 'invalid',
+    };
+  }, []);
+
   const onBlurEditing = () => {
+    validateAddressWithFeedback(address);
     onBlur();
     Keyboard.dismiss();
   };
@@ -106,11 +121,12 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     marginVertical: 8,
+    marginHorizontal: 18,
     borderRadius: 4,
   },
   input: {
     flex: 1,
-    marginHorizontal: 8,
+    paddingHorizontal: 8,
     minHeight: 33,
   },
 });

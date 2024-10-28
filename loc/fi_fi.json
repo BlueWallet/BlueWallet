@@ -309,7 +309,7 @@
     "details_outputs": "Ulostulot",
     "date": "Päivämäärä",
     "details_received": "Vastaanotettu",
-    "details_show_in_block_explorer": "Näytä lohkoketjuselaimessa",
+    "details_view_in_browser": "Näytä lohkoketjuselaimessa",
     "details_title": "Siirtotapahtuma",
     "details_to": "Ulostulo",
     "enable_offline_signing": "Tätä lompakkoa ei käytetä offline-allekirjoituksen yhteydessä. Haluatko ottaa sen käyttöön nyt? ",

@@ -213,7 +213,7 @@
     "details_outputs": "Sortides",
     "date": "Data",
     "details_received": "Rebut",
-    "details_show_in_block_explorer": "Mostrar en l'explorador de blocs",
+    "details_view_in_browser": "Mostrar en l'explorador de blocs",
     "details_title": "Transacció",
     "details_to": "A",
     "list_conf": "Conf: {number}",

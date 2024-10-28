@@ -344,7 +344,7 @@
     "details_outputs": "Salidas",
     "date": "Fecha",
     "details_received": "Recibido",
-    "details_show_in_block_explorer": "Ver en el Explorador de Bloques",
+    "details_view_in_browser": "Ver en el Explorador de Bloques",
     "details_title": "Transacción",
     "incoming_transaction": "Transacción entrante",
     "outgoing_transaction": "Transacción saliente",

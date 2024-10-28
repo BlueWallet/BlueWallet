@@ -339,7 +339,7 @@
     "details_outputs": "Ausgänge",
     "date": "Datum",
     "details_received": "Empfangen",
-    "details_show_in_block_explorer": "Im Block-Explorer zeigen",
+    "details_view_in_browser": "Im Block-Explorer zeigen",
     "details_title": "Transaktion",
     "incoming_transaction": "Eingehende Transaktion",
     "outgoing_transaction": "Ausgehende Transaktion",

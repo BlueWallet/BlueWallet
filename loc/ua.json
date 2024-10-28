@@ -210,7 +210,7 @@
     "details_copy_amount": "Копіювати Суму",
     "details_copy_note": "Копіювати Нотатку",
     "details_from": "Від",
-    "details_show_in_block_explorer": "Show in block explorer",
+    "details_view_in_browser": "Show in block explorer",
     "details_title": "Деталі транзакції",
     "details_to": "Кому",
     "pending": "Очікування",
