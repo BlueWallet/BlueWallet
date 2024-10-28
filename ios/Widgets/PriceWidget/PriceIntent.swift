@@ -12,7 +12,7 @@ struct PriceIntent: AppIntent {
     }
 
     @MainActor
-    func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog & ShowsSnippetView {
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog & ShowsSnippetView {
         let userPreferredCurrency = Currency.getUserPreferredCurrency()
         let currencyCode = userPreferredCurrency.uppercased()
         let dataSource = fiatUnit(currency: userPreferredCurrency)?.source ?? "Unknown Source"
@@ -22,15 +22,17 @@ struct PriceIntent: AppIntent {
         }
 
         var lastUpdated = "--"
-        var resultValue: Double = 0.0
+        var resultValue: String = "--"
+        var priceDouble: Double = 0.0
 
         do {
             guard let data = try await MarketAPI.fetchPrice(currency: userPreferredCurrency) else {
                 throw NSError(domain: "PriceIntentErrorDomain", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch price data."])
             }
 
-            resultValue = data.rateDouble
+            priceDouble = data.rateDouble
             lastUpdated = formattedDate(from: data.lastUpdate)
+            resultValue = formatPrice(priceDouble, currencyCode: currencyCode)
 
         } catch {
             throw error
@@ -55,51 +57,58 @@ struct PriceIntent: AppIntent {
         let isoFormatter = ISO8601DateFormatter()
         if let date = isoFormatter.date(from: isoString) {
             let formatter = DateFormatter()
-            formatter.dateStyle = .none
+            formatter.dateStyle = .medium
             formatter.timeStyle = .short
             return formatter.string(from: date)
         }
         return "--"
     }
+
+    private func formatPrice(_ price: Double, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        formatter.locale = Locale.current
+
+        // Omit cents if they are zero
+        if price.truncatingRemainder(dividingBy: 1) == 0 {
+            formatter.maximumFractionDigits = 0
+            formatter.minimumFractionDigits = 0
+        } else {
+            formatter.maximumFractionDigits = 2
+            formatter.minimumFractionDigits = 2
+        }
+
+        return formatter.string(from: NSNumber(value: price)) ?? "--"
+    }
 }
 
 @available(iOS 16.0, *)
 struct CompactPriceView: View {
-    let price: Double
+    let price: String
     let lastUpdated: String
     let currencyCode: String
     let dataSource: String
 
     var body: some View {
-        VStack {
-            Text(priceFormatted)
+        VStack(alignment: .center, spacing: 16) {
+            Text(price)
                 .font(.title)
-                .accessibilityLabel("Bitcoin price: \(priceFormatted)")
-            Text(detailsText)
-                .font(.caption)
-                .foregroundColor(.gray)
-                .accessibilityLabel("Last updated \(lastUpdated) from \(dataSource)")
-                .padding(.top, 8)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
+                .bold()
                 .multilineTextAlignment(.center)
+                .accessibilityLabel("Bitcoin price: \(price)")
+
+            VStack(alignment: .center, spacing: 4) {
+                Text("Currency: \(currencyCode)")
+                Text("Updated: \(lastUpdated)")
+                Text("Source: \(dataSource)")
+            }
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+            .multilineTextAlignment(.center)
+            .accessibilityElement(children: .combine)
         }
-        .frame(maxWidth: .infinity)
-        .frame(idealWidth: 200)
         .padding()
-    }
-
-    private var priceFormatted: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        formatter.locale = Locale(identifier: Locale.current.identifier)
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: price)) ?? "--"
-    }
-
-    private var detailsText: String {
-        "\(lastUpdated) - \(currencyCode) - \(dataSource)"
+        .frame(maxWidth: .infinity)
     }
 }

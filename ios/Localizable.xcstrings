@@ -10,6 +10,9 @@
     "Bitcoin (%@)" : {
 
     },
+    "Bitcoin price: %@" : {
+
+    },
     "BTC" : {
 
     },
@@ -33,6 +36,16 @@
     },
     "Last Updated" : {
 
+    },
+    "Last updated %@ from %@" : {
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last updated %1$@ from %2$@"
+          }
+        }
+      }
     },
     "Latest transaction" : {
 
