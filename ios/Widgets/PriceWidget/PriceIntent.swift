@@ -25,9 +25,23 @@ struct PriceIntent: AppIntent {
         var resultValue: String = "--"
         var priceDouble: Double = 0.0
 
+        enum PriceIntentError: LocalizedError {
+            case fetchFailed
+            case invalidData
+            
+            var errorDescription: String? {
+                switch self {
+                case .fetchFailed:
+                    return "Failed to fetch price data"
+                case .invalidData:
+                    return "Received invalid price data"
+                }
+            }
+        }
+
         do {
             guard let data = try await MarketAPI.fetchPrice(currency: userPreferredCurrency) else {
-                throw NSError(domain: "PriceIntentErrorDomain", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch price data."])
+                throw PriceIntentError.fetchFailed
             }
 
             priceDouble = data.rateDouble
@@ -35,6 +49,7 @@ struct PriceIntent: AppIntent {
             resultValue = formatPrice(priceDouble, currencyCode: currencyCode)
 
         } catch {
+            Logger.shared.error("Price intent failed: \(error)")
             throw error
         }
 
