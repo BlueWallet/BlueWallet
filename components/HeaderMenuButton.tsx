@@ -21,7 +21,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
         testID="HeaderMenuButton"
         disabled={disabled}
         android_ripple={{ color: colors.lightButton }}
-        style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, justifyContent: 'center', alignItems: 'center' }]}
+        style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
       >
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
       </Pressable>

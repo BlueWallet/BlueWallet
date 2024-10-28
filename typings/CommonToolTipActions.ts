@@ -299,7 +299,7 @@ export const CommonToolTipActions: { [key: string]: Action } = {
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,
-    text: loc.transactions.details_copy_amount,
+    text: loc.wallets.paste_from_clipboard,
     icon: icons.PasteFromClipboard,
   },
 };
