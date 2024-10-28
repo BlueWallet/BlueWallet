@@ -61,7 +61,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // change currency to ARS ($) and switch it back to USD ($)
     await element(by.id('Currency')).tap();
     await element(by.text('ARS ($)')).tap();
-    await expect(element(by.text('Price is obtained from Yadio'))).toBeVisible();
+    await expect(element(by.text('Rate is obtained from Yadio'))).toBeVisible();
     await element(by.text('USD ($)')).tap();
     await device.pressBack();
 
@@ -85,14 +85,20 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
     await element(by.id('ElectrumSettings')).tap();
+    await element(by.id('ElectrumSettingsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
     await element(by.id('PortInput')).replaceText('50001\n');
+    await element(by.id('ElectrumSettingsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('Save')).tap();
     await sup('OK');
     await element(by.text('OK')).tap();
-    await element(by.id('ResetToDefault')).tap();
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Reset to default')).tap();
     await sup('OK');
     await element(by.text('OK')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await element(by.id('ElectrumSettingsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await expect(element(by.id('HostInput'))).toHaveText('');
     await expect(element(by.id('PortInput'))).toHaveText('');
     await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);

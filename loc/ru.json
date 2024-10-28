@@ -344,7 +344,7 @@
     "details_outputs": "Выходы",
     "date": "Дата",
     "details_received": "Получена",
-    "details_show_in_block_explorer": "Показать в блокчейне",
+    "details_view_in_browser": "Показать в блокчейне",
     "details_title": "Детали транзакции",
     "incoming_transaction": "Входящая транзакция",
     "outgoing_transaction": "Исходящая транзакция",

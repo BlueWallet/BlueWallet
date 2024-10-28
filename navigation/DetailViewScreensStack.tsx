@@ -7,7 +7,7 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
-import LNDViewAdditionalInvoiceInformation from '../screen/lnd/lndViewAdditionalInvoiceInformation';
+import LNDViewAdditionalInvoiceInformation from '../screen/lnd/LNDViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
 import LnurlAuth from '../screen/lnd/lnurlAuth';
@@ -321,6 +321,7 @@ const DetailViewStackScreensStack = () => {
         name="ElectrumSettings"
         component={ElectrumSettingsComponent}
         options={navigationStyle({ title: loc.settings.electrum_settings_server })(theme)}
+        initialParams={{ server: undefined }}
       />
       <DetailViewStack.Screen
         name="EncryptStorage"

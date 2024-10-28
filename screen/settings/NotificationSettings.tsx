@@ -3,7 +3,7 @@ import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressabl
 import { Button as ButtonRNElements } from '@rneui/themed';
 // @ts-ignore: no declaration file
 import Notifications from '../../blue_modules/notifications';
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -123,6 +123,10 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
+  const onSystemSettings = () => {
+    Linking.openSettings();
+  };
+
   return (
     <ScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <ListItem
@@ -193,6 +197,8 @@ const NotificationSettings: React.FC = () => {
           </BlueCard>
         </>
       )}
+      <BlueSpacing40 />
+      <ListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron />
     </ScrollView>
   );
 };
