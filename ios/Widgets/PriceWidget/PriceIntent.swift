@@ -25,15 +25,30 @@ struct PriceIntent: AppIntent {
         var lastUpdated = "--"
         var resultValue: Double = 0.0
 
+        enum PriceIntentError: LocalizedError {
+            case fetchFailed
+            case invalidData
+            
+            var errorDescription: String? {
+                switch self {
+                case .fetchFailed:
+                    return "Failed to fetch price data"
+                case .invalidData:
+                    return "Received invalid price data"
+                }
+            }
+        }
+
         do {
             guard let data = try await MarketAPI.fetchPrice(currency: userPreferredCurrency) else {
-                throw NSError(domain: "PriceIntentErrorDomain", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch price data."])
-            }       
+                throw PriceIntentError.fetchFailed
+            }
 
             resultValue = data.rateDouble
             lastUpdated = formattedDate(from: data.lastUpdate)
 
         } catch {
+            Logger.shared.error("Price intent failed: \(error)")
             throw error
         }
 
@@ -98,6 +113,7 @@ struct CompactPriceView: View {
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
+                .dynamicTypeSize(.large ... .accessibility5)
                 .accessibilityLabel("Bitcoin price: \(price)")
 
             VStack(alignment: .center, spacing: 4) {
