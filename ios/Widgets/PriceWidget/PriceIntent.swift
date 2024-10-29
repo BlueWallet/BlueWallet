@@ -62,7 +62,7 @@ struct PriceIntent: AppIntent {
                 lastUpdated: "--",
                 currencySymbol: getCurrencySymbol(for: selectedFiatCurrency.rawValue),
                 dataSource: "Error fetching data"
-            )
+        
 
             return .result(
                 value: 0.0,
