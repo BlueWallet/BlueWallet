@@ -93,7 +93,6 @@
 		B44033E42BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
 		B44033E52BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
 		B44033E62BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
-		B44033E92BCC371A00162242 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B44033EA2BCC371A00162242 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B44033EB2BCC371A00162242 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
@@ -144,6 +143,7 @@
 		B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
 		B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
 		B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
+		B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -1210,7 +1210,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B44033E92BCC371A00162242 /* MarketData.swift in Sources */,
 				B44033CA2BCC350A00162242 /* Currency.swift in Sources */,
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B48630E82CCEE92400A8425C /* PriceWidget.swift in Sources */,
@@ -1228,6 +1227,7 @@
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
+				B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */,
 				B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */,
 				B44033C42BCC332400162242 /* Balance.swift in Sources */,
 				B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */,
