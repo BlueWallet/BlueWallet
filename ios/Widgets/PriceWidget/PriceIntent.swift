@@ -54,7 +54,7 @@ struct PriceIntent: AppIntent {
         let formattedPrice = formatPrice(resultValue, currencyCode: currencyCode)
 
         let view = CompactPriceView(
-          price: formattedPrice,
+          price: resultValue,
             lastUpdated: lastUpdated,
             currencyCode: currencyCode,
             dataSource: dataSource
