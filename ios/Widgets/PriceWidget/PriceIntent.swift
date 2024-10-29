@@ -61,7 +61,7 @@ struct PriceIntent: AppIntent {
         )
 
         return .result(
-            value: resultValue,
+            value: data.rateDouble,
             dialog: "Current Bitcoin Market Rate",
             view: view
         )
