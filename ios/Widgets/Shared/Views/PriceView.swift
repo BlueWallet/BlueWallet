@@ -134,9 +134,12 @@ struct PriceView: View {
         }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing).padding()
     }
 
-    private func formattedPriceChangePercentage(currentRate: Double?, previousRate: Double?) -> String? {
+    private func formattedPriceChangePercentage(currentRate: Double?, previousRate: Double?) -> (change: Double, formattedString: String)? {
         guard let currentRate = currentRate, let previousRate = previousRate, previousRate > 0 else { return nil }
         let change = ((currentRate - previousRate) / previousRate) * 100
-        return change == 0 ? nil : String(format: "%+.1f%%", change)
+        guard change != 0 else { return nil }
+        let formattedString = String(format: "%+.1f%%", change)
+        return (change, formattedString)
+    }
     }
 }
