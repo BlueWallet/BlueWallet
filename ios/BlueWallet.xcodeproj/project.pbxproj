@@ -138,6 +138,12 @@
 		B48630ED2CCEEEB000A8425C /* WalletAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */; };
 		B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630D02CCEE3B300A8425C /* PriceIntent.swift */; };
 		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
+		B49A28BB2CD18999006B08E4 /* CompactPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */; };
+		B49A28BC2CD18999006B08E4 /* CompactPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */; };
+		B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
+		B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
+		B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
+		B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -373,6 +379,8 @@
 		B48630DF2CCEE7C800A8425C /* PriceWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetEntryView.swift; sourceTree = "<group>"; };
 		B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAppShortcuts.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
+		B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactPriceView.swift; sourceTree = "<group>"; };
+		B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnitEnum.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
@@ -544,6 +552,7 @@
 		6D6CA4BB255872E3009312A5 /* PriceWidget */ = {
 			isa = PBXGroup;
 			children = (
+				B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */,
 				B48630DF2CCEE7C800A8425C /* PriceWidgetEntryView.swift */,
 				B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */,
 				B48630D52CCEE67100A8425C /* PriceWidgetProvider.swift */,
@@ -598,6 +607,7 @@
 		6DEB4BC1254FB98300E9F9AA /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */,
 				6DEB4DD82552260200E9F9AA /* Views */,
 				6D4AF18225D215D0009DD853 /* BlueWalletWatch-Bridging-Header.h */,
 				B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */,
@@ -1206,16 +1216,19 @@
 				B48630E82CCEE92400A8425C /* PriceWidget.swift in Sources */,
 				B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */,
 				6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */,
+				B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
 				B48630E52CCEE8B800A8425C /* PriceView.swift in Sources */,
 				B48630E72CCEE91900A8425C /* PriceWidgetProvider.swift in Sources */,
+				B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */,
 				B48630ED2CCEEEB000A8425C /* WalletAppShortcuts.swift in Sources */,
 				B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
+				B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */,
 				B44033C42BCC332400162242 /* Balance.swift in Sources */,
 				B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
@@ -1226,6 +1239,7 @@
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
 				B44033D32BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
 				32B5A32A2334450100F8D608 /* Bridge.swift in Sources */,
+				B49A28BC2CD18999006B08E4 /* CompactPriceView.swift in Sources */,
 				B44033D82BCC369500162242 /* UserDefaultsExtension.swift in Sources */,
 				B44033E42BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033BF2BCC32F800162242 /* BitcoinUnit.swift in Sources */,
@@ -1246,6 +1260,7 @@
 				B48630EC2CCEEEA700A8425C /* WalletAppShortcuts.swift in Sources */,
 				6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */,
 				B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */,
+				B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */,
 				6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */,
 				B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
@@ -1255,6 +1270,7 @@
 				B44033CC2BCC350A00162242 /* Currency.swift in Sources */,
 				6DD410B6266CAF5C0087DE03 /* PriceView.swift in Sources */,
 				B48630DE2CCEE7AC00A8425C /* PriceWidgetEntry.swift in Sources */,
+				B49A28BB2CD18999006B08E4 /* CompactPriceView.swift in Sources */,
 				6DD410B3266CAF5C0087DE03 /* Colors.swift in Sources */,
 				B44033C12BCC32F800162242 /* BitcoinUnit.swift in Sources */,
 				6DD410BB266CAF5C0087DE03 /* MarketView.swift in Sources */,

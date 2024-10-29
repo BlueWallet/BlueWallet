@@ -1,76 +1,96 @@
+//
+//  PriceIntent.swift
+//  BlueWallet
+//
+
 import AppIntents
 import SwiftUI
 
-
+@available(iOS 16.0, *)
 struct PriceIntent: AppIntent {
+    // MARK: - Intent Metadata
+    
     static var title: LocalizedStringResource = "Market Rate"
-    static var description = IntentDescription("View the current Bitcoin market rate.")
+    static var description = IntentDescription("View the current Bitcoin market rate in your preferred fiat currency.")
     static var openAppWhenRun: Bool { false }
 
-    static var parameterSummary: some ParameterSummary {
-        Summary("View the current Bitcoin market rate.")
-    }
-
+    // MARK: - Parameters
+    
+    @Parameter(
+        title: "Currency"
+    )
+    var fiatCurrency: FiatUnitEnum?
+        
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog & ShowsSnippetView {
-        let userPreferredCurrency = Currency.getUserPreferredCurrency()
-        let currencyCode = userPreferredCurrency.uppercased()
-        let dataSource = fiatUnit(currency: userPreferredCurrency)?.source ?? "Unknown Source"
-
-        if userPreferredCurrency != Currency.getLastSelectedCurrency() {
-            Currency.saveNewSelectedCurrency()
+        // Determine the fiat currency to use:
+        // 1. UserDefaults in Shared Group
+        // 2. Device's preferred currency
+        // 3. Default to USD
+        let selectedFiatCurrency: FiatUnitEnum
+        
+        if let sharedCurrencyCode = getSharedCurrencyCode(),
+           let fiat = FiatUnitEnum(rawValue: sharedCurrencyCode.uppercased()) {
+            selectedFiatCurrency = fiat
+        } else if let preferredCurrencyCode = Locale.current.currencyCode,
+                  let fiat = FiatUnitEnum(rawValue: preferredCurrencyCode.uppercased()) {
+            selectedFiatCurrency = fiat
+        } else {
+            selectedFiatCurrency = .USD
         }
+        
+        let dataSource = selectedFiatCurrency.source
 
-        enum Constants {
-            static let defaultValue = "--"
-            static let initialValue = 0.0
-        }
-
-        var lastUpdated = Constants.defaultValue
-        var resultValue: Double = Constants.initialValue
-
-        enum PriceIntentError: LocalizedError {
-            case fetchFailed
-            case invalidData
-            
-            var errorDescription: String? {
-                switch self {
-                case .fetchFailed:
-                    return "Failed to fetch price data"
-                case .invalidData:
-                    return "Received invalid price data"
-                }
-            }
-        }
+        var lastUpdated = "--"
+        var priceDouble: Double = 0.0
 
         do {
-            guard let data = try await MarketAPI.fetchPrice(currency: userPreferredCurrency) else {
-                throw PriceIntentError.fetchFailed
+            guard let fetchedData = try await MarketAPI.fetchPrice(currency: selectedFiatCurrency.rawValue) else {
+                throw NSError(
+                    domain: "PriceIntentErrorDomain",
+                    code: -1,
+                    userInfo: [NSLocalizedDescriptionKey: "Failed to fetch price data."]
+                )
             }
 
-            resultValue = data.rateDouble
-            lastUpdated = formattedDate(from: data.lastUpdate)
+            priceDouble = fetchedData.rateDouble
+            lastUpdated = formattedDate(from: fetchedData.lastUpdate)
 
         } catch {
-          throw PriceIntentError.fetchFailed
+            let errorView = CompactPriceView(
+                price: "N/A",
+                lastUpdated: "--",
+                currencySymbol: getCurrencySymbol(for: selectedFiatCurrency.rawValue),
+                dataSource: "Error fetching data"
+            )
+
+            return .result(
+                value: 0.0,
+                dialog: "Failed to retrieve the Bitcoin market rate.",
+                view: errorView
+            )
         }
 
-        let formattedPrice = formatPrice(resultValue, currencyCode: currencyCode)
-
+        let formattedPrice = formatPrice(priceDouble, currencyCode: selectedFiatCurrency.rawValue)
+        
+        let currencySymbol = getCurrencySymbol(for: selectedFiatCurrency.rawValue)
+        
         let view = CompactPriceView(
             price: formattedPrice,
             lastUpdated: lastUpdated,
-            currencyCode: currencyCode,
+            currencySymbol: currencySymbol,
             dataSource: dataSource
         )
 
         return .result(
-            value: resultValue,
+            value: priceDouble,
             dialog: "Current Bitcoin Market Rate",
             view: view
         )
     }
 
+    // MARK: - Helper Methods
+    
     private func formattedDate(from isoString: String?) -> String {
         guard let isoString = isoString else { return "--" }
         let isoFormatter = ISO8601DateFormatter()
@@ -82,13 +102,12 @@ struct PriceIntent: AppIntent {
         }
         return "--"
     }
-
+    
     private func formatPrice(_ price: Double, currencyCode: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = currencyCode
-        formatter.locale = Locale.current
-
+      
         // Omit cents if price is a whole number
         if price.truncatingRemainder(dividingBy: 1) == 0 {
             formatter.maximumFractionDigits = 0
@@ -98,37 +117,22 @@ struct PriceIntent: AppIntent {
             formatter.minimumFractionDigits = 2
         }
 
-        return formatter.string(from: NSNumber(value: price)) ?? "--"
-    }
-}
-
-
-struct CompactPriceView: View {
-    let price: String
-    let lastUpdated: String
-    let currencyCode: String
-    let dataSource: String
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Text(price)
-                .font(.title)
-                .bold()
-                .multilineTextAlignment(.center)
-                .dynamicTypeSize(.large ... .accessibility5)
-                .accessibilityLabel("Bitcoin price: \(price)")
-
-            VStack(alignment: .center, spacing: 4) {
-                Text("Currency: \(currencyCode)")
-                Text("Updated: \(lastUpdated)")
-                Text("Source: \(dataSource)")
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .multilineTextAlignment(.center)
-            .accessibilityElement(children: .combine)
+        guard let formattedNumber = formatter.string(from: NSNumber(value: price)) else {
+            return "\(price)"
         }
-        .padding()
-        .frame(maxWidth: .infinity)
+
+        return formattedNumber
+    }
+    
+    private func getCurrencySymbol(for currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        return formatter.currencySymbol
+    }
+    
+    private func getSharedCurrencyCode() -> String? {
+      let sharedDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+        return sharedDefaults?.string(forKey: "selectedFiatCurrency")
     }
 }
