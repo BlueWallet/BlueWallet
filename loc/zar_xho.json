@@ -20,8 +20,6 @@
     "close": "Kufutshane",
     "change_input_currency": "Guqula imali yokufaka",
     "refresh": "Hlaziya",
-    "pick_image": "Khetha umfanekiso kwithala leencwadi",
-    "pick_file": "Khetha ifayile",
     "enter_amount": "Faka imali",
     "qr_custom_input_button": "Cofa amaxesha ali-10 ukufaka igalelo lesiqhelo"
   },
@@ -93,7 +91,6 @@
     "cpfp_create": "Yakha",
     "details_copy": "Ikopi",
     "details_from": "Negalelo",
-    "details_view_in_browser": "Bonisa ibhloko umhloi",
     "details_title": "Ngeniswa",
     "details_to": "Mveliso",
     "list_title": "ngeniswa",
