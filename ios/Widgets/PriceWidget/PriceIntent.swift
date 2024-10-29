@@ -59,14 +59,14 @@ struct PriceIntent: AppIntent {
         let formattedPrice = formatPrice(resultValue, currencyCode: currencyCode)
 
         let view = CompactPriceView(
-          price: resultValue,
+            price: formattedPrice,
             lastUpdated: lastUpdated,
             currencyCode: currencyCode,
             dataSource: dataSource
         )
 
         return .result(
-            value: data.rateDouble,
+            value: resultValue,
             dialog: "Current Bitcoin Market Rate",
             view: view
         )
