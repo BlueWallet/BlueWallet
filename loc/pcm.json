@@ -53,11 +53,8 @@
     "electrum_clear_alert_message": "You wan clear electrum servers history?",
     "electrum_clear_alert_cancel": "Cancel",
     "electrum_clear_alert_ok": "Ok",
-    "electrum_select": "Select",
     "electrum_unable_to_connect": "We nor fit connect to [server]",
-    "electrum_history": "The server history",
-    "electrum_reset_to_default": "You sure say you wan reset your Electrum settings to as e take dey before?",
-    "electrum_clear": "wipe am"
+    "electrum_reset_to_default": "You sure say you wan reset your Electrum settings to as e take dey before?"
   },
   "transactions": {
     "pending": "Pend"
