@@ -22,7 +22,7 @@ struct PriceIntent: AppIntent {
             Currency.saveNewSelectedCurrency()
         }
 
-        private enum Constants {
+        enum Constants {
             static let defaultValue = "--"
             static let initialValue = 0.0
         }
