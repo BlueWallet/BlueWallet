@@ -11,6 +11,8 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 
 const BlueApp = BlueAppClass.getInstance();
+
+// hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
 interface StorageContextType {
