@@ -22,8 +22,13 @@ struct PriceIntent: AppIntent {
             Currency.saveNewSelectedCurrency()
         }
 
-        var lastUpdated = "--"
-        var resultValue: Double = 0.0
+        private enum Constants {
+            static let defaultValue = "--"
+            static let initialValue = 0.0
+        }
+
+        var lastUpdated = Constants.defaultValue
+        var resultValue: Double = Constants.initialValue
 
         enum PriceIntentError: LocalizedError {
             case fetchFailed
