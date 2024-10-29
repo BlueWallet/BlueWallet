@@ -2,7 +2,6 @@ import AppIntents
 import SwiftUI
 
 
-@available(iOS 16.0, *)
 struct PriceIntent: AppIntent {
     static var title: LocalizedStringResource = "Market Rate"
     static var description = IntentDescription("View the current Bitcoin market rate.")
@@ -104,7 +103,6 @@ struct PriceIntent: AppIntent {
 }
 
 
-@available(iOS 16.0, *)
 struct CompactPriceView: View {
     let price: String
     let lastUpdated: String
