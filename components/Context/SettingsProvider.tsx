@@ -10,7 +10,6 @@ import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import { useStorage } from '../../hooks/context/useStorage';
-import { LayoutAnimation } from 'react-native';
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
 
