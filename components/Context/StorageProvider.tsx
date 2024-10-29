@@ -58,7 +58,8 @@ export enum WalletTransactionsStatus {
   ALL = 'ALL',
 }
 
-export const StorageContext = createContext<StorageContextType | undefined>(undefined);
+// @ts-ignore default value does not match the type
+export const StorageContext = createContext<StorageContextType>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
@@ -109,6 +110,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [saveToDisk],
   );
 
+  // Initialize wallets and connect to Electrum
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
@@ -148,46 +150,59 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const fetchAndSaveWalletTransactions = useCallback(
     async (walletID: string) => {
       await InteractionManager.runAfterInteractions(async () => {
-        if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) return;
+        if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
+          console.debug('Re-fetch wallet happens too fast; NOP');
+          return;
+        }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
         const index = wallets.findIndex(wallet => wallet.getID() === walletID);
+        let noErr = true;
         try {
           await BlueElectrum.waitTillConnected();
           setWalletTransactionUpdateStatus(walletID);
+          const balanceStart = Date.now();
           await BlueApp.fetchWalletBalances(index);
+          const balanceEnd = Date.now();
+          console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+          const start = Date.now();
           await BlueApp.fetchWalletTransactions(index);
-          await saveToDisk();
-        } catch (error) {
-          console.error(error);
+          const end = Date.now();
+          console.debug('fetch tx took', (end - start) / 1000, 'sec');
+        } catch (err) {
+          noErr = false;
+          console.error(err);
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
+        if (noErr) await saveToDisk();
       });
     },
     [saveToDisk, wallets],
   );
 
   const addAndSaveWallet = useCallback(
-    async (wallet: TWallet) => {
-      if (wallets.some(w => w.getID() === wallet.getID())) {
+    async (w: TWallet) => {
+      if (wallets.some(i => i.getID() === w.getID())) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ message: 'This wallet has been previously imported.' });
         return;
       }
       const emptyWalletLabel = new LegacyWallet().getLabel();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      wallet.setLabel(wallet.getLabel() === emptyWalletLabel ? `${loc.wallets.import_imported} ${wallet.typeReadable}` : wallet.getLabel());
-      wallet.setUserHasSavedExport(true);
-      addWallet(wallet);
+      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
+      w.setUserHasSavedExport(true);
+      addWallet(w);
       await saveToDisk();
       A(A.ENUM.CREATED_WALLET);
       presentAlert({
         hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
-        message: wallet.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
+        message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
-      Notifications.majorTomToGroundControl(wallet.getAllExternalAddresses(), [], []);
-      await wallet.fetchBalance();
+
+      // @ts-ignore: Notifications type is not defined
+      Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      await w.fetchBalance();
     },
     [wallets, addWallet, saveToDisk],
   );
