@@ -10,7 +10,7 @@
     "@babel/core": "^7.20.0",
     "@babel/runtime": "^7.20.0",
     "@jest/reporters": "^27.5.1",
-    "@react-native/babel-preset": "^0.75.4",
+    "@react-native/babel-preset": "^0.76.0",
     "@react-native/eslint-config": "^0.76.0",
     "@react-native/js-polyfills": "^0.75.4",
     "@react-native/metro-babel-transformer": "^0.75.4",
