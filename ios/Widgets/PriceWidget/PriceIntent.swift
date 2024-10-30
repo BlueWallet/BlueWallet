@@ -6,7 +6,6 @@
 import AppIntents
 import SwiftUI
 
-@available(iOS 16.0, *)
 struct PriceIntent: AppIntent {
     // MARK: - Intent Metadata
     
