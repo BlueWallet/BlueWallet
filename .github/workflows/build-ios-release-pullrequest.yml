@@ -54,14 +54,6 @@ jobs:
         run: |
           bundle exec fastlane ios install_pods
 
-      - name: Cache CocoaPods Pods
-        uses: actions/cache@v4
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
