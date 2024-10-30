@@ -11,41 +11,57 @@ struct PriceIntent: AppIntent {
     // MARK: - Intent Metadata
     
     static var title: LocalizedStringResource = "Market Rate"
-    static var description = IntentDescription("View the current Bitcoin market rate in your preferred fiat currency.")
+    static var description = IntentDescription("View the current Bitcoin market rate in your preferred currency.")
     static var openAppWhenRun: Bool { false }
 
     // MARK: - Parameters
     
     @Parameter(
-        title: "Currency"
+        title: "Currency",
+        description: "Choose your preferred currency."
     )
     var fiatCurrency: FiatUnitEnum?
-        
+
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog & ShowsSnippetView {
+        if let fiat = fiatCurrency {
+            print("Received fiatCurrency parameter: \(fiat.rawValue)")
+        } else {
+            print("fiatCurrency parameter not provided. Proceeding with fallback logic.")
+        }
+        
         // Determine the fiat currency to use:
-        // 1. UserDefaults in Shared Group
-        // 2. Device's preferred currency
-        // 3. Default to USD
+        // 1. Use the fiatCurrency parameter if provided
+        // 2. Fallback to Shared Group UserDefaults
+        // 3. Fallback to Device's preferred currency
+        // 4. Default to USD
         let selectedFiatCurrency: FiatUnitEnum
         
-        if let sharedCurrencyCode = getSharedCurrencyCode(),
-           let fiat = FiatUnitEnum(rawValue: sharedCurrencyCode.uppercased()) {
+        if let fiat = fiatCurrency {
             selectedFiatCurrency = fiat
-        } else if let preferredCurrencyCode = Locale.current.currencyCode,
-                  let fiat = FiatUnitEnum(rawValue: preferredCurrencyCode.uppercased()) {
+            print("Using fiatCurrency parameter: \(selectedFiatCurrency.rawValue)")
+        } else if let sharedCurrencyCode = getSharedCurrencyCode(),
+                  let fiat = FiatUnitEnum(rawValue: sharedCurrencyCode.uppercased()) {
             selectedFiatCurrency = fiat
+            print("Using shared user default currency: \(selectedFiatCurrency.rawValue)")
+        } else if let deviceCurrencyCode = Locale.current.currencyCode,
+                  let fiat = FiatUnitEnum(rawValue: deviceCurrencyCode.uppercased()) {
+            selectedFiatCurrency = fiat
+            print("Using device's currency: \(selectedFiatCurrency.rawValue)")
         } else {
             selectedFiatCurrency = .USD
+            print("Defaulting to USD.")
         }
         
         let dataSource = selectedFiatCurrency.source
+        print("Data Source: \(dataSource)")
 
         var lastUpdated = "--"
         var priceDouble: Double = 0.0
 
         do {
             guard let fetchedData = try await MarketAPI.fetchPrice(currency: selectedFiatCurrency.rawValue) else {
+                print("Failed to fetch price data.")
                 throw NSError(
                     domain: "PriceIntentErrorDomain",
                     code: -1,
@@ -55,14 +71,17 @@ struct PriceIntent: AppIntent {
 
             priceDouble = fetchedData.rateDouble
             lastUpdated = formattedDate(from: fetchedData.lastUpdate)
+            print("Fetched Price: \(priceDouble)")
+            print("Last Updated: \(lastUpdated)")
 
         } catch {
+            print("Error fetching price data: \(error.localizedDescription)")
             let errorView = CompactPriceView(
                 price: "N/A",
                 lastUpdated: "--",
-                currencySymbol: getCurrencySymbol(for: selectedFiatCurrency.rawValue),
-                dataSource: "Error fetching data")
-        
+                code: selectedFiatCurrency.rawValue,
+                dataSource: "Error fetching data"
+            )
 
             return .result(
                 value: 0.0,
@@ -72,15 +91,17 @@ struct PriceIntent: AppIntent {
         }
 
         let formattedPrice = formatPrice(priceDouble, currencyCode: selectedFiatCurrency.rawValue)
-        
         let currencySymbol = getCurrencySymbol(for: selectedFiatCurrency.rawValue)
-        
+
         let view = CompactPriceView(
             price: formattedPrice,
             lastUpdated: lastUpdated,
-            currencySymbol: currencySymbol,
+            code: selectedFiatCurrency.rawValue,
             dataSource: dataSource
         )
+
+        print("Formatted Price: \(formattedPrice)")
+        print("Currency Symbol: \(currencySymbol)")
 
         return .result(
             value: priceDouble,
@@ -106,8 +127,9 @@ struct PriceIntent: AppIntent {
     private func formatPrice(_ price: Double, currencyCode: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
+        formatter.locale = Locale.current // Use device's current locale
         formatter.currencyCode = currencyCode
-      
+        
         // Omit cents if price is a whole number
         if price.truncatingRemainder(dividingBy: 1) == 0 {
             formatter.maximumFractionDigits = 0
@@ -127,12 +149,13 @@ struct PriceIntent: AppIntent {
     private func getCurrencySymbol(for currencyCode: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
+        formatter.locale = Locale.current // Use device's current locale
         formatter.currencyCode = currencyCode
         return formatter.currencySymbol
     }
     
     private func getSharedCurrencyCode() -> String? {
-      let sharedDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
-        return sharedDefaults?.string(forKey: "selectedFiatCurrency")
+        let sharedDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+        return sharedDefaults?.string(forKey: UserDefaultsGroupKey.PreferredCurrency.rawValue)
     }
 }

@@ -4,7 +4,7 @@ import SwiftUI
 struct CompactPriceView: View {
     let price: String
     let lastUpdated: String
-    let currencySymbol: String
+    let code: String
     let dataSource: String
 
     var body: some View {
@@ -16,8 +16,8 @@ struct CompactPriceView: View {
                 .dynamicTypeSize(.large ... .accessibility5)
                 .accessibilityLabel("Bitcoin price: \(price)")
 
-            VStack(alignment: .center, spacing: 4) {
-                Text("\(currencySymbol)")
+            VStack(alignment: .center, spacing: 8) {
+                Text("\(code)")
                 Text("\(lastUpdated)")
                 Text("\(dataSource)")
             }
