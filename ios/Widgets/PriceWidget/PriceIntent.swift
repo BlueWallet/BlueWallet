@@ -6,6 +6,7 @@
 import AppIntents
 import SwiftUI
 
+@available(iOS 16.0, *)
 struct PriceIntent: AppIntent {
     // MARK: - Intent Metadata
     
@@ -60,7 +61,7 @@ struct PriceIntent: AppIntent {
                 price: "N/A",
                 lastUpdated: "--",
                 currencySymbol: getCurrencySymbol(for: selectedFiatCurrency.rawValue),
-                dataSource: "Error fetching data"
+                dataSource: "Error fetching data")
         
 
             return .result(
