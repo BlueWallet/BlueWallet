@@ -110,32 +110,6 @@ jobs:
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
 
-      - name: Cache Provisioning Profiles
-        id: cache_provisioning_profiles
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
-      - name: Check Cache Status for Provisioning Profiles
-        run: |
-          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
-            echo "Provisioning profiles were restored from cache."
-          else
-            echo "No cache found for provisioning profiles. A new cache will be created."
-          fi
-
-      - name: Verify Provisioning Profiles Exist
-        run: |
-          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
-            echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning\ Profiles
-          else
-            echo "Provisioning profiles directory does not exist."
-          fi
-
       - name: Build App
         id: build_app
         run: |
