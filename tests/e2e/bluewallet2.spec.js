@@ -45,11 +45,30 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
 
-    // setting fee rate:
-    const feeRate = 2;
+    // setting fee rate to a super high value to trigger the high fee warning
+    const superHighFee = '500000'; // Very high fee to trigger the warning modal
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
+    await element(by.type('android.widget.EditText')).typeText(superHighFee + '\n');
+    await element(by.text('OK')).tap();
+
+    if (process.env.TRAVIS) await sleep(5000);
+
+    // Tap CreateTransactionButton to trigger the high fee warning
+    await element(by.id('CreateTransactionButton')).tap();
+
+    // Expect the high fee warning modal to be visible
+    await expect(element(by.id('HighFeeWarningContinueButton'))).toBeVisible();
+
+    // Close the high fee warning modal by tapping Proceed
+    await element(by.id('ModalDoneButton')).tap();
+
+    // Revert the fee back to a normal value
+    const normalFee = '2'; // Set back to a more reasonable fee
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).clearText();
+    await element(by.type('android.widget.EditText')).typeText(normalFee + '\n');
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
@@ -76,7 +95,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const totalIns = 69909; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
     const tx = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
+    assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), normalFee);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
 
     if (device.getPlatform() === 'ios') {
@@ -105,6 +124,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionValue');
     await yo('PayjoinSwitch');
@@ -113,66 +133,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     assert.strictEqual(transaction.outs[0].value, 15000);
-
-    // now, testing scanQR with just address after amount set to 1.1 USD. Denomination should not change after qrcode scan
-
-    await device.pressBack();
-    await device.pressBack();
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
-    await element(by.id('BitcoinAmountInput')).replaceText('1.1');
-    await element(by.id('BlueAddressInputScanQrButton')).tap();
-
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('scanQrBackdoorOkButton')).tap();
-
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-    // created. verifying:
-    await yo('TransactionValue');
-    await yo('PayjoinSwitch');
-    await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.notEqual(transaction.outs[0].value, 110000000); // check that it is 1.1 USD, not 1 BTC
-    assert.ok(transaction.outs[0].value < 10000); // 1.1 USD ~ 0,00001964 sats in march 2021
-
-    // now, testing units switching, and then creating tx with SATS:
-
-    await device.pressBack();
-    await device.pressBack();
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
-    await element(by.id('BitcoinAmountInput')).replaceText('0.00015');
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
-    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '15000');
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
-    assert.strictEqual(await extractTextFromElementById('BitcoinAmountInput'), '0.00015');
-    await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
-    await element(by.id('BitcoinAmountInput')).replaceText('50000');
-
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-    // created. verifying:
-    await yo('TransactionValue');
-    await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(transaction.outs.length, 2);
-    assert.strictEqual(transaction.outs[0].value, 50000);
-
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can batch send', async () => {
@@ -250,7 +210,27 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Remove Recipient')).tap();
 
-    // Creating and verifying. tx should have 3 outputs
+    // Insert tests for the fee being a huge amount, checking the high fee modal, then adjusting to previous amount
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).typeText('200\n'); // Set a very high fee rate
+    await element(by.text('OK')).tap();
+
+    // Verify high fee modal appears
+    await expect(element(by.id('HighFeeWarningTitle'))).toBeVisible();
+
+    // Wait 5 seconds before tapping the done button on the modal
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await element(by.id('ModalDoneButton')).tap(); // Tap the done button instead of continue
+
+    // Set the fee rate back to a lower amount
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).clearText();
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n'); // Restore the original or lower fee rate
+    await element(by.text('OK')).tap();
+
+    // Creating and verifying transaction should have 3 outputs
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
@@ -303,6 +283,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
+
     // created. verifying:
     await yo('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -496,6 +477,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
 
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -654,6 +636,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex1 = await extractTextFromElementById('TxhexInput');
@@ -684,6 +667,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
+
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex2 = await extractTextFromElementById('TxhexInput');

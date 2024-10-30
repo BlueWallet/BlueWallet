@@ -166,6 +166,8 @@
     "fee_1d": "1d",
     "fee_3h": "3h",
     "fee_custom": "Custom",
+    "high_fee_warning": "High Fee Warning",
+    "high_fee_warning_message": "You're about to send this transaction with a fee of {percentage} of the total transaction amount. This fee is higher than usual. Are you sure you want to continue?",
     "insert_custom_fee": "Insert custom fee",
     "fee_fast": "Fast",
     "fee_medium": "Medium",

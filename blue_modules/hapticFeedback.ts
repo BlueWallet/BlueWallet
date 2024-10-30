@@ -1,7 +1,6 @@
 import DeviceInfo, { PowerState } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-// Define a const enum for HapticFeedbackTypes
 export const enum HapticFeedbackTypes {
   ImpactLight = 'impactLight',
   ImpactMedium = 'impactMedium',
@@ -17,9 +16,14 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
     if (!state.lowPowerMode) {
       ReactNativeHapticFeedback.trigger(type, { ignoreAndroidSystemSettings: false, enableVibrateFallback: true });
     } else {
-      console.log('Haptic feedback not triggered due to low power mode.');
+      console.debug('Haptic feedback not triggered due to low power mode.');
     }
   });
+};
+
+export const stopHapticFeedback = () => {
+  // force a final trigger to stop any ongoing haptic feedback
+  ReactNativeHapticFeedback.trigger(HapticFeedbackTypes.Selection, { ignoreAndroidSystemSettings: true });
 };
 
 export default triggerHapticFeedback;
