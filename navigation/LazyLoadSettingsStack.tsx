@@ -20,9 +20,9 @@ const Tools = lazy(() => import('../screen/settings/tools'));
 const SettingsPrivacy = lazy(() => import('../screen/settings/SettingsPrivacy'));
 const PlausibleDeniability = lazy(() => import('../screen/PlausibleDeniability'));
 
-const withSuspense = (Component: React.ComponentType) => () => (
+const withSuspense = <P extends object>(Component: React.ComponentType<P>) => (props: P) => (
   <Suspense fallback={<LazyLoadingIndicator />}>
-    <Component />
+    <Component {...props} />
   </Suspense>
 );
 
