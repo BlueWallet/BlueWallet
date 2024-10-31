@@ -1,3 +1,6 @@
+
+// why? cause its much easier to just hardcode it. AppIntente are needlessly hard
+
 import AppIntents
 
 @available(iOS 16.0, *)
