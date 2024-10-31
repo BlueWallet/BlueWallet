@@ -1,5 +1,5 @@
 
-// why? cause its much easier to just hardcode it. AppIntente are needlessly hard
+// Hardcoding values for simplicity; AppIntents are unnecessarily complex
 
 import AppIntents
 
