@@ -1,10 +1,9 @@
 import React, { lazy, Suspense } from 'react';
+import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
-import Currency from '../screen/settings/Currency';
-import Language from '../screen/settings/Language';
-import { LazyLoadingIndicator } from './LazyLoadingIndicator'; // Assume you have this component for loading indication
-import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
-
+const Currency = lazy(() => import('../screen/settings/Currency'));
+const Language = lazy(() => import('../screen/settings/Language'));
+const SettingsBlockExplorer = lazy(() => import('../screen/settings/SettingsBlockExplorer'));
 const Settings = lazy(() => import('../screen/settings/Settings'));
 const GeneralSettings = lazy(() => import('../screen/settings/GeneralSettings'));
 const Licensing = lazy(() => import('../screen/settings/Licensing'));
@@ -21,102 +20,27 @@ const Tools = lazy(() => import('../screen/settings/tools'));
 const SettingsPrivacy = lazy(() => import('../screen/settings/SettingsPrivacy'));
 const PlausibleDeniability = lazy(() => import('../screen/PlausibleDeniability'));
 
-export const SettingsComponent = () => (
+const withSuspense = (Component: React.ComponentType) => () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
-    <Settings />
+    <Component />
   </Suspense>
 );
 
-export const CurrencyComponent = () => <Currency />;
-
-export const GeneralSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <GeneralSettings />
-  </Suspense>
-);
-
-export const LicensingComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <Licensing />
-  </Suspense>
-);
-
-export const NetworkSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <NetworkSettings />
-  </Suspense>
-);
-
-export const BlockExplorerSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <SettingsBlockExplorer />
-  </Suspense>
-);
-
-export const AboutComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <About />
-  </Suspense>
-);
-
-export const DefaultViewComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <DefaultView />
-  </Suspense>
-);
-
-export const ElectrumSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ElectrumSettings />
-  </Suspense>
-);
-
-export const EncryptStorageComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <EncryptStorage />
-  </Suspense>
-);
-
-export const LanguageComponent = () => <Language />;
-
-export const LightningSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <LightningSettings />
-  </Suspense>
-);
-
-export const NotificationSettingsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <NotificationSettings />
-  </Suspense>
-);
-
-export const SelfTestComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <SelfTest />
-  </Suspense>
-);
-
-export const ReleaseNotesComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ReleaseNotes />
-  </Suspense>
-);
-
-export const ToolsComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <Tools />
-  </Suspense>
-);
-
-export const SettingsPrivacyComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <SettingsPrivacy />
-  </Suspense>
-);
-
-export const PlausibleDeniabilityComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <PlausibleDeniability />
-  </Suspense>
-);
+export const CurrencyComponent = withSuspense(Currency);
+export const LanguageComponent = withSuspense(Language);
+export const BlockExplorerSettingsComponent = withSuspense(SettingsBlockExplorer);
+export const SettingsComponent = withSuspense(Settings);
+export const GeneralSettingsComponent = withSuspense(GeneralSettings);
+export const LicensingComponent = withSuspense(Licensing);
+export const NetworkSettingsComponent = withSuspense(NetworkSettings);
+export const AboutComponent = withSuspense(About);
+export const DefaultViewComponent = withSuspense(DefaultView);
+export const ElectrumSettingsComponent = withSuspense(ElectrumSettings);
+export const EncryptStorageComponent = withSuspense(EncryptStorage);
+export const LightningSettingsComponent = withSuspense(LightningSettings);
+export const NotificationSettingsComponent = withSuspense(NotificationSettings);
+export const SelfTestComponent = withSuspense(SelfTest);
+export const ReleaseNotesComponent = withSuspense(ReleaseNotes);
+export const ToolsComponent = withSuspense(Tools);
+export const SettingsPrivacyComponent = withSuspense(SettingsPrivacy);
+export const PlausibleDeniabilityComponent = withSuspense(PlausibleDeniability);
