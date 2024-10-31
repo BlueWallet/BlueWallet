@@ -23,7 +23,6 @@ platform :android do
     keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
     UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
-    Dir.chdir("android") do
       UI.message("Creating keystore from HEX...")
       File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
@@ -33,7 +32,6 @@ platform :android do
       UI.message("Keystore created successfully.")
 
       File.delete("bluewallet-release-key.keystore.hex")
-    end
   end
 
   desc "Update version, build number, and sign APK"
