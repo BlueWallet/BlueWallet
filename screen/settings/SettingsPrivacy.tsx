@@ -1,15 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
+import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../BlueComponents';
-import { triggerErrorHapticFeedback, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 
 enum SettingsPrivacySection {
   None,
@@ -21,7 +21,7 @@ enum SettingsPrivacySection {
   TotalBalance,
 }
 
-const SettingsPrivacy: React.FC = React.memo(() => {
+const SettingsPrivacy: React.FC = () => {
   const { colors } = useTheme();
   const { isStorageEncrypted, wallets } = useStorage();
   const {
@@ -38,7 +38,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
   } = useSettings();
-  const [isLoading, setIsLoading] = useState<SettingsPrivacySection>(SettingsPrivacySection.All);
+  const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
 
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
   const styleHooks = StyleSheet.create({
@@ -48,121 +48,70 @@ const SettingsPrivacy: React.FC = React.memo(() => {
   });
 
   useEffect(() => {
-    let isMounted = true;
-
     (async () => {
       try {
-        const encrypted = await isStorageEncrypted();
-        if (isMounted) {
-          setStorageIsEncrypted(encrypted);
-        }
+        setStorageIsEncrypted(await isStorageEncrypted());
       } catch (e) {
-        console.error('Error checking storage encryption:', e);
-      } finally {
-        if (isMounted) {
-          setIsLoading(SettingsPrivacySection.None);
-        }
+        console.log(e);
       }
+      setIsLoading(SettingsPrivacySection.None);
     })();
-
-    return () => {
-      isMounted = false;
-    };
   }, [isStorageEncrypted]);
 
-  const onDoNotTrackValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.All);
-      try {
-        await setDoNotTrackStorage(value);
-        A.setOptOut(value);
-        triggerSelectionHapticFeedback();
-      } catch (e) {
-        console.error('Error updating Do Not Track:', e);
-        triggerErrorHapticFeedback();
-      } finally {
-        setIsLoading(SettingsPrivacySection.None);
-      }
-    },
-    [setDoNotTrackStorage],
-  );
+  const onDoNotTrackValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.All);
+    try {
+      setDoNotTrackStorage(value);
+      A.setOptOut(value);
+    } catch (e) {
+      console.debug('onDoNotTrackValueChange catch', e);
+    }
+    setIsLoading(SettingsPrivacySection.None);
+  };
 
-  const onQuickActionsValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.QuickActions);
-      try {
-        await setIsQuickActionsEnabledStorage(value);
-        triggerSelectionHapticFeedback();
-      } catch (e) {
-        console.error('Error updating Quick Actions:', e);
-        triggerErrorHapticFeedback();
-      } finally {
-        setIsLoading(SettingsPrivacySection.None);
-      }
-    },
-    [setIsQuickActionsEnabledStorage],
-  );
+  const onQuickActionsValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.QuickActions);
+    try {
+      setIsQuickActionsEnabledStorage(value);
+    } catch (e) {
+      console.debug('onQuickActionsValueChange catch', e);
+    }
+    setIsLoading(SettingsPrivacySection.None);
+  };
 
-  const onWidgetsTotalBalanceValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.Widget);
-      try {
-        await setIsWidgetBalanceDisplayAllowedStorage(value);
-        triggerSelectionHapticFeedback();
-      } catch (e) {
-        console.error('Error updating Widget Balance Display:', e);
-        triggerErrorHapticFeedback();
-      } finally {
-        setIsLoading(SettingsPrivacySection.None);
-      }
-    },
-    [setIsWidgetBalanceDisplayAllowedStorage],
-  );
+  const onWidgetsTotalBalanceValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.Widget);
+    try {
+      await setBalanceDisplayAllowed(value);
+      setIsWidgetBalanceDisplayAllowedStorage(value);
+    } catch (e) {
+      console.debug('onWidgetsTotalBalanceValueChange catch', e);
+    }
+    setIsLoading(SettingsPrivacySection.None);
+  };
 
-  const onTotalBalanceEnabledValueChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.TotalBalance);
-      try {
-        await setIsTotalBalanceEnabledStorage(value);
-        triggerSelectionHapticFeedback();
-      } catch (e) {
-        console.error('Error updating Total Balance:', e);
-        triggerErrorHapticFeedback();
-      } finally {
-        setIsLoading(SettingsPrivacySection.None);
-      }
-    },
-    [setIsTotalBalanceEnabledStorage],
-  );
+  const onTotalBalanceEnabledValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.TotalBalance);
+    try {
+      setIsTotalBalanceEnabledStorage(value);
+    } catch (e) {
+      console.debug('onTotalBalanceEnabledValueChange catch', e);
+    }
+    setIsLoading(SettingsPrivacySection.None);
+  };
 
-  const onTemporaryScreenshotsValueChange = useCallback(
-    (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-      try {
-        setIsPrivacyBlurEnabledState(!value);
-        triggerSelectionHapticFeedback();
-      } catch (e) {
-        console.error('Error updating Temporary Screenshots:', e);
-        triggerErrorHapticFeedback();
-      } finally {
-        setIsLoading(SettingsPrivacySection.None);
-      }
-    },
-    [setIsPrivacyBlurEnabledState],
-  );
+  const onTemporaryScreenshotsValueChange = (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
+    setIsPrivacyBlurEnabledState(!value);
+    setIsLoading(SettingsPrivacySection.None);
+  };
 
-  const openApplicationSettings = useCallback(() => {
+  const openApplicationSettings = () => {
     openSettings();
-  }, []);
+  };
 
   return (
     <ScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      {isLoading !== SettingsPrivacySection.None && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      )}
-
       {Platform.OS === 'android' ? (
         <View style={styles.headerContainer}>
           <Header leftText={loc.settings.general} />
@@ -175,7 +124,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
         switch={{
           onValueChange: setIsClipboardGetContentEnabledStorage,
           value: isClipboardGetContentEnabled,
-          disabled: isLoading !== SettingsPrivacySection.None,
+          disabled: isLoading === SettingsPrivacySection.All,
           testID: 'ClipboardSwitch',
         }}
         subtitle={loc.settings.privacy_clipboard_explanation}
@@ -187,7 +136,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
         switch={{
           onValueChange: onQuickActionsValueChange,
           value: storageIsEncrypted ? false : isQuickActionsEnabled,
-          disabled: isLoading !== SettingsPrivacySection.None || storageIsEncrypted,
+          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
           testID: 'QuickActionsSwitch',
         }}
         subtitle={
@@ -204,7 +153,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
         switch={{
           onValueChange: onTotalBalanceEnabledValueChange,
           value: isTotalBalanceEnabled,
-          disabled: isLoading !== SettingsPrivacySection.None || wallets.length < 2,
+          disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
           testID: 'TotalBalanceSwitch',
         }}
         subtitle={<Text style={styles.subtitleText}>{loc.total_balance_view.explanation}</Text>}
@@ -216,7 +165,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
         switch={{
           onValueChange: onTemporaryScreenshotsValueChange,
           value: !isPrivacyBlurEnabled,
-          disabled: isLoading !== SettingsPrivacySection.None,
+          disabled: isLoading === SettingsPrivacySection.All,
         }}
         subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>}
       />
@@ -227,8 +176,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
         switch={{
           onValueChange: onDoNotTrackValueChange,
           value: isDoNotTrackEnabled,
-          disabled: isLoading !== SettingsPrivacySection.None,
-          testID: 'DoNotTrackSwitch',
+          disabled: isLoading === SettingsPrivacySection.All,
         }}
         subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_do_not_track_explanation}</Text>}
       />
@@ -243,8 +191,7 @@ const SettingsPrivacy: React.FC = React.memo(() => {
             switch={{
               onValueChange: onWidgetsTotalBalanceValueChange,
               value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
-              disabled: isLoading !== SettingsPrivacySection.None || storageIsEncrypted,
-              testID: 'TotalBalanceWidgetSwitch',
+              disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
             }}
             subtitle={
               <>
@@ -259,19 +206,13 @@ const SettingsPrivacy: React.FC = React.memo(() => {
       <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
     </ScrollView>
   );
-});
+};
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
+
   headerContainer: {
     paddingVertical: 16,
   },
