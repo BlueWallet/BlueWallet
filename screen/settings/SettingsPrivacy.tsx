@@ -1,5 +1,3 @@
-// SettingsPrivacy.tsx
-
 import React, { useEffect, useState, useCallback } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View, ActivityIndicator } from 'react-native';
 import { openSettings } from 'react-native-permissions';
