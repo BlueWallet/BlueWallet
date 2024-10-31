@@ -20,11 +20,13 @@ const Tools = lazy(() => import('../screen/settings/tools'));
 const SettingsPrivacy = lazy(() => import('../screen/settings/SettingsPrivacy'));
 const PlausibleDeniability = lazy(() => import('../screen/PlausibleDeniability'));
 
-const withSuspense = <P extends object>(Component: React.ComponentType<P>) => (props: P) => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <Component {...props} />
-  </Suspense>
-);
+const withSuspense =
+  <P extends object>(Component: React.ComponentType<P>) =>
+  (props: P) => (
+    <Suspense fallback={<LazyLoadingIndicator />}>
+      <Component {...props} />
+    </Suspense>
+  );
 
 export const CurrencyComponent = withSuspense(Currency);
 export const LanguageComponent = withSuspense(Language);
