@@ -11,6 +11,7 @@ import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Divider } from '@rneui/base';
+import { openSettings } from 'react-native-permissions';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -124,7 +125,7 @@ const NotificationSettings: React.FC = () => {
   }, [URI]);
 
   const onSystemSettings = () => {
-    Linking.openSettings();
+    openSettings('notifications');
   };
 
   return (
