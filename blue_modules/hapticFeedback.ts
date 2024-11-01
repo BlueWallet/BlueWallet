@@ -1,4 +1,4 @@
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { DeviceEventEmitter } from 'react-native';
 import DeviceInfo, { PowerState } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -12,7 +12,7 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
-const deviceInfoEmitter = new NativeEventEmitter(NativeModules.RNDeviceInfo);
+const deviceInfoEmitter = DeviceEventEmitter;
 
 let currentPowerState: Partial<PowerState> = {
   batteryLevel: 1.0,
