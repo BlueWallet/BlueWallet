@@ -1,7 +1,7 @@
+import { NativeEventEmitter, NativeModules } from 'react-native';
 import DeviceInfo, { PowerState } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-// Define a const enum for HapticFeedbackTypes
 export const enum HapticFeedbackTypes {
   ImpactLight = 'impactLight',
   ImpactMedium = 'impactMedium',
@@ -12,14 +12,48 @@ export const enum HapticFeedbackTypes {
   NotificationError = 'notificationError',
 }
 
+const deviceInfoEmitter = new NativeEventEmitter(NativeModules.RNDeviceInfo);
+
+let currentPowerState: Partial<PowerState> = {
+  batteryLevel: 1.0,
+  batteryState: 'full',
+  lowPowerMode: false,
+};
+let isPowerStateInitialized: boolean = false;
+
+const initializePowerStateListener = async () => {
+  try {
+    const initialPowerState: Partial<PowerState> = await DeviceInfo.getPowerState();
+    currentPowerState = initialPowerState;
+    isPowerStateInitialized = true;
+    console.log('Initial Power State:', initialPowerState);
+
+    deviceInfoEmitter.addListener('RNDeviceInfo_powerStateDidChange', (powerState: Partial<PowerState>) => {
+      currentPowerState = powerState;
+      console.log('Power State Updated:', powerState);
+    });
+  } catch (error) {
+    console.error('Failed to initialize power state listener:', error);
+    isPowerStateInitialized = true; // Prevent indefinite waiting
+  }
+};
+
+initializePowerStateListener();
+
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
-  DeviceInfo.getPowerState().then((state: Partial<PowerState>) => {
-    if (!state.lowPowerMode) {
-      ReactNativeHapticFeedback.trigger(type, { ignoreAndroidSystemSettings: false, enableVibrateFallback: true });
-    } else {
-      console.log('Haptic feedback not triggered due to low power mode.');
-    }
-  });
+  if (!isPowerStateInitialized) {
+    console.log('Power state not initialized yet. Skipping haptic feedback.');
+    return;
+  }
+
+  if (!currentPowerState.lowPowerMode) {
+    ReactNativeHapticFeedback.trigger(type, {
+      ignoreAndroidSystemSettings: false,
+      enableVibrateFallback: true,
+    });
+  } else {
+    console.log('Haptic feedback not triggered due to low power mode.');
+  }
 };
 
 export const triggerSuccessHapticFeedback = () => {
