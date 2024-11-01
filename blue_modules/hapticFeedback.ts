@@ -46,7 +46,7 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
     return;
   }
 
-  if (!currentPowerState.lowPowerMode) {
+  if (currentPowerState.lowPowerMode === false) {
     ReactNativeHapticFeedback.trigger(type, {
       ignoreAndroidSystemSettings: false,
       enableVibrateFallback: true,
