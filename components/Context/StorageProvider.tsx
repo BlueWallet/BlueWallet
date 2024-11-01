@@ -100,7 +100,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
-      await debouncedSaveToDisk(force);
+      debouncedSaveToDisk(force);
     },
     [debouncedSaveToDisk],
   );
