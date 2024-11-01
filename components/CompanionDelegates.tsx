@@ -18,6 +18,7 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
+import { useSettings } from '../hooks/context/useSettings';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -35,6 +36,7 @@ const ClipboardContentType = Object.freeze({
 
 const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
+  const { isHandOffUseEnabled } = useSettings();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
@@ -266,7 +268,7 @@ const CompanionDelegates = () => {
       <Suspense fallback={null}>
         <MenuElements />
         <DeviceQuickActions />
-        <HandOffComponentListener />
+        {isHandOffUseEnabled && <HandOffComponentListener />}
         <WidgetCommunication />
         <WatchConnectivity />
       </Suspense>
