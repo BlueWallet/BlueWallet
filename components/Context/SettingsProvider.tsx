@@ -2,7 +2,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 import BlueClipboard from '../../blue_modules/clipboard';
-import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon } from '../../blue_modules/currency';
+import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
@@ -16,9 +16,14 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  const doNotTrack = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
-  return doNotTrack === '1';
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const doNotTrack = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
+    return doNotTrack === '1';
+  } catch {
+    console.error('Error getting DoNotTrack');
+    return false;
+  }
 };
 
 export const setTotalBalanceViewEnabledStorage = async (value: boolean): Promise<void> => {
@@ -39,7 +44,6 @@ export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
     return isEnabledValue === 'true';
   } catch (e) {
     console.error('Error getting TotalBalanceViewEnabled:', e);
-    await setTotalBalanceViewEnabledStorage(true);
     return true;
   }
 };
@@ -214,9 +218,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setPreferredFiatCurrencyStorage = useCallback(async (currency: TFiatUnit): Promise<void> => {
     try {
-      setPreferredFiatCurrency(currency);
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      await DefaultPreference.set('preferredFiatCurrency', currency as unknown as string);
+      await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, currency.endPointKey);
+      setPreferredFiatCurrency(currency);
     } catch (e) {
       console.error('Error setting preferredFiatCurrency:', e);
     }

@@ -28,7 +28,6 @@ let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
-  await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
@@ -84,16 +83,15 @@ async function updateExchangeRate(): Promise<void> {
 }
 
 async function getPreferredCurrency(): Promise<FiatUnitType> {
-  const preferredCurrency = await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY);
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  const preferredCurrency = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
 
   if (preferredCurrency) {
-    let parsedPreferredCurrency;
     try {
-      parsedPreferredCurrency = JSON.parse(preferredCurrency);
-      if (!FiatUnit[parsedPreferredCurrency.endPointKey]) {
+      if (!FiatUnit[preferredCurrency]) {
         throw new Error('Invalid Fiat Unit');
       }
-      preferredFiatCurrency = FiatUnit[parsedPreferredCurrency.endPointKey];
+      preferredFiatCurrency = FiatUnit[preferredCurrency];
     } catch (error) {
       await AsyncStorage.removeItem(PREFERRED_CURRENCY_STORAGE_KEY);
 
@@ -143,19 +141,18 @@ async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
 
 async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
   try {
-    const storedCurrency = await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY);
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const storedCurrency = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
     if (!storedCurrency) throw new Error('No Preferred Fiat selected');
 
-    let parsedCurrency;
     try {
-      parsedCurrency = JSON.parse(storedCurrency);
-      if (!FiatUnit[parsedCurrency.endPointKey]) {
+      if (!FiatUnit[storedCurrency]) {
         throw new Error('Invalid Fiat Unit');
       }
-      preferredFiatCurrency = FiatUnit[parsedCurrency.endPointKey];
+      preferredFiatCurrency = FiatUnit[storedCurrency];
     } catch (error) {
       await AsyncStorage.removeItem(PREFERRED_CURRENCY_STORAGE_KEY);
-
+      await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
       const deviceCurrencies = RNLocalize.getCurrencies();
       if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
         preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
