@@ -42,6 +42,7 @@ import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTran
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -51,7 +52,8 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, isElectrumDisabled, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { wallets, saveToDisk, setSelectedWalletID, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = route.params;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
@@ -13,7 +13,6 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import DefaultPreference from 'react-native-default-preference';
-
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { useTheme } from '../../components/themes';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -26,9 +25,9 @@ import AddressInput from '../../components/AddressInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { Action } from '../../components/types';
-import { useStorage } from '../../hooks/context/useStorage';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { useSettings } from '../../hooks/context/useSettings';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -43,7 +42,6 @@ const ElectrumSettings: React.FC = () => {
   const { server } = useRoute<RouteProps>().params;
   const { setOptions } = useExtendedNavigation();
   const [isLoading, setIsLoading] = useState(true);
-  const [isOfflineMode, setIsOfflineMode] = useState(true);
   const [serverHistory, setServerHistory] = useState<ElectrumServerItem[]>([]);
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
   const [host, setHost] = useState<string>('');
@@ -51,7 +49,7 @@ const ElectrumSettings: React.FC = () => {
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
-  const { setIsElectrumDisabled } = useStorage();
+  const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -89,14 +87,12 @@ const ElectrumSettings: React.FC = () => {
       const savedSslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
       const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
 
-      const offlineMode = await BlueElectrum.isDisabled();
       const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
       setHost(savedHost || '');
       setPort(savedPort ? Number(savedPort) : undefined);
       setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
       setServerHistory(parsedServerHistory);
-      setIsOfflineMode(offlineMode);
 
       setConfig(await BlueElectrum.getConfig());
       configInterval = setInterval(async () => {
@@ -272,9 +268,9 @@ const ElectrumSettings: React.FC = () => {
 
   useEffect(() => {
     setOptions({
-      headerRight: isOfflineMode ? null : () => HeaderRight,
+      headerRight: isElectrumDisabled ? null : () => HeaderRight,
     });
-  }, [HeaderRight, isOfflineMode, setOptions]);
+  }, [HeaderRight, isElectrumDisabled, setOptions]);
 
   const checkServer = async () => {
     setIsLoading(true);
@@ -325,17 +321,14 @@ const ElectrumSettings: React.FC = () => {
 
   const onElectrumConnectionEnabledSwitchChange = async (value: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
+    triggerSelectionHapticFeedback();
     if (value) {
-      await BlueElectrum.setDisabled(true);
-      setIsElectrumDisabled(true);
-      BlueElectrum.forceDisconnect();
+      await BlueElectrum.setDisabled(value);
+      setIsElectrumDisabled(value);
     } else {
-      await BlueElectrum.setDisabled(false);
-      setIsElectrumDisabled(false);
-      BlueElectrum.connectMain();
+      await BlueElectrum.setDisabled(value);
+      setIsElectrumDisabled(value);
     }
-    setIsOfflineMode(value);
   };
 
   const renderElectrumSettings = () => {
@@ -472,7 +465,7 @@ const ElectrumSettings: React.FC = () => {
         title={loc.settings.electrum_offline_mode}
         switch={{
           onValueChange: onElectrumConnectionEnabledSwitchChange,
-          value: isOfflineMode,
+          value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
         disabled={isLoading}
@@ -480,7 +473,7 @@ const ElectrumSettings: React.FC = () => {
         subtitle={loc.settings.electrum_offline_description}
       />
 
-      {!isOfflineMode && renderElectrumSettings()}
+      {!isElectrumDisabled && renderElectrumSettings()}
     </ScrollView>
   );
 };

@@ -12,8 +12,8 @@ import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
-import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const branch = require('../../current-branch.json');
 
@@ -21,7 +21,7 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useStorage();
+  const { isElectrumDisabled } = useSettings();
 
   const stylesHook = StyleSheet.create({
     textBackup: {

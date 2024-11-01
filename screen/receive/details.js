@@ -37,12 +37,14 @@ import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { isElectrumDisabled } = useSettings();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
