@@ -321,9 +321,14 @@ const ElectrumSettings: React.FC = () => {
 
   const onElectrumConnectionEnabledSwitchChange = async (value: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    triggerSelectionHapticFeedback();
-    await BlueElectrum.setDisabled(value);
-    setIsElectrumDisabled(value);
+    try {
+      triggerSelectionHapticFeedback();
+      await BlueElectrum.setDisabled(value);
+      setIsElectrumDisabled(value);
+    } catch (error) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: (error as Error).message });
+    }
   };
 
   const renderElectrumSettings = () => {
