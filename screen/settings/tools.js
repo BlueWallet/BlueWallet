@@ -5,7 +5,7 @@ import { ScrollView } from 'react-native';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 
-const NetworkSettings = () => {
+const ToolsScreen = () => {
   const { navigate } = useNavigation();
 
   const navigateToIsItMyAddress = () => {
@@ -29,4 +29,4 @@ const NetworkSettings = () => {
   );
 };
 
-export default NetworkSettings;
+export default ToolsScreen;

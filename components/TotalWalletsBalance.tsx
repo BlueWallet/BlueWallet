@@ -12,10 +12,15 @@ import { useTheme } from './themes';
 export const TotalWalletsBalancePreferredUnit = 'TotalWalletsBalancePreferredUnit';
 export const TotalWalletsBalanceKey = 'TotalWalletsBalance';
 
-const TotalWalletsBalance: React.FC = () => {
+const TotalWalletsBalance: React.FC = React.memo(() => {
   const { wallets } = useStorage();
-  const { preferredFiatCurrency, setIsTotalBalanceEnabledStorage, totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage } =
-    useSettings();
+  const {
+    preferredFiatCurrency,
+    isTotalBalanceEnabled,
+    setIsTotalBalanceEnabledStorage,
+    totalBalancePreferredUnit,
+    setTotalBalancePreferredUnitStorage,
+  } = useSettings();
   const { colors } = useTheme();
 
   const styleHooks = useMemo(
@@ -26,13 +31,19 @@ const TotalWalletsBalance: React.FC = () => {
     [colors.foregroundColor],
   );
 
-  const totalBalance = useMemo(() => wallets.reduce((prev, curr) => (!curr.hideBalance ? prev + curr.getBalance() : prev), 0), [wallets]);
+  const totalBalance = useMemo(() => {
+    return wallets.reduce((prev, curr) => {
+      if (!curr.hideBalance) {
+        const balance = curr.getBalance();
+        return prev + (typeof balance === 'number' ? balance : 0);
+      }
+      return prev;
+    }, 0);
+  }, [wallets]);
 
-  const formattedBalance = useMemo(
-    () => formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [totalBalance, totalBalancePreferredUnit, preferredFiatCurrency],
-  );
+  const formattedBalance = useMemo(() => {
+    return formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true);
+  }, [totalBalance, totalBalancePreferredUnit]);
 
   const toolTipActions = useMemo(() => {
     const viewInFiat = {
@@ -59,21 +70,29 @@ const TotalWalletsBalance: React.FC = () => {
     };
 
     return [viewInActions, CommonToolTipActions.CopyAmount, CommonToolTipActions.HideBalance];
-  }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
+  }, [preferredFiatCurrency, totalBalancePreferredUnit]);
 
   const onPressMenuItem = useCallback(
     async (id: string) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      if (id === CommonToolTipActions.ViewInFiat.id) {
-        await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
-      } else if (id === CommonToolTipActions.ViewInSats.id) {
-        await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
-      } else if (id === CommonToolTipActions.ViewInBitcoin.id) {
-        await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
-      } else if (id === CommonToolTipActions.HideBalance.id) {
-        setIsTotalBalanceEnabledStorage(false);
-      } else if (id === CommonToolTipActions.CopyAmount.id) {
-        Clipboard.setString(formattedBalance.toString());
+      switch (id) {
+        case CommonToolTipActions.ViewInFiat.id:
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
+          break;
+        case CommonToolTipActions.ViewInSats.id:
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
+          break;
+        case CommonToolTipActions.ViewInBitcoin.id:
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
+          break;
+        case CommonToolTipActions.HideBalance.id:
+          await setIsTotalBalanceEnabledStorage(false);
+          break;
+        case CommonToolTipActions.CopyAmount.id:
+          Clipboard.setString(formattedBalance.toString());
+          break;
+        default:
+          break;
       }
     },
     [setIsTotalBalanceEnabledStorage, formattedBalance, setTotalBalancePreferredUnitStorage],
@@ -81,16 +100,22 @@ const TotalWalletsBalance: React.FC = () => {
 
   const handleBalanceOnPress = useCallback(async () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    const nextUnit =
-      totalBalancePreferredUnit === BitcoinUnit.BTC
-        ? BitcoinUnit.SATS
-        : totalBalancePreferredUnit === BitcoinUnit.SATS
-          ? BitcoinUnit.LOCAL_CURRENCY
-          : BitcoinUnit.BTC;
+    let nextUnit: BitcoinUnit;
+    switch (totalBalancePreferredUnit) {
+      case BitcoinUnit.BTC:
+        nextUnit = BitcoinUnit.SATS;
+        break;
+      case BitcoinUnit.SATS:
+        nextUnit = BitcoinUnit.LOCAL_CURRENCY;
+        break;
+      default:
+        nextUnit = BitcoinUnit.BTC;
+    }
     await setTotalBalancePreferredUnitStorage(nextUnit);
   }, [totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage]);
 
-  if (wallets.length <= 1) return null;
+  // If there's only one wallet or total balance view is disabled, don't render
+  if (wallets.length <= 1 || !isTotalBalanceEnabled) return null;
 
   return (
     <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
@@ -107,7 +132,7 @@ const TotalWalletsBalance: React.FC = () => {
       </View>
     </ToolTipMenu>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

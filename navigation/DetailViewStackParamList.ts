@@ -64,7 +64,7 @@ export type DetailViewStackParamList = {
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
-  Tools: undefined;
+  ToolsScreen: undefined;
   SettingsPrivacy: undefined;
   ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
   WalletXpubRoot: undefined;
