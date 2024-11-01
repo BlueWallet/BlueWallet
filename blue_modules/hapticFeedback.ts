@@ -26,11 +26,11 @@ const initializePowerStateListener = async () => {
     const initialPowerState: Partial<PowerState> = await DeviceInfo.getPowerState();
     currentPowerState = initialPowerState;
     isPowerStateInitialized = true;
-    console.log('Initial Power State:', initialPowerState);
+    console.debug('Initial Power State:', initialPowerState);
 
     deviceInfoEmitter.addListener('RNDeviceInfo_powerStateDidChange', (powerState: Partial<PowerState>) => {
       currentPowerState = powerState;
-      console.log('Power State Updated:', powerState);
+      console.debug('Power State Updated:', powerState);
     });
   } catch (error) {
     console.error('Failed to initialize power state listener:', error);
@@ -42,7 +42,7 @@ initializePowerStateListener();
 
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
   if (!isPowerStateInitialized) {
-    console.log('Power state not initialized yet. Skipping haptic feedback.');
+    console.debug('Power state not initialized yet. Skipping haptic feedback.');
     return;
   }
 
@@ -52,7 +52,7 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
       enableVibrateFallback: true,
     });
   } else {
-    console.log('Haptic feedback not triggered due to low power mode.');
+    console.debug('Haptic feedback not triggered due to low power mode.');
   }
 };
 
