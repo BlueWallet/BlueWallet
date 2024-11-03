@@ -294,13 +294,18 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Upload IPA to TestFlight"
+desc "Upload IPA to TestFlight"
 lane :upload_to_testflight_lane do
   ipa_path = ENV['IPA_OUTPUT_PATH']
-  branch_name = Actions.git_branch
-  latest_commit_message = Actions.last_git_commit_message
 
-  changelog = "Pull Request build. Branch name: #{branch_name}. Latest commit message: #{latest_commit_message}"
+  # Use a fallback to determine the branch name if `Actions.git_branch` is "HEAD"
+  branch_name = `git rev-parse --abbrev-ref HEAD`.strip
+  branch_name = "detached-HEAD" if branch_name == "HEAD"
+
+  # Get the commit message of the last commit
+  last_commit_message = `git log -1 --pretty=%B`.strip
+
+  changelog = "Pull Request build. \nBranch name: #{branch_name}. \nLast commit message: #{last_commit_message}"
 
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
