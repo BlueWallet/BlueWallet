@@ -29,6 +29,27 @@ jobs:
         with:
           fetch-depth: 0 # Ensures the full Git history is available
 
+      - name: Ensure Correct Branch
+        run: |
+            git fetch origin +refs/heads/${GITHUB_REF##*/}:refs/remotes/origin/${GITHUB_REF##*/}
+            git checkout ${GITHUB_REF##*/}
+            echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Get Latest Commit Details
+        id: get_latest_commit_details
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
+          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+      - name: Print Commit Details for Debugging
+        run: |
+          echo "Commit Message: ${{ needs.build.outputs.latest_commit_message }}"
+          echo "Branch Name: ${{ needs.build.outputs.branch_name }}"
+
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
         with:
@@ -55,21 +76,6 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           bundle exec fastlane ios install_pods
-
-      - name: Get Latest Commit Details
-        id: get_latest_commit_details
-        run: |
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
-          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
-          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
-
-      - name: Print Commit Details for Debugging
-        run: |
-          echo "Commit Message: ${{ needs.build.outputs.latest_commit_message }}"
-          echo "Branch Name: ${{ needs.build.outputs.branch_name }}"
 
       - name: Generate Build Number Based on Timestamp
         id: generate_build_number
