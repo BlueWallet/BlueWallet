@@ -298,7 +298,7 @@ platform :ios do
 lane :upload_to_testflight_lane do
   ipa_path = ENV['IPA_OUTPUT_PATH']
   branch_name = Actions.git_branch
-  latest_commit_message = Actions.last_git_commit[:message] 
+  latest_commit_message = Actions.last_git_commit_message
 
   changelog = "Pull Request build. Branch name: #{branch_name}. Latest commit message: #{latest_commit_message}"
 
