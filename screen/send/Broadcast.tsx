@@ -5,7 +5,7 @@ import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } fro
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import {
   BlueBigCheckmark,
   BlueButtonLink,
@@ -76,8 +76,7 @@ const Broadcast: React.FC = () => {
 
           setBroadcastResult(BROADCAST_RESULT.success);
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: fix later
-          Notifications.majorTomToGroundControl([], [], [txid]);
+          majorTomToGroundControl([], [], [txid]);
         } else {
           setBroadcastResult(BROADCAST_RESULT.error);
         }

@@ -21,6 +21,7 @@ const useHandOffListener = () => {
 
   const onUserActivityOpen = useCallback(
     (data: UserActivityData) => {
+      console.debug('onUserActivityOpen', data);
       switch (data.activityType) {
         case HandOffActivityType.ReceiveOnchain:
           navigate('ReceiveDetailsRoot', {
@@ -53,12 +54,13 @@ const useHandOffListener = () => {
 
     EventEmitter.getMostRecentUserActivity?.()
       .then(onUserActivityOpen)
-      .catch(() => console.log('No userActivity object sent'));
+      .catch(() => console.debug('No userActivity object sent'));
 
     return () => {
       activitySubscription.remove();
     };
-  }, [walletsInitialized, onUserActivityOpen]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]);
 };
 
 export default useHandOffListener;

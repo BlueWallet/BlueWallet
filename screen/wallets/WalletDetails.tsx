@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
+import { unsubscribe } from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -155,8 +155,7 @@ const WalletDetails: React.FC = () => {
       }
     } catch (_) {}
 
-    // @ts-ignore: ts-ify later
-    Notifications.unsubscribe(externalAddresses, [], []);
+    unsubscribe(externalAddresses, [], []);
     deleteWallet(wallet);
     saveToDisk(true);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -300,11 +299,11 @@ const WalletDetails: React.FC = () => {
   }, [wallet, walletName, saveToDisk]);
 
   useEffect(() => {
-    const unsubscribe = addListener('beforeRemove', () => {
+    const unsubscribeListener = addListener('beforeRemove', () => {
       walletNameTextInputOnBlur();
     });
 
-    return unsubscribe;
+    return unsubscribeListener;
   }, [addListener, walletName, walletNameTextInputOnBlur]);
 
   const exportHistoryContent = useCallback(() => {
