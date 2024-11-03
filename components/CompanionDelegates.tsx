@@ -1,7 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
-import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
-
 import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
@@ -16,9 +15,6 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
-
-const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
-const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
@@ -258,10 +254,6 @@ const CompanionDelegates = () => {
   return (
     <>
       <Notifications onProcessNotifications={processPushNotifications} />
-      <Suspense fallback={null}>
-        <HandOffComponentListener />
-        <WatchConnectivity />
-      </Suspense>
     </>
   );
 };

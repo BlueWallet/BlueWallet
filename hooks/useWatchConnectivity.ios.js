@@ -12,8 +12,8 @@ import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
-import { useSettings } from '../hooks/context/useSettings';
-import { useStorage } from '../hooks/context/useStorage';
+import { useSettings } from './context/useSettings';
+import { useStorage } from './context/useStorage';
 
 function useWatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
@@ -239,6 +239,7 @@ function useWatchConnectivity() {
     }
     return { wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) };
   };
+
 }
 
 export default useWatchConnectivity;

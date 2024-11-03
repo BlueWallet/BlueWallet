@@ -5,6 +5,7 @@ import DevMenu from '../components/DevMenu';
 import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
 import useMenuElements from '../hooks/useMenuElements';
 import useWidgetCommunication from '../hooks/useWidgetCommunication';
+import useHandOffListener from '../hooks/useHandOffListener';
 const CompanionDelegates = lazy(() => import('../components/CompanionDelegates'));
 
 const MasterView = () => {
@@ -12,6 +13,7 @@ const MasterView = () => {
   useDeviceQuickActions();
   useMenuElements();
   useWidgetCommunication();
+  useHandOffListener();
 
   return (
     <>
