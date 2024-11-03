@@ -52,8 +52,8 @@ jobs:
 
       - name: Print Commit Details
         run: |
-          echo "Commit Message: ${{ env.latest_commit_message }}"
-          echo "Branch Name: ${{ env.branch_name }}"
+          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
+          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
@@ -201,6 +201,11 @@ jobs:
             echo "IPA file not found at path: $IPA_OUTPUT_PATH"
             exit 1
           fi
+
+      - name: Print Environment Variables for Debugging
+        run: |
+          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
+          echo "BRANCH_NAME: $BRANCH_NAME"
 
       - name: Upload to TestFlight
         run: |

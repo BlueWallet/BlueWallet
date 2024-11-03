@@ -296,28 +296,30 @@ platform :ios do
 
 
   desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
-  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
-
-  changelog = "Pull Request build. Branch name: #{branch_name}. Last commit message: #{last_commit_message}"
-
-  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
-    UI.user_error!("IPA file not found at path: #{ipa_path}")
+  lane :upload_to_testflight_lane do
+    branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+    last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+  
+    changelog = "Build from branch: #{branch_name}. Last commit message: #{last_commit_message}"
+  
+    ipa_path = ENV['IPA_OUTPUT_PATH']
+    
+    if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    end
+  
+    UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+    UI.message("Changelog: #{changelog}")
+  
+    upload_to_testflight(
+      api_key_path: "./appstore_api_key.json",
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+      changelog: changelog
+    )
+  
+    UI.success("Successfully uploaded IPA to TestFlight!")
   end
-
-  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-
-  upload_to_testflight(
-    api_key_path: "./appstore_api_key.json",
-    ipa: ipa_path,
-    skip_waiting_for_build_processing: true,
-    changelog: changelog
-  )
-
-  UI.success("Successfully uploaded IPA to TestFlight!")
-end
 
   desc "Build the iOS app"
 lane :build_app_lane do
