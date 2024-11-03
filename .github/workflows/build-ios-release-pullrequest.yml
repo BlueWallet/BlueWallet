@@ -32,9 +32,11 @@ jobs:
       - name: Ensure Correct Branch
         run: |
           if [ -n "${GITHUB_HEAD_REF}" ]; then
+            # For pull request events, use GITHUB_HEAD_REF
             git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
             git checkout ${GITHUB_HEAD_REF}
           else
+            # For push events, use GITHUB_REF
             git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
             git checkout ${GITHUB_REF##*/}
           fi
@@ -50,7 +52,7 @@ jobs:
           echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
           echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
 
-      - name: Display Commit Details
+      - name: Print Commit Details for Debugging
         run: |
           echo "Commit Message: ${{ needs.build.outputs.latest_commit_message }}"
           echo "Branch Name: ${{ needs.build.outputs.branch_name }}"
