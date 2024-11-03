@@ -297,12 +297,11 @@ platform :ios do
   desc "Upload IPA to TestFlight"
 lane :upload_to_testflight_lane do
   ipa_path = ENV['IPA_OUTPUT_PATH']
-  branch_name = Actions.git_branch # Get the current branch name
-  latest_commit_message = Actions.last_git_commit[:message] # Get the latest commit message
+  branch_name = Actions.git_branch
+  latest_commit_message = Actions.last_git_commit[:message] 
 
   changelog = "Pull Request build. Branch name: #{branch_name}. Latest commit message: #{latest_commit_message}"
 
-  # Check if IPA exists before proceeding
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
@@ -312,7 +311,7 @@ lane :upload_to_testflight_lane do
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
     ipa: ipa_path,
-    skip_waiting_for_build_processing: true, # Do not wait for processing
+    skip_waiting_for_build_processing: true,
     changelog: changelog
   )
 
