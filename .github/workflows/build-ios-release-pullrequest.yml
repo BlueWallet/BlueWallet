@@ -31,9 +31,16 @@ jobs:
 
       - name: Ensure Correct Branch
         run: |
-            git fetch origin +refs/heads/${GITHUB_REF##*/}:refs/remotes/origin/${GITHUB_REF##*/}
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            # For pull request events, use GITHUB_HEAD_REF
+            git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
+            git checkout ${GITHUB_HEAD_REF}
+          else
+            # For push events, use GITHUB_REF
+            git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
             git checkout ${GITHUB_REF##*/}
-            echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
+          fi
+          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
 
       - name: Get Latest Commit Details
         id: get_latest_commit_details
