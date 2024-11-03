@@ -16,7 +16,7 @@ const useAppState = (): { currentAppState: AppStateStatus, previousAppState: App
     return () => {
       subscription.remove();
     };
-  }, [currentAppState]);
+  }, []);
 
   return { currentAppState, previousAppState: previousAppState.current };
 };
