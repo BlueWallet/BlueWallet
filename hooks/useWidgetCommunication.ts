@@ -4,7 +4,7 @@ export const isBalanceDisplayAllowed = (): Promise<boolean> => {
   });
 };
 
-export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> => {};
+export const setBalanceDisplayAllowed = async (_value: boolean): Promise<void> => {};
 
 const useWidgetCommunication = () => {};
 

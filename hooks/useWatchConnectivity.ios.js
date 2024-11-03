@@ -64,20 +64,21 @@ function useWatchConnectivity() {
   }, [isInstalled, isReachable, walletsInitialized]);
 
   useEffect(() => {
-    if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
-      const preferredFiatCurrencyParsed = preferredFiatCurrency ?? FiatUnit.USD;
+    const currency = preferredFiatCurrency ? preferredFiatCurrency.endPointKey : FiatUnit.USD.endPointKey;
+    if (isInstalled && isReachable && walletsInitialized && currency) {
+      const preferredFiatCurrencyParsed = currency;
       try {
         if (lastPreferredCurrency.current !== preferredFiatCurrencyParsed.endPointKey) {
           transferCurrentComplicationUserInfo({
             preferredFiatCurrency: preferredFiatCurrencyParsed.endPointKey,
           });
-          lastPreferredCurrency.current = preferredFiatCurrency.endPointKey;
+          lastPreferredCurrency.current = currency;
         } else {
           console.log('WatchConnectivity lastPreferredCurrency has not changed');
         }
       } catch (e) {
-        console.log('WatchConnectivity useEffect preferredFiatCurrency error');
-        console.log(e);
+        console.error('WatchConnectivity useEffect preferredFiatCurrency error');
+        console.error(e);
       }
     }
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
@@ -87,7 +88,7 @@ function useWatchConnectivity() {
       handleLightningInvoiceCreateRequest(message.walletIndex, message.amount, message.description)
         .then(createInvoiceRequest => reply({ invoicePaymentRequest: createInvoiceRequest }))
         .catch(e => {
-          console.log(e);
+          console.error(e);
           reply({});
         });
     } else if (message.message === 'sendApplicationContext') {
@@ -122,11 +123,12 @@ function useWatchConnectivity() {
             majorTomToGroundControl([], [decoded.payment_hash], []);
           }
         } catch (e) {
-          console.log('WatchConnectivity - Running in Simulator');
-          console.log(e);
+          console.error('WatchConnectivity - Running in Simulator');
+          console.error(e);
         }
         return invoiceRequest;
       } catch (error) {
+        console.error(error);
         return error;
       }
     }
@@ -148,7 +150,9 @@ function useWatchConnectivity() {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
           receiveAddress = await wallet.getAddressAsync();
-        } catch (_) {}
+        } catch (e) {
+          console.error(e);
+        }
         if (!receiveAddress) {
           // either sleep expired or getAddressAsync threw an exception
           receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
@@ -157,7 +161,9 @@ function useWatchConnectivity() {
         try {
           await wallet.getAddressAsync();
           receiveAddress = wallet.getAddress();
-        } catch (_) {}
+        } catch (e) {
+          console.error(e);
+        }
         if (!receiveAddress) {
           // either sleep expired or getAddressAsync threw an exception
           receiveAddress = wallet.getAddress();
