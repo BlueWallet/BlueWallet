@@ -17,7 +17,6 @@ import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
 
-const MenuElements = lazy(() => import('../components/MenuElements'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
@@ -261,7 +260,6 @@ const CompanionDelegates = () => {
     <>
       <Notifications onProcessNotifications={processPushNotifications} />
       <Suspense fallback={null}>
-        <MenuElements />
         <HandOffComponentListener />
         <WidgetCommunication />
         <WatchConnectivity />
