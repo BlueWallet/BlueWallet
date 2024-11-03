@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import { CommonActions } from '@react-navigation/native';
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
@@ -20,7 +18,6 @@ import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
-const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
@@ -265,7 +262,6 @@ const CompanionDelegates = () => {
       <Notifications onProcessNotifications={processPushNotifications} />
       <Suspense fallback={null}>
         <MenuElements />
-        <DeviceQuickActions />
         <HandOffComponentListener />
         <WidgetCommunication />
         <WatchConnectivity />
