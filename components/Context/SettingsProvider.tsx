@@ -8,7 +8,6 @@ import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
@@ -17,6 +16,7 @@ import {
   getEnabled as getIsDeviceQuickActionsEnabled,
   setEnabled as setIsDeviceQuickActionsEnabled,
 } from '../../hooks/useDeviceQuickActions';
+import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {

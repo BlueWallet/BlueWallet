@@ -18,7 +18,6 @@ import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
 
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
-const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
@@ -261,7 +260,6 @@ const CompanionDelegates = () => {
       <Notifications onProcessNotifications={processPushNotifications} />
       <Suspense fallback={null}>
         <HandOffComponentListener />
-        <WidgetCommunication />
         <WatchConnectivity />
       </Suspense>
     </>

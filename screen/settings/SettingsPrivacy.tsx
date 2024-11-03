@@ -5,11 +5,11 @@ import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 
 enum SettingsPrivacySection {
   None,

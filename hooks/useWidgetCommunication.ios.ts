@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 import { TWallet, Transaction } from '../class/wallets/types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -62,7 +62,7 @@ const allWalletsBalanceAndTransactionTime = async (
   return { allWalletsBalance: balance, latestTransactionTime };
 };
 
-const WidgetCommunication: React.FC = () => {
+const useWidgetCommunication = () => {
   const { wallets, walletsInitialized } = useStorage();
   const { isWidgetBalanceDisplayAllowed } = useSettings();
 
@@ -88,4 +88,4 @@ const WidgetCommunication: React.FC = () => {
   return null;
 };
 
-export default WidgetCommunication;
+export default useWidgetCommunication;

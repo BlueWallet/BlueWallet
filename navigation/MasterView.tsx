@@ -4,12 +4,14 @@ import { useStorage } from '../hooks/context/useStorage';
 import DevMenu from '../components/DevMenu';
 import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
 import useMenuElements from '../hooks/useMenuElements';
+import useWidgetCommunication from '../hooks/useWidgetCommunication';
 const CompanionDelegates = lazy(() => import('../components/CompanionDelegates'));
 
 const MasterView = () => {
   const { walletsInitialized } = useStorage();
   useDeviceQuickActions();
   useMenuElements();
+  useWidgetCommunication();
 
   return (
     <>
