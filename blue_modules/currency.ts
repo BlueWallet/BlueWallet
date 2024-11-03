@@ -27,11 +27,48 @@ let exchangeRates: ExchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
+let currencyFormatter: Intl.NumberFormat | null = null;
+let btcFormatter: Intl.NumberFormat | null = null;
+
+function getCurrencyFormatter(): Intl.NumberFormat {
+  if (
+    !currencyFormatter ||
+    currencyFormatter.resolvedOptions().locale !== preferredFiatCurrency.locale ||
+    currencyFormatter.resolvedOptions().currency !== preferredFiatCurrency.endPointKey
+  ) {
+    currencyFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
+      style: 'currency',
+      currency: preferredFiatCurrency.endPointKey,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
+    });
+    console.debug('Created new currency formatter');
+  } else {
+    console.debug('Using cached currency formatter');
+  }
+  return currencyFormatter;
+}
+
+function getBTCFormatter(): Intl.NumberFormat {
+  if (!btcFormatter) {
+    btcFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
+      minimumFractionDigits: 8,
+      maximumFractionDigits: 8,
+    });
+    console.debug('Created new BTC formatter');
+  } else {
+    console.debug('Using cached BTC formatter');
+  }
+  return btcFormatter;
+}
+
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
+  currencyFormatter = null;
+  btcFormatter = null;
 }
 
 async function updateExchangeRate(): Promise<void> {
@@ -79,7 +116,10 @@ async function updateExchangeRate(): Promise<void> {
       rate.LAST_UPDATED_ERROR = true;
       exchangeRates.LAST_UPDATED_ERROR = true;
       await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
-    } catch (storageError) {}
+    } catch (storageError) {
+      exchangeRates = { LAST_UPDATED_ERROR: true };
+      throw storageError;
+    }
   }
 }
 
@@ -233,15 +273,9 @@ function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string
   if (format === false) return formattedAmount;
 
   try {
-    const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-      style: 'currency',
-      currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
-    });
-    return formatter.format(Number(formattedAmount));
+    return getCurrencyFormatter().format(Number(formattedAmount));
   } catch (error) {
-    console.warn(error);
+    console.error(error);
     return formattedAmount;
   }
 }
@@ -267,15 +301,10 @@ async function mostRecentFetchedRate(): Promise<CurrencyRate> {
       currencyInformation = {};
     }
 
-    const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-      style: 'currency',
-      currency: preferredFiatCurrency.endPointKey,
-    });
-
     const rate = currencyInformation[BTC_PREFIX + preferredFiatCurrency.endPointKey];
     return {
-      LastUpdated: currencyInformation[LAST_UPDATED],
-      Rate: rate ? formatter.format(rate) : '...',
+      LastUpdated: currencyInformation[LAST_UPDATED] ? new Date(currencyInformation[LAST_UPDATED]) : null,
+      Rate: rate ? getCurrencyFormatter().format(rate) : '...',
     };
   } catch {
     return {
@@ -307,6 +336,15 @@ function fiatToBTC(fiatFloat: number): string {
 
 function getCurrencySymbol(): string {
   return preferredFiatCurrency.symbol;
+}
+
+function formatBTC(btc: BigNumber.Value): string {
+  try {
+    return getBTCFormatter().format(Number(btc));
+  } catch (error) {
+    console.error(error);
+    return new BigNumber(btc).toFixed(8);
+  }
 }
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
@@ -341,4 +379,5 @@ export {
   satoshiToLocalCurrency,
   setPreferredCurrency,
   updateExchangeRate,
+  formatBTC,
 };
