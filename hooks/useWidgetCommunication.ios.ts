@@ -54,7 +54,7 @@ const allWalletsBalanceAndTransactionTime = async (
       }
     }
 
-    if (latestTransactionTime === 0 && transactions[0]?.confirmations === 0) {
+    if (latestTransactionTime === 0) {
       latestTransactionTime = WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
     }
   }
