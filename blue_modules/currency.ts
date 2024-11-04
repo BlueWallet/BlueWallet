@@ -50,7 +50,7 @@ function getCurrencyFormatter(): Intl.NumberFormat {
 }
 
 function getBTCFormatter(): Intl.NumberFormat {
-  if (!btcFormatter) {
+  if (!btcFormatter || btcFormatter.resolvedOptions().locale !== preferredFiatCurrency.locale) {
     btcFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
       minimumFractionDigits: 8,
       maximumFractionDigits: 8,
