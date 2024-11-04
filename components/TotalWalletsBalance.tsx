@@ -95,7 +95,8 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
           break;
       }
     },
-    [setIsTotalBalanceEnabledStorage, formattedBalance, setTotalBalancePreferredUnitStorage],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formattedBalance],
   );
 
   const handleBalanceOnPress = useCallback(async () => {
