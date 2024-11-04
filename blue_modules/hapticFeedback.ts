@@ -22,4 +22,20 @@ const triggerHapticFeedback = (type: HapticFeedbackTypes) => {
   });
 };
 
+export const triggerSuccessHapticFeedback = () => {
+  triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+};
+
+export const triggerWarningHapticFeedback = () => {
+  triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+};
+
+export const triggerErrorHapticFeedback = () => {
+  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+};
+
+export const triggerSelectionHapticFeedback = () => {
+  triggerHapticFeedback(HapticFeedbackTypes.Selection);
+};
+
 export default triggerHapticFeedback;

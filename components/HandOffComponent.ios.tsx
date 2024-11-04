@@ -11,7 +11,7 @@ const HandOffComponent: React.FC<HandOffComponentProps> = props => {
   const { isHandOffUseEnabled } = useSettings();
 
   if (process.env.NODE_ENV === 'development') {
-    console.debug('HandOffComponent: props', props);
+    console.debug('HandOffComponent: render');
   }
   if (isHandOffUseEnabled) {
     return <Handoff {...props} />;
@@ -35,8 +35,8 @@ export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
     return isEnabledValue === 'true';
   } catch (e) {
     console.debug('getIsHandOffUseEnabled error', e);
+    return false;
   }
-  return false;
 };
 
 export default MemoizedHandOffComponent;
