@@ -132,7 +132,6 @@ const useDeviceQuickActions = () => {
       if (Platform.OS === 'android') {
         QuickActions.clearShortcutItems();
       } else {
-        // @ts-ignore: Property 'setShortcutItems' does not exist on type 'typeof QuickActions'
         QuickActions.setShortcutItems([{ type: 'EmptyWallets', title: '' }]);
       }
     } catch (error) {
