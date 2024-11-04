@@ -39,7 +39,15 @@ const ClipboardContentType = Object.freeze({
 });
 
 const MasterView = () => {
-  const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
+  const {
+    wallets,
+    addWallet,
+    walletsInitialized,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+  } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
@@ -265,7 +273,7 @@ const MasterView = () => {
 
   return (
     <>
-      <MainRoot />
+      {walletsInitialized && <MainRoot />}
       {__DEV__ && <DevMenu />}
     </>
   );
