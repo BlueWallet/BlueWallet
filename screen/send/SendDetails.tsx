@@ -12,7 +12,6 @@ import {
   I18nManager,
   InteractionManager,
   Keyboard,
-  LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -1167,7 +1166,6 @@ const SendDetails = () => {
             number={utxos?.length || 0}
             onContainerPress={handleCoinControl}
             onClose={() => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setParams({ utxos: null });
             }}
           />
