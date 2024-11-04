@@ -10,6 +10,7 @@ import {
   findNodeHandle,
   FlatList,
   I18nManager,
+  InteractionManager,
   Keyboard,
   LayoutAnimation,
   NativeScrollEvent,
@@ -212,47 +213,65 @@ const SendDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
-  useEffect(() => {
-    // check if we have a suitable wallet
-    const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
-    if (suitable.length === 0) {
-      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
-      navigation.goBack();
-      return;
-    }
-    const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
-    setWallet(newWallet);
-    setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-    // we are ready!
-    setIsLoading(false);
+      const task = InteractionManager.runAfterInteractions(async () => {
+        try {
+          setNetworkTransactionFeesIsLoading(true);
+          // Check for suitable wallets
+          const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
+          if (suitable.length === 0) {
+            if (isActive) {
+              presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
+              navigation.goBack();
+            }
+            return;
+          }
 
-    // load cached fees
-    AsyncStorage.getItem(NetworkTransactionFee.StorageKey)
-      .then(res => {
-        if (!res) return;
-        const fees = JSON.parse(res);
-        if (!fees?.fastestFee) return;
-        setNetworkTransactionFees(fees);
-      })
-      .catch(e => console.log('loading cached recommendedFees error', e));
+          const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
+          if (isActive) {
+            setWallet(newWallet);
+            setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
+          }
 
-    // load fresh fees from servers
+          // Load cached fees
+          const cachedFees = await AsyncStorage.getItem(NetworkTransactionFee.StorageKey);
+          if (isActive && cachedFees) {
+            const parsedFees = JSON.parse(cachedFees);
+            if (parsedFees?.fastestFee) {
+              setNetworkTransactionFees(parsedFees);
+            }
+          }
 
-    setNetworkTransactionFeesIsLoading(true);
-    NetworkTransactionFees.recommendedFees()
-      .then(async fees => {
-        if (!fees?.fastestFee) return;
-        setNetworkTransactionFees(fees);
-        await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(fees));
-      })
-      .catch(e => console.log('loading recommendedFees error', e))
-      .finally(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setNetworkTransactionFeesIsLoading(false);
+          // Load fresh fees from servers
+          if (isActive) setNetworkTransactionFeesIsLoading(true);
+          const freshFees = await NetworkTransactionFees.recommendedFees();
+          if (isActive && freshFees?.fastestFee) {
+            setNetworkTransactionFees(freshFees);
+            await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(freshFees));
+          }
+        } catch (error) {
+          console.error('Error in loading fees:', error);
+          if (isActive) {
+            presentAlert({ message: (error as Error).message });
+          }
+        } finally {
+          if (isActive) {
+            setNetworkTransactionFeesIsLoading(false);
+            setIsLoading(false);
+          }
+        }
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+      return () => {
+        isActive = false;
+        task.cancel();
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [routeParams.walletID]),
+  );
   // change header and reset state on wallet change
   useEffect(() => {
     if (!wallet) return;
@@ -360,10 +379,16 @@ const SendDetails = () => {
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
     useCallback(() => {
-      setIsLoading(false);
-      setDumb(v => !v);
+      InteractionManager.runAfterInteractions(() => {
+        setIsLoading(false);
+        setDumb(v => !v);
+      });
       return () => {
-        feeModalRef.current?.dismiss();
+        try {
+          feeModalRef.current?.dismiss();
+        } catch (e) {
+          console.error(e);
+        }
       };
     }, []),
   );
