@@ -97,7 +97,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const refreshTransactions = useCallback(async () => {
     console.debug('refreshTransactions, ', wallet?.getLabel());
-    if (!wallet || isElectrumEnabled || isLoading) return;
+    if (!wallet || !isElectrumEnabled || isLoading) return;
     setIsLoading(true);
     let smthChanged = false;
     try {
@@ -373,7 +373,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
   );
 
-  const refreshProps = isDesktop || isElectrumEnabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
+  const refreshProps = isDesktop || !isElectrumEnabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   return (
     <View style={styles.flex}>
