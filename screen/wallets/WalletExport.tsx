@@ -25,10 +25,19 @@ const WalletExport: React.FC = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { currentAppState, previousAppState } = useAppState();
+  const stylesHook = StyleSheet.create({
+    root: {
+      backgroundColor: colors.elevated,
+    },
+    type: { color: colors.foregroundColor },
+    secret: { color: colors.foregroundColor },
+    warning: { color: colors.failedColor },
+  });
 
   useEffect(() => {
-    if (previousAppState === 'active' && currentAppState !== 'active') {
-      goBack();
+    if (!isLoading && previousAppState === 'active' && currentAppState !== 'active') {
+      const timer = setTimeout(() => goBack(), 500);
+      return () => clearTimeout(timer);
     }
   }, [currentAppState, previousAppState, goBack, isLoading]);
 
@@ -51,19 +60,16 @@ const WalletExport: React.FC = () => {
     }, [wallet, saveToDisk]),
   );
 
-  const stylesHook = {
-    loading: {
-      backgroundColor: colors.elevated,
-    },
-    root: {
-      backgroundColor: colors.elevated,
-    },
-    type: { color: colors.foregroundColor },
-    secret: { color: colors.foregroundColor },
-    warning: { color: colors.failedColor },
-  };
-
-  const secrets: string[] = ((typeof wallet?.getSecret() === 'string' ? [wallet.getSecret()] : wallet?.getSecret()) as string[]) || [];
+  const secrets: string[] = (() => {
+    try {
+      const secret = wallet?.getSecret();
+      if (!secret) return [];
+      return typeof secret === 'string' ? [secret] : Array.isArray(secret) ? secret : [];
+    } catch (error) {
+      console.error('Failed to get wallet secret:', error);
+      return [];
+    }
+  })();
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
