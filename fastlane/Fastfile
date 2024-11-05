@@ -303,8 +303,17 @@ platform :ios do
 
   changelog = <<~CHANGELOG
     Build Information:
-    - Branch: #{branch_name}
-    - Commit Message: #{last_commit_message}
+  CHANGELOG
+
+  # Include the branch name only if it is not 'master'
+  if branch_name != 'master'
+    changelog += <<~CHANGELOG
+      - Branch: #{branch_name}
+    CHANGELOG
+  end
+
+  changelog += <<~CHANGELOG
+    - Commit: #{last_commit_message}
   CHANGELOG
 
   ipa_path = ENV['IPA_OUTPUT_PATH']

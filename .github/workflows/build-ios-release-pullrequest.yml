@@ -30,6 +30,7 @@ jobs:
           fetch-depth: 0 # Ensures the full Git history is available
 
       - name: Ensure Correct Branch
+        if: github.ref != 'refs/heads/master'
         run: |
           if [ -n "${GITHUB_HEAD_REF}" ]; then
             git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
@@ -43,8 +44,15 @@ jobs:
       - name: Get Latest Commit Details
         id: get_latest_commit_details
         run: |
-          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          # Check if we are in a detached HEAD state
+          if [ "$(git rev-parse --abbrev-ref HEAD)" == "HEAD" ]; then
+            CURRENT_BRANCH=$(git show-ref --head -s HEAD | xargs -I {} git branch --contains {} | grep -v "detached" | head -n 1 | sed 's/^[* ]*//')
+          else
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          fi
+          
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          
           echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
           echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
