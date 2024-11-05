@@ -176,7 +176,7 @@ const PsbtWithHardwareWallet = () => {
           </TouchableOpacity>
           <BlueSpacing20 />
           <SecondButton
-            disabled={isElectrumEnabled}
+            disabled={!isElectrumEnabled}
             onPress={broadcast}
             title={loc.send.confirm_sendNow}
             testID="PsbtWithHardwareWalletBroadcastTransactionButton"
