@@ -18,14 +18,42 @@ jobs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       ipa_output_path: ${{ steps.build_app.outputs.ipa_output_path }}
-      latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
+      latest_commit_message: ${{ steps.get_latest_commit_details.outputs.commit_message }}
+      branch_name: ${{ steps.get_latest_commit_details.outputs.branch_name }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
+
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches all history
+          fetch-depth: 0 # Ensures the full Git history is available
+
+      - name: Ensure Correct Branch
+        run: |
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
+            git checkout ${GITHUB_HEAD_REF}
+          else
+            git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
+            git checkout ${GITHUB_REF##*/}
+          fi
+          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Get Latest Commit Details
+        id: get_latest_commit_details
+        run: |
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
+          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+      - name: Print Commit Details
+        run: |
+          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
+          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
@@ -53,13 +81,6 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           bundle exec fastlane ios install_pods
-
-      - name: Get Latest Commit Message
-        id: get_latest_commit_message
-        run: |
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
 
       - name: Generate Build Number Based on Timestamp
         id: generate_build_number
@@ -121,7 +142,7 @@ jobs:
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
           path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
- 
+
   testflight-upload:
     needs: build
     runs-on: macos-latest
@@ -131,6 +152,7 @@ jobs:
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
@@ -158,7 +180,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ./ # Download the IPA file to the current working directory
+          path: ./
 
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
@@ -169,7 +191,7 @@ jobs:
           pwd
           echo "Files in current directory:"
           ls -la ./
-      
+
       - name: Set IPA Path Environment Variable
         run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
 
@@ -179,6 +201,11 @@ jobs:
             echo "IPA file not found at path: $IPA_OUTPUT_PATH"
             exit 1
           fi
+
+      - name: Print Environment Variables for Debugging
+        run: |
+          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
+          echo "BRANCH_NAME: $BRANCH_NAME"
 
       - name: Upload to TestFlight
         run: |

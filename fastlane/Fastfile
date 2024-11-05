@@ -293,22 +293,34 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-  changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
-  # Check if IPA exists before proceeding
+  desc "Upload IPA to TestFlight"
+  lane :upload_to_testflight_lane do
+
+  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+
+
+  changelog = <<~CHANGELOG
+    Build Information:
+    - Branch: #{branch_name}
+    - Commit Message: #{last_commit_message}
+  CHANGELOG
+
+  ipa_path = ENV['IPA_OUTPUT_PATH']
+  
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
 
   UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+  UI.message("Changelog:\n#{changelog}")
+
 
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
     ipa: ipa_path,
-    skip_waiting_for_build_processing: true, # Do not wait for processing
+    skip_waiting_for_build_processing: true,
     changelog: changelog
   )
 
