@@ -185,7 +185,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <Button disabled={this.context.isElectrumEnabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <Button disabled={!this.context.isElectrumEnabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
