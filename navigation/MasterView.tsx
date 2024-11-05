@@ -39,15 +39,7 @@ const ClipboardContentType = Object.freeze({
 });
 
 const MasterView = () => {
-  const {
-    wallets,
-    addWallet,
-    walletsInitialized,
-    saveToDisk,
-    fetchAndSaveWalletTransactions,
-    refreshAllWalletTransactions,
-    setSharedCosigner,
-  } = useStorage();
+  const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
@@ -57,69 +49,75 @@ const MasterView = () => {
   useHandOffListener();
 
   const processPushNotifications = useCallback(async () => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const notifications2process = await getStoredNotifications();
-    await clearStoredNotifications();
-    setApplicationIconBadgeNumber(0);
-    const deliveredNotifications = await getDeliveredNotifications();
-    setTimeout(() => removeAllDeliveredNotifications(), 5000);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      const notifications2process = await getStoredNotifications();
+      await clearStoredNotifications();
+      setApplicationIconBadgeNumber(0);
+      const deliveredNotifications = await getDeliveredNotifications();
+      setTimeout(() => removeAllDeliveredNotifications(), 5000);
 
-    for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+      for (const payload of notifications2process) {
+        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
-      console.log('processing push notification:', payload);
-      let wallet: LightningCustodianWallet | TWallet | undefined;
-      switch (+payload.type) {
-        case 2:
-        case 3:
-          wallet = wallets.find(w => w.weOwnAddress(payload.address));
-          break;
-        case 1:
-        case 4:
-          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-          break;
-      }
+        console.log('processing push notification:', payload);
+        let wallet: LightningCustodianWallet | TWallet | undefined;
+        switch (+payload.type) {
+          case 2:
+          case 3:
+            wallet = wallets.find(w => w.weOwnAddress(payload.address));
+            break;
+          case 1:
+          case 4:
+            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            break;
+        }
 
-      if (wallet) {
-        const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
-        if (wasTapped) {
-          if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-            navigationRef.dispatch(
-              CommonActions.navigate({
-                name: 'WalletTransactions',
+        if (wallet) {
+          const walletID = wallet.getID();
+          fetchAndSaveWalletTransactions(walletID);
+          if (wasTapped) {
+            if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+              navigationRef.dispatch(
+                CommonActions.navigate({
+                  name: 'WalletTransactions',
+                  params: {
+                    walletID,
+                    walletType: wallet.type,
+                  },
+                }),
+              );
+            } else {
+              navigationRef.navigate('ReceiveDetailsRoot', {
+                screen: 'ReceiveDetails',
                 params: {
                   walletID,
-                  walletType: wallet.type,
+                  address: payload.address,
                 },
-              }),
-            );
-          } else {
-            navigationRef.navigate('ReceiveDetailsRoot', {
-              screen: 'ReceiveDetails',
-              params: {
-                walletID,
-                address: payload.address,
-              },
-            });
+              });
+            }
+
+            return true;
           }
-
-          return true;
+        } else {
+          console.log('could not find wallet while processing push notification, NOP');
         }
-      } else {
-        console.log('could not find wallet while processing push notification, NOP');
       }
-    }
 
-    if (deliveredNotifications.length > 0) {
-      refreshAllWalletTransactions();
-    }
+      if (deliveredNotifications.length > 0) {
+        refreshAllWalletTransactions();
+      }
 
-    return false;
+      return false;
+    } catch (error) {
+      console.error('Error processing push notifications:', error);
+      return false;
+    }
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
+      console.warn('handleOpenURL', event);
       const { url } = event;
 
       if (url) {
@@ -249,31 +247,21 @@ const MasterView = () => {
     [processPushNotifications],
   );
 
-  const addListeners = useCallback(() => {
+  useEffect(() => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
     const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
 
-    return {
-      urlSubscription,
-      appStateSubscription,
-      notificationSubscription,
-    };
-  }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
-
-  useEffect(() => {
-    const subscriptions = addListeners();
-
     return () => {
-      subscriptions.urlSubscription?.remove();
-      subscriptions.appStateSubscription?.remove();
-      subscriptions.notificationSubscription?.remove();
+      urlSubscription?.remove();
+      appStateSubscription?.remove();
+      notificationSubscription?.remove();
     };
-  }, [addListeners]);
+  }, [handleAppStateChange, handleOpenURL, onNotificationReceived]);
 
   return (
     <>
-      {walletsInitialized && <MainRoot />}
+      <MainRoot />
       {__DEV__ && <DevMenu />}
     </>
   );

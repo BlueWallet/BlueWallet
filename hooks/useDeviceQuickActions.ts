@@ -7,9 +7,9 @@ import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import { TWallet } from '../class/wallets/types';
 import useOnAppLaunch from './useOnAppLaunch';
 import { formatBalance } from '../loc';
-import * as NavigationService from '../NavigationService';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
+import { navigationRef } from '../NavigationService';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -41,7 +41,7 @@ const useDeviceQuickActions = () => {
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
   const dispatchNavigate = useCallback((routeName: string, params?: object) => {
-    NavigationService.dispatch(
+    navigationRef.current?.dispatch(
       CommonActions.navigate({
         name: routeName,
         params,
@@ -70,12 +70,16 @@ const useDeviceQuickActions = () => {
   const handleOpenURL = useCallback(
     (event: { url: string }): void => {
       try {
-        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
-          wallets,
-          addWallet,
-          saveToDisk,
-          setSharedCosigner,
-        });
+        DeeplinkSchemaMatch.navigationRouteFor(
+          event,
+          (value: [string, any]) => navigationRef.current?.navigate(...value),
+          {
+            wallets,
+            addWallet,
+            saveToDisk,
+            setSharedCosigner,
+          },
+        );
       } catch (error) {
         console.error('Error handling open URL:', error);
       }
@@ -190,10 +194,6 @@ const useDeviceQuickActions = () => {
   }, [walletsInitialized, isStorageEncrypted, setQuickActions, removeShortcuts]);
 
   useEffect(() => {
-    if (!walletsInitialized) {
-      return;
-    }
-
     let subscription: any = null;
 
     const addListeners = () => {
