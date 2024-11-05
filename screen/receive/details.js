@@ -42,7 +42,7 @@ const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_cod
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, isElectrumEnabled, fetchAndSaveWalletTransactions } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
@@ -116,7 +116,7 @@ const ReceiveDetails = () => {
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          if (isElectrumEnabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         } catch (error) {
           console.warn('Error fetching wallet address (ONCHAIN):', error);
         }
@@ -148,7 +148,7 @@ const ReceiveDetails = () => {
         console.error('Error obtaining notifications permissions:', error);
       }
     }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumEnabled, sleep]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet.allowBIP47()) {

@@ -22,7 +22,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled, wallets } = useStorage();
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumEnabled, wallets } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation();
   const route = useRoute();
@@ -176,7 +176,7 @@ const PsbtWithHardwareWallet = () => {
           </TouchableOpacity>
           <BlueSpacing20 />
           <SecondButton
-            disabled={isElectrumDisabled}
+            disabled={isElectrumEnabled}
             onPress={broadcast}
             title={loc.send.confirm_sendNow}
             testID="PsbtWithHardwareWalletBroadcastTransactionButton"
