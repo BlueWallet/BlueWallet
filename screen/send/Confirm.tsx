@@ -341,7 +341,7 @@ const Confirm: React.FC = () => {
             <ActivityIndicator />
           ) : (
             <Button
-              disabled={isElectrumEnabled || state.isButtonDisabled}
+              disabled={!isElectrumEnabled || state.isButtonDisabled}
               onPress={handleSendTransaction}
               title={loc.send.confirm_sendNow}
             />
