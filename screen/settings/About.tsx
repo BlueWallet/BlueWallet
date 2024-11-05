@@ -43,7 +43,7 @@ const About: React.FC = () => {
   };
 
   const handleOnSelfTestPress = () => {
-    if (isElectrumEnabled) {
+    if (!isElectrumEnabled) {
       presentAlert({ message: loc.settings.about_selftest_electrum_disabled });
     } else {
       navigate('SelfTest');
