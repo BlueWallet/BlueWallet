@@ -181,9 +181,13 @@ const WalletsList: React.FC = () => {
         return;
       }
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
+      try {
+        await refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+          dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+        });
+      } catch (error) {
+        console.error('Error refreshing transactions:', error);
+      }
     },
     [isElectrumDisabled, refreshAllWalletTransactions],
   );
@@ -222,9 +226,14 @@ const WalletsList: React.FC = () => {
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+          try {
+            refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+          } catch (error) {
+            console.error('onSnapToItem error:', error);
+            setIsLoading(false);
+          }
+          currentWalletIndex.current = index;
         }
-        currentWalletIndex.current = index;
       }
     },
     [isFocused, refreshAllWalletTransactions, setIsLoading, wallets, width],

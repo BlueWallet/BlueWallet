@@ -17,6 +17,7 @@ import {
   setEnabled as setIsDeviceQuickActionsEnabled,
 } from '../../hooks/useDeviceQuickActions';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
+import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -98,6 +99,10 @@ interface SettingsContextType {
   setIsDrawerShouldHide: (value: boolean) => void;
   selectedBlockExplorer: BlockExplorer;
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
+  isViewAllWalletsEnabled: boolean;
+  selectedDefaultWallet: string | undefined;
+  setViewAllWalletsEnabledStorage: (enabled: boolean) => Promise<void>;
+  setSelectedDefaultWalletStorage: (walletID: string) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -127,6 +132,10 @@ const defaultSettingsContext: SettingsContextType = {
   setIsDrawerShouldHide: () => {},
   selectedBlockExplorer: BLOCK_EXPLORERS.default,
   setBlockExplorerStorage: async () => false,
+  isViewAllWalletsEnabled: true,
+  selectedDefaultWallet: undefined,
+  setViewAllWalletsEnabledStorage: async () => {},
+  setSelectedDefaultWalletStorage: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -145,6 +154,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
+  const {
+    isViewAllWalletsEnabled,
+    selectedDefaultWallet,
+    setViewAllWalletsEnabledStorage,
+    setSelectedDefaultWalletStorage,
+  } = useOnAppLaunch();
 
   const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
@@ -371,6 +386,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      isViewAllWalletsEnabled,
+      selectedDefaultWallet,
+      setViewAllWalletsEnabledStorage,
+      setSelectedDefaultWalletStorage,
     }),
     [
       preferredFiatCurrency,
@@ -399,6 +418,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
+      isViewAllWalletsEnabled,
+      selectedDefaultWallet,
+      setViewAllWalletsEnabledStorage,
+      setSelectedDefaultWalletStorage,
     ],
   );
 

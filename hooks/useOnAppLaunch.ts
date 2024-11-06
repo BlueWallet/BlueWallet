@@ -1,69 +1,101 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TWallet } from '../class/wallets/types';
 import { useStorage } from './context/useStorage';
 
-const useOnAppLaunch = () => {
-  const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
-  const { wallets } = useStorage();
+const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
 
+const useOnAppLaunch = () => {
+  const { wallets, walletsInitialized } = useStorage();
+  const [isViewAllWalletsEnabled, setIsViewAllWalletsEnabled] = useState<boolean>(true);
+  const [selectedDefaultWallet, setSelectedDefaultWallet] = useState<string | undefined>(undefined);
+  const [ready, setReady] = useState<boolean>(false);
+
+  // Fetches the selected default wallet ID from AsyncStorage
   const getSelectedDefaultWallet = useCallback(async (): Promise<string | undefined> => {
-    let selectedWallet: TWallet | undefined;
+    if (!walletsInitialized) return undefined;
     try {
       const selectedWalletID = JSON.parse((await AsyncStorage.getItem(STORAGE_KEY)) || 'null');
-      if (selectedWalletID !== null) {
-        selectedWallet = wallets.find((wallet: TWallet) => wallet.getID() === selectedWalletID);
-        if (!selectedWallet) {
-          await AsyncStorage.removeItem(STORAGE_KEY);
-          return undefined;
-        }
-      } else {
-        return undefined;
+      console.warn('selectedWalletID', selectedWalletID);
+      if (selectedWalletID) {
+        const wallet = wallets.find((w) => w.getID() === selectedWalletID);
+        console.warn('wallet', wallet);
+        if (wallet) return wallet.getID();
+        await AsyncStorage.removeItem(STORAGE_KEY); // Remove if wallet no longer exists
       }
-    } catch (_e) {
-      return undefined;
+    } catch (error) {
+      console.error('Error fetching selected default wallet:', error);
     }
-    return selectedWallet.getID();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [STORAGE_KEY]);
+    return undefined;
+  }, [wallets, walletsInitialized]);
 
-  const setSelectedDefaultWallet = useCallback(
-    async (value: string): Promise<void> => {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-    },
-    [STORAGE_KEY],
-  ); // No external dependencies
-
-  const isViewAllWalletsEnabled = useCallback(async (): Promise<boolean> => {
+  // Sets the selected default wallet ID in AsyncStorage
+  const setSelectedDefaultWalletStorage = useCallback(async (walletID: string): Promise<void> => {
     try {
-      const selectedDefaultWallet = await AsyncStorage.getItem(STORAGE_KEY);
-      return selectedDefaultWallet === '' || selectedDefaultWallet === null;
-    } catch (_e) {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(walletID));
+      setSelectedDefaultWallet(walletID);
+    } catch (error) {
+      console.error('Error setting selected default wallet:', error);
+    }
+  }, []);
+
+  // Checks if viewing all wallets is enabled based on AsyncStorage
+  const getIsViewAllWalletsEnabled = useCallback(async (): Promise<boolean> => {
+    if (!walletsInitialized) return undefined;
+
+    try {
+      const value = await AsyncStorage.getItem(STORAGE_KEY);
+      return value === '' || value === null;
+    } catch (error) {
+      console.error('Error checking if view all wallets is enabled:', error);
       return true;
     }
-  }, [STORAGE_KEY]); // No external dependencies
+  }, [walletsInitialized]);
 
-  const setViewAllWalletsEnabled = useCallback(
-    async (value: boolean): Promise<void> => {
-      if (!value) {
-        const selectedDefaultWallet = await getSelectedDefaultWallet();
-        if (!selectedDefaultWallet) {
-          const firstWallet = wallets[0];
-          await setSelectedDefaultWallet(firstWallet.getID());
+  // Sets the "view all wallets" state and stores it in AsyncStorage
+  const setViewAllWalletsEnabledStorage = useCallback(
+    async (enabled: boolean): Promise<void> => {
+      try {
+        if (enabled) {
+          await AsyncStorage.setItem(STORAGE_KEY, '');
+          setIsViewAllWalletsEnabled(true);
+          setSelectedDefaultWallet(undefined); // Clear default wallet
+        } else {
+          if (!selectedDefaultWallet && wallets.length > 0) {
+            await setSelectedDefaultWalletStorage(wallets[0].getID()); // Set to the first wallet if none selected
+          }
+          setIsViewAllWalletsEnabled(false);
         }
-      } else {
-        await AsyncStorage.setItem(STORAGE_KEY, '');
+      } catch (error) {
+        console.error('Error setting view all wallets enabled:', error);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [STORAGE_KEY, getSelectedDefaultWallet, setSelectedDefaultWallet],
+    [selectedDefaultWallet, wallets, setSelectedDefaultWalletStorage],
   );
 
+  // Initializes the hook state on component mount
+  useEffect(() => {
+    const initialize = async () => {
+      if (!walletsInitialized) return;
+      const viewAllEnabled = await getIsViewAllWalletsEnabled();
+      setIsViewAllWalletsEnabled(viewAllEnabled);
+
+      if (!viewAllEnabled) {
+        const walletID = await getSelectedDefaultWallet();
+        setSelectedDefaultWallet(walletID);
+      }
+      
+      setReady(true); // Mark initialization as complete
+    };
+
+    initialize();
+  }, [getIsViewAllWalletsEnabled, getSelectedDefaultWallet, walletsInitialized]);
+
   return {
+    ready, // Indicates if initialization is complete
     isViewAllWalletsEnabled,
-    setViewAllWalletsEnabled,
-    getSelectedDefaultWallet,
-    setSelectedDefaultWallet,
+    selectedDefaultWallet,
+    setViewAllWalletsEnabledStorage,
+    setSelectedDefaultWalletStorage,
   };
 };
 

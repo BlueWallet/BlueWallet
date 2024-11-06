@@ -1,10 +1,12 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { isHandset } from '../blue_modules/environment';
 import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
+import CompanionDelegate from '../components/CompanionDelegate';
+import { navigationRef } from '../NavigationService';
 
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -31,17 +33,18 @@ const UnlockRoot = () => {
 };
 
 const MainRoot = () => {
-  const { walletsInitialized } = useStorage();
 
+  const { walletsInitialized, isNavigationReady } = useStorage();
+  
   const renderRoot = () => {
     if (!walletsInitialized) {
       return <UnlockRoot />;
     } else {
-      // Conditional rendering based on the environment
       const Component = isHandset ? DetailViewScreensStack : DrawerRoot;
       return (
         <Suspense fallback={<LazyLoadingIndicator />}>
           <Component />
+          {isNavigationReady && <CompanionDelegate />}
         </Suspense>
       );
     }
@@ -51,4 +54,4 @@ const MainRoot = () => {
 };
 
 export default MainRoot;
-export { DetailViewStack }; // Exporting the navigator to use it in DetailViewScreensStack
+export { DetailViewStack };

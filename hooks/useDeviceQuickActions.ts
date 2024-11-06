@@ -1,15 +1,10 @@
 import { useEffect, useCallback } from 'react';
-import { CommonActions } from '@react-navigation/native';
-import { DeviceEventEmitter, Linking, Platform } from 'react-native';
+import {  Platform } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import { TWallet } from '../class/wallets/types';
-import useOnAppLaunch from './useOnAppLaunch';
 import { formatBalance } from '../loc';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
-import { navigationRef } from '../NavigationService';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -36,100 +31,11 @@ export async function getEnabled(): Promise<boolean> {
 }
 
 const useDeviceQuickActions = () => {
-  const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useStorage();
+  const { wallets, walletsInitialized, isStorageEncrypted } = useStorage();
   const { preferredFiatCurrency, isQuickActionsEnabled } = useSettings();
-  const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
-  const dispatchNavigate = useCallback((routeName: string, params?: object) => {
-    navigationRef.current?.dispatch(
-      CommonActions.navigate({
-        name: routeName,
-        params,
-      }),
-    );
-  }, []);
 
-  const walletQuickActions = useCallback(
-    (data: any): void => {
-      try {
-        const walletID = data?.userInfo?.url?.split('wallet/')[1];
-        const wallet = wallets.find((w: { getID: () => any }) => w.getID() === walletID);
-        if (wallet) {
-          dispatchNavigate('WalletTransactions', {
-            walletID: wallet.getID(),
-            walletType: wallet.type,
-          });
-        }
-      } catch (error) {
-        console.error('Error handling wallet quick action:', error);
-      }
-    },
-    [wallets, dispatchNavigate],
-  );
 
-  const handleOpenURL = useCallback(
-    (event: { url: string }): void => {
-      try {
-        DeeplinkSchemaMatch.navigationRouteFor(
-          event,
-          (value: [string, any]) => navigationRef.current?.navigate(...value),
-          {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          },
-        );
-      } catch (error) {
-        console.error('Error handling open URL:', error);
-      }
-    },
-    [wallets, addWallet, saveToDisk, setSharedCosigner],
-  );
-
-  const popInitialShortcutAction = useCallback(async (): Promise<any> => {
-    try {
-      const data = await QuickActions.popInitialAction();
-      return data;
-    } catch (error) {
-      console.error('Failed to pop initial shortcut action:', error);
-      return null;
-    }
-  }, []);
-
-  const popInitialAction = useCallback(
-    async (data: any): Promise<void> => {
-      try {
-        if (data) {
-          const walletID = data?.userInfo?.url?.split('wallet/')[1];
-          const wallet = wallets.find((w: { getID: () => any }) => w.getID() === walletID);
-          if (wallet) {
-            dispatchNavigate('WalletTransactions', {
-              walletID: wallet.getID(),
-              walletType: wallet.type,
-            });
-          }
-        } else {
-          const url = await Linking.getInitialURL();
-          if (url && DeeplinkSchemaMatch.hasSchema(url)) {
-            handleOpenURL({ url });
-          } else if (!(await isViewAllWalletsEnabled())) {
-            const selectedDefaultWalletID = (await getSelectedDefaultWallet()) as string;
-            const selectedDefaultWallet = wallets.find((w: TWallet) => w.getID() === selectedDefaultWalletID);
-            if (selectedDefaultWallet) {
-              dispatchNavigate('WalletTransactions', {
-                walletID: selectedDefaultWalletID,
-                walletType: selectedDefaultWallet.type,
-              });
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error processing initial shortcut action:', error);
-      }
-    },
-    [wallets, dispatchNavigate, handleOpenURL, isViewAllWalletsEnabled, getSelectedDefaultWallet],
-  );
 
   const removeShortcuts = useCallback(async (): Promise<void> => {
     try {
@@ -192,25 +98,6 @@ const useDeviceQuickActions = () => {
       handleEncryptionStatus();
     }
   }, [walletsInitialized, isStorageEncrypted, setQuickActions, removeShortcuts]);
-
-  useEffect(() => {
-    let subscription: any = null;
-
-    const addListeners = () => {
-      subscription = DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
-      popInitialShortcutAction().then(popInitialAction);
-    };
-
-    addListeners();
-
-    return () => {
-      if (subscription && typeof subscription.remove === 'function') {
-        subscription.remove();
-      } else {
-        DeviceEventEmitter.removeAllListeners('quickActionShortcut');
-      }
-    };
-  }, [walletsInitialized, walletQuickActions, popInitialShortcutAction, popInitialAction]);
 
   useEffect(() => {
     const manageQuickActions = async () => {

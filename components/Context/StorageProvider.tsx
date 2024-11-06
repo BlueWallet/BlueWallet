@@ -53,6 +53,8 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
+  isNavigationReady: boolean;
+  setIsNavigationReady: (value: boolean) => void;
 }
 
 export enum WalletTransactionsStatus {
@@ -76,6 +78,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
+  const [isNavigationReady, setIsNavigationReady] = useState<boolean>(false);
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -281,6 +284,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setIsElectrumDisabled,
       reloadTransactionsMenuActionFunction,
       setReloadTransactionsMenuActionFunction,
+      isNavigationReady,
+      setIsNavigationReady,
     }),
     [
       wallets,
@@ -303,6 +308,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setIsElectrumDisabled,
       reloadTransactionsMenuActionFunction,
       setReloadTransactionsMenuActionFunction,
+      isNavigationReady,
+      setIsNavigationReady,
     ],
   );
 
