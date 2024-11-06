@@ -20,10 +20,10 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
-    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
-
     Dir.chdir(project_root) do
+      keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
+      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
+
       UI.message("Creating keystore from HEX...")
       File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
@@ -60,33 +60,32 @@ platform :android do
       signed_apk_name = branch_name != 'master' ? "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" : "BlueWallet-#{version_name}-#{build_number}.apk"
 
       # Build APK
-      Dir.chdir("android") do
-        UI.message("Building APK...")
-        gradle(task: "assembleRelease", project_dir: "android")
-        UI.message("APK build completed.")
+      UI.message("Building APK...")
+      sh("cd android && ./gradlew assembleRelease")
+      UI.message("APK build completed.")
 
-        # Define paths
-        unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
-        signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
+      # Define paths
+      unsigned_apk_path = "android/app/build/outputs/apk/release/app-release-unsigned.apk"
+      signed_apk_path = "android/app/build/outputs/apk/release/#{signed_apk_name}"
 
-        # Rename APK
-        if File.exist?(unsigned_apk_path)
-          UI.message("Renaming APK to #{signed_apk_name}...")
-          FileUtils.mv(unsigned_apk_path, signed_apk_path)
-          ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-        else
-          UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
-          next
-        end
-
-        # Sign APK
-        UI.message("Signing APK with apksigner...")
-        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
-        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-        UI.message("APK signed successfully: #{signed_apk_path}")
+      # Rename APK
+      if File.exist?(unsigned_apk_path)
+        UI.message("Renaming APK to #{signed_apk_name}...")
+        FileUtils.mv(unsigned_apk_path, signed_apk_path)
+        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+      else
+        UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
+        next
       end
+
+      # Sign APK
+      UI.message("Signing APK with apksigner...")
+      apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+      sh("#{apksigner_path} sign --ks #{project_root}/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+      UI.message("APK signed successfully: #{signed_apk_path}")
     end
   end
+
 
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
@@ -294,22 +293,43 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-  changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
-  # Check if IPA exists before proceeding
+  desc "Upload IPA to TestFlight"
+  lane :upload_to_testflight_lane do
+
+  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+
+
+  changelog = <<~CHANGELOG
+    Build Information:
+  CHANGELOG
+
+  # Include the branch name only if it is not 'master'
+  if branch_name != 'master'
+    changelog += <<~CHANGELOG
+      - Branch: #{branch_name}
+    CHANGELOG
+  end
+
+  changelog += <<~CHANGELOG
+    - Commit: #{last_commit_message}
+  CHANGELOG
+
+  ipa_path = ENV['IPA_OUTPUT_PATH']
+  
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
 
   UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+  UI.message("Changelog:\n#{changelog}")
+
 
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
     ipa: ipa_path,
-    skip_waiting_for_build_processing: true, # Do not wait for processing
+    skip_waiting_for_build_processing: true,
     changelog: changelog
   )
 

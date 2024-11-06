@@ -31,9 +31,16 @@ export type AddWalletStackParamList = {
     importText: string;
     password: string | undefined;
   };
-  PleaseBackup: undefined;
-  PleaseBackupLNDHub: undefined;
-  ProvideEntropy: undefined;
+  PleaseBackup: {
+    walletID: string;
+  };
+  PleaseBackupLNDHub: {
+    walletID: string;
+  };
+  ProvideEntropy: {
+    onGenerated: (entropy: Buffer) => void;
+    words: number;
+  };
   WalletsAddMultisig: {
     walletLabel: string;
   };
