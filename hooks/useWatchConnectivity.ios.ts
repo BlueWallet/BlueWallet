@@ -87,7 +87,7 @@ const useWatchConnectivity = () => {
             xpub:
               wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type ? wallet.getXpub() || wallet.getSecret() : undefined,
             paymentCode:
-              wallet.allowBIP47 && wallet.allowBIP47() && wallet.isBIP47Enabled && wallet.isBIP47Enabled() ? undefined : undefined,
+              wallet.allowBIP47 && wallet.isBIP47Enabled && wallet.isBIP47Enabled() ? undefined : undefined,
           };
           return walletInformation;
         }),
