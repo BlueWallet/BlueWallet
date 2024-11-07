@@ -18,12 +18,12 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
+import useWatchConnectivity from '../hooks/useWatchConnectivity';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
-const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
@@ -37,6 +37,8 @@ const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
+
+  useWatchConnectivity();
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -268,7 +270,6 @@ const CompanionDelegates = () => {
         <DeviceQuickActions />
         <HandOffComponentListener />
         <WidgetCommunication />
-        <WatchConnectivity />
       </Suspense>
     </>
   );
