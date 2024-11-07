@@ -31,20 +31,18 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     [colors.foregroundColor],
   );
 
-  const totalBalance = useMemo(() => {
-    return wallets.reduce((prev, curr) => {
-      if (!curr.hideBalance) {
-        const balance = curr.getBalance();
-        return prev + (typeof balance === 'number' ? balance : 0);
-      }
-      return prev;
-    }, 0);
+  const getVisibleWalletBalances = useCallback(() => {
+    return wallets.filter(wallet => !wallet.hideBalance).map(wallet => wallet.getBalance());
   }, [wallets]);
+
+  const totalBalance = useMemo(() => {
+    const visibleBalances = getVisibleWalletBalances();
+    return visibleBalances.reduce((acc, balance) => acc + balance, 0);
+  }, [getVisibleWalletBalances]);
 
   const formattedBalance = useMemo(() => {
     return formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true);
   }, [totalBalance, totalBalancePreferredUnit]);
-
   const toolTipActions = useMemo(() => {
     const viewInFiat = {
       ...CommonToolTipActions.ViewInFiat,
@@ -95,7 +93,8 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
           break;
       }
     },
-    [setIsTotalBalanceEnabledStorage, formattedBalance, setTotalBalancePreferredUnitStorage],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formattedBalance],
   );
 
   const handleBalanceOnPress = useCallback(async () => {
