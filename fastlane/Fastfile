@@ -336,6 +336,35 @@ platform :ios do
   UI.success("Successfully uploaded IPA to TestFlight!")
 end
 
+desc "Upload iOS source maps to Bugsnag"
+lane :upload_bugsnag_sourcemaps do
+  bugsnag_api_key = ENV['BUGSNAG_API_KEY']
+  bugsnag_release_stage = ENV['BUGSNAG_RELEASE_STAGE'] || "production"
+  version = ENV['PROJECT_VERSION']
+  build_number = ENV['NEW_BUILD_NUMBER']
+
+  UI.user_error!("BUGSNAG_API_KEY environment variable is missing") if bugsnag_api_key.nil?
+  UI.user_error!("PROJECT_VERSION environment variable is missing") if version.nil?
+  UI.user_error!("NEW_BUILD_NUMBER environment variable is missing") if build_number.nil?
+
+  ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
+
+  if File.exist?(ios_sourcemap)
+    UI.message("Uploading iOS source map to Bugsnag...")
+    bugsnag_sourcemaps_upload(
+      api_key: bugsnag_api_key,
+      source_map: ios_sourcemap,
+      minified_file: "./ios/main.jsbundle",
+      code_bundle_id: "#{version}-#{build_number}",
+      release_stage: bugsnag_release_stage,
+      app_version: version
+    )
+    UI.success("iOS source map uploaded successfully.")
+  else
+    UI.error("iOS source map not found at #{ios_sourcemap}")
+  end
+end
+
   desc "Build the iOS app"
 lane :build_app_lane do
   Dir.chdir(project_root) do
