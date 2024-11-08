@@ -50,21 +50,32 @@ const useMenuElements = () => {
   );
 
   useEffect(() => {
-    console.debug('useEffect: walletsInitialized =', walletsInitialized);
+    if (__DEV__) {
+      console.debug('useEffect: walletsInitialized =', walletsInitialized);
+    }
+    
     if (walletsInitialized && eventEmitter) {
-      console.debug('Adding event listeners for menu actions');
-      eventEmitter.addListener('openSettings', eventActions.openSettings);
-      eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet);
-      eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet);
-      eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions);
+      if (__DEV__) {
+        console.debug('Adding event listeners for menu actions');
+      }
+      
+      try {
+        const listeners = [
+          eventEmitter.addListener('openSettings', eventActions.openSettings),
+          eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
+          eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
+          eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
+        ];
 
-      return () => {
-        console.debug('Removing event listeners for menu actions');
-        eventEmitter.removeAllListeners('openSettings');
-        eventEmitter.removeAllListeners('addWalletMenuAction');
-        eventEmitter.removeAllListeners('importWalletMenuAction');
-        eventEmitter.removeAllListeners('reloadTransactionsMenuAction');
-      };
+        return () => {
+          if (__DEV__) {
+            console.debug('Removing event listeners for menu actions');
+          }
+          listeners.forEach(listener => listener.remove());
+        };
+      } catch (error) {
+        console.error('Failed to set up menu event listeners:', error);
+      }
     }
   }, [walletsInitialized, eventActions]);
 
