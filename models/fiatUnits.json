@@ -293,6 +293,13 @@
         "symbol": "lei",
         "country": "Romania (Romanian Leu)"
     },
+    "RSD": {
+        "endPointKey": "RSD",
+        "locale": "sr-RS",
+        "source": "CoinGecko",
+        "symbol": "DIN",
+        "country": "Serbia (Serbian Dinar)"
+    },
     "RUB": {
         "endPointKey": "RUB",
         "locale": "ru-RU",
