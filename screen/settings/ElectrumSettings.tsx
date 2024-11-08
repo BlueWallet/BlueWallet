@@ -43,7 +43,6 @@ const ElectrumSettings: React.FC = () => {
   const { server } = useRoute<RouteProps>().params;
   const { setOptions } = useExtendedNavigation();
   const [isLoading, setIsLoading] = useState(true);
-  const [isOfflineMode, setIsOfflineMode] = useState(true);
   const [serverHistory, setServerHistory] = useState<ElectrumServerItem[]>([]);
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
   const [host, setHost] = useState<string>('');
@@ -51,7 +50,7 @@ const ElectrumSettings: React.FC = () => {
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
-  const { setIsElectrumDisabled } = useStorage();
+  const { setIsElectrumEnabledStorage, isElectrumEnabled } = useStorage();
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -89,19 +88,25 @@ const ElectrumSettings: React.FC = () => {
       const savedSslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
       const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
 
-      const offlineMode = await BlueElectrum.isDisabled();
       const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
       setHost(savedHost || '');
       setPort(savedPort ? Number(savedPort) : undefined);
       setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
       setServerHistory(parsedServerHistory);
-      setIsOfflineMode(offlineMode);
 
-      setConfig(await BlueElectrum.getConfig());
-      configInterval = setInterval(async () => {
-        setConfig(await BlueElectrum.getConfig());
-      }, 500);
+      try {
+        if (isElectrumEnabled) {
+          await BlueElectrum.connectMain();
+          setConfig(await BlueElectrum.getConfig());
+          configInterval = setInterval(async () => {
+            setConfig(await BlueElectrum.getConfig());
+          }, 500);
+        }
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      }
 
       setIsLoading(false);
     };
@@ -111,7 +116,7 @@ const ElectrumSettings: React.FC = () => {
     return () => {
       if (configInterval) clearInterval(configInterval);
     };
-  }, []);
+  }, [isElectrumEnabled]);
 
   useEffect(() => {
     if (server) {
@@ -272,9 +277,9 @@ const ElectrumSettings: React.FC = () => {
 
   useEffect(() => {
     setOptions({
-      headerRight: isOfflineMode ? null : () => HeaderRight,
+      headerRight: isElectrumEnabled ? () => HeaderRight : undefined,
     });
-  }, [HeaderRight, isOfflineMode, setOptions]);
+  }, [HeaderRight, isElectrumEnabled, setOptions]);
 
   const checkServer = async () => {
     setIsLoading(true);
@@ -327,15 +332,24 @@ const ElectrumSettings: React.FC = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     if (value) {
-      await BlueElectrum.setDisabled(true);
-      setIsElectrumDisabled(true);
-      BlueElectrum.forceDisconnect();
+      try {
+        await BlueElectrum.setDisabled(false);
+        setIsElectrumEnabledStorage(true);
+        await BlueElectrum.connectMain();
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      }
     } else {
-      await BlueElectrum.setDisabled(false);
-      setIsElectrumDisabled(false);
-      BlueElectrum.connectMain();
+      try {
+        setIsElectrumEnabledStorage(false);
+        BlueElectrum.forceDisconnect();
+        await BlueElectrum.setDisabled(true);
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      }
     }
-    setIsOfflineMode(value);
   };
 
   const renderElectrumSettings = () => {
@@ -472,7 +486,7 @@ const ElectrumSettings: React.FC = () => {
         title={loc.settings.electrum_offline_mode}
         switch={{
           onValueChange: onElectrumConnectionEnabledSwitchChange,
-          value: isOfflineMode,
+          value: isElectrumEnabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
         disabled={isLoading}
@@ -480,7 +494,7 @@ const ElectrumSettings: React.FC = () => {
         subtitle={loc.settings.electrum_offline_description}
       />
 
-      {!isOfflineMode && renderElectrumSettings()}
+      {isElectrumEnabled && renderElectrumSettings()}
     </ScrollView>
   );
 };

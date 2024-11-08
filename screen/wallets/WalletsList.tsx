@@ -104,7 +104,7 @@ const WalletsList: React.FC = () => {
     getBalance,
     refreshAllWalletTransactions,
     setSelectedWalletID,
-    isElectrumDisabled,
+    isElectrumEnabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
@@ -176,7 +176,7 @@ const WalletsList: React.FC = () => {
    */
   const refreshTransactions = useCallback(
     async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-      if (isElectrumDisabled) {
+      if (!isElectrumEnabled) {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
         return;
       }
@@ -185,7 +185,7 @@ const WalletsList: React.FC = () => {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
       });
     },
-    [isElectrumDisabled, refreshAllWalletTransactions],
+    [isElectrumEnabled, refreshAllWalletTransactions],
   );
 
   useEffect(() => {
@@ -415,7 +415,7 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
+  const refreshProps = isDesktop || !isElectrumEnabled ? {} : { refreshing: isLoading, onRefresh };
 
   const sections: SectionData[] = [
     { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },

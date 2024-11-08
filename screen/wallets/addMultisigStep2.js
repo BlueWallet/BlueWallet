@@ -40,7 +40,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
+  const { addWallet, saveToDisk, isElectrumEnabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
   const { navigate, navigateToWalletsList } = useExtendedNavigation();
@@ -168,7 +168,7 @@ const WalletsAddMultisigStep2 = () => {
       w.addCosigner(cc[0], fp, cc[2], cc[3]);
     }
     w.setLabel(walletLabel);
-    if (!isElectrumDisabled) {
+    if (isElectrumEnabled) {
       await w.fetchBalance();
     }
 

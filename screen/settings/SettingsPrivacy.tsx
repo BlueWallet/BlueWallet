@@ -61,8 +61,8 @@ const SettingsPrivacy: React.FC = () => {
   const onDoNotTrackValueChange = async (value: boolean) => {
     setIsLoading(SettingsPrivacySection.All);
     try {
-      setDoNotTrackStorage(value);
-      A.setOptOut(value);
+      setDoNotTrackStorage(!value);
+      A.setOptOut(!value);
     } catch (e) {
       console.debug('onDoNotTrackValueChange catch', e);
     }
@@ -175,7 +175,7 @@ const SettingsPrivacy: React.FC = () => {
         Component={TouchableWithoutFeedback}
         switch={{
           onValueChange: onDoNotTrackValueChange,
-          value: isDoNotTrackEnabled,
+          value: !isDoNotTrackEnabled,
           disabled: isLoading === SettingsPrivacySection.All,
         }}
         subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_do_not_track_explanation}</Text>}

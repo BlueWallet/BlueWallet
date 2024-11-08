@@ -51,7 +51,7 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, isElectrumDisabled, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { wallets, saveToDisk, setSelectedWalletID, isElectrumEnabled, setReloadTransactionsMenuActionFunction } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = route.params;
@@ -97,7 +97,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const refreshTransactions = useCallback(async () => {
     console.debug('refreshTransactions, ', wallet?.getLabel());
-    if (!wallet || isElectrumDisabled || isLoading) return;
+    if (!wallet || !isElectrumEnabled || isLoading) return;
     setIsLoading(true);
     let smthChanged = false;
     try {
@@ -126,7 +126,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       }
       setIsLoading(false);
     }
-  }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
+  }, [wallet, isElectrumEnabled, isLoading, saveToDisk, pageSize]);
 
   useFocusEffect(
     useCallback(() => {
@@ -373,7 +373,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
   );
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
+  const refreshProps = isDesktop || !isElectrumEnabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   return (
     <View style={styles.flex}>

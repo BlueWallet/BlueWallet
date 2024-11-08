@@ -21,7 +21,7 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useStorage();
+  const { isElectrumEnabled } = useStorage();
 
   const stylesHook = StyleSheet.create({
     textBackup: {
@@ -43,7 +43,7 @@ const About: React.FC = () => {
   };
 
   const handleOnSelfTestPress = () => {
-    if (isElectrumDisabled) {
+    if (!isElectrumEnabled) {
       presentAlert({ message: loc.settings.about_selftest_electrum_disabled });
     } else {
       navigate('SelfTest');

@@ -51,7 +51,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
+  const { wallets, setWalletsWithNewOrder, isElectrumEnabled } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
@@ -174,7 +174,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     let newWallets = wallets.filter(newWallet => {
       return newWallet.getID() !== walletID;
     }) as MultisigHDWallet[];
-    if (!isElectrumDisabled) {
+    if (isElectrumEnabled) {
       await wallet?.fetchBalance();
     }
     newWallets.push(wallet);

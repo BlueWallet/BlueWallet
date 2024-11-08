@@ -66,7 +66,7 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumEnabled } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
@@ -341,7 +341,7 @@ const Confirm: React.FC = () => {
             <ActivityIndicator />
           ) : (
             <Button
-              disabled={isElectrumDisabled || state.isButtonDisabled}
+              disabled={!isElectrumEnabled || state.isButtonDisabled}
               onPress={handleSendTransaction}
               title={loc.send.confirm_sendNow}
             />
