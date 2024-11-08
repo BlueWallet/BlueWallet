@@ -137,6 +137,15 @@ jobs:
           bundle exec fastlane ios build_app_lane --verbose
           echo "ipa_output_path=$IPA_OUTPUT_PATH" >> $GITHUB_OUTPUT # Set the IPA output path for future jobs
 
+      - name: Upload Bugsnag Sourcemaps
+        if: success()
+        run: bundle exec fastlane ios upload_bugsnag_sourcemaps
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: production
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+          NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+
       - name: Upload Build Logs
         if: always()
         uses: actions/upload-artifact@v4

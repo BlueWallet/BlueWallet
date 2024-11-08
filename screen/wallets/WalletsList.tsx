@@ -99,9 +99,9 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID, isElectrumDisabled } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
-  const { isTotalBalanceEnabled } = useSettings();
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
+  const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();

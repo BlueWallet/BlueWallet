@@ -51,3 +51,38 @@ func calcEstimateFeeFromFeeHistogram(numberOfBlocks: Int, feeHistogram: [[Double
 
     return max(2, percentile(histogramFlat, p: 0.5))
 }
+
+
+var numberFormatter: NumberFormatter {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .decimal
+    formatter.maximumFractionDigits = 0
+    formatter.locale = Locale.current
+    return formatter
+}
+
+extension Double {
+    func formattedPriceString() -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: self)) ?? "--"
+    }
+
+    func formattedCurrencyString() -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.maximumFractionDigits = 0
+        formatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+        return formatter.string(from: NSNumber(value: self)) ?? "--"
+    }
+}
+
+extension Date {
+    var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: self)
+    }
+}
