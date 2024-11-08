@@ -87,11 +87,13 @@ const RateExtractors = {
 
   BNR: async (): Promise<number> => {
     try {
+      // Fetching USD to RON rate
       const xmlData = await (await fetch('https://www.bnr.ro/nbrfxrates.xml')).text();
       const matches = xmlData.match(/<Rate currency="USD">([\d.]+)<\/Rate>/);
       if (matches && matches[1]) {
         const usdToRonRate = parseFloat(matches[1]);
         const btcToUsdRate = await RateExtractors.CoinGecko('USD');
+        // Convert BTC to RON using the USD to RON exchange rate
         return btcToUsdRate * usdToRonRate;
       }
       throw new Error('No valid USD to RON rate found');
