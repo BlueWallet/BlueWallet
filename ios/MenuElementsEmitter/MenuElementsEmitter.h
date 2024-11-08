@@ -22,5 +22,6 @@
 - (void)addWalletMenuAction;
 - (void)importWalletMenuAction;
 - (void)reloadTransactionsMenuAction;
+- (NSArray<NSString *> *)supportedEvents;
 
 @end
