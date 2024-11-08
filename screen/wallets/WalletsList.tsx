@@ -104,10 +104,9 @@ const WalletsList: React.FC = () => {
     getBalance,
     refreshAllWalletTransactions,
     setSelectedWalletID,
-    isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
-  const { isTotalBalanceEnabled } = useSettings();
+  const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
