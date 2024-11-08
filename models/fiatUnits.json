@@ -13,6 +13,13 @@
         "symbol": "د.إ.",
         "country": "United Arab Emirates (UAE Dirham)"
     },
+    "AMD": {
+        "endPointKey": "AMD",
+        "locale": "hy-AM",
+        "source": "CoinDesk",
+        "symbol": "֏",
+        "country": "Armenia (Armenian Dram)"
+    },
     "ANG": {
         "endPointKey": "ANG",
         "locale": "en-SX",
