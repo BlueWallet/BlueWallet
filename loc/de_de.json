@@ -475,9 +475,9 @@
     "more_info": "Mehr Infos"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "In bitcoin anzeigen",
-    "view_in_sats": "In sats anzeigen",
-    "view_in_fiat": "In {currency} anzeigen",
+    "display_in_bitcoin": "In bitcoin anzeigen",
+    "display_in_sats": "In sats anzeigen",
+    "display_in_fiat": "In {currency} anzeigen",
     "title": "Gesamtes Guthaben",
     "explanation": "Auf dem Übersichtsbildschirm den Gesamtsaldo aller Wallets anzeigen."
   },

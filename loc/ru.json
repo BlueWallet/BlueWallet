@@ -474,9 +474,9 @@
     "more_info": "Подробнее"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Показать в Bitcoin",
-    "view_in_sats": "Показать в сатоши",
-    "view_in_fiat": "Показать в {currency}",
+    "display_in_bitcoin": "Показать в Bitcoin",
+    "display_in_sats": "Показать в сатоши",
+    "display_in_fiat": "Показать в {currency}",
     "title": "Общий баланс",
     "explanation": "Просмотр общего баланса всех ваших кошельков на обзорном экране."
   },

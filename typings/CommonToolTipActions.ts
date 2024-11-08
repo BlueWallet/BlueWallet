@@ -43,6 +43,7 @@ const keys = {
   SignVerify: 'signVerify',
   ExportPrivateKey: 'exportPrivateKey',
   PasteFromClipboard: 'pasteFromClipboard',
+  Hide: 'hide',
 };
 
 const icons: { [key: string]: { iconValue: string } } = {
@@ -83,6 +84,7 @@ const icons: { [key: string]: { iconValue: string } } = {
   Signature: { iconValue: 'signature' },
   PasteFromClipboard: { iconValue: 'document.on.clipboard' },
   ImportFile: { iconValue: 'document.viewfinder' },
+  Hide: { iconValue: 'eye.slash' },
 };
 
 export const CommonToolTipActions: { [key: string]: Action } = {
@@ -108,7 +110,7 @@ export const CommonToolTipActions: { [key: string]: Action } = {
   },
   CopyAmount: {
     id: keys.CopyAmount,
-    text: loc.transactions.details_copy_amount,
+    text: loc.transactions.details_copy,
     icon: icons.Clipboard,
   },
   AddRecipient: {
@@ -141,21 +143,26 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     text: loc.transactions.details_balance_hide,
     icon: icons.EyeSlash,
   },
+  Hide: {
+    id: keys.Hide,
+    text: loc.total_balance_view.hide,
+    icon: icons.EyeSlash,
+  },
   ViewInFiat: {
     id: keys.ViewInFiat,
-    text: loc.total_balance_view.view_in_fiat,
+    text: loc.total_balance_view.display_in_fiat,
     icon: icons.ViewInFiat,
     hidden: false,
   },
   ViewInSats: {
     id: keys.ViewInSats,
-    text: loc.total_balance_view.view_in_sats,
+    text: loc.total_balance_view.display_in_sats,
     icon: icons.ViewInBitcoin,
     hidden: false,
   },
   ViewInBitcoin: {
     id: keys.ViewInBitcoin,
-    text: loc.total_balance_view.view_in_bitcoin,
+    text: loc.total_balance_view.display_in_bitcoin,
     icon: icons.ViewInBitcoin,
     hidden: false,
   },

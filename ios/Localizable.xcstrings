@@ -18,7 +18,7 @@
         }
       }
     },
-    "VIEW_IN_BROWSER_TITLE" : {
+    "display_in_BROWSER_TITLE" : {
       "localizations" : {
         "en_US" : {
           "stringUnit" : {

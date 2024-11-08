@@ -483,9 +483,9 @@
     "more_info": "Další informace"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Zobrazit v bitcoinech",
-    "view_in_sats": "Zobrazit v sat",
-    "view_in_fiat": "Zobrazit v {currency}",
+    "display_in_bitcoin": "Zobrazit v bitcoinech",
+    "display_in_sats": "Zobrazit v sat",
+    "display_in_fiat": "Zobrazit v {currency}",
     "title": "Celkový zůstatek",
     "explanation": "Zobrazit celkový zůstatek všech vašich peněženek na přehledové obrazovce."
   },

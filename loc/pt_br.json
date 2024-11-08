@@ -463,9 +463,9 @@
     "more_info": "Mais informações"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Ver em Bitcoin",
-    "view_in_sats": "Ver em sats",
-    "view_in_fiat": "Ver em {currency}",
+    "display_in_bitcoin": "Ver em Bitcoin",
+    "display_in_sats": "Ver em sats",
+    "display_in_fiat": "Ver em {currency}",
     "title": "Saldo total",
     "explanation": "Veja o saldo total de todas as suas carteiras na tela pricinpal."
   },
