@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { Alert } from 'react-native';
 import {
   transferCurrentComplicationUserInfo,
   transferUserInfo,
@@ -51,7 +52,6 @@ const useWatchConnectivity = () => {
       messagesListener();
       messagesListenerActive.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, isReachable, isInstalled]);
 
   const constructWalletsToSendToWatch = useCallback(async () => {
@@ -62,7 +62,7 @@ const useWatchConnectivity = () => {
         wallets.map(async wallet => {
           const transactions = wallet
             .getTransactions()
-            .map((transaction: { confirmations: number; hash: string | number; memo: any; value: number; received: string | number }) => {
+            .map((transaction: { confirmations: number; hash: string | number; memo: any; value: number; received: string | number; }) => {
               const type = transaction.confirmations && transaction.confirmations > 0 ? 'received' : 'pendingConfirmation';
               const memo = txMetadata[transaction.hash]?.memo || transaction.memo || '';
               const amount = formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
@@ -94,7 +94,7 @@ const useWatchConnectivity = () => {
 
       return { wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) };
     } catch (error) {
-      console.log('Error constructing wallets to send to watch:', error);
+      Alert.alert('Error', `Error constructing wallets to send to watch: ${(error as Error).message}\nData: ${JSON.stringify(wallets)}`);
       throw error;
     }
   }, [walletsInitialized, wallets, txMetadata]);
@@ -109,7 +109,7 @@ const useWatchConnectivity = () => {
           isReachable ? transferUserInfo(walletsToProcess) : updateApplicationContext(walletsToProcess);
         }
       } catch (error) {
-        console.log('Error sending wallets to watch:', error);
+        Alert.alert('Error', `Error sending wallets to watch: ${(error as Error).message}\nData: ${JSON.stringify(wallets)}`);
       }
     };
 
@@ -122,7 +122,7 @@ const useWatchConnectivity = () => {
     try {
       updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
     } catch (error) {
-      console.log('Error updating application context:', error);
+      Alert.alert('Error', `Error updating application context: ${(error as Error).message}\nData: ${JSON.stringify({ isWalletsInitialized: walletsInitialized })}`);
     }
   }, [isInstalled, isReachable, walletsInitialized]);
 
@@ -137,28 +137,22 @@ const useWatchConnectivity = () => {
         });
         lastPreferredCurrency.current = preferredFiatCurrencyParsed.endPointKey;
       } catch (error) {
-        console.log('Error transferring complication user info:', error);
+        const errorMessage = (error as Error).message;
+        Alert.alert('Error', `Error transferring complication user info: ${errorMessage}\nData: ${JSON.stringify({ preferredFiatCurrency: preferredFiatCurrencyParsed })}`);
       }
     }
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = async (
-    message: WatchPayload & {
-      request: string;
-      walletIndex: number;
-      amount: number;
-      description?: string;
-      hideBalance?: boolean;
-      message?: string;
-    },
-    reply: (response: any) => void,
+    message: WatchPayload & { request: string; walletIndex: number; amount: number; description?: string; hideBalance?: boolean; message?: string; },
+    reply: { (resp: WatchPayload): void; (arg0: { invoicePaymentRequest?: any; }): void; }
   ) => {
     try {
       if (message.request === 'createInvoice') {
         const invoiceRequest = await handleLightningInvoiceCreateRequest(message.walletIndex, message.amount, message.description);
         reply({ invoicePaymentRequest: invoiceRequest });
       } else {
-        const actions: { [key: string]: () => Promise<void> } = {
+        const actions = {
           sendApplicationContext: async () => {
             const walletsToProcess = await constructWalletsToSendToWatch();
             walletsToProcess && updateApplicationContext(walletsToProcess);
@@ -178,32 +172,32 @@ const useWatchConnectivity = () => {
             reply({});
           },
         };
-        if (message.message && actions[message.message]) {
-          await actions[message.message]();
+        if (message.message && actions[message.message as keyof typeof actions]) {
+          await actions[message.message as keyof typeof actions]();
         }
       }
     } catch (error) {
-      console.log('Error handling message:', error);
+      const errorMessage = (error as Error).message;
+      Alert.alert('Error', `Error handling message: ${errorMessage}\nData: ${JSON.stringify(message)}`);
       reply({});
     }
   };
 
   const handleLightningInvoiceCreateRequest = async (walletIndex: number, amount: number, description = loc.lnd.placeholder) => {
     try {
-      const wallet = wallets[walletIndex] as LightningCustodianWallet;
+      const wallet = wallets[walletIndex] as LightningCustodianWallet
       if (wallet.allowReceive() && amount > 0) {
         const invoiceRequest = await wallet.addInvoice(amount, description);
-        // @ts-ignore: Notifications is not typed
+        // @ts-ignore: later
         if (await Notifications.isNotificationsEnabled()) {
           const decoded = await wallet.decodeInvoice(invoiceRequest);
-
-          // @ts-ignore: Notifications is not typed
+          // @ts-ignore: later
           Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
         }
         return invoiceRequest;
       }
     } catch (error) {
-      console.log('Error creating lightning invoice:', error);
+      Alert.alert('Error', `Error creating lightning invoice: ${(error as Error).message}\nData: ${JSON.stringify({ walletIndex, amount, description })}`);
       throw error;
     }
   };
