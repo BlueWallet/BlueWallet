@@ -36,8 +36,14 @@ const useMenuElements = () => {
       addWallet: () => dispatchNavigate('AddWalletRoot'),
       importWallet: () => dispatchNavigate('AddWalletRoot', 'ImportWallet'),
       reloadTransactions: () => {
-        console.debug('Calling reloadTransactionsMenuActionFunction:', reloadTransactionsMenuActionRef.current);
-        reloadTransactionsMenuActionRef.current();
+        if (__DEV__) {
+          console.debug('Calling reloadTransactionsMenuActionFunction');
+        }
+        if (reloadTransactionsMenuActionRef.current) {
+          reloadTransactionsMenuActionRef.current();
+        } else {
+          console.warn('No reload function set for reloadTransactions menu action');
+        }
       },
     }),
     [dispatchNavigate],
