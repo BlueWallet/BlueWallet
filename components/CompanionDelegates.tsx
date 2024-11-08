@@ -2,7 +2,7 @@ import 'react-native-gesture-handler'; // should be on top
 
 import { CommonActions } from '@react-navigation/native';
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import { AppState, AppStateStatus, Linking } from 'react-native';
 import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
@@ -23,9 +23,6 @@ const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions')
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
-
-// @ts-ignore: NativeModules.EventEmitter is not typed
-const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -224,32 +221,15 @@ const CompanionDelegates = () => {
     [processPushNotifications, showClipboardAlert, wallets],
   );
 
-  const onNotificationReceived = useCallback(
-    async (notification: { data: { data: any } }) => {
-      const payload = Object.assign({}, notification, notification.data);
-      if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-      // @ts-ignore: Notifications type is not defined
-      payload.foreground = true;
-
-      // @ts-ignore: Notifications type is not defined
-      await Notifications.addNotification(payload);
-      // @ts-ignore: Notifications type is not defined
-      if (payload.foreground) await processPushNotifications();
-    },
-    [processPushNotifications],
-  );
-
   const addListeners = useCallback(() => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
 
     return {
       urlSubscription,
       appStateSubscription,
-      notificationSubscription,
     };
-  }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
+  }, [handleOpenURL, handleAppStateChange]);
 
   useEffect(() => {
     const subscriptions = addListeners();
@@ -257,7 +237,6 @@ const CompanionDelegates = () => {
     return () => {
       subscriptions.urlSubscription?.remove();
       subscriptions.appStateSubscription?.remove();
-      subscriptions.notificationSubscription?.remove();
     };
   }, [addListeners]);
 

@@ -12,7 +12,6 @@
 @interface EventEmitter : RCTEventEmitter <RCTBridgeModule>
 
 + (EventEmitter *)sharedInstance;
-- (void)sendNotification:(NSDictionary *)userInfo;
 - (void)sendUserActivity:(NSDictionary *)userInfo;
 
 @end

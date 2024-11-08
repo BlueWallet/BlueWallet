@@ -10,24 +10,20 @@ Uses MenuElementsEmitter for event handling.
 */
 
 const { MenuElementsEmitter } = NativeModules;
-const eventEmitter = Platform.OS === 'ios' || Platform.OS === 'macos' ? new NativeEventEmitter(MenuElementsEmitter) : undefined;
+const eventEmitter =
+  (Platform.OS === 'ios' || Platform.OS === 'macos') && MenuElementsEmitter ? new NativeEventEmitter(MenuElementsEmitter) : null;
 
 const useMenuElements = () => {
   const { walletsInitialized } = useStorage();
-
   const reloadTransactionsMenuActionRef = useRef<() => void>(() => {});
 
-  const setReloadTransactionsMenuActionFunction = (newFunction: () => void) => {
+  const setReloadTransactionsMenuActionFunction = useCallback((newFunction: () => void) => {
     console.debug('Setting reloadTransactionsMenuActionFunction.');
     reloadTransactionsMenuActionRef.current = newFunction;
-  };
+  }, []);
 
   const dispatchNavigate = useCallback((routeName: string, screen?: string) => {
-    const action = CommonActions.navigate({
-      name: routeName,
-      params: screen ? { screen } : undefined,
-    });
-    NavigationService.dispatch(action);
+    NavigationService.dispatch(CommonActions.navigate({ name: routeName, params: screen ? { screen } : undefined }));
   }, []);
 
   const eventActions = useMemo(
@@ -36,47 +32,29 @@ const useMenuElements = () => {
       addWallet: () => dispatchNavigate('AddWalletRoot'),
       importWallet: () => dispatchNavigate('AddWalletRoot', 'ImportWallet'),
       reloadTransactions: () => {
-        if (__DEV__) {
-          console.debug('Calling reloadTransactionsMenuActionFunction');
-        }
-        if (reloadTransactionsMenuActionRef.current) {
-          reloadTransactionsMenuActionRef.current();
-        } else {
-          console.warn('No reload function set for reloadTransactions menu action');
-        }
+        console.debug('Calling reloadTransactionsMenuActionFunction');
+        reloadTransactionsMenuActionRef.current?.();
       },
     }),
     [dispatchNavigate],
   );
 
   useEffect(() => {
-    if (__DEV__) {
-      console.debug('useEffect: walletsInitialized =', walletsInitialized);
-    }
-    
-    if (walletsInitialized && eventEmitter) {
-      if (__DEV__) {
-        console.debug('Adding event listeners for menu actions');
-      }
-      
-      try {
-        const listeners = [
-          eventEmitter.addListener('openSettings', eventActions.openSettings),
-          eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
-          eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
-          eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
-        ];
+    if (!walletsInitialized || !eventEmitter) return;
 
-        return () => {
-          if (__DEV__) {
-            console.debug('Removing event listeners for menu actions');
-          }
-          listeners.forEach(listener => listener.remove());
-        };
-      } catch (error) {
-        console.error('Failed to set up menu event listeners:', error);
-      }
-    }
+    console.debug('Setting up menu event listeners');
+
+    const listeners = [
+      eventEmitter.addListener('openSettings', eventActions.openSettings),
+      eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
+      eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
+      eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
+    ];
+
+    return () => {
+      console.debug('Removing menu event listeners');
+      listeners.forEach(listener => listener.remove());
+    };
   }, [walletsInitialized, eventActions]);
 
   return {

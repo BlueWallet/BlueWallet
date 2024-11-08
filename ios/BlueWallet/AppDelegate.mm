@@ -185,7 +185,6 @@
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
-  [EventEmitter.sharedInstance sendNotification:userInfo];
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
