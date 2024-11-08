@@ -405,6 +405,7 @@
     "add_wallet_seed_length_24": "24 words",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
     "clipboard_lightning": "You have a Lightning invoice on your clipboard. Would you like to use it for a transaction?",
+    "clear_clipboard_on_import": "Clear clipboard on import",
     "details_address": "Address",
     "details_advanced": "Advanced",
     "details_are_you_sure": "Are you sure?",

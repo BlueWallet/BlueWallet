@@ -35,8 +35,6 @@ interface StorageContextType {
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
-  isElectrumDisabled: boolean;
-  setIsElectrumDisabled: (value: boolean) => void;
   reloadTransactionsMenuActionFunction: () => void;
   setReloadTransactionsMenuActionFunction: (func: () => void) => void;
   getTransactions: typeof BlueApp.getTransactions;
@@ -73,7 +71,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
@@ -119,12 +116,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   // Initialize wallets and connect to Electrum
   useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       setWallets(BlueApp.getWallets());
-      BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
 
@@ -278,8 +273,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      isElectrumDisabled,
-      setIsElectrumDisabled,
       reloadTransactionsMenuActionFunction,
       setReloadTransactionsMenuActionFunction,
     }),
@@ -300,8 +293,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      isElectrumDisabled,
-      setIsElectrumDisabled,
       reloadTransactionsMenuActionFunction,
       setReloadTransactionsMenuActionFunction,
     ],
