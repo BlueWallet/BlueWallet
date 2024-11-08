@@ -7,6 +7,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+#import "MenuElementsEmitter.h"
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
 #import "BlueWallet-Swift.h"
@@ -234,24 +235,24 @@
 }
 
 - (void)openSettings:(UIKeyCommand *)keyCommand {
-  [EventEmitter.sharedInstance openSettings];
+  [MenuElementsEmitter.sharedInstance openSettings];
 }
 
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance addWalletMenuAction];
+    [MenuElementsEmitter.sharedInstance addWalletMenuAction];
     NSLog(@"Add Wallet action performed");
 }
 
 - (void)importWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance importWalletMenuAction];
+    [MenuElementsEmitter.sharedInstance importWalletMenuAction];
     NSLog(@"Import Wallet action performed");
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance reloadTransactionsMenuAction];
+  [MenuElementsEmitter.sharedInstance reloadTransactionsMenuAction];
     NSLog(@"Reload Transactions action performed");
 }
 

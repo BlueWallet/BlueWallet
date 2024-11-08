@@ -23,6 +23,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
+import useMenuElements from '../../hooks/useMenuElements';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -98,15 +99,8 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const {
-    wallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
-    setSelectedWalletID,
-    isElectrumDisabled,
-    setReloadTransactionsMenuActionFunction,
-  } = useStorage();
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID, isElectrumDisabled } = useStorage();
+  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
   const { isTotalBalanceEnabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -130,6 +124,30 @@ const WalletsList: React.FC = () => {
     },
   });
 
+  /**
+   * Forcefully fetches TXs and balance for ALL wallets.
+   * Triggered manually by user on pull-to-refresh.
+   */
+  const refreshTransactions = useCallback(
+    async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+      if (isElectrumDisabled) {
+        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+        return;
+      }
+      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
+      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+      });
+    },
+    [isElectrumDisabled, refreshAllWalletTransactions],
+  );
+
+  const onRefresh = useCallback(() => {
+    console.debug('WalletsList onRefresh');
+    refreshTransactions(true, false);
+    // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
+  }, [refreshTransactions]);
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
@@ -142,7 +160,7 @@ const WalletsList: React.FC = () => {
         setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+    }, [onRefresh]),
   );
 
   useEffect(() => {
@@ -169,24 +187,6 @@ const WalletsList: React.FC = () => {
       A(A.ENUM.GOT_ZERO_BALANCE);
     }
   }, [getBalance]);
-
-  /**
-   * Forcefully fetches TXs and balance for ALL wallets.
-   * Triggered manually by user on pull-to-refresh.
-   */
-  const refreshTransactions = useCallback(
-    async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-      if (isElectrumDisabled) {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        return;
-      }
-      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
-    },
-    [isElectrumDisabled, refreshAllWalletTransactions],
-  );
 
   useEffect(() => {
     refreshTransactions(false, true);
@@ -408,12 +408,6 @@ const WalletsList: React.FC = () => {
       }
     });
   }, [pasteFromClipboard, onBarScanned, routeName]);
-
-  const onRefresh = useCallback(() => {
-    console.debug('WalletsList onRefresh');
-    refreshTransactions(true, false);
-    // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
-  }, [refreshTransactions]);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 

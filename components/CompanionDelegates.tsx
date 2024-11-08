@@ -3,7 +3,6 @@ import 'react-native-gesture-handler'; // should be on top
 import { CommonActions } from '@react-navigation/native';
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
-
 import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
@@ -18,8 +17,8 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
+import useMenuElements from '../hooks/useMenuElements';
 
-const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
@@ -37,6 +36,8 @@ const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
+
+  useMenuElements();
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -264,7 +265,6 @@ const CompanionDelegates = () => {
     <>
       <Notifications onProcessNotifications={processPushNotifications} />
       <Suspense fallback={null}>
-        <MenuElements />
         <DeviceQuickActions />
         <HandOffComponentListener />
         <WidgetCommunication />
