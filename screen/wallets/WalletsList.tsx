@@ -148,6 +148,14 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
+  const verifyBalance = useCallback(() => {
+    if (getBalance() !== 0) {
+      A(A.ENUM.GOT_NONZERO_BALANCE);
+    } else {
+      A(A.ENUM.GOT_ZERO_BALANCE);
+    }
+  }, [getBalance]);
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
@@ -159,8 +167,7 @@ const WalletsList: React.FC = () => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [onRefresh]),
+    }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
   );
 
   useEffect(() => {
@@ -179,14 +186,6 @@ const WalletsList: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route.params?.scannedData]);
-
-  const verifyBalance = useCallback(() => {
-    if (getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    } else {
-      A(A.ENUM.GOT_ZERO_BALANCE);
-    }
-  }, [getBalance]);
 
   useEffect(() => {
     refreshTransactions(false, true);
