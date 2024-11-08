@@ -10,7 +10,7 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
-import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -136,6 +136,7 @@ const Currency: React.FC = () => {
           <BlueText>
             {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
           </BlueText>
+          <BlueSpacing20 />
         </BlueCard>
       ) : null}
     </View>
