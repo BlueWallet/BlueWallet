@@ -5,7 +5,6 @@ import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -28,7 +27,7 @@ const SettingsPrivacy: React.FC = () => {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
     isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabledState,
+    setIsPrivacyBlurEnabled,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
@@ -82,7 +81,6 @@ const SettingsPrivacy: React.FC = () => {
   const onWidgetsTotalBalanceValueChange = async (value: boolean) => {
     setIsLoading(SettingsPrivacySection.Widget);
     try {
-      await setBalanceDisplayAllowed(value);
       setIsWidgetBalanceDisplayAllowedStorage(value);
     } catch (e) {
       console.debug('onWidgetsTotalBalanceValueChange catch', e);
@@ -102,7 +100,7 @@ const SettingsPrivacy: React.FC = () => {
 
   const onTemporaryScreenshotsValueChange = (value: boolean) => {
     setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-    setIsPrivacyBlurEnabledState(!value);
+    setIsPrivacyBlurEnabled(!value);
     setIsLoading(SettingsPrivacySection.None);
   };
 

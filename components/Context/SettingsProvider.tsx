@@ -9,12 +9,12 @@ import { saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '../DeviceQuickActions';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -77,7 +77,7 @@ interface SettingsContextType {
   isHandOffUseEnabled: boolean;
   setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
   isPrivacyBlurEnabled: boolean;
-  setIsPrivacyBlurEnabledState: (value: boolean) => void;
+  setIsPrivacyBlurEnabled: (value: boolean) => void;
   isDoNotTrackEnabled: boolean;
   setDoNotTrackStorage: (value: boolean) => Promise<void>;
   isWidgetBalanceDisplayAllowed: boolean;
@@ -108,7 +108,7 @@ const defaultSettingsContext: SettingsContextType = {
   isHandOffUseEnabled: false,
   setIsHandOffUseEnabledAsyncStorage: async () => {},
   isPrivacyBlurEnabled: true,
-  setIsPrivacyBlurEnabledState: () => {},
+  setIsPrivacyBlurEnabled: () => {},
   isDoNotTrackEnabled: false,
   setDoNotTrackStorage: async () => {},
   isWidgetBalanceDisplayAllowed: true,
@@ -314,16 +314,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       console.error('Error setting isQuickActionsEnabled:', e);
     }
   }, []);
-
-  const setIsPrivacyBlurEnabledState = useCallback((value: boolean): void => {
-    try {
-      setIsPrivacyBlurEnabled(value);
-      console.debug(`Privacy blur: ${value}`);
-    } catch (e) {
-      console.error('Error setting isPrivacyBlurEnabled:', e);
-    }
-  }, []);
-
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -364,7 +354,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       isHandOffUseEnabled,
       setIsHandOffUseEnabledAsyncStorage,
       isPrivacyBlurEnabled,
-      setIsPrivacyBlurEnabledState,
+      setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
@@ -394,7 +384,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       isHandOffUseEnabled,
       setIsHandOffUseEnabledAsyncStorage,
       isPrivacyBlurEnabled,
-      setIsPrivacyBlurEnabledState,
+      setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,

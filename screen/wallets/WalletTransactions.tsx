@@ -42,6 +42,7 @@ import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTran
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
+import useMenuElements from '../../hooks/useMenuElements';
 import { useSettings } from '../../hooks/context/useSettings';
 
 const buttonFontSize =
@@ -52,8 +53,8 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, setReloadTransactionsMenuActionFunction } = useStorage();
-  const { isElectrumDisabled } = useSettings();
+  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
+  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = route.params;
@@ -64,6 +65,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const navigation = useExtendedNavigation();
   const { setOptions, navigate } = navigation;
   const { colors } = useTheme();
+  const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
@@ -372,7 +374,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+    }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };

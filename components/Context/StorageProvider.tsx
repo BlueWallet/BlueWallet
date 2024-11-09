@@ -35,8 +35,6 @@ interface StorageContextType {
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
-  reloadTransactionsMenuActionFunction: () => void;
-  setReloadTransactionsMenuActionFunction: (func: () => void) => void;
   getTransactions: typeof BlueApp.getTransactions;
   fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
   fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
@@ -72,7 +70,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
-  const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -273,8 +270,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      reloadTransactionsMenuActionFunction,
-      setReloadTransactionsMenuActionFunction,
     }),
     [
       wallets,
@@ -293,8 +288,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      reloadTransactionsMenuActionFunction,
-      setReloadTransactionsMenuActionFunction,
     ],
   );
 

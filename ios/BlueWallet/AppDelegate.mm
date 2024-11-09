@@ -7,6 +7,7 @@
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+#import "MenuElementsEmitter.h"
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
 #import "BlueWallet-Swift.h"
@@ -152,18 +153,27 @@
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
-  [self.userDefaultsGroup setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
+  NSDictionary *userActivityData = @{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo};
+  [self.userDefaultsGroup setValue:userActivityData forKey:@"onUserActivityOpen"];
+  
+  // Check if the activity type matches the allowed types
+  if ([userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.receiveonchain"] ||
+      [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.xpub"] ||
+      [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.blockexplorer"]) {
+    
+    [EventEmitter.sharedInstance sendUserActivity:userActivityData];
+    return YES;
+  }
+  
   if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
     return [RCTLinkingManager application:application
                      continueUserActivity:userActivity
                        restorationHandler:restorationHandler];
   }
-  else {
-    [EventEmitter.sharedInstance sendUserActivity:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo}];
-    return YES;
-  }
+  
+  // If activity type does not match any of the specified types, do nothing
+  return NO;
 }
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   return [RCTLinkingManager application:app openURL:url options:options];
 }
@@ -184,7 +194,6 @@
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
-  [EventEmitter.sharedInstance sendNotification:userInfo];
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
@@ -234,24 +243,24 @@
 }
 
 - (void)openSettings:(UIKeyCommand *)keyCommand {
-  [EventEmitter.sharedInstance openSettings];
+  [MenuElementsEmitter.sharedInstance openSettings];
 }
 
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance addWalletMenuAction];
+    [MenuElementsEmitter.sharedInstance addWalletMenuAction];
     NSLog(@"Add Wallet action performed");
 }
 
 - (void)importWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance importWalletMenuAction];
+    [MenuElementsEmitter.sharedInstance importWalletMenuAction];
     NSLog(@"Import Wallet action performed");
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-    [EventEmitter.sharedInstance reloadTransactionsMenuAction];
+  [MenuElementsEmitter.sharedInstance reloadTransactionsMenuAction];
     NSLog(@"Reload Transactions action performed");
 }
 

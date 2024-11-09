@@ -118,6 +118,7 @@
 		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
+		B45942C42CDECF2400B3DC2E /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */; };
 		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
 		B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
@@ -384,6 +385,8 @@
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
+		B4C075282CDDB3BE00322A84 /* MenuElementsEmitter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuElementsEmitter.h; sourceTree = "<group>"; };
+		B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuElementsEmitter.m; sourceTree = "<group>"; };
 		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
 		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
 		B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceMode.swift; sourceTree = "<group>"; };
@@ -476,6 +479,7 @@
 		13B07FAE1A68108700A75B9A /* BlueWallet */ = {
 			isa = PBXGroup;
 			children = (
+				B4C0752B2CDDB3CC00322A84 /* MenuElementsEmitter */,
 				B461B850299599F800E431AA /* AppDelegate.h */,
 				B461B851299599F800E431AA /* AppDelegate.mm */,
 				32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */,
@@ -809,6 +813,15 @@
 				B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */,
 			);
 			path = BlueWalletUITests;
+			sourceTree = "<group>";
+		};
+		B4C0752B2CDDB3CC00322A84 /* MenuElementsEmitter */ = {
+			isa = PBXGroup;
+			children = (
+				B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */,
+				B4C075282CDDB3BE00322A84 /* MenuElementsEmitter.h */,
+			);
+			path = MenuElementsEmitter;
 			sourceTree = "<group>";
 		};
 		FAA856B639C61E61D2CF90A8 /* Pods */ = {
@@ -1225,6 +1238,7 @@
 				B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				B45942C42CDECF2400B3DC2E /* MenuElementsEmitter.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
 				B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */,

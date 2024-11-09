@@ -137,6 +137,7 @@ const ImportWalletDiscovery: React.FC = () => {
       });
 
     return () => {
+      keepAwake(false);
       task.current?.stop();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
