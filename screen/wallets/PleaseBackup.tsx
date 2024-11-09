@@ -6,12 +6,14 @@ import { useTheme } from '../../components/themes';
 import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useStorage();
   const { walletID } = useRoute().params as { walletID: string };
   const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
+  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
@@ -37,7 +39,7 @@ const PleaseBackup: React.FC = () => {
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-    disallowScreenshot(true);
+    disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
       disallowScreenshot(false);

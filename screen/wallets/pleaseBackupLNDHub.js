@@ -10,6 +10,7 @@ import { useTheme } from '../../components/themes';
 import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();
@@ -18,6 +19,7 @@ const PleaseBackupLNDHub = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
+  const { isPrivacyBlurEnabled } = useSettings();
 
   const handleBackButton = useCallback(() => {
     navigation.getParent().pop();
@@ -38,13 +40,13 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    disallowScreenshot(true);
+    disallowScreenshot(isPrivacyBlurEnabled);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
       disallowScreenshot(false);
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [handleBackButton]);
+  }, [handleBackButton, isPrivacyBlurEnabled]);
 
   const pop = () => navigation.getParent().pop();
 

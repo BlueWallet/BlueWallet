@@ -27,7 +27,7 @@ const SettingsPrivacy: React.FC = () => {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
     isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabledState,
+    setIsPrivacyBlurEnabled,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
@@ -100,7 +100,7 @@ const SettingsPrivacy: React.FC = () => {
 
   const onTemporaryScreenshotsValueChange = (value: boolean) => {
     setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-    setIsPrivacyBlurEnabledState(!value);
+    setIsPrivacyBlurEnabled(!value);
     setIsLoading(SettingsPrivacySection.None);
   };
 

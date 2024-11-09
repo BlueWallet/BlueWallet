@@ -13,6 +13,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
 import useAppState from '../../hooks/useAppState';
+import { useSettings } from '../../hooks/context/useSettings';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -21,6 +22,7 @@ const WalletExport: React.FC = () => {
   const { walletID } = useRoute<RouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
+  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
@@ -43,7 +45,7 @@ const WalletExport: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(true);
+      disallowScreenshot(isPrivacyBlurEnabled);
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           if (!wallet.getUserHasSavedExport()) {
@@ -54,10 +56,10 @@ const WalletExport: React.FC = () => {
         }
       });
       return () => {
-        task.cancel();
         disallowScreenshot(false);
+        task.cancel();
       };
-    }, [wallet, saveToDisk]),
+    }, [isPrivacyBlurEnabled, wallet, saveToDisk]),
   );
 
   const secrets: string[] = (() => {

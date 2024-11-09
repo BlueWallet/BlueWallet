@@ -54,7 +54,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const route = useRoute();
@@ -191,7 +191,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (hasLoaded.current) return;
       setIsLoading(true);
 
-      disallowScreenshot(true);
+      disallowScreenshot(isPrivacyBlurEnabled);
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {

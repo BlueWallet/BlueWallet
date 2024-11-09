@@ -11,6 +11,7 @@ import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -72,6 +73,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { params } = useRoute<RouteProp<ExportMultisigCoordinationSetupStackRootParamList, 'ExportMultisigCoordinationSetup'>>();
   const walletID = params.walletID;
   const { wallets } = useStorage();
+  const { isPrivacyBlurEnabled } = useSettings();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();
@@ -99,7 +101,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(() => {
-        disallowScreenshot(true);
+        disallowScreenshot(isPrivacyBlurEnabled);
         if (wallet) {
           setTimeout(async () => {
             try {
