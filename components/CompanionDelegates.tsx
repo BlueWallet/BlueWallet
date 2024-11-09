@@ -20,6 +20,7 @@ import presentAlert from './Alert';
 import useMenuElements from '../hooks/useMenuElements';
 import { useSettings } from '../hooks/context/useSettings';
 import useWidgetCommunication from '../hooks/useWidgetCommunication';
+import { useInstalled, usePaired } from 'react-native-watch-connectivity';
 
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
@@ -35,6 +36,9 @@ const CompanionDelegates = () => {
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const { isHandOffUseEnabled, isQuickActionsEnabled } = useSettings();
   const clipboardContent = useRef<undefined | string>();
+
+  const isInstalled = useInstalled();
+  const isPaired = usePaired();
 
   useWidgetCommunication();
   useMenuElements();
@@ -249,7 +253,7 @@ const CompanionDelegates = () => {
       <Suspense fallback={null}>
         {isQuickActionsEnabled && <DeviceQuickActions />}
         {isHandOffUseEnabled && <HandOffComponentListener />}
-        <WatchConnectivity />
+        {isPaired && isInstalled && <WatchConnectivity />}
       </Suspense>
     </>
   );

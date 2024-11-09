@@ -298,7 +298,11 @@ function Notifications(props) {
       return baseUriStored;
     } catch (e) {
       console.error(e);
-      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
+      try {
+        await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
+      } catch (storageError) {
+        console.error('Failed to reset URI:', storageError);
+      }
       throw e;
     }
   };
@@ -399,9 +403,14 @@ function Notifications(props) {
       notifications = JSON.parse(stringified);
       if (!Array.isArray(notifications)) notifications = [];
     } catch (e) {
-      console.error(e);
-      await AsyncStorage.removeItem(NOTIFICATIONS_STORAGE);
-      throw e;
+      if (e instanceof SyntaxError) {
+        console.error('Invalid notifications format:', e);
+        notifications = [];
+        await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
+      } else {
+        console.error('Error accessing notifications:', e);
+        throw e;
+      }
     }
 
     return notifications;
