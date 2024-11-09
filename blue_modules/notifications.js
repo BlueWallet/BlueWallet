@@ -422,10 +422,6 @@ function Notifications(props) {
       const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
       notifications = JSON.parse(stringified);
       if (!Array.isArray(notifications)) notifications = [];
-    try {
-      const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-      notifications = JSON.parse(stringified);
-      if (!Array.isArray(notifications)) notifications = [];
     } catch (e) {
       console.error(e);
       // Start fresh with just the new notification
@@ -498,9 +494,7 @@ function Notifications(props) {
       console.warn('Failed to load custom URI, falling back to default');
       baseURI = groundControlUri;
       // Attempt to reset in background
-      AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => 
-        console.error('Failed to reset URI:', err)
-      );
+      AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
     }
 
     // every launch should clear badges:

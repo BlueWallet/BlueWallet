@@ -18,9 +18,17 @@ DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
     const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
-    return displayBalance === '1';
-  } catch {
-    await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+    if (displayBalance === '1') {
+      return true;
+    } else if (displayBalance === '0') {
+      return false;
+    } else {
+      // Preference not set, initialize it to '1' (allowed) and return true
+      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+      return true;
+    }
+  } catch (error) {
+    console.error('Failed to get DisplayBalanceAllowed:', error);
     return true;
   }
 };
@@ -30,7 +38,7 @@ export const setBalanceDisplayAllowed = async (allowed: boolean): Promise<void> 
     if (allowed) {
       await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
     } else {
-      await DefaultPreference.clear(WidgetCommunicationKeys.DisplayBalanceAllowed);
+      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '0');
     }
   } catch (error) {
     console.error('Failed to set DisplayBalanceAllowed:', error);
@@ -57,7 +65,7 @@ export const calculateBalanceAndTransactionTime = async (
       const confirmedTransactions = transactions.filter(t => t.confirmations > 0);
       const latestTransactionTime =
         confirmedTransactions.length > 0
-          ? Math.max(...confirmedTransactions.map(t => wallet.getLatestTransactionTimeEpoch()))
+          ? Math.max(...confirmedTransactions.map(t => t.received || t.time || 0))
           : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
 
       return { balance, latestTransactionTime };
@@ -104,14 +112,14 @@ const debouncedSyncWidgetBalanceWithWallets = debounce(
     wallets: TWallet[],
     walletsInitialized: boolean,
     cachedBalance: { current: number },
-    cachedLatestTransactionTime: { current: number | string }
+    cachedLatestTransactionTime: { current: number | string },
   ) => {
     await syncWidgetBalanceWithWallets(wallets, walletsInitialized, cachedBalance, cachedLatestTransactionTime);
   },
-  500
+  500,
 );
 
-export const useWidgetCommunication = (): void => {
+const useWidgetCommunication = (): void => {
   const { wallets, walletsInitialized } = useStorage();
   const { isWidgetBalanceDisplayAllowed } = useSettings();
   const cachedBalance = useRef<number>(0);
