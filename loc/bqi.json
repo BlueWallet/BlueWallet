@@ -235,7 +235,8 @@
     "add_bitcoin": "بیت کوین",
     "add_create": "وورکل",
     "add_entropy": "آنتروپی",
-    "details_address": "آدرس"
+    "details_address": "آدرس",
+    "paste_from_clipboard": "جا وندن"
   },
   "multisig": {
     "confirm": "تاییڌ",

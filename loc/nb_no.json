@@ -356,6 +356,7 @@
     "list_empty_txs2_lightning": "\nFor å begynne å bruke den, trykk på Administrer Midler og fyll på saldoen.",
     "list_latest_transaction": "Siste Transaksjon",
     "list_long_choose": "Velg Bilde",
+    "paste_from_clipboard": "Lim inn",
     "import_file": "Importer Fil",
     "list_long_scan": "Skann QR-kode",
     "list_title": "Lommebøker",

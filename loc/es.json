@@ -362,6 +362,7 @@
     "list_empty_txs2_lightning": "\nPara comenzar a usarlo, toca en \"administrar fondos\" y añade algo de saldo.",
     "list_latest_transaction": "Última transacción",
     "list_long_choose": "Elegir foto",
+    "paste_from_clipboard": "Pegar",
     "import_file": "Importar archivo",
     "list_long_scan": "Escanear código QR",
     "list_title": "Carteras",

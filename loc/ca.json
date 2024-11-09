@@ -258,6 +258,7 @@
     "list_empty_txs1_lightning": "Els moneders Lightning poden ser usats per les seves transaccions diàries. Les comissions són baixes i els pagaments ràpids.",
     "list_latest_transaction": "última transacció",
     "list_long_choose": "Tria la foto",
+    "paste_from_clipboard": "Enganxar",
     "import_file": "Importar arxiu",
     "list_long_scan": "Escaneja el codi QR",
     "list_title": "moneders",

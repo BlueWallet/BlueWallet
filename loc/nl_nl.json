@@ -357,6 +357,7 @@
     "list_empty_txs2_lightning": "\nOm het te gebruiken, tikt u op \"tegoeden beheren\" en laadt u uw saldo op.",
     "list_latest_transaction": "Laatste transactie",
     "list_long_choose": "Kies foto",
+    "paste_from_clipboard": "Plak",
     "import_file": "Importeer bestand",
     "list_long_scan": "Scan QR-code",
     "list_title": "Wallets",

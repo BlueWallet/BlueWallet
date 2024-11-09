@@ -452,6 +452,7 @@
     "list_empty_txs2_lightning": "\nДля начала использования нажмите на 'Управление средствами' и пополните баланс.",
     "list_latest_transaction": "Последняя транзакция",
     "list_long_choose": "Выбрать фото",
+    "paste_from_clipboard": "Вставить",
     "import_file": "Импортировать файл",
     "list_long_scan": "Сканировать QR-код",
     "list_title": "Кошельки",

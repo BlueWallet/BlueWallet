@@ -361,6 +361,7 @@
     "list_empty_txs2_lightning": "\nČe želite začeti z uporabo, tapnite na \"uredi sredstva\" in napolnite denarnico.",
     "list_latest_transaction": "Zadnja transakcija",
     "list_long_choose": "Izberite fotografijo",
+    "paste_from_clipboard": "Prilepi",
     "import_file": "Uvozi datoteko",
     "list_long_scan": "Skeniraj QR kodo",
     "list_title": "Denarnice",

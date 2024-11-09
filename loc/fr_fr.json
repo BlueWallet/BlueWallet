@@ -382,6 +382,7 @@
     "list_empty_txs2_lightning": "\nPour commencer à l'utiliser taper sur \"Gérer les fonds\" et alimentez votre solde.",
     "list_latest_transaction": "dernière transaction",
     "list_long_choose": "Choisir une photo",
+    "paste_from_clipboard": "Coller",
     "import_file": "Importer le fichier",
     "list_long_scan": "Scanner le QR Code",
     "list_title": "portefeuilles",

@@ -303,6 +303,7 @@
     "list_empty_txs2_lightning": "\n要開始使用它，請點擊“管理資金”並增值。",
     "list_latest_transaction": "最近的交易",
     "list_long_choose": "選擇圖片",
+    "paste_from_clipboard": "貼上",
     "import_file": "匯入檔案",
     "list_long_scan": "掃描二維碼",
     "list_title": "錢包",

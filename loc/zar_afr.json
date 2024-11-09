@@ -188,6 +188,7 @@
     "list_empty_txs1": "Jou transaksies sal hier verskyn.",
     "list_empty_txs2": "Begin met jou beursie.",
     "list_latest_transaction": "laaste transaksie",
+    "paste_from_clipboard": "Plak",
     "list_title": "beursies",
     "no_ln_wallet_error": "Voordat jy 'n Lightning faktuur betaal moet jy eers 'n Lightning beursie aanwys.",
     "select_wallet": "Kies Beursie",
