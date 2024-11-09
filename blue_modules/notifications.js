@@ -491,8 +491,12 @@ function Notifications(props) {
       }
     } catch (e) {
       console.error(e);
-      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
-      throw e;
+      console.warn('Failed to load custom URI, falling back to default');
+      baseURI = groundControlUri;
+      // Attempt to reset in background
+      AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => 
+        console.error('Failed to reset URI:', err)
+      );
     }
 
     // every launch should clear badges:
