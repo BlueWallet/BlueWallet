@@ -4,7 +4,7 @@ import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from '
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-import startImport from '../../class/wallet-import';
+import startImport, { TImport } from '../../class/wallet-import';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -23,17 +23,6 @@ import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 
-type TReturn = {
-  cancelled?: boolean;
-  stopped?: boolean;
-  wallets: TWallet[];
-};
-
-type ImportTask = {
-  promise: Promise<TReturn>;
-  stop: () => void;
-};
-
 type WalletEntry = {
   wallet: TWallet | THDWalletForWatchOnly;
   subtitle: string;
@@ -45,7 +34,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
-  const task = useRef<ImportTask | null>(null);
+  const task = useRef<TImport | null>(null);
   const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState<boolean>(true);
   const [wallets, setWallets] = useState<WalletEntry[]>([]);
