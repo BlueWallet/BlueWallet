@@ -486,9 +486,9 @@
     "more_info": "Más información"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Ver en Bitcoin",
-    "view_in_sats": "Ver en sats",
-    "view_in_fiat": "Ver en {currency}",
+    "display_in_bitcoin": "Ver en Bitcoin",
+    "display_in_sats": "Ver en sats",
+    "display_in_fiat": "Ver en {currency}",
     "title": "Balance Total",
     "explanation": "Ve el saldo total de todas tus billeteras en la pantalla de descripción general."
   },

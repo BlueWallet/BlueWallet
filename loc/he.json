@@ -471,9 +471,9 @@
     "more_info": "מידע נוסף"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "הצגה בביטקוין",
-    "view_in_sats": "הצגה בסאטושי",
-    "view_in_fiat": "הצגה ב- {currency}",
+    "display_in_bitcoin": "הצגה בביטקוין",
+    "display_in_sats": "הצגה בסאטושי",
+    "display_in_fiat": "הצגה ב- {currency}",
     "title": "יתרה כוללת",
     "explanation": "הצגת המאזן הכולל של כל הארנקים שלך במסך הכללי."
   },

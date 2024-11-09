@@ -463,9 +463,9 @@
     "more_info": "Więcej informacji"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Pokaż w Bitcoinach",
-    "view_in_sats": "Pokaż w satsach",
-    "view_in_fiat": "Pokaż w {currency}",
+    "display_in_bitcoin": "Pokaż w Bitcoinach",
+    "display_in_sats": "Pokaż w satsach",
+    "display_in_fiat": "Pokaż w {currency}",
     "title": "Saldo całkowite",
     "explanation": "Wyświetl saldo całkowite wszystkich swoich portfeli na ekranie podglądu."
   },

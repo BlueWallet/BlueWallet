@@ -336,7 +336,6 @@
     "details_balance_hide": "Hide Balance",
     "details_balance_show": "Show Balance",
     "details_copy": "Copy",
-    "details_copy_amount": "Copy Amount",
     "details_copy_block_explorer_link": "Copy Block Explorer Link",
     "details_copy_note": "Copy Note",
     "details_copy_txid": "Copy Transaction ID",
@@ -487,9 +486,10 @@
     "more_info": "More Info"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "View in Bitcoin",
-    "view_in_sats": "View in sats",
-    "view_in_fiat": "View in {currency}",
+    "display_in_bitcoin": "Display in Bitcoin",
+    "hide": "Hide",
+    "display_in_sats": "Display in sats",
+    "display_in_fiat": "Display in {currency}",
     "title": "Total Balance",
     "explanation": "View the total balance of all your wallets in the overview screen."
   },

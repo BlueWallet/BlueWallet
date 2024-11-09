@@ -483,9 +483,9 @@
     "more_info": "詳細情報"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "ビットコインで表示",
-    "view_in_sats": "satsで表示",
-    "view_in_fiat": "{currency}で表示",
+    "display_in_bitcoin": "ビットコインで表示",
+    "display_in_sats": "satsで表示",
+    "display_in_fiat": "{currency}で表示",
     "title": "合計残高",
     "explanation": "すべてのウォレットの合計残高を概要画面に表示"
   },
