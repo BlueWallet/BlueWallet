@@ -80,16 +80,15 @@ function WatchConnectivity() {
       return;
     }
 
-    const preferredFiatCurrencyParsed = preferredFiatCurrency ?? FiatUnit.USD;
-    if (lastPreferredCurrency.current !== preferredFiatCurrencyParsed.endPointKey) {
+    if (lastPreferredCurrency.current !== preferredFiatCurrency.endPointKey) {
       try {
         transferCurrentComplicationUserInfo(
           {
-            preferredFiatCurrency: preferredFiatCurrencyParsed.endPointKey,
+            preferredFiatCurrency: preferredFiatCurrency.endPointKey,
           },
           [wallets, walletsInitialized, txMetadata],
         );
-        lastPreferredCurrency.current = preferredFiatCurrencyParsed.endPointKey;
+        lastPreferredCurrency.current = preferredFiatCurrency.endPointKey;
         console.debug('Apple Watch: updated preferred fiat currency');
       } catch (error) {
         console.debug('Error updating preferredFiatCurrency on watch:', error);
