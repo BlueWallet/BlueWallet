@@ -19,10 +19,10 @@ import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
 import useMenuElements from '../hooks/useMenuElements';
 import { useSettings } from '../hooks/context/useSettings';
+import useWidgetCommunication from '../hooks/useWidgetCommunication';
 
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
-const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
 const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 const ClipboardContentType = Object.freeze({
@@ -33,9 +33,10 @@ const ClipboardContentType = Object.freeze({
 const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
-  const { isHandOffUseEnabled, isQuickActionsEnabled, isWidgetBalanceDisplayAllowed } = useSettings();
+  const { isHandOffUseEnabled, isQuickActionsEnabled } = useSettings();
   const clipboardContent = useRef<undefined | string>();
 
+  useWidgetCommunication();
   useMenuElements();
 
   const processPushNotifications = useCallback(async () => {
@@ -248,7 +249,6 @@ const CompanionDelegates = () => {
       <Suspense fallback={null}>
         {isQuickActionsEnabled && <DeviceQuickActions />}
         {isHandOffUseEnabled && <HandOffComponentListener />}
-        {isWidgetBalanceDisplayAllowed && <WidgetCommunication />}
         <WatchConnectivity />
       </Suspense>
     </>

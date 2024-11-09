@@ -31,8 +31,8 @@ RCT_EXPORT_MODULE();
 }
 
 - (instancetype)init {
-    sharedInstance = [super init];
-    return sharedInstance;
+  self = [super init];
+  return self;
 }
 
 - (NSArray<NSString *> *)supportedEvents {
@@ -41,14 +41,14 @@ RCT_EXPORT_MODULE();
 
 - (void)sendUserActivity:(NSDictionary *)userInfo
 {
-  [sharedInstance sendEventWithName:@"onUserActivityOpen" body:userInfo];
+  [self sendEventWithName:@"onUserActivityOpen" body:userInfo];
 }
 
-RCT_REMAP_METHOD(getMostRecentUserActivity, resolve: (RCTPromiseResolveBlock)resolve
-     reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(getMostRecentUserActivity:(RCTPromiseResolveBlock)resolve
+                                 rejecter:(RCTPromiseRejectBlock)reject)
 {
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
-  resolve([defaults valueForKey:@"onUserActivityOpen"]);
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+    resolve([defaults valueForKey:@"onUserActivityOpen"]);
 }
 
 @end

@@ -153,18 +153,27 @@
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
-  [self.userDefaultsGroup setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
+  NSDictionary *userActivityData = @{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo};
+  [self.userDefaultsGroup setValue:userActivityData forKey:@"onUserActivityOpen"];
+  
+  // Check if the activity type matches the allowed types
+  if ([userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.receiveonchain"] ||
+      [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.xpub"] ||
+      [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.blockexplorer"]) {
+    
+    [EventEmitter.sharedInstance sendUserActivity:userActivityData];
+    return YES;
+  }
+  
   if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
     return [RCTLinkingManager application:application
                      continueUserActivity:userActivity
                        restorationHandler:restorationHandler];
   }
-  else {
-    [EventEmitter.sharedInstance sendUserActivity:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo}];
-    return YES;
-  }
+  
+  // If activity type does not match any of the specified types, do nothing
+  return NO;
 }
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   return [RCTLinkingManager application:app openURL:url options:options];
 }
