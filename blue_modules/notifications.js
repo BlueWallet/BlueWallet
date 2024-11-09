@@ -422,10 +422,14 @@ function Notifications(props) {
       const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
       notifications = JSON.parse(stringified);
       if (!Array.isArray(notifications)) notifications = [];
+    try {
+      const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
+      notifications = JSON.parse(stringified);
+      if (!Array.isArray(notifications)) notifications = [];
     } catch (e) {
       console.error(e);
-      await AsyncStorage.removeItem(NOTIFICATIONS_STORAGE);
-      throw e;
+      // Start fresh with just the new notification
+      notifications = [];
     }
 
     notifications.push(notification);
