@@ -193,6 +193,7 @@
     "list_create_a_wallet": "Cüzdan oluştur",
     "list_empty_txs1": "İşlemleriniz burada görünür,",
     "list_latest_transaction": "en son işlem",
+    "paste_from_clipboard": "Yapıştır",
     "list_title": "cüzdanlar",
     "select_wallet": "Cüzdan Seç",
     "xpub_copiedToClipboard": "Panoya kopyalandı",

@@ -441,6 +441,7 @@
     "list_empty_txs2_lightning": "\nAby zacząć używać, dotknij Zarządzaj Środkami i doładuj swoje saldo.",
     "list_latest_transaction": "Ostatnia transakcja",
     "list_long_choose": "Wybierz zdjęcie",
+    "paste_from_clipboard": "Wklej",
     "import_file": "Importuj plik",
     "list_long_scan": "Zeskanuj kod QR",
     "list_title": "Portfele",

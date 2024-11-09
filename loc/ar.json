@@ -372,6 +372,7 @@
     "list_empty_txs2_lightning": "\nللبدء في استخدامها، اضغط على \"إدارة الأموال\" واشحن رصيدك.",
     "list_latest_transaction": "آخر عملية",
     "list_long_choose": "اختيار صورة",
+    "paste_from_clipboard": "اللصق",
     "import_file": "استيراد ملف",
     "list_long_scan": "مسح رمز الاستجابة (QR) ضوئيًا",
     "list_title": "المحافظ",

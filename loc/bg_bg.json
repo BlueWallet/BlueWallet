@@ -192,7 +192,8 @@
   "wallets": {
     "add_create": "Създай",
     "add_entropy": "Ентропия",
-    "details_address": "Адрес"
+    "details_address": "Адрес",
+    "paste_from_clipboard": "Постави"
   },
   "multisig": {
     "confirm": "Потвърди",
