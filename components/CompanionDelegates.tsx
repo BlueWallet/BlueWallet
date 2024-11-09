@@ -20,11 +20,10 @@ import presentAlert from './Alert';
 import useMenuElements from '../hooks/useMenuElements';
 import { useSettings } from '../hooks/context/useSettings';
 import useWidgetCommunication from '../hooks/useWidgetCommunication';
-import { useInstalled, usePaired } from 'react-native-watch-connectivity';
+import useWatchConnectivity from '../hooks/useWatchConnectivity';
 
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
-const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -37,8 +36,7 @@ const CompanionDelegates = () => {
   const { isHandOffUseEnabled, isQuickActionsEnabled } = useSettings();
   const clipboardContent = useRef<undefined | string>();
 
-  const isInstalled = useInstalled();
-  const isPaired = usePaired();
+  useWatchConnectivity();
 
   useWidgetCommunication();
   useMenuElements();
@@ -253,7 +251,6 @@ const CompanionDelegates = () => {
       <Suspense fallback={null}>
         {isQuickActionsEnabled && <DeviceQuickActions />}
         {isHandOffUseEnabled && <HandOffComponentListener />}
-        {isPaired && isInstalled && <WatchConnectivity />}
       </Suspense>
     </>
   );
