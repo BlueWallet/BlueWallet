@@ -1,6 +1,5 @@
 import { Platform } from 'react-native';
 import loc from '../loc';
-import { Action } from '../components/types';
 
 const keys = {
   CopyTXID: 'copyTX_ID',
@@ -45,9 +44,15 @@ const keys = {
   ExportPrivateKey: 'exportPrivateKey',
   PasteFromClipboard: 'pasteFromClipboard',
   Hide: 'hide',
-};
+  SortASC: 'sortASC',
+  SortDESC: 'sortDESC',
+  SortHeight: 'sortHeight',
+  SortValue: 'sortValue',
+  SortLabel: 'sortLabel',
+  SortStatus: 'sortStatus',
+} as const;
 
-const icons: { [key: string]: { iconValue: string } } = {
+const icons = {
   Eye: { iconValue: 'eye' },
   EyeSlash: { iconValue: 'eye.slash' },
   Link: { iconValue: 'link' },
@@ -87,9 +92,11 @@ const icons: { [key: string]: { iconValue: string } } = {
   ImportFile: { iconValue: 'document.viewfinder' },
   Hide: { iconValue: 'eye.slash' },
   ClearClipboard: { iconValue: 'clipboard' },
-};
+  SortASC: { iconValue: 'arrow.down.to.line' },
+  SortDESC: { iconValue: 'arrow.up.to.line' },
+} as const;
 
-export const CommonToolTipActions: { [key: string]: Action } = {
+export const CommonToolTipActions = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -318,4 +325,30 @@ export const CommonToolTipActions: { [key: string]: Action } = {
     icon: icons.Clipboard,
     menuState: true,
   },
-};
+  SortASC: {
+    id: keys.SortASC,
+    text: loc.cc.sort_asc,
+    icon: icons.SortASC,
+  },
+  SortDESC: {
+    id: keys.SortDESC,
+    text: loc.cc.sort_desc,
+    icon: icons.SortDESC,
+  },
+  SortHeight: {
+    id: keys.SortHeight,
+    text: loc.cc.sort_height,
+  },
+  SortValue: {
+    id: keys.SortValue,
+    text: loc.cc.sort_value,
+  },
+  SortLabel: {
+    id: keys.SortLabel,
+    text: loc.cc.sort_label,
+  },
+  SortStatus: {
+    id: keys.SortStatus,
+    text: loc.cc.sort_status,
+  },
+} as const;

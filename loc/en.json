@@ -592,7 +592,13 @@
     "header": "Coin Control",
     "use_coin": "Use Coin",
     "use_coins": "Use Coins",
-    "tip": "This feature allows you to see, label, freeze or select coins for improved wallet management. You can select multiple coins by tapping on the colored circles."
+    "tip": "This feature allows you to see, label, freeze or select coins for improved wallet management. You can select multiple coins by tapping on the colored circles.",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
+    "sort_height": "by Height",
+    "sort_value": "by Value",
+    "sort_label": "by Label",
+    "sort_status": "by Status"
   },
   "units": {
     "BTC": "BTC",
