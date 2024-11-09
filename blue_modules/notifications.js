@@ -27,8 +27,11 @@ function Notifications(props) {
       let token = await AsyncStorage.getItem(PUSH_TOKEN);
       token = JSON.parse(token);
       return token;
-    } catch (_) {}
-    return false;
+    } catch (e) {
+      console.error(e);
+      AsyncStorage.removeItem(PUSH_TOKEN);
+      throw e;
+    }
   };
 
   /**
@@ -287,7 +290,17 @@ function Notifications(props) {
   };
 
   Notifications.getSavedUri = async function () {
-    return AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
+    try {
+      const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
+      if (baseUriStored) {
+        baseURI = baseUriStored;
+      }
+      return baseUriStored;
+    } catch (e) {
+      console.error(e);
+      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
+      throw e;
+    }
   };
 
   /**
@@ -385,7 +398,11 @@ function Notifications(props) {
       const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
       notifications = JSON.parse(stringified);
       if (!Array.isArray(notifications)) notifications = [];
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+      await AsyncStorage.removeItem(NOTIFICATIONS_STORAGE);
+      throw e;
+    }
 
     return notifications;
   };
@@ -396,7 +413,11 @@ function Notifications(props) {
       const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
       notifications = JSON.parse(stringified);
       if (!Array.isArray(notifications)) notifications = [];
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+      await AsyncStorage.removeItem(NOTIFICATIONS_STORAGE);
+      throw e;
+    }
 
     notifications.push(notification);
     await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
@@ -420,7 +441,11 @@ function Notifications(props) {
           app_version: appVersion,
         }),
       });
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+      await AsyncStorage.setItem('lang', 'en');
+      throw e;
+    }
   };
 
   Notifications.clearStoredNotifications = async function () {
@@ -455,7 +480,11 @@ function Notifications(props) {
       if (baseUriStored) {
         baseURI = baseUriStored;
       }
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
+      throw e;
+    }
 
     // every launch should clear badges:
     Notifications.setApplicationIconBadgeNumber(0);
