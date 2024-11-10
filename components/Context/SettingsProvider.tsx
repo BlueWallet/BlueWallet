@@ -377,10 +377,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     try {
       if (value) {
         const currentConfig = await getNotificationConfig();
-        if (currentConfig) {
-          const newConfig = { ...currentConfig, level_all: value, token: currentConfig.token };
-          await setNotificationConfig(newConfig);
-        }
+        const newConfig = currentConfig
+          ? { ...currentConfig, level_all: value, token: currentConfig.token }
+          : { level_all: value, token: undefined };
+        await setNotificationConfig(newConfig);
       } else {
         await clearNotificationConfig();
       }
