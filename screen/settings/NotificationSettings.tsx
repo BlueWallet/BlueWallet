@@ -59,13 +59,14 @@ const NotificationSettings: React.FC = () => {
     try {
       console.log('Switch toggled:', value);
 
-      const systemPermissions = (await checkPermissions()) as { notification: boolean };
+      const systemPermissions = (await checkPermissions()) as { alert: boolean };
+      console.warn('System permissions:', systemPermissions);
       console.log('System permissions:', systemPermissions);
 
       if (value) {
         console.log('Enabling notifications');
 
-        if (!systemPermissions.notification) {
+        if (!systemPermissions.alert) {
           console.log('System-level notifications disabled');
 
           await clearNotificationConfig();
