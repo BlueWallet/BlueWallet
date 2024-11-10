@@ -1,36 +1,48 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { BlueFormLabel, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
+import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import WalletToImport from '../../components/WalletToImport';
-import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import loc from '../../loc';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+
+type RouteProps = RouteProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;
+type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;
+
+const ListEmptyComponent: React.FC = () => <BlueTextCentered>{loc.wallets.import_wrong_path}</BlueTextCentered>;
 
 const WRONG_PATH = 'WRONG_PATH';
-const WALLET_FOUND = 'WALLET_FOUND';
-const WALLET_NOTFOUND = 'WALLET_NOTFOUND';
-const WALLET_UNKNOWN = 'WALLET_UNKNOWN';
+enum STATUS {
+  WALLET_FOUND = 'WALLET_FOUND',
+  WALLET_NOTFOUND = 'WALLET_NOTFOUND',
+  WALLET_UNKNOWN = 'WALLET_UNKNOWN',
+}
+type TWalletsByType = { [type: string]: TWallet };
+type TWalletsByPath = { [path: string]: TWalletsByType | 'WRONG_PATH' };
 
-const ListEmptyComponent = () => <BlueTextCentered>{loc.wallets.import_wrong_path}</BlueTextCentered>;
+type TUsedByType = { [type: string]: STATUS };
+type TUsedByPath = { [path: string]: TUsedByType };
 
-const ImportCustomDerivationPath = () => {
-  const navigation = useNavigation();
+type TItem = [type: string, typeReadable: string, STATUS | undefined];
+
+const ImportCustomDerivationPath: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const route = useRoute();
-  const importText = route.params.importText;
-  const password = route.params.password;
+  const { importText, password } = useRoute<RouteProps>().params;
   const { addAndSaveWallet } = useStorage();
-  const [path, setPath] = useState("m/84'/0'/0'");
-  const [wallets, setWallets] = useState({});
-  const [used, setUsed] = useState({});
-  const [selected, setSelected] = useState();
+  const [path, setPath] = useState<string>("m/84'/0'/0'");
+  const [wallets, setWallets] = useState<TWalletsByPath>({});
+  const [used, setUsed] = useState<TUsedByPath>({});
+  const [selected, setSelected] = useState<string>('');
   const importing = useRef(false);
 
   const debouncedSavePath = useRef(
@@ -41,25 +53,32 @@ const ImportCustomDerivationPath = () => {
       }
 
       // create wallets
-      const newWallets = {};
+      const newWallets: { [type: string]: TWallet } = {};
       for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet]) {
         const wallet = new Wallet();
         wallet.setSecret(importText);
-        wallet.setPassphrase(password);
+        if (password) {
+          wallet.setPassphrase(password);
+        }
         wallet.setDerivationPath(newPath);
         newWallets[Wallet.type] = wallet;
       }
       setWallets(ws => ({ ...ws, [newPath]: newWallets }));
 
       // discover was they ever used
-      const res = {};
-      const promises = Object.values(newWallets).map(w => w.wasEverUsed().then(v => (res[w.type] = v ? WALLET_FOUND : WALLET_NOTFOUND)));
+      const promises = Object.values(newWallets).map(w => {
+        return w.wasEverUsed().then(v => {
+          const status = v ? STATUS.WALLET_FOUND : STATUS.WALLET_NOTFOUND;
+          setUsed(u => ({ ...u, [newPath]: { ...u[newPath], [w.type]: status } }));
+        });
+      });
       try {
-        await Promise.all(promises); // wait for all promises to be resolved
+        await Promise.all(promises);
       } catch (e) {
-        Object.values(newWallets).forEach(w => (res[w.type] = WALLET_UNKNOWN));
+        Object.values(newWallets).forEach(w => {
+          setUsed(u => ({ ...u, [newPath]: { ...u[newPath], [w.type]: STATUS.WALLET_UNKNOWN } }));
+        });
       }
-      setUsed(u => ({ ...u, [newPath]: res }));
     }, 500),
   );
   useEffect(() => {
@@ -67,7 +86,7 @@ const ImportCustomDerivationPath = () => {
     debouncedSavePath.current(path);
   }, [path, wallets]);
 
-  const items = useMemo(() => {
+  const items: TItem[] = useMemo(() => {
     if (wallets[path] === WRONG_PATH) return [];
     return [
       [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, used[path]?.[HDLegacyP2PKHWallet.type]],
@@ -90,25 +109,26 @@ const ImportCustomDerivationPath = () => {
     },
   });
 
-  const saveWallet = type => {
+  const saveWallet = (type: string) => {
     if (importing.current) return;
     importing.current = true;
-    const wallet = wallets[path][type];
-    addAndSaveWallet(wallet);
+    if (wallets[path] === WRONG_PATH) return;
+    addAndSaveWallet(wallets[path][type]);
+    // @ts-ignore: Navigation
     navigation.getParent().pop();
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: TItem }) => {
     const [type, title, found] = item;
     let subtitle;
     switch (found) {
-      case WALLET_FOUND:
+      case STATUS.WALLET_FOUND:
         subtitle = loc.wallets.import_derivation_found;
         break;
-      case WALLET_NOTFOUND:
+      case STATUS.WALLET_NOTFOUND:
         subtitle = loc.wallets.import_derivation_found_not;
         break;
-      case WALLET_UNKNOWN:
+      case STATUS.WALLET_UNKNOWN:
         subtitle = loc.wallets.import_derivation_unknown;
         break;
       default:
@@ -117,6 +137,8 @@ const ImportCustomDerivationPath = () => {
 
     return <WalletToImport key={type} title={title} subtitle={subtitle} active={selected === type} onPress={() => setSelected(type)} />;
   };
+
+  const disabled = wallets[path] === WRONG_PATH || wallets[path]?.[selected] === undefined;
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
@@ -141,12 +163,7 @@ const ImportCustomDerivationPath = () => {
 
       <View style={[styles.center, stylesHook.center]}>
         <View style={styles.buttonContainer}>
-          <Button
-            disabled={wallets[path]?.[selected] === undefined}
-            title={loc.wallets.import_do_import}
-            testID="ImportButton"
-            onPress={() => saveWallet(selected)}
-          />
+          <Button disabled={disabled} title={loc.wallets.import_do_import} testID="ImportButton" onPress={() => saveWallet(selected)} />
         </View>
       </View>
     </SafeArea>
@@ -182,11 +199,5 @@ const styles = StyleSheet.create({
     color: '#81868e',
   },
 });
-
-ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({
-  ...opts,
-  title: loc.wallets.import_derivation_title,
-  statusBarStyle: 'light',
-}));
 
 export default ImportCustomDerivationPath;

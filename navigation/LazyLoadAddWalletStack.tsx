@@ -4,9 +4,9 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 // Define lazy imports
 const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
-const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/importCustomDerivationPath'));
+const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/ImportCustomDerivationPath'));
 const ImportWalletDiscovery = lazy(() => import('../screen/wallets/ImportWalletDiscovery'));
-const ImportSpeed = lazy(() => import('../screen/wallets/importSpeed'));
+const ImportSpeed = lazy(() => import('../screen/wallets/ImportSpeed'));
 const ImportWallet = lazy(() => import('../screen/wallets/import'));
 const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
 const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
