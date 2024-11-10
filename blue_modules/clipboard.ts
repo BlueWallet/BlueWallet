@@ -27,11 +27,14 @@ export const setReadClipboardAllowed = async (value: boolean): Promise<void> => 
 };
 
 export const getClipboardContent = async (): Promise<string | undefined> => {
-  const isAllowed = await isReadClipboardAllowed();
-  const hasString = (await Clipboard.hasString()) || false;
-  if (isAllowed && hasString) {
-    return Clipboard.getString();
-  } else {
+  try {
+    const isAllowed = await isReadClipboardAllowed();
+    if (!isAllowed) return undefined;
+    
+    const hasString = await Clipboard.hasString();
+    return hasString ? await Clipboard.getString() : undefined;
+  } catch (error) {
+    console.error('Error accessing clipboard:', error);
     return undefined;
   }
 };
