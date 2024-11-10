@@ -49,11 +49,30 @@ const CompanionDelegates = () => {
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    const notifications2process = await getStoredNotifications();
-    await clearStoredNotifications();
-    setApplicationIconBadgeNumber(0);
-    const deliveredNotifications = await getDeliveredNotifications();
-    setTimeout(() => removeAllDeliveredNotifications(), 5000);
+    try {
+      // Get both stored and delivered notifications before clearing anything
+      const [notifications2process, deliveredNotifications] = await Promise.all([
+        getStoredNotifications(),
+        getDeliveredNotifications()
+      ]);
+      
+      // Clear everything after we have the data
+      await Promise.all([
+        clearStoredNotifications(),
+        setApplicationIconBadgeNumber(0)
+      ]);
+      
+      // Consider making this delay configurable or document why 5 seconds
+      const DELIVERY_CLEAR_DELAY = 5000;
+      setTimeout(() => {
+        removeAllDeliveredNotifications().catch(console.error);
+      }, DELIVERY_CLEAR_DELAY);
+      
+      return { notifications2process, deliveredNotifications };
+    } catch (error) {
+      console.error('Failed to process notifications:', error);
+      return { notifications2process: [], deliveredNotifications: [] };
+    }
 
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
