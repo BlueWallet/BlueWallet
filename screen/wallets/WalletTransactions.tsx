@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -44,6 +43,7 @@ import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useMenuElements from '../../hooks/useMenuElements';
 import { useSettings } from '../../hooks/context/useSettings';
+import { getClipboardContent } from '../../blue_modules/clipboard';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -293,7 +293,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const _keyExtractor = (_item: any, index: number) => index.toString();
 
   const pasteFromClipboard = async () => {
-    onBarCodeRead({ data: await BlueClipboard().getClipboardContent() });
+    onBarCodeRead({ data: await getClipboardContent() });
   };
 
   const sendButtonPress = () => {
@@ -325,7 +325,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await getClipboardContent())?.trim().length === 0;
     const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
     const cancelButtonIndex = 0;
 
