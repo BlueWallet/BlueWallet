@@ -27,7 +27,7 @@ export const getNotificationConfig = async () => {
     console.warn('systemPermissions', systemPermissions);
     const notificationsDisabled = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
     console.warn('notificationsDisabled', notificationsDisabled);
-    if (notificationsDisabled === 'true') {
+    if (notificationsDisabled === '1') {
       return null;
     }
     console.warn('getNotificationConfig 2');
@@ -209,7 +209,7 @@ export const clearNotificationConfig = async () => {
   try {
     await Keychain.resetGenericPassword({ service: NOTIFICATION_TOKEN_KEY });
     await Keychain.resetGenericPassword({ service: NOTIFICATION_LEVEL_KEY });
-    await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
+    await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, '1');
     cachedIsNotificationsEnabled = false;
   } catch (e) {
     console.error('Failed to clear notification config:', e);
