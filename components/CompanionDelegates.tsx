@@ -7,7 +7,13 @@ import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import Notifications from '../blue_modules/notifications';
+import Notifications, {
+  clearStoredNotifications,
+  getDeliveredNotifications,
+  getStoredNotifications,
+  removeAllDeliveredNotifications,
+  setApplicationIconBadgeNumber,
+} from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
@@ -43,16 +49,11 @@ const CompanionDelegates = () => {
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    // @ts-ignore: Notifications type is not defined
-    const notifications2process = await Notifications.getStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    await Notifications.clearStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    Notifications.setApplicationIconBadgeNumber(0);
-    // @ts-ignore: Notifications type is not defined
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000);
+    const notifications2process = await getStoredNotifications();
+    await clearStoredNotifications();
+    setApplicationIconBadgeNumber(0);
+    const deliveredNotifications = await getDeliveredNotifications();
+    setTimeout(() => removeAllDeliveredNotifications(), 5000);
 
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);

@@ -58,16 +58,16 @@ const NotificationSettings: React.FC = () => {
   const onNotificationsSwitch = async (value: boolean) => {
     try {
       console.log('Switch toggled:', value);
-  
+
       const systemPermissions = await checkPermissions();
       console.log('System permissions:', systemPermissions);
-  
+
       if (value) {
         console.log('Enabling notifications');
-        
+
         if (!systemPermissions.alert) {
           console.log('System-level notifications disabled');
-          
+
           await clearNotificationConfig();
           presentAlert({
             title: loc.notifications.permission_denied_title,
@@ -77,27 +77,27 @@ const NotificationSettings: React.FC = () => {
               { text: loc._.cancel, style: 'cancel' },
             ],
           });
-          setNotificationsEnabledStorage(false); 
+          setNotificationsEnabledStorage(false);
           return;
         }
-  
+
         await cleanUserOptOutFlag();
-  
+
         const existingToken = await getPushToken();
         console.log('Existing token:', existingToken);
-  
+
         if (existingToken) {
           await setLevels(true);
         } else {
           console.log('Requesting permission');
-          
+
           const permissionGranted = await tryToObtainPermissions(notificationsRef.current);
           console.log('Permission granted:', permissionGranted);
-  
+
           if (permissionGranted) {
             const token = await getPushToken();
             console.log('New token:', token);
-  
+
             if (token) {
               await setLevels(true);
             } else {

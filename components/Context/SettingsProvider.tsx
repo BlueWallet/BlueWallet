@@ -163,7 +163,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     try {
       const config = await getNotificationConfig();
       const currentEnabled = !!config?.level_all;
-console.warn('currentEnabled', currentEnabled);
       if (currentEnabled !== isNotificationsEnabledState) {
         setNotificationsEnabledState(currentEnabled);
       }
@@ -174,7 +173,6 @@ console.warn('currentEnabled', currentEnabled);
   }, [isNotificationsEnabledState]);
 
   useEffect(() => {
-
     if (previousAppState === 'background' && currentAppState === 'active') {
       loadNotificationState();
     }
@@ -238,7 +236,7 @@ console.warn('currentEnabled', currentEnabled);
     };
 
     loadSettings();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -384,7 +382,7 @@ console.warn('currentEnabled', currentEnabled);
           await setNotificationConfig(newConfig);
         }
       } else {
-        await clearNotificationConfig(); 
+        await clearNotificationConfig();
       }
       setNotificationsEnabledState(value);
     } catch (e) {

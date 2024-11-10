@@ -43,7 +43,7 @@ import { popToTop } from '../../NavigationService';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import {  unsubscribe } from '../../blue_modules/notifications';
+import { unsubscribe } from '../../blue_modules/notifications';
 import { useSettings } from '../../hooks/context/useSettings';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;

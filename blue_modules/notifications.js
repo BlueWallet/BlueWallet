@@ -37,7 +37,9 @@ export const getNotificationConfig = async () => {
     console.warn('token level_all', token, level_all);
 
     if (level_all && systemPermissions.alert !== JSON.parse(level_all)) {
-      await Keychain.setGenericPassword(NOTIFICATIONS_STORAGE, JSON.stringify(systemPermissions.alert), { service: NOTIFICATION_LEVEL_KEY });
+      await Keychain.setGenericPassword(NOTIFICATIONS_STORAGE, JSON.stringify(systemPermissions.alert), {
+        service: NOTIFICATION_LEVEL_KEY,
+      });
     }
 
     console.debug('Notification config:', { token, level_all: systemPermissions.alert });
@@ -47,7 +49,6 @@ export const getNotificationConfig = async () => {
     return null;
   }
 };
-
 
 export const setNotificationConfig = async ({ token, level_all }) => {
   try {
@@ -64,8 +65,7 @@ export const setNotificationConfig = async ({ token, level_all }) => {
   }
 };
 
-
-function Notifications() {
+function Notifications(props) {
   const postTokenConfig = async () => {
     const token = await getPushToken();
     if (!token || !token.token || !token.os) return;
@@ -181,13 +181,12 @@ const configureNotifications = async onProcessNotifications => {
   });
 };
 
-
 export const clearNotificationConfig = async () => {
   try {
-    await Keychain.resetGenericPassword({ service: NOTIFICATION_TOKEN_KEY }); 
+    await Keychain.resetGenericPassword({ service: NOTIFICATION_TOKEN_KEY });
     await Keychain.resetGenericPassword({ service: NOTIFICATION_LEVEL_KEY });
     await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
-    cachedIsNotificationsEnabled = false; 
+    cachedIsNotificationsEnabled = false;
   } catch (e) {
     console.error('Failed to clear notification config:', e);
   }
@@ -195,7 +194,7 @@ export const clearNotificationConfig = async () => {
 
 export const tryToObtainPermissions = async function (anchor) {
   if (!(await isNotificationsCapable())) return false;
-  
+
   if (await getPushToken()) return true;
 
   const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
@@ -219,7 +218,9 @@ export const tryToObtainPermissions = async function (anchor) {
           resolve(false);
           break;
         case 2:
-          configureNotifications().then(resolve).catch(() => resolve(false));
+          configureNotifications()
+            .then(resolve)
+            .catch(() => resolve(false));
           break;
         default:
           resolve(false);
@@ -245,11 +246,11 @@ export const getPushToken = async () => {
   return new Promise((resolve, reject) => {
     PushNotification.configure({
       onRegister: token => {
-        console.log('Push token received:', token);  
+        console.log('Push token received:', token);
         resolve(token);
       },
       onRegistrationError: err => {
-        console.error('Error during token registration:', err); 
+        console.error('Error during token registration:', err);
         reject(err);
       },
       permissions: {
@@ -258,7 +259,7 @@ export const getPushToken = async () => {
         sound: true,
       },
       popInitialNotification: true,
-      requestPermissions: true, 
+      requestPermissions: true,
     });
   });
 };
