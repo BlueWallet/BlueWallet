@@ -581,7 +581,7 @@ export const getDefaultUri = () => {
 export const saveUri = async uri => {
   baseURI = uri || groundControlUri; // setting the url to use currently. if not set - use default
   try {
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
+    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, baseURI);
   } catch (storageError) {
     console.error('Failed to reset URI:', storageError);
     throw storageError;
