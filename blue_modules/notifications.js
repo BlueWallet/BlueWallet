@@ -146,8 +146,8 @@ const configureNotifications = async onProcessNotifications => {
           },
           onNotification: async notification => {
             const payload = Object.assign({}, notification, notification.data);
-            if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-            delete payload.data;
+            if (notification.data?.data) Object.assign(payload, notification.data.data);
+            payload.data = undefined;
             console.debug('got push notification', payload);
 
             await addNotification(payload);
@@ -235,8 +235,8 @@ export const isNotificationsEnabled = async () => {
     return cachedIsNotificationsEnabled;
   }
 
-  const token = (await Keychain.getGenericPassword(NOTIFICATION_TOKEN_KEY))?.password || null;
-  const level_all = JSON.parse((await Keychain.getGenericPassword(NOTIFICATION_LEVEL_KEY))?.password || 'false');
+  const token = (await Keychain.getGenericPassword({ service: NOTIFICATION_TOKEN_KEY }))?.password || null;
+  const level_all = JSON.parse((await Keychain.getGenericPassword({ service: NOTIFICATION_LEVEL_KEY }))?.password || 'false');
 
   cachedIsNotificationsEnabled = !!token && !!level_all;
   return cachedIsNotificationsEnabled;
