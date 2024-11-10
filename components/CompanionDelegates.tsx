@@ -107,7 +107,8 @@ const CompanionDelegates = () => {
     }
 
     return false;
-  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallets]);
 
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
@@ -224,7 +225,8 @@ const CompanionDelegates = () => {
         appState.current = nextAppState;
       }
     },
-    [processPushNotifications, showClipboardAlert, wallets],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showClipboardAlert, wallets],
   );
 
   const addListeners = useCallback(() => {
