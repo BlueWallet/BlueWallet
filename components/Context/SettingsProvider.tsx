@@ -134,7 +134,7 @@ const defaultSettingsContext: SettingsContextType = {
   isElectrumDisabled: false,
   setIsElectrumDisabled: () => {},
   isNotificationsEnabledState: false,
-  setNotificationsEnabledStorage: () => {},
+  setNotificationsEnabledStorage: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
