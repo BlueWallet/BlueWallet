@@ -101,7 +101,7 @@ interface SettingsContextType {
   isElectrumDisabled: boolean;
   setIsElectrumDisabled: (value: boolean) => void;
   isNotificationsEnabledState: boolean;
-  setNotificationsEnabledStorage: (value: boolean) => void;
+  setNotificationsEnabledStorage: (value: boolean) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
