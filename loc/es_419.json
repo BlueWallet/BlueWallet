@@ -215,6 +215,7 @@
     "block_explorer_invalid_custom_url": "La URL proporcionada no es válida. Ingresa una URL válida que comience con http:// o https://.",
     "about_selftest_electrum_disabled": "La autocomprobación no está disponible con el modo sin conexión de Electrum. Desactiva el modo sin conexión y vuelve a intentarlo. ",
     "about_selftest_ok": "Todas las pruebas internas han pasado satisfactoriamente. La billetera funciona bien.",
+
     "about_sm_github": "GitHub",
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
@@ -249,8 +250,7 @@
     "electrum_settings_server": "Servidor Electrum",
     "electrum_status": "Estado",
     "electrum_preferred_server": "Servidor preferido",
-    "electrum_preferred_server_description": "Introduce el servidor que deseas que tu billetera utilice para todas las actividades de Bitcoin. Una vez configurado, tu billetera utilizará exclusivamente este servidor para comprobar saldos, enviar transacciones y obtener datos de la red. Asegúrate de que confías en este servidor antes de configurarlo.",
-    "electrum_clear_alert_title": "¿Borrar historial?",
+    "electrum_preferred_server_description": "Introduce el servidor que deseas que tu billetera utilice para todas las actividades de Bitcoin. Una vez configurado, tu billetera utilizará exclusivamente este servidor para comprobar saldos, enviar transacciones y obtener datos de la red. Asegúrate de que confías en este servidor antes de configurarlo.",    "electrum_clear_alert_title": "¿Borrar historial?",
     "electrum_clear_alert_message": "¿Quieres borrar el historial de los servidores de Electrum?",
     "electrum_clear_alert_cancel": "Cancelar",
     "electrum_clear_alert_ok": "Ok",
@@ -336,7 +336,6 @@
     "details_balance_hide": "Ocultar Balance",
     "details_balance_show": "Mostrar Balance",
     "details_copy": "Copiar",
-    "details_copy_amount": "Importe de la copia",
     "details_copy_block_explorer_link": "Copiar el enlace del explorador de bloques",
     "details_copy_note": "Copiar nota",
     "details_copy_txid": "Copiar ID de transacción",
@@ -406,6 +405,7 @@
     "add_wallet_seed_length_24": "24 palabras",
     "clipboard_bitcoin": "Tienes una dirección de Bitcoin en tu portapapeles. ¿te gustaría usarlo para una transacción?",
     "clipboard_lightning": "Tienes una factura Lightning en tu portapapeles. ¿Te gustaría usarlo para una transacción?",
+    "clear_clipboard_on_import": "Limpiar el portapapeles al importar",
     "details_address": "Dirección",
     "details_advanced": "Avanzado",
     "details_are_you_sure": "¿Estás seguro?",
@@ -486,9 +486,10 @@
     "more_info": "Más información"
   },
   "total_balance_view": {
-    "display_in_bitcoin": "Ver en Bitcoin",
-    "display_in_sats": "Ver en sats",
-    "display_in_fiat": "Ver en {currency}",
+    "display_in_bitcoin": "Mostrar en Bitcoin",
+    "hide": "Ocultar",
+    "display_in_sats": "Mostrar en sats",
+    "display_in_fiat": "Mostrar en {currency}",
     "title": "Balance Total",
     "explanation": "Ve el saldo total de todas tus billeteras en la pantalla de descripción general."
   },
@@ -591,7 +592,13 @@
     "header": "Control de Monedas",
     "use_coin": "Usar Moneda",
     "use_coins": "Usar Monedas",
-    "tip": "Esta función te permite ver, etiquetar, congelar o seleccionar monedas para una mejor gestión de la cartera. Puedes seleccionar varias monedas tocando los círculos de colores."
+    "tip": "Esta función te permite ver, etiquetar, congelar o seleccionar monedas para una mejor gestión de la cartera. Puedes seleccionar varias monedas tocando los círculos de colores.",
+    "sort_asc": "Ascendente",
+    "sort_desc": "Descendente",
+    "sort_height": "por Altura",
+    "sort_value": "por Valor",
+    "sort_label": "por Etiqueta",
+    "sort_status": "por Estado"
   },
   "units": {
     "BTC": "BTC",
@@ -649,7 +656,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
