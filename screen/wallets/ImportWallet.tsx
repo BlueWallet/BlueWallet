@@ -1,36 +1,41 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useRoute } from '@react-navigation/native';
-import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, ScrollView } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
-import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { disallowScreenshot } from 'react-native-screen-capture';
-import loc from '../../loc';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { useKeyboard } from '../../hooks/useKeyboard';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import Clipboard from '@react-native-clipboard/clipboard';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { useTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import loc from '../../loc';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const WalletsImport = () => {
-  const navigation = useExtendedNavigation();
+type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
+type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
+
+const ImportWallet = () => {
+  const navigation = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
-  const route = useRoute();
+  const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
   const scannedData = route?.params?.scannedData ?? '';
-  const [importText, setImportText] = useState(label);
-  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
-  const [, setSpeedBackdoor] = useState(0);
-  const [searchAccountsMenuState, setSearchAccountsMenuState] = useState(false);
-  const [askPassphraseMenuState, setAskPassphraseMenuState] = useState(false);
-  const [clearClipboardMenuState, setClearClipboardMenuState] = useState(true);
+  const [importText, setImportText] = useState<string>(label);
+  const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState<boolean>(false);
+  const [, setSpeedBackdoor] = useState<number>(0);
+  const [searchAccountsMenuState, setSearchAccountsMenuState] = useState<boolean>(false);
+  const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
+  const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
   const { isPrivacyBlurEnabled } = useSettings();
   // Styles
   const styles = StyleSheet.create({
@@ -46,11 +51,11 @@ const WalletsImport = () => {
     },
   });
 
-  const onBlur = () => {
+  const onBlur = useCallback(() => {
     const valueWithSingleWhitespace = importText.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
     setImportText(valueWithSingleWhitespace);
     return valueWithSingleWhitespace;
-  };
+  }, [importText]);
 
   useKeyboard({
     onKeyboardDidShow: () => {
@@ -61,62 +66,50 @@ const WalletsImport = () => {
     },
   });
 
-  useEffect(() => {
-    disallowScreenshot(isPrivacyBlurEnabled);
-    return () => {
-      disallowScreenshot(false);
-    };
-  }, [isPrivacyBlurEnabled]);
+  const importMnemonic = useCallback(
+    async (text: string) => {
+      if (clearClipboardMenuState) {
+        try {
+          if (await Clipboard.hasString()) {
+            Clipboard.setString('');
+          }
+        } catch (error) {
+          console.error('Failed to clear clipboard:', error);
+        }
+      }
+      navigation.navigate('ImportWalletDiscovery', {
+        importText: text,
+        askPassphrase: askPassphraseMenuState,
+        searchAccounts: searchAccountsMenuState,
+      });
+    },
+    [askPassphraseMenuState, clearClipboardMenuState, navigation, searchAccountsMenuState],
+  );
 
-  useEffect(() => {
-    if (triggerImport) importButtonPressed();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [triggerImport]);
-
-  useEffect(() => {
-    if (scannedData) {
-      onBarScanned(scannedData);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scannedData]);
-
-  const importButtonPressed = () => {
+  const handleImport = useCallback(() => {
     const textToImport = onBlur();
     if (textToImport.trim().length === 0) {
       return;
     }
     importMnemonic(textToImport);
-  };
+  }, [importMnemonic, onBlur]);
 
-  const importMnemonic = async text => {
-    if (clearClipboardMenuState) {
-      try {
-        if (await Clipboard.hasString()) {
-          Clipboard.setString('');
-        }
-      } catch (error) {
-        console.error('Failed to clear clipboard:', error);
-      }
-    }
-    navigation.navigate('ImportWalletDiscovery', {
-      importText: text,
-      askPassphrase: askPassphraseMenuState,
-      searchAccounts: searchAccountsMenuState,
-    });
-  };
+  const onBarScanned = useCallback(
+    (value: string | { data: any }) => {
+      // no objects here, only strings
+      const newValue: string = typeof value !== 'string' ? value.data + '' : value;
+      setImportText(newValue);
+      setTimeout(() => importMnemonic(newValue), 500);
+    },
+    [importMnemonic],
+  );
 
-  const onBarScanned = value => {
-    if (value && value.data) value = value.data + ''; // no objects here, only strings
-    setImportText(value);
-    setTimeout(() => importMnemonic(value), 500);
-  };
-
-  const importScan = async () => {
-    const data = await scanQrHelper(navigation, true);
+  const importScan = useCallback(async () => {
+    const data = await scanQrHelper(route.name, true);
     if (data) {
       onBarScanned(data);
     }
-  };
+  }, [route.name, onBarScanned]);
 
   const speedBackdoorTap = () => {
     setSpeedBackdoor(v => {
@@ -128,7 +121,7 @@ const WalletsImport = () => {
   };
 
   const toolTipOnPressMenuItem = useCallback(
-    menuItem => {
+    (menuItem: string) => {
       Keyboard.dismiss();
       if (menuItem === CommonToolTipActions.Passphrase.id) {
         setAskPassphraseMenuState(!askPassphraseMenuState);
@@ -143,19 +136,34 @@ const WalletsImport = () => {
 
   // ToolTipMenu actions for advanced options
   const toolTipActions = useMemo(() => {
-    const askPassphraseAction = CommonToolTipActions.Passphrase;
-    askPassphraseAction.menuState = askPassphraseMenuState;
-    const searchAccountsAction = CommonToolTipActions.SearchAccount;
-    searchAccountsAction.menuState = searchAccountsMenuState;
-    const clearClipboardAction = CommonToolTipActions.ClearClipboard;
-    clearClipboardAction.menuState = clearClipboardMenuState;
-    return [askPassphraseAction, searchAccountsAction, clearClipboardAction];
+    return [
+      { ...CommonToolTipActions.Passphrase, menuState: askPassphraseMenuState },
+      { ...CommonToolTipActions.SearchAccount, menuState: searchAccountsMenuState },
+      { ...CommonToolTipActions.ClearClipboard, menuState: clearClipboardMenuState },
+    ];
   }, [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
     [toolTipOnPressMenuItem, toolTipActions],
   );
+
+  useEffect(() => {
+    disallowScreenshot(isPrivacyBlurEnabled);
+    return () => {
+      disallowScreenshot(false);
+    };
+  }, [isPrivacyBlurEnabled]);
+
+  useEffect(() => {
+    if (triggerImport) handleImport();
+  }, [triggerImport, handleImport]);
+
+  useEffect(() => {
+    if (scannedData) {
+      onBarScanned(scannedData);
+    }
+  }, [scannedData, onBarScanned]);
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
@@ -169,12 +177,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <Button
-            disabled={importText.trim().length === 0}
-            title={loc.wallets.import_do_import}
-            testID="DoImport"
-            onPress={importButtonPressed}
-          />
+          <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>
@@ -234,4 +237,4 @@ const WalletsImport = () => {
   );
 };
 
-export default WalletsImport;
+export default ImportWallet;
