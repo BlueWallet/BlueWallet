@@ -109,13 +109,12 @@ function Notifications(props) {
       AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
     }
 
+    // every launch should clear badges:
     setApplicationIconBadgeNumber(0);
 
     if (!(await getPushToken())) {
       await configureNotifications();
-    }
-
-    if (await getPushToken()) {
+    } else {
       await postTokenConfig();
     }
   })();
@@ -144,34 +143,59 @@ const configureNotifications = async onProcessNotifications => {
             cachedIsNotificationsEnabled = true;
             resolve(true);
           },
+          // (required) Called when a remote is received or opened, or local notification is opened
           onNotification: async notification => {
+            // since we do not know whether we:
+            // 1) received notification while app is in background (and storage is not decrypted so wallets are not loaded)
+            // 2) opening this notification right now but storage is still unencrypted
+            // 3) any of the above but the storage is decrypted, and app wallets are loaded
+            //
+            // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
+
             const payload = Object.assign({}, notification, notification.data);
             if (notification.data?.data) Object.assign(payload, notification.data.data);
             payload.data = undefined;
+            // ^^^ weird, but sometimes payload data is not in `data` but in root level
+
             console.debug('got push notification', payload);
 
             await addNotification(payload);
 
+            // (required) Called when a remote is received or opened, or local notification is opened
             notification.finish(PushNotificationIOS.FetchResult.NoData);
 
             if (payload.foreground && typeof onProcessNotifications === 'function') {
               onProcessNotifications();
             }
           },
+
+          // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
           onAction: notification => {
             console.debug('ACTION:', notification.action);
             console.debug('NOTIFICATION:', notification);
           },
+          // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
           onRegistrationError: err => {
             console.error(err.message, err);
             resolve(false);
           },
+
+          // IOS ONLY (optional): default: all - Permissions to register
           permissions: {
             alert: true,
             badge: true,
             sound: true,
           },
+          // Should the initial notification be popped automatically
           popInitialNotification: true,
+
+          /**
+           * (optional) default: true
+           * - Specified if permissions (ios) and token (android and ios) will requested or not,
+           * - if not, you must call PushNotificationsHandler.requestPermissions() later
+           * - if you are not using remote notification or do not have Firebase installed, use this:
+           *     requestPermissions: Platform.OS === 'ios'
+           */
           requestPermissions: true,
         });
       } else {
@@ -192,6 +216,15 @@ export const clearNotificationConfig = async () => {
   }
 };
 
+/**
+ * Should be called when user is most interested in receiving push notifications.
+ * If we dont have a token it will show alert asking whether
+ * user wants to receive notifications, and if yes - will configure push notifications.
+ * FYI, on Android permissions are acquired when app is installed, so basically we dont need to ask,
+ * we can just call `configure`. On iOS its different, and calling `configure` triggers system's dialog box.
+ *
+ * @returns {Promise<boolean>} TRUE if permissions were obtained, FALSE otherwise
+ */
 export const tryToObtainPermissions = async function (anchor) {
   if (!(await isNotificationsCapable())) return false;
 
@@ -272,6 +305,7 @@ const addNotification = async notification => {
     if (!Array.isArray(notifications)) notifications = [];
   } catch (e) {
     console.error(e);
+    // Start fresh with just the new notification
     notifications = [];
   }
 
@@ -306,6 +340,12 @@ export const removeAllDeliveredNotifications = () => {
   PushNotification.removeAllDeliveredNotifications();
 };
 
+/**
+ * Validates whether the provided GroundControl URI is valid by pinging it.
+ *
+ * @param uri {string}
+ * @returns {Promise<boolean>} TRUE if valid, FALSE otherwise
+ */
 export const isGroundControlUriValid = async uri => {
   let response;
   try {
@@ -318,6 +358,14 @@ export const isGroundControlUriValid = async uri => {
   return !!json.description;
 };
 
+/**
+ * Returns a permissions object:
+ * alert: boolean
+ * badge: boolean
+ * sound: boolean
+ *
+ * @returns {Promise<Object>}
+ */
 export const checkPermissions = async () => {
   return new Promise(resolve => {
     PushNotification.checkPermissions(result => {
@@ -346,6 +394,14 @@ export const getStoredNotifications = async () => {
   return notifications;
 };
 
+/**
+ * The opposite of `majorTomToGroundControl` call.
+ *
+ * @param addresses {string[]}
+ * @param hashes {string[]}
+ * @param txids {string[]}
+ * @returns {Promise<object>} Response object from API rest call
+ */
 export const unsubscribe = async (addresses, hashes, txids) => {
   if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
     throw new Error('No addresses, hashes, or txids provided');
@@ -393,6 +449,15 @@ const _sleep = async ms => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
+/**
+ * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
+ * be notified if they were paid
+ *
+ * @param addresses {string[]}
+ * @param hashes {string[]}
+ * @param txids {string[]}
+ * @returns {Promise<object>} Response object from API rest call
+ */
 export const majorTomToGroundControl = async (addresses, hashes, txids) => {
   try {
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
@@ -437,13 +502,18 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
         throw jsonError;
       }
     } else {
-      return {};
+      return {}; // Return an empty object if there is no response body
     }
   } catch (error) {
     console.error('Error in majorTomToGroundControl:', error);
   }
 };
 
+/**
+ * Queries groundcontrol for token configuration, which contains subscriptions to notification levels
+ *
+ * @returns {Promise<{}|*>}
+ */
 export const getLevels = async () => {
   const config = await getNotificationConfig();
   if (!config?.token || !config?.os) return {};
@@ -473,6 +543,12 @@ export const getLevels = async () => {
   return levels;
 };
 
+/**
+ * Posts to groundcontrol info whether we want to opt in or out of specific notifications level
+ *
+ * @param levelAll {Boolean}
+ * @returns {Promise<*>}
+ */
 export const setLevels = async levelAll => {
   const config = await getNotificationConfig();
   if (!config?.token || !config?.os) return;
@@ -503,7 +579,7 @@ export const getDefaultUri = () => {
 };
 
 export const saveUri = async uri => {
-  baseURI = uri || groundControlUri;
+  baseURI = uri || groundControlUri; // setting the url to use currently. if not set - use default
   try {
     await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
   } catch (storageError) {
