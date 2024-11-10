@@ -1,6 +1,8 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import BN from 'bignumber.js';
 import React, { useEffect, useReducer, useState } from 'react';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Icon } from '@rneui/themed';
+import BN from 'bignumber.js';
 import {
   Alert,
   Dimensions,
@@ -13,15 +15,18 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
 
 import { BlueSpacing20 } from '../../BlueComponents';
+import { randomBytes } from '../../class/rng';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
 import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { randomBytes } from '../../class/rng';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+
+type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
+type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;
 
 export enum EActionType {
   push = 'push',
@@ -252,11 +257,10 @@ const D20Tab = ({ active }: { active: boolean }) => {
   return <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
-const Entropy = () => {
+const ProvideEntropy = () => {
   const [entropy, dispatch] = useReducer(eReducer, initialState);
-  // @ts-ignore: navigation is not typed yet
-  const { onGenerated, words } = useRoute().params;
-  const navigation = useNavigation();
+  const { onGenerated, words } = useRoute<RouteProps>().params;
+  const navigation = useNavigation<NavigationProp>();
   const [tab, setTab] = useState(1);
   const [show, setShow] = useState(false);
   const { colors } = useTheme();
@@ -319,7 +323,6 @@ const Entropy = () => {
               buf = Buffer.concat([buf, random], bufLength);
             }
 
-            // @ts-ignore: navigation is not typed yet
             navigation.pop();
             onGenerated(buf);
           },
@@ -432,4 +435,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Entropy;
+export default ProvideEntropy;

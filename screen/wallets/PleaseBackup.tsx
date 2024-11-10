@@ -1,18 +1,23 @@
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { disallowScreenshot } from 'react-native-screen-capture';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
-import loc from '../../loc';
-import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
+import loc from '../../loc';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+
+type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
+type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useStorage();
-  const { walletID } = useRoute().params as { walletID: string };
+  const { walletID } = useRoute<RouteProps>().params;
   const wallet = wallets.find(w => w.getID() === walletID);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
 
