@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
-import BlueClipboard from '../../blue_modules/clipboard';
+import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
@@ -203,11 +203,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         isURv1Enabled().then(urv1Enabled => {
           setIsLegacyURv1Enabled(urv1Enabled);
         }),
-        BlueClipboard()
-          .isReadClipboardAllowed()
-          .then(clipboardEnabled => {
-            setIsClipboardGetContentEnabled(clipboardEnabled);
-          }),
+        isReadClipboardAllowed().then(clipboardEnabled => {
+          setIsClipboardGetContentEnabled(clipboardEnabled);
+        }),
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
         }),
@@ -326,7 +324,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setIsClipboardGetContentEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
-      await BlueClipboard().setReadClipboardAllowed(value);
+      await setReadClipboardAllowed(value);
       setIsClipboardGetContentEnabled(value);
     } catch (e) {
       console.error('Error setting isClipboardGetContentEnabled:', e);
