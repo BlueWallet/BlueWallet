@@ -1,7 +1,6 @@
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-import BlueClipboard from '../../blue_modules/clipboard';
+import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
@@ -15,6 +14,7 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -149,7 +149,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
 
-  const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
@@ -167,7 +166,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
-        languageStorage.getItem().then(lang => {
+        AsyncStorage.getItem(STORAGE_KEY).then(lang => {
           setLanguage(lang ?? 'en');
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
@@ -176,11 +175,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         isURv1Enabled().then(urv1Enabled => {
           setIsLegacyURv1Enabled(urv1Enabled);
         }),
-        BlueClipboard()
-          .isReadClipboardAllowed()
-          .then(clipboardEnabled => {
-            setIsClipboardGetContentEnabled(clipboardEnabled);
-          }),
+        isReadClipboardAllowed().then(clipboardEnabled => {
+          setIsClipboardGetContentEnabled(clipboardEnabled);
+        }),
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
         }),
@@ -209,7 +206,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     };
 
     loadSettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -299,7 +295,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setIsClipboardGetContentEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
-      await BlueClipboard().setReadClipboardAllowed(value);
+      await setReadClipboardAllowed(value);
       setIsClipboardGetContentEnabled(value);
     } catch (e) {
       console.error('Error setting isClipboardGetContentEnabled:', e);

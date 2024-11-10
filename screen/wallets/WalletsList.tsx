@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
-import BlueClipboard from '../../blue_modules/clipboard';
+import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -365,11 +365,11 @@ const WalletsList: React.FC = () => {
   );
 
   const pasteFromClipboard = useCallback(async () => {
-    onBarScanned(await BlueClipboard().getClipboardContent());
+    onBarScanned(await getClipboardContent());
   }, [onBarScanned]);
 
   const sendButtonLongPress = useCallback(async () => {
-    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await getClipboardContent())?.trim().length === 0;
 
     const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
     if (!isClipboardEmpty) {
