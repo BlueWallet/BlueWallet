@@ -1,5 +1,5 @@
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from '../../blue_modules/currency';
@@ -15,6 +15,8 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
+import { clearNotificationConfig, getNotificationConfig, setNotificationConfig } from '../../blue_modules/notifications';
+import useAppState from '../../hooks/useAppState';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -98,6 +100,8 @@ interface SettingsContextType {
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
   isElectrumDisabled: boolean;
   setIsElectrumDisabled: (value: boolean) => void;
+  isNotificationsEnabledState: boolean;
+  setNotificationsEnabledStorage: (value: boolean) => void;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -129,6 +133,8 @@ const defaultSettingsContext: SettingsContextType = {
   setBlockExplorerStorage: async () => false,
   isElectrumDisabled: false,
   setIsElectrumDisabled: () => {},
+  isNotificationsEnabledState: false,
+  setNotificationsEnabledStorage: () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -148,9 +154,31 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
+  const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean>(false);
+  const { currentAppState, previousAppState } = useAppState();
 
-  const languageStorage = useAsyncStorage(STORAGE_KEY);
   const { walletsInitialized } = useStorage();
+
+  const loadNotificationState = useCallback(async () => {
+    try {
+      const config = await getNotificationConfig();
+      const currentEnabled = !!config?.level_all;
+console.warn('currentEnabled', currentEnabled);
+      if (currentEnabled !== isNotificationsEnabledState) {
+        setNotificationsEnabledState(currentEnabled);
+      }
+      console.debug('Notifications config:', config);
+    } catch (error) {
+      console.error('Error loading notification state:', error);
+    }
+  }, [isNotificationsEnabledState]);
+
+  useEffect(() => {
+
+    if (previousAppState === 'background' && currentAppState === 'active') {
+      loadNotificationState();
+    }
+  }, [currentAppState, loadNotificationState, previousAppState]);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -161,13 +189,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       }
 
       const promises: Promise<void>[] = [
+        loadNotificationState(),
         BlueElectrum.isDisabled().then(disabled => {
           setIsElectrumDisabled(disabled);
         }),
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
-        languageStorage.getItem().then(lang => {
+        AsyncStorage.getItem(STORAGE_KEY).then(lang => {
           setLanguage(lang ?? 'en');
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
@@ -209,7 +238,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     };
 
     loadSettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -314,6 +343,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       console.error('Error setting isQuickActionsEnabled:', e);
     }
   }, []);
+
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -342,6 +372,23 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     } catch (e) {
       console.error('Error setting BlockExplorer:', e);
       return false;
+    }
+  }, []);
+
+  const setNotificationsEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    try {
+      if (value) {
+        const currentConfig = await getNotificationConfig();
+        if (currentConfig) {
+          const newConfig = { ...currentConfig, level_all: value, token: currentConfig.token };
+          await setNotificationConfig(newConfig);
+        }
+      } else {
+        await clearNotificationConfig(); 
+      }
+      setNotificationsEnabledState(value);
+    } catch (e) {
+      console.error('Error setting NotificationsEnabled:', e);
     }
   }, []);
 
@@ -375,6 +422,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setBlockExplorerStorage,
       isElectrumDisabled,
       setIsElectrumDisabled,
+      isNotificationsEnabledState,
+      setNotificationsEnabledStorage,
     }),
     [
       preferredFiatCurrency,
@@ -404,6 +453,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       selectedBlockExplorer,
       setBlockExplorerStorage,
       isElectrumDisabled,
+      setIsElectrumDisabled,
+      isNotificationsEnabledState,
+      setNotificationsEnabledStorage,
     ],
   );
 

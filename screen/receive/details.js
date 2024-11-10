@@ -17,7 +17,7 @@ import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
+import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AmountInput from '../../components/AmountInput';
@@ -110,8 +110,8 @@ const ReceiveDetails = () => {
     if (address) {
       setAddressBIP21Encoded(address);
       try {
-        await Notifications.tryToObtainPermissions(receiveAddressButton);
-        Notifications.majorTomToGroundControl([address], [], []);
+        await tryToObtainPermissions(receiveAddressButton);
+        majorTomToGroundControl([address], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
       }
@@ -144,8 +144,8 @@ const ReceiveDetails = () => {
       }
       setAddressBIP21Encoded(newAddress);
       try {
-        await Notifications.tryToObtainPermissions(receiveAddressButton);
-        Notifications.majorTomToGroundControl([newAddress], [], []);
+        await tryToObtainPermissions(receiveAddressButton);
+        majorTomToGroundControl([newAddress], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
       }

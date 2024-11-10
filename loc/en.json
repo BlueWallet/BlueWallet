@@ -320,7 +320,11 @@
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
     "notifications_subtitle": "Incoming payments and transaction confirmations",
     "no_and_dont_ask": "No, and do not ask me again.",
-    "ask_me_later": "Ask me later."
+    "ask_me_later": "Ask me later.",
+    "token_not_received_title": "Notification Token Not Received",
+    "permission_denied_title": "Notification Permission Denied",
+    "permission_denied_message": "You have denied BlueWallet permission to send you notifications. If you would like to receive notifications, please enable them in your device settings.",
+    "token_not_received_message": "We were unable to receive a notification token from your device. Please check your internet connection and try again.",
   },
   "transactions": {
     "cancel_explain": "We will replace this transaction with one that pays you and has higher fees. This effectively cancels the current transaction. This is called RBF—Replace by Fee.",

@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
-// @ts-ignore: no declaration file
-import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -12,14 +10,30 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
+import {
+  checkPermissions,
+  cleanUserOptOutFlag,
+  clearNotificationConfig,
+  getDefaultUri,
+  getNotificationConfig,
+  getPushToken,
+  getSavedUri,
+  getStoredNotifications,
+  isGroundControlUriValid,
+  saveUri,
+  setLevels,
+  tryToObtainPermissions,
+} from '../../blue_modules/notifications';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
+  const { isNotificationsEnabledState, setNotificationsEnabledStorage } = useSettings();
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
+  const notificationsRef = useRef<ScrollView>(null);
   const stylesWithThemeHook = {
     root: {
       backgroundColor: colors.background,
@@ -43,53 +57,92 @@ const NotificationSettings: React.FC = () => {
 
   const onNotificationsSwitch = async (value: boolean) => {
     try {
-      setNotificationsEnabled(value);
+      console.log('Switch toggled:', value);
+  
+      const systemPermissions = await checkPermissions();
+      console.log('System permissions:', systemPermissions);
+  
       if (value) {
-        // User is enabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.cleanUserOptOutFlag();
-        // @ts-ignore: refactor later
-        if (await Notifications.getPushToken()) {
-          // we already have a token, so we just need to reenable ALL level on groundcontrol:
-          // @ts-ignore: refactor later
-          await Notifications.setLevels(true);
+        console.log('Enabling notifications');
+        
+        if (!systemPermissions.alert) {
+          console.log('System-level notifications disabled');
+          
+          await clearNotificationConfig();
+          presentAlert({
+            title: loc.notifications.permission_denied_title,
+            message: loc.notifications.permission_denied_message,
+            buttons: [
+              { text: loc.send.open_settings, onPress: onSystemSettingsPress },
+              { text: loc._.cancel, style: 'cancel' },
+            ],
+          });
+          setNotificationsEnabledStorage(false); 
+          return;
+        }
+  
+        await cleanUserOptOutFlag();
+  
+        const existingToken = await getPushToken();
+        console.log('Existing token:', existingToken);
+  
+        if (existingToken) {
+          await setLevels(true);
         } else {
-          // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-          // @ts-ignore: refactor later
-          await Notifications.tryToObtainPermissions();
+          console.log('Requesting permission');
+          
+          const permissionGranted = await tryToObtainPermissions(notificationsRef.current);
+          console.log('Permission granted:', permissionGranted);
+  
+          if (permissionGranted) {
+            const token = await getPushToken();
+            console.log('New token:', token);
+  
+            if (token) {
+              await setLevels(true);
+            } else {
+              presentAlert({
+                title: loc.notifications.token_not_received_title,
+                message: loc.notifications.token_not_received_message,
+              });
+            }
+          } else {
+            presentAlert({
+              title: loc.notifications.permission_denied_title,
+              message: loc.notifications.permission_denied_message,
+              buttons: [
+                { text: loc.send.open_settings, onPress: onSystemSettingsPress },
+                { text: loc._.cancel, style: 'cancel' },
+              ],
+            });
+          }
         }
       } else {
-        // User is disabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.setLevels(false);
+        console.log('Disabling notifications');
+        await setLevels(false);
       }
-
-      // @ts-ignore: refactor later
-      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      setNotificationsEnabledStorage(value);
     } catch (error) {
-      console.error(error);
+      console.error('Error in onNotificationsSwitch:', error);
       presentAlert({ message: (error as Error).message });
     }
   };
 
   useEffect(() => {
-    (async () => {
+    const loadData = async () => {
       try {
-        // @ts-ignore: refactor later
-        setNotificationsEnabled(await Notifications.isNotificationsEnabled());
-        // @ts-ignore: refactor later
-        setURI(await Notifications.getSavedUri());
-        // @ts-ignore: refactor later
+        const uri = await getSavedUri();
+        if (uri) {
+          setURI(uri);
+        }
+        const config = await getNotificationConfig();
         setTokenInfo(
           'token: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.getPushToken()) +
+            JSON.stringify(config?.token) +
             ' permissions: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.checkPermissions()) +
+            JSON.stringify(await checkPermissions()) +
             ' stored notifications: ' +
-            // @ts-ignore:  refactor later
-            JSON.stringify(await Notifications.getStoredNotifications()),
+            JSON.stringify(await getStoredNotifications()),
         );
       } catch (e) {
         console.error(e);
@@ -97,25 +150,23 @@ const NotificationSettings: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    })();
-  }, []);
+    };
+
+    loadData();
+  }, [isNotificationsEnabledState]);
 
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
       if (URI) {
-        // validating only if its not empty. empty means use default
-        // @ts-ignore: refactor later
-        if (await Notifications.isGroundControlUriValid(URI)) {
-          // @ts-ignore: refactor later
-          await Notifications.saveUri(URI);
+        if (await isGroundControlUriValid(URI)) {
+          await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
           presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
-        // @ts-ignore: refactor later
-        await Notifications.saveUri('');
+        await saveUri('');
         presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
@@ -124,18 +175,23 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
-  const onSystemSettings = () => {
+  const onSystemSettingsPress = () => {
     openSettings('notifications');
   };
 
   return (
-    <ScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+    <ScrollView
+      style={stylesWithThemeHook.scroll}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      ref={notificationsRef}
+    >
       <ListItem
         Component={PressableWrapper}
         title={loc.settings.notifications}
         subtitle={loc.notifications.notifications_subtitle}
         disabled={isLoading}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledState, testID: 'NotificationsSwitch' }}
       />
 
       <Pressable onPress={handleTap}>
@@ -167,8 +223,7 @@ const NotificationSettings: React.FC = () => {
           <BlueCard>
             <View style={[styles.uri, stylesWithThemeHook.uri]}>
               <TextInput
-                // @ts-ignore: refactor later
-                placeholder={Notifications.getDefaultUri()}
+                placeholder={getDefaultUri()}
                 value={URI}
                 onChangeText={setURI}
                 numberOfLines={1}
@@ -199,7 +254,7 @@ const NotificationSettings: React.FC = () => {
         </>
       )}
       <BlueSpacing40 />
-      <ListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron />
+      <ListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettingsPress} chevron />
     </ScrollView>
   );
 };

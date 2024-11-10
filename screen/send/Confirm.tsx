@@ -7,7 +7,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { BlueText, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
-import Notifications from '../../blue_modules/notifications';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
@@ -216,8 +216,7 @@ const Confirm: React.FC = () => {
 
       const txid = bitcoin.Transaction.fromHex(tx).getId();
       txidsToWatch.push(txid);
-      // @ts-ignore: Notifications has to be TSed
-      Notifications.majorTomToGroundControl([], [], txidsToWatch);
+      majorTomToGroundControl([], [], txidsToWatch);
       let amount = 0;
       for (const recipient of recipients) {
         if (recipient.value) {

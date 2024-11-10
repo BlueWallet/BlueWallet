@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InteractionManager } from 'react-native';
 import A from '../../blue_modules/analytics';
-import Notifications from '../../blue_modules/notifications';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
@@ -9,6 +8,7 @@ import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -228,8 +228,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
 
-      // @ts-ignore: Notifications type is not defined
-      Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       await w.fetchBalance();
     },
     [wallets, addWallet, saveToDisk],
