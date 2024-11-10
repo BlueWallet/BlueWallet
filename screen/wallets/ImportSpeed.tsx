@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -8,14 +9,17 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+
+type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportSpeed'>;
 
 const WalletsImportWallet = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
-  const [loading, setLoading] = useState(false);
-  const [importText, setImportText] = useState();
-  const [walletType, setWalletType] = useState();
-  const [passphrase, setPassphrase] = useState();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [importText, setImportText] = useState<string>('');
+  const [walletType, setWalletType] = useState<string>('');
+  const [passphrase, setPassphrase] = useState<string>('');
   const { addAndSaveWallet } = useStorage();
 
   const styles = StyleSheet.create({
@@ -58,13 +62,21 @@ const WalletsImportWallet = () => {
           break;
       }
 
+      if (!WalletClass) {
+        throw new Error('Invalid wallet type');
+      }
+
       const wallet = new WalletClass();
       wallet.setSecret(importText);
-      if (passphrase) wallet.setPassphrase(passphrase);
+      // check wallet is type of HDSegwitBech32Wallet
+      if (passphrase && wallet instanceof HDSegwitBech32Wallet) {
+        wallet.setPassphrase(passphrase);
+      }
       await wallet.fetchBalance();
+      // @ts-ignore: navigation
       navigation.getParent().pop();
       addAndSaveWallet(wallet);
-    } catch (e) {
+    } catch (e: any) {
       presentAlert({ message: e.message });
     } finally {
       setLoading(false);
