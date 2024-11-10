@@ -89,7 +89,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
           ...CommonToolTipActions.ExportPrivateKey,
           hidden: !allowSignVerifyMessage,
         },
-      ].filter(action => !action.hidden),
+      ].filter(action => 'hidden' in action && !action.hidden),
     [allowSignVerifyMessage],
   );
 
