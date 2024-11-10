@@ -67,7 +67,11 @@ const AddWalletStack = () => {
           title: loc.wallets.add_title,
         })(theme)}
       />
-      <Stack.Screen name="ImportCustomDerivationPath" component={ImportCustomDerivationPathComponent} />
+      <Stack.Screen
+        name="ImportCustomDerivationPath"
+        component={ImportCustomDerivationPathComponent}
+        options={navigationStyle({ statusBarStyle: 'light', title: loc.wallets.import_derivation_title })(theme)}
+      />
       <Stack.Screen
         name="ImportWallet"
         component={ImportWalletComponent}
