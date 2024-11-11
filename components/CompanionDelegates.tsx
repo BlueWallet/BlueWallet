@@ -49,11 +49,23 @@ const CompanionDelegates = () => {
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    const notifications2process = await getStoredNotifications();
-    await clearStoredNotifications();
-    setApplicationIconBadgeNumber(0);
-    const deliveredNotifications = await getDeliveredNotifications();
-    setTimeout(() => removeAllDeliveredNotifications(), 5000);
+    try {
+      const notifications2process = await getStoredNotifications();
+      await clearStoredNotifications();
+      await setApplicationIconBadgeNumber(0);
+      const deliveredNotifications = await getDeliveredNotifications();
+      setTimeout(async () => {
+        try {
+          await removeAllDeliveredNotifications();
+        } catch (error) {
+          console.error('Failed to remove delivered notifications:', error);
+        }
+      }, 5000);
+      return notifications2process;
+    } catch (error) {
+      console.error('Failed to process notifications:', error);
+      return [];
+    }
 
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
