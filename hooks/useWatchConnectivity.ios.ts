@@ -8,13 +8,13 @@ import {
   useReachability,
   watchEvents,
 } from 'react-native-watch-connectivity';
-import Notifications from '../blue_modules/notifications';
 import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { isNotificationsEnabled, majorTomToGroundControl } from '../blue_modules/notifications';
 
 interface Message {
   request?: string;
@@ -154,11 +154,9 @@ export function useWatchConnectivity() {
         try {
           if ('addInvoice' in wallet) {
             const invoiceRequest = await wallet.addInvoice(amount, description);
-              // @ts-ignore: Notifications type is not defined
-            if (await Notifications.isNotificationsEnabled()) {
+            if (await isNotificationsEnabled()) {
               const decoded = await wallet.decodeInvoice(invoiceRequest);
-              // @ts-ignore: Notifications type is not defined
-              Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+              majorTomToGroundControl([], [decoded.payment_hash], []);
               return invoiceRequest;
             }
             return invoiceRequest;

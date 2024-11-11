@@ -2,13 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 // @ts-ignore: no declaration file
-import Notifications, {
+import {
   getDefaultUri,
   getPushToken,
   getSavedUri,
   getStoredNotifications,
   saveUri,
   isNotificationsEnabled,
+  setLevels,
+  tryToObtainPermissions,
+  cleanUserOptOutFlag,
+  isGroundControlUriValid,
+  checkPermissions,
 } from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -19,6 +24,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
+import PushNotification from 'react-native-push-notification';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -53,21 +59,20 @@ const NotificationSettings: React.FC = () => {
       setNotificationsEnabledState(value);
       if (value) {
         // User is enabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.cleanUserOptOutFlag();
+        await cleanUserOptOutFlag();
         if (await getPushToken()) {
           // we already have a token, so we just need to reenable ALL level on groundcontrol:
-          // @ts-ignore: refactor later
-          await Notifications.setLevels(true);
+          await setLevels(true);
         } else {
           // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-          // @ts-ignore: refactor later
-          await Notifications.tryToObtainPermissions();
+          await tryToObtainPermissions();
         }
       } else {
         // User is disabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.setLevels(false);
+        await setLevels(false);
+        console.debug('Abandoning notifications Permissions...');
+        PushNotification.abandonPermissions();
+        console.debug('Abandoned notifications Permissions...');
       }
 
       setNotificationsEnabledState(await isNotificationsEnabled());
@@ -87,8 +92,7 @@ const NotificationSettings: React.FC = () => {
           'token: ' +
             JSON.stringify(await getPushToken()) +
             ' permissions: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.checkPermissions()) +
+            JSON.stringify(await checkPermissions()) +
             ' stored notifications: ' +
             JSON.stringify(await getStoredNotifications()),
         );
@@ -106,8 +110,7 @@ const NotificationSettings: React.FC = () => {
     try {
       if (URI) {
         // validating only if its not empty. empty means use default
-        // @ts-ignore: refactor later
-        if (await Notifications.isGroundControlUriValid(URI)) {
+        if (await isGroundControlUriValid(URI)) {
           await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
