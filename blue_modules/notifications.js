@@ -160,10 +160,6 @@ function Notifications(props) {
     });
   };
 
-  const _sleep = async ms => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  };
-
   /**
    * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
    * be notified if they were paid
@@ -222,11 +218,6 @@ function Notifications(props) {
     } catch (error) {
       console.error('Error in majorTomToGroundControl:', error);
     }
-  };
-
-  Notifications.isNotificationsEnabled = async () => {
-    const levels = await getLevels();
-    return !!(await getPushToken()) && !!levels.level_all;
   };
 
   /**
@@ -289,55 +280,6 @@ function Notifications(props) {
     } catch (_) {}
   };
 
-  /**
-   * Queries groundcontrol for token configuration, which contains subscriptions to notification levels
-   *
-   * @returns {Promise<{}|*>}
-   */
-  const getLevels = async () => {
-    const pushToken = await getPushToken();
-    if (!pushToken || !pushToken.token || !pushToken.os) return;
-
-    let response;
-    try {
-      response = await Promise.race([
-        fetch(`${baseURI}/getTokenConfiguration`, {
-          method: 'POST',
-          headers: _getHeaders(),
-          body: JSON.stringify({
-            token: pushToken.token,
-            os: pushToken.os,
-          }),
-        }),
-        _sleep(3000),
-      ]);
-    } catch (_) {}
-
-    if (!response) return {};
-
-    return await response.json();
-  };
-
-  Notifications.getStoredNotifications = async () => {
-    let notifications = [];
-    try {
-      const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-      notifications = JSON.parse(stringified);
-      if (!Array.isArray(notifications)) notifications = [];
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        console.error('Invalid notifications format:', e);
-        notifications = [];
-        await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
-      } else {
-        console.error('Error accessing notifications:', e);
-        throw e;
-      }
-    }
-
-    return notifications;
-  };
-
   Notifications.addNotification = async notification => {
     let notifications = [];
     try {
@@ -379,30 +321,6 @@ function Notifications(props) {
     }
   };
 
-  Notifications.clearStoredNotifications = async () => {
-    try {
-      await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([]));
-    } catch (_) {}
-  };
-
-  Notifications.getDeliveredNotifications = () => {
-    return new Promise(resolve => {
-      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
-    });
-  };
-
-  Notifications.removeDeliveredNotifications = (identifiers = []) => {
-    PushNotification.removeDeliveredNotifications(identifiers);
-  };
-
-  Notifications.setApplicationIconBadgeNumber = function (badges) {
-    PushNotification.setApplicationIconBadgeNumber(badges);
-  };
-
-  Notifications.removeAllDeliveredNotifications = () => {
-    PushNotification.removeAllDeliveredNotifications();
-  };
-
   // on app launch (load module):
   (async () => {
     // first, fetching to see if app uses custom GroundControl server, not the default one
@@ -420,7 +338,7 @@ function Notifications(props) {
     }
 
     // every launch should clear badges:
-    Notifications.setApplicationIconBadgeNumber(0);
+    setApplicationIconBadgeNumber(0);
 
     if (!(await getPushToken())) return;
     // if we previously had token that means we already acquired permission from the user and it is safe to call
@@ -430,6 +348,10 @@ function Notifications(props) {
   })();
   return null;
 }
+
+const _sleep = async ms => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
@@ -443,6 +365,35 @@ export const getPushToken = async () => {
     AsyncStorage.removeItem(PUSH_TOKEN);
     throw e;
   }
+};
+
+/**
+ * Queries groundcontrol for token configuration, which contains subscriptions to notification levels
+ *
+ * @returns {Promise<{}|*>}
+ */
+const getLevels = async () => {
+  const pushToken = await getPushToken();
+  if (!pushToken || !pushToken.token || !pushToken.os) return;
+
+  let response;
+  try {
+    response = await Promise.race([
+      fetch(`${baseURI}/getTokenConfiguration`, {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({
+          token: pushToken.token,
+          os: pushToken.os,
+        }),
+      }),
+      _sleep(3000),
+    ]);
+  } catch (_) {}
+
+  if (!response) return {};
+
+  return await response.json();
 };
 
 /**
@@ -491,12 +442,36 @@ export const unsubscribe = async (addresses, hashes, txids) => {
   }
 };
 
-function _getHeaders() {
+const _getHeaders = () => {
   return {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
   };
-}
+};
+
+export const clearStoredNotifications = async () => {
+  try {
+    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([]));
+  } catch (_) {}
+};
+
+export const getDeliveredNotifications = () => {
+  return new Promise(resolve => {
+    PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+  });
+};
+
+export const removeDeliveredNotifications = (identifiers = []) => {
+  PushNotification.removeDeliveredNotifications(identifiers);
+};
+
+export const setApplicationIconBadgeNumber = function (badges) {
+  PushNotification.setApplicationIconBadgeNumber(badges);
+};
+
+export const removeAllDeliveredNotifications = () => {
+  PushNotification.removeAllDeliveredNotifications();
+};
 
 export const getDefaultUri = () => {
   return groundControlUri;
@@ -528,5 +503,30 @@ export const getSavedUri = async () => {
     }
     throw e;
   }
+};
+
+export const isNotificationsEnabled = async () => {
+  const levels = await getLevels();
+  return !!(await getPushToken()) && !!levels.level_all;
+};
+
+export const getStoredNotifications = async () => {
+  let notifications = [];
+  try {
+    const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
+    notifications = JSON.parse(stringified);
+    if (!Array.isArray(notifications)) notifications = [];
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      console.error('Invalid notifications format:', e);
+      notifications = [];
+      await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
+    } else {
+      console.error('Error accessing notifications:', e);
+      throw e;
+    }
+  }
+
+  return notifications;
 };
 export default Notifications;
