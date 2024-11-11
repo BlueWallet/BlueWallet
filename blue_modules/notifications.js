@@ -121,10 +121,16 @@ function Notifications(props) {
    */
   Notifications.tryToObtainPermissions = async anchor => {
     if (!isNotificationsCapable) return false;
-    if (await getPushToken()) {
-      // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
-      if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
-      return true;
+
+    try {
+      if (await getPushToken()) {
+        // we already have a token, no sense asking again, just configure pushes to register callbacks and we are done
+        if (!alreadyConfigured) configureNotifications(); // no await so it executes in background while we return TRUE and use token
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to get push token:', error);
+      return false;
     }
 
     if (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) {
@@ -265,7 +271,7 @@ function Notifications(props) {
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     try {
-      await fetch(`${baseURI}/setTokenConfiguration`, {
+      const response = await fetch(`${baseURI}/setTokenConfiguration`, {
         method: 'POST',
         headers: _getHeaders(),
         body: JSON.stringify({
@@ -274,10 +280,15 @@ function Notifications(props) {
           os: pushToken.os,
         }),
       });
+      if (!response.ok) {
+        throw Error('Failed to set token configuration:', response.statusText);
+      }
       console.debug('Abandoning notifications Permissions...');
       PushNotification.abandonPermissions();
       console.debug('Abandoned notifications Permissions...');
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   Notifications.addNotification = async notification => {
@@ -340,11 +351,15 @@ function Notifications(props) {
     // every launch should clear badges:
     setApplicationIconBadgeNumber(0);
 
-    if (!(await getPushToken())) return;
-    // if we previously had token that means we already acquired permission from the user and it is safe to call
-    // `configure` to register callbacks etc
-    await configureNotifications();
-    await postTokenConfig();
+    try {
+      if (!(await getPushToken())) return;
+      await configureNotifications();
+      // if we previously had token that means we already acquired permission from the user and it is safe to call
+      // `configure` to register callbacks etc
+      await postTokenConfig();
+    } catch (error) {
+      console.error('Failed to initialize notifications:', error);
+    }
   })();
   return null;
 }
