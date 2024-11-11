@@ -175,6 +175,12 @@ export const setLevels = async levelAll => {
     if (!response.ok) {
       throw Error('Failed to set token configuration:', response.statusText);
     }
+
+    if (!levelAll) {
+      console.debug('Abandoning notifications Permissions...');
+      PushNotification.abandonPermissions();
+      console.debug('Abandoned notifications Permissions...');
+    }
   } catch (e) {
     console.error(e);
   }

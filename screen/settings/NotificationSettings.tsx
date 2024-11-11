@@ -24,7 +24,6 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
-import PushNotification from 'react-native-push-notification';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -70,9 +69,6 @@ const NotificationSettings: React.FC = () => {
       } else {
         // User is disabling notifications
         await setLevels(false);
-        console.debug('Abandoning notifications Permissions...');
-        PushNotification.abandonPermissions();
-        console.debug('Abandoned notifications Permissions...');
       }
 
       setNotificationsEnabledState(await isNotificationsEnabled());
