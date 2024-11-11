@@ -172,13 +172,6 @@ function Notifications(props) {
     });
   };
 
-  function _getHeaders() {
-    return {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    };
-  }
-
   async function _sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
@@ -241,38 +234,6 @@ function Notifications(props) {
     } catch (error) {
       console.error('Error in majorTomToGroundControl:', error);
     }
-  };
-
-  /**
-   * The opposite of `majorTomToGroundControl` call.
-   *
-   * @param addresses {string[]}
-   * @param hashes {string[]}
-   * @param txids {string[]}
-   * @returns {Promise<object>} Response object from API rest call
-   */
-  Notifications.unsubscribe = async function (addresses, hashes, txids) {
-    if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
-      throw new Error('no addresses or hashes or txids provided');
-    const pushToken = await Notifications.getPushToken();
-    if (!pushToken || !pushToken.token || !pushToken.os) return;
-
-    const response = await fetch(`${baseURI}/unsubscribe`, {
-      method: 'POST',
-      headers: _getHeaders(),
-      body: JSON.stringify({
-        addresses,
-        hashes,
-        txids,
-        token: pushToken.token,
-        os: pushToken.os,
-      }),
-    });
-
-    console.debug('Abandoning notifications Permissions...');
-    PushNotification.abandonPermissions();
-    console.debug('Abandoned notifications Permissions...');
-    return response.json();
   };
 
   Notifications.isNotificationsEnabled = async function () {
@@ -511,4 +472,42 @@ function Notifications(props) {
 
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
+/**
+ * The opposite of `majorTomToGroundControl` call.
+ *
+ * @param addresses {string[]}
+ * @param hashes {string[]}
+ * @param txids {string[]}
+ * @returns {Promise<object>} Response object from API rest call
+ */
+export const unsubscribe = async (addresses, hashes, txids) => {
+  if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
+    throw new Error('no addresses or hashes or txids provided');
+  const pushToken = await Notifications.getPushToken();
+  if (!pushToken || !pushToken.token || !pushToken.os) return;
+
+  const response = await fetch(`${baseURI}/unsubscribe`, {
+    method: 'POST',
+    headers: _getHeaders(),
+    body: JSON.stringify({
+      addresses,
+      hashes,
+      txids,
+      token: pushToken.token,
+      os: pushToken.os,
+    }),
+  });
+
+  console.debug('Abandoning notifications Permissions...');
+  PushNotification.abandonPermissions();
+  console.debug('Abandoned notifications Permissions...');
+  return response.json();
+};
+
+function _getHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+  };
+}
 export default Notifications;
