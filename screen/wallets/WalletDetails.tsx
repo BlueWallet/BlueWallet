@@ -153,7 +153,7 @@ const WalletDetails: React.FC = () => {
     const externalAddresses = wallet.getAllExternalAddresses();
 
     try {
-      if (isNotificationsEnabledState) {
+      if (isNotificationsEnabledState && externalAddresses.length > 0) {
         await unsubscribe(externalAddresses, [], []);
       }
       deleteWallet(wallet);
@@ -162,6 +162,7 @@ const WalletDetails: React.FC = () => {
       popToTop();
     } catch (e: unknown) {
       console.error(e);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: (e as Error).message });
       setIsLoading(false);
     }
