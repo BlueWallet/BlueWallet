@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -44,6 +43,7 @@ import { popToTop } from '../../NavigationService';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { unsubscribe } from '../../blue_modules/notifications';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -146,44 +146,51 @@ const WalletDetails: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
-  const navigateToOverviewAndDeleteWallet = () => {
+  const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
-    let externalAddresses: string[] = [];
-    try {
-      if (wallet.getAllExternalAddresses) {
-        externalAddresses = wallet.getAllExternalAddresses();
-      }
-    } catch (_) {}
 
-    // @ts-ignore: ts-ify later
-    Notifications.unsubscribe(externalAddresses, [], []);
-    deleteWallet(wallet);
-    saveToDisk(true);
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    popToTop();
-  };
+    try {
+      const externalAddresses = wallet.getAllExternalAddresses();
+      if (externalAddresses.length > 0) {
+        await unsubscribe(externalAddresses, [], []);
+      }
+      deleteWallet(wallet);
+      saveToDisk(true);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      popToTop();
+    } catch (e: unknown) {
+      console.error(e);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: (e as Error).message });
+      setIsLoading(false);
+    }
+  }, [deleteWallet, saveToDisk, wallet]);
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
+      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
-        loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
+        loc.formatString(loc.wallets.details_del_wb_q, { balance }),
         true,
-        'plain-text',
+        'numeric',
         true,
         loc.wallets.details_delete,
       );
-      if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-        navigateToOverviewAndDeleteWallet();
+      // Remove any non-numeric characters before comparison
+      const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
+
+      if (Number(cleanedConfirmation) === wallet.getBalance()) {
+        await navigateToOverviewAndDeleteWallet();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
         presentAlert({ message: loc.wallets.details_del_wb_err });
       }
     } catch (_) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [navigateToOverviewAndDeleteWallet, wallet]);
 
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
@@ -300,11 +307,11 @@ const WalletDetails: React.FC = () => {
   }, [wallet, walletName, saveToDisk]);
 
   useEffect(() => {
-    const unsubscribe = addListener('beforeRemove', () => {
+    const subscribe = addListener('beforeRemove', () => {
       walletNameTextInputOnBlur();
     });
 
-    return unsubscribe;
+    return subscribe;
   }, [addListener, walletName, walletNameTextInputOnBlur]);
 
   const exportHistoryContent = useCallback(() => {
