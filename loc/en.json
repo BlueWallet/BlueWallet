@@ -191,6 +191,7 @@
     "psbt_tx_open": "Open Signed Transaction",
     "psbt_tx_scan": "Scan Signed Transaction",
     "qr_error_no_qrcode": "We were unable to find a QR Code in the selected image. Make sure the image contains only a QR Code and no additional content such as text or buttons.",
+    "qr_error_unrecognized_format": "The QR Code format is not recognized. Please ensure it contains compatible information, such as a Bitcoin address or a Lightning invoice.",
     "reset_amount": "Reset Amount",
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",

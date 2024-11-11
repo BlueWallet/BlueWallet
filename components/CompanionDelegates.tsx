@@ -124,9 +124,8 @@ const CompanionDelegates = () => {
 
             if (values && values.values.length > 0) {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              DeeplinkSchemaMatch.navigationRouteFor(
+              const navigationParams = await DeeplinkSchemaMatch.navigationRouteFor(
                 { url: values.values[0] },
-                (value: [string, any]) => navigationRef.navigate(...value),
                 {
                   wallets,
                   addWallet,
@@ -134,6 +133,13 @@ const CompanionDelegates = () => {
                   setSharedCosigner,
                 },
               );
+
+              if (navigationParams) {
+                const [route, params] = navigationParams;
+                navigationRef.navigate(route, params);
+              } else {
+                console.warn('No navigation parameters returned for the given deeplink.');
+              }
             } else {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
               presentAlert({ message: loc.send.qr_error_no_qrcode });
@@ -141,19 +147,31 @@ const CompanionDelegates = () => {
           } catch (error) {
             console.error('Error detecting QR code:', error);
           }
+        } else {
+          // Handling non-image URLs
+          try {
+            const navigationParams = await DeeplinkSchemaMatch.navigationRouteFor(event, {
+              wallets,
+              addWallet,
+              saveToDisk,
+              setSharedCosigner,
+            });
+
+            if (navigationParams) {
+              const [route, params] = navigationParams;
+              navigationRef.navigate(route, params);
+            } else {
+              console.warn('No navigation parameters returned for the given deeplink.');
+            }
+          } catch (error) {
+            console.error('Failed to navigate deeplink:', error);
+          }
         }
-      } else {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
-          wallets,
-          addWallet,
-          saveToDisk,
-          setSharedCosigner,
-        });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
+
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);

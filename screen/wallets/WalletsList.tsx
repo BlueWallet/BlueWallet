@@ -355,11 +355,16 @@ const WalletsList: React.FC = () => {
   const onBarScanned = useCallback(
     (value: any) => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        // @ts-ignore: for now
-        navigate(...completionValue);
-      });
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value })
+        .then(completionValue => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          // @ts-ignore: for now
+          navigate(...completionValue);
+        })
+        .catch(() => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          presentAlert({ message: loc.send.qr_error_unrecognized_format });
+        });
     },
     [navigate],
   );
