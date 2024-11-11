@@ -150,7 +150,8 @@ const ReceiveDetails = () => {
         console.error('Error obtaining notifications permissions:', error);
       }
     }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet.allowBIP47()) {
