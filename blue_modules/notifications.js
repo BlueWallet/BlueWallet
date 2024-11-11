@@ -174,7 +174,7 @@ export const setLevels = async levelAll => {
       }),
     });
     if (!response.ok) {
-      throw Error('Failed to set token configuration:', response.statusText);
+      throw new Error('Failed to set token configuration: ' + response.statusText);
     }
 
     if (!levelAll) {
