@@ -133,6 +133,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
     }
   } catch (error) {
     console.error('Error in majorTomToGroundControl:', error);
+    throw error;
   }
 };
 
