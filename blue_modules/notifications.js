@@ -482,26 +482,37 @@ export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.O
  */
 export const unsubscribe = async (addresses, hashes, txids) => {
   if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
-    throw new Error('no addresses or hashes or txids provided');
+    throw new Error('No addresses, hashes, or txids provided');
   const pushToken = await Notifications.getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
-  const response = await fetch(`${baseURI}/unsubscribe`, {
-    method: 'POST',
-    headers: _getHeaders(),
-    body: JSON.stringify({
-      addresses,
-      hashes,
-      txids,
-      token: pushToken.token,
-      os: pushToken.os,
-    }),
-  });
+  try {
+    const response = await fetch(`${baseURI}/unsubscribe`, {
+      method: 'POST',
+      headers: _getHeaders(),
+      body: JSON.stringify({
+        addresses,
+        hashes,
+        txids,
+        token: pushToken.token,
+        os: pushToken.os,
+      }),
+    });
 
-  console.debug('Abandoning notifications Permissions...');
-  PushNotification.abandonPermissions();
-  console.debug('Abandoned notifications Permissions...');
-  return response.json();
+    if (!response.ok) {
+      console.error('Unsubscribe request failed:', response.status);
+      return;
+    }
+
+    const result = await response.json();
+    console.debug('Abandoning notifications Permissions...');
+    await PushNotification.abandonPermissions();
+    console.debug('Abandoned notifications Permissions...');
+    return result;
+  } catch (error) {
+    console.error('Error in unsubscribe:', error);
+    throw error;
+  }
 };
 
 function _getHeaders() {
