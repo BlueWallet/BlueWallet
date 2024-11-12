@@ -46,12 +46,16 @@ export function useWatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
   const { preferredFiatCurrency } = useSettings();
   const isReachable = useReachability();
-  const isInstalled = useInstalled();
-  const isPaired = usePaired();
+  
+  const actualIsInstalled = useInstalled();
+  const actualIsPaired = usePaired();
+
+  const isInstalled = __DEV__  ? true : actualIsInstalled;
+  const isPaired = __DEV__  ? true : actualIsPaired;
+
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
-  // Set up message listener only when conditions are met
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) {
       console.debug('Apple Watch not installed, not paired, or other conditions not met. Exiting message listener setup.');
@@ -60,54 +64,34 @@ export function useWatchConnectivity() {
 
     const messagesListener = watchEvents.addListener('message', (message: any) => handleMessages(message, () => {}));
     messagesListenerActive.current = true;
+    console.debug('Message listener set up for Apple Watch');
 
     return () => {
       messagesListener();
       messagesListenerActive.current = false;
+      console.debug('Message listener for Apple Watch cleaned up');
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, isReachable, isInstalled, isPaired]);
 
-  // Send wallet data to Apple Watch
-  useEffect(() => {
-    if (!isInstalled || !isPaired || !walletsInitialized) return;
 
-    const sendWalletData = async () => {
-      try {
-        const walletsToProcess = await constructWalletsToSendToWatch();
-        if (walletsToProcess) {
-          if (isReachable) {
-            transferUserInfo(walletsToProcess);
-            console.debug('Apple Watch: sent info to watch transferUserInfo');
-          } else {
-            updateApplicationContext(walletsToProcess);
-            console.debug('Apple Watch: sent info to watch context');
-          }
-        }
-      } catch (error) {
-        console.debug('Failed to send wallets to watch:', error);
-      }
-    };
-    sendWalletData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, isReachable, isInstalled, isPaired]);
-
-  // Update application context with wallet status
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) return;
 
-    updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
+    const contextPayload = { isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) };
+    updateApplicationContext(contextPayload);
+    console.debug('Updated application context with wallet status', contextPayload);
   }, [isReachable, walletsInitialized, isInstalled, isPaired]);
 
-  // Update preferred fiat currency to Apple Watch if it changes
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable || !preferredFiatCurrency) return;
 
     if (lastPreferredCurrency.current !== preferredFiatCurrency.endPointKey) {
       try {
-        transferCurrentComplicationUserInfo({ preferredFiatCurrency: preferredFiatCurrency.endPointKey });
+        const currencyPayload = { preferredFiatCurrency: preferredFiatCurrency.endPointKey };
+        transferCurrentComplicationUserInfo(currencyPayload);
         lastPreferredCurrency.current = preferredFiatCurrency.endPointKey;
-        console.debug('Apple Watch: updated preferred fiat currency');
+        console.debug('Apple Watch: updated preferred fiat currency', currencyPayload);
       } catch (error) {
         console.debug('Error updating preferredFiatCurrency on watch:', error);
       }
@@ -118,6 +102,7 @@ export function useWatchConnectivity() {
 
   const handleMessages = useCallback(
     async (message: Message, reply: Reply) => {
+      console.debug('Received message from Apple Watch', message);
       try {
         if (message.request === 'createInvoice') {
           const createInvoiceRequest = await handleLightningInvoiceCreateRequest({
@@ -128,7 +113,10 @@ export function useWatchConnectivity() {
           reply({ invoicePaymentRequest: createInvoiceRequest });
         } else if (message.message === 'sendApplicationContext') {
           const walletsToProcess = await constructWalletsToSendToWatch();
-          if (walletsToProcess) updateApplicationContext(walletsToProcess);
+          if (walletsToProcess) {
+            updateApplicationContext(walletsToProcess);
+            console.debug('Updated application context on request', walletsToProcess);
+          }
         } else if (message.message === 'fetchTransactions') {
           await fetchWalletTransactions();
           await saveToDisk();
@@ -154,13 +142,14 @@ export function useWatchConnectivity() {
         try {
           if ('addInvoice' in wallet) {
             const invoiceRequest = await wallet.addInvoice(amount, description);
-              // @ts-ignore: Notifications type is not defined
+             // @ts-ignore: Notifications type is not defined
             if (await Notifications.isNotificationsEnabled()) {
               const decoded = await wallet.decodeInvoice(invoiceRequest);
               // @ts-ignore: Notifications type is not defined
               Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
               return invoiceRequest;
             }
+            console.debug('Created Lightning invoice', { invoiceRequest });
             return invoiceRequest;
           }
         } catch (invoiceError) {
@@ -171,24 +160,13 @@ export function useWatchConnectivity() {
     [wallets],
   );
 
-  // Construct wallet data to send to the watch, including transaction details
   const constructWalletsToSendToWatch = useCallback(async () => {
     if (!Array.isArray(wallets) || !walletsInitialized) return;
 
     const walletsToProcess = await Promise.allSettled(
       wallets.map(async wallet => {
         try {
-          let receiveAddress;
-          try {
-            receiveAddress = wallet.chain === Chain.ONCHAIN ? await wallet.getAddressAsync() : wallet.getAddress();
-          } catch {
-            receiveAddress =
-              wallet.chain === Chain.ONCHAIN
-                ? 'next_free_address_index' in wallet && '_getExternalAddressByIndex' in wallet
-                  ? wallet._getExternalAddressByIndex(wallet.next_free_address_index)
-                  : wallet.getAddress()
-                : wallet.getAddress();
-          }
+          const receiveAddress = wallet.chain === Chain.ONCHAIN ? await wallet.getAddressAsync() : wallet.getAddress();
 
           const transactions: Transaction[] = wallet
             .getTransactions()
@@ -200,7 +178,7 @@ export function useWatchConnectivity() {
               time: transactionTimeToReadable(transaction.received),
             }));
 
-          return {
+          const walletData = {
             label: wallet.getLabel(),
             balance: formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             type: wallet.type,
@@ -216,13 +194,19 @@ export function useWatchConnectivity() {
               wallet.isBIP47Enabled() &&
               'getBIP47PaymentCode' in wallet && { paymentCode: wallet.getBIP47PaymentCode() }),
           };
+
+          console.debug('Constructed wallet data for watch:', {
+            ...walletData,
+            transactions: walletData.transactions.map(tx => ({ ...tx })),
+          });
+          return walletData;
         } catch (error) {
           console.error('Failed to construct wallet:', {
             walletLabel: wallet.getLabel(),
             walletType: wallet.type,
             error,
           });
-          return null; // Ensure failed wallet returns null so it's excluded from final results
+          return null;
         }
       }),
     );
@@ -231,11 +215,32 @@ export function useWatchConnectivity() {
       .filter(result => result.status === 'fulfilled' && result.value !== null)
       .map(result => (result as PromiseFulfilledResult<any>).value);
 
-    console.debug('Constructed wallets to process for Apple Watch');
+    console.debug('Constructed wallets to process for Apple Watch:', processedWallets);
     return { wallets: processedWallets, randomID: Math.floor(Math.random() * 11) };
   }, [wallets, walletsInitialized, txMetadata]);
 
-  return null;
+  useEffect(() => {
+    if (!isInstalled || !isPaired || !walletsInitialized) return;
+
+    const sendWalletData = async () => {
+      try {
+        const walletsToProcess = await constructWalletsToSendToWatch();
+        if (walletsToProcess) {
+          if (isReachable) {
+            transferUserInfo(walletsToProcess);
+            console.debug('Apple Watch: sent info to watch via transferUserInfo', walletsToProcess);
+          } else {
+            updateApplicationContext(walletsToProcess);
+            console.debug('Apple Watch: sent info to watch via context', walletsToProcess);
+          }
+        }
+      } catch (error) {
+        console.debug('Failed to send wallets to watch:', error);
+      }
+    };
+    sendWalletData();
+  }, [walletsInitialized, isReachable, isInstalled, isPaired, constructWalletsToSendToWatch]);
+
 }
 
 export default useWatchConnectivity;
