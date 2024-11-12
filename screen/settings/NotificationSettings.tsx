@@ -1,14 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable } from 'react-native';
+import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
-// @ts-ignore: no declaration file
-import Notifications, {
+import {
   getDefaultUri,
   getPushToken,
   getSavedUri,
   getStoredNotifications,
   saveUri,
   isNotificationsEnabled,
+  setLevels,
+  tryToObtainPermissions,
+  cleanUserOptOutFlag,
+  isGroundControlUriValid,
+  checkPermissions,
+  checkNotificationPermissionStatus,
 } from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -48,26 +53,52 @@ const NotificationSettings: React.FC = () => {
     setTapCount(prevCount => prevCount + 1);
   };
 
+  const showNotificationPermissionAlert = () => {
+    presentAlert({
+      title: loc.settings.notifications,
+      message: loc.notifications.permission_denied_message,
+      buttons: [
+        {
+          text: loc._.ok,
+          style: 'cancel',
+        },
+        {
+          text: loc.settings.header,
+          onPress: onSystemSettings,
+          style: 'default',
+        },
+      ],
+    });
+  };
+
   const onNotificationsSwitch = async (value: boolean) => {
+    if (value) {
+      // User is trying to enable notifications
+      const currentStatus = await checkNotificationPermissionStatus();
+      if (currentStatus !== 'granted') {
+        // If notifications are not granted at the system level, show an alert and prevent toggle from enabling
+        showNotificationPermissionAlert();
+        setNotificationsEnabledState(false); // Keep the switch off
+        return;
+      }
+    }
+
     try {
       setNotificationsEnabledState(value);
       if (value) {
-        // User is enabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.cleanUserOptOutFlag();
-        if (await getPushToken()) {
-          // we already have a token, so we just need to reenable ALL level on groundcontrol:
-          // @ts-ignore: refactor later
-          await Notifications.setLevels(true);
+        await cleanUserOptOutFlag();
+        const permissionsGranted = await tryToObtainPermissions();
+        if (permissionsGranted) {
+          if (await getPushToken()) {
+            await setLevels(true);
+          }
         } else {
-          // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-          // @ts-ignore: refactor later
-          await Notifications.tryToObtainPermissions();
+          // If permissions are denied, show alert and reset the toggle
+          showNotificationPermissionAlert();
+          setNotificationsEnabledState(false); // Reset the toggle to reflect the denied status
         }
       } else {
-        // User is disabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.setLevels(false);
+        await setLevels(false);
       }
 
       setNotificationsEnabledState(await isNotificationsEnabled());
@@ -77,18 +108,26 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
+  // Function to check and update notification permission status
+  const updateNotificationStatus = async () => {
+    const currentStatus = await checkNotificationPermissionStatus();
+    if (currentStatus !== 'granted') {
+      setNotificationsEnabledState(false); // Automatically toggle switch off if permissions are disabled
+    } else {
+      setNotificationsEnabledState(true);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       try {
         setNotificationsEnabledState(await isNotificationsEnabled());
         setURI((await getSavedUri()) ?? getDefaultUri());
-        // @ts-ignore: refactor later
         setTokenInfo(
           'token: ' +
             JSON.stringify(await getPushToken()) +
             ' permissions: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.checkPermissions()) +
+            JSON.stringify(await checkPermissions()) +
             ' stored notifications: ' +
             JSON.stringify(await getStoredNotifications()),
         );
@@ -99,15 +138,24 @@ const NotificationSettings: React.FC = () => {
         setIsLoading(false);
       }
     })();
+
+    // Add AppState listener to check permission status when app is active
+    const appStateListener = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        updateNotificationStatus();
+      }
+    });
+
+    return () => {
+      appStateListener.remove();
+    };
   }, []);
 
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
       if (URI) {
-        // validating only if its not empty. empty means use default
-        // @ts-ignore: refactor later
-        if (await Notifications.isGroundControlUriValid(URI)) {
+        if (await isGroundControlUriValid(URI)) {
           await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
