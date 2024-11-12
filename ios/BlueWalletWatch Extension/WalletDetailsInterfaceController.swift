@@ -78,7 +78,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   @objc func showBalanceMenuItemTapped() {
       guard let identifier = wallet?.identifier else { return }
+      NSLog("Watch: Showing balance for wallet \(identifier)")
       WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: false) { [weak self] in
+          NSLog("Watch: Balance visibility updated for wallet \(identifier)")
           DispatchQueue.main.async {
               WatchDataSource.postDataUpdatedNotification()
               self?.loadWalletDetails(identifier: identifier)
