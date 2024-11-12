@@ -57,7 +57,7 @@ const CompanionDelegates = () => {
       const deliveredNotifications = await getDeliveredNotifications();
       setTimeout(async () => {
         try {
-          await removeAllDeliveredNotifications();
+          removeAllDeliveredNotifications();
         } catch (error) {
           console.error('Failed to remove delivered notifications:', error);
         }

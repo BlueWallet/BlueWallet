@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { findNodeHandle, Platform } from 'react-native';
+import { AppState, findNodeHandle, Platform } from 'react-native';
 import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
-import { requestNotifications } from 'react-native-permissions';
+import { checkNotifications, requestNotifications } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
 
 import loc from '../loc';
@@ -15,6 +15,37 @@ const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
 let baseURI = groundControlUri;
+
+// Function to check notification permission status at the system level
+export const checkNotificationPermissionStatus = async () => {
+  try {
+    const { status } = await checkNotifications();
+    return status;
+  } catch (error) {
+    console.error('Failed to check notification permissions:', error);
+    return 'unavailable'; // Return 'unavailable' if the status cannot be retrieved
+  }
+};
+
+// Listener to monitor notification permission status changes while app is running
+let currentPermissionStatus = 'unavailable';
+const handleAppStateChange = async nextAppState => {
+  if (nextAppState === 'active') {
+    const newPermissionStatus = await checkNotificationPermissionStatus();
+    if (newPermissionStatus !== currentPermissionStatus) {
+      currentPermissionStatus = newPermissionStatus;
+      if (newPermissionStatus === 'granted') {
+        // Re-initialize notifications if permissions are granted
+        await initializeNotifications();
+      } else {
+        // Optionally, handle the case where permissions are revoked (e.g., disable in-app notifications)
+        console.warn('Notifications have been disabled at the system level.');
+      }
+    }
+  }
+};
+
+AppState.addEventListener('change', handleAppStateChange);
 
 export const cleanUserOptOutFlag = async () => {
   return AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
@@ -265,7 +296,7 @@ export const configureNotifications = async onProcessNotifications => {
             if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
             delete payload.data;
             // ^^^ weird, but sometimes payload data is not in `data` but in root level
-            console.debug('got push notification', payload);
+            console.debug('Received Push Notification Payload: ', payload);
 
             await addNotification(payload);
 
@@ -311,7 +342,7 @@ export const configureNotifications = async onProcessNotifications => {
            * - if you are not using remote notification or do not have Firebase installed, use this:
            *     requestPermissions: Platform.OS === 'ios'
            */
-          requestPermissions: true,
+          requestPermissions: Platform.OS === 'ios',
         });
       }
     });
@@ -520,7 +551,6 @@ export const getStoredNotifications = async () => {
 
 // on app launch (load module):
 export const initializeNotifications = async onProcessNotifications => {
-  // Fetch custom GroundControl URI
   try {
     const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
     baseURI = baseUriStored || groundControlUri;
@@ -530,13 +560,15 @@ export const initializeNotifications = async onProcessNotifications => {
     await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
   }
 
-  // Set the application icon badge to 0
   setApplicationIconBadgeNumber(0);
 
   try {
-    if (await getPushToken()) {
+    currentPermissionStatus = await checkNotificationPermissionStatus();
+    if (currentPermissionStatus === 'granted' && (await getPushToken())) {
       await configureNotifications(onProcessNotifications);
       await postTokenConfig();
+    } else {
+      console.warn('Notifications are disabled at the system level.');
     }
   } catch (error) {
     console.error('Failed to initialize notifications:', error);
