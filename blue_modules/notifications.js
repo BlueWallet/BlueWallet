@@ -342,7 +342,7 @@ export const configureNotifications = async onProcessNotifications => {
            * - if you are not using remote notification or do not have Firebase installed, use this:
            *     requestPermissions: Platform.OS === 'ios'
            */
-          requestPermissions: Platform.OS === 'ios',
+          requestPermissions: true,
         });
       }
     });
