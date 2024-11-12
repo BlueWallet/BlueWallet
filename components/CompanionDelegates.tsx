@@ -52,7 +52,7 @@ const CompanionDelegates = () => {
     try {
       const notifications2process = await getStoredNotifications();
       await clearStoredNotifications();
-      await setApplicationIconBadgeNumber(0);
+      setApplicationIconBadgeNumber(0);
 
       const deliveredNotifications = await getDeliveredNotifications();
       setTimeout(async () => {
