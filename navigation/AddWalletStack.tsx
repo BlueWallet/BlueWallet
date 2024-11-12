@@ -20,7 +20,11 @@ import {
 
 export type AddWalletStackParamList = {
   AddWallet: undefined;
-  ImportWallet: undefined;
+  ImportWallet?: {
+    label?: string;
+    triggerImport?: boolean;
+    scannedData?: string;
+  };
   ImportWalletDiscovery: {
     importText: string;
     askPassphrase: boolean;

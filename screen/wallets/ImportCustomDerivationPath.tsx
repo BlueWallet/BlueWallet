@@ -14,6 +14,7 @@ import WalletToImport from '../../components/WalletToImport';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { useSettings } from '../../hooks/context/useSettings';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;
@@ -44,6 +45,7 @@ const ImportCustomDerivationPath: React.FC = () => {
   const [used, setUsed] = useState<TUsedByPath>({});
   const [selected, setSelected] = useState<string>('');
   const importing = useRef(false);
+  const { isElectrumDisabled } = useSettings();
 
   const debouncedSavePath = useRef(
     debounce(async newPath => {
@@ -65,6 +67,14 @@ const ImportCustomDerivationPath: React.FC = () => {
       }
       setWallets(ws => ({ ...ws, [newPath]: newWallets }));
 
+      if (isElectrumDisabled) {
+        // do not check if electrum is disabled
+        Object.values(newWallets).forEach(w => {
+          setUsed(u => ({ ...u, [newPath]: { ...u[newPath], [w.type]: STATUS.WALLET_UNKNOWN } }));
+        });
+        return;
+      }
+
       // discover was they ever used
       const promises = Object.values(newWallets).map(w => {
         return w.wasEverUsed().then(v => {
@@ -81,6 +91,7 @@ const ImportCustomDerivationPath: React.FC = () => {
       }
     }, 500),
   );
+
   useEffect(() => {
     if (path in wallets) return;
     debouncedSavePath.current(path);
