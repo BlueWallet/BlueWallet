@@ -19,6 +19,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { navigate } from '../../NavigationService';
 import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
+import { useSettings } from '../../hooks/context/useSettings';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -34,6 +35,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
+  const { isElectrumDisabled } = useSettings();
   const task = useRef<TImport | null>(null);
   const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState<boolean>(true);
@@ -66,6 +68,11 @@ const ImportWalletDiscovery: React.FC = () => {
     },
     [addAndSaveWallet],
   );
+
+  const handleSave = () => {
+    if (wallets.length === 0) return;
+    saveWallet(wallets[selected].wallet);
+  };
 
   useEffect(() => {
     const onProgress = (data: string) => setProgress(data);
@@ -105,7 +112,7 @@ const ImportWalletDiscovery: React.FC = () => {
     };
 
     keepAwake(true);
-    task.current = startImport(importText, askPassphrase, searchAccounts, onProgress, onWallet, onPassword);
+    task.current = startImport(importText, askPassphrase, searchAccounts, isElectrumDisabled, onProgress, onWallet, onPassword);
 
     task.current.promise
       .then(({ cancelled, wallets: w }) => {
@@ -117,6 +124,7 @@ const ImportWalletDiscovery: React.FC = () => {
       })
       .catch(e => {
         console.warn('import error', e);
+        console.warn('err.stack', e.stack);
         presentAlert({ title: 'Import error', message: e.message });
       })
       .finally(() => {
@@ -129,8 +137,9 @@ const ImportWalletDiscovery: React.FC = () => {
       keepAwake(false);
       task.current?.stop();
     };
+    // ignoring "navigation" here, because it is constantly mutating
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [askPassphrase, importText, isElectrumDisabled, saveWallet, searchAccounts]);
 
   const handleCustomDerivation = () => {
     task.current?.stop();
@@ -157,16 +166,21 @@ const ImportWalletDiscovery: React.FC = () => {
   const ListHeaderComponent = useMemo(
     () => (
       <>
-        {wallets && wallets.length > 0 ? (
+        {wallets.length > 0 ? (
           <>
-            <BlueSpacing20 />
+            {isElectrumDisabled && (
+              <>
+                <BlueFormLabel>{loc.wallets.import_discovery_offline}</BlueFormLabel>
+                <BlueSpacing20 />
+              </>
+            )}
             <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
             <BlueSpacing10 />
           </>
         ) : null}
       </>
     ),
-    [wallets],
+    [wallets, isElectrumDisabled],
   );
 
   const ListEmptyComponent = useMemo(
@@ -213,14 +227,7 @@ const ImportWalletDiscovery: React.FC = () => {
         )}
         <BlueSpacing10 />
         <View style={styles.buttonContainer}>
-          <Button
-            disabled={wallets?.length === 0}
-            title={loc.wallets.import_do_import}
-            onPress={() => {
-              if (wallets.length === 0) return;
-              saveWallet(wallets[selected].wallet);
-            }}
-          />
+          <Button disabled={wallets?.length === 0} title={loc.wallets.import_do_import} onPress={handleSave} />
         </View>
       </View>
     </SafeArea>
