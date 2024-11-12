@@ -148,7 +148,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
     }
 
     if (!response.ok) {
-      return;
+      throw new Error(`Ground Control request failed with status ${response.status}: ${response.statusText}`);
     }
 
     const responseText = await response.text();
