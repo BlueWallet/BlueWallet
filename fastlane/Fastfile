@@ -65,6 +65,7 @@ platform :android do
       UI.message("APK build completed.")
 
       # Define APK name based on branch
+      unsigned_apk_path = "android/app/build/outputs/apk/release/app-release-unsigned.apk"
       signed_apk_name = branch_name != 'master' ? 
       "BlueWallet-#{version_name}-#{build_number}-#{branch_name}".gsub(/[\/\\:?*"<>|]/, '_') + ".apk" : 
       "BlueWallet-#{version_name}-#{build_number}.apk"
