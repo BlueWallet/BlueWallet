@@ -148,7 +148,13 @@ export function useWatchConnectivity() {
               'getBIP47PaymentCode' in wallet && { paymentCode: wallet.getBIP47PaymentCode() }),
           };
 
-          console.debug('Constructed wallet data for watch:', walletData);
+          console.debug('Constructed wallet data for watch:', {
+            label: walletData.label,
+            type: walletData.type,
+            preferredBalanceUnit: walletData.preferredBalanceUnit,
+            transactionCount: walletData.transactions.length,
+            // Omit sensitive data from logs
+          });
           return walletData;
         } catch (error) {
           console.error('Failed to construct wallet data:', error);
