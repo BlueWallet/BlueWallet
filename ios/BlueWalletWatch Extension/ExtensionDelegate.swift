@@ -72,8 +72,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     }
     
     private func processReceivedData(_ data: [String: Any]) {
-        // Update app settings or UI based on the received data
+        guard !data.isEmpty else {
+            print("[WatchConnectivity] Error: Received empty data")
+            return
+        }
+
         if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String {
+            guard !preferredFiatCurrency.isEmpty else {
+                print("[WatchConnectivity] Error: Received empty currency code")
+                return
+            }
             groupUserDefaults?.set(preferredFiatCurrency, forKey: "preferredCurrency")
             updatePreferredFiatCurrency()
         }
