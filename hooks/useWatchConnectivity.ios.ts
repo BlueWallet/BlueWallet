@@ -233,7 +233,6 @@ export function useWatchConnectivity() {
     return { wallets: processedWallets, randomID: Math.floor(Math.random() * 11) };
   }, [wallets, walletsInitialized, txMetadata]);
 
-  return null;
 }
 
 export default useWatchConnectivity;
