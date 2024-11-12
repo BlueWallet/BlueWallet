@@ -75,14 +75,15 @@ export const AddressInputScanButton = ({
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
             let getImage: string | null = null;
-
+            let hasImage = false;
             if (Platform.OS === 'android') {
-              getImage = await Clipboard.getImage();
+              hasImage = true;
             } else {
-              const hasImage = await Clipboard.hasImage();
-              if (hasImage) {
-                getImage = await Clipboard.getImageJPG();
-              }
+              hasImage = await Clipboard.hasImage();
+            }
+
+            if (hasImage) {
+              getImage = await Clipboard.getImage();
             }
 
             if (getImage) {

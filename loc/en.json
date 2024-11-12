@@ -320,7 +320,8 @@
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
     "notifications_subtitle": "Incoming payments and transaction confirmations",
     "no_and_dont_ask": "No, and do not ask me again.",
-    "ask_me_later": "Ask me later."
+    "ask_me_later": "Ask me later.",
+    "permission_denied_message": "You have denied permission to send you notifications. If you would like to receive notifications, please enable them in your device settings."
   },
   "transactions": {
     "cancel_explain": "We will replace this transaction with one that pays you and has higher fees. This effectively cancels the current transaction. This is called RBF—Replace by Fee.",
@@ -447,6 +448,7 @@
     "import_discovery_subtitle": "Choose a discovered wallet",
     "import_discovery_derivation": "Use custom derivation path",
     "import_discovery_no_wallets": "No wallets were found.",
+    "import_discovery_offline": "BlueWallet is currently in offline mode. In this mode, it can't verify the existence of the wallet, so you'll need to select the correct one manually",
     "import_derivation_found": "Found",
     "import_derivation_found_not": "Not found",
     "import_derivation_loading": "Loading...",

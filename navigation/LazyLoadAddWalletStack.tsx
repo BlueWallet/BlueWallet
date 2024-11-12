@@ -7,7 +7,7 @@ const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
 const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/ImportCustomDerivationPath'));
 const ImportWalletDiscovery = lazy(() => import('../screen/wallets/ImportWalletDiscovery'));
 const ImportSpeed = lazy(() => import('../screen/wallets/ImportSpeed'));
-const ImportWallet = lazy(() => import('../screen/wallets/import'));
+const ImportWallet = lazy(() => import('../screen/wallets/ImportWallet'));
 const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
 const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
 const ProvideEntropy = lazy(() => import('../screen/wallets/ProvideEntropy'));
