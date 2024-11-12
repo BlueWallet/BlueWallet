@@ -2,7 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 // @ts-ignore: no declaration file
-import Notifications from '../../blue_modules/notifications';
+import Notifications, {
+  getDefaultUri,
+  getPushToken,
+  getSavedUri,
+  getStoredNotifications,
+  saveUri,
+  isNotificationsEnabled,
+} from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -15,7 +22,7 @@ import { openSettings } from 'react-native-permissions';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isNotificationsEnabledState, setNotificationsEnabledState] = useState(false);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
@@ -43,13 +50,12 @@ const NotificationSettings: React.FC = () => {
 
   const onNotificationsSwitch = async (value: boolean) => {
     try {
-      setNotificationsEnabled(value);
+      setNotificationsEnabledState(value);
       if (value) {
         // User is enabling notifications
         // @ts-ignore: refactor later
         await Notifications.cleanUserOptOutFlag();
-        // @ts-ignore: refactor later
-        if (await Notifications.getPushToken()) {
+        if (await getPushToken()) {
           // we already have a token, so we just need to reenable ALL level on groundcontrol:
           // @ts-ignore: refactor later
           await Notifications.setLevels(true);
@@ -64,8 +70,7 @@ const NotificationSettings: React.FC = () => {
         await Notifications.setLevels(false);
       }
 
-      // @ts-ignore: refactor later
-      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      setNotificationsEnabledState(await isNotificationsEnabled());
     } catch (error) {
       console.error(error);
       presentAlert({ message: (error as Error).message });
@@ -75,21 +80,17 @@ const NotificationSettings: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        // @ts-ignore: refactor later
-        setNotificationsEnabled(await Notifications.isNotificationsEnabled());
-        // @ts-ignore: refactor later
-        setURI(await Notifications.getSavedUri());
+        setNotificationsEnabledState(await isNotificationsEnabled());
+        setURI((await getSavedUri()) ?? getDefaultUri());
         // @ts-ignore: refactor later
         setTokenInfo(
           'token: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.getPushToken()) +
+            JSON.stringify(await getPushToken()) +
             ' permissions: ' +
             // @ts-ignore: refactor later
             JSON.stringify(await Notifications.checkPermissions()) +
             ' stored notifications: ' +
-            // @ts-ignore:  refactor later
-            JSON.stringify(await Notifications.getStoredNotifications()),
+            JSON.stringify(await getStoredNotifications()),
         );
       } catch (e) {
         console.error(e);
@@ -107,15 +108,13 @@ const NotificationSettings: React.FC = () => {
         // validating only if its not empty. empty means use default
         // @ts-ignore: refactor later
         if (await Notifications.isGroundControlUriValid(URI)) {
-          // @ts-ignore: refactor later
-          await Notifications.saveUri(URI);
+          await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
           presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
-        // @ts-ignore: refactor later
-        await Notifications.saveUri('');
+        await saveUri('');
         presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
@@ -135,7 +134,7 @@ const NotificationSettings: React.FC = () => {
         title={loc.settings.notifications}
         subtitle={loc.notifications.notifications_subtitle}
         disabled={isLoading}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledState, testID: 'NotificationsSwitch' }}
       />
 
       <Pressable onPress={handleTap}>
@@ -167,8 +166,7 @@ const NotificationSettings: React.FC = () => {
           <BlueCard>
             <View style={[styles.uri, stylesWithThemeHook.uri]}>
               <TextInput
-                // @ts-ignore: refactor later
-                placeholder={Notifications.getDefaultUri()}
+                placeholder={getDefaultUri()}
                 value={URI}
                 onChangeText={setURI}
                 numberOfLines={1}
