@@ -1,125 +1,160 @@
-//
-//  WatchDataSource.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/20/19.
-
-//
-
-
 import Foundation
 import WatchConnectivity
-import KeychainSwift
 
 class WatchDataSource: NSObject {
-  struct NotificationName {
-    static let dataUpdated = Notification.Name(rawValue: "Notification.WalletDataSource.Updated")
-  }
-  struct Notifications {
-    static let dataUpdated = Notification(name: NotificationName.dataUpdated)
-  }
-  
-  static let shared = WatchDataSource()
-  var wallets: [Wallet] = [Wallet]()
-  var companionWalletsInitialized = false
-  private let keychain = KeychainSwift()
-  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
-  
-  
-  override init() {
-    super.init()
-    loadKeychainData()
-  }
-  
-  func loadKeychainData() {
-    if let existingData = keychain.getData(Wallet.identifier), let walletData = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: Wallet.self, from: existingData) {
-      guard walletData != self.wallets  else { return }
-      wallets = walletData
-      WatchDataSource.postDataUpdatedNotification()
+    
+    struct NotificationName {
+        static let dataUpdated = Notification.Name(rawValue: "Notification.WalletDataSource.Updated")
     }
-  }
-  
-  func processWalletsData(walletsInfo: [String: Any]) {
-    if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
-      wallets.removeAll();
-      for (index, entry) in walletsToProcess.enumerated() {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]], let paymentCode = entry["paymentCode"] as? String  else {
-          continue
+    
+    struct Notifications {
+        static let dataUpdated = Notification(name: NotificationName.dataUpdated)
+    }
+    
+    static let shared = WatchDataSource()
+    var wallets: [Wallet] = []
+    let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+    
+    override init() {
+        super.init()
+        loadWallets()
+    }
+    
+    // MARK: - Load Wallets from Keychain
+    private func loadWallets() {
+        if let savedWallets: [Wallet] = Keychain.shared.load([Wallet].self, forKey: Wallet.identifier) {
+            wallets = savedWallets
+            WatchDataSource.postDataUpdatedNotification()
+        } else {
+            print("No wallets found in Keychain.")
+        }
+    }
+    
+    // MARK: - Save Wallets to Keychain
+    private func saveWallets() {
+        let success = Keychain.shared.save(wallets, forKey: Wallet.identifier)
+        if success {
+            print("Wallets saved successfully to Keychain.")
+        } else {
+            print("Failed to save wallets to Keychain.")
+        }
+    }
+    
+    // MARK: - Process Received Data
+    func processData(data: [String: Any]) {
+        if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String {
+            updatePreferredFiatCurrency(preferredFiatCurrency)
+        } else {
+            processWalletsData(walletsInfo: data)
+        }
+    }
+    
+    private func updatePreferredFiatCurrency(_ currency: String) {
+        if let preferredFiatCurrencyUnit = fiatUnit(currency: currency) {
+            groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
+            groupUserDefaults?.synchronize()
+            let extensionDelegate = ExtensionDelegate()
+            extensionDelegate.updatePreferredFiatCurrency()
+            print("Updated preferred fiat currency to \(currency)")
+        }
+    }
+    
+    // MARK: - Process Wallets Data
+    private func processWalletsData(walletsInfo: [String: Any]) {
+        guard let walletsArray = walletsInfo["wallets"] as? [[String: Any]] else { return }
+        
+        wallets.removeAll()
+        
+        for (index, entry) in walletsArray.enumerated() {
+            guard let wallet = parseWallet(entry: entry, identifier: index) else { continue }
+            wallets.append(wallet)
         }
         
-        var transactionsProcessed = [Transaction]()
-        for transactionEntry in transactions {
-          guard let time = transactionEntry["time"] as? String, let memo = transactionEntry["memo"] as? String, let amount = transactionEntry["amount"] as? String, let type =  transactionEntry["type"] as? String else { continue }
-          let transaction = Transaction(time: time, memo: memo, type: type, amount: amount)
-          transactionsProcessed.append(transaction)
-        }
+        saveWallets()
+        WatchDataSource.postDataUpdatedNotification()
+    }
+    
+    private func parseWallet(entry: [String: Any], identifier: Int) -> Wallet? {
+        guard let label = entry["label"] as? String,
+              let balance = entry["balance"] as? String,
+              let type = entry["type"] as? String,
+              let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String,
+              let transactionsArray = entry["transactions"] as? [[String: Any]],
+              let paymentCode = entry["paymentCode"] as? String else { return nil }
+        
+        let transactions = parseTransactions(transactionsArray)
         let receiveAddress = entry["receiveAddress"] as? String ?? ""
         let xpub = entry["xpub"] as? String ?? ""
         let hideBalance = entry["hideBalance"] as? Bool ?? false
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance, paymentCode: paymentCode)
-        wallets.append(wallet)
-      }
-      
-      if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: false) {
-        keychain.set(walletsArchived, forKey: Wallet.identifier)
-      }
-      WatchDataSource.postDataUpdatedNotification()
-    }
-  }
-  
-  static func postDataUpdatedNotification() {
-    NotificationCenter.default.post(Notifications.dataUpdated)
-  }
-  
-  static func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
-    guard WatchDataSource.shared.wallets.count > walletIdentifier  else {
-      responseHandler("")
-      return
-    }
-    WCSession.default.sendMessage(["request": "createInvoice", "walletIndex": walletIdentifier, "amount": amount, "description": description ?? ""], replyHandler: { (reply: [String : Any]) in
-      if let invoicePaymentRequest =  reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
-        responseHandler(invoicePaymentRequest)
-      } else {
-        responseHandler("")
-      }
-    }) { (error) in
-      print(error)
-      responseHandler("")
-      
-    }
-  }
-  
-  static func toggleWalletHideBalance(walletIdentifier: Int, hideBalance: Bool, responseHandler: @escaping (_ invoice: String) -> Void) {
-    guard WatchDataSource.shared.wallets.count > walletIdentifier  else {
-      responseHandler("")
-      return
-    }
-    WCSession.default.sendMessage(["message": "hideBalance", "walletIndex": walletIdentifier, "hideBalance": hideBalance], replyHandler: { (reply: [String : Any]) in
-      responseHandler("")
-    }) { (error) in
-      print(error)
-      responseHandler("")
-      
-    }
-  }
-  
-  
-  func processData(data: [String: Any]) {
-      
-      if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-        groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
-        groupUserDefaults?.synchronize()
         
-        // Create an instance of ExtensionDelegate and call updatePreferredFiatCurrency()
-        let extensionDelegate = ExtensionDelegate()
-        extensionDelegate.updatePreferredFiatCurrency()
+        return Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit,
+                      receiveAddress: receiveAddress, transactions: transactions, identifier: identifier,
+                      xpub: xpub, hideBalance: hideBalance, paymentCode: paymentCode)
+    }
+    
+    private func parseTransactions(_ transactionsArray: [[String: Any]]) -> [Transaction] {
+        var transactions = [Transaction]()
         
-      } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
-        companionWalletsInitialized = isWalletsInitialized
+        for transactionEntry in transactionsArray {
+            guard let time = transactionEntry["time"] as? String,
+                  let memo = transactionEntry["memo"] as? String,
+                  let amount = transactionEntry["amount"] as? String,
+                  let type = transactionEntry["type"] as? String else { continue }
+            
+            let transaction = Transaction(time: time, memo: memo, type: type, amount: amount)
+            transactions.append(transaction)
+        }
+        
+        return transactions
+    }
+    
+    // MARK: - Notifications
+    static func postDataUpdatedNotification() {
         NotificationCenter.default.post(Notifications.dataUpdated)
-      } else {
-        WatchDataSource.shared.processWalletsData(walletsInfo: data)
-      }
-  }
-  
+    }
+    
+    // MARK: - Lightning Invoice Request
+    static func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
+        guard WatchDataSource.shared.wallets.count > walletIdentifier else {
+            responseHandler("")
+            return
+        }
+        let message: [String: Any] = [
+            "request": "createInvoice",
+            "walletIndex": walletIdentifier,
+            "amount": amount,
+            "description": description ?? ""
+        ]
+        
+        WCSession.default.sendMessage(message, replyHandler: { (reply: [String: Any]) in
+            if let invoicePaymentRequest = reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
+                responseHandler(invoicePaymentRequest)
+            } else {
+                responseHandler("")
+            }
+        }, errorHandler: { error in
+            print("Error requesting Lightning invoice:", error)
+            responseHandler("")
+        })
+    }
+    
+    // MARK: - Toggle Wallet Hide Balance
+    static func toggleWalletHideBalance(walletIdentifier: Int, hideBalance: Bool, responseHandler: @escaping () -> Void) {
+        guard WatchDataSource.shared.wallets.count > walletIdentifier else {
+            responseHandler()
+            return
+        }
+        let message: [String: Any] = [
+            "message": "hideBalance",
+            "walletIndex": walletIdentifier,
+            "hideBalance": hideBalance
+        ]
+        
+        WCSession.default.sendMessage(message, replyHandler: { _ in
+            responseHandler()
+        }, errorHandler: { error in
+            print("Error toggling wallet hide balance:", error)
+            responseHandler()
+        })
+    }
 }
