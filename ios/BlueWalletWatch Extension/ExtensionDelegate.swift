@@ -26,11 +26,21 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         updatePreferredFiatCurrency()
     }
     
-    private func setupBugsnagIfAllowed() {
-        if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
-            Bugsnag.start()
+   private func setupBugsnagIfAllowed() {
+    if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
+        let config = BugsnagConfiguration.loadConfig() // Load the default configuration
+        config.releaseStage = "watchOS" // Set release stage specifically for watchOS if needed
+        config.addOnSendError { event in
+            // Add custom metadata or actions if needed before sending error logs
+            return true // Return true to allow the error to be sent
         }
+        Bugsnag.start(with: config)
+        
+        // Capture watchOS specific logs
+        Bugsnag.leaveBreadcrumb(withMessage: "Application did finish launching on watchOS.")
+        print("[Bugsnag] Initialized with watchOS logging enabled")
     }
+}
 
     // MARK: - WCSession Setup
     
