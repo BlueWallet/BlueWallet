@@ -55,7 +55,6 @@ export function useWatchConnectivity() {
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
-  useEffect(() => {
 
 
   useEffect(() => {
