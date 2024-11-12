@@ -91,8 +91,8 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     
     private func fetchPreferredFiatUnit() -> FiatUnit? {
         guard let currencyCode = groupUserDefaults?.string(forKey: "preferredCurrency"),
-              let fiatUnit = fiatUnit(currency: currencyCode) else {
-            return fiatUnit(currency: "USD") // Default to USD if no preference is found
+              let fiatUnit = FiatUnit(currency: currencyCode) else {
+            return FiatUnit(currency: "USD") // Default to USD if no preference is found
         }
         return fiatUnit
     }
