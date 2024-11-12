@@ -107,19 +107,40 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     
     // MARK: - Market Data Update
     
-    private func updateMarketData(for fiatUnit: FiatUnit) {
+    private let maxRetryAttempts = 3
+    private let retryDelay: TimeInterval = 5
+
+    private func updateMarketData(for fiatUnit: FiatUnit, retryCount: Int = 0) {
         MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { [weak self] data, error in
-            guard let self = self, let data = data else {
-                print("Error fetching market data: \(String(describing: error))")
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("[MarketData] Fetch error: \(error.localizedDescription)")
+                if retryCount < self.maxRetryAttempts {
+                    print("[MarketData] Retrying in \(self.retryDelay) seconds... (\(retryCount + 1)/\(self.maxRetryAttempts))")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + self.retryDelay) {
+                        self.updateMarketData(for: fiatUnit, retryCount: retryCount + 1)
+                    }
+                }
                 return
             }
             
-            if let encodedData = try? PropertyListEncoder().encode(data) {
-                self.groupUserDefaults?.set(encodedData, forKey: MarketData.string)
-                self.groupUserDefaults?.synchronize()
+            guard let data = data else {
+                print("[MarketData] No data received")
+                return
+            }
+            
+            do {
+                let encodedData = try PropertyListEncoder().encode(data)
+                guard let defaults = self.groupUserDefaults else {
+                    print("[MarketData] UserDefaults not available")
+                    return
+                }
+                defaults.set(encodedData, forKey: MarketData.string)
+                defaults.synchronize()
                 ExtensionDelegate.reloadComplications()
-            } else {
-                print("Failed to encode market data for UserDefaults.")
+            } catch {
+                print("[MarketData] Encoding error: \(error.localizedDescription)")
             }
         }
     }
