@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { Text } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert, { AlertType } from '../../components/Alert';
@@ -16,6 +15,7 @@ import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import { popToTop } from '../../NavigationService';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 
 const styles = StyleSheet.create({
   root: {
@@ -97,7 +97,7 @@ export default class CPFP extends Component {
 
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
-    Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
+    majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
   }
