@@ -17,7 +17,6 @@ import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AmountInput from '../../components/AmountInput';
@@ -38,6 +37,7 @@ import SegmentedControl from '../../components/SegmentControl';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
+import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -110,8 +110,8 @@ const ReceiveDetails = () => {
     if (address) {
       setAddressBIP21Encoded(address);
       try {
-        await Notifications.tryToObtainPermissions(receiveAddressButton);
-        Notifications.majorTomToGroundControl([address], [], []);
+        await tryToObtainPermissions(receiveAddressButton);
+        majorTomToGroundControl([address], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
       }
@@ -144,13 +144,14 @@ const ReceiveDetails = () => {
       }
       setAddressBIP21Encoded(newAddress);
       try {
-        await Notifications.tryToObtainPermissions(receiveAddressButton);
-        Notifications.majorTomToGroundControl([newAddress], [], []);
+        await tryToObtainPermissions(receiveAddressButton);
+        majorTomToGroundControl([newAddress], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
       }
     }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet.allowBIP47()) {

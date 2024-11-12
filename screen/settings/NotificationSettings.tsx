@@ -1,8 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable } from 'react-native';
+import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
-// @ts-ignore: no declaration file
-import Notifications from '../../blue_modules/notifications';
+import {
+  getDefaultUri,
+  getPushToken,
+  getSavedUri,
+  getStoredNotifications,
+  saveUri,
+  isNotificationsEnabled,
+  setLevels,
+  tryToObtainPermissions,
+  cleanUserOptOutFlag,
+  isGroundControlUriValid,
+  checkPermissions,
+  checkNotificationPermissionStatus,
+} from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -15,7 +27,7 @@ import { openSettings } from 'react-native-permissions';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isNotificationsEnabledState, setNotificationsEnabledState] = useState(false);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
@@ -41,55 +53,83 @@ const NotificationSettings: React.FC = () => {
     setTapCount(prevCount => prevCount + 1);
   };
 
+  const showNotificationPermissionAlert = () => {
+    presentAlert({
+      title: loc.settings.notifications,
+      message: loc.notifications.permission_denied_message,
+      buttons: [
+        {
+          text: loc._.ok,
+          style: 'cancel',
+        },
+        {
+          text: loc.settings.header,
+          onPress: onSystemSettings,
+          style: 'default',
+        },
+      ],
+    });
+  };
+
   const onNotificationsSwitch = async (value: boolean) => {
+    if (value) {
+      // User is trying to enable notifications
+      const currentStatus = await checkNotificationPermissionStatus();
+      if (currentStatus !== 'granted') {
+        // If notifications are not granted at the system level, show an alert and prevent toggle from enabling
+        showNotificationPermissionAlert();
+        setNotificationsEnabledState(false); // Keep the switch off
+        return;
+      }
+    }
+
     try {
-      setNotificationsEnabled(value);
+      setNotificationsEnabledState(value);
       if (value) {
-        // User is enabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.cleanUserOptOutFlag();
-        // @ts-ignore: refactor later
-        if (await Notifications.getPushToken()) {
-          // we already have a token, so we just need to reenable ALL level on groundcontrol:
-          // @ts-ignore: refactor later
-          await Notifications.setLevels(true);
+        await cleanUserOptOutFlag();
+        const permissionsGranted = await tryToObtainPermissions();
+        if (permissionsGranted) {
+          if (await getPushToken()) {
+            await setLevels(true);
+          }
         } else {
-          // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-          // @ts-ignore: refactor later
-          await Notifications.tryToObtainPermissions();
+          // If permissions are denied, show alert and reset the toggle
+          showNotificationPermissionAlert();
+          setNotificationsEnabledState(false); // Reset the toggle to reflect the denied status
         }
       } else {
-        // User is disabling notifications
-        // @ts-ignore: refactor later
-        await Notifications.setLevels(false);
+        await setLevels(false);
       }
 
-      // @ts-ignore: refactor later
-      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+      setNotificationsEnabledState(await isNotificationsEnabled());
     } catch (error) {
       console.error(error);
       presentAlert({ message: (error as Error).message });
     }
   };
 
+  // Function to check and update notification permission status
+  const updateNotificationStatus = async () => {
+    const currentStatus = await checkNotificationPermissionStatus();
+    if (currentStatus !== 'granted') {
+      setNotificationsEnabledState(false); // Automatically toggle switch off if permissions are disabled
+    } else {
+      setNotificationsEnabledState(true);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       try {
-        // @ts-ignore: refactor later
-        setNotificationsEnabled(await Notifications.isNotificationsEnabled());
-        // @ts-ignore: refactor later
-        setURI(await Notifications.getSavedUri());
-        // @ts-ignore: refactor later
+        setNotificationsEnabledState(await isNotificationsEnabled());
+        setURI((await getSavedUri()) ?? getDefaultUri());
         setTokenInfo(
           'token: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.getPushToken()) +
+            JSON.stringify(await getPushToken()) +
             ' permissions: ' +
-            // @ts-ignore: refactor later
-            JSON.stringify(await Notifications.checkPermissions()) +
+            JSON.stringify(await checkPermissions()) +
             ' stored notifications: ' +
-            // @ts-ignore:  refactor later
-            JSON.stringify(await Notifications.getStoredNotifications()),
+            JSON.stringify(await getStoredNotifications()),
         );
       } catch (e) {
         console.error(e);
@@ -98,24 +138,31 @@ const NotificationSettings: React.FC = () => {
         setIsLoading(false);
       }
     })();
+
+    // Add AppState listener to check permission status when app is active
+    const appStateListener = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        updateNotificationStatus();
+      }
+    });
+
+    return () => {
+      appStateListener.remove();
+    };
   }, []);
 
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
       if (URI) {
-        // validating only if its not empty. empty means use default
-        // @ts-ignore: refactor later
-        if (await Notifications.isGroundControlUriValid(URI)) {
-          // @ts-ignore: refactor later
-          await Notifications.saveUri(URI);
+        if (await isGroundControlUriValid(URI)) {
+          await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
           presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
-        // @ts-ignore: refactor later
-        await Notifications.saveUri('');
+        await saveUri('');
         presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
@@ -135,7 +182,7 @@ const NotificationSettings: React.FC = () => {
         title={loc.settings.notifications}
         subtitle={loc.notifications.notifications_subtitle}
         disabled={isLoading}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledState, testID: 'NotificationsSwitch' }}
       />
 
       <Pressable onPress={handleTap}>
@@ -167,8 +214,7 @@ const NotificationSettings: React.FC = () => {
           <BlueCard>
             <View style={[styles.uri, stylesWithThemeHook.uri]}>
               <TextInput
-                // @ts-ignore: refactor later
-                placeholder={Notifications.getDefaultUri()}
+                placeholder={getDefaultUri()}
                 value={URI}
                 onChangeText={setURI}
                 numberOfLines={1}
