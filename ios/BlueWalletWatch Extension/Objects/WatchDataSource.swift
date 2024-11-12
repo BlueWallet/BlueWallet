@@ -53,8 +53,9 @@ class WatchDataSource: NSObject {
         if let preferredFiatCurrencyUnit = fiatUnit(currency: currency) {
             groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
             groupUserDefaults?.synchronize()
-            let extensionDelegate = ExtensionDelegate()
-            extensionDelegate.updatePreferredFiatCurrency()
+            if let extensionDelegate = WKExtension.shared().delegate as? ExtensionDelegate {
+                extensionDelegate.updatePreferredFiatCurrency()
+            }
             print("Updated preferred fiat currency to \(currency)")
         }
     }
