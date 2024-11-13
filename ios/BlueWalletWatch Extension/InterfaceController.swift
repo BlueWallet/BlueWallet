@@ -13,11 +13,6 @@ class InterfaceController: WKInterfaceController {
     
     // MARK: - Lifecycle Methods
     
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-        print("InterfaceController has awakened.")
-    }
-    
     override func willActivate() {
         super.willActivate()
         updateUI()

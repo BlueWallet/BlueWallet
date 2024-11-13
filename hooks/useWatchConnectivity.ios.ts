@@ -52,16 +52,17 @@ export function useWatchConnectivity() {
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
+  const createContextPayload = () => ({
+    randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}`, // Flatten to a string
+  });
+
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) return;
 
-    const contextPayload = {
-      isWalletsInitialized: walletsInitialized,
-      randomID: Date.now().toString(36) + Math.random().toString(36).substr(2),
-    };
+    const contextPayload = createContextPayload();
     try {
       updateApplicationContext(contextPayload);
-      console.debug('Updated application context with wallet status:', contextPayload);
+      console.debug('Updated application context:', contextPayload);
     } catch (error) {
       console.error('Failed to update application context:', error);
     }
@@ -130,8 +131,8 @@ export function useWatchConnectivity() {
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress,
-            transactions,
-            hideBalance: wallet.hideBalance,
+            transactions: JSON.stringify(transactions), // Serialize transactions array
+            hideBalance: wallet.hideBalance ? 1 : 0, // Use 1 and 0 instead of boolean
             ...(wallet.chain === Chain.ONCHAIN &&
               wallet.type !== MultisigHDWallet.type && {
                 xpub: wallet.getXpub() || wallet.getSecret(),
@@ -145,8 +146,7 @@ export function useWatchConnectivity() {
             label: walletData.label,
             type: walletData.type,
             preferredBalanceUnit: walletData.preferredBalanceUnit,
-            transactionCount: walletData.transactions.length,
-            // Omit sensitive data from logs
+            transactionCount: transactions.length,
           });
           return walletData;
         } catch (error) {
@@ -161,7 +161,7 @@ export function useWatchConnectivity() {
       .map(result => (result as PromiseFulfilledResult<any>).value);
 
     console.debug('Constructed wallets to process for Apple Watch:', processedWallets);
-    return { wallets: processedWallets, randomID: Date.now().toString(36) + Math.random().toString(36).substr(2) };
+    return { wallets: JSON.stringify(processedWallets), randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
 
   const handleMessages = useCallback(
