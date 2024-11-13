@@ -440,7 +440,7 @@ lane :build_app_lane do
     end
   end
 end
-
+end
 # ===========================
 #       Global Lanes
 # ===========================
@@ -589,3 +589,5 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+end
+end
