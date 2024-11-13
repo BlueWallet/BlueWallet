@@ -107,6 +107,12 @@ class WatchDataSource: NSObject {
                   let amount = transactionEntry["amount"] as? String,
                   let type = transactionEntry["type"] as? String else { continue }
             
+            // Validate amount format
+            guard let _ = Double(amount) else {
+                print("Invalid transaction amount format: \(amount)")
+                continue
+            }
+            
             let transaction = Transaction(time: time, memo: memo, type: type, amount: amount)
             transactions.append(transaction)
         }
