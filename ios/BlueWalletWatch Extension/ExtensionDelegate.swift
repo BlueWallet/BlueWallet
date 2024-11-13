@@ -71,14 +71,29 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         print("WCSession reachability changed. Is reachable: \(session.isReachable)")
     }
 
+    private enum NotificationNames {
+        static let dataUpdated = Notification.Name("DataUpdated")
+    }
+
     private func processReceivedData(_ data: [String: Any]) {
-        guard let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, !preferredFiatCurrency.isEmpty else {
+        guard !data.isEmpty else {
+            print("[WatchConnectivity] Error: Received empty data")
+            return
+        }
+        
+        guard let preferredFiatCurrency = data["preferredFiatCurrency"] as? String else {
             print("[WatchConnectivity] Received invalid currency code.")
             return
         }
+        
+        guard !preferredFiatCurrency.isEmpty, preferredFiatCurrency.count == 3 else {
+            print("[WatchConnectivity] Error: Invalid currency code format")
+            return
+        }
+        
         groupUserDefaults?.set(preferredFiatCurrency, forKey: "preferredCurrency")
         updatePreferredFiatCurrency()
-        NotificationCenter.default.post(name: Notification.Name("DataUpdated"), object: nil)
+        NotificationCenter.default.post(name: NotificationNames.dataUpdated, object: nil)
     }
 
     // MARK: - Preferred Fiat Currency
