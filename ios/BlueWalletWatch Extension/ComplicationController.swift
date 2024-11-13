@@ -22,7 +22,6 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     handler(nil)
   }
   
-  @available(watchOSApplicationExtension 7.0, *)
   func complicationDescriptors() async -> [CLKComplicationDescriptor] {
     return  [CLKComplicationDescriptor(
       identifier: "io.bluewallet.bluewallet",
@@ -56,16 +55,16 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       valueLabel = price
       timeLabel = lastUpdated
       valueSmallLabel = priceAbbreviated
-      if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+      if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(for: preferredFiatCurrency) {
         currencySymbol = preferredFiatUnit.symbol
       } else {
-        currencySymbol = fiatUnit(currency: "USD")!.symbol
+        currencySymbol = fiatUnit(for: "USD")!.symbol
       }
     } else {
       valueLabel = "--"
       timeLabel = "--"
       valueSmallLabel = "--"
-      currencySymbol = fiatUnit(currency: "USD")!.symbol
+      currencySymbol = fiatUnit(for: "USD")!.symbol
       date = Date()
     }
     

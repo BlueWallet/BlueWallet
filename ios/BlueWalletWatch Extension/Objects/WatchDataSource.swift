@@ -1,5 +1,6 @@
 import Foundation
 import WatchConnectivity
+import WatchKit
 
 class WatchDataSource: NSObject {
     
@@ -50,12 +51,16 @@ class WatchDataSource: NSObject {
     }
     
     private func updatePreferredFiatCurrency(_ currency: String) {
-        if let preferredFiatCurrencyUnit = fiatUnit(currency: currency) {
+      if let preferredFiatCurrencyUnit = fiatUnit(for: currency) {
             groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
             groupUserDefaults?.synchronize()
+            
+            #if canImport(WatchKit)
             if let extensionDelegate = WKExtension.shared().delegate as? ExtensionDelegate {
                 extensionDelegate.updatePreferredFiatCurrency()
             }
+            #endif
+            
             print("Updated preferred fiat currency to \(currency)")
         }
     }

@@ -160,7 +160,7 @@ class MarketAPI {
 
      
   static func fetchPrice(currency: String) async throws -> WidgetDataStore? {
-         let currencyToFiatUnit = fiatUnit(currency: currency)
+    let currencyToFiatUnit = fiatUnit(for: currency)
          guard let source = currencyToFiatUnit?.source, let endPointKey = currencyToFiatUnit?.endPointKey else {
              throw CurrencyError(errorDescription: "Invalid currency unit or endpoint.")
          }

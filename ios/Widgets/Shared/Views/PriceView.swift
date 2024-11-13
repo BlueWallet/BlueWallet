@@ -160,7 +160,7 @@ struct PriceView: View {
     let numberFormatter = NumberFormatter()
     numberFormatter.maximumFractionDigits = 0
     numberFormatter.numberStyle = .currency
-    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+    numberFormatter.currencySymbol = fiatUnit(for: Currency.getUserPreferredCurrency())?.symbol
     return numberFormatter.string(from: NSNumber(value: rate ?? 0)) ?? "--"
   }
   
