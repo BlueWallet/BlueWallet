@@ -296,7 +296,7 @@ export const configureNotifications = async onProcessNotifications => {
               if (notification.data && notification.data.data) {
                 Object.assign(payload, notification.data.data);
               }
-              delete payload.data;
+              payload.data = undefined;
               console.debug('Received Push Notification Payload:', payload);
 
               await addNotification(payload);
