@@ -73,7 +73,7 @@ extension Double {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.maximumFractionDigits = 0
-      formatter.currencySymbol = fiatUnit(for: Currency.getUserPreferredCurrency())?.symbol
+      formatter.currencySymbol = try? FiatUnit.fiatUnit(for: Currency.getUserPreferredCurrency())!.symbol
         return formatter.string(from: NSNumber(value: self)) ?? "--"
     }
 }

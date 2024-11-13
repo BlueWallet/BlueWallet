@@ -12,7 +12,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
 
     func applicationDidFinishLaunching() {
         configureAppSettings()
-        setupBugsnagIfAllowed()
+//        setupBugsnagIfAllowed()
         setupWCSession()
     }
 
@@ -103,11 +103,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         updateMarketData(for: fiatUnit)
     }
 
-    private func fetchPreferredFiatUnit() -> FiatUnit? {
-        let currencyCode = groupUserDefaults?.string(forKey: "preferredCurrency") ?? "USD"
-        return fiatUnit(for: currencyCode)
-    }
-
+  private func fetchPreferredFiatUnit() -> FiatUnit? {
+      let currencyCode = groupUserDefaults?.string(forKey: "preferredCurrency") ?? "USD"
+      do {
+          return try FiatUnit.fiatUnit(for: currencyCode)
+      } catch {
+          // Handle the error here, such as logging or providing a fallback
+          print("Failed to fetch preferred FiatUnit: \(error)")
+          return nil
+      }
+  }
     // MARK: - Market Data Update
 
     private let maxRetryAttempts = 3

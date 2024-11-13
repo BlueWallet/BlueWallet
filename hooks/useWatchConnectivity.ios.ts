@@ -46,11 +46,8 @@ export function useWatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
   const { preferredFiatCurrency } = useSettings();
   const isReachable = useReachability();
-  const actualIsInstalled = useInstalled();
-  const actualIsPaired = usePaired();
-
-  const isInstalled = __DEV__ ? true : actualIsInstalled;
-  const isPaired = __DEV__ ? true : actualIsPaired;
+  const isInstalled = useInstalled();
+  const isPaired = usePaired();
 
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
