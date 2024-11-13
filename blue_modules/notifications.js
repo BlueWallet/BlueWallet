@@ -27,7 +27,7 @@ export const checkNotificationPermissionStatus = async () => {
 };
 
 /**
- * Invalidate the stored push token, removing it from local storage and optionally informing the server.
+ * Invalidate the stored push token, removing it from local storage.
  */
 
 export const invalidateToken = async () => {
@@ -36,18 +36,9 @@ export const invalidateToken = async () => {
     if (token) {
       const parsedToken = JSON.parse(token);
       if (parsedToken && parsedToken.token) {
-        await fetch(`${baseURI}/invalidateToken`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ token: parsedToken.token }),
-        });
+        await AsyncStorage.setItem(PUSH_TOKEN_INVALIDATED, 'true');
       }
-      console.debug('Token invalidated on server.');
     }
-
-    await AsyncStorage.setItem(PUSH_TOKEN_INVALIDATED, 'true');
     console.debug('Push token invalidated flag set.');
   } catch (error) {
     console.error('Error invalidating token:', error);
