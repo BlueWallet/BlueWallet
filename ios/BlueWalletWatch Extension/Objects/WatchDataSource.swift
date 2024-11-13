@@ -12,7 +12,10 @@ class WatchDataSource: NSObject {
         static let dataUpdated = Notification(name: NotificationName.dataUpdated)
     }
     
-    static let shared = WatchDataSource()
+    static let shared: WatchDataSource = {
+        let instance = WatchDataSource()
+        return instance
+    }()
     var wallets: [Wallet] = []
     let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     
