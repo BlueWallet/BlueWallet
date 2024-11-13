@@ -67,7 +67,6 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
-  const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
     customAmount: {
       borderColor: colors.formBorder,
@@ -110,7 +109,7 @@ const ReceiveDetails = () => {
     if (address) {
       setAddressBIP21Encoded(address);
       try {
-        await tryToObtainPermissions(receiveAddressButton);
+        await tryToObtainPermissions();
         majorTomToGroundControl([address], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
@@ -144,7 +143,7 @@ const ReceiveDetails = () => {
       }
       setAddressBIP21Encoded(newAddress);
       try {
-        await tryToObtainPermissions(receiveAddressButton);
+        await tryToObtainPermissions();
         majorTomToGroundControl([newAddress], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
@@ -366,7 +365,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <CopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
+          <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
       </>
     );

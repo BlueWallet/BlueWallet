@@ -95,11 +95,10 @@ const NotificationSettings: React.FC = () => {
         if (permissionsGranted) {
           const invalidated = (await AsyncStorage.getItem(PUSH_TOKEN_INVALIDATED)) === 'true';
 
-          let token = await getPushToken();
           if (invalidated) {
             console.debug('Token previously invalidated. Proceeding to reconfigure notifications.');
             const tokenGenerated = await configureNotifications();
-            token = await getPushToken();
+            const token = await getPushToken();
             if (tokenGenerated && token) {
               console.debug('Token reactivated:', token);
               await setLevels(true);
