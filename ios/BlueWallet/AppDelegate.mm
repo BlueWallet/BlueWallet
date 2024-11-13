@@ -129,6 +129,8 @@
     NSString *deviceUID = [NSUserDefaults.standardUserDefaults stringForKey:@"deviceUID"];
     if (deviceUID && deviceUID.length > 0) {
         [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
+                [self.userDefaultsGroup setValue:deviceUID forKey:@"deviceUIDCopy"];
+
     }
 }
 

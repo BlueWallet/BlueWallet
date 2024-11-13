@@ -24,23 +24,29 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         updatePreferredFiatCurrency()
     }
 
-    private func setupBugsnagIfAllowed() {
-        print("[Bugsnag] Checking if Bugsnag setup is allowed.")
-        guard let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled else {
-            print("[Bugsnag] Do Not Track is enabled; skipping Bugsnag setup.")
-            return
-        }
-        
-        let config = BugsnagConfiguration.loadConfig()
-        config.releaseStage = "watchOS"
-        config.addOnSendError { event in
-            print("[Bugsnag] Sending error event to Bugsnag.")
-            return true
-        }
-        Bugsnag.start(with: config)
-        Bugsnag.leaveBreadcrumb(withMessage: "Application did finish launching on watchOS.")
-        print("[Bugsnag] Initialized for watchOS.")
-    }
+  private func setupBugsnagIfAllowed() {
+      print("[Bugsnag] Checking if Bugsnag setup is allowed.")
+      guard let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled else {
+          print("[Bugsnag] Do Not Track is enabled; skipping Bugsnag setup.")
+          return
+      }
+
+      let config = BugsnagConfiguration.loadConfig()
+      config.releaseStage = "watchOS"
+      
+      // Set deviceUIDCopy as the Bugsnag user ID
+      if let deviceUIDCopy = groupUserDefaults?.string(forKey: "deviceUIDCopy") {
+          config.setUser(deviceUIDCopy, withEmail: nil, andName: nil)
+      }
+
+      config.addOnSendError { event in
+          print("[Bugsnag] Sending error event to Bugsnag.")
+          return true
+      }
+      Bugsnag.start(with: config)
+      Bugsnag.leaveBreadcrumb(withMessage: "Application did finish launching on watchOS.")
+      print("[Bugsnag] Initialized for watchOS with user ID set to deviceUIDCopy.")
+  }
 
     // MARK: - WCSession Setup
 
