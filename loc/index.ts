@@ -33,6 +33,7 @@ const dateFormatters = {
 export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) return 'unknown'; // Example: time = -1 -> "unknown"
   if (time === 0) return loc._.never; // Example: time = 0 -> "never"
+  if (!dayjs(time).isValid()) return 'unknown'; // Handle invalid dates
 
   const now = dayjs();
   const daysAgo = now.diff(time, 'days');
