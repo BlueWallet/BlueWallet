@@ -55,8 +55,6 @@ export function useWatchConnectivity() {
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
-
-
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) return;
 
@@ -88,8 +86,6 @@ export function useWatchConnectivity() {
       console.debug('WatchConnectivity: preferred currency has not changed');
     }
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled, isPaired]);
-
-
 
   const handleLightningInvoiceCreateRequest = useCallback(
     async ({ walletIndex, amount, description = loc.lnd.placeholder }: LightningInvoiceCreateRequest): Promise<string | undefined> => {
@@ -204,7 +200,7 @@ export function useWatchConnectivity() {
     },
     [fetchWalletTransactions, saveToDisk, wallets, constructWalletsToSendToWatch, handleLightningInvoiceCreateRequest],
   );
-  
+
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized) return;
 
