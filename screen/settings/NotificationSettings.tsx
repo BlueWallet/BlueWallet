@@ -14,6 +14,10 @@ import {
   isGroundControlUriValid,
   checkPermissions,
   checkNotificationPermissionStatus,
+  invalidateToken,
+  configureNotifications,
+  NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
+  PUSH_TOKEN_INVALIDATED,
 } from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -24,6 +28,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -73,12 +78,11 @@ const NotificationSettings: React.FC = () => {
 
   const onNotificationsSwitch = async (value: boolean) => {
     if (value) {
-      // User is trying to enable notifications
       const currentStatus = await checkNotificationPermissionStatus();
-      if (currentStatus !== 'granted') {
-        // If notifications are not granted at the system level, show an alert and prevent toggle from enabling
+      if (currentStatus === 'blocked') {
+        // If permissions are denied/blocked, show alert and reset the toggle
         showNotificationPermissionAlert();
-        setNotificationsEnabledState(false); // Keep the switch off
+        setNotificationsEnabledState(false);
         return;
       }
     }
@@ -89,16 +93,32 @@ const NotificationSettings: React.FC = () => {
         await cleanUserOptOutFlag();
         const permissionsGranted = await tryToObtainPermissions();
         if (permissionsGranted) {
-          if (await getPushToken()) {
+          const invalidated = (await AsyncStorage.getItem(PUSH_TOKEN_INVALIDATED)) === 'true';
+
+          let token = await getPushToken();
+          if (invalidated) {
+            console.debug('Token previously invalidated. Proceeding to reconfigure notifications.');
+            const tokenGenerated = await configureNotifications();
+            token = await getPushToken();
+            if (tokenGenerated && token) {
+              console.debug('Token reactivated:', token);
+              await setLevels(true);
+              await AsyncStorage.removeItem(PUSH_TOKEN_INVALIDATED);
+            }
+          } else {
+            console.debug('Token is active. Proceeding with current token.');
             await setLevels(true);
           }
+
+          await AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
         } else {
-          // If permissions are denied, show alert and reset the toggle
           showNotificationPermissionAlert();
-          setNotificationsEnabledState(false); // Reset the toggle to reflect the denied status
+          setNotificationsEnabledState(false);
         }
       } else {
+        await invalidateToken();
         await setLevels(false);
+        await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
       }
 
       setNotificationsEnabledState(await isNotificationsEnabled());
@@ -108,20 +128,34 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  // Function to check and update notification permission status
   const updateNotificationStatus = async () => {
     const currentStatus = await checkNotificationPermissionStatus();
+
     if (currentStatus !== 'granted') {
-      setNotificationsEnabledState(false); // Automatically toggle switch off if permissions are disabled
+      console.debug('System-level notifications are disabled. Treating as user-disabled.');
+
+      await invalidateToken();
+      await setLevels(false);
+
+      await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
+      setNotificationsEnabledState(false);
     } else {
-      setNotificationsEnabledState(true);
+      const isEnabled = await isNotificationsEnabled();
+      setNotificationsEnabledState(isEnabled);
     }
   };
-
   useEffect(() => {
     (async () => {
       try {
-        setNotificationsEnabledState(await isNotificationsEnabled());
+        const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+
+        if (isDisabledByUser) {
+          console.debug('Notifications were disabled by the user. Skipping auto-activation.');
+          setNotificationsEnabledState(false);
+        } else {
+          await updateNotificationStatus();
+        }
+
         setURI((await getSavedUri()) ?? getDefaultUri());
         setTokenInfo(
           'token: ' +
@@ -139,10 +173,9 @@ const NotificationSettings: React.FC = () => {
       }
     })();
 
-    // Add AppState listener to check permission status when app is active
     const appStateListener = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
-        updateNotificationStatus();
+        setTimeout(updateNotificationStatus, 300);
       }
     });
 

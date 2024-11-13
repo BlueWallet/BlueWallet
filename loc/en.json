@@ -320,7 +320,6 @@
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
     "notifications_subtitle": "Incoming payments and transaction confirmations",
     "no_and_dont_ask": "No, and do not ask me again.",
-    "ask_me_later": "Ask me later.",
     "permission_denied_message": "You have denied permission to send you notifications. If you would like to receive notifications, please enable them in your device settings."
   },
   "transactions": {
