@@ -8,7 +8,6 @@ import loc from '../loc';
 import { groundControlUri } from './constants';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
-export const PUSH_TOKEN_INVALIDATED = 'PUSH_TOKEN_INVALIDATED';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
@@ -23,25 +22,6 @@ export const checkNotificationPermissionStatus = async () => {
   } catch (error) {
     console.error('Failed to check notification permissions:', error);
     return 'unavailable'; // Return 'unavailable' if the status cannot be retrieved
-  }
-};
-
-/**
- * Invalidate the stored push token, removing it from local storage.
- */
-
-export const invalidateToken = async () => {
-  try {
-    const token = await AsyncStorage.getItem(PUSH_TOKEN);
-    if (token) {
-      const parsedToken = JSON.parse(token);
-      if (parsedToken && parsedToken.token) {
-        await AsyncStorage.setItem(PUSH_TOKEN_INVALIDATED, 'true');
-      }
-    }
-    console.debug('Push token invalidated flag set.');
-  } catch (error) {
-    console.error('Error invalidating token:', error);
   }
 };
 

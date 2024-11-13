@@ -14,10 +14,7 @@ import {
   isGroundControlUriValid,
   checkPermissions,
   checkNotificationPermissionStatus,
-  invalidateToken,
-  configureNotifications,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
-  PUSH_TOKEN_INVALIDATED,
 } from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -93,29 +90,13 @@ const NotificationSettings: React.FC = () => {
         await cleanUserOptOutFlag();
         const permissionsGranted = await tryToObtainPermissions();
         if (permissionsGranted) {
-          const invalidated = (await AsyncStorage.getItem(PUSH_TOKEN_INVALIDATED)) === 'true';
-
-          if (invalidated) {
-            console.debug('Token previously invalidated. Proceeding to reconfigure notifications.');
-            const tokenGenerated = await configureNotifications();
-            const token = await getPushToken();
-            if (tokenGenerated && token) {
-              console.debug('Token reactivated:', token);
-              await setLevels(true);
-              await AsyncStorage.removeItem(PUSH_TOKEN_INVALIDATED);
-            }
-          } else {
-            console.debug('Token is active. Proceeding with current token.');
-            await setLevels(true);
-          }
-
+          await setLevels(true);
           await AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
         } else {
           showNotificationPermissionAlert();
           setNotificationsEnabledState(false);
         }
       } else {
-        await invalidateToken();
         await setLevels(false);
         await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
       }
@@ -133,7 +114,6 @@ const NotificationSettings: React.FC = () => {
     if (currentStatus !== 'granted') {
       console.debug('System-level notifications are disabled. Treating as user-disabled.');
 
-      await invalidateToken();
       await setLevels(false);
 
       await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
