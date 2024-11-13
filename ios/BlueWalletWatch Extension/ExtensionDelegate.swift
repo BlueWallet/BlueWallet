@@ -14,7 +14,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         print("[AppLifecycle] Application did finish launching.")
         configureAppSettings()
         // Uncomment if Bugsnag tracking is needed
-        // setupBugsnagIfAllowed()
+         setupBugsnagIfAllowed()
         setupWCSession()
     }
 
