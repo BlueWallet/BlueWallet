@@ -113,7 +113,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
     private let maxRetryAttempts = 3
     private let retryDelay: TimeInterval = 5
 
-    private func updateMarketData(for fiatUnit: FiatUnit, retryCount: Int = 0) {
+    private func updateMarketData(for fiatUnit: FiatUnit, retryCount: Int = 0, completion: (() -> Void)? = nil) {
         MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { [weak self] data, error in
             guard let self = self else { return }
             
@@ -125,11 +125,13 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                         self.updateMarketData(for: fiatUnit, retryCount: retryCount + 1)
                     }
                 }
+                completion?()
                 return
             }
 
             guard let data = data else {
                 print("[MarketData] No data received")
+                completion?()
                 return
             }
 
@@ -137,8 +139,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                 let encodedData = try PropertyListEncoder().encode(data)
                 self.groupUserDefaults?.set(encodedData, forKey: MarketData.string)
                 ExtensionDelegate.reloadComplications()
+                completion?()
             } catch {
                 print("[MarketData] Encoding error: \(error.localizedDescription)")
+                completion?()
             }
         }
     }
