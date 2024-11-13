@@ -54,7 +54,11 @@ class WatchDataSource: NSObject {
     }
     
     private func updatePreferredFiatCurrency(_ currency: String) {
-      if let preferredFiatCurrencyUnit = fiatUnit(for: currency) {
+        guard !currency.isEmpty, currency.count == 3 else {
+            print("Invalid currency format: \(currency)")
+            return
+        }
+        if let preferredFiatCurrencyUnit = fiatUnit(for: currency) {
             groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
             groupUserDefaults?.synchronize()
             
