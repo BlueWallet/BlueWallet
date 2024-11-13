@@ -52,7 +52,6 @@ const handleAppStateChange = async nextAppState => {
     const newPermissionStatus = await checkNotificationPermissionStatus();
     if (newPermissionStatus !== currentPermissionStatus) {
       currentPermissionStatus = newPermissionStatus;
-      console.warn(newPermissionStatus);
       if (newPermissionStatus === 'granted') {
         // Re-initialize notifications if permissions are granted
         await initializeNotifications();
