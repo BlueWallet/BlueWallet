@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization, { LocalizedStrings } from 'react-localization';
 import { I18nManager } from 'react-native';
@@ -15,7 +14,43 @@ import enJson from './en.json';
 export const STORAGE_KEY = 'lang';
 
 dayjs.extend(relativeTime);
-dayjs.extend(localizedFormat);
+const calendar = RNLocalize.getCalendar() === 'gregorian' ? 'gregory' : RNLocalize.getCalendar();
+
+const dateFormatters = {
+  currentYear: new Intl.DateTimeFormat(undefined, {
+    calendar,
+    month: 'long',
+    day: 'numeric',
+  }),
+  otherYear: new Intl.DateTimeFormat(undefined, {
+    calendar,
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }),
+};
+
+export const transactionTimeToReadable = (time: number | string) => {
+  if (time === -1) return 'unknown'; // Example: time = -1 -> "unknown"
+  if (time === 0) return loc._.never; // Example: time = 0 -> "never"
+
+  const now = dayjs();
+  const daysAgo = now.diff(time, 'days');
+
+  // Use dayjs relative time for dates within the past 7 days
+  if (daysAgo <= 7) return dayjs(time).fromNow();
+  // Example: time = yesterday -> "a day ago"
+  // Example: time = 3 days ago -> "3 days ago"
+
+  // Determine the appropriate formatter based on the year
+  const isSameYear = now.year() === dayjs(time).year();
+  const formatter = isSameYear ? dateFormatters.currentYear : dateFormatters.otherYear;
+
+  // Format date for dates older than 7 days
+  return formatter.format(new Date(time));
+  // Example: time = "2023-02-15" (same year) -> "February 15"
+  // Example: time = "2022-11-01" (different year) -> "November 1, 2022"
+};
 
 interface ILocalization1 extends LocalizedStrings<typeof enJson> {}
 
@@ -275,23 +310,6 @@ export const saveLanguage = async (lang: string) => {
     I18nManager.forceRTL(foundLang?.isRTL ?? false);
   }
   await setDateTimeLocale();
-};
-
-export const transactionTimeToReadable = (time: number | string) => {
-  if (time === -1) {
-    return 'unknown';
-  }
-  if (time === 0) {
-    return loc._.never;
-  }
-  let ret;
-  try {
-    ret = dayjs(time).fromNow();
-  } catch (_) {
-    console.warn('incorrect locale set for dayjs');
-    return String(time);
-  }
-  return ret;
 };
 
 export const removeTrailingZeros = (value: number | string): string => {
