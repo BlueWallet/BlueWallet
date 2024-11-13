@@ -271,11 +271,27 @@ export const configureNotifications = async onProcessNotifications => {
               resolve(true);
             },
             onNotification: async notification => {
-              const payload = { ...notification, ...notification.data };
-              if (notification.data && notification.data.data) {
-                Object.assign(payload, notification.data.data);
+              // Deep clone to avoid modifying the original notification
+              const payload = JSON.parse(JSON.stringify({
+                ...notification,
+                ...notification.data
+              }));
+              
+              if (notification.data?.data) {
+                // Validate data before merging
+                const validData = Object.entries(notification.data.data)
+                  .filter(([_, value]) => value !== null && value !== undefined)
+                  .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+                Object.assign(payload, validData);
               }
               payload.data = undefined;
+              
+              // Ensure required fields exist
+              if (!payload.title && !payload.message) {
+                console.warn('Notification missing required fields:', payload);
+                return;
+              }
+              
               console.debug('Received Push Notification Payload:', payload);
 
               await addNotification(payload);
