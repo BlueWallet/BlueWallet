@@ -279,9 +279,12 @@ export const configureNotifications = async onProcessNotifications => {
               
               if (notification.data?.data) {
                 // Validate data before merging
-                const validData = Object.entries(notification.data.data)
-                  .filter(([_, value]) => value !== null && value !== undefined)
-                  .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+                const validData = {};
+                for (const [key, value] of Object.entries(notification.data.data)) {
+                  if (value != null) {
+                    validData[key] = value;
+                  }
+                }
                 Object.assign(payload, validData);
               }
               payload.data = undefined;
