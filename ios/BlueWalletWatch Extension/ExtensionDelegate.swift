@@ -7,15 +7,25 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
 
     private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     private let refreshInterval: TimeInterval = 600 // 10 minutes
+    private let maxRetryAttempts = 3 // Maximum retry attempts for network requests
+    private let retryDelay: TimeInterval = 5 // Delay in seconds between retry attempts
 
     // MARK: - App Lifecycle
 
     func applicationDidFinishLaunching() {
         print("[AppLifecycle] Application did finish launching.")
         configureAppSettings()
-        // Uncomment if Bugsnag tracking is needed
-         setupBugsnagIfAllowed()
+        setupBugsnagIfAllowed()
         setupWCSession()
+    }
+
+    override init() {
+        super.init()
+        addUserDefaultsObserver()
+    }
+    
+    deinit {
+        removeUserDefaultsObserver()
     }
 
     private func configureAppSettings() {
@@ -24,29 +34,50 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         updatePreferredFiatCurrency()
     }
 
-  private func setupBugsnagIfAllowed() {
-      print("[Bugsnag] Checking if Bugsnag setup is allowed.")
-      guard let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled else {
-          print("[Bugsnag] Do Not Track is enabled; skipping Bugsnag setup.")
-          return
-      }
+    private func addUserDefaultsObserver() {
+        groupUserDefaults?.addObserver(self, forKeyPath: "deviceUIDCopy", options: [.new], context: nil)
+    }
 
-      let config = BugsnagConfiguration.loadConfig()
-      config.releaseStage = "watchOS"
+    private func removeUserDefaultsObserver() {
+        groupUserDefaults?.removeObserver(self, forKeyPath: "deviceUIDCopy")
+    }
+
+    private func updateBugsnagUserID() {
+        if let deviceUIDCopy = groupUserDefaults?.string(forKey: "deviceUIDCopy") {
+            Bugsnag.setUser(deviceUIDCopy, withEmail: nil, andName: nil)
+            print("[Bugsnag] Updated user ID to \(deviceUIDCopy)")
+        }
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "deviceUIDCopy" {
+            updateBugsnagUserID()
+        }
+    }
+
+    private func setupBugsnagIfAllowed() {
+        print("[Bugsnag] Checking if Bugsnag setup is allowed.")
+        guard let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled else {
+            print("[Bugsnag] Do Not Track is enabled; skipping Bugsnag setup.")
+            return
+        }
+
+        let config = BugsnagConfiguration.loadConfig()
+        config.appType = "watchOS"
       
-      // Set deviceUIDCopy as the Bugsnag user ID
-      if let deviceUIDCopy = groupUserDefaults?.string(forKey: "deviceUIDCopy") {
-          config.setUser(deviceUIDCopy, withEmail: nil, andName: nil)
-      }
-
-      config.addOnSendError { event in
-          print("[Bugsnag] Sending error event to Bugsnag.")
-          return true
-      }
-      Bugsnag.start(with: config)
-      Bugsnag.leaveBreadcrumb(withMessage: "Application did finish launching on watchOS.")
-      print("[Bugsnag] Initialized for watchOS with user ID set to deviceUIDCopy.")
-  }
+        if let deviceUIDCopy = groupUserDefaults?.string(forKey: "deviceUIDCopy") {
+            config.setUser(deviceUIDCopy, withEmail: nil, andName: nil)
+            print("[Bugsnag] Updated user ID to \(deviceUIDCopy)")
+        }
+    
+        config.addOnSendError { event in
+            print("[Bugsnag] Sending error event to Bugsnag.")
+            return true
+        }
+        Bugsnag.start(with: config)
+        Bugsnag.leaveBreadcrumb(withMessage: "Application did finish launching on watchOS.")
+        print("[Bugsnag] Initialized for watchOS with user ID set to deviceUIDCopy.")
+    }
 
     // MARK: - WCSession Setup
 
@@ -68,52 +99,60 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
             print("[WCSession] Activation error: \(error.localizedDescription)")
         } else {
             print("[WCSession] Activation completed with state: \(activationState.rawValue)")
-        }
-    }
 
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        print("[WCSession] Received application context on watchOS: \(applicationContext)")
-        processReceivedData(applicationContext)
+            if activationState == .activated && session.isReachable {
+                let message: [String: Any] = ["request": "wakeUpApp"]
+                session.sendMessage(message, replyHandler: nil) { error in
+                    print("[WCSession] Error sending wake-up message: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
         print("[WCSession] Received message: \(message)")
-        processReceivedData(message)
-        replyHandler(["status": "Message received"])
+        handleMessages(message: message, replyHandler: replyHandler)
     }
 
-    func sessionReachabilityDidChange(_ session: WCSession) {
-        print("[WCSession] Reachability changed. Is reachable: \(session.isReachable)")
-    }
-
-    private enum NotificationNames {
-        static let dataUpdated = Notification.Name("DataUpdated")
-    }
-
-    private func processReceivedData(_ data: [String: Any]) {
-        print("[DataProcessing] Starting to process received data: \(data)")
-        guard !data.isEmpty else {
-            print("[DataProcessing] Error: Received empty data.")
+    private func handleMessages(message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        guard let request = message["request"] as? String else {
+            print("[DataProcessing] Error: Request type not found in message.")
+            replyHandler(["status": "Invalid request"])
             return
         }
-        
-        guard let preferredFiatCurrency = data["preferredFiatCurrency"] as? String else {
-            print("[DataProcessing] Error: Received invalid currency code.")
-            return
-        }
-        
-        guard !preferredFiatCurrency.isEmpty, preferredFiatCurrency.count == 3 else {
-            print("[DataProcessing] Error: Invalid currency code format.")
-            return
-        }
-        
-        print("[DataProcessing] Storing preferred currency: \(preferredFiatCurrency)")
-        groupUserDefaults?.set(preferredFiatCurrency, forKey: "preferredCurrency")
-        updatePreferredFiatCurrency()
-        NotificationCenter.default.post(name: NotificationNames.dataUpdated, object: nil)
-    }
 
-    // MARK: - Preferred Fiat Currency
+        switch request {
+        case "updatePreferredFiatCurrency":
+            if let currencyCode = message["preferredFiatCurrency"] as? String {
+              groupUserDefaults?.set(currencyCode, forKey: UserDefaultsGroupKey.PreferredCurrency.rawValue)
+                updatePreferredFiatCurrency()
+                print("[DataProcessing] Updated preferred fiat currency to \(currencyCode)")
+                replyHandler(["status": "Currency updated"])
+            } else {
+                print("[DataProcessing] Error: Missing preferredFiatCurrency in message.")
+                replyHandler(["status": "Error: Missing preferredFiatCurrency"])
+            }
+            
+        case "fetchTransactions":
+            print("[DataProcessing] Fetching transactions")
+            replyHandler(["status": "Transactions fetched"])
+        case "updateComplication":
+                       NotificationCenter.default.post(name: .didReceiveUpdateComplicationRequest, object: nil)
+                       replyHandler(["status": "Complication data updated"])
+        case "hideBalance":
+            if let hideBalance = message["hideBalance"] as? Bool {
+                groupUserDefaults?.set(hideBalance, forKey: "hideBalance")
+                replyHandler(["status": "Balance hidden setting updated"])
+                print("[DataProcessing] Set hide balance to \(hideBalance)")
+            } else {
+                replyHandler(["status": "Error: Missing hideBalance value"])
+            }
+        
+        default:
+            print("[DataProcessing] Unknown request type.")
+            replyHandler(["status": "Unknown request"])
+        }
+    }
 
     func updatePreferredFiatCurrency() {
         print("[CurrencyUpdate] Updating preferred fiat currency.")
@@ -136,11 +175,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         }
     }
 
-    // MARK: - Market Data Update
-
-    private let maxRetryAttempts = 3
-    private let retryDelay: TimeInterval = 5
-
     private func updateMarketData(for fiatUnit: FiatUnit, retryCount: Int = 0, completion: (() -> Void)? = nil) {
         print("[MarketData] Updating market data for fiat unit: \(fiatUnit), Attempt: \(retryCount + 1)")
         MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { [weak self] data, error in
@@ -149,7 +183,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
             if let error = error {
                 print("[MarketData] Fetch error: \(error.localizedDescription)")
                 if retryCount < self.maxRetryAttempts {
-                    print("[MarketData] Retrying in \(self.retryDelay) seconds... (\(retryCount + 1)/\(self.maxRetryAttempts))")
                     DispatchQueue.main.asyncAfter(deadline: .now() + self.retryDelay) {
                         self.updateMarketData(for: fiatUnit, retryCount: retryCount + 1)
                     }
@@ -159,7 +192,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
             }
 
             guard let data = data else {
-                print("[MarketData] Error: No data received.")
                 completion?()
                 return
             }
@@ -168,24 +200,19 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
                 let encodedData = try PropertyListEncoder().encode(data)
                 self.groupUserDefaults?.set(encodedData, forKey: MarketData.string)
                 ExtensionDelegate.reloadComplications()
-                print("[MarketData] Market data updated and saved.")
                 completion?()
             } catch {
-                print("[MarketData] Encoding error: \(error.localizedDescription)")
                 completion?()
             }
         }
     }
 
     private static func reloadComplications() {
-        print("[Complications] Reloading complications.")
         let complicationServer = CLKComplicationServer.sharedInstance()
         complicationServer.activeComplications?.forEach { complication in
             complicationServer.reloadTimeline(for: complication)
         }
     }
-
-    // MARK: - Background Refresh
 
     func scheduleNextBackgroundRefresh() {
         let nextRefreshDate = Date().addingTimeInterval(refreshInterval)
@@ -198,32 +225,19 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
         }
     }
 
-    // MARK: - Background Task Handling
-
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
         print("[BackgroundTask] Handling background tasks.")
         for task in backgroundTasks {
             if let backgroundTask = task as? WKApplicationRefreshBackgroundTask {
-                print("[BackgroundTask] Handling application refresh task.")
-                handleApplicationRefreshBackgroundTask(backgroundTask)
+                scheduleNextBackgroundRefresh()
+                backgroundTask.setTaskCompletedWithSnapshot(false)
             } else {
-                print("[BackgroundTask] Task completed without snapshot.")
                 task.setTaskCompletedWithSnapshot(false)
             }
         }
     }
+}
 
-    private func handleApplicationRefreshBackgroundTask(_ backgroundTask: WKApplicationRefreshBackgroundTask) {
-        print("[BackgroundTask] Scheduling next background refresh.")
-        scheduleNextBackgroundRefresh()
-
-        guard let fiatUnit = fetchPreferredFiatUnit() else {
-            print("[BackgroundTask] Error: Failed to fetch fiat unit.")
-            backgroundTask.setTaskCompletedWithSnapshot(false)
-            return
-        }
-
-        updateMarketData(for: fiatUnit)
-        backgroundTask.setTaskCompletedWithSnapshot(false)
-    }
+extension Notification.Name {
+    static let didReceiveUpdateComplicationRequest = Notification.Name("didReceiveUpdateComplicationRequest")
 }
