@@ -28,8 +28,8 @@ import useMenuElements from '../hooks/useMenuElements';
 import { useSettings } from '../hooks/context/useSettings';
 import useWidgetCommunication from '../hooks/useWidgetCommunication';
 import useWatchConnectivity from '../hooks/useWatchConnectivity';
+import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
 
-const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 
 const ClipboardContentType = Object.freeze({
@@ -40,12 +40,13 @@ const ClipboardContentType = Object.freeze({
 const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
-  const { isHandOffUseEnabled, isQuickActionsEnabled } = useSettings();
+  const { isHandOffUseEnabled } = useSettings();
   const clipboardContent = useRef<undefined | string>();
 
   useWatchConnectivity();
   useWidgetCommunication();
   useMenuElements();
+  useDeviceQuickActions();
 
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
@@ -311,12 +312,7 @@ const CompanionDelegates = () => {
     };
   }, [addListeners]);
 
-  return (
-    <Suspense fallback={null}>
-      {isQuickActionsEnabled && <DeviceQuickActions />}
-      {isHandOffUseEnabled && <HandOffComponentListener />}
-    </Suspense>
-  );
+  return <Suspense fallback={null}>{isHandOffUseEnabled && <HandOffComponentListener />}</Suspense>;
 };
 
 export default CompanionDelegates;
