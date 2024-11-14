@@ -485,7 +485,7 @@ const CoinControl: React.FC = () => {
   }, []);
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
+    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} title={loc.cc.sort_by} />,
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
