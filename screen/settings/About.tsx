@@ -207,23 +207,19 @@ const About: React.FC = () => {
       <BlueTextCentered>
         w, h = {width}, {height}
       </BlueTextCentered>
-      {process.env.NODE_ENV !== 'development' && (
-        <>
-          <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
-          <View style={styles.copyToClipboard}>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={() => {
-                const stringToCopy = 'userId:' + getUniqueIdSync();
-                A.logError('copied unique id');
-                Clipboard.setString(stringToCopy);
-              }}
-            >
-              <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+      <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
+      <View style={styles.copyToClipboard}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={() => {
+            const stringToCopy = 'userId:' + getUniqueIdSync();
+            A.logError('copied unique id');
+            Clipboard.setString(stringToCopy);
+          }}
+        >
+          <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
+        </TouchableOpacity>
+      </View>
       <BlueSpacing20 />
       <BlueSpacing20 />
     </ScrollView>
