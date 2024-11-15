@@ -1,6 +1,6 @@
 import React from 'react';
 import DefaultPreference from 'react-native-default-preference';
-// @ts-ignore: react-native-handoff is not in the type definition
+// @ts-ignore: Handoff is not typed
 import Handoff from 'react-native-handoff';
 import { useSettings } from '../hooks/context/useSettings';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
@@ -9,32 +9,31 @@ import { HandOffComponentProps } from './types';
 
 const HandOffComponent: React.FC<HandOffComponentProps> = props => {
   const { isHandOffUseEnabled } = useSettings();
-
-  if (process.env.NODE_ENV === 'development') {
-    console.debug('HandOffComponent: render');
-  }
-  if (isHandOffUseEnabled) {
-    return <Handoff {...props} />;
-  }
-  return null;
+  console.debug('HandOffComponent is rendering.');
+  return isHandOffUseEnabled ? <Handoff {...props} /> : null;
 };
 
 const MemoizedHandOffComponent = React.memo(HandOffComponent);
 
 export const setIsHandOffUseEnabled = async (value: boolean) => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
-  console.debug('setIsHandOffUseEnabledAsyncStorage', value);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
+    console.debug('setIsHandOffUseEnabled', value);
+  } catch (error) {
+    console.error('Error setting handoff enabled status:', error);
+  }
 };
 
 export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const isEnabledValue = (await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY)) ?? false;
-    console.debug('getIsHandOffUseEnabled', isEnabledValue);
-    return isEnabledValue === 'true';
-  } catch (e) {
-    console.debug('getIsHandOffUseEnabled error', e);
+    const isEnabledValue = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
+    const result = isEnabledValue === 'true';
+    console.debug('getIsHandOffUseEnabled', result);
+    return result;
+  } catch (error) {
+    console.error('Error getting handoff enabled status:', error);
     return false;
   }
 };
