@@ -20,6 +20,8 @@ interface QRCodeComponentProps {
   onError?: () => void;
 }
 
+const BORDER_WIDTH = 6;
+
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
     iconValue: 'square.and.arrow.up',
@@ -62,7 +64,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   onError = () => {},
 }) => {
   const qrCode = useRef<any>();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
 
   const handleShareQRCode = () => {
     qrCode.current.toDataURL((data: string) => {
@@ -82,11 +84,17 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     }
   }, []);
 
+  // Adjust the size of the QR code to account for the border width
+  const newSize = dark ? size - BORDER_WIDTH * 2 : size;
+  const stylesHook = StyleSheet.create({
+    container: { borderWidth: dark ? BORDER_WIDTH : 0 },
+  });
+
   const renderQRCode = (
     <QRCode
       value={value}
       {...(isLogoRendered ? { logo: require('../img/qr-code.png') } : {})}
-      size={size}
+      size={newSize}
       logoSize={logoSize}
       color="#000000"
       logoBackgroundColor={colors.brandingColor}
@@ -99,7 +107,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 
   return (
     <View
-      style={styles.qrCodeContainer}
+      style={[styles.container, stylesHook.container]}
       testID="BitcoinAddressQRCodeContainer"
       accessibilityIgnoresInvertColors
       importantForAccessibility="no-hide-descendants"
@@ -120,5 +128,5 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
+  container: { borderRadius: 8, borderColor: '#FFFFFF' },
 });
