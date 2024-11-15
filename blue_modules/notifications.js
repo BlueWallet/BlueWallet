@@ -185,7 +185,6 @@ export const setLevels = async levelAll => {
 
     if (!levelAll) {
       console.debug('Disabling notifications and abandoning permissions...');
-      PushNotification.abandonPermissions();
       PushNotification.removeAllDeliveredNotifications();
       await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true'); // Mark as disabled by user
       await AsyncStorage.removeItem(PUSH_TOKEN);
