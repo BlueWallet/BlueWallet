@@ -13,8 +13,8 @@ interface UserActivityData {
   };
 }
 
-const { EventEmitter } = NativeModules;
-const eventEmitter = new NativeEventEmitter(EventEmitter);
+const EventEmitter = NativeModules.EventEmitter;
+const eventEmitter = EventEmitter ? new NativeEventEmitter(EventEmitter) : null;
 
 const useHandoffListener = () => {
   const { walletsInitialized } = useStorage();
