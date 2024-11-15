@@ -197,7 +197,7 @@ const ImportWalletDiscovery: React.FC = () => {
         ) : (
           <>
             <BlueText style={styles.center}>{loc.wallets.import_discovery_no_wallets}</BlueText>
-            <BlueSpacing20 />{' '}
+            <BlueSpacing20 />
           </>
         )}
       </View>
