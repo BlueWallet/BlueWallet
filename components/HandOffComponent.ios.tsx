@@ -22,6 +22,7 @@ export const setIsHandOffUseEnabled = async (value: boolean) => {
     console.debug('setIsHandOffUseEnabled', value);
   } catch (error) {
     console.error('Error setting handoff enabled status:', error);
+    throw error; // Propagate error to caller
   }
 };
 
