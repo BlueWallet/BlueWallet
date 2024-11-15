@@ -24,19 +24,22 @@ const useHandoffListener = () => {
   const handleUserActivity = useCallback(
     (data: UserActivityData) => {
       const { activityType, userInfo } = data;
-
-      if (activityType === HandOffActivityType.ReceiveOnchain) {
-        navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: { address: userInfo.address },
-        });
-      } else if (activityType === HandOffActivityType.Xpub) {
-        navigate('WalletXpubRoot', {
-          screen: 'WalletXpub',
-          params: { xpub: userInfo.xpub },
-        });
-      } else {
-        console.debug(`Unhandled activity type: ${activityType}`);
+      try {
+        if (activityType === HandOffActivityType.ReceiveOnchain) {
+          navigate('ReceiveDetailsRoot', {
+            screen: 'ReceiveDetails',
+            params: { address: userInfo.address },
+          });
+        } else if (activityType === HandOffActivityType.Xpub) {
+          navigate('WalletXpubRoot', {
+            screen: 'WalletXpub',
+            params: { xpub: userInfo.xpub },
+          });
+        } else {
+          console.debug(`Unhandled activity type: ${activityType}`);
+        }
+      } catch (error) {
+        console.error('Error handling user activity:', error);
       }
     },
     [navigate],
@@ -45,14 +48,14 @@ const useHandoffListener = () => {
   useEffect(() => {
     if (!walletsInitialized || !isHandOffUseEnabled) return;
 
-    const activitySubscription = eventEmitter.addListener('onUserActivityOpen', handleUserActivity);
+    const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', handleUserActivity);
 
     EventEmitter.getMostRecentUserActivity?.()
       .then(handleUserActivity)
       .catch(() => console.debug('No userActivity object sent'));
 
     return () => {
-      activitySubscription.remove();
+      activitySubscription?.remove();
     };
   }, [walletsInitialized, isHandOffUseEnabled, handleUserActivity]);
 };

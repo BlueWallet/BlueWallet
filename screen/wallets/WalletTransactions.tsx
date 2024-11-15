@@ -499,9 +499,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         )}
       </FContainer>
       {wallet?.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub() ? (
-        <Button
-          onPress={() => navigation.navigate('WalletXpub', { walletID: wallet.getID(), xpub: wallet.getXpub() })}
-          title={loc.wallets.view_xpub}
+        <HandOffComponent
+          title={wallet.getLabel()}
+          type={HandOffActivityType.Xpub}
+          url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
         />
       ) : null}
     </View>
