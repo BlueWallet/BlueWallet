@@ -185,9 +185,12 @@ export const setLevels = async levelAll => {
 
     if (!levelAll) {
       console.debug('Disabling notifications and abandoning permissions...');
-      PushNotification.removeAllDeliveredNotifications();
-      await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true'); // Mark as disabled by user
-      await AsyncStorage.removeItem(PUSH_TOKEN);
+      await Promise.all([
+        new Promise(resolve => PushNotification.abandonPermissions(resolve)),
+        new Promise(resolve => PushNotification.removeAllDeliveredNotifications(resolve)),
+        AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true'),
+        AsyncStorage.removeItem(PUSH_TOKEN),
+      ]);
       console.debug('Notifications disabled successfully');
     } else {
       await AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG); // Clear flag when enabling
@@ -271,11 +274,13 @@ export const configureNotifications = async onProcessNotifications => {
             },
             onNotification: async notification => {
               // Deep clone to avoid modifying the original notification
-              const payload = JSON.parse(JSON.stringify({
-                ...notification,
-                ...notification.data
-              }));
-              
+              const payload = JSON.parse(
+                JSON.stringify({
+                  ...notification,
+                  ...notification.data,
+                }),
+              );
+
               if (notification.data?.data) {
                 // Validate data before merging
                 const validData = {};
@@ -287,13 +292,13 @@ export const configureNotifications = async onProcessNotifications => {
                 Object.assign(payload, validData);
               }
               payload.data = undefined;
-              
+
               // Ensure required fields exist
               if (!payload.title && !payload.message) {
                 console.warn('Notification missing required fields:', payload);
                 return;
               }
-              
+
               console.debug('Received Push Notification Payload:', payload);
 
               await addNotification(payload);
