@@ -11,12 +11,11 @@ export interface Action {
   menuState?: 'mixed' | boolean | undefined;
   displayInline?: boolean; // Indicates if subactions should be displayed inline or nested (iOS only)
   image?: string;
-  keepsMenuPresented?: boolean;
   imageColor?: ColorValue;
   destructive?: boolean;
   hidden?: boolean;
   disabled?: boolean;
-  subactions?: Action[];
+  subactions?: Action[]; // Nested/Inline actions (subactions) within an action
 }
 
 export interface ToolTipMenuProps {
