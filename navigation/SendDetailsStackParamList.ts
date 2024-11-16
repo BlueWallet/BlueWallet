@@ -2,6 +2,14 @@ import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
+export interface IPaymentDestinations {
+  address: string; // btc address or payment code
+  amountSats?: number | string;
+  amount?: string | number | 'MAX';
+  key: string; // random id to look up this record
+  unit: BitcoinUnit; // new unit field
+}
+
 export type SendDetailsParams = {
   transactionMemo?: string;
   isTransactionReplaceable?: boolean;
@@ -19,9 +27,11 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
+  addresses?: IPaymentDestinations[];
   addRecipientParams?: {
     address: string;
     amount?: number;
+    amountSats?: number;
     memo?: string;
   };
 };
