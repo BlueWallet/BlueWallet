@@ -274,12 +274,10 @@ export const configureNotifications = async onProcessNotifications => {
             },
             onNotification: async notification => {
               // Deep clone to avoid modifying the original notification
-              const payload = JSON.parse(
-                JSON.stringify({
-                  ...notification,
-                  ...notification.data,
-                }),
-              );
+              const payload = structuredClone({
+                ...notification,
+                ...notification.data,
+              });
 
               if (notification.data?.data) {
                 // Validate data before merging
