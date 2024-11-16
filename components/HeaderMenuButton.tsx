@@ -9,9 +9,10 @@ interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
   actions?: Action[] | Action[][];
   disabled?: boolean;
+  title?: string;
 }
 
-const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, actions, disabled }) => {
+const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, actions, disabled, title }) => {
   const { colors } = useTheme();
   const styleProps = Platform.OS === 'android' ? { iconStyle: { transform: [{ rotate: '90deg' }] } } : {};
 
@@ -38,6 +39,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       isMenuPrimaryAction
       onPressMenuItem={onPressMenuItem}
       actions={menuActions}
+      title={title}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
     </ToolTipMenu>
