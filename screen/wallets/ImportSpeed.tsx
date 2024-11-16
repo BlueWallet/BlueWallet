@@ -13,7 +13,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportSpeed'>;
 
-const WalletsImportWallet = () => {
+const ImportSpeed = () => {
   const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const [loading, setLoading] = useState<boolean>(false);
@@ -102,4 +102,4 @@ const WalletsImportWallet = () => {
   );
 };
 
-export default WalletsImportWallet;
+export default ImportSpeed;
