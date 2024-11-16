@@ -54,13 +54,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
         subtitle: subaction.subtitle,
         image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
         state: subaction.menuState === undefined ? undefined : ((subaction.menuState ? 'on' : 'off') as MenuState),
-        attributes: {
-          disabled: subaction.disabled,
-          destructive: subaction.destructive,
-          hidden: subaction.hidden,
-        },
-        subactions: subaction.subactions ? subaction.subactions.map(mapMenuItemForMenuView).filter(Boolean) : undefined,
-        displayInline: subaction.displayInline || false,
+        attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
       })) || [];
 
     return {
@@ -69,12 +63,8 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
       subtitle: action.subtitle,
       image: action.icon?.iconValue ? action.icon.iconValue : undefined,
       state: action.menuState === undefined ? undefined : ((action.menuState ? 'on' : 'off') as MenuState),
-      attributes: {
-        disabled: action.disabled,
-        destructive: action.destructive,
-        hidden: action.hidden,
-      },
-      subactions: subactions.length > 0 ? (subactions.filter(Boolean) as MenuAction[]) : undefined,
+      attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
+      subactions: subactions.length > 0 ? subactions : undefined,
       displayInline: action.displayInline || false,
     };
   }, []);
@@ -96,7 +86,6 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
               .map(mapMenuItemForMenuView)
               .filter(item => item !== null) as MenuAction[],
             displayInline: true,
-            keepsMenuPresented: true,
           };
         } else if (!Array.isArray(actionGroup) && actionGroup.id) {
           return mapMenuItemForMenuView(actionGroup);
