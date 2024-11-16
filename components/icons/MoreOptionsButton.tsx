@@ -25,14 +25,18 @@ const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
   return (
     <ToolTipMenu
       onPressMenuItem={onPressMenuItem}
+      onPress={onPress}
       actions={actions}
       isMenuPrimaryAction={isMenuPrimaryAction}
       testID={testID}
-      
     >
       <Icon
-      containerStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
-      size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+        containerStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
+        size={22}
+        name="more-horiz"
+        type="material"
+        color={colors.foregroundColor}
+      />
     </ToolTipMenu>
   );
 };
