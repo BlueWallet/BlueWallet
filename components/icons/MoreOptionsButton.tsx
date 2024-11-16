@@ -4,6 +4,7 @@ import { Icon } from '@rneui/themed';
 import { useTheme } from '../themes';
 import ToolTipMenu from '../TooltipMenu';
 import { Action } from '../types';
+import { TouchableOpacityWrapper } from '../ListItem';
 
 interface MoreOptionsButtonProps {
   onPressMenuItem: (id: string) => void;
@@ -11,6 +12,7 @@ interface MoreOptionsButtonProps {
   actions: Action[] | Action[][];
   testID?: string;
   isMenuPrimaryAction: boolean;
+  disabled?: boolean;
 }
 
 const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
@@ -19,6 +21,7 @@ const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
   actions,
   testID = 'MoreOptionsButton',
   isMenuPrimaryAction = false,
+  disabled,
 }) => {
   const { colors } = useTheme();
 
@@ -26,11 +29,14 @@ const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
     <ToolTipMenu
       onPressMenuItem={onPressMenuItem}
       onPress={onPress}
+      disabled={disabled}
       actions={actions}
       isMenuPrimaryAction={isMenuPrimaryAction}
       testID={testID}
     >
       <Icon
+        onPress={onPress}
+        Component={TouchableOpacityWrapper}
         containerStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         size={22}
         name="more-horiz"
