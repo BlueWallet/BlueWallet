@@ -207,15 +207,15 @@ const CompanionDelegates = () => {
           } catch (error) {
             console.error('Error detecting QR code:', error);
           }
+        } else {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+            wallets,
+            addWallet,
+            saveToDisk,
+            setSharedCosigner,
+          });
         }
-      } else {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
-          wallets,
-          addWallet,
-          saveToDisk,
-          setSharedCosigner,
-        });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner],
