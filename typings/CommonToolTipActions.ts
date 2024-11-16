@@ -317,7 +317,7 @@ export const CommonToolTipActions = {
   Reset: {
     id: keys.Reset,
     text: loc.receive.reset,
-    Icon: icons.Reset,
+    icon: icons.Reset,
   },
   ClearHistory: {
     id: keys.ClearHistory,
