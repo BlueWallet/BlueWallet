@@ -320,7 +320,8 @@
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
     "notifications_subtitle": "Pagos entrantes y confirmaciones de transacciones",
     "no_and_dont_ask": "No, y no me vuelvas a preguntar.",
-    "ask_me_later": "Pregúntame Luego."
+    "ask_me_later": "Pregúntame Luego.",
+    "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
   "transactions": {
     "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF—Replace by Fee.",
@@ -447,6 +448,7 @@
     "import_discovery_subtitle": "Elige una billetera descubierta",
     "import_discovery_derivation": "Utilizar una ruta de derivación personalizada",
     "import_discovery_no_wallets": "No se encontraron billeteras.",
+    "import_discovery_offline": "BlueWallet se encuentra actualmente en modo sin conexión. En este modo, no puede verificar la existencia de la billetera, por lo que deberás seleccionar la correcta manualmente.",
     "import_derivation_found": "Encontrado",
     "import_derivation_found_not": "No se ha encontrado",
     "import_derivation_loading": "Cargando...",

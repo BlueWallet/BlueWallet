@@ -457,13 +457,15 @@ const CoinControl: React.FC = () => {
     }
   }, [output]);
 
-  const toolTipActions = useMemo((): Action[] => {
+  const toolTipActions = useMemo((): Action[] | Action[][] => {
     return [
-      sortDirection === ESortDirections.asc ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC,
-      { ...CommonToolTipActions.SortHeight, menuState: sortType === ESortTypes.height },
-      { ...CommonToolTipActions.SortValue, menuState: sortType === ESortTypes.value },
-      { ...CommonToolTipActions.SortLabel, menuState: sortType === ESortTypes.label },
-      { ...CommonToolTipActions.SortStatus, menuState: sortType === ESortTypes.frozen },
+      [sortDirection === ESortDirections.asc ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
+      [
+        { ...CommonToolTipActions.SortHeight, menuState: sortType === ESortTypes.height },
+        { ...CommonToolTipActions.SortValue, menuState: sortType === ESortTypes.value },
+        { ...CommonToolTipActions.SortLabel, menuState: sortType === ESortTypes.label },
+        { ...CommonToolTipActions.SortStatus, menuState: sortType === ESortTypes.frozen },
+      ],
     ];
   }, [sortDirection, sortType]);
 
@@ -485,7 +487,7 @@ const CoinControl: React.FC = () => {
   }, []);
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
+    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} title={loc.cc.sort_by} />,
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
