@@ -698,13 +698,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('DoImport')).tap();
     await sleep(1000);
     await element(by.text('OK')).tap();
-    await waitFor(element(by.id('Loading'))) // wait for discovery to be completed
-      .not.toExist()
-      .withTimeout(300 * 1000);
 
+    // wait for discovery to be completed
+    await waitFor(element(by.text("m/84'/0'/0'")))
+      .toBeVisible()
+      .withTimeout(300 * 1000);
     await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
     await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
-    await expect(element(by.text("m/84'/0'/0'"))).toBeVisible();
+    await expect(element(by.id('Loading'))).not.toBeVisible();
 
     // open custom derivation path screen and import the wallet
     await element(by.id('CustomDerivationPathButton')).tap();
