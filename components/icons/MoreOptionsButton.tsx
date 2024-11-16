@@ -49,6 +49,6 @@ const style = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
-    alignContent: 'center',
+    alignItems: 'center',
   },
 });
