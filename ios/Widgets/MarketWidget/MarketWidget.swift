@@ -60,7 +60,7 @@ struct MarketWidgetProvider: TimelineProvider {
 
 struct MarketWidgetEntry: TimelineEntry {
   let date: Date
-  let marketData: MarketData
+  var marketData: MarketData
 }
 
 struct MarketWidgetEntryView : View {

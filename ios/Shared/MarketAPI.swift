@@ -53,7 +53,16 @@ class MarketAPI {
                let lastUpdated = rateDict["timestamp"] as? Int {
                 let unix = Double(lastUpdated / 1_000)
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: String(rateDouble),
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -65,13 +74,31 @@ class MarketAPI {
             }
             let unix = Double(lastUpdated / 1_000)
             let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-            latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+            
+            var marketData = MarketData(
+                nextBlock: "...", // Populate with appropriate value
+                sats: "...",       // Populate with appropriate value
+                price: String(rateDouble),
+                rate: rateDouble
+            )
+            marketData.dateString = lastUpdatedString
+            
+            latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
             return latestRateDataStore
         case "CoinGecko":
             if let bitcoinDict = json["bitcoin"] as? [String: Any],
                let rateDouble = bitcoinDict[endPointKey.lowercased()] as? Double {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: String(rateDouble),
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -79,7 +106,16 @@ class MarketAPI {
         case "Exir":
             if let rateDouble = json["last"] as? Double {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: String(rateDouble),
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -87,7 +123,16 @@ class MarketAPI {
         case "Bitstamp":
             if let rateString = json["last"] as? String, let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: rateString,
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -98,7 +143,16 @@ class MarketAPI {
                let rateDouble = currencyDict["price"] as? Double {
                 let rateString = String(rateDouble)
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: rateString,
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -108,7 +162,16 @@ class MarketAPI {
                let rateString = data["amount"] as? String,
                let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: rateString,
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
@@ -122,7 +185,16 @@ class MarketAPI {
                let rateString = c.first,
                let rateDouble = Double(rateString) {
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: rateString,
+                    rate: rateDouble
+                )
+                marketData.dateString = lastUpdatedString
+                
+                latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 if let errorMessage = json["error"] as? [String] {
@@ -148,7 +220,16 @@ class MarketAPI {
                let btcToUsdRate = bitcoinDict["usd"] {
                 let btcToRonRate = btcToUsdRate * usdToRonRate
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                let latestRateDataStore = WidgetDataStore(rate: String(btcToRonRate), lastUpdate: lastUpdatedString, rateDouble: btcToRonRate)
+                
+                var marketData = MarketData(
+                    nextBlock: "...", // Populate with appropriate value
+                    sats: "...",       // Populate with appropriate value
+                    price: String(btcToRonRate),
+                    rate: btcToRonRate
+                )
+                marketData.dateString = lastUpdatedString
+                
+                let latestRateDataStore = WidgetDataStore(fromMarketData: marketData)
                 return latestRateDataStore
             } else {
                 throw CurrencyError()

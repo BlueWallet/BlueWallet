@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import {
   transferCurrentComplicationUserInfo,
   transferUserInfo,
+  updateApplicationContext,
   useInstalled,
   usePaired,
   useReachability,
@@ -61,7 +62,7 @@ export function useWatchConnectivity() {
 
     const contextPayload = createContextPayload();
     try {
-      transferUserInfo(contextPayload);
+      updateApplicationContext(contextPayload);
       console.debug('Transferred user info:', contextPayload);
     } catch (error) {
       console.error('Failed to transfer user info:', error);
@@ -131,7 +132,7 @@ export function useWatchConnectivity() {
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress,
-            transactions: JSON.stringify(transactions),
+            transactions,
             hideBalance: wallet.hideBalance ? 1 : 0,
             ...(wallet.chain === Chain.ONCHAIN &&
               wallet.type !== MultisigHDWallet.type && {
@@ -161,7 +162,7 @@ export function useWatchConnectivity() {
       .map(result => (result as PromiseFulfilledResult<any>).value);
 
     console.debug('Constructed wallets to process for Apple Watch:', processedWallets);
-    return { wallets: JSON.stringify(processedWallets), randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
+    return { wallets: processedWallets, randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
 
   const handleMessages = useCallback(
@@ -178,7 +179,7 @@ export function useWatchConnectivity() {
         } else if (message.message === 'sendApplicationContext') {
           const walletsToProcess = await constructWalletsToSendToWatch();
           if (walletsToProcess) {
-            transferUserInfo(walletsToProcess);  // Updated to transferUserInfo
+            updateApplicationContext(walletsToProcess);  // Updated to transferUserInfo
             console.debug('Transferred user info on request:', walletsToProcess);
           }
         } else if (message.message === 'fetchTransactions') {
@@ -205,7 +206,7 @@ export function useWatchConnectivity() {
       try {
         const walletsToProcess = await constructWalletsToSendToWatch();
         if (walletsToProcess) {
-          transferUserInfo(walletsToProcess);
+          updateApplicationContext(walletsToProcess);
           console.debug('Apple Watch: sent wallet data via transferUserInfo', walletsToProcess);
         }
       } catch (error) {
