@@ -370,7 +370,8 @@ const ManageWallets: React.FC = () => {
           const sortedWalletsByMostRecent = state.tempOrder
             .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
             .sort((a, b) => {
-              return b.data.getTransactions()[0]?.time - a.data.getTransactions()[0]?.time;
+              const getMostRecentTime = (wallet: TWallet) => wallet.getTransactions()[0]?.time ?? 0;
+              return getMostRecentTime(b.data) - getMostRecentTime(a.data);
             });
           dispatch({ type: SET_TEMP_ORDER, payload: sortedWalletsByMostRecent });
           break;
