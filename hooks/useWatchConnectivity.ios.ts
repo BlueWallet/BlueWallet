@@ -157,7 +157,10 @@ export function useWatchConnectivity() {
       .filter(result => result.status === 'fulfilled' && result.value !== null)
       .map(result => (result as PromiseFulfilledResult<any>).value);
 
-    console.debug('Constructed wallets to process for Apple Watch:', processedWallets);
+    console.debug('Constructed wallets to process for Apple Watch:', {
+      walletCount: processedWallets.length,
+      walletLabels: processedWallets.map(wallet => wallet.label),
+    });
     return { wallets: processedWallets, randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
 
