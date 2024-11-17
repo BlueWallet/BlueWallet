@@ -148,7 +148,6 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
         if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String {
             // Handle preferred fiat currency update.
             groupUserDefaults?.set(preferredFiatCurrency, forKey: "preferredCurrency")
-            groupUserDefaults?.synchronize()
             
             // Fetch and update market data based on the new preferred currency.
             updateMarketData(for: preferredFiatCurrency)
