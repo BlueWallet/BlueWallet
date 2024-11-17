@@ -1,6 +1,7 @@
 // BlueWalletApp.swift
 
 import SwiftUI
+import os.log
 
 @main
 struct BlueWalletApp: App {
