@@ -1,152 +1,155 @@
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 3/23/23.
-//  Copyright © 2023 BlueWallet. All rights reserved.
-
 import Foundation
+import Network
 
-/**
- `SwiftTCPClient` is a simple TCP client class that allows for establishing a TCP connection,
- sending data, and receiving data over the network. It supports both plain TCP and SSL-secured connections.
-
- The class uses `InputStream` and `OutputStream` for network communication, encapsulating the complexity of stream management and data transfer.
-
- - Note: When using SSL, this implementation disables certificate chain validation for simplicity. This is not recommended for production code due to security risks.
-
- ## Examples
-
- ### Creating an instance and connecting to a server:
-
- ```swift
- let client = SwiftTCPClient()
- let success = client.connect(to: "example.com", port: 12345, useSSL: false)
-
- if success {
-     print("Connected successfully.")
- } else {
-     print("Failed to connect.")
- }
-**/
-
-class SwiftTCPClient: NSObject {
-    private var inputStream: InputStream?
-    private var outputStream: OutputStream?
-    private let bufferSize = 1024
-    private var readData = Data()
-    private let readTimeout = 5.0 // Timeout in seconds
-
-     func connect(to host: String, port: UInt32, useSSL: Bool = false) -> Bool {
-        var readStream: Unmanaged<CFReadStream>?
-        var writeStream: Unmanaged<CFWriteStream>?
-
-        CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, host as CFString, port, &readStream, &writeStream)
-
-        guard let read = readStream?.takeRetainedValue(), let write = writeStream?.takeRetainedValue() else {
-            return false
+enum SwiftTCPClientError: Error, LocalizedError {
+    case connectionNil
+    case connectionCancelled
+    case readTimedOut
+    case noDataReceived
+    case unknown(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .connectionNil:
+            return "Connection is nil."
+        case .connectionCancelled:
+            return "Connection was cancelled."
+        case .readTimedOut:
+            return "Read timed out."
+        case .noDataReceived:
+            return "No data received."
+        case .unknown(let error):
+            return error.localizedDescription
         }
+    }
+}
 
-        inputStream = read as InputStream
-        outputStream = write as OutputStream
+class SwiftTCPClient {
+    private var connection: NWConnection?
+    private let queue = DispatchQueue(label: "SwiftTCPClientQueue")
+    private let readTimeout: TimeInterval = 5.0
 
+    func connect(to host: String, port: UInt16, useSSL: Bool = false) async -> Bool {
+        let parameters: NWParameters
         if useSSL {
-            // Configure SSL settings for the streams
-            let sslSettings: [NSString: Any] = [
-                kCFStreamSSLLevel as NSString: kCFStreamSocketSecurityLevelNegotiatedSSL as Any,
-                kCFStreamSSLValidatesCertificateChain as NSString: kCFBooleanFalse as Any
-                // Note: Disabling certificate chain validation (kCFStreamSSLValidatesCertificateChain: kCFBooleanFalse)
-                // is typically not recommended for production code as it introduces significant security risks.
-            ]
-            inputStream?.setProperty(sslSettings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
-            outputStream?.setProperty(sslSettings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+            parameters = NWParameters(tls: createTLSOptions(), tcp: .init())
+        } else {
+            parameters = NWParameters.tcp
         }
 
-        inputStream?.delegate = self
-        outputStream?.delegate = self
+        connection = NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port)!, using: parameters)
+        connection?.start(queue: queue)
 
-        inputStream?.schedule(in: .current, forMode: RunLoop.Mode.default)
-        outputStream?.schedule(in: .current, forMode: RunLoop.Mode.default)
+        let serialQueue = DispatchQueue(label: "SwiftTCPClient.connect.serialQueue")
+        var hasResumed = false
 
-        inputStream?.open()
-        outputStream?.open()
-
-        return true
-    }
-    
-
-    func send(data: Data) -> Bool {
-        guard let outputStream = outputStream else {
-            return false
-        }
-
-        let bytesWritten = data.withUnsafeBytes { bufferPointer -> Int in
-            guard let baseAddress = bufferPointer.baseAddress else {
-                return 0
-            }
-            return outputStream.write(baseAddress.assumingMemoryBound(to: UInt8.self), maxLength: data.count)
-        }
-
-        return bytesWritten == data.count
-    }
-
-    func receive() throws -> Data {
-    guard let inputStream = inputStream else {
-        throw NSError(domain: "SwiftTCPClientError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Input stream is nil."])
-    }
-    
-    // Check if the input stream is ready for reading
-    if inputStream.streamStatus != .open && inputStream.streamStatus != .reading {
-        throw NSError(domain: "SwiftTCPClientError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Stream is not ready for reading."])
-    }
-
-    readData = Data()
-
-    // Wait for data to be available or timeout
-    let timeoutDate = Date().addingTimeInterval(readTimeout)
-    repeat {
-        RunLoop.current.run(mode: RunLoop.Mode.default, before: Date(timeIntervalSinceNow: 0.1))
-        if readData.count > 0 || Date() > timeoutDate {
-            break
-        }
-    } while inputStream.streamStatus == .open || inputStream.streamStatus == .reading
-
-    if readData.count == 0 && Date() > timeoutDate {
-        throw NSError(domain: "SwiftTCPClientError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Read timed out."])
-    }
-
-    return readData
-}
-
-
-    func close() {
-        inputStream?.close()
-        outputStream?.close()
-        inputStream?.remove(from: .current, forMode: RunLoop.Mode.default)
-        outputStream?.remove(from: .current, forMode: RunLoop.Mode.default)
-        inputStream = nil
-        outputStream = nil
-    }
-}
-
-extension SwiftTCPClient: StreamDelegate {
-    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        switch eventCode {
-        case .hasBytesAvailable:
-            if aStream == inputStream, let inputStream = inputStream {
-                let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-                while inputStream.hasBytesAvailable {
-                    let bytesRead = inputStream.read(buffer, maxLength: bufferSize)
-                    if bytesRead > 0 {
-                        readData.append(buffer, count: bytesRead)
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                connection?.stateUpdateHandler = { [weak self] state in
+                    guard let self = self else { return }
+                    serialQueue.async {
+                        if !hasResumed {
+                            switch state {
+                            case .ready:
+                                self.connection?.stateUpdateHandler = nil
+                                hasResumed = true
+                                continuation.resume()
+                            case .failed(let error):
+                                self.connection?.stateUpdateHandler = nil
+                                hasResumed = true
+                                continuation.resume(throwing: error)
+                            case .cancelled:
+                                self.connection?.stateUpdateHandler = nil
+                                hasResumed = true
+                                continuation.resume(throwing: SwiftTCPClientError.connectionCancelled)
+                            default:
+                                break
+                            }
+                        }
                     }
                 }
-                buffer.deallocate()
             }
-        case .errorOccurred:
-            print("Stream error occurred")
-        case .endEncountered:
-            close()
-        default:
-            break
+            return true
+        } catch {
+            print("Connection failed with error: \(error.localizedDescription)")
+            return false
         }
+    }
+
+    func send(data: Data) async -> Bool {
+        guard let connection = connection else {
+            print("Send failed: No active connection.")
+            return false
+        }
+        
+        do {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                connection.send(content: data, completion: .contentProcessed { error in
+                    if let error = error {
+                        print("Send error: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                })
+            }
+            return true
+        } catch {
+            print("Send failed with error: \(error.localizedDescription)")
+            return false
+        }
+    }
+
+    func receive() async throws -> Data {
+        guard let connection = connection else {
+            throw SwiftTCPClientError.connectionNil
+        }
+
+        return try await withThrowingTaskGroup(of: Data.self) { group in
+            group.addTask {
+                return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Error>) in
+                    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { data, _, isComplete, error in
+                        if let error = error {
+                            continuation.resume(throwing: SwiftTCPClientError.unknown(error))
+                            return
+                        }
+
+                        if let data = data, !data.isEmpty {
+                            continuation.resume(returning: data)
+                        } else if isComplete {
+                            self.close()
+                            continuation.resume(throwing: SwiftTCPClientError.noDataReceived)
+                        } else {
+                            continuation.resume(throwing: SwiftTCPClientError.readTimedOut)
+                        }
+                    }
+                }
+            }
+            
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(self.readTimeout * 1_000_000_000))
+                throw SwiftTCPClientError.readTimedOut
+            }
+            
+            if let firstResult = try await group.next() {
+                group.cancelAll()
+                return firstResult
+            } else {
+                throw SwiftTCPClientError.readTimedOut
+            }
+        }
+    }
+
+    func close() {
+        connection?.cancel()
+        connection = nil
+    }
+
+    private func createTLSOptions() -> NWProtocolTLS.Options {
+        let tlsOptions = NWProtocolTLS.Options()
+        sec_protocol_options_set_verify_block(tlsOptions.securityProtocolOptions, { _, _, completion in
+            completion(true)
+        }, DispatchQueue.global(qos: .background))
+        return tlsOptions
     }
 }
