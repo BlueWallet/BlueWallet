@@ -8,7 +8,7 @@ git_url(ENV["GIT_URL"])
 # 'development' for development builds, and 'enterprise' for In-House (enterprise) distribution.
 type("appstore")
 
-app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]) # Replace with your app identifiers
+app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget", "io.bluewallet.bluewallet.watch.Complications"]) # Replace with your app identifiers
 
 # List of app identifiers to create provisioning profiles for.
 # Replace with your app's bundle identifier(s).
