@@ -200,10 +200,12 @@ export function useWatchConnectivity() {
     async (message: Message, reply: Reply) => {
       console.debug('Received message from Apple Watch:', message);
       try {
-        if (message.request === 'createInvoice') {
+        if (message.request === 'createInvoice' && 
+            typeof message.walletIndex === 'number' && 
+            typeof message.amount === 'number') {
           const createInvoiceRequest = await handleLightningInvoiceCreateRequest({
-            walletIndex: message.walletIndex!,
-            amount: message.amount!,
+            walletIndex: message.walletIndex,
+            amount: message.amount,
             description: message.description,
           });
           reply({ invoicePaymentRequest: createInvoiceRequest });
