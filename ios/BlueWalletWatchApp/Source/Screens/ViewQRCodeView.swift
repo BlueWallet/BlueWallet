@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct ViewQRCodeView: View {
+    /// Displays a QR code with the provided content in both normal and fullscreen modes.
+    /// Supports swipeable tabs between QR code and text representation.
     var content: String
-    private let qrCodeGenerator = QRCodeGenerator() // QR Code generator
+    private let qrCodeGenerator = QRCodeGenerator()
+    @State private var qrCodeError: Error?
     @State private var isFullscreen: Bool = false // State to manage fullscreen mode
 
     var body: some View {
