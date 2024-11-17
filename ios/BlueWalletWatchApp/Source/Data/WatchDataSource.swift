@@ -226,17 +226,30 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     /// Fetches market data based on the preferred fiat currency.
     /// - Parameter fiatCurrency: The preferred fiat currency string.
     private func updateMarketData(for fiatCurrency: String) {
-        // Assuming `FiatUnit` is a valid type and `MarketAPI` is properly defined.
+        guard !fiatCurrency.isEmpty else {
+            print("Invalid fiat currency provided")
+            return
+        }
+
         MarketAPI.fetchPrice(currency: fiatCurrency) { [weak self] (marketData, error) in
             guard let self = self else { return }
-            if let marketData = marketData as? MarketData {
+            if let error = error {
+                print("Failed to fetch market data: \(error.localizedDescription)")
+                // Consider implementing retry logic or fallback mechanism
+                return
+            }
+            
+            guard let marketData = marketData as? MarketData else {
+                print("Invalid market data format received")
+                return
+            }
+            
+            do {
                 let widgetData = WidgetDataStore(fromMarketData: marketData)
                 self.groupUserDefaults?.set(widgetData, forKey: MarketData.string)
-                
-                // Optionally, notify other components or update additional @Published properties.
                 print("Market data updated for currency: \(fiatCurrency)")
-            } else if let error = error {
-                print("Failed to fetch market data: \(error.localizedDescription)")
+            } catch {
+                print("Failed to process market data: \(error.localizedDescription)")
             }
         }
     }
