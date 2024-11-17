@@ -230,7 +230,6 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             if let marketData = marketData as? MarketData {
                 let widgetData = WidgetDataStore(fromMarketData: marketData)
                 self.groupUserDefaults?.set(widgetData, forKey: MarketData.string)
-                self.groupUserDefaults?.synchronize()
                 
                 // Optionally, notify other components or update additional @Published properties.
                 print("Market data updated for currency: \(fiatCurrency)")
