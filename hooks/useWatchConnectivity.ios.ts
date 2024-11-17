@@ -161,38 +161,41 @@ export function useWatchConnectivity() {
     return { wallets: processedWallets, randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
 
-  const determineTransactionType = (transaction: Transaction & LightningTransaction): string => {
-    if ((transaction as Transaction).confirmations! < 3) {
-      return 'pending_transaction';
-    }
+const determineTransactionType = (transaction: Transaction & LightningTransaction): string => {
+  const confirmations = (transaction as Transaction).confirmations ?? 0;
+  if (confirmations < 3) {
+    return 'pending_transaction';
+  }
 
-    if (transaction.type === 'bitcoind_tx') {
-      return 'onchain';
-    }
+  if (transaction.type === 'bitcoind_tx') {
+    return 'onchain';
+  }
 
-    if (transaction.type === 'paid_invoice') {
-      return 'offchain';
-    }
+  if (transaction.type === 'paid_invoice') {
+    return 'offchain';
+  }
 
-    if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = Math.floor(currentDate.getTime() / 1000);
-      const invoiceExpiration = transaction.timestamp! + transaction.expire_time!;
-      if (!transaction.ispaid && invoiceExpiration < now) {
-        return 'expired_transaction';
-      } else {
-        return 'incoming_transaction';
-      }
-    }
-
-    if (!transaction.confirmations) {
-      return 'pending_transaction';
-    } else if (transaction.value! < 0) {
-      return 'outgoing_transaction';
+  if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
+    const currentDate = new Date();
+    const now = Math.floor(currentDate.getTime() / 1000);
+    const timestamp = transaction.timestamp ?? 0;
+    const expireTime = transaction.expire_time ?? 0;
+    const invoiceExpiration = timestamp + expireTime;
+    if (!transaction.ispaid && invoiceExpiration < now) {
+      return 'expired_transaction';
     } else {
       return 'incoming_transaction';
     }
-  };
+  }
+
+  if (confirmations === 0) {
+    return 'pending_transaction';
+  } else if ((transaction.value ?? 0) < 0) {
+    return 'outgoing_transaction';
+  } else {
+    return 'incoming_transaction';
+  }
+};
 
   const handleMessages = useCallback(
     async (message: Message, reply: Reply) => {
