@@ -14,6 +14,7 @@ import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import { isNotificationsEnabled, majorTomToGroundControl } from '../blue_modules/notifications';
+import { LightningTransaction, Transaction } from '../class/wallets/types';
 
 interface Message {
   request?: string;
@@ -32,13 +33,6 @@ interface LightningInvoiceCreateRequest {
   walletIndex: number;
   amount: number;
   description?: string;
-}
-
-interface Transaction {
-  type: string;
-  amount: string;
-  memo: string;
-  time: string;
 }
 
 export function useWatchConnectivity() {
@@ -118,11 +112,14 @@ export function useWatchConnectivity() {
           const transactions: Transaction[] = wallet
             .getTransactions()
             .slice(0, 10)
-            .map((transaction: any) => ({
-              type: transaction.confirmations ? 'pendingConfirmation' : 'received',
-              amount: formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString(),
-              memo: txMetadata[transaction.hash]?.memo || transaction.memo || '',
-              time: transactionTimeToReadable(transaction.received),
+            .map((transaction: Transaction & LightningTransaction) => ({
+              type: determineTransactionType(transaction),
+              amount: formatBalance(transaction.value ?? 0, wallet.getPreferredBalanceUnit(), true).toString(),
+              memo:
+                'hash' in (transaction as Transaction)
+                  ? txMetadata[(transaction as Transaction).hash]?.memo || transaction.memo || ''
+                  : transaction.memo || '',
+              time: transactionTimeToReadable(transaction.received ? transaction.received : ''),
             }));
 
           const walletData = {
@@ -164,6 +161,40 @@ export function useWatchConnectivity() {
     console.debug('Constructed wallets to process for Apple Watch:', processedWallets);
     return { wallets: processedWallets, randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
+
+  // Add the determineTransactionType function
+  const determineTransactionType = (transaction: Transaction & LightningTransaction): string => {
+    if ((transaction as Transaction).confirmations! < 3) {
+      return 'pending_transaction';
+    }
+
+    if (transaction.type === 'bitcoind_tx') {
+      return 'onchain';
+    }
+
+    if (transaction.type === 'paid_invoice') {
+      return 'offchain';
+    }
+
+    if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = Math.floor(currentDate.getTime() / 1000);
+      const invoiceExpiration = transaction.timestamp! + transaction.expire_time!;
+      if (!transaction.ispaid && invoiceExpiration < now) {
+        return 'expired_transaction';
+      } else {
+        return 'incoming_transaction';
+      }
+    }
+
+    if (!transaction.confirmations) {
+      return 'pending_transaction';
+    } else if (transaction.value! < 0) {
+      return 'outgoing_transaction';
+    } else {
+      return 'incoming_transaction';
+    }
+  };
 
   const handleMessages = useCallback(
     async (message: Message, reply: Reply) => {

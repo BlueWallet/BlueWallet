@@ -12,7 +12,7 @@ class QRCodeGenerator {
     
     /// Initializes the QRCode generator with a specified logo.
     /// - Parameter logoName: The name of the logo image in the Assets catalog.
-    init(logoName: String = "AppIcon") { // Replace "AppIconLogo" with your logo's asset name
+    init(logoName: String = "qr-code") { // Replace "AppIconLogo" with your logo's asset name
         self.logoName = logoName
     }
     

@@ -5,6 +5,7 @@ import SwiftUI
 struct WalletListRow: View {
     let wallet: Wallet
 
+  
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
@@ -12,9 +13,17 @@ struct WalletListRow: View {
                     .font(.headline)
                     .foregroundColor(.white)
                 
+              if wallet.hideBalance {
+                  Image(systemName: "eye.slash")
+                      .font(.subheadline)
+                      .foregroundColor(.white)
+              } else {
                 Text(wallet.balance)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                  .font(.subheadline)
+                      .foregroundColor(.white)
+              
+          }
+               
             }
             .padding(.leading, 16) // Internal padding for content
             .padding(.vertical, 10) // Vertical padding for touch-friendly sizing

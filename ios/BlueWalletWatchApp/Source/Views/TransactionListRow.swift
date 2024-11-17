@@ -6,35 +6,33 @@ struct TransactionListRow: View {
     let transaction: Transaction
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 5) {
-                // Transaction memo or description
-                Text(transaction.memo.isEmpty ? "No Description" : transaction.memo)
-                    .font(.headline)
+        HStack(spacing: 12) { // Adjust spacing between elements
+            VStack(alignment: .leading, spacing: 2) { // Reduced vertical spacing in the text
+              if (!transaction.memo.isEmpty) {
+                Text(transaction.memo)
+                    .font(.subheadline) // Slightly smaller font
                     .foregroundColor(.primary)
-                
-                // Transaction time
+              }
+               
                 Text(transaction.time)
-                    .font(.subheadline)
+                    .font(.caption) // Use caption for the secondary text
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
-            // Transaction amount
             Text(transaction.amount)
-                .font(.headline)
-                .foregroundColor(transaction.type == .received ? .green : .red)
+                .font(.subheadline.bold()) // Smaller bold font
+                .foregroundColor(
+                    transaction.type.isIncoming ? .green :
+                    transaction.type.isOutgoing ? .red :
+                    transaction.type.isPending ? .gray :
+                    .primary
+                )
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray.opacity(0.1))
-        )
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .padding(.vertical, 4) // Reduced padding for compact height
     }
 }
-
 struct TransactionListRow_Previews: PreviewProvider {
     static var previews: some View {
         TransactionListRow(transaction: Transaction(

@@ -13,19 +13,15 @@
      var action: () -> Void
 
      var body: some View {
-         Button(action: action) {
              if hideBalance {
                  Image(systemName: "eye.slash")
                      .font(.subheadline)
                      .foregroundColor(.white)
              } else {
                  Text(balance)
-                     .font(.subheadline)
+                 .font(.subheadline)
                      .foregroundColor(.white)
-             }
+             
          }
-         .simultaneousGesture(LongPressGesture().onEnded { _ in
-             action()
-         })
      }
  }

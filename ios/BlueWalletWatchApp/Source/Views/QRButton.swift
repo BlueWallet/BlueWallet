@@ -19,7 +19,8 @@
          }
          .foregroundColor(.white)
          .frame(width: 28, height: 28)
-         .background(Color.black.opacity(0.5))
-         .clipShape(Circle())
+         .background(Color.black.opacity(1.0))
+         .buttonStyle(.plain)
+         .cornerRadius(4)
      }
- } 
+ }

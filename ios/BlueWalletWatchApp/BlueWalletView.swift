@@ -4,34 +4,39 @@ import SwiftUI
 
 struct BlueWalletView: View {
     @EnvironmentObject var dataSource: WatchDataSource
+    @State private var qrContent: String? = nil // State to store QR code content
 
     var body: some View {
-        NavigationStack {
-            if dataSource.wallets.isEmpty {
-                VStack {
-                    Spacer()
-                    Text("No wallets available. Please, add one by opening BlueWallet on your iPhone.")
-                        .multilineTextAlignment(.center)
-                        .padding()
-                        .transition(.opacity)
-                    Spacer()
-                }
-                .navigationTitle("BlueWallet")
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 16) { // Adjust spacing as needed
-                        ForEach(dataSource.wallets) { wallet in
+        if dataSource.wallets.isEmpty {
+            VStack {
+                Spacer()
+                Text("No wallets available. Please, add one by opening BlueWallet on your iPhone.")
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .transition(.opacity)
+                Spacer()
+            }
+            .navigationTitle("BlueWallet")
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(dataSource.wallets) { wallet in
+                        VStack(alignment: .leading, spacing: 8) {
                             NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
                                 WalletListRow(wallet: wallet)
                             }
                             .buttonStyle(PlainButtonStyle()) // Removes default NavigationLink styling
+
+                
                         }
+                        .padding(.vertical, 4)
                     }
-                    .padding(.horizontal, 16) // Horizontal padding for the stack
-                    .padding(.vertical, 8) // Vertical padding for the stack
                 }
-                .navigationTitle("BlueWallet")
-                .navigationBarTitleDisplayMode(.inline)
+            }
+            .navigationTitle("BlueWallet")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $qrContent) { content in
+                ViewQRCodeView(content: content)
             }
         }
     }

@@ -41,6 +41,7 @@
 		B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B41C2E562BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
 		B41C2E582BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
+		B4395BBE2CE9C4F30052377D /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		B44033BF2BCC32F800162242 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033BE2BCC32F800162242 /* BitcoinUnit.swift */; };
 		B44033C12BCC32F800162242 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033BE2BCC32F800162242 /* BitcoinUnit.swift */; };
 		B44033C42BCC332400162242 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
@@ -321,7 +322,6 @@
 		B45AF5952CE884FB0054BBCC /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ComplicationController.swift,
 				Source/Objects/InterfaceController.swift,
 				Source/Objects/NotificationController.swift,
 				Source/Objects/NumericKeypadInterfaceController.swift,
@@ -1242,6 +1242,7 @@
 				B45AF5C12CE888BB0054BBCC /* WidgetDataStore.swift in Sources */,
 				B4CB6A3D2CE890AD005456F6 /* XMLParserDelegate.swift in Sources */,
 				B45AF59E2CE886230054BBCC /* UserDefaultsGroupKey.swift in Sources */,
+				B4395BBE2CE9C4F30052377D /* UserDefaultsExtension.swift in Sources */,
 				B45AF5C32CE888DE0054BBCC /* Utilities.swift in Sources */,
 				B45AF5C62CE889B40054BBCC /* Numeric+abbreviated.swift in Sources */,
 				B45AF5BF2CE887FA0054BBCC /* MarketData.swift in Sources */,

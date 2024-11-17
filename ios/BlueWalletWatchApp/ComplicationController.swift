@@ -5,15 +5,6 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
 
-    override init() {
-        super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(handleUpdateComplicationRequest), name: .didReceiveUpdateComplicationRequest, object: nil)
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     // MARK: - Notification Handling
 
     @objc private func handleUpdateComplicationRequest() {
