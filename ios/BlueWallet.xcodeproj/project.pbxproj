@@ -162,20 +162,6 @@
 			remoteGlobalIDString = 6DD4109B266CADF10087DE03;
 			remoteInfo = WidgetsExtension;
 		};
-		B489848D2CE860D200BB74BB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B489847C2CE860D100BB74BB;
-			remoteInfo = "BlueWalletWatchOS Watch App";
-		};
-		B48984972CE860D300BB74BB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B489847C2CE860D100BB74BB;
-			remoteInfo = "BlueWalletWatchOS Watch App";
-		};
 		B489849E2CE860D300BB74BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -338,8 +324,6 @@
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4C075282CDDB3BE00322A84 /* MenuElementsEmitter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuElementsEmitter.h; sourceTree = "<group>"; };
 		B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuElementsEmitter.m; sourceTree = "<group>"; };
-		B4CB69E12CE88D95005456F6 /* BlueWalletWatchOS Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "BlueWalletWatchOS Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B4CB69E22CE88D95005456F6 /* BlueWalletWatchOS Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "BlueWalletWatchOS Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4CB6A3E2CE8958C005456F6 /* BlueWalletWatchOS Watch AppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BlueWalletWatchOS Watch AppDebug.entitlements"; sourceTree = "<group>"; };
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
@@ -440,20 +424,6 @@
 				B45AF5BE2CE887D60054BBCC /* BugsnagNetworkRequestPlugin in Frameworks */,
 				B45AF5BC2CE887D60054BBCC /* Bugsnag in Frameworks */,
 				B4CB6AA92CE989FC005456F6 /* EFQRCode in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B48984892CE860D200BB74BB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B48984932CE860D200BB74BB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -678,8 +648,6 @@
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 				B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */,
-				B4CB69E12CE88D95005456F6 /* BlueWalletWatchOS Watch AppTests.xctest */,
-				B4CB69E22CE88D95005456F6 /* BlueWalletWatchOS Watch AppUITests.xctest */,
 				B49168BC2CEA8ECC00A747CF /* ComplicationsExtension.appex */,
 			);
 			name = Products;
@@ -895,52 +863,6 @@
 			productReference = B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B489848B2CE860D200BB74BB /* BlueWalletWatchOS Watch AppTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B48984A42CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch AppTests" */;
-			buildPhases = (
-				B48984882CE860D200BB74BB /* Sources */,
-				B48984892CE860D200BB74BB /* Frameworks */,
-				B489848A2CE860D200BB74BB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B489848E2CE860D200BB74BB /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B489848F2CE860D200BB74BB /* BlueWalletWatchOS Watch AppTests */,
-			);
-			name = "BlueWalletWatchOS Watch AppTests";
-			packageProductDependencies = (
-			);
-			productName = "BlueWalletWatchOS Watch AppTests";
-			productReference = B4CB69E12CE88D95005456F6 /* BlueWalletWatchOS Watch AppTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		B48984952CE860D200BB74BB /* BlueWalletWatchOS Watch AppUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B48984A72CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch AppUITests" */;
-			buildPhases = (
-				B48984922CE860D200BB74BB /* Sources */,
-				B48984932CE860D200BB74BB /* Frameworks */,
-				B48984942CE860D200BB74BB /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B48984982CE860D300BB74BB /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				B48984992CE860D300BB74BB /* BlueWalletWatchOS Watch AppUITests */,
-			);
-			name = "BlueWalletWatchOS Watch AppUITests";
-			packageProductDependencies = (
-			);
-			productName = "BlueWalletWatchOS Watch AppUITests";
-			productReference = B4CB69E22CE88D95005456F6 /* BlueWalletWatchOS Watch AppUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B49168CB2CEA8ECD00A747CF /* Build configuration list for PBXNativeTarget "ComplicationsExtension" */;
@@ -989,14 +911,6 @@
 					};
 					B489847C2CE860D100BB74BB = {
 						CreatedOnToolsVersion = 16.1;
-					};
-					B489848B2CE860D200BB74BB = {
-						CreatedOnToolsVersion = 16.1;
-						TestTargetID = B489847C2CE860D100BB74BB;
-					};
-					B48984952CE860D200BB74BB = {
-						CreatedOnToolsVersion = 16.1;
-						TestTargetID = B489847C2CE860D100BB74BB;
 					};
 					B49168BB2CEA8ECC00A747CF = {
 						CreatedOnToolsVersion = 16.1;
@@ -1049,8 +963,6 @@
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
 				B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */,
-				B489848B2CE860D200BB74BB /* BlueWalletWatchOS Watch AppTests */,
-				B48984952CE860D200BB74BB /* BlueWalletWatchOS Watch AppUITests */,
 				B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */,
 			);
 		};
@@ -1092,20 +1004,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B489847B2CE860D100BB74BB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B489848A2CE860D200BB74BB /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B48984942CE860D200BB74BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1359,20 +1257,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B48984882CE860D200BB74BB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B48984922CE860D200BB74BB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B49168B82CEA8ECC00A747CF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1413,16 +1297,6 @@
 			isa = PBXTargetDependency;
 			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
 			targetProxy = 6DD410A5266CADF40087DE03 /* PBXContainerItemProxy */;
-		};
-		B489848E2CE860D200BB74BB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */;
-			targetProxy = B489848D2CE860D200BB74BB /* PBXContainerItemProxy */;
-		};
-		B48984982CE860D300BB74BB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */;
-			targetProxy = B48984972CE860D300BB74BB /* PBXContainerItemProxy */;
 		};
 		B489849F2CE860D300BB74BB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1992,152 +1866,6 @@
 			};
 			name = Release;
 		};
-		B48984A52CE860D300BB74BB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.bluewallet.bluewallet.watch.BlueWalletWatchOS-Watch-AppTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlueWalletWatchOS Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BlueWalletWatchOS Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
-			};
-			name = Debug;
-		};
-		B48984A62CE860D300BB74BB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.bluewallet.bluewallet.watch.BlueWalletWatchOS-Watch-AppTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlueWalletWatchOS Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BlueWalletWatchOS Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
-			};
-			name = Release;
-		};
-		B48984A82CE860D300BB74BB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.bluewallet.bluewallet.watch.BlueWalletWatchOS-Watch-AppUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_TARGET_NAME = "BlueWalletWatchOS Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
-			};
-			name = Debug;
-		};
-		B48984A92CE860D300BB74BB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "io.bluewallet.bluewallet.watch.BlueWalletWatchOS-Watch-AppUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_TARGET_NAME = "BlueWalletWatchOS Watch App";
-				WATCHOS_DEPLOYMENT_TARGET = 10.6;
-			};
-			name = Release;
-		};
 		B49168C92CEA8ECD00A747CF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2290,24 +2018,6 @@
 			buildConfigurations = (
 				B48984A22CE860D300BB74BB /* Debug */,
 				B48984A32CE860D300BB74BB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B48984A42CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch AppTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B48984A52CE860D300BB74BB /* Debug */,
-				B48984A62CE860D300BB74BB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B48984A72CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch AppUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B48984A82CE860D300BB74BB /* Debug */,
-				B48984A92CE860D300BB74BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
