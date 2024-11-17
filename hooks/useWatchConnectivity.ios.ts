@@ -49,7 +49,6 @@ export function useWatchConnectivity() {
     randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
   });
 
-  // Use transferUserInfo instead of updateApplicationContext
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) return;
 
@@ -162,7 +161,6 @@ export function useWatchConnectivity() {
     return { wallets: processedWallets, randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}` };
   }, [wallets, walletsInitialized, txMetadata]);
 
-  // Add the determineTransactionType function
   const determineTransactionType = (transaction: Transaction & LightningTransaction): string => {
     if ((transaction as Transaction).confirmations! < 3) {
       return 'pending_transaction';
@@ -200,9 +198,7 @@ export function useWatchConnectivity() {
     async (message: Message, reply: Reply) => {
       console.debug('Received message from Apple Watch:', message);
       try {
-        if (message.request === 'createInvoice' && 
-            typeof message.walletIndex === 'number' && 
-            typeof message.amount === 'number') {
+        if (message.request === 'createInvoice' && typeof message.walletIndex === 'number' && typeof message.amount === 'number') {
           const createInvoiceRequest = await handleLightningInvoiceCreateRequest({
             walletIndex: message.walletIndex,
             amount: message.amount,
@@ -212,7 +208,7 @@ export function useWatchConnectivity() {
         } else if (message.message === 'sendApplicationContext') {
           const walletsToProcess = await constructWalletsToSendToWatch();
           if (walletsToProcess) {
-            updateApplicationContext(walletsToProcess); // Updated to transferUserInfo
+            updateApplicationContext(walletsToProcess);
             console.debug('Transferred user info on request:', walletsToProcess);
           }
         } else if (message.message === 'fetchTransactions') {
@@ -220,7 +216,7 @@ export function useWatchConnectivity() {
           await saveToDisk();
           reply({});
         } else if (
-          message.message === 'hideBalance' && 
+          message.message === 'hideBalance' &&
           typeof message.walletIndex === 'number' &&
           typeof message.hideBalance === 'boolean' &&
           message.walletIndex >= 0 &&
@@ -261,8 +257,6 @@ export function useWatchConnectivity() {
     const unsubscribe = watchEvents.addListener('message', (message: any) => {
       if (message.request === 'wakeUpApp') {
         console.debug('Received wake-up request from Apple Watch');
-        // Handle the wake-up request here
-        // You could trigger any necessary setup or data refresh
       } else {
         handleMessages(message, () => {});
       }
