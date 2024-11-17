@@ -219,8 +219,14 @@ export function useWatchConnectivity() {
           await fetchWalletTransactions();
           await saveToDisk();
           reply({});
-        } else if (message.message === 'hideBalance') {
-          wallets[message.walletIndex!].hideBalance = message.hideBalance!;
+        } else if (
+          message.message === 'hideBalance' && 
+          typeof message.walletIndex === 'number' &&
+          typeof message.hideBalance === 'boolean' &&
+          message.walletIndex >= 0 &&
+          message.walletIndex < wallets.length
+        ) {
+          wallets[message.walletIndex].hideBalance = message.hideBalance;
           await saveToDisk();
           reply({});
         }
