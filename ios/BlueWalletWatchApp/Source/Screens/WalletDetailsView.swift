@@ -7,7 +7,7 @@ enum ReceiveOption: String, Identifiable {
     case paymentCode = "Payment Code"
 }
 
-extension String: Identifiable {
+extension String: @retroactive Identifiable {
     public var id: String { self }
 }
 
@@ -15,8 +15,7 @@ struct WalletDetailsView: View {
     @ObservedObject var dataSource = WatchDataSource.shared
     @State var wallet: Wallet
     @State private var showingReceiveAlert = false
-    @State private var qrCodeContent: String? = nil // Optional to manage navigation
-
+    @State private var qrCodeContent: String? = nil
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -44,7 +43,6 @@ struct WalletDetailsView: View {
     private var walletDetailsHeader: some View {
         VStack(spacing: 8) {
                 BalanceButton(hideBalance: wallet.hideBalance, balance: wallet.balance) {
-                    // Show balance options if needed
                 }
             
             
@@ -59,7 +57,7 @@ struct WalletDetailsView: View {
               .foregroundColor(.primary)
               .padding(.horizontal)
             QRButton {
-                qrCodeContent = wallet.receiveAddress // Directly set QR content
+                qrCodeContent = wallet.receiveAddress
             }
           }
             if wallet.transactions.isEmpty {

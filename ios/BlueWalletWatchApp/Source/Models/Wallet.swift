@@ -1,7 +1,4 @@
-// Models/Wallet.swift
-
 import Foundation
-import SwiftUI // Ensure you're importing the correct framework
 
 /// Represents a wallet with various properties including its type.
 /// Conforms to `Codable` and `Identifiable` for encoding/decoding and unique identification.

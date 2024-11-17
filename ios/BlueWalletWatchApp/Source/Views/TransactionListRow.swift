@@ -1,28 +1,25 @@
-// Views/TransactionListRow.swift
-
 import SwiftUI
 
 struct TransactionListRow: View {
     let transaction: Transaction
 
     var body: some View {
-        HStack(spacing: 12) { // Adjust spacing between elements
-            VStack(alignment: .leading, spacing: 2) { // Reduced vertical spacing in the text
-              if (!transaction.memo.isEmpty) {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {              if (!transaction.memo.isEmpty) {
                 Text(transaction.memo)
-                    .font(.subheadline) // Slightly smaller font
+                    .font(.subheadline)
                     .foregroundColor(.primary)
               }
                
                 Text(transaction.time)
-                    .font(.caption) // Use caption for the secondary text
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
 
             Spacer()
 
             Text(transaction.amount)
-                .font(.subheadline.bold()) // Smaller bold font
+                .font(.subheadline.bold())
                 .foregroundColor(
                     transaction.type.isIncoming ? .green :
                     transaction.type.isOutgoing ? .red :
@@ -30,7 +27,7 @@ struct TransactionListRow: View {
                     .primary
                 )
         }
-        .padding(.vertical, 4) // Reduced padding for compact height
+        .padding(.vertical, 4) 
     }
 }
 struct TransactionListRow_Previews: PreviewProvider {

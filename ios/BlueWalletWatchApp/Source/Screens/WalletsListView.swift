@@ -1,5 +1,3 @@
-// WalletListView.swift
-
 import SwiftUI
 
 struct WalletsListView: View {
@@ -26,7 +24,7 @@ struct WalletsListView: View {
                         WalletListRow(
                             wallet: wallet
                         )
-                        .listRowInsets(EdgeInsets()) // Remove default insets
+                        .listRowInsets(EdgeInsets())
                     }
                     
                     if transactionsSectionVisible {

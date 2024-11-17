@@ -1,10 +1,8 @@
-// Views/BlueWalletView.swift
-
 import SwiftUI
 
 struct BlueWalletView: View {
     @EnvironmentObject var dataSource: WatchDataSource
-    @State private var qrContent: String? = nil // State to store QR code content
+    @State private var qrContent: String? = nil
 
     var body: some View {
         if dataSource.wallets.isEmpty {
@@ -25,8 +23,7 @@ struct BlueWalletView: View {
                             NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
                                 WalletListRow(wallet: wallet)
                             }
-                            .buttonStyle(PlainButtonStyle()) // Removes default NavigationLink styling
-
+                            .buttonStyle(PlainButtonStyle())
                 
                         }
                         .padding(.vertical, 4)

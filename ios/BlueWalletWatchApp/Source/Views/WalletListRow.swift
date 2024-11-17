@@ -1,5 +1,3 @@
-// Views/WalletListRow.swift
-
 import SwiftUI
 
 struct WalletListRow: View {
@@ -25,12 +23,12 @@ struct WalletListRow: View {
           }
                
             }
-            .padding(.leading, 16) // Internal padding for content
-            .padding(.vertical, 10) // Vertical padding for touch-friendly sizing
+            .padding(.leading, 16)
+            .padding(.vertical, 8)
             
             Spacer()
         }
-        .frame(maxWidth: .infinity, minHeight: 80) // Ensures the row stretches horizontally
+        .frame(maxWidth: .infinity, minHeight: 80)
         .background(
             LinearGradient(
               gradient: Gradient(colors: WalletGradient.gradientsFor(type:  wallet.type)),

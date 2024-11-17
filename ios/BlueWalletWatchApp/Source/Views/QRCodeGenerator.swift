@@ -1,5 +1,3 @@
-// QRCode.swift
-
 import SwiftUI
 import CoreGraphics
 import EFQRCode

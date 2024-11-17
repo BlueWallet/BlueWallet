@@ -1,9 +1,7 @@
 import SwiftUI
 
 struct WalletGradient {
-    
-    // MARK: - Gradient Definitions
-    
+        
     static let hdSegwitP2SHWallet: [Color] = [
         Color(hex: "#007AFF"),
         Color(hex: "#0040FF")

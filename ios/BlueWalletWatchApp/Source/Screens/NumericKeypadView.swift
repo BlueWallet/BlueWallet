@@ -6,9 +6,6 @@
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-
-// Views/NumericKeypadView.swift
-
 import SwiftUI
 
 struct NumericKeypadView: View {

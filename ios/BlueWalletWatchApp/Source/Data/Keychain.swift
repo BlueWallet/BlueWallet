@@ -1,5 +1,3 @@
-// Helpers/KeychainHelper.swift
-
 import Foundation
 import Security
 

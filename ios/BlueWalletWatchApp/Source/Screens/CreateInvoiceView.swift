@@ -1,5 +1,3 @@
-// Views/CreateInvoiceView.swift
-
 import SwiftUI
 
 struct CreateInvoiceView: View {

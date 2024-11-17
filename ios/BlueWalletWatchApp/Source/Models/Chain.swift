@@ -6,9 +6,6 @@
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-
-// Models/Chain.swift
-
 import Foundation
 
 /// Represents the chain type for a wallet.

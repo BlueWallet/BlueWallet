@@ -1,5 +1,3 @@
-// Models/WalletType.swift
-
 import Foundation
 
 /// Represents the various types of wallets available in the application.

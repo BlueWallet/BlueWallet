@@ -1,6 +1,5 @@
  //
  //  BalanceButton.swift
- //  BlueWalletWatch Extension
  //
  //  Created by Marcos Rodriguez on 6/25/24.
  //  Copyright © 2024 BlueWallet. All rights reserved.

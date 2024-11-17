@@ -6,9 +6,6 @@
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-
-// PreferenceKeys.swift
-
 import SwiftUI
 
 struct WalletRowPreferenceKey: PreferenceKey {

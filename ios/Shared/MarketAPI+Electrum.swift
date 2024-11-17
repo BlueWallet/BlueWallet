@@ -60,7 +60,7 @@ extension MarketAPI {
                 }
 
                 let fastestFee = calcEstimateFeeFromFeeHistogram(numberOfBlocks: 1, feeHistogram: feeHistogram)
-                var marketData = MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0)
+                let marketData = MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0)
                 completion(marketData, nil) // Successfully fetched data, return it
             } catch {
                 print("Error receiving data from \(String(describing: settings.host)): \(error.localizedDescription)")

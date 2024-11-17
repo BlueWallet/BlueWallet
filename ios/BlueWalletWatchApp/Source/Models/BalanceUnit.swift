@@ -6,9 +6,6 @@
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-
-// Models/BalanceUnit.swift
-
 import Foundation
 
 /// Represents the various balance units used in the application.

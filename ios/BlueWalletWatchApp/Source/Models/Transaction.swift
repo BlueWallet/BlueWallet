@@ -1,5 +1,3 @@
-// Models/Transaction.swift
-
 import Foundation
 
 /// Represents a transaction with various properties including its type.
