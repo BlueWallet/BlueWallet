@@ -46,7 +46,13 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     /// Starts the WatchConnectivity session.
     func startSession() {
-        session.activate()
+        // Check if keychain has existing wallets data before activating session
+        if let existingData = keychain.retrieve(service: UserDefaultsGroupKey.WatchAppBundleIdentifier.rawValue, account: UserDefaultsGroupKey.BundleIdentifier.rawValue),
+           !existingData.isEmpty {
+            session.activate()
+        } else {
+            print("Keychain is empty. Skipping WCSession activation.")
+        }
     }
     
     /// Deactivates the WatchConnectivity session (if needed).
