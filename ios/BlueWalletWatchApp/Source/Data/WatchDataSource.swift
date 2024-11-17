@@ -250,7 +250,14 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     ///   - description: An optional description for the invoice.
     ///   - responseHandler: A closure to handle the invoice string received from the iOS app.
     func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
+        let timeoutSeconds = 30.0
+        let timeoutTimer = Timer.scheduledTimer(withTimeInterval: timeoutSeconds, repeats: false) { _ in
+            print("Lightning invoice request timed out")
+            responseHandler("")
+        }
+
         guard wallets.indices.contains(walletIdentifier) else {
+            timeoutTimer.invalidate()
             responseHandler("")
             return
         }
@@ -261,12 +268,14 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             "description": description ?? ""
         ]
         session.sendMessage(message, replyHandler: { reply in
+            timeoutTimer.invalidate()
             if let invoicePaymentRequest = reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
                 responseHandler(invoicePaymentRequest)
             } else {
                 responseHandler("")
             }
         }, errorHandler: { error in
+            timeoutTimer.invalidate()
             print("Error requesting Lightning Invoice: \(error.localizedDescription)")
             responseHandler("")
         })
