@@ -30,14 +30,16 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - Initializer
     
     private override init() {
-        if WCSession.isSupported() {
+        guard WCSession.isSupported() else {
+            print("WCSession is not supported on this device.")
+            // Initialize with a default session but mark as unsupported
             self.session = WCSession.default
-        } else {
-            fatalError("WCSession is not supported on this device.")
+            super.init()
+            return
         }
+        self.session = WCSession.default
         super.init()
         self.session.delegate = self
-        // Activation handled externally via startSession()
         loadKeychainData()
         setupBindings()
     }
