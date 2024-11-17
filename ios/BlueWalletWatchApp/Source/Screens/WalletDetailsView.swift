@@ -1,128 +1,126 @@
-//
-//  WalletDetailsView.swift
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 11/16/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
-
-
-// Views/WalletDetailsView.swift
-
 import SwiftUI
 
 struct WalletDetailsView: View {
-    @EnvironmentObject var dataSource: WatchDataSource
+    @ObservedObject var dataSource = WatchDataSource.shared
     @State var wallet: Wallet
-    @State private var showReceive = false
-    @State private var showViewXPUB = false
-    @State private var showCreateInvoice = false
-    @State private var showNoTransactionsLabel: Bool = false
-    @State private var isBalanceVisible: Bool = true
-    @State private var transactions: [Transaction] = []
-    
+    @State private var showingReceiveOptions = false
+    @State private var showingBalanceOptions = false
+    @State private var navigationTag: String?
+  
     var body: some View {
         VStack {
-            // Wallet Information
+            walletDetailsHeader
+            transactionsList
+        }
+        .onAppear(perform: loadWalletDetails)
+        .navigationTitle(wallet.label)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(wallet.label)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .accessibilityAddTraits(.isHeader)
+                    .foregroundColor(.white)
+            }
+        }
+        .background(
+            LinearGradient(
+              gradient: Gradient(colors: WalletGradient.gradientsFor(type: wallet.type)),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .edgesIgnoringSafeArea(.all)
+        )
+        .background(
+            NavigationLink(
+              destination: ViewQRCodeView(wallet: wallet),
+                isActive: Binding(
+                    get: { navigationTag != nil },
+                    set: { _ in navigationTag = nil }
+                )
+            ) {
+                EmptyView()
+            }
+        )
+        .confirmationDialog("Receive", isPresented: $showingReceiveOptions, actions: {
+            Button("Address") {
+                navigationTag = wallet.receiveAddress
+            }
+            if isXPubAvailable {
+                Button("XPUB") {
+                  navigationTag = wallet.xpub
+                }
+            }
+            if isPaymentCodeAvailable {
+                Button("Payment Code") {
+                    navigationTag = wallet.paymentCode ?? ""
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        })
+        .confirmationDialog("Balance Options", isPresented: $showingBalanceOptions, actions: {
+            Button(wallet.hideBalance ? "Show Balance" : "Hide Balance") {
+                toggleBalanceVisibility()
+            }
+            
+            Button("Cancel", role: .cancel) { }
+        })
+    }
+
+    private var walletDetailsHeader: some View {
+        VStack {
             HStack {
-                Image("walletHD")
-                    .resizable()
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(8)
-                VStack(alignment: .leading) {
-                    if isBalanceVisible {
-                        Text("Balance: \(wallet.balance)")
-                            .font(.headline)
-                    } else {
-                        Text("Balance: *****")
-                            .font(.headline)
-                    }
-                    Text(wallet.label)
+              BalanceButton(hideBalance: wallet.hideBalance, balance: wallet.balance) {
+                    showingBalanceOptions = true
                 }
                 Spacer()
-            }
-            .onTapGesture {
-                withAnimation {
-                    isBalanceVisible.toggle()
+                QRButton {
+                    showingReceiveOptions = true
                 }
             }
-            .padding()
-            
-            // Action Buttons
-            HStack(spacing: 10) {
-                NavigationLink(destination: ReceiveView(wallet: wallet)) {
-                    Text("Receive")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(red: 0.800, green: 0.867, blue: 0.976))
-                        .cornerRadius(8)
-                }
-                
-                NavigationLink(destination: ViewXPUBView(wallet: wallet)) {
-                    Text("View XPUB")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(red: 0.800, green: 0.867, blue: 0.976))
-                        .cornerRadius(8)
-                }
-                
-                NavigationLink(destination: CreateInvoiceView(wallet: wallet)) {
-                    Text("Create Invoice")
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color(red: 0.800, green: 0.867, blue: 0.976))
-                        .cornerRadius(8)
-                }
-            }
-            .padding([.horizontal, .bottom])
-            
-            // Transactions List
-            if transactions.isEmpty {
-                Text("No Transactions")
-                    .opacity(showNoTransactionsLabel ? 1 : 0)
-                    .animation(.easeIn, value: showNoTransactionsLabel)
-                    .onAppear {
-                        showNoTransactionsLabel = true
-                    }
-            } else {
-                List(transactions) { transaction in
-                    TransactionRowView(transaction: transaction)
-                }
-            }
-            
-            Spacer()
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
-        .navigationTitle("Transactions")
-        .onAppear {
-            // Load transactions for the wallet
-            self.transactions = wallet.transactions
-            if transactions.isEmpty {
-                showNoTransactionsLabel = true
-            } else {
-                showNoTransactionsLabel = false
-            }
+    }
+
+    private var transactionsList: some View {
+        List(wallet.transactions) { transaction in
+          TransactionListRow(transaction: transaction)
+                .padding(.horizontal)
+                .padding(.vertical, 4)
         }
+        .listStyle(PlainListStyle())
+        .background(Color.black.opacity(0.8))
+    }
+
+    private var isLightningWallet: Bool {
+      wallet.type == .lightningCustodianWallet
+    }
+
+    private var isXPubAvailable: Bool {
+      !(wallet.xpub.isEmpty) && !isLightningWallet
+    }
+
+    private var isPaymentCodeAvailable: Bool {
+        !(wallet.paymentCode?.isEmpty ?? true)
+    }
+
+    private func loadWalletDetails() {
+        if let updatedWallet = dataSource.wallets.first(where: { $0.id == wallet.id }) {
+            wallet = updatedWallet
+        }
+    }
+
+  private func toggleBalanceVisibility() {
+//        wallet.hideBalance.toggle()
+//        WatchDataSource.shared.saveWalletChanges()
     }
 }
 
-struct WalletDetailsView_Previews: PreviewProvider {
-    static var previews: some View {
-        WalletDetailsView(wallet: Wallet(
-            label: "My Wallet",
-            balance: "0.5 BTC",
-            type: .legacyWallet,
-            preferredBalanceUnit: "BTC",
-            receiveAddress: "1BoatSLRHtKNngkdXEeobR76b53LETtpyT",
-            transactions: [
-              Transaction(time: "2023-10-10 10:00", memo: "Payment for services", type: .received, amount: "0.1 BTC")
-            ],
-            xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiK...",
-            hideBalance: false,
-            paymentCode: "lntb1u1p0..."
-        ))
-        .environmentObject(WatchDataSource.shared)
+extension Optional where Wrapped == String {
+    var isNilOrEmpty: Bool {
+        self?.isEmpty ?? true
     }
 }

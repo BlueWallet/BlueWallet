@@ -6,6 +6,10 @@ import Security
 import Combine
 import ClockKit
 
+/// Represents the group user defaults keys.
+/// Ensure these match the keys used in your iOS app for sharing data.
+
+/// Handles WatchConnectivity and data synchronization between iOS and Watch apps.
 class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - Singleton Instance
     
@@ -13,6 +17,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - Published Properties
     
+    /// The list of wallets to be displayed on the Watch app.
     @Published var wallets: [Wallet] = []
     
     // MARK: - Private Properties
@@ -39,21 +44,22 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - Public Methods
     
-    /// Starts the WatchConnectivity session
+    /// Starts the WatchConnectivity session.
     func startSession() {
-            session.activate()
-      
+        session.activate()
     }
     
-    /// Deactivates the WatchConnectivity session (if needed)
+    /// Deactivates the WatchConnectivity session (if needed).
+    /// Note: WCSession does not provide a deactivate method, but you can handle any necessary cleanup here.
     func deactivateSession() {
-        // WCSession does not provide a deactivate method, but you can handle any necessary cleanup here
+        // Handle any necessary cleanup here.
     }
     
     // MARK: - Data Binding
     
+    /// Sets up bindings to observe changes to `wallets` and perform actions accordingly.
     private func setupBindings() {
-        // Observe changes to wallets and perform actions if needed
+        // Observe changes to wallets and perform actions if needed.
         $wallets
             .sink { [weak self] updatedWallets in
                 self?.saveWalletsToKeychain()
@@ -64,22 +70,29 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - Keychain Operations
     
+    /// Loads wallets data from the Keychain asynchronously.
     private func loadKeychainData() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
-            guard let existingData = self.keychain.retrieve(service: "com.bluewallet.watch", account: Wallet.identifier),
+            guard let existingData = self.keychain.retrieve(service: UserDefaultsGroupKey.WatchAppBundleIdentifier.rawValue, account: UserDefaultsGroupKey.BundleIdentifier.rawValue),
                   let decodedWallets = try? JSONDecoder().decode([Wallet].self, from: existingData) else {
+                print("No existing wallets data found in Keychain.")
                 return
             }
             
+            // Filter wallets to include only on-chain wallets.
+            let onChainWallets = decodedWallets.filter { $0.chain == .onchain }
+            
             DispatchQueue.main.async {
-                if decodedWallets != self.wallets {
-                    self.wallets = decodedWallets
+                if onChainWallets != self.wallets {
+                    self.wallets = onChainWallets
+                    print("Loaded \(onChainWallets.count) on-chain wallets from Keychain.")
                 }
             }
         }
     }
     
+    /// Saves the current wallets data to the Keychain asynchronously.
     private func saveWalletsToKeychain() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
@@ -87,8 +100,10 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
                 print("Failed to encode wallets.")
                 return
             }
-            let success = self.keychain.save(encodedData, service: "com.bluewallet.watch", account: Wallet.identifier)
-            if !success {
+            let success = self.keychain.save(encodedData, service: UserDefaultsGroupKey.WatchAppBundleIdentifier.rawValue, account: UserDefaultsGroupKey.BundleIdentifier.rawValue)
+            if success {
+                print("Successfully saved wallets to Keychain.")
+            } else {
                 print("Failed to save wallets to Keychain.")
             }
         }
@@ -96,53 +111,65 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - WatchConnectivity Methods
     
+    /// Handles the activation completion of the WCSession.
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if let error = error {
             print("WCSession activation failed with error: \(error.localizedDescription)")
         } else {
             print("WCSession activated with state: \(activationState.rawValue)")
-            // Optionally, perform actions based on activation state
+            // Optionally, perform actions based on activation state.
+            // For example, send current wallets data to iOS app.
+            sendCurrentWalletsData()
         }
     }
-  
     
-    // Handle received messages
+    /// Handles received messages from the iOS app.
     func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
         processReceivedData(message)
     }
-  
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-    if applicationContext.isEmpty { return }
-    processReceivedData(applicationContext)
-  }
+    
+    /// Handles received application context updates from the iOS app.
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        if applicationContext.isEmpty { return }
+        processReceivedData(applicationContext)
+    }
     
     // MARK: - Data Processing
     
+    /// Processes received data from the iOS app.
+    /// - Parameter data: The data received either as a message or application context.
     private func processReceivedData(_ data: [String: Any]) {
-        if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String,
-           let preferredFiatCurrencyUnit = try? FiatUnit(from: preferredFiatCurrency as Decodable as! Decoder) {
-          groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
-          groupUserDefaults?.synchronize()
-          
-          // Fetch and update market data based on the new preferred currency
-          updateMarketData(for: preferredFiatCurrencyUnit)
-          
+        if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String {
+            // Handle preferred fiat currency update.
+            groupUserDefaults?.set(preferredFiatCurrency, forKey: "preferredCurrency")
+            groupUserDefaults?.synchronize()
+            
+            // Fetch and update market data based on the new preferred currency.
+            updateMarketData(for: preferredFiatCurrency)
         } else {
+            // Assume the data contains wallets information.
             processWalletsData(walletsInfo: data)
         }
     }
     
+    /// Processes wallets data received from the iOS app.
+    /// - Parameter walletsInfo: The wallets data received as a dictionary.
     private func processWalletsData(walletsInfo: [String: Any]) {
-        guard let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] else { return }
+        guard let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] else {
+            print("No wallets data found in received context.")
+            return
+        }
         
         var processedWallets: [Wallet] = []
         
         for entry in walletsToProcess {
             guard let label = entry["label"] as? String,
                   let balance = entry["balance"] as? String,
-                  let type = entry["type"] as? String,
-                  let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String,
+                  let typeString = entry["type"] as? String,
+                  let preferredBalanceUnitString = entry["preferredBalanceUnit"] as? String,
+                  let chainString = entry["chain"] as? String,
                   let transactions = entry["transactions"] as? [[String: Any]] else {
+                print("Incomplete wallet entry found. Skipping.")
                 continue
             }
             
@@ -151,8 +178,13 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
                 guard let time = transactionEntry["time"] as? String,
                       let memo = transactionEntry["memo"] as? String,
                       let amount = transactionEntry["amount"] as? String,
-                      let type = transactionEntry["type"] as? String else { continue }
-              let transaction = Transaction(time: time, memo: memo, type: TransactionType.unknown(type), amount: amount)
+                      let type = transactionEntry["type"] as? String else {
+                    print("Incomplete transaction entry found. Skipping.")
+                    continue
+                }
+                
+                let transactionType = TransactionType(rawString: type)
+                let transaction = Transaction(time: time, memo: memo, type: transactionType, amount: amount)
                 transactionsProcessed.append(transaction)
             }
             
@@ -160,11 +192,14 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             let xpub = entry["xpub"] as? String ?? ""
             let hideBalance = entry["hideBalance"] as? Bool ?? false
             let paymentCode = entry["paymentCode"] as? String
+            let chain = Chain(rawString: chainString)
+            
             let wallet = Wallet(
                 label: label,
                 balance: balance,
-                type:  WalletType.unknown(type),
-                preferredBalanceUnit: preferredBalanceUnit,
+                type: WalletType(rawString: typeString),
+                chain: chain,
+                preferredBalanceUnit: BalanceUnit(rawString: preferredBalanceUnitString),
                 receiveAddress: receiveAddress,
                 transactions: transactionsProcessed,
                 xpub: xpub,
@@ -174,20 +209,26 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             processedWallets.append(wallet)
         }
         
+        // Update the published `wallets` property on the main thread.
         DispatchQueue.main.async { [weak self] in
             self?.wallets = processedWallets
+            print("Updated wallets from received context.")
         }
     }
     
-    private func updateMarketData(for fiatUnit: FiatUnit) {
-        MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { [weak self] (marketData, error) in
+    /// Fetches market data based on the preferred fiat currency.
+    /// - Parameter fiatCurrency: The preferred fiat currency string.
+    private func updateMarketData(for fiatCurrency: String) {
+        // Assuming `FiatUnit` is a valid type and `MarketAPI` is properly defined.
+        MarketAPI.fetchPrice(currency: fiatCurrency) { [weak self] (marketData, error) in
             guard let self = self else { return }
-          if case let marketData as MarketData = marketData {
+            if let marketData = marketData as? MarketData {
                 let widgetData = WidgetDataStore(fromMarketData: marketData)
                 self.groupUserDefaults?.set(widgetData, forKey: MarketData.string)
                 self.groupUserDefaults?.synchronize()
                 
-                // Optionally, notify other components or update additional @Published properties
+                // Optionally, notify other components or update additional @Published properties.
+                print("Market data updated for currency: \(fiatCurrency)")
             } else if let error = error {
                 print("Failed to fetch market data: \(error.localizedDescription)")
             }
@@ -196,6 +237,12 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - Wallet Actions
     
+    /// Requests a Lightning Invoice from the iOS app.
+    /// - Parameters:
+    ///   - walletIdentifier: The index of the wallet in the `wallets` array.
+    ///   - amount: The amount for the invoice.
+    ///   - description: An optional description for the invoice.
+    ///   - responseHandler: A closure to handle the invoice string received from the iOS app.
     func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
         guard wallets.indices.contains(walletIdentifier) else {
             responseHandler("")
@@ -219,6 +266,11 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
         })
     }
     
+    /// Toggles the visibility of the wallet's balance.
+    /// - Parameters:
+    ///   - walletIdentifier: The index of the wallet in the `wallets` array.
+    ///   - hideBalance: A boolean indicating whether to hide the balance.
+    ///   - responseHandler: A closure to handle the success status.
     func toggleWalletHideBalance(walletIdentifier: Int, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
         guard wallets.indices.contains(walletIdentifier) else {
             responseHandler(false)
@@ -239,11 +291,54 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     // MARK: - Complications Reload
     
+    /// Reloads all active complications on the Watch face.
     private func reloadComplications() {
         let server = CLKComplicationServer.sharedInstance()
         server.activeComplications?.forEach { complication in
             server.reloadTimeline(for: complication)
             print("[Complication] Reloaded timeline for \(complication.family.rawValue)")
         }
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Sends the current wallets data to the iOS app.
+    private func sendCurrentWalletsData() {
+        guard WCSession.default.isReachable else {
+            print("iOS app is not reachable. Cannot send current wallets data.")
+            return
+        }
+        
+        let walletsData = wallets.map { wallet -> [String: Any] in
+            return [
+                "label": wallet.label,
+                "balance": wallet.balance,
+                "type": wallet.type,
+                "preferredBalanceUnit": wallet.preferredBalanceUnit,
+                "chain": wallet.chain,
+                "receiveAddress": wallet.receiveAddress,
+                "transactions": wallet.transactions.map { transaction -> [String: Any] in
+                    return [
+                        "time": transaction.time,
+                        "memo": transaction.memo,
+                        "type": transaction.type.rawString,
+                        "amount": "\(transaction.amount) BTC" // Adjust currency as needed
+                    ]
+                },
+                "xpub": wallet.xpub,
+                "hideBalance": wallet.hideBalance,
+                "paymentCode": wallet.paymentCode ?? ""
+            ]
+        }
+        
+        let message: [String: Any] = [
+            "wallets": walletsData
+        ]
+        
+        session.sendMessage(message, replyHandler: { reply in
+            print("Successfully sent current wallets data to iOS app.")
+        }, errorHandler: { error in
+            print("Failed to send current wallets data: \(error.localizedDescription)")
+        })
     }
 }

@@ -8,9 +8,10 @@ import SwiftUI // Ensure you're importing the correct framework
 struct Wallet: Codable, Identifiable, Equatable {
     let id: UUID
     let label: String
-    let balance: String // Consider changing to `Decimal` or `Double` for better handling
+    let balance: String
     let type: WalletType
-    let preferredBalanceUnit: String
+    let chain: Chain
+    let preferredBalanceUnit: BalanceUnit
     let receiveAddress: String
     let transactions: [Transaction]
     let xpub: String
@@ -29,11 +30,12 @@ struct Wallet: Codable, Identifiable, Equatable {
     ///   - xpub: Extended public key for HD wallets.
     ///   - hideBalance: Indicates whether the balance should be hidden.
     ///   - paymentCode: Optional payment code associated with the wallet.
-    init(id: UUID = UUID(), label: String, balance: String, type: WalletType, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], xpub: String, hideBalance: Bool, paymentCode: String? = nil) {
+  init(id: UUID = UUID(), label: String, balance: String, type: WalletType, chain: Chain = .onchain, preferredBalanceUnit: BalanceUnit = .sats, receiveAddress: String, transactions: [Transaction], xpub: String, hideBalance: Bool, paymentCode: String? = nil) {
         self.id = id
         self.label = label
         self.balance = balance
         self.type = type
+      self.chain = chain
         self.preferredBalanceUnit = preferredBalanceUnit
         self.receiveAddress = receiveAddress
         self.transactions = transactions

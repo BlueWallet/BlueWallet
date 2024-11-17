@@ -1,29 +1,27 @@
-//
-//  ViewQRCodeView.swift
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 11/16/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
-
-
-// Views/ViewQRCodeView.swift
+// ViewQRCodeView.swift
 
 import SwiftUI
 
 struct ViewQRCodeView: View {
     var wallet: Wallet
+  private let qrCodeGenerator = QRCodeGenerator() // Initialize the QRCode generator
     
     var body: some View {
         VStack {
-            Image("textfor")
+            // Generate and display the QR code with embedded logo
+            qrCodeGenerator.generateQRCode(from: wallet.receiveAddress)
+                .interpolation(.none) // Ensure crisp QR code
                 .resizable()
-                .frame(width: 128, height: 128)
+                .scaledToFit()
+                .frame(width: 256, height: 256) // Adjust size as needed
                 .padding()
+            
+            // Display the receive address
             Text(wallet.receiveAddress)
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .padding(.bottom)
+            
             Spacer()
         }
         .navigationTitle("QR Code")
@@ -36,7 +34,8 @@ struct ViewQRCodeView_Previews: PreviewProvider {
             label: "My Wallet",
             balance: "0.5 BTC",
             type: .legacyWallet,
-            preferredBalanceUnit: "BTC",
+            chain: .onchain,
+            preferredBalanceUnit: .btc,
             receiveAddress: "1BoatSLRHtKNngkdXEeobR76b53LETtpyT",
             transactions: [],
             xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiK...",

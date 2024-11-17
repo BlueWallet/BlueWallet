@@ -16,7 +16,6 @@ enum WalletType: Codable, Equatable {
     case lightningCustodianWallet
     case aezeedWallet
     case defaultGradients
-    case unknown(String) // For any unknown or future wallet types
 
     // MARK: - Coding Keys
     enum CodingKeys: String, CodingKey {
@@ -27,119 +26,91 @@ enum WalletType: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let typeString = try container.decode(String.self, forKey: .rawValue)
-        
+
         switch typeString {
-        case "HDSegwitP2SHWallet":
+        case "HDsegwitP2SH":
             self = .hdSegwitP2SHWallet
-        case "HDSegwitBech32Wallet":
+        case "HDsegwitBech32":
             self = .hdSegwitBech32Wallet
-        case "SegwitBech32Wallet":
+        case "segwitBech32":
             self = .segwitBech32Wallet
-        case "WatchOnlyWallet":
+        case "watchOnly":
             self = .watchOnlyWallet
-        case "LegacyWallet":
+        case "legacy":
             self = .legacyWallet
-        case "HDLegacyP2PKHWallet":
+        case "HDLegacyP2PKH":
             self = .hdLegacyP2PKHWallet
-        case "HDLegacyBreadwalletWallet":
+        case "HDLegacyBreadwallet":
             self = .hdLegacyBreadWallet
-        case "MultisigHDWallet":
+        case "HDmultisig":
             self = .multisigHdWallet
         case "LightningCustodianWallet":
             self = .lightningCustodianWallet
         case "HDAezeedWallet":
             self = .aezeedWallet
-        case "DefaultGradients":
-            self = .defaultGradients
         default:
-            self = .unknown(typeString)
+            self = .defaultGradients
         }
     }
 
     // MARK: - Encodable Conformance
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         switch self {
         case .hdSegwitP2SHWallet:
-            try container.encode("HDSegwitP2SHWallet", forKey: .rawValue)
+            try container.encode("HDsegwitP2SH", forKey: .rawValue)
         case .hdSegwitBech32Wallet:
-            try container.encode("HDSegwitBech32Wallet", forKey: .rawValue)
+            try container.encode("HDsegwitBech32", forKey: .rawValue)
         case .segwitBech32Wallet:
-            try container.encode("SegwitBech32Wallet", forKey: .rawValue)
+            try container.encode("segwitBech32", forKey: .rawValue)
         case .watchOnlyWallet:
-            try container.encode("WatchOnlyWallet", forKey: .rawValue)
+            try container.encode("watchOnly", forKey: .rawValue)
         case .legacyWallet:
-            try container.encode("LegacyWallet", forKey: .rawValue)
+            try container.encode("legacy", forKey: .rawValue)
         case .hdLegacyP2PKHWallet:
-            try container.encode("HDLegacyP2PKHWallet", forKey: .rawValue)
+            try container.encode("HDLegacyP2PKH", forKey: .rawValue)
         case .hdLegacyBreadWallet:
-            try container.encode("HDLegacyBreadwalletWallet", forKey: .rawValue)
+            try container.encode("HDLegacyBreadwallet", forKey: .rawValue)
         case .multisigHdWallet:
-            try container.encode("MultisigHDWallet", forKey: .rawValue)
+            try container.encode("HDmultisig", forKey: .rawValue)
         case .lightningCustodianWallet:
             try container.encode("LightningCustodianWallet", forKey: .rawValue)
         case .aezeedWallet:
             try container.encode("HDAezeedWallet", forKey: .rawValue)
         case .defaultGradients:
             try container.encode("DefaultGradients", forKey: .rawValue)
-        case .unknown(let typeString):
-            try container.encode(typeString, forKey: .rawValue)
         }
     }
 
-    // MARK: - Computed Property for Raw String
-    /// Returns the raw string associated with the WalletType.
-    var rawString: String {
-        switch self {
-        case .hdSegwitP2SHWallet:
-            return "HDSegwitP2SHWallet"
-        case .hdSegwitBech32Wallet:
-            return "HDSegwitBech32Wallet"
-        case .segwitBech32Wallet:
-            return "SegwitBech32Wallet"
-        case .watchOnlyWallet:
-            return "WatchOnlyWallet"
-        case .legacyWallet:
-            return "LegacyWallet"
-        case .hdLegacyP2PKHWallet:
-            return "HDLegacyP2PKHWallet"
-        case .hdLegacyBreadWallet:
-            return "HDLegacyBreadwalletWallet"
-        case .multisigHdWallet:
-            return "MultisigHDWallet"
-        case .lightningCustodianWallet:
-            return "LightningCustodianWallet"
-        case .aezeedWallet:
-            return "HDAezeedWallet"
-        case .defaultGradients:
-            return "DefaultGradients"
-        case .unknown(let typeString):
-            return typeString
-        }
+    // MARK: - Custom Initializer from Raw String
+    /// Initializes a `WalletType` from a raw string.
+    /// - Parameter rawString: The raw string representing the wallet type.
+    init(rawString: String) {
+        self = WalletType.fromRawString(rawString)
     }
 
-    // MARK: - Helper Function to Convert Raw String to WalletType
-    /// Attempts to convert a raw string to its corresponding WalletType.
+    // MARK: - Helper Method to Convert Raw String to WalletType
+    /// Attempts to convert a raw string to its corresponding `WalletType`.
     /// - Parameter typeString: The raw string representing the wallet type.
     /// - Returns: A `WalletType` instance.
     static func fromRawString(_ typeString: String) -> WalletType {
         switch typeString {
-        case "HDSegwitP2SHWallet":
+        case "HDsegwitP2SH":
             return .hdSegwitP2SHWallet
-        case "HDSegwitBech32Wallet":
+        case "HDsegwitBech32":
             return .hdSegwitBech32Wallet
-        case "SegwitBech32Wallet":
+        case "segwitBech32":
             return .segwitBech32Wallet
-        case "WatchOnlyWallet":
+        case "watchOnly":
             return .watchOnlyWallet
-        case "LegacyWallet":
+        case "legacy":
             return .legacyWallet
-        case "HDLegacyP2PKHWallet":
+        case "HDLegacyP2PKH":
             return .hdLegacyP2PKHWallet
-        case "HDLegacyBreadwalletWallet":
+        case "HDLegacyBreadwallet":
             return .hdLegacyBreadWallet
-        case "MultisigHDWallet":
+        case "HDmultisig":
             return .multisigHdWallet
         case "LightningCustodianWallet":
             return .lightningCustodianWallet
@@ -148,7 +119,67 @@ enum WalletType: Codable, Equatable {
         case "DefaultGradients":
             return .defaultGradients
         default:
-            return .unknown(typeString)
+            return .defaultGradients
+        }
+    }
+
+    // MARK: - Computed Property for Raw String
+    /// Returns the raw string associated with the `WalletType`.
+    var rawString: String {
+        switch self {
+        case .hdSegwitP2SHWallet:
+            return "HDsegwitP2SH"
+        case .hdSegwitBech32Wallet:
+            return "HDsegwitBech32"
+        case .segwitBech32Wallet:
+            return "segwitBech32"
+        case .watchOnlyWallet:
+            return "watchOnly"
+        case .legacyWallet:
+            return "legacy"
+        case .hdLegacyP2PKHWallet:
+            return "HDLegacyP2PKH"
+        case .hdLegacyBreadWallet:
+            return "HDLegacyBreadwallet"
+        case .multisigHdWallet:
+            return "HDmultisig"
+        case .lightningCustodianWallet:
+            return "LightningCustodianWallet"
+        case .aezeedWallet:
+            return "HDAezeedWallet"
+        case .defaultGradients:
+            return "DefaultGradients"
+        }
+    }
+}
+
+// MARK: - CustomStringConvertible Conformance
+extension WalletType: CustomStringConvertible {
+    /// Provides a user-friendly description of the `WalletType`.
+    var description: String {
+        switch self {
+        case .hdSegwitP2SHWallet:
+            return "HD Segwit P2SH Wallet"
+        case .hdSegwitBech32Wallet:
+            return "HD Segwit Bech32 Wallet"
+        case .segwitBech32Wallet:
+            return "Segwit Bech32 Wallet"
+        case .watchOnlyWallet:
+            return "Watch Only Wallet"
+        case .legacyWallet:
+            return "Legacy Wallet"
+        case .hdLegacyP2PKHWallet:
+            return "HD Legacy P2PKH Wallet"
+        case .hdLegacyBreadWallet:
+            return "HD Legacy Bread Wallet"
+        case .multisigHdWallet:
+            return "Multisig HD Wallet"
+        case .lightningCustodianWallet:
+            return "Lightning Custodian Wallet"
+        case .aezeedWallet:
+            return "Aezeed Wallet"
+        case .defaultGradients:
+            return "Default Gradients"
         }
     }
 }

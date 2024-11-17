@@ -92,8 +92,9 @@ struct CreateInvoiceView_Previews: PreviewProvider {
         CreateInvoiceView(wallet: Wallet(
             label: "My Wallet",
             balance: "0.5 BTC",
-            type: .legacyWallet,
-            preferredBalanceUnit: "BTC",
+            type: .lightningCustodianWallet,
+            chain: .offchain,
+            preferredBalanceUnit: .btc,
             receiveAddress: "1BoatSLRHtKNngkdXEeobR76b53LETtpyT",
             transactions: [],
             xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiK...",

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUICore
 
 func percentile(_ arr: [Double], p: Double) -> Double {
     guard !arr.isEmpty else { return 0 }
@@ -84,5 +85,55 @@ extension Date {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: self)
+    }
+}
+
+/// Extension to `Color` to allow initialization using hexadecimal color codes.
+/// Supports RGB (3 characters), RRGGBB (6 characters), and AARRGGBB (8 characters) formats.
+extension Color {
+    /// Initializes a `Color` instance from a hexadecimal color code string.
+    /// - Parameter hex: The hexadecimal color code string (e.g., "#FF5733", "FF5733", "FFF").
+    init(hex: String) {
+        // Remove any non-alphanumeric characters (like "#")
+        let cleanedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        
+        var int: UInt64 = 0
+        Scanner(string: cleanedHex).scanHexInt64(&int)
+        
+        let a, r, g, b: UInt64
+        switch cleanedHex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (
+                255,
+                (int >> 8) * 17,
+                (int >> 4 & 0xF) * 17,
+                (int & 0xF) * 17
+            )
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (
+                255,
+                int >> 16,
+                int >> 8 & 0xFF,
+                int & 0xFF
+            )
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (
+                int >> 24,
+                int >> 16 & 0xFF,
+                int >> 8 & 0xFF,
+                int & 0xFF
+            )
+        default:
+            // Default to black color if the hex string is invalid
+            (a, r, g, b) = (255, 0, 0, 0)
+        }
+        
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue: Double(b) / 255,
+            opacity: Double(a) / 255
+        )
     }
 }

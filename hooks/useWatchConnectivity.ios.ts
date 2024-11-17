@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import {
   transferCurrentComplicationUserInfo,
-  transferUserInfo,
   updateApplicationContext,
   useInstalled,
   usePaired,
@@ -133,6 +132,7 @@ export function useWatchConnectivity() {
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress,
             transactions,
+            chain: wallet.chain,
             hideBalance: wallet.hideBalance ? 1 : 0,
             ...(wallet.chain === Chain.ONCHAIN &&
               wallet.type !== MultisigHDWallet.type && {
@@ -179,7 +179,7 @@ export function useWatchConnectivity() {
         } else if (message.message === 'sendApplicationContext') {
           const walletsToProcess = await constructWalletsToSendToWatch();
           if (walletsToProcess) {
-            updateApplicationContext(walletsToProcess);  // Updated to transferUserInfo
+            updateApplicationContext(walletsToProcess); // Updated to transferUserInfo
             console.debug('Transferred user info on request:', walletsToProcess);
           }
         } else if (message.message === 'fetchTransactions') {
@@ -220,24 +220,24 @@ export function useWatchConnectivity() {
     if (!isInstalled) return;
 
     const unsubscribe = watchEvents.addListener('message', (message: any) => {
-        if (message.request === 'wakeUpApp') {
-            console.debug('Received wake-up request from Apple Watch');
-            // Handle the wake-up request here
-            // You could trigger any necessary setup or data refresh
-        } else {
-            handleMessages(message, () => {});
-        }
+      if (message.request === 'wakeUpApp') {
+        console.debug('Received wake-up request from Apple Watch');
+        // Handle the wake-up request here
+        // You could trigger any necessary setup or data refresh
+      } else {
+        handleMessages(message, () => {});
+      }
     });
 
     messagesListenerActive.current = true;
     console.debug('Message listener set up for Apple Watch');
 
     return () => {
-        unsubscribe();
-        messagesListenerActive.current = false;
-        console.debug('Message listener for Apple Watch cleaned up');
+      unsubscribe();
+      messagesListenerActive.current = false;
+      console.debug('Message listener for Apple Watch cleaned up');
     };
-}, [isInstalled, handleMessages]);
+  }, [isInstalled, handleMessages]);
 }
 
 export default useWatchConnectivity;

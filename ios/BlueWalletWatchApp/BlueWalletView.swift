@@ -1,41 +1,38 @@
-//
-//  BlueWalletView.swift
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 11/16/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
-
-
 // Views/BlueWalletView.swift
 
 import SwiftUI
 
 struct BlueWalletView: View {
     @EnvironmentObject var dataSource: WatchDataSource
-    
-    var body: some View { 
+
+    var body: some View {
         NavigationStack {
-            VStack {
-                if dataSource.wallets.isEmpty {
+            if dataSource.wallets.isEmpty {
+                VStack {
+                    Spacer()
                     Text("No wallets available. Please, add one by opening BlueWallet on your iPhone.")
                         .multilineTextAlignment(.center)
                         .padding()
                         .transition(.opacity)
-                        .onAppear {
-                            // Optionally animate the appearance
-                        }
-                } else {
-                    List {
+                    Spacer()
+                }
+                .navigationTitle("BlueWallet")
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 16) { // Adjust spacing as needed
                         ForEach(dataSource.wallets) { wallet in
                             NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
-                                WalletRowView(wallet: wallet)
+                                WalletListRow(wallet: wallet)
                             }
+                            .buttonStyle(PlainButtonStyle()) // Removes default NavigationLink styling
                         }
                     }
+                    .padding(.horizontal, 16) // Horizontal padding for the stack
+                    .padding(.vertical, 8) // Vertical padding for the stack
                 }
+                .navigationTitle("BlueWallet")
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .navigationTitle("BlueWallet")
         }
     }
 }

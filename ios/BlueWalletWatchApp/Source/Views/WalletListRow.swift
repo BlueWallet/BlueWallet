@@ -1,30 +1,30 @@
-// Views/WalletRowView.swift
+// Views/WalletListRow.swift
 
 import SwiftUI
 
-/// A SwiftUI view representing a single wallet row with a gradient background.
-struct WalletRowView: View {
+struct WalletListRow: View {
     let wallet: Wallet
 
     var body: some View {
         HStack {
-            // Wallet Icon (Replace with your actual icon)
-            // Wallet Information
             VStack(alignment: .leading, spacing: 5) {
                 Text(wallet.label)
                     .font(.headline)
                     .foregroundColor(.white)
-                Text("\(wallet.balance) \(wallet.preferredBalanceUnit)")
+                
+                Text(wallet.balance)
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.8))
             }
-
+            .padding(.leading, 16) // Internal padding for content
+            .padding(.vertical, 10) // Vertical padding for touch-friendly sizing
+            
             Spacer()
         }
-        .padding()
+        .frame(maxWidth: .infinity, minHeight: 80) // Ensures the row stretches horizontally
         .background(
             LinearGradient(
-                gradient: Gradient(colors: WalletGradient.gradientsFor(type: wallet.type)),
+              gradient: Gradient(colors: WalletGradient.gradientsFor(type:  wallet.type)),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -34,14 +34,15 @@ struct WalletRowView: View {
     }
 }
 
-struct WalletRowView_Previews: PreviewProvider {
+struct WalletListRow_Previews: PreviewProvider {
     static var previews: some View {
-        WalletRowView(wallet: Wallet(
+        WalletListRow(wallet: Wallet(
             id: UUID(),
             label: "Legacy Wallet",
             balance: "1.2 BTC",
             type: .legacyWallet,
-            preferredBalanceUnit: "BTC",
+            chain: .onchain,
+            preferredBalanceUnit: .btc,
             receiveAddress: "1BoatSLRHtKNngkdXEeobR76b53LETtpyT",
             transactions: [
                 Transaction(
