@@ -62,7 +62,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             timeLabel = lastUpdated
             valueSmallLabel = priceAbbreviated
             if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"),
-               let preferredFiatUnit = try? FiatUnit(from: preferredFiatCurrency as! Decoder) {
+               let preferredFiatUnit = try? FiatUnit.fiatUnit(for: preferredFiatCurrency) {
                 currencySymbol = preferredFiatUnit.symbol
             } else {
                 currencySymbol = try! FiatUnit.fiatUnit(for: "USD")!.symbol

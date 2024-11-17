@@ -23,7 +23,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
     private func fetchPreferredFiatUnit() -> FiatUnit? {
         if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"),
-           let preferredFiatUnit = try? FiatUnit(from: preferredFiatCurrency as! Decoder) {
+           let preferredFiatUnit = try? FiatUnit.fiatUnit(for:  preferredFiatCurrency) {
             return preferredFiatUnit
         } else {
           return try? FiatUnit(from: "USD" as! Decoder)
