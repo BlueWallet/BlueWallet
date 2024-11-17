@@ -295,7 +295,7 @@ platform :ios do
 
     UI.message("Modifying objectVersion in project.pbxproj due to a bug in Cocoapods...")
 
-    project_pbxproj_path = "ios/BlueWallet.xcodeproj/project.pbxproj"
+    project_pbxproj_path = "./BlueWallet.xcodeproj/project.pbxproj"
   
     file_contents = File.read(project_pbxproj_path)
   
