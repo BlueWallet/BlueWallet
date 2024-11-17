@@ -13,20 +13,26 @@ struct ViewQRCodeView: View {
             ZStack {
                 TabView {
                     // QR Code Page
-                    qrCodeGenerator.generateQRCode(from: content)
-                        .interpolation(.none) // Ensure crisp QR code
-                        .resizable()
-                        .scaledToFit()
-                        .frame(
-                          width: isFullscreen ? geometry.size.width * 1.0 : geometry.size.width * 0.8,
-                          height: isFullscreen ? geometry.size.height * 1.1 : geometry.size.width * 0.8
-                        )
-                        .onTapGesture {
-                            withAnimation {
-                                isFullscreen.toggle() // Toggle fullscreen mode on tap
-                            }
+                    Group {
+                        if let qrCode = try? qrCodeGenerator.generateQRCode(from: content) {
+                            qrCode
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(
+                                  width: isFullscreen ? geometry.size.width * 1.0 : geometry.size.width * 0.8,
+                                  height: isFullscreen ? geometry.size.height * 1.1 : geometry.size.width * 0.8
+                                )
+                                .onTapGesture {
+                                    withAnimation {
+                                        isFullscreen.toggle() // Toggle fullscreen mode on tap
+                                    }
+                                }
+                        } else {
+                            Text("Failed to generate QR code")
+                                .foregroundColor(.red)
                         }
-
+                    }
                     // Text Page
                     ScrollView {
                         Text(content)
