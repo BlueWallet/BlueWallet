@@ -128,5 +128,5 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  container: { borderRadius: 8, borderColor: '#FFFFFF' },
+  container: { borderColor: '#FFFFFF' },
 });
