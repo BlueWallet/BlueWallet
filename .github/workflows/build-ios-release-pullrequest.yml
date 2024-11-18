@@ -76,7 +76,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -178,15 +177,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
-
-      - name: Cache Ruby Gems
-        uses: actions/cache@v4
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
 
       - name: Install Dependencies with Bundler
         run: |
