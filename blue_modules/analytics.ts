@@ -12,26 +12,24 @@ const BlueApp = BlueAppClass.getInstance();
  */
 let userHasOptedOut: boolean = false;
 
-if (process.env.NODE_ENV !== 'development') {
-  (async () => {
-    const uniqueID = await getUniqueId();
-    const doNotTrack = await BlueApp.isDoNotTrackEnabled();
+(async () => {
+  const uniqueID = await getUniqueId();
+  const doNotTrack = await BlueApp.isDoNotTrackEnabled();
 
-    if (doNotTrack) {
-      // dont start Bugsnag at all
-      return;
-    }
+  if (doNotTrack) {
+    // dont start Bugsnag at all
+    return;
+  }
 
-    Bugsnag.start({
-      user: {
-        id: uniqueID,
-      },
-      onError: function (event) {
-        return !userHasOptedOut;
-      },
-    });
-  })();
-}
+  Bugsnag.start({
+    user: {
+      id: uniqueID,
+    },
+    onError: function (event) {
+      return !userHasOptedOut;
+    },
+  });
+})();
 
 const A = async (event: string) => {};
 

@@ -597,10 +597,11 @@
     "tip": "This feature allows you to see, label, freeze or select coins for improved wallet management. You can select multiple coins by tapping on the colored circles.",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
-    "sort_height": "by Height",
-    "sort_value": "by Value",
-    "sort_label": "by Label",
-    "sort_status": "by Status"
+    "sort_height": "Height",
+    "sort_value": "Value",
+    "sort_label": "Label",
+    "sort_status": "Status",
+    "sort_by": "Sort by"
   },
   "units": {
     "BTC": "BTC",
