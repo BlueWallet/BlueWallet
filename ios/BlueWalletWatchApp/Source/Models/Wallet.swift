@@ -41,3 +41,19 @@ struct Wallet: Codable, Identifiable, Equatable {
         self.paymentCode = paymentCode
     }
 }
+
+extension Wallet {
+    static var mock: Wallet {
+        Wallet(
+            label: "Mock Wallet",
+            balance: "1.2345 BTC",
+            type: .hdSegwitBech32Wallet,
+            preferredBalanceUnit: .btc,
+            receiveAddress: "bc1qmockaddressxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            transactions: Transaction.mockTransactions, // Includes multiple transactions
+            xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiKp...",
+            hideBalance: false,
+            paymentCode: "p2pkh_mock_payment_code"
+        )
+    }
+}

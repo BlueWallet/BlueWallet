@@ -181,3 +181,9 @@ extension WalletType: CustomStringConvertible {
         }
     }
 }
+
+extension WalletType {
+    static var mockType: WalletType {
+        return .hdSegwitBech32Wallet
+    }
+}

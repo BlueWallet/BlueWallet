@@ -49,3 +49,9 @@ enum BalanceUnit: String, Codable, Equatable, CustomStringConvertible {
         }
     }
 }
+
+extension BalanceUnit {
+    static var mockUnit: BalanceUnit {
+        return .btc
+    }
+}

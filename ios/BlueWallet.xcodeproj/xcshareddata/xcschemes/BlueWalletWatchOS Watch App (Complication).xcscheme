@@ -64,7 +64,7 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "32"
-      notificationPayloadFile = "BlueWalletWatchApp/Source/Objects/PushNotificationPayload.apns">
+      notificationPayloadFile = "BlueWalletWatchApp/Source/Models/PushNotificationPayload.apns">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference

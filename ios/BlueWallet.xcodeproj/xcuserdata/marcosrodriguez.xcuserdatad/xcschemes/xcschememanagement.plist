@@ -37,7 +37,7 @@
 		<key>BlueWalletWatchOS Watch App (Complication).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>130</integer>
+			<integer>129</integer>
 		</dict>
 		<key>BlueWalletWatchOS Watch App (Notification).xcscheme_^#shared#^_</key>
 		<dict>
@@ -47,7 +47,12 @@
 		<key>BlueWalletWatchOS Watch App.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>129</integer>
+			<integer>127</integer>
+		</dict>
+		<key>ComplicationsExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>131</integer>
 		</dict>
 		<key>MarketWidget.xcscheme_^#shared#^_</key>
 		<dict>

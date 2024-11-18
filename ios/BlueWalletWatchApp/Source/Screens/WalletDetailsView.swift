@@ -17,15 +17,22 @@ struct WalletDetailsView: View {
     @State private var showingReceiveAlert = false
     @State private var qrCodeContent: String? = nil
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                walletDetailsHeader.padding()
-                transactionsSection
-            }
+        List {
+            walletDetailsHeader.padding()
+            
+            transactionsSection
         }
+        .listStyle(.automatic)
         .onAppear(perform: loadWalletDetails)
         .navigationTitle(wallet.label)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .automatic) { // Changed placement
+                QRButton {
+                    qrCodeContent = wallet.receiveAddress
+                }
+            }
+        }
         .background(
             LinearGradient(
                 gradient: Gradient(colors: WalletGradient.gradientsFor(type: wallet.type)),
@@ -44,22 +51,18 @@ struct WalletDetailsView: View {
         VStack(spacing: 8) {
                 BalanceButton(hideBalance: wallet.hideBalance, balance: wallet.balance) {
                 }
-            
-            
         }
     }
 
     // MARK: - Transactions Section
     private var transactionsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-          HStack {Text("Transactions")
-              .font(.headline)
-              .foregroundColor(.primary)
-              .padding(.horizontal)
-            QRButton {
-                qrCodeContent = wallet.receiveAddress
+            HStack {
+                Text("Transactions")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal)
             }
-          }
             if wallet.transactions.isEmpty {
                 Text("No transactions available.")
                     .font(.body)
@@ -67,16 +70,11 @@ struct WalletDetailsView: View {
                     .frame(maxWidth: .infinity, alignment: .center )
                     .background(.black.opacity(1.0))
             } else {
-                VStack(spacing: 8) {
-                    ForEach(wallet.transactions) { transaction in
-                        TransactionListRow(transaction: transaction)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.white.opacity(0.1))
-                            )
-                    }
-                }.background(.black.opacity(1.0))
+                ForEach(wallet.transactions) { transaction in
+                    TransactionListRow(transaction: transaction)
+                    .padding()
+                }
+                .background(.black.opacity(1.0))
             }
         }
     }
@@ -94,5 +92,11 @@ struct WalletDetailsView: View {
         if let updatedWallet = dataSource.wallets.first(where: { $0.id == wallet.id }) {
             wallet = updatedWallet
         }
+    }
+}
+
+struct WalletDetailsView_Previews: PreviewProvider {
+    static var previews: some View {
+        WalletDetailsView(wallet: Wallet.mock)
     }
 }

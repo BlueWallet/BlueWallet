@@ -16,20 +16,18 @@ struct BlueWalletView: View {
             }
             .navigationTitle("BlueWallet")
         } else {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(dataSource.wallets) { wallet in
-                        VStack(alignment: .leading, spacing: 8) {
-                            NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
-                                WalletListRow(wallet: wallet)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                
+            List {
+                ForEach(dataSource.wallets) { wallet in
+                    VStack(alignment: .leading) {
+                        NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
+                            WalletListRow(wallet: wallet)
                         }
-                        .padding(.vertical, 4)
                     }
+                    .listRowInsets(.init())
+                    .padding(.vertical, 4)
                 }
             }
+            .listStyle(CarouselListStyle())
             .navigationTitle("BlueWallet")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $qrContent) { content in
@@ -42,6 +40,6 @@ struct BlueWalletView: View {
 struct BlueWalletView_Previews: PreviewProvider {
     static var previews: some View {
         BlueWalletView()
-            .environmentObject(WatchDataSource.shared)
+            .environmentObject(WatchDataSource.mock)
     }
 }

@@ -30,10 +30,10 @@ struct WalletsListView: View {
                     if transactionsSectionVisible {
                         Section(header: transactionsHeader) {
                             ForEach(getRecentTransactions()) { transaction in
-                                TransactionListRow(
-                                    transaction: transaction
-                                  
-                                )
+                                TransactionListRow(transaction: transaction)
+                                    .frame(maxWidth: .infinity, alignment: .leading) // Full width
+                                    .background(Color.black) // Black background
+                                    .padding(0) // Remove padding
                             }
                         }
                     }
@@ -63,6 +63,7 @@ struct WalletsListView: View {
 }
 
 struct WalletsListView_Previews: PreviewProvider {
+  let mocks = Wallet.mock
     static var previews: some View {
         WalletsListView()
             .environmentObject(WatchDataSource.shared)

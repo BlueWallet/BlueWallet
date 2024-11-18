@@ -370,3 +370,11 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
         })
     }
 }
+
+extension WatchDataSource {
+    static var mock: WatchDataSource {
+        let mockDataSource = WatchDataSource()
+        mockDataSource.wallets = [Wallet.mock]
+        return mockDataSource
+    }
+}

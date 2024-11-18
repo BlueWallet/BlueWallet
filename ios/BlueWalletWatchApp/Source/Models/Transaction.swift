@@ -24,3 +24,32 @@ struct Transaction: Codable, Identifiable, Equatable {
         self.amount = amount
     }
 }
+
+extension Transaction {
+    static var mock: Transaction {
+        Transaction(
+            time: "2024-04-27T12:34:56Z",
+            memo: "Mock Transaction",
+            type: .sent,
+            amount: "-0.001 BTC"
+        )
+    }
+    
+    static var mockTransactions: [Transaction] {
+        [
+            .mock,
+            Transaction(
+                time: "2024-04-26T11:22:33Z",
+                memo: "Another Mock Transaction",
+                type: .received,
+                amount: "+0.002 BTC"
+            ),
+            Transaction(
+                time: "2024-04-25T10:11:22Z",
+                memo: "Third Mock Transaction",
+                type: .pending,
+                amount: "0.000 BTC"
+            )
+        ]
+    }
+}

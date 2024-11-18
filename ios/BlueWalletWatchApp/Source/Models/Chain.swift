@@ -39,3 +39,9 @@ enum Chain: String, Codable, Equatable, CustomStringConvertible {
         }
     }
 }
+
+extension Chain {
+    static var mockChain: Chain {
+        return .onchain
+    }
+}
