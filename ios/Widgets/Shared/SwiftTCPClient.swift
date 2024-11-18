@@ -37,7 +37,11 @@ class SwiftTCPClient {
             parameters = NWParameters.tcp
         }
 
-        connection = NWConnection(host: NWEndpoint.Host(host), port: NWEndpoint.Port(rawValue: port)!, using: parameters)
+        guard let nwPort = NWEndpoint.Port(rawValue: port) else {
+            print("Invalid port number: \(port)")
+            return false
+        }
+        connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: parameters)
         connection?.start(queue: queue)
 
         let serialQueue = DispatchQueue(label: "SwiftTCPClient.connect.serialQueue")
