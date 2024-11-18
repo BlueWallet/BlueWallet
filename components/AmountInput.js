@@ -41,7 +41,6 @@ class AmountInput extends Component {
     disabled: PropTypes.bool,
     colors: PropTypes.object.isRequired,
     unit: PropTypes.string,
-    isDisabled: PropTypes.bool,
     onBlur: PropTypes.func,
     onFocus: PropTypes.func,
   };

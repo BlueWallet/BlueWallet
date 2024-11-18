@@ -65,12 +65,14 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
+  const { isLargeScreen } = useIsLargeScreen();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -81,16 +83,16 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <AddWalletButton onPress={navigateToAddWallet} />
+        {!isLargeScreen && <AddWalletButton onPress={navigateToAddWallet} />}
         <View style={styles.width24} />
         <SettingsButton />
       </>
     ),
-    [navigateToAddWallet],
+    [isLargeScreen, navigateToAddWallet],
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
+    const displayTitle = (!isTotalBalanceEnabled || wallets.length <= 1) && !isLargeScreen;
     return {
       title: displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
@@ -103,7 +105,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => RightBarButtons,
     };
-  }, [RightBarButtons, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
+  }, [RightBarButtons, isLargeScreen, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
