@@ -50,9 +50,7 @@ extension MarketAPI {
              do {
                  let receivedData = try await client.receive()
                  print("Data received. Parsing...")
-                 guard let responseString = String(data: receivedData, encoding: .utf8),
-                       let responseData = responseString.data(using: .utf8),
-                       let json = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: AnyObject],
+                 guard let json = try JSONSerialization.jsonObject(with: receivedData, options: .allowFragments) as? [String: AnyObject],
                        let feeHistogram = json["result"] as? [[Double]] else {
                      print("Failed to parse response from \(host).")
                      completion(nil, APIError())
