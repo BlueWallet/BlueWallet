@@ -111,14 +111,17 @@ export function useWatchConnectivity() {
           const transactions: Transaction[] = wallet
             .getTransactions()
             .slice(0, 10)
-            .map((transaction: Transaction & LightningTransaction) => ({
-              type: determineTransactionType(transaction),
-              amount: transaction.value ?? 0,
-              memo:
-                'hash' in (transaction as Transaction)
-                  ? txMetadata[(transaction as Transaction).hash]?.memo || transaction.memo || ''
-                  : transaction.memo || '',
-              time: transaction.received ?? transaction.time,
+            .map((transaction: Transaction & LightningTransaction) => {
+              const isOnChainTx = 'hash' in transaction;
+              return {
+                type: determineTransactionType(transaction),
+                amount: typeof transaction.value === 'number' ? transaction.value : 0,
+                memo:
+                  isOnChainTx
+                    ? txMetadata[transaction.hash]?.memo ?? transaction.memo ?? ''
+                    : transaction.memo ?? '',
+                time: transaction.received || transaction.time || Date.now(),
+              }});
             }));
 
           const walletData = {
@@ -231,8 +234,14 @@ export function useWatchConnectivity() {
           reply({});
         }
       } catch (error) {
-        console.error('Error handling message:', error);
-        reply({});
+        console.error('Error handling message:', {
+          messageType: message.request || message.message,
+          error: error instanceof Error ? error.message : error
+        });
+        reply({
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+          timestamp: Date.now()
+        });
       }
     },
     [fetchWalletTransactions, saveToDisk, wallets, constructWalletsToSendToWatch, handleLightningInvoiceCreateRequest],

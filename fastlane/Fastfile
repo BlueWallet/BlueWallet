@@ -321,21 +321,26 @@ platform :ios do
 
   desc "Install CocoaPods dependencies"
   lane :install_pods do
-
     UI.message("Modifying objectVersion in project.pbxproj due to a bug in Cocoapods...")
 
     project_pbxproj_path = "../ios/BlueWallet.xcodeproj/project.pbxproj"
   
-    file_contents = File.read(project_pbxproj_path)
-  
-    # Replace 'objectVersion = 70;' with 'objectVersion = 60;'
-    updated_contents = file_contents.gsub(/objectVersion\s*=\s*\d+;/, 'objectVersion = 60;')
-  
-    File.open(project_pbxproj_path, "w") do |file|
-      file.write(updated_contents)
+    unless File.exist?(project_pbxproj_path)
+      UI.user_error!("project.pbxproj not found at: #{project_pbxproj_path}")
     end
 
+    begin
+      file_contents = File.read(project_pbxproj_path)
     
+      # Replace 'objectVersion = 70;' with 'objectVersion = 60;'
+      updated_contents = file_contents.gsub(/objectVersion\s*=\s*\d+;/, 'objectVersion = 60;')
+    
+      File.open(project_pbxproj_path, "w") do |file|
+        file.write(updated_contents)
+      end
+    rescue => e
+      UI.user_error!("Failed to modify objectVersion: #{e.message}")
+    end
     UI.message("Installing CocoaPods dependencies...")
     cocoapods(podfile: "ios/Podfile", deployment: true, clean_install: true)
   end
