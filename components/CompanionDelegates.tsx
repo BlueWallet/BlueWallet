@@ -208,13 +208,21 @@ const CompanionDelegates = () => {
             console.error('Error detecting QR code:', error);
           }
         } else {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
             addWallet,
             saveToDisk,
             setSharedCosigner,
-          });
+          })
+            .then(() => {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+            })
+            .catch(error => {
+              console.error('Error processing URL:', error);
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              presentAlert({ message: loc.send.invalid_url });
+            });
+        }
         }
       }
     },
