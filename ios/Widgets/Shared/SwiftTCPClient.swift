@@ -151,9 +151,6 @@ class SwiftTCPClient {
 
     private func createTLSOptions() -> NWProtocolTLS.Options {
         let tlsOptions = NWProtocolTLS.Options()
-        sec_protocol_options_set_verify_block(tlsOptions.securityProtocolOptions, { _, _, completion in
-            completion(true)
-        }, DispatchQueue.global(qos: .background))
         return tlsOptions
     }
 }
