@@ -35,13 +35,14 @@ const MoreOptionsButton: React.FC<MoreOptionsButtonProps> = ({
       testID={testID}
     >
       <Icon
-        onPress={onPress}
         Component={TouchableOpacityWrapper}
         containerStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         size={22}
         name="more-horiz"
         type="material"
         color={colors.foregroundColor}
+        accessibilityLabel="More options"
+        accessibilityRole="button"
       />
     </ToolTipMenu>
   );
