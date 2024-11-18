@@ -75,6 +75,7 @@
 		B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
 		B45942C42CDECF2400B3DC2E /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */; };
+		B45A794E2CEB053B0001D6B3 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
 		B45AF59B2CE885E50054BBCC /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
 		B45AF59C2CE885F50054BBCC /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
 		B45AF59E2CE886230054BBCC /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
@@ -1242,6 +1243,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B45A794E2CEB053B0001D6B3 /* Balance.swift in Sources */,
 				B45AF5C12CE888BB0054BBCC /* WidgetDataStore.swift in Sources */,
 				B4CB6A3D2CE890AD005456F6 /* XMLParserDelegate.swift in Sources */,
 				B45AF59E2CE886230054BBCC /* UserDefaultsGroupKey.swift in Sources */,

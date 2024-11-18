@@ -8,7 +8,7 @@ import {
   watchEvents,
 } from 'react-native-watch-connectivity';
 import { MultisigHDWallet } from '../class';
-import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from '../hooks/context/useSettings';
@@ -113,17 +113,17 @@ export function useWatchConnectivity() {
             .slice(0, 10)
             .map((transaction: Transaction & LightningTransaction) => ({
               type: determineTransactionType(transaction),
-              amount: formatBalance(transaction.value ?? 0, wallet.getPreferredBalanceUnit(), true).toString(),
+              amount: transaction.value ?? 0,
               memo:
                 'hash' in (transaction as Transaction)
                   ? txMetadata[(transaction as Transaction).hash]?.memo || transaction.memo || ''
                   : transaction.memo || '',
-              time: transactionTimeToReadable(transaction.received ? transaction.received : ''),
+              time: transaction.received ?? transaction.time,
             }));
 
           const walletData = {
             label: wallet.getLabel(),
-            balance: formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
+            balance: Number(wallet.getBalance()),
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress,
