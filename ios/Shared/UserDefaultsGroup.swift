@@ -9,9 +9,9 @@
 import Foundation
 
 struct UserDefaultsElectrumSettings {
-  let host: String?
-  let port: Int32?
-  let sslPort: Int32?
+    var host: String?
+    var port: UInt16?
+    var sslPort: UInt16?
 }
 
 let hardcodedPeers = [
@@ -34,14 +34,14 @@ class UserDefaultsGroup {
       return DefaultElectrumPeers.randomElement()!
     }
     
-    let electrumSettingsTCPPort = suite?.string(forKey: UserDefaultsGroupKey.ElectrumSettingsTCPPort.rawValue) ?? "50001"
-    let electrumSettingsSSLPort = suite?.string(forKey: UserDefaultsGroupKey.ElectrumSettingsSSLPort.rawValue) ?? "443"
+    let electrumSettingsTCPPort = suite?.value(forKey: UserDefaultsGroupKey.ElectrumSettingsTCPPort.rawValue) ?? 50001
+    let electrumSettingsSSLPort = suite?.value(forKey: UserDefaultsGroupKey.ElectrumSettingsSSLPort.rawValue) ?? 443
     
     let host = electrumSettingsHost
-    let sslPort = Int32(electrumSettingsSSLPort)
-    let port = Int32(electrumSettingsTCPPort)
+    let sslPort = electrumSettingsSSLPort
+    let port = electrumSettingsTCPPort
 
-    return UserDefaultsElectrumSettings(host: host, port: port, sslPort: sslPort)
+    return UserDefaultsElectrumSettings(host: host, port: port as! UInt16, sslPort: sslPort as! UInt16)
   }
   
   static func getAllWalletsBalance() -> Double {

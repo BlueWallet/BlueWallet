@@ -14,60 +14,59 @@ struct APIError: LocalizedError {
 
 extension MarketAPI {
 
-    static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
-        let settings = userElectrumSettings
-        let portToUse = settings.sslPort ?? settings.port
-        let isSSLSupported = settings.sslPort != nil
+  static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
+         Task {
+             let client = SwiftTCPClient()
+             defer {
+                 print("Closing connection to \(userElectrumSettings.host ?? "unknown"):\(userElectrumSettings.sslPort ?? userElectrumSettings.port ?? 0).")
+                 client.close()
+             }
 
-        DispatchQueue.global(qos: .background).async {
-            let client = SwiftTCPClient()
+             guard let host = userElectrumSettings.host, let portToUse = userElectrumSettings.sslPort ?? userElectrumSettings.port else {
+                 completion(nil, APIError())
+                 return
+             }
 
-            defer {
-                print("Closing connection to \(String(describing: settings.host)):\(String(describing: portToUse)).")
-                client.close()
-            }
+             let isSSLSupported = userElectrumSettings.sslPort != nil
+             print("Attempting to connect to \(host):\(portToUse) with SSL supported: \(isSSLSupported).")
 
-            guard let host = settings.host, let portToUse = portToUse else { return }
+             let connected = await client.connect(to: host, port: portToUse, useSSL: isSSLSupported)
+             if connected {
+                 print("Successfully connected to \(host):\(portToUse) with SSL: \(isSSLSupported).")
+             } else {
+                 print("Failed to connect to \(host):\(portToUse) with SSL: \(isSSLSupported).")
+                 completion(nil, APIError())
+                 return
+             }
 
-            print("Attempting to connect to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
+             let message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
+             guard let data = message.data(using: .utf8), await client.send(data: data) else {
+                 print("Message sending failed to \(host):\(portToUse) with SSL supported: \(isSSLSupported).")
+                 completion(nil, APIError())
+                 return
+             }
+             print("Message sent successfully to \(host):\(portToUse) with SSL: \(isSSLSupported).")
 
-            if client.connect(to: host, port: UInt32(portToUse), useSSL: isSSLSupported) {
-                print("Successfully connected to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-            } else {
-                print("Failed to connect to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-                completion(nil, APIError())
-                return
-            }
+             do {
+                 let receivedData = try await client.receive()
+                 print("Data received. Parsing...")
+                 guard let json = try JSONSerialization.jsonObject(with: receivedData, options: .allowFragments) as? [String: AnyObject],
+                       let feeHistogram = json["result"] as? [[Double]] else {
+                     print("Failed to parse response from \(host).")
+                     completion(nil, APIError())
+                     return
+                 }
 
-            let message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
-            guard let data = message.data(using: .utf8), client.send(data: data) else {
-                print("Message sending failed to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
-                completion(nil, APIError())
-                return
-            }
-            print("Message sent successfully to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-
-            do {
-                let receivedData = try client.receive()
-                print("Data received. Parsing...")
-                guard let responseString = String(data: receivedData, encoding: .utf8),
-                      let responseData = responseString.data(using: .utf8),
-                      let json = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: AnyObject],
-                      let feeHistogram = json["result"] as? [[Double]] else {
-                    print("Failed to parse response from \(String(describing: settings.host)).")
-                    completion(nil, APIError())
-                    return
-                }
-
-                let fastestFee = calcEstimateFeeFromFeeHistogram(numberOfBlocks: 1, feeHistogram: feeHistogram)
-                let marketData = MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0)
-                completion(marketData, nil) // Successfully fetched data, return it
-            } catch {
-                print("Error receiving data from \(String(describing: settings.host)): \(error.localizedDescription)")
-                completion(nil, APIError())
-            }
-        }
-    }
+                 let fastestFee = calcEstimateFeeFromFeeHistogram(numberOfBlocks: 1, feeHistogram: feeHistogram)
+                 let marketData = MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0, dateString: "")
+                 print("Parsed MarketData: \(marketData)")
+                 completion(marketData, nil)
+             } catch {
+                 print("Error receiving data from \(host): \(error.localizedDescription)")
+                 completion(nil, APIError())
+             }
+         }
+     }
 
     static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
         var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
