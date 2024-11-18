@@ -301,7 +301,6 @@ const ScanLndInvoice = () => {
         >
           <View style={styles.scrollMargin}>
             <AmountInput
-              pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}

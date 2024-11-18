@@ -40,8 +40,8 @@ class AmountInput extends Component {
     onAmountUnitChange: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     colors: PropTypes.object.isRequired,
-    pointerEvents: PropTypes.string,
     unit: PropTypes.string,
+    isDisabled: PropTypes.bool,
     onBlur: PropTypes.func,
     onFocus: PropTypes.func,
   };
@@ -250,7 +250,7 @@ class AmountInput extends Component {
       <TouchableWithoutFeedback
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
-        disabled={this.props.pointerEvents === 'none'}
+        disabled={disabled}
         onPress={() => this.textInput.focus()}
       >
         <>
