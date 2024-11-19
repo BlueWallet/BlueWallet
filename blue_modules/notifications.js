@@ -189,7 +189,6 @@ export const setLevels = async levelAll => {
         new Promise(resolve => PushNotification.abandonPermissions(resolve)),
         new Promise(resolve => PushNotification.removeAllDeliveredNotifications(resolve)),
         AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true'),
-        AsyncStorage.removeItem(PUSH_TOKEN),
       ]);
       console.debug('Notifications disabled successfully');
     } else {
