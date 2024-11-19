@@ -322,7 +322,7 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    cocoapods(podfile: "ios/Podfile", deployment: true, clean_install: true)
+    cocoapods(podfile: "ios/Podfile", deployment: true)
   end
 
 
