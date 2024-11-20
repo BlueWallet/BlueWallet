@@ -1,6 +1,5 @@
-import DefaultPreference from 'react-native-default-preference';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
+import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
@@ -29,60 +28,6 @@ let skipUpdateExchangeRate: boolean = false;
 
 let currencyFormatter: Intl.NumberFormat | null = null;
 let btcFormatter: Intl.NumberFormat | null = null;
-
-// Initialize DefaultPreference with the correct group name
-DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-
-/**
- * Migration Function:
- * Transfers data from AsyncStorage to DefaultPreference if present.
- * DefaultPreference uses truly native preference storage which makes use of
- * extensions easier.
- * After migration, removes the data from AsyncStorage.
- */
-async function migrateAsyncStorageToDefaultPreference(): Promise<void> {
-  try {
-    // Migrate Preferred Currency
-    const asyncPreferredCurrency = await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY);
-    if (asyncPreferredCurrency) {
-      try {
-        const parsedCurrency = JSON.parse(asyncPreferredCurrency);
-        if (FiatUnit[parsedCurrency.endPointKey]) {
-          await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, parsedCurrency.endPointKey);
-          await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, parsedCurrency.locale.replace('-', '_'));
-          preferredFiatCurrency = FiatUnit[parsedCurrency.endPointKey];
-        }
-      } catch (error) {
-        console.error('Failed to parse preferred currency from AsyncStorage:', error);
-      } finally {
-        await AsyncStorage.removeItem(PREFERRED_CURRENCY_STORAGE_KEY);
-        await AsyncStorage.removeItem(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY);
-      }
-    }
-
-    // Migrate Exchange Rates
-    const asyncExchangeRates = await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY);
-    if (asyncExchangeRates) {
-      try {
-        const parsedRates = JSON.parse(asyncExchangeRates);
-        await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, asyncExchangeRates);
-        exchangeRates = parsedRates;
-      } catch (error) {
-        console.error('Failed to parse exchange rates from AsyncStorage:', error);
-      } finally {
-        } catch (error) {
-          console.error('Failed to parse exchange rates from AsyncStorage:', error);
-        } else {
-          // Remove from AsyncStorage only if migration was successful
-          await AsyncStorage.removeItem(EXCHANGE_RATES_STORAGE_KEY);
-        }
-    }
-
-    console.log('Migration from AsyncStorage to DefaultPreference completed.');
-  } catch (migrationError) {
-    console.error('Migration failed:', migrationError);
-  }
-}
 
 function getCurrencyFormatter(): Intl.NumberFormat {
   if (
@@ -117,32 +62,27 @@ function getBTCFormatter(): Intl.NumberFormat {
 }
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
-  try {
-    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
-    await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
-    preferredFiatCurrency = item;
-    currencyFormatter = null;
-    btcFormatter = null;
-  } catch (error) {
-    console.error('Failed to set preferred currency:', error);
-    throw error;
-  }
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
+  await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
+  currencyFormatter = null;
+  btcFormatter = null;
 }
 
 async function updateExchangeRate(): Promise<void> {
   if (skipUpdateExchangeRate) return;
   if (Date.now() - lastTimeUpdateExchangeRateWasCalled <= 10000) {
-    // Simple debounce to prevent race conditions
+    // simple debounce so there's no race conditions
     return;
   }
   lastTimeUpdateExchangeRateWasCalled = Date.now();
 
   const lastUpdated = exchangeRates[LAST_UPDATED] as number | undefined;
   if (lastUpdated && Date.now() - lastUpdated <= 30 * 60 * 1000) {
-    // Not updating too often
+    // not updating too often
     return;
   }
-  console.log('Updating exchange rate...');
+  console.log('updating exchange rate...');
 
   try {
     const rate = await getFiatRate(preferredFiatCurrency.endPointKey);
@@ -152,22 +92,27 @@ async function updateExchangeRate(): Promise<void> {
 
     try {
       const exchangeRatesString = JSON.stringify(exchangeRates);
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, exchangeRatesString);
     } catch (error) {
-      console.error('Failed to set exchange rates in DefaultPreference:', error);
       await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
       exchangeRates = { LAST_UPDATED_ERROR: false };
     }
   } catch (error) {
-    console.error('Failed to fetch fiat rate:', error);
     try {
-      const ratesString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+      const ratesValue = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+      let ratesString: string | null = null;
+
+      if (typeof ratesValue === 'string') {
+        ratesString = ratesValue;
+      }
+
       let rate;
       if (ratesString) {
         try {
           rate = JSON.parse(ratesString);
         } catch (parseError) {
-          console.error('Failed to parse exchange rates:', parseError);
           await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
           rate = {};
         }
@@ -178,7 +123,6 @@ async function updateExchangeRate(): Promise<void> {
       exchangeRates.LAST_UPDATED_ERROR = true;
       await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
     } catch (storageError) {
-      console.error('Failed to handle exchange rate error:', storageError);
       exchangeRates = { LAST_UPDATED_ERROR: true };
       throw storageError;
     }
@@ -186,58 +130,61 @@ async function updateExchangeRate(): Promise<void> {
 }
 
 async function getPreferredCurrency(): Promise<FiatUnitType> {
-  try {
-    const preferredCurrencyString = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
-    if (preferredCurrencyString) {
-      try {
-        if (!FiatUnit[preferredCurrencyString]) {
-          throw new Error('Invalid Fiat Unit');
-        }
-        preferredFiatCurrency = FiatUnit[preferredCurrencyString];
-      } catch (error) {
-        console.error('Failed to parse preferred currency:', error);
-        await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
-        await DefaultPreference.clear(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY);
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  const preferredCurrencyValue = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
+  let preferredCurrency: string | null = null;
 
-        const deviceCurrencies = RNLocalize.getCurrencies();
-        if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
-          preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
-        } else {
-          preferredFiatCurrency = FiatUnit.USD;
-        }
-        await setPreferredCurrency(preferredFiatCurrency);
+  if (typeof preferredCurrencyValue === 'string') {
+    preferredCurrency = preferredCurrencyValue;
+  }
+
+  if (preferredCurrency) {
+    let parsedPreferredCurrency;
+    try {
+      parsedPreferredCurrency = JSON.parse(preferredCurrency);
+      if (!FiatUnit[parsedPreferredCurrency.endPointKey]) {
+        throw new Error('Invalid Fiat Unit');
       }
+      preferredFiatCurrency = FiatUnit[parsedPreferredCurrency.endPointKey];
+    } catch (error) {
+      await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
 
-      return preferredFiatCurrency;
+      const deviceCurrencies = RNLocalize.getCurrencies();
+      if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
+        preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
+      } else {
+        preferredFiatCurrency = FiatUnit.USD;
+      }
     }
 
-    // If no preferred currency is set, determine based on device settings
-    const deviceCurrencies = RNLocalize.getCurrencies();
-    if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
-      preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
-    } else {
-      preferredFiatCurrency = FiatUnit.USD;
-    }
-
-    await setPreferredCurrency(preferredFiatCurrency);
-    return preferredFiatCurrency;
-  } catch (error) {
-    console.error('Failed to get preferred currency:', error);
-    // Fallback to USD in case of error
-    preferredFiatCurrency = FiatUnit.USD;
-    await setPreferredCurrency(preferredFiatCurrency);
+    await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredFiatCurrency.locale.replace('-', '_'));
     return preferredFiatCurrency;
   }
+
+  const deviceCurrencies = RNLocalize.getCurrencies();
+  if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
+    preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
+  } else {
+    preferredFiatCurrency = FiatUnit.USD;
+  }
+
+  return preferredFiatCurrency;
 }
 
 async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
   try {
-    const ratesString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const ratesValue = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    let ratesString: string | null = null;
+
+    if (typeof ratesValue === 'string') {
+      ratesString = ratesValue;
+    }
+
     if (ratesString) {
       try {
         exchangeRates = JSON.parse(ratesString);
       } catch (error) {
-        console.error('Failed to parse exchange rates:', error);
         await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
         exchangeRates = { LAST_UPDATED_ERROR: false };
         await updateExchangeRate();
@@ -246,7 +193,6 @@ async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
       exchangeRates = { LAST_UPDATED_ERROR: false };
     }
   } catch (error) {
-    console.error('Failed to restore exchange rates:', error);
     exchangeRates = { LAST_UPDATED_ERROR: false };
     await updateExchangeRate();
   }
@@ -254,15 +200,25 @@ async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
 
 async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
   try {
-    const storedCurrencyString = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
-    if (!storedCurrencyString) throw new Error('No Preferred Fiat selected');
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const storedCurrencyValue = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
+    let storedCurrency: string | null = null;
 
+    if (typeof storedCurrencyValue === 'string') {
+      storedCurrency = storedCurrencyValue;
+    }
+
+    if (!storedCurrency) throw new Error('No Preferred Fiat selected');
+
+    let parsedCurrency;
     try {
-      preferredFiatCurrency = FiatUnit[storedCurrencyString];
+      parsedCurrency = JSON.parse(storedCurrency);
+      if (!FiatUnit[parsedCurrency.endPointKey]) {
+        throw new Error('Invalid Fiat Unit');
+      }
+      preferredFiatCurrency = FiatUnit[parsedCurrency.endPointKey];
     } catch (error) {
-      console.error('Failed to parse stored currency:', error);
       await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
-      await DefaultPreference.clear(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY);
 
       const deviceCurrencies = RNLocalize.getCurrencies();
       if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
@@ -270,29 +226,32 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
       } else {
         preferredFiatCurrency = FiatUnit.USD;
       }
-      await setPreferredCurrency(preferredFiatCurrency);
     }
   } catch (error) {
-    console.error('Failed to restore preferred fiat currency:', error);
     const deviceCurrencies = RNLocalize.getCurrencies();
     if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
       preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
     } else {
       preferredFiatCurrency = FiatUnit.USD;
     }
-    await setPreferredCurrency(preferredFiatCurrency);
   }
 }
 
 async function isRateOutdated(): Promise<boolean> {
   try {
-    const rateString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const rateValue = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    let rateString: string | null = null;
+
+    if (typeof rateValue === 'string') {
+      rateString = rateValue;
+    }
+
     let rate;
     if (rateString) {
       try {
         rate = JSON.parse(rateString);
       } catch (parseError) {
-        console.error('Failed to parse exchange rates:', parseError);
         await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
         rate = {};
         await updateExchangeRate();
@@ -301,8 +260,7 @@ async function isRateOutdated(): Promise<boolean> {
       rate = {};
     }
     return rate.LAST_UPDATED_ERROR || Date.now() - (rate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
-  } catch (error) {
-    console.error('Failed to determine if rate is outdated:', error);
+  } catch {
     return true;
   }
 }
@@ -313,12 +271,12 @@ async function restoreSavedPreferredFiatCurrencyAndExchangeFromStorage(): Promis
 }
 
 async function initCurrencyDaemon(clearLastUpdatedTime: boolean = false): Promise<void> {
-  await restoreSavedPreferredFiatCurrencyAndExchangeFromStorage();
+  await _restoreSavedExchangeRatesFromStorage();
+  await _restoreSavedPreferredFiatCurrencyFromStorage();
 
   if (clearLastUpdatedTime) {
     exchangeRates[LAST_UPDATED] = 0;
     lastTimeUpdateExchangeRateWasCalled = 0;
-    await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
   }
 
   await updateExchangeRate();
@@ -343,12 +301,12 @@ function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string
     formattedAmount = convertedAmount.toPrecision(2);
   }
 
-  if (!format) return formattedAmount;
+  if (format === false) return formattedAmount;
 
   try {
     return getCurrencyFormatter().format(Number(formattedAmount));
   } catch (error) {
-    console.error('Failed to format currency:', error);
+    console.error(error);
     return formattedAmount;
   }
 }
@@ -360,13 +318,19 @@ function BTCToLocalCurrency(bitcoin: BigNumber.Value): string {
 
 async function mostRecentFetchedRate(): Promise<CurrencyRate> {
   try {
-    const currencyInformationString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const currencyInfoValue = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    let currencyInformationString: string | null = null;
+
+    if (typeof currencyInfoValue === 'string') {
+      currencyInformationString = currencyInfoValue;
+    }
+
     let currencyInformation;
     if (currencyInformationString) {
       try {
         currencyInformation = JSON.parse(currencyInformationString);
       } catch (parseError) {
-        console.error('Failed to parse exchange rates:', parseError);
         await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
         currencyInformation = {};
         await updateExchangeRate();
@@ -380,8 +344,7 @@ async function mostRecentFetchedRate(): Promise<CurrencyRate> {
       LastUpdated: currencyInformation[LAST_UPDATED] ? new Date(currencyInformation[LAST_UPDATED]) : null,
       Rate: rate ? getCurrencyFormatter().format(rate) : '...',
     };
-  } catch (error) {
-    console.error('Failed to fetch most recent rate:', error);
+  } catch {
     return {
       LastUpdated: null,
       Rate: null,
@@ -417,7 +380,7 @@ function formatBTC(btc: BigNumber.Value): string {
   try {
     return getBTCFormatter().format(Number(btc));
   } catch (error) {
-    console.error('Failed to format BTC:', error);
+    console.error(error);
     return new BigNumber(btc).toFixed(8);
   }
 }
@@ -455,5 +418,4 @@ export {
   setPreferredCurrency,
   updateExchangeRate,
   formatBTC,
-  migrateAsyncStorageToDefaultPreference,
 };

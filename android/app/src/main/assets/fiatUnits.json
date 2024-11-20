@@ -13,6 +13,13 @@
         "symbol": "د.إ.",
         "country": "United Arab Emirates (UAE Dirham)"
     },
+    "AMD": {
+        "endPointKey": "AMD",
+        "locale": "hy-AM",
+        "source": "CoinDesk",
+        "symbol": "֏",
+        "country": "Armenia (Armenian Dram)"
+    },
     "ANG": {
         "endPointKey": "ANG",
         "locale": "en-SX",
@@ -292,6 +299,13 @@
         "source": "BNR",
         "symbol": "lei",
         "country": "Romania (Romanian Leu)"
+    },
+    "RSD": {
+        "endPointKey": "RSD",
+        "locale": "sr-RS",
+        "source": "CoinGecko",
+        "symbol": "DIN",
+        "country": "Serbia (Serbian Dinar)"
     },
     "RUB": {
         "endPointKey": "RUB",

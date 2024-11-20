@@ -9,7 +9,7 @@ import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 export const getLNDHub = async (): Promise<string | undefined> => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    let value = await DefaultPreference.get(BlueApp.LNDHUB);
+    let value = await DefaultPreference.get(BlueApp.LNDHUB) as string | null;
 
     // If not found, check AsyncStorage and migrate it to DefaultPreference
     if (!value) {
