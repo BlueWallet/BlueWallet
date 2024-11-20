@@ -1,18 +1,13 @@
-import { useContext } from 'react';
-import { LargeScreenContext } from '../components/Context/LargeScreenProvider';
+import { useEffect, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 
-interface UseIsLargeScreenResult {
-  isLargeScreen: boolean;
-  setLargeScreenValue: (value: 'Handheld' | 'LargeScreen' | undefined) => void;
-}
+export const useIsLargeScreen = () => {
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const dimensions = useWindowDimensions();
 
-export const useIsLargeScreen = (): UseIsLargeScreenResult => {
-  const context = useContext(LargeScreenContext);
-  if (context === undefined) {
-    throw new Error('useIsLargeScreen must be used within a LargeScreenProvider');
-  }
-  return {
-    isLargeScreen: context.isLargeScreen,
-    setLargeScreenValue: context.setLargeScreenValue,
-  };
+  useEffect(() => {
+    setIsLargeScreen(dimensions.width >= 768);
+  }, [dimensions]);
+
+  return { isLargeScreen };
 };
