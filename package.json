@@ -149,7 +149,7 @@
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.6.1",
     "react-native-rate": "1.2.12",
-    "react-native-reanimated": "3.16.0",
+    "react-native-reanimated": "3.16.2",
     "react-native-safe-area-context": "4.14.0",
     "react-native-screen-capture": "github:BlueWallet/react-native-screen-capture#18cb79f",
     "react-native-screens": "3.35.0",
