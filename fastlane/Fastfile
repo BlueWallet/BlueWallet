@@ -90,7 +90,6 @@ platform :android do
     end
   end
 
-
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
@@ -120,30 +119,60 @@ platform :android do
       browserstack_hashed_id = app_url.gsub('bs://', '')
       pr_number = ENV['GITHUB_PR_NUMBER']
 
+      comment_identifier = '### APK Successfully Uploaded to BrowserStack'
+
       comment = <<~COMMENT
-        ### APK Successfully Uploaded to BrowserStack
-        
+        #{comment_identifier}
+
         You can test it on the following devices:
         
         - [Google Pixel 5 (Android 12.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Google Pixel 7 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Google Pixel 8 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Google Pixel 3a (Android 9.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-    
+        
         - [Samsung Galaxy Z Fold 5 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Z Fold 6 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Tab S9 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-    
+
         **Filename**: [#{apk_filename}](#{apk_download_url})
         **BrowserStack App URL**: #{app_url}
       COMMENT
 
-      # Post PR comment if PR number is available
+      # Delete Previous BrowserStack Comments
       if pr_number
         begin
-          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
-          UI.success("Posted comment to PR ##{pr_number}")
+          repo = ENV['GITHUB_REPOSITORY'] # Format: "owner/repo"
+          repo_owner, repo_name = repo.split('/')
+
+          UI.message("Fetching existing comments for PR ##{pr_number}...")
+
+          comments_json = `gh api -X GET /repos/#{repo_owner}/#{repo_name}/issues/#{pr_number}/comments`
+          comments = JSON.parse(comments_json)
+
+          comments.each do |comment|
+            if comment['body'].start_with?(comment_identifier)
+              comment_id = comment['id']
+              UI.message("Deleting previous comment ID: #{comment_id}...")
+              `gh api -X DELETE /repos/#{repo_owner}/#{repo_name}/issues/comments/#{comment_id}`
+              UI.success("Deleted comment ID: #{comment_id}")
+            end
+          end
+
+        rescue => e
+          UI.error("Failed to delete previous comments: #{e.message}")
+        end
+      else
+        UI.important("No PR number found. Skipping deletion of previous comments.")
+      end
+
+      # Post New Comment to PR
+      if pr_number
+        begin
+          escaped_comment = comment.gsub("'", "'\\''")
+          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{escaped_comment}'")
+          UI.success("Posted new comment to PR ##{pr_number}")
         rescue => e
           UI.error("Failed to post comment to PR: #{e.message}")
         end
@@ -151,9 +180,8 @@ platform :android do
         UI.important("No PR number found. Skipping PR comment.")
       end
     end
-  end
-
 end
+
 
 # ===========================
 #       iOS Lanes
@@ -294,7 +322,7 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    cocoapods(podfile: "ios/Podfile")
+    cocoapods(podfile: "ios/Podfile", deployment: true)
   end
 
 
@@ -412,7 +440,7 @@ lane :build_app_lane do
     end
   end
 end
-
+end
 # ===========================
 #       Global Lanes
 # ===========================
@@ -561,5 +589,5 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
-  end
+end
 end
