@@ -50,8 +50,15 @@ function getCurrencyFormatter(): Intl.NumberFormat {
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
-  await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
+  try {
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
+    await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
+  } catch (error) {
+    console.error('Failed to set preferred currency:', error);
+    await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
+    await DefaultPreference.clear(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY);
+    throw error;
+  }
   currencyFormatter = null;
   btcFormatter = null;
 }
