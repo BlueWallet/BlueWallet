@@ -16,7 +16,7 @@ export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarSt
 const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
 
 const MainRoot = () => {
-  return DrawerRoot();
+  return <DrawerRoot />;
 };
 
 export default MainRoot;
