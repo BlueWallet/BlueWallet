@@ -1,66 +1,66 @@
-//
-//  Wallet.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/13/19.
-
-//
-
 import Foundation
 
-class Wallet: NSObject, NSSecureCoding {
-  
-  static var supportsSecureCoding: Bool = true
+/// Represents a wallet with various properties including its type.
+/// Conforms to `Codable` and `Identifiable` for encoding/decoding and unique identification.
+struct Wallet: Codable, Identifiable, Equatable {
+    let id: UUID
+    let label: String
+    let balance: String
+    let type: WalletType
+    let chain: Chain
+  let preferredBalanceUnit:  BitcoinUnit
+    let receiveAddress: String
+    let transactions: [Transaction]
+    let xpub: String
+    let hideBalance: Bool
+    let paymentCode: String?
+        
+    /// Initializes a new Wallet instance.
+    /// - Parameters:
+    ///   - id: Unique identifier for the wallet. Defaults to a new UUID.
+    ///   - label: Display label for the wallet.
+    ///   - balance: Current balance of the wallet as a string.
+    ///   - type: The type of the wallet, defined by `WalletType`.
+    ///   - preferredBalanceUnit: The preferred unit for displaying balance (e.g., BTC).
+    ///   - receiveAddress: The address to receive funds.
+    ///   - transactions: An array of transactions associated with the wallet.
+    ///   - xpub: Extended public key for HD wallets.
+    ///   - hideBalance: Indicates whether the balance should be hidden.
+    ///   - paymentCode: Optional payment code associated with the wallet.
+  init(id: UUID = UUID(), label: String, balance: String, type: WalletType, chain: Chain = .onchain, preferredBalanceUnit: BitcoinUnit = .sats, receiveAddress: String, transactions: [Transaction], xpub: String, hideBalance: Bool, paymentCode: String? = nil) {
+        self.id = id
+        self.label = label
+        self.balance = balance
+        self.type = type
+      self.chain = chain
+        self.preferredBalanceUnit = preferredBalanceUnit
+        self.receiveAddress = receiveAddress
+        self.transactions = transactions
+        self.xpub = xpub
+        self.hideBalance = hideBalance
+        self.paymentCode = paymentCode
+    }
+}
 
-  static let identifier: String = "Wallet"
+extension Wallet {
+    static var mock: Wallet {
+        Wallet(
+            label: "Mock Wallet",
+            balance: "1.2345 BTC",
+            type: .hdSegwitBech32Wallet,
+            preferredBalanceUnit: .sats,
+            receiveAddress: "bc1qmockaddressxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            transactions: Transaction.mockTransactions, // Includes multiple transactions
+            xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiKp...",
+            hideBalance: false,
+            paymentCode: "p2pkh_mock_payment_code"
+        )
+    }
+}
 
-  var identifier: Int?
-  let label: String
-  let balance: String
-  let type: String
-  let preferredBalanceUnit: String
-  let receiveAddress: String
-  let transactions: [Transaction]
-  let xpub: String?
-  let hideBalance: Bool
-  let paymentCode: String?
-  
-  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], identifier: Int, xpub: String?, hideBalance: Bool = false, paymentCode: String?) {
-    self.label = label
-    self.balance = balance
-    self.type = type
-    self.preferredBalanceUnit = preferredBalanceUnit
-    self.receiveAddress = receiveAddress
-    self.transactions = transactions
-    self.identifier = identifier
-    self.xpub = xpub
-    self.hideBalance = hideBalance
-    self.paymentCode = paymentCode
-  }
-  
-  func encode(with aCoder: NSCoder) {
-    aCoder.encode(label, forKey: "label")
-    aCoder.encode(balance, forKey: "balance")
-    aCoder.encode(type, forKey: "type")
-    aCoder.encode(receiveAddress, forKey: "receiveAddress")
-    aCoder.encode(preferredBalanceUnit, forKey: "preferredBalanceUnit")
-    aCoder.encode(transactions, forKey: "transactions")
-    aCoder.encode(identifier, forKey: "identifier")
-    aCoder.encode(xpub, forKey: "xpub")
-    aCoder.encode(hideBalance, forKey: "hideBalance")
-    aCoder.encode(paymentCode, forKey: "paymentCode")
-  }
-  
-  required init?(coder aDecoder: NSCoder) {
-    label = aDecoder.decodeObject(forKey: "label") as! String
-    balance = aDecoder.decodeObject(forKey: "balance") as! String
-    type = aDecoder.decodeObject(forKey: "type") as! String
-    preferredBalanceUnit = aDecoder.decodeObject(forKey: "preferredBalanceUnit") as! String
-    receiveAddress = aDecoder.decodeObject(forKey: "receiveAddress") as! String
-    transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
-    xpub = aDecoder.decodeObject(forKey: "xpub") as? String
-    hideBalance = aDecoder.decodeObject(forKey: "hideBalance") as? Bool ?? false
-    paymentCode = aDecoder.decodeObject(forKey: "paymentCode") as? String
-  }
-
+extension Wallet {
+    var formattedBalance: String {
+        guard let balanceDecimal = Decimal(string: balance) else { return balance }
+        return balanceDecimal.formatted(as: preferredBalanceUnit)
+    }
 }

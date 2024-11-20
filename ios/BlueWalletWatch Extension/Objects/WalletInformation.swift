@@ -14,6 +14,7 @@ class WalletInformation: NSObject {
   @IBOutlet private weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet private weak var walletGroup: WKInterfaceGroup!
   static let identifier: String = "WalletInformation"
+  let type: Wallet? = nil
   
   var name: String = "" {
     willSet {
@@ -27,11 +28,7 @@ class WalletInformation: NSObject {
     }
   }
   
-  var type: WalletGradient = .SegwitHD {
-    willSet {
-      walletGroup.setBackgroundImageNamed(newValue.imageString)
-    }
-  }
+  
   
 }
 
@@ -41,6 +38,5 @@ extension WalletInformation {
     walletBalanceLabel.setHidden(wallet.hideBalance)
     name = wallet.label
     balance = wallet.hideBalance ? "" : wallet.balance
-    type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
   }
 }
