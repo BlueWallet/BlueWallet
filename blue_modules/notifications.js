@@ -95,6 +95,12 @@ export const tryToObtainPermissions = async () => {
  */
 export const majorTomToGroundControl = async (addresses, hashes, txids) => {
   try {
+    const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
+    if (noAndDontAskFlag === 'true') {
+      console.warn('User has opted out of notifications.');
+      return;
+    }
+
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
       throw new Error('No addresses, hashes, or txids provided');
     }
