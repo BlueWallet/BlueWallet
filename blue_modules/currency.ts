@@ -48,19 +48,6 @@ function getCurrencyFormatter(): Intl.NumberFormat {
   return currencyFormatter;
 }
 
-function getBTCFormatter(): Intl.NumberFormat {
-  if (!btcFormatter || btcFormatter.resolvedOptions().locale !== preferredFiatCurrency.locale) {
-    btcFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-      minimumFractionDigits: 8,
-      maximumFractionDigits: 8,
-    });
-    console.debug('Created new BTC formatter');
-  } else {
-    console.debug('Using cached BTC formatter');
-  }
-  return btcFormatter;
-}
-
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
@@ -377,12 +364,7 @@ function getCurrencySymbol(): string {
 }
 
 function formatBTC(btc: BigNumber.Value): string {
-  try {
-    return getBTCFormatter().format(Number(btc));
-  } catch (error) {
-    console.error(error);
-    return new BigNumber(btc).toFixed(8);
-  }
+  return new BigNumber(btc).toFormat(8);
 }
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
