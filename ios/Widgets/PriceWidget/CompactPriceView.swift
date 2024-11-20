@@ -26,7 +26,7 @@ struct CompactPriceView: View {
                 Text(dataSource)
             }
             .font(.subheadline)
-            .foregroundColor(.secondary)
+            .foregroundColor(secondaryTextColor)
             .multilineTextAlignment(.center)
             .accessibilityElement(children: .combine)
         }
@@ -37,5 +37,10 @@ struct CompactPriceView: View {
     // Adaptive color for the price text using system built-in colors
     var priceTextColor: Color {
         colorScheme == .dark ? .cyan : .blue
+    }
+
+    // Improved secondary text color for better readability
+    var secondaryTextColor: Color {
+        colorScheme == .dark ? .white : .black
     }
 }
