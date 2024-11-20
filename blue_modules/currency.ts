@@ -70,8 +70,12 @@ async function migrateAsyncStorageToDefaultPreference(): Promise<void> {
       } catch (error) {
         console.error('Failed to parse exchange rates from AsyncStorage:', error);
       } finally {
-        await AsyncStorage.removeItem(EXCHANGE_RATES_STORAGE_KEY);
-      }
+        } catch (error) {
+          console.error('Failed to parse exchange rates from AsyncStorage:', error);
+        } else {
+          // Remove from AsyncStorage only if migration was successful
+          await AsyncStorage.removeItem(EXCHANGE_RATES_STORAGE_KEY);
+        }
     }
 
     console.log('Migration from AsyncStorage to DefaultPreference completed.');
