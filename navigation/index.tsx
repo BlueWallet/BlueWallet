@@ -1,3 +1,4 @@
+import React from 'react';
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import DrawerRoot from './DrawerRoot';
