@@ -27,7 +27,6 @@ let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
 let currencyFormatter: Intl.NumberFormat | null = null;
-let btcFormatter: Intl.NumberFormat | null = null;
 
 function getCurrencyFormatter(): Intl.NumberFormat {
   if (
@@ -60,7 +59,6 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
     throw error;
   }
   currencyFormatter = null;
-  btcFormatter = null;
 }
 
 async function updateExchangeRate(): Promise<void> {
@@ -177,10 +175,14 @@ async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
 
     if (ratesString) {
       try {
-        exchangeRates = JSON.parse(ratesString);
+        const parsedRates = JSON.parse(ratesString);
+        // Atomic update to prevent race conditions
+        exchangeRates = parsedRates;
       } catch (error) {
         await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
         exchangeRates = { LAST_UPDATED_ERROR: false };
+        // Add delay before update to prevent rapid consecutive calls
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await updateExchangeRate();
       }
     } else {
