@@ -25,7 +25,6 @@ class Currency {
     if preferredCurrency != Currency.getLastSelectedCurrency() {
       UserDefaults.standard.removeObject(forKey: WidgetData.WidgetCachedDataStoreKey)
       UserDefaults.standard.removeObject(forKey: WidgetData.WidgetDataStoreKey)
-      UserDefaults.standard.synchronize()
     }
 
     return preferredCurrency

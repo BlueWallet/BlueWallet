@@ -1,35 +1,47 @@
 import Foundation
 
 class Balance {
-    static func formatBalance(_ balance: Decimal, toUnit: BitcoinUnit, withFormatting: Bool = false, completion: @escaping (String) -> Void) {
+    static func formatBalance(_ balance: Decimal, toUnit: BalanceUnit, withFormatting: Bool = false) -> String {
         switch toUnit {
-        case .BTC:
+        case .btc:
             let value = balance / Decimal(100_000_000)
-            completion("\(value) BTC") // Localize unit names as needed.
-        case .SATS:
+            return "\(removeTrailingZeros(value)) BTC" // Localize unit names as needed.
+        case .sats:
             if withFormatting {
-                completion(NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + " SATS")
+                return NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + " SATS"
             } else {
-                completion("\(balance) SATS")
+                return "\(balance) SATS"
             }
-        case .LOCAL_CURRENCY:
-            fetchLocalCurrencyEquivalent(satoshi: balance, completion: completion)
+        case .localCurrency:
+            return fetchLocalCurrencyEquivalent(satoshi: balance)
+        default:
+            let value = balance / Decimal(100_000_000)
+            return "\(removeTrailingZeros(value)) BTC" // Localize unit names as needed.
         }
     }
 
-    private static func fetchLocalCurrencyEquivalent(satoshi: Decimal, completion: @escaping (String) -> Void) {
-      
+    private static func fetchLocalCurrencyEquivalent(satoshi: Decimal) -> String {
         let currency = Currency.getUserPreferredCurrency() // Ensure this method retrieves the correct currency code.
+        var result = "0 \(currency)"
         MarketAPI.fetchPrice(currency: currency) { dataStore, error in
             DispatchQueue.main.async {
                 guard let dataStore = dataStore, error == nil else {
-                    completion("Error: \(error?.localizedDescription ?? "Unknown error")")
+                    result = "Error: \(error?.localizedDescription ?? "Unknown error")"
                     return
                 }
                 let rate = Decimal(string: dataStore.rate) ?? Decimal(0)
                 let convertedAmount = (satoshi / Decimal(100_000_000)) * rate
-                completion("\(convertedAmount) \(currency)")
+                result = "\(convertedAmount) \(currency)"
             }
         }
+        return result
+    }
+
+    private static func removeTrailingZeros(_ value: Decimal) -> String {
+        var stringValue = "\(value)"
+        while stringValue.last == "0" || stringValue.last == "." {
+            stringValue.removeLast()
+        }
+        return stringValue
     }
 }

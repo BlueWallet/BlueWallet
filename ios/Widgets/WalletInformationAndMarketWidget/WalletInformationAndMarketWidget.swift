@@ -64,7 +64,7 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
 
 struct WalletInformationAndMarketWidgetEntry: TimelineEntry {
     let date: Date
-    let marketData: MarketData
+    var marketData: MarketData
     var allWalletsBalance: WalletData = WalletData(balance: 0)
     static var placeholder = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0), allWalletsBalance: WalletData(balance: 0, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
 }

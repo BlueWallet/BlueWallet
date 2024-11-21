@@ -10,6 +10,8 @@ import Foundation
 
 enum UserDefaultsGroupKey: String {
   case GroupName = "group.io.bluewallet.bluewallet"
+  case WatchAppBundleIdentifier = "io.bluewallet.bluewallet.watch"
+  case BundleIdentifier = "io.bluewallet.bluewallet"
   case PreferredCurrency = "preferredCurrency"
   case ElectrumSettingsHost = "electrum_host"
   case ElectrumSettingsTCPPort = "electrum_tcp_port"
