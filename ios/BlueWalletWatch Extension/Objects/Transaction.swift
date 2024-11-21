@@ -53,8 +53,7 @@ extension Transaction {
         ]
     }
     
-  func formattedAmount(for unit: BitcoinUnit) -> String {
-        guard let amountDecimal = Decimal(string: amount) else { return amount }
-        return amountDecimal.formatted(as: unit)
+func formattedAmount(for unit: BitcoinUnit) -> String {
+        return amount.formatted(as: unit)
     }
 }
