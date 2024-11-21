@@ -4,10 +4,10 @@ import Foundation
 /// Conforms to `Codable` and `Identifiable` for encoding/decoding and unique identification.
 struct Transaction: Codable, Identifiable, Equatable {
     let id: UUID
-    let time: String
+    let time: Date
     let memo: String
     let type: TransactionType
-    let amount: String
+    let amount: Decimal
     
     /// Initializes a new Transaction instance.
     /// - Parameters:
