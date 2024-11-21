@@ -9,7 +9,7 @@ import {
   CreateTransactionComponent,
   PaymentCodesListComponent,
   PsbtMultisigComponent,
-  PsbtMultisigQRCodeComponent,
+  PSBTMultisigQRCodeComponent,
   PsbtWithHardwareWalletComponent,
   SelectWalletComponent,
   SendDetailsComponent,
@@ -61,8 +61,8 @@ const SendDetailsStack = () => {
         options={navigationStyle({ title: loc.multisig.header })(theme)}
       />
       <Stack.Screen
-        name="PsbtMultisigQRCode"
-        component={PsbtMultisigQRCodeComponent}
+        name="PSBTMultisigQRCode"
+        component={PSBTMultisigQRCodeComponent}
         options={navigationStyle({ title: loc.multisig.header })(theme)}
       />
       <Stack.Screen
