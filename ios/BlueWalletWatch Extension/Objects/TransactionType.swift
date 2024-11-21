@@ -14,17 +14,21 @@ import Foundation
 /// Represents the various types of transactions available in the application.
 /// Conforms to `String`, `Codable`, `Equatable`, and `CustomStringConvertible` for easy encoding/decoding, comparisons, and descriptions.
 enum TransactionType: Codable, Equatable, CustomStringConvertible {
-    case sent
-    case received
+    // Transaction direction
+    case outgoing
+    case incoming
+    
+    // Transaction state
     case pending
-    case unknown(String) // For any unknown or future transaction types
-    case pending_transaction
+    case expired
+    
+    // Transaction type
     case onchain
     case offchain
-    case expired_transaction
-    case incoming_transaction
-    case outgoing_transaction
-
+    
+    // Fallback
+    case unknown(String) // For any unknown or future transaction types
+}
     // MARK: - Coding Keys
     enum CodingKeys: String, CodingKey {
         case rawValue = "type"
