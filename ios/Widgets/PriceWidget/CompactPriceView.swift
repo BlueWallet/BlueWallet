@@ -14,19 +14,20 @@ struct CompactPriceView: View {
             Text(price)
                 .font(.title)
                 .bold()
-                .foregroundColor(priceTextColor)
-                .shadow(color: Color.black.opacity(0.2), radius: 1, x: 0, y: 1)
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(.large ... .accessibility5)
                 .accessibilityLabel("Bitcoin price: \(price)")
 
             VStack(alignment: .center, spacing: 8) {
                 Text(code)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
                 Text(lastUpdated)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
                 Text(dataSource)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
             }
             .font(.subheadline)
-            .foregroundColor(systemButtonTextColor)
+            .foregroundColor(.secondary)
             .multilineTextAlignment(.center)
             .accessibilityElement(children: .combine)
         }
@@ -34,13 +35,30 @@ struct CompactPriceView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // Adaptive color for the price text using system built-in colors
-    var priceTextColor: Color {
-        colorScheme == .dark ? .cyan : .blue
+    private func shadowColor() -> Color {
+        colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.2)
     }
+}
 
-    // Use the system button text color for the secondary text
-    var systemButtonTextColor: Color {
-        Color.accentColor
+
+@available(iOS 15.0, *)
+struct CompactPriceView_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            // Example vibrant background
+            LinearGradient(
+                gradient: Gradient(colors: [.blue, .purple]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            CompactPriceView(
+                price: "$50,000",
+                lastUpdated: "Last updated: Oct 10, 2023",
+                code: "BTC",
+                dataSource: "Data source: CoinDesk"
+            )
+        }
     }
 }
