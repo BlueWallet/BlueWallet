@@ -16,7 +16,7 @@ struct Transaction: Codable, Identifiable, Equatable {
     ///   - memo: A memo or note associated with the transaction.
     ///   - type: The type of the transaction, defined by `TransactionType`.
     ///   - amount: The amount involved in the transaction as a string.
-    init(id: UUID = UUID(), time: String, memo: String, type: TransactionType, amount: String) {
+    init(id: UUID = UUID(), time: Date, memo: String, type: TransactionType, amount: Decimal) {
         self.id = id
         self.time = time
         self.memo = memo
