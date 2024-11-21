@@ -28,10 +28,10 @@ struct Transaction: Codable, Identifiable, Equatable {
 extension Transaction {
     static var mock: Transaction {
         Transaction(
-            time: "2024-04-27T12:34:56Z",
+            time: Date(timeIntervalSince1970: 1714398896), // 2024-04-27T12:34:56Z
             memo: "Mock Transaction",
             type: .sent,
-            amount: "-0.001 BTC"
+            amount: Decimal(string: "-0.001")!
         )
     }
     
@@ -39,16 +39,16 @@ extension Transaction {
         [
             .mock,
             Transaction(
-                time: "2024-04-26T11:22:33Z",
+                time: Date(timeIntervalSince1970: 1714308153), // 2024-04-26T11:22:33Z
                 memo: "Another Mock Transaction",
                 type: .received,
-                amount: "+0.002 BTC"
+                amount: Decimal(string: "0.002")!
             ),
             Transaction(
-                time: "2024-04-25T10:11:22Z",
+                time: Date(timeIntervalSince1970: 1714217482), // 2024-04-25T10:11:22Z
                 memo: "Third Mock Transaction",
                 type: .pending,
-                amount: "0.000 BTC"
+                amount: Decimal.zero
             )
         ]
     }
