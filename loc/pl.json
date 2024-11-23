@@ -320,6 +320,7 @@
     "would_you_like_to_receive_notifications": "Czy chcesz otrzymywać powiadomienia o nadchodzących płatnościach?",
     "notifications_subtitle": "Płatności przychodzące i potwierdzenia transakcji",
     "no_and_dont_ask": "Nie, i nie pytaj mnie ponownie.",
+    "ask_me_later": "Spytaj mnie później.",
     "permission_denied_message": "Odmówiłeś zgody na wysyłanie powiadomień. Jeśli chcesz otrzymywać powiadomienia, włącz je w ustawieniach swojego urządzenia."
   },
   "transactions": {
