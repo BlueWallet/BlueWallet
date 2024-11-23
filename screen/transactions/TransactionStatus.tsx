@@ -555,7 +555,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
         </BlueCard>
       ) : isLoading || !tx || wallet === undefined ? (
         <BlueLoading />
-      ) : !transaction ? (
+      ) : !transaction && !tx ? (
         <BlueText>{loc.transactions.transaction_not_available}</BlueText>
       ) : (
         <>
