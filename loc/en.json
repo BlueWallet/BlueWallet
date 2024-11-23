@@ -326,6 +326,8 @@
     "cancel_explain": "We will replace this transaction with one that pays you and has higher fees. This effectively cancels the current transaction. This is called RBF—Replace by Fee.",
     "cancel_no": "This transaction is not replaceable.",
     "cancel_title": "Cancel this transaction (RBF)",
+    "transaction_loading_error": "There was an issue loading the transaction. Please try again later.",
+    "transaction_not_available": "Transaction not available",
     "confirmations_lowercase": "{confirmations} confirmations",
     "copy_link": "Copy Link",
     "expand_note": "Expand Note",
