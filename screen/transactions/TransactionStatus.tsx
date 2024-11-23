@@ -539,15 +539,19 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
 
   useEffect(() => {
     if (isLoading) {
+      let isComponentMounted = true;
       const loadingTimeout = setTimeout(() => {
-        if (isLoading) {
+        if (isComponentMounted && isLoading) {
           dispatch({ type: ActionType.SetLoadingError, payload: true });
           dispatch({ type: ActionType.SetLoading, payload: false });
           console.error('Loading timed out. There was an issue fetching the transaction.');
         }
       }, 10000);
 
-      return () => clearTimeout(loadingTimeout);
+      return () => {
+        isComponentMounted = false;
+        clearTimeout(loadingTimeout);
+      };
     }
   }, [isLoading]);
 
