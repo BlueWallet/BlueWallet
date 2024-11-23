@@ -320,7 +320,6 @@
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
     "notifications_subtitle": "Pagos entrantes y confirmaciones de transacciones",
     "no_and_dont_ask": "No, y no me vuelvas a preguntar.",
-    "ask_me_later": "Pregúntame Luego.",
     "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
   "transactions": {
