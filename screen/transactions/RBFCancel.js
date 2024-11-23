@@ -103,7 +103,14 @@ export default class RBFCancel extends CPFP {
 
     return (
       <SafeArea>
-        <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
+        <ScrollView
+          automaticallyAdjustContentInsets
+          automaticallyAdjustKeyboardInsets
+          automaticallyAdjustsScrollIndicatorInsets
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          {this.renderStage1(loc.transactions.cancel_explain)}
+        </ScrollView>
       </SafeArea>
     );
   }

@@ -320,7 +320,8 @@
     "would_you_like_to_receive_notifications": "Czy chcesz otrzymywać powiadomienia o nadchodzących płatnościach?",
     "notifications_subtitle": "Płatności przychodzące i potwierdzenia transakcji",
     "no_and_dont_ask": "Nie, i nie pytaj mnie ponownie.",
-    "ask_me_later": "Spytaj mnie później."
+    "ask_me_later": "Spytaj mnie później.",
+    "permission_denied_message": "Odmówiłeś zgody na wysyłanie powiadomień. Jeśli chcesz otrzymywać powiadomienia, włącz je w ustawieniach swojego urządzenia."
   },
   "transactions": {
     "cancel_explain": "Zastąpimy tę transakcję taką, która płaci Tobie i ma wyższe opłaty. To anuluje bieżącą transakcję. To się nazywa RBF—Replace by Fee.",
@@ -447,6 +448,7 @@
     "import_discovery_subtitle": "Wybierz odnaleziony portfel",
     "import_discovery_derivation": "Użyj niestandardowej ścieżki derywacji",
     "import_discovery_no_wallets": "Nie odnaleziono portfeli.",
+    "import_discovery_offline": "BlueWallet jest obecnie w trybie offline. W tym trybie nie można zweryfikować istnienia portfela, więc musisz wybrać odpowiedni ręcznie",
     "import_derivation_found": "Znaleziono",
     "import_derivation_found_not": "Nie znaleziono",
     "import_derivation_loading": "Ładowanie...",
@@ -592,7 +594,14 @@
     "header": "Kontrola monet",
     "use_coin": "Użyj tej monety",
     "use_coins": "Użyj tych monet",
-    "tip": "Dzięki tej funkcji możesz lepiej zarządzać monetami poprzez ich wybieranie, zamrażanie lub sprawdzanie i nadawanie im etykiet. Możesz zaznaczyć kilka monet naraz wybierając kolorowe kółka."
+    "tip": "Dzięki tej funkcji możesz lepiej zarządzać monetami poprzez ich wybieranie, zamrażanie lub sprawdzanie i nadawanie im etykiet. Możesz zaznaczyć kilka monet naraz wybierając kolorowe kółka.",
+    "sort_asc": "Rosnąco",
+    "sort_desc": "Malejąco",
+    "sort_height": "Wysokość",
+    "sort_value": "Wartość",
+    "sort_label": "Etykieta",
+    "sort_status": "Status",
+    "sort_by": "Sortuj wg"
   },
   "units": {
     "BTC": "BTC",

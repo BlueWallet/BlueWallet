@@ -5,6 +5,7 @@ import { BlueText } from '../BlueComponents';
 import loc, { formatStringAddTwoWhiteSpaces } from '../loc';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../models/networkTransactionFees';
 import { useTheme } from './themes';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from './DismissKeyboardInputAccessory';
 
 interface ReplaceFeeSuggestionsProps {
   onFeeSelected: (fee: number) => void;
@@ -158,7 +159,9 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
             onFocus={() => handleCustomFeeChange(customFeeValue)}
             placeholder={loc.send.fee_satvbyte}
             placeholderTextColor="#81868e"
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
+          <DismissKeyboardInputAccessory />
           <Text style={stylesHook.rateText}>sat/byte</Text>
         </View>
       </TouchableOpacity>
