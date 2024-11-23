@@ -524,9 +524,13 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
             setTX(fetchedTx);
           } else {
             console.error(`Transaction with txid ${txid} not found.`);
+            dispatch({ type: ActionType.SetLoadingError, payload: true });
+            dispatch({ type: ActionType.SetLoading, payload: false });
           }
         } catch (error) {
           console.error('Error fetching transaction:', error);
+          dispatch({ type: ActionType.SetLoadingError, payload: true });
+          dispatch({ type: ActionType.SetLoading, payload: false });
         }
       };
       fetchTransaction().catch(error => console.error('Unhandled error in fetchTransaction:', error));
@@ -570,6 +574,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
               <View style={styles.center}>
                 <Text style={[styles.value, stylesHook.value]} selectable>
                   {wallet && formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
+                  {` `}
                   {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet && (
                     <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.preferredBalanceUnit}</Text>
                   )}
@@ -611,7 +616,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
               {tx.fee && (
                 <View style={styles.fee}>
                   <BlueText style={styles.feeText}>
-                    {loc.send.create_fee.toLowerCase()}
+                    {`${loc.send.create_fee.toLowerCase()} `}
                     {formatBalanceWithoutSuffix(tx.fee, wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC, true)}
                     {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet?.preferredBalanceUnit}
                   </BlueText>
