@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import DefaultPreference from 'react-native-default-preference';
 import assert from 'assert';
 
 import {
@@ -8,24 +8,34 @@ import {
   LAST_UPDATED,
   PREFERRED_CURRENCY_STORAGE_KEY,
   setPreferredCurrency,
+  GROUP_IO_BLUEWALLET,
 } from '../../blue_modules/currency';
 import { FiatUnit } from '../../models/fiatUnit';
 
 jest.setTimeout(90 * 1000);
 
 describe('currency', () => {
-  it('fetches exchange rate and saves to AsyncStorage', async () => {
+  beforeAll(async () => {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  });
+
+  afterEach(async () => {
+    await DefaultPreference.clearAll();
+  });
+
+  it('fetches exchange rate and saves to DefaultPreference', async () => {
     await initCurrencyDaemon();
-    let cur = await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY);
-    cur = JSON.parse(cur);
+    let curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    let cur = JSON.parse(curString || '{}');
     assert.ok(Number.isInteger(cur[LAST_UPDATED]));
     assert.ok(cur[LAST_UPDATED] > 0);
     assert.ok(cur.BTC_USD > 0);
 
     // now, setting other currency as default
-    await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(FiatUnit.JPY));
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(FiatUnit.JPY));
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_JPY > 0);
 
     // now setting with a proper setter
@@ -33,25 +43,29 @@ describe('currency', () => {
     await initCurrencyDaemon(true);
     const preferred = await getPreferredCurrency();
     assert.strictEqual(preferred.endPointKey, 'EUR');
-    cur = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_EUR > 0);
 
     // test Yadio rate source
     await setPreferredCurrency(FiatUnit.ARS);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_ARS > 0);
 
     // test YadioConvert rate source
     await setPreferredCurrency(FiatUnit.LBP);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_LBP > 0);
 
     // test Exir rate source
     await setPreferredCurrency(FiatUnit.IRT);
     await initCurrencyDaemon(true);
-    cur = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_IRT > 0);
   });
 });
