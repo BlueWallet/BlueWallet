@@ -320,13 +320,14 @@
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
     "notifications_subtitle": "Pagos entrantes y confirmaciones de transacciones",
     "no_and_dont_ask": "No, y no me vuelvas a preguntar.",
-    "ask_me_later": "Pregúntame Luego.",
     "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
   "transactions": {
     "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF—Replace by Fee.",
     "cancel_no": "Esta transacción no es reemplazable.",
     "cancel_title": "Cancelar ésta transacción (RBF)",
+    "transaction_loading_error": "Se ha producido un problema al cargar la transacción. Vuelve a intentarlo más tarde.",
+    "transaction_not_available": "Transacción no disponible",
     "confirmations_lowercase": "{confirmations} confirmaciones",
     "copy_link": "Copiar enlace",
     "expand_note": "Expandir Nota",
