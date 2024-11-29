@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
 import { disallowScreenshot } from 'react-native-screen-capture';
 import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
@@ -25,7 +25,7 @@ type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'Impor
 
 const ImportWallet = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
   const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
@@ -37,7 +37,6 @@ const ImportWallet = () => {
   const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
   const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
   const { isPrivacyBlurEnabled } = useSettings();
-  // Styles
   const styles = StyleSheet.create({
     root: {
       paddingTop: 10,
@@ -48,6 +47,9 @@ const ImportWallet = () => {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
+    },
+    button: {
+      padding: 10,
     },
   });
 
@@ -169,8 +171,22 @@ const ImportWallet = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => HeaderRight,
+      headerLeft:
+        navigation.getState().index === 0
+          ? () => (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.close}
+                style={styles.button}
+                onPress={() => navigation.goBack()}
+                testID="NavigationCloseButton"
+              >
+                <Image source={closeImage} />
+              </TouchableOpacity>
+            )
+          : undefined,
     });
-  }, [colors.foregroundColor, navigation, toolTipActions, HeaderRight]);
+  }, [colors, navigation, toolTipActions, HeaderRight, styles.button, closeImage]);
 
   const renderOptionsAndImportButton = (
     <>
