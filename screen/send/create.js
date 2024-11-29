@@ -49,9 +49,9 @@ const SendCreate = () => {
 
   useEffect(() => {
     console.log('send/create - useEffect');
-    disallowScreenshot(isPrivacyBlurEnabled);
+    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
-      disallowScreenshot(false);
+      if (!isDesktop) disallowScreenshot(false);
     };
   }, [isPrivacyBlurEnabled]);
 

@@ -19,6 +19,7 @@ import loc from '../../loc';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { isDesktop } from '../../blue_modules/environment';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -149,9 +150,9 @@ const ImportWallet = () => {
   );
 
   useEffect(() => {
-    disallowScreenshot(isPrivacyBlurEnabled);
+    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
-      disallowScreenshot(false);
+      if (!isDesktop) disallowScreenshot(false);
     };
   }, [isPrivacyBlurEnabled]);
 

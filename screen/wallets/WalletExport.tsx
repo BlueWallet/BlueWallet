@@ -14,6 +14,7 @@ import { HandOffActivityType } from '../../components/types';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
 import useAppState from '../../hooks/useAppState';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -45,7 +46,7 @@ const WalletExport: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(isPrivacyBlurEnabled);
+      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           if (!wallet.getUserHasSavedExport()) {
@@ -56,7 +57,7 @@ const WalletExport: React.FC = () => {
         }
       });
       return () => {
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
         task.cancel();
       };
     }, [isPrivacyBlurEnabled, wallet, saveToDisk]),

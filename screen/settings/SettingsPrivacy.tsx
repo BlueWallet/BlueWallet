@@ -9,6 +9,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { isDesktop } from '../../blue_modules/environment';
 
 enum SettingsPrivacySection {
   None,
@@ -157,16 +158,18 @@ const SettingsPrivacy: React.FC = () => {
         subtitle={<Text style={styles.subtitleText}>{loc.total_balance_view.explanation}</Text>}
       />
 
-      <ListItem
-        title={loc.settings.privacy_temporary_screenshots}
-        Component={TouchableWithoutFeedback}
-        switch={{
-          onValueChange: onTemporaryScreenshotsValueChange,
-          value: !isPrivacyBlurEnabled,
-          disabled: isLoading === SettingsPrivacySection.All,
-        }}
-        subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>}
-      />
+      {!isDesktop && (
+        <ListItem
+          title={loc.settings.privacy_temporary_screenshots}
+          Component={TouchableWithoutFeedback}
+          switch={{
+            onValueChange: onTemporaryScreenshotsValueChange,
+            value: !isPrivacyBlurEnabled,
+            disabled: isLoading === SettingsPrivacySection.All,
+          }}
+          subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>}
+        />
+      )}
 
       <ListItem
         title={loc.settings.privacy_do_not_track}
