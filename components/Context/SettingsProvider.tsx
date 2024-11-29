@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
-import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from '../../blue_modules/currency';
+import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
@@ -137,7 +137,7 @@ const defaultSettingsContext: SettingsContextType = {
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
-  const [preferredFiatCurrency, setPreferredFiatCurrency] = useState<TFiatUnit>(FiatUnit.USD);
+  const [preferredFiatCurrency, setPreferredFiatCurrencyState] = useState<TFiatUnit>(FiatUnit.USD);
   const [language, setLanguage] = useState<string>('en');
   const [isHandOffUseEnabled, setIsHandOffUseEnabledState] = useState<boolean>(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
@@ -212,18 +212,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   }, []);
 
   useEffect(() => {
-    if (walletsInitialized) {
-      initCurrencyDaemon()
-        .then(getPreferredCurrency)
-        .then(currency => {
-          console.debug('SettingsContext currency:', currency);
-          setPreferredFiatCurrency(currency as TFiatUnit);
-        })
-        .catch(e => {
-          console.error('Error initializing currency daemon or getting preferred currency:', e);
-        });
-    }
-  }, [walletsInitialized]);
+    initCurrencyDaemon()
+      .then(getPreferredCurrency)
+      .then(currency => {
+        console.debug('SettingsContext currency:', currency);
+        setPreferredFiatCurrencyState(currency as TFiatUnit);
+      })
+      .catch(e => {
+        console.error('Error initializing currency daemon or getting preferred currency:', e);
+      });
+  }, []);
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -233,9 +231,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   const setPreferredFiatCurrencyStorage = useCallback(async (currency: TFiatUnit): Promise<void> => {
     try {
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, currency.endPointKey);
-      setPreferredFiatCurrency(currency);
+      await setPreferredCurrency(currency);
+      setPreferredFiatCurrencyState(currency);
     } catch (e) {
       console.error('Error setting preferredFiatCurrency:', e);
     }
