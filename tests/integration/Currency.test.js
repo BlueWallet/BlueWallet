@@ -32,7 +32,7 @@ describe('currency', () => {
     assert.ok(cur.BTC_USD > 0);
 
     // now, setting other currency as default
-    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(FiatUnit.JPY));
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, FiatUnit.JPY.endPointKey);
     await initCurrencyDaemon(true);
     curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
     cur = JSON.parse(curString || '{}');
