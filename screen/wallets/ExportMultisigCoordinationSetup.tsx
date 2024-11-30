@@ -12,6 +12,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -101,7 +102,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(() => {
-        disallowScreenshot(isPrivacyBlurEnabled);
+        if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
         if (wallet) {
           setTimeout(async () => {
             try {
@@ -127,7 +128,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
       return () => {
         task.cancel();
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),

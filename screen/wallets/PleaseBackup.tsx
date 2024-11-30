@@ -9,6 +9,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { isDesktop } from '../../blue_modules/environment';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -44,10 +45,10 @@ const PleaseBackup: React.FC = () => {
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-    disallowScreenshot(isPrivacyBlurEnabled);
+    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-      disallowScreenshot(false);
+      if (!isDesktop) disallowScreenshot(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

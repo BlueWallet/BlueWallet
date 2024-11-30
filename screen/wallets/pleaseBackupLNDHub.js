@@ -11,6 +11,7 @@ import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();
@@ -40,10 +41,10 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    disallowScreenshot(isPrivacyBlurEnabled);
+    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      disallowScreenshot(false);
+      if (!isDesktop) disallowScreenshot(false);
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [handleBackButton, isPrivacyBlurEnabled]);
