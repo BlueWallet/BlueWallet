@@ -14,6 +14,7 @@ import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -38,7 +39,7 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(isPrivacyBlurEnabled);
+      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
       // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;
@@ -57,7 +58,7 @@ const WalletXpub: React.FC = () => {
       });
       lastWalletIdRef.current = walletID;
       return () => {
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
         task.cancel();
       };
     }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation]),

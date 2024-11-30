@@ -37,6 +37,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 const staticCache = {};
 
@@ -65,9 +66,9 @@ const WalletsAddMultisigStep2 = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(isPrivacyBlurEnabled);
+      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
       return () => {
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
       };
     }, [isPrivacyBlurEnabled]),
   );

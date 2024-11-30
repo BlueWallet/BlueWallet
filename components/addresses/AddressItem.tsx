@@ -77,19 +77,18 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   }, [navigate, walletID, item.address]);
 
   const menuActions = useMemo(
-    () =>
-      [
-        CommonToolTipActions.CopyTXID,
-        CommonToolTipActions.Share,
-        {
-          ...CommonToolTipActions.SignVerify,
-          hidden: !allowSignVerifyMessage,
-        },
-        {
-          ...CommonToolTipActions.ExportPrivateKey,
-          hidden: !allowSignVerifyMessage,
-        },
-      ].filter(action => 'hidden' in action && !action.hidden),
+    () => [
+      CommonToolTipActions.CopyTXID,
+      CommonToolTipActions.Share,
+      {
+        ...CommonToolTipActions.SignVerify,
+        hidden: !allowSignVerifyMessage,
+      },
+      {
+        ...CommonToolTipActions.ExportPrivateKey,
+        hidden: !allowSignVerifyMessage,
+      },
+    ],
     [allowSignVerifyMessage],
   );
 

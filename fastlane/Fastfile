@@ -532,7 +532,7 @@ lane :update_release_notes do |options|
   # Define release notes
   release_notes_text = options[:release_notes]
   if release_notes_text.nil? || release_notes_text.strip.empty?
-    release_notes_path = "../../release-notes.txt"
+    release_notes_path = "../release-notes.txt"
     unless File.exist?(release_notes_path)
       UI.error("Release notes file does not exist at path: #{release_notes_path}")
       UI.user_error!("No release notes provided and no file found. Failing the lane.")

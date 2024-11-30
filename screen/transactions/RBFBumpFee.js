@@ -100,7 +100,14 @@ export default class RBFBumpFee extends CPFP {
 
     return (
       <SafeArea style={styles.root}>
-        <ScrollView>{this.renderStage1(loc.transactions.rbf_explain)}</ScrollView>
+        <ScrollView
+          automaticallyAdjustContentInsets
+          automaticallyAdjustKeyboardInsets
+          automaticallyAdjustsScrollIndicatorInsets
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          {this.renderStage1(loc.transactions.rbf_explain)}
+        </ScrollView>
       </SafeArea>
     );
   }
