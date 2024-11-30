@@ -1292,7 +1292,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-image-picker (7.2.1):
+  - react-native-image-picker (7.2.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1680,7 +1680,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.16.2):
+  - RNReanimated (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1700,10 +1700,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.16.2)
-    - RNReanimated/worklets (= 3.16.2)
+    - RNReanimated/reanimated (= 3.16.3)
+    - RNReanimated/worklets (= 3.16.3)
     - Yoga
-  - RNReanimated/reanimated (3.16.2):
+  - RNReanimated/reanimated (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1723,9 +1723,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.16.2)
+    - RNReanimated/reanimated/apple (= 3.16.3)
     - Yoga
-  - RNReanimated/reanimated/apple (3.16.2):
+  - RNReanimated/reanimated/apple (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1746,7 +1746,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.16.2):
+  - RNReanimated/worklets (3.16.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2224,7 +2224,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
-  react-native-image-picker: 8669e9cd3ea068b195dd0fda1ba6cfa3530724c0
+  react-native-image-picker: 19a8d8471a239890675726f88f9c18dd213656d5
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
   react-native-menu: 6eb1bc1cffd6f3f29e0d33f0326552f805637b9c
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
@@ -2275,7 +2275,7 @@ SPEC CHECKSUMS:
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
-  RNReanimated: 0fc33f7b68a06b5e2c00c6d051cb51c20516d2a1
+  RNReanimated: 26a5a401a5de1c0cf1a3226873825b00ffa85377
   RNScreens: 35bb8e81aeccf111baa0ea01a54231390dbbcfd9
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
   RNSVG: bb4bfcb8ec723a6f34b074a1b7cd40ee35246fe5
