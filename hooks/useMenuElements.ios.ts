@@ -44,16 +44,20 @@ const useMenuElements = () => {
 
     console.debug('Setting up menu event listeners');
 
-    const listeners = [
-      eventEmitter.addListener('openSettings', eventActions.openSettings),
-      eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
-      eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
-      eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
-    ];
+    // Add permanent listeners only once
+    eventEmitter.removeAllListeners('openSettings');
+    eventEmitter.removeAllListeners('addWalletMenuAction');
+    eventEmitter.removeAllListeners('importWalletMenuAction');
+
+    eventEmitter.addListener('openSettings', eventActions.openSettings);
+    eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet);
+    eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet);
+
+    const reloadTransactionsListener = eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions);
 
     return () => {
-      console.debug('Removing menu event listeners');
-      listeners.forEach(listener => listener.remove());
+      console.debug('Removing reloadTransactionsMenuAction listener');
+      reloadTransactionsListener.remove();
     };
   }, [walletsInitialized, eventActions]);
 
