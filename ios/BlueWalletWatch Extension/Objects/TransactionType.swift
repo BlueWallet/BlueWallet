@@ -13,11 +13,7 @@ import Foundation
 
 /// Represents the various types of transactions available in the application.
 /// Conforms to `String`, `Codable`, `Equatable`, and `CustomStringConvertible` for easy encoding/decoding, comparisons, and descriptions.
-enum TransactionType: Codable, Equatable, CustomStringConvertible {
-    // Transaction direction
-    case outgoing
-    case incoming
-    
+enum TransactionType: Codable, Equatable {
     // Transaction state
     case pending
     case expired
@@ -28,7 +24,10 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
     
     // Fallback
     case unknown(String) // For any unknown or future transaction types
-}
+    
+    case sent
+    case received
+
     // MARK: - Coding Keys
     enum CodingKeys: String, CodingKey {
         case rawValue = "type"
@@ -38,7 +37,7 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let typeString = try container.decode(String.self, forKey: .rawValue)
-        self = TransactionType(rawString: typeString)
+        self = TransactionType.fromRawString(typeString)
     }
 
     // MARK: - Encodable Conformance
@@ -47,31 +46,20 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
         try container.encode(self.rawString, forKey: .rawValue)
     }
 
-    // MARK: - Custom Initializer
-    /// Initializes a `TransactionType` from a raw string.
-    /// - Parameter rawString: The raw string representing the transaction type.
-    init(rawString: String) {
-        switch rawString.lowercased() {
+    static func fromRawString(_ typeString: String) -> TransactionType {
+        switch typeString.lowercased() {
         case "sent":
-            self = .sent
+            return .sent
         case "received":
-            self = .received
+            return .received
         case "pending":
-            self = .pending
-        case "pending_transaction":
-            self = .pending_transaction
+            return .pending
         case "bitcoind_tx":
-            self = .onchain
+            return .onchain
         case "paid_invoice":
-            self = .offchain
-        case "expired_transaction":
-            self = .expired_transaction
-        case "incoming_transaction":
-            self = .incoming_transaction
-        case "outgoing_transaction":
-            self = .outgoing_transaction
+            return .offchain
         default:
-            self = .unknown(rawString)
+            return .unknown(typeString)
         }
     }
 
@@ -85,24 +73,20 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
             return "received"
         case .pending:
             return "pending"
-        case .pending_transaction:
-            return "pending_transaction"
         case .onchain:
             return "bitcoind_tx"
         case .offchain:
             return "paid_invoice"
-        case .expired_transaction:
-            return "expired_transaction"
-        case .incoming_transaction:
-            return "incoming_transaction"
-        case .outgoing_transaction:
-            return "outgoing_transaction"
         case .unknown(let typeString):
             return typeString
+        case .expired:
+          return "expired"
         }
     }
+}
 
-    // MARK: - Description
+// MARK: - CustomStringConvertible Conformance
+extension TransactionType: CustomStringConvertible {
     /// Provides a user-friendly description of the `TransactionType`.
     var description: String {
         switch self {
@@ -112,29 +96,15 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
             return "Received"
         case .pending:
             return "pending"
-        case .pending_transaction:
-            return "Pending Transaction"
         case .onchain:
             return "Onchain"
         case .offchain:
             return "Offchain"
-        case .expired_transaction:
-            return "Expired Transaction"
-        case .incoming_transaction:
-            return "Incoming Transaction"
-        case .outgoing_transaction:
-            return "Outgoing Transaction"
         case .unknown(let typeString):
             return typeString
+        case .expired:
+            return "Expired"
         }
-    }
-
-    // MARK: - Helper Function to Convert Raw String to TransactionType
-    /// Attempts to convert a raw string to its corresponding `TransactionType`.
-    /// - Parameter typeString: The raw string representing the transaction type.
-    /// - Returns: A `TransactionType` instance.
-    static func fromRawString(_ typeString: String) -> TransactionType {
-        return TransactionType(rawString: typeString)
     }
 }
 
@@ -142,7 +112,7 @@ enum TransactionType: Codable, Equatable, CustomStringConvertible {
 extension TransactionType {
     var isIncoming: Bool {
         switch self {
-        case .received, .incoming_transaction:
+        case .received:
             return true
         default:
             return false
@@ -151,7 +121,7 @@ extension TransactionType {
 
     var isOutgoing: Bool {
         switch self {
-        case .sent, .outgoing_transaction:
+        case .sent:
             return true
         default:
             return false
@@ -160,7 +130,7 @@ extension TransactionType {
 
     var isPending: Bool {
         switch self {
-        case .pending, .pending_transaction, .expired_transaction:
+        case .pending:
             return true
         default:
             return false
@@ -168,10 +138,10 @@ extension TransactionType {
     }
     
     static var mockSent: TransactionType {
-        return .sent
+      return .sent
     }
     
     static var mockReceived: TransactionType {
-        return .received
+      return .received
     }
 }
