@@ -199,16 +199,24 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             
             var transactionsProcessed: [Transaction] = []
             for transactionEntry in transactions {
-                guard let time = transactionEntry["time"] as? String,
+                guard let timeString = transactionEntry["time"] as? String,
                       let memo = transactionEntry["memo"] as? String,
-                      let amount = transactionEntry["amount"] as? Double,
+                      let amountDouble = transactionEntry["amount"] as? Double,
                       let type = transactionEntry["type"] as? String else {
                     print("Incomplete transaction entry found. Skipping.")
                     continue
                 }
                 
-                let transactionType = TransactionType(rawString: type)
-                let transaction = Transaction(time: time, memo: memo, type: transactionType, amount: "\(amount) BTC")
+                guard let time = ISO8601DateFormatter().date(from: timeString) else {
+                    print("Invalid date format for transaction. Skipping.")
+                    continue
+                }
+                
+                let amount = Decimal(amountDouble)
+                
+                let transactionType = TransactionType.fromRawString(type)
+                
+                let transaction = Transaction(time: time, memo: memo, type: transactionType, amount: amount)
                 transactionsProcessed.append(transaction)
             }
             
@@ -237,7 +245,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.wallets = processedWallets
             print("Updated wallets from received context.")
-          WatchDataSource.postDataUpdatedNotification()
+            WatchDataSource.postDataUpdatedNotification()
         }
     }
     
@@ -320,7 +328,6 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     /// - Parameters:
     ///   - walletIdentifier: The index of the wallet in the `wallets` array.
     ///   - hideBalance: A boolean indicating whether to hide the balance.
-    ///   - responseHandler: A closure to handle the success status.
   func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
     guard wallets.indices.contains(walletIdentifier.hashValue) else {
             responseHandler(false)

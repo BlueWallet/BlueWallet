@@ -31,7 +31,7 @@ class TransactionTableRow: NSObject {
   
   var time: String = "" {
     willSet {
-      if type == .pending || type == .pending_transaction {
+      if type == .pending {
         transactionTimeLabel.setText("Pending...")
       } else {
         transactionTimeLabel.setText(newValue)
@@ -41,11 +41,11 @@ class TransactionTableRow: NSObject {
   
   var type: TransactionType = .pending {
     willSet {
-      if (newValue == .pending_transaction || newValue  == .pending) {
+      if newValue == .pending {
         transactionTypeImage.setImage(UIImage(named: "pendingConfirmation"))
-      } else if (newValue == .received) {
+      } else if newValue == .received {
         transactionTypeImage.setImage(UIImage(named: "receivedArrow"))
-      } else if (newValue == .sent) {
+      } else if newValue == .sent {
         transactionTypeImage.setImage(UIImage(named: "sentArrow"))
       } else {
         transactionTypeImage.setImage(nil)
@@ -58,9 +58,15 @@ class TransactionTableRow: NSObject {
 // TransactionTableRow extension for configuration
  extension TransactionTableRow {
    func configure(with transaction: Transaction) {
-     amount = transaction.amount
+     amount = "\(transaction.amount)"
+     
      type = transaction.type
+     
      memo = transaction.memo
-     time = transaction.time
+     
+     let formatter = DateFormatter()
+     formatter.dateStyle = .short
+     formatter.timeStyle = .short
+     time = formatter.string(from: transaction.time)
    }
  }

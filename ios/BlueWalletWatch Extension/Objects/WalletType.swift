@@ -97,10 +97,6 @@ enum WalletType: Codable, Equatable {
         self = WalletType.fromRawString(rawString)
     }
 
-    // MARK: - Helper Method to Convert Raw String to WalletType
-    /// Attempts to convert a raw string to its corresponding `WalletType`.
-    /// - Parameter typeString: The raw string representing the wallet type.
-    /// - Returns: A `WalletType` instance.
     static func fromRawString(_ typeString: String) -> WalletType {
         switch typeString {
         case "HDsegwitP2SH":
