@@ -160,7 +160,7 @@
     "react-native-vector-icons": "10.2.0",
     "react-native-watch-connectivity": "1.1.0",
     "readable-stream": "3.6.2",
-    "realm": "20.0.0",
+    "realm": "20.1.0",
     "rn-nodeify": "10.3.0",
     "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#eacee6d6546eb5b43bfd257255d0a7aa3bd90165",
     "scryptsy": "2.1.0",
