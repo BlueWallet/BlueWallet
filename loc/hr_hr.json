@@ -123,6 +123,9 @@
     "create": "Stvori",
     "ms_help_title5": "Enable advanced mode"
   },
+  "cc": {
+    "sort_label": "Oznaka"
+  },
   "addresses": {
     "sign_placeholder_address": "adresa",
     "type_receive": "Primi",

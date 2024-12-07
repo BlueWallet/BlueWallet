@@ -231,7 +231,6 @@
     "details_balance_hide": "Esconder Saldo",
     "details_balance_show": "Mostrar Saldo",
     "details_copy": "Copiar",
-    "details_copy_amount": "Copiar montante",
     "details_copy_note": "Copiar nota",
     "details_copy_txid": "Copiar ID da transação",
     "details_from": "De",
@@ -332,6 +331,10 @@
     "create": "Criar",
     "co_sign_transaction": "Assinar transação",
     "ms_help_title5": "Ligar modo avançado"
+  },
+  "cc": {
+    "sort_label": "Nome",
+    "sort_status": "Estado"
   },
   "units": {
     "sats": "sats"
