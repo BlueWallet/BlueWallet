@@ -326,6 +326,7 @@ const ScanLndInvoice = () => {
               launchedBy={name}
               onBlur={onBlur}
               keyboardType="email-address"
+              style={styles.addressInput}
             />
             <View style={styles.description}>
               <Text numberOfLines={0} style={styles.descriptionText}>
@@ -418,7 +419,7 @@ const styles = StyleSheet.create({
   },
   description: {
     flexDirection: 'row',
-    marginHorizontal: 20,
+    marginHorizontal: 16,
     alignItems: 'center',
     marginVertical: 0,
     borderRadius: 4,
@@ -434,5 +435,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     left: 20,
     top: 10,
+  },
+  addressInput: {
+    marginHorizontal: 16,
   },
 });

@@ -340,14 +340,13 @@ const styles = StyleSheet.create({
   feeModalFooter: {
     paddingVertical: 46,
     flexDirection: 'row',
-
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
     minHeight: 80,
   },
   feeModalFooterSpacing: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
   memo: {
     flexDirection: 'row',
