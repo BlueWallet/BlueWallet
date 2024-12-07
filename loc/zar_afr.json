@@ -146,9 +146,6 @@
     "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
     "save": "stoor"
   },
-  "notifications": {
-    "ask_me_later": "Vra my later. "
-  },
   "transactions": {
     "cpfp_create": "Skep",
     "details_copy": "Kopieer",
@@ -203,6 +200,9 @@
     "create": "Skep",
     "co_sign_transaction": "Teken ñ transaksie",
     "ms_help_title5": "Enable advanced mode"
+  },
+  "cc": {
+    "sort_label": "Etiket"
   },
   "addresses": {
     "sign_placeholder_address": "adres",

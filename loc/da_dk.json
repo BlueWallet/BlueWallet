@@ -109,6 +109,9 @@
     "create": "Opret",
     "ms_help_title5": "Enable advanced mode"
   },
+  "cc": {
+    "sort_label": "Etiket"
+  },
   "addresses": {
     "sign_placeholder_address": "adresse",
     "type_receive": "Modtag",

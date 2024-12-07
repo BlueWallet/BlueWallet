@@ -273,7 +273,6 @@
     "details_balance_hide": "Göm saldo",
     "details_balance_show": "Visa saldo",
     "details_copy": "Kopiera",
-    "details_copy_amount": "Kopiera belopp",
     "details_copy_block_explorer_link": "Kopiera Block Explorer Länk",
     "details_copy_note": "Kopiera anteckning",
     "details_copy_txid": "Kopiera Transaktions ID",
@@ -472,7 +471,9 @@
     "header": "Myntkontroll",
     "use_coin": "Använd mynt",
     "use_coins": "Använd mynten",
-    "tip": "Den här funktionen låter dig se, märka, låsta eller välja mynt för förbättrad plånbokshantering. Du kan välja flera mynt genom att trycka på de färgade cirklarna."
+    "tip": "Den här funktionen låter dig se, märka, låsta eller välja mynt för förbättrad plånbokshantering. Du kan välja flera mynt genom att trycka på de färgade cirklarna.",
+    "sort_label": "Etikett",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

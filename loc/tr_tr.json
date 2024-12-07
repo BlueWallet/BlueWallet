@@ -215,6 +215,9 @@
     "enter_address": "Adres gir",
     "check_address": "Adresi kontrol et"
   },
+  "cc": {
+    "sort_label": "Etiket"
+  },
   "units": {
     "BTC": "BTC",
     "MAX": "Maks",

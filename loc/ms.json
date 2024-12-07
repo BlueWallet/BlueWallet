@@ -425,7 +425,8 @@
     "header": "Kawalan Duit",
     "use_coin": "Gunakan Duit",
     "use_coins": "Gunakan Duit",
-    "tip": "Ciri ini membolehkan anda untuk melihat, melabel, membeku, atau memilih duit bagi menambah baik pengurusan dompet. Anda boleh pilih pelbagai duit dengan mengetik pada bulatan berwarna."
+    "tip": "Ciri ini membolehkan anda untuk melihat, melabel, membeku, atau memilih duit bagi menambah baik pengurusan dompet. Anda boleh pilih pelbagai duit dengan mengetik pada bulatan berwarna.",
+    "sort_status": "Keadaan"
   },
   "units": {
     "BTC": "BTC",

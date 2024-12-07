@@ -266,7 +266,6 @@
     "details_balance_hide": "Skrij Stanje",
     "details_balance_show": "Prikaži Stanje",
     "details_copy": "Kopiraj",
-    "details_copy_amount": "Kopiraj znesek",
     "details_copy_block_explorer_link": "Kopiraj povezavo razisk. blokov",
     "details_copy_note": "Kopiraj opis",
     "details_copy_txid": "Kopiraj ID transakcije",
@@ -463,7 +462,8 @@
     "header": "Nadzor nad kovanci",
     "use_coin": "Uporabi kovanec",
     "use_coins": "Uporabi kovance",
-    "tip": "Omogoča ogled, označevanje, zamrznitev ali izbiro kovancev za boljše upravljanje denarnice."
+    "tip": "Omogoča ogled, označevanje, zamrznitev ali izbiro kovancev za boljše upravljanje denarnice.",
+    "sort_status": "Stanje"
   },
   "units": {
     "BTC": "BTC",

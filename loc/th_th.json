@@ -317,7 +317,9 @@
     "freezeLabel_un": "ยกเลิกการระงับ",
     "header": "ควบคุมเหรียญ",
     "use_coin": "ใช้เหรียญ",
-    "use_coins": "ใช้เหรียญ"
+    "use_coins": "ใช้เหรียญ",
+    "sort_label": "ป้าย",
+    "sort_status": "สถานะ"
   },
   "units": {
     "BTC": "บิตคอยน์",

@@ -229,7 +229,6 @@
     "details_balance_hide": "隱藏結餘",
     "details_balance_show": "顯示結餘",
     "details_copy": "複製",
-    "details_copy_amount": "複製數量",
     "details_from": "輸入",
     "details_inputs": "輸入",
     "details_outputs": "輸出",
@@ -402,7 +401,9 @@
     "header": "币的控制",
     "use_coin": "使用幣",
     "use_coins": "使用幣",
-    "tip": "此功能使您可以查看、標記、凍結或選擇幣，以改善錢包管理。 您可以通過點擊彩色圓圈選擇多個幣。"
+    "tip": "此功能使您可以查看、標記、凍結或選擇幣，以改善錢包管理。 您可以通過點擊彩色圓圈選擇多個幣。",
+    "sort_label": "標籤",
+    "sort_status": "狀態"
   },
   "units": {
     "BTC": "比特幣",

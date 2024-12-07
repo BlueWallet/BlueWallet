@@ -228,6 +228,10 @@
   "is_it_my_address": {
     "title": "Je to moja adresa?"
   },
+  "cc": {
+    "sort_label": "Popis",
+    "sort_status": "Stav"
+  },
   "units": {
     "sats": "sats"
   },

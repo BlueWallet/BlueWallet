@@ -202,7 +202,6 @@
     "details_balance_hide": "Amaga el saldo",
     "details_balance_show": "Mostra el saldo",
     "details_copy": "Copiar",
-    "details_copy_amount": "Còpia la quantitat",
     "details_from": "De",
     "details_inputs": "Entrades",
     "details_outputs": "Sortides",
@@ -282,6 +281,10 @@
     "scan_or_open_file": "Escanejar o obrir arxiu",
     "ms_help": "Ajuda",
     "ms_help_title5": "Habilitar el mode avançat"
+  },
+  "cc": {
+    "sort_label": "Etiqueta",
+    "sort_status": "estat"
   },
   "units": {
     "sats": "sats"

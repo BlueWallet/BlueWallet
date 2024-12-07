@@ -200,9 +200,6 @@
     "total_balance": "Συνολικό υπόλοιπο",
     "tools": "Εργαλεία"
   },
-  "notifications": {
-    "ask_me_later": "Να ερωτηθώ αργότερα."
-  },
   "transactions": {
     "cancel_no": "Αυτή η συναλλαγή δεν μπορεί να αντικατασταθεί.",
     "confirmations_lowercase": "{confirmations} επιβεβαιώσεις",
@@ -212,7 +209,6 @@
     "details_balance_hide": "Απόκρυψη υπολοίπου",
     "details_balance_show": "Εμφάνιση υπολοίπου",
     "details_copy": "Αντέγραψε",
-    "details_copy_amount": "Αντιγραφή ποσού",
     "details_copy_note": "Αντιγραφή σημείωσης",
     "details_from": "Εισερχόμενες διευθύνσεις",
     "date": "Ημερομηνία",
@@ -312,7 +308,9 @@
     "view_qrcode": "Προβολή κωδικού QR"
   },
   "cc": {
-    "change": "Αλλαγή"
+    "change": "Αλλαγή",
+    "sort_label": "Ετικέτα",
+    "sort_status": "Κατάσταση"
   },
   "units": {
     "BTC": "BTC",

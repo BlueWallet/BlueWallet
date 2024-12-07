@@ -136,6 +136,9 @@
     "create": "Yakha",
     "ms_help_title5": "Enable advanced mode"
   },
+  "cc": {
+    "sort_label": "Igama"
+  },
   "addresses": {
     "sign_placeholder_address": "idilesi",
     "type_receive": "Fumana",

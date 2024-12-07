@@ -272,7 +272,6 @@
     "details_balance_hide": "Nascondi il saldo",
     "details_balance_show": "Mostra il saldo",
     "details_copy": "Copia",
-    "details_copy_amount": "Copia importo",
     "details_copy_block_explorer_link": "Copia link del Block Explorer",
     "details_copy_note": "Copia Nota",
     "details_copy_txid": "Copia ID di transazione",
@@ -470,7 +469,9 @@
     "header": "Coin Control",
     "use_coin": "Usa bitcoin",
     "use_coins": "Usa bitcoin",
-    "tip": "Questa funzione ti consente di vedere, etichettare, congelare o selezionare bitcoin per una migliore gestione del portafoglio. Puoi selezionare più bitcoin toccando i cerchi colorati."
+    "tip": "Questa funzione ti consente di vedere, etichettare, congelare o selezionare bitcoin per una migliore gestione del portafoglio. Puoi selezionare più bitcoin toccando i cerchi colorati.",
+    "sort_label": "Etichetta",
+    "sort_status": "Stato"
   },
   "units": {
     "BTC": "BTC",
