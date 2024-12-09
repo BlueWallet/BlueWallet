@@ -11,13 +11,15 @@ import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { isDesktop } from '../../blue_modules/environment';
 
+import SeedWords from '../../components/SeedWords';
+
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID)!;
   const navigation = useNavigation<NavigationProp>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
@@ -25,12 +27,6 @@ const PleaseBackup: React.FC = () => {
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.elevated,
-    },
-    word: {
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    wortText: {
-      color: colors.labelText,
     },
     pleaseText: {
       color: colors.foregroundColor,
@@ -53,26 +49,6 @@ const PleaseBackup: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderSecret = () => {
-    const component: JSX.Element[] = [];
-    const entries = wallet?.getSecret().split(/\s/).entries();
-    if (entries) {
-      for (const [index, secret] of entries) {
-        if (secret) {
-          const text = `${index + 1}. ${secret}  `;
-          component.push(
-            <View style={[styles.word, stylesHook.word]} key={index}>
-              <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
-                {text}
-              </Text>
-            </View>,
-          );
-        }
-      }
-    }
-    return component;
-  };
-
   return (
     <ScrollView
       style={styles.root}
@@ -85,7 +61,7 @@ const PleaseBackup: React.FC = () => {
         <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
       </View>
       <View style={styles.list}>
-        <View style={styles.secret}>{renderSecret()}</View>
+        <SeedWords seed={wallet.getSecret() ?? ''} />
       </View>
       <View style={styles.bottom}>
         <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
@@ -102,26 +78,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
   },
-  word: {
-    marginRight: 8,
-    marginBottom: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderRadius: 4,
-  },
-  wortText: {
-    fontWeight: 'bold',
-    textAlign: 'left',
-    fontSize: 17,
-  },
   please: {
     flexGrow: 1,
     paddingHorizontal: 16,
   },
   list: {
     flexGrow: 8,
+    marginTop: 14,
     paddingHorizontal: 16,
   },
   bottom: {
@@ -134,12 +97,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  secret: {
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginTop: 14,
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 
