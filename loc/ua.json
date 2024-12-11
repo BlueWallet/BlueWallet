@@ -203,7 +203,6 @@
     "cpfp_create": "Створити",
     "details_balance_hide": "Приховати Баланс",
     "details_copy": "Копіювати",
-    "details_copy_amount": "Копіювати Суму",
     "details_copy_note": "Копіювати Нотатку",
     "details_from": "Від",
     "details_title": "Деталі транзакції",
@@ -308,7 +307,9 @@
     "freezeLabel_un": "Розморозити",
     "header": "Керування Монетою",
     "use_coin": "Використати Монету",
-    "use_coins": "Використовувати Монети"
+    "use_coins": "Використовувати Монети",
+    "sort_label": "Мітка",
+    "sort_status": "Статус"
   },
   "units": {
     "BTC": "BTC",

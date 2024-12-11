@@ -300,8 +300,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Gostaria de receber notificações quando receber pagamentos?",
-    "no_and_dont_ask": "Não, e não me perguntar novamente.",
-    "ask_me_later": "Lembre-me depois."
+    "no_and_dont_ask": "Não, e não me perguntar novamente."
   },
   "transactions": {
     "cancel_explain": "Nós vamos substituir esta transação por uma que envia os fundos para você com taxas mais altas. Isto, efetivamente, cancela a transação atual. Este ato é denominado RBF—Replace by Fee.",
@@ -317,7 +316,6 @@
     "details_balance_hide": "Esconder Saldo",
     "details_balance_show": "Mostrar Saldo",
     "details_copy": "Copiar",
-    "details_copy_amount": "Copiar Quantia",
     "details_copy_block_explorer_link": "Copiar Link do Explorador de Blocos",
     "details_copy_note": "Copiar Nota",
     "details_copy_txid": "Copiar ID da transação",
@@ -464,9 +462,6 @@
     "more_info": "Mais informações"
   },
   "total_balance_view": {
-    "display_in_bitcoin": "Ver em Bitcoin",
-    "display_in_sats": "Ver em sats",
-    "display_in_fiat": "Ver em {currency}",
     "title": "Saldo total",
     "explanation": "Veja o saldo total de todas as suas carteiras na tela pricinpal."
   },
@@ -566,7 +561,9 @@
     "header": "Controle de moedas",
     "use_coin": "Usar moeda",
     "use_coins": "Usar moedas",
-    "tip": "Permite que você veja, marque, congele ou selecione moedas para gerenciar melhor sua carteira."
+    "tip": "Permite que você veja, marque, congele ou selecione moedas para gerenciar melhor sua carteira.",
+    "sort_label": "Nome",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

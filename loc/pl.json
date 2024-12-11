@@ -215,7 +215,6 @@
     "block_explorer_invalid_custom_url": "Podany adres URL jest nieprawidłowy. Wprowadź poprawny adres zaczynający się od http:// lub https://.",
     "about_selftest_electrum_disabled": "Autotest nie jest dostępny z Electrum w trybie Offline. Wyłącz tryb offline i spróbuj ponownie.",
     "about_selftest_ok": "Wszystkie testy wewnętrzne przebiegły pomyślnie. Portfel działa dobrze.",
-
     "about_sm_github": "GitHub",
     "about_sm_discord": "Serwer Discord",
     "about_sm_telegram": "Chat na Telegramie",
@@ -250,7 +249,8 @@
     "electrum_settings_server": "Serwer Electrum",
     "electrum_status": "Status",
     "electrum_preferred_server": "Preferowany serwer",
-    "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",    "electrum_clear_alert_title": "Wyczyścić historię?",
+    "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",
+    "electrum_clear_alert_title": "Wyczyścić historię?",
     "electrum_clear_alert_message": "Czy chcesz wyczyścić historię serwerów Electrum?",
     "electrum_clear_alert_cancel": "Anuluj",
     "electrum_clear_alert_ok": "Ok",
@@ -667,7 +667,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }
