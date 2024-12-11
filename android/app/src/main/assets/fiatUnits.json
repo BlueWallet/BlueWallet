@@ -303,7 +303,7 @@
     "RSD": {
         "endPointKey": "RSD",
         "locale": "sr-RS",
-        "source": "CoinGecko",
+        "source": "CoinDesk",
         "symbol": "DIN",
         "country": "Serbia (Serbian Dinar)"
     },

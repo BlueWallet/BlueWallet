@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { AppState, Platform } from 'react-native';
 import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
-import { checkNotifications, requestNotifications } from 'react-native-permissions';
+import { checkNotifications, requestNotifications, RESULTS } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
 import loc from '../loc';
 import { groundControlUri } from './constants';
@@ -13,6 +13,17 @@ const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
 let baseURI = groundControlUri;
+
+const checkAndroidNotificationPermission = async () => {
+  try {
+    const { status } = await checkNotifications();
+    console.debug('Notification permission check:', status);
+    return status === RESULTS.GRANTED;
+  } catch (err) {
+    console.error('Failed to check notification permission:', err);
+    return false;
+  }
+};
 
 export const checkNotificationPermissionStatus = async () => {
   try {
@@ -28,15 +39,14 @@ export const checkNotificationPermissionStatus = async () => {
 let currentPermissionStatus = 'unavailable';
 const handleAppStateChange = async nextAppState => {
   if (nextAppState === 'active') {
-    const newPermissionStatus = await checkNotificationPermissionStatus();
-    if (newPermissionStatus !== currentPermissionStatus) {
-      currentPermissionStatus = newPermissionStatus;
-      if (newPermissionStatus === 'granted') {
-        // Re-initialize notifications if permissions are granted
-        await initializeNotifications();
-      } else {
-        // Optionally, handle the case where permissions are disabled (e.g., disable in-app notifications)
-        console.warn('Notifications have been disabled at the system level.');
+    const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+    if (!isDisabledByUser) {
+      const newPermissionStatus = await checkNotificationPermissionStatus();
+      if (newPermissionStatus !== currentPermissionStatus) {
+        currentPermissionStatus = newPermissionStatus;
+        if (newPermissionStatus === 'granted') {
+          await initializeNotifications();
+        }
       }
     }
   }
@@ -64,25 +74,34 @@ export const cleanUserOptOutFlag = async () => {
  * @returns {Promise<boolean>}
  */
 export const tryToObtainPermissions = async () => {
-  if (!isNotificationsCapable) return false;
+  console.debug('tryToObtainPermissions: Starting user-triggered permission request');
 
-  try {
-    const token = await getPushToken();
-    if (token) {
-      if (!alreadyConfigured) {
-        await configureNotifications();
-      }
-      return true;
-    }
-  } catch (error) {
-    console.error('Failed to obtain permissions:', error.message);
-    if (error.code) {
-      console.debug('Error code:', error.code);
-    }
+  if (!isNotificationsCapable) {
+    console.debug('tryToObtainPermissions: Device not capable');
     return false;
   }
 
-  return configureNotifications();
+  try {
+    const rationale = {
+      title: loc.settings.notifications,
+      message: loc.notifications.would_you_like_to_receive_notifications,
+      buttonPositive: loc._.ok,
+      buttonNegative: loc.notifications.no_and_dont_ask,
+    };
+
+    const { status } = await requestNotifications(
+      ['alert', 'sound', 'badge'],
+      Platform.OS === 'android' && Platform.Version < 33 ? rationale : undefined,
+    );
+    if (status !== RESULTS.GRANTED) {
+      console.debug('tryToObtainPermissions: Permission denied');
+      return false;
+    }
+    return configureNotifications();
+  } catch (error) {
+    console.error('Error requesting notification permissions:', error);
+    return false;
+  }
 };
 /**
  * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
@@ -94,6 +113,12 @@ export const tryToObtainPermissions = async () => {
  * @returns {Promise<object>} Response object from API rest call
  */
 export const majorTomToGroundControl = async (addresses, hashes, txids) => {
+  console.debug('majorTomToGroundControl: Starting notification registration', {
+    addressCount: addresses?.length,
+    hashCount: hashes?.length,
+    txidCount: txids?.length,
+  });
+
   try {
     const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
     if (noAndDontAskFlag === 'true') {
@@ -106,6 +131,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
     }
 
     const pushToken = await getPushToken();
+    console.debug('majorTomToGroundControl: Retrieved push token:', !!pushToken);
     if (!pushToken || !pushToken.token || !pushToken.os) {
       return;
     }
@@ -120,6 +146,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
 
     let response;
     try {
+      console.debug('majorTomToGroundControl: Sending request to:', `${baseURI}/majorTomToGroundControl`);
       response = await fetch(`${baseURI}/majorTomToGroundControl`, {
         method: 'POST',
         headers: _getHeaders(),
@@ -160,11 +187,16 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
  * @returns {Promise<Object>}
  */
 export const checkPermissions = async () => {
-  return new Promise(function (resolve) {
-    PushNotification.checkPermissions(result => {
-      resolve(result);
+  try {
+    return new Promise(function (resolve) {
+      PushNotification.checkPermissions(result => {
+        resolve(result);
+      });
     });
-  });
+  } catch (error) {
+    console.error('Error checking permissions:', error);
+    throw error;
+  }
 };
 
 /**
@@ -199,7 +231,7 @@ export const setLevels = async levelAll => {
       await Promise.all([
         new Promise(resolve => PushNotification.removeAllDeliveredNotifications(resolve)),
         new Promise(resolve => PushNotification.setApplicationIconBadgeNumber(0, resolve)),
-        new Promise(resolve => PushNotification.removePendingNotificationRequests(resolve)),
+        new Promise(resolve => PushNotification.cancelAllLocalNotifications(resolve)),
         AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true'),
       ]);
       console.debug('Notifications disabled successfully');
@@ -228,12 +260,19 @@ export const addNotification = async notification => {
 };
 
 const postTokenConfig = async () => {
+  console.debug('postTokenConfig: Starting token configuration');
   const pushToken = await getPushToken();
-  if (!pushToken || !pushToken.token || !pushToken.os) return;
+  console.debug('postTokenConfig: Retrieved push token:', !!pushToken);
+
+  if (!pushToken || !pushToken.token || !pushToken.os) {
+    console.debug('postTokenConfig: Invalid token or missing OS info');
+    return;
+  }
 
   try {
     const lang = (await AsyncStorage.getItem('lang')) || 'en';
     const appVersion = getSystemName() + ' ' + getSystemVersion() + ';' + getApplicationName() + ' ' + getVersion();
+    console.debug('postTokenConfig: Posting configuration', { lang, appVersion });
 
     await fetch(`${baseURI}/setTokenConfiguration`, {
       method: 'POST',
@@ -253,8 +292,13 @@ const postTokenConfig = async () => {
 };
 
 const _setPushToken = async token => {
-  token = JSON.stringify(token);
-  return AsyncStorage.setItem(PUSH_TOKEN, token);
+  try {
+    token = JSON.stringify(token);
+    return await AsyncStorage.setItem(PUSH_TOKEN, token);
+  } catch (error) {
+    console.error('Error setting push token:', error);
+    throw error;
+  }
 };
 
 /**
@@ -263,93 +307,77 @@ const _setPushToken = async token => {
  * @returns {Promise<boolean>}
  */
 export const configureNotifications = async onProcessNotifications => {
+  if (alreadyConfigured) {
+    console.debug('configureNotifications: Already configured, skipping');
+    return true;
+  }
+
   return new Promise(resolve => {
-    const configure = async () => {
-      const existingToken = await getPushToken();
-      if (existingToken) {
-        alreadyConfigured = true;
-        console.debug('Notifications already configured with existing token.');
-        if (__DEV__) {
-          console.debug('Existing Token:', existingToken);
-        }
-        resolve(true);
+    const handleRegistration = async token => {
+      if (__DEV__) {
+        console.debug('configureNotifications: Token received:', token);
+      }
+      alreadyConfigured = true;
+      await _setPushToken(token);
+      resolve(true);
+    };
+
+    const handleNotification = async notification => {
+      // Deep clone to  avoid modifying the original object
+      const payload = structuredClone({
+        ...notification,
+        ...notification.data,
+      });
+
+      if (notification.data?.data) {
+        const validData = Object.fromEntries(Object.entries(notification.data.data).filter(([_, value]) => value != null));
+        Object.assign(payload, validData);
+      }
+      payload.data = undefined;
+
+      if (!payload.title && !payload.message) {
+        console.warn('Notification missing required fields:', payload);
         return;
       }
 
-      const rationale = {
-        title: loc.settings.notifications,
-        message: loc.notifications.would_you_like_to_receive_notifications,
-        buttonPositive: loc._.ok,
-        buttonNegative: loc.notifications.no_and_dont_ask,
-      };
+      await addNotification(payload);
+      notification.finish(PushNotificationIOS.FetchResult.NoData);
 
-      const requestPermissions = Platform.OS === 'ios';
+      if (payload.foreground && onProcessNotifications) {
+        await onProcessNotifications();
+      }
+    };
 
-      requestNotifications(['alert', 'sound', 'badge'], Platform.OS === 'android' ? rationale : undefined)
-        .then(({ status }) => {
-          if (status === 'granted') {
-            console.debug('Notification permissions granted.');
-            PushNotification.configure({
-              onRegister: async token => {
-                console.debug('TOKEN:', token);
-                if (__DEV__) {
-                  console.debug('New Token:', token);
-                }
-                alreadyConfigured = true;
-                await _setPushToken(token);
-                resolve(true);
-              },
-              onNotification: async notification => {
-                // Deep clone to avoid modifying the original notification
-                const payload = structuredClone({
-                  ...notification,
-                  ...notification.data,
-                });
+    const configure = async () => {
+      try {
+        const { status } = await checkNotifications();
+        if (status !== RESULTS.GRANTED) {
+          console.debug('configureNotifications: Permissions not granted');
+          return resolve(false);
+        }
 
-                if (notification.data?.data) {
-                  // Validate data before merging
-                  const validData = {};
-                  for (const [key, value] of Object.entries(notification.data.data)) {
-                    if (value != null) {
-                      validData[key] = value;
-                    }
-                  }
-                  Object.assign(payload, validData);
-                }
-                payload.data = undefined;
+        const existingToken = await getPushToken();
+        if (existingToken) {
+          alreadyConfigured = true;
+          console.debug('Notifications already configured with existing token');
+          return resolve(true);
+        }
 
-                // Ensure required fields exist
-                if (!payload.title && !payload.message) {
-                  console.warn('Notification missing required fields:', payload);
-                  return;
-                }
-
-                console.debug('Received Push Notification Payload:', payload);
-
-                await addNotification(payload);
-                notification.finish(PushNotificationIOS.FetchResult.NoData);
-
-                if (payload.foreground && onProcessNotifications) {
-                  await onProcessNotifications();
-                }
-              },
-              onRegistrationError: err => {
-                console.error(err.message, err);
-                resolve(false);
-              },
-              permissions: { alert: true, badge: true, sound: true },
-              popInitialNotification: true,
-              requestPermissions,
-            });
-          } else {
-            console.warn('Notification permissions not granted.');
+        PushNotification.configure({
+          onRegister: handleRegistration,
+          onNotification: handleNotification,
+          onRegistrationError: error => {
+            console.error('Registration error:', error);
             resolve(false);
-          }
-        })
-        .catch(error => {
-          console.error('Failed to request notifications permission:', error);
-          resolve(false);
+          },
+          permissions: { alert: true, badge: true, sound: true },
+          popInitialNotification: true,
+          requestPermissions: Platform.OS === 'ios',
         });
+      } catch (error) {
+        console.error('Error in configure:', error);
+        resolve(false);
+      }
     };
 
     configure();
@@ -481,16 +509,21 @@ export const clearStoredNotifications = async () => {
 };
 
 export const getDeliveredNotifications = () => {
-  return new Promise(resolve => {
-    PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
-  });
+  try {
+    return new Promise(resolve => {
+      PushNotification.getDeliveredNotifications(notifications => resolve(notifications));
+    });
+  } catch (error) {
+    console.error('Error getting delivered notifications:', error);
+    throw error;
+  }
 };
 
 export const removeDeliveredNotifications = (identifiers = []) => {
   PushNotification.removeDeliveredNotifications(identifiers);
 };
 
-export const setApplicationIconBadgeNumber = function (badges) {
+export const setApplicationIconBadgeNumber = badges => {
   PushNotification.setApplicationIconBadgeNumber(badges);
 };
 
@@ -503,12 +536,12 @@ export const getDefaultUri = () => {
 };
 
 export const saveUri = async uri => {
-  baseURI = uri || groundControlUri;
   try {
+    baseURI = uri || groundControlUri;
     await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, baseURI);
-  } catch (storageError) {
-    console.error('Failed to reset URI:', storageError);
-    throw storageError;
+  } catch (error) {
+    console.error('Error saving URI:', error);
+    throw error;
   }
 };
 
@@ -531,8 +564,17 @@ export const getSavedUri = async () => {
 };
 
 export const isNotificationsEnabled = async () => {
-  const levels = await getLevels();
-  return !!(await getPushToken()) && !!levels.level_all;
+  try {
+    const levels = await getLevels();
+    const token = await getPushToken();
+    const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+
+    // Return true only if we have all requirements and user hasn't opted out
+    return !isDisabledByUser && !!token && !!levels.level_all;
+  } catch (error) {
+    console.log('Error checking notification levels:', error);
+    return false;
+  }
 };
 
 export const getStoredNotifications = async () => {
@@ -557,8 +599,11 @@ export const getStoredNotifications = async () => {
 
 // on app launch (load module):
 export const initializeNotifications = async onProcessNotifications => {
+  console.debug('initializeNotifications: Starting initialization');
   try {
     const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
+    console.debug('initializeNotifications: No ask flag status:', noAndDontAskFlag);
+
     if (noAndDontAskFlag === 'true') {
       console.warn('User has opted out of notifications.');
       return;
@@ -567,25 +612,37 @@ export const initializeNotifications = async onProcessNotifications => {
     const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
     baseURI = baseUriStored || groundControlUri;
     console.debug('Base URI set to:', baseURI);
-  } catch (e) {
-    console.error('Failed to load custom URI, falling back to default', e);
-    baseURI = groundControlUri;
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
-  }
 
-  setApplicationIconBadgeNumber(0);
+    setApplicationIconBadgeNumber(0);
 
-  try {
+    // Only check permissions, never request
     currentPermissionStatus = await checkNotificationPermissionStatus();
-    console.warn('currentPermissionStatus', currentPermissionStatus);
-    if (currentPermissionStatus === 'granted' && (await getPushToken())) {
-      console.debug('Permissions granted and push token exists. Configuring notifications...');
-      await configureNotifications(onProcessNotifications);
-      await postTokenConfig();
+    console.debug('initializeNotifications: Permission status:', currentPermissionStatus);
+
+    // Handle Android 13+ permissions differently
+    const canProceed =
+      Platform.OS === 'android'
+        ? isNotificationsCapable && (await checkAndroidNotificationPermission())
+        : currentPermissionStatus === 'granted';
+
+    if (canProceed) {
+      console.debug('initializeNotifications: Can proceed with notification setup');
+      const token = await getPushToken();
+
+      if (token) {
+        console.debug('initializeNotifications: Existing token found, configuring');
+        await configureNotifications(onProcessNotifications);
+        await postTokenConfig();
+      } else {
+        console.debug('initializeNotifications: No token found, will request permissions');
+        await tryToObtainPermissions();
+      }
     } else {
-      console.warn('Notifications are disabled at the system level.');
+      console.debug('Notifications require user action to enable');
     }
   } catch (error) {
     console.error('Failed to initialize notifications:', error);
+    baseURI = groundControlUri;
+    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
   }
 };
