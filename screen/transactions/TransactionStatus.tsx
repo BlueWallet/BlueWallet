@@ -1,13 +1,13 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { Transaction } from '../../class/wallets/types';
+import { Transaction, TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
 import HandOffComponent from '../../components/HandOffComponent';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
@@ -22,6 +22,7 @@ import { HandOffActivityType } from '../../components/types';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 enum ButtonStatus {
   Possible,
@@ -30,11 +31,7 @@ enum ButtonStatus {
 }
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
-
-interface TransactionStatusProps {
-  route: RouteProps;
-  navigation: NativeStackNavigationProp<any>;
-}
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionStatus'>;
 
 enum ActionType {
   SetCPFPPossible,
@@ -45,6 +42,8 @@ enum ActionType {
   SetEta,
   SetIntervalMs,
   SetAllButtonStatus,
+  SetWallet,
+  SetLoadingError,
 }
 
 interface State {
@@ -55,6 +54,8 @@ interface State {
   isLoading: boolean;
   eta: string;
   intervalMs: number;
+  wallet: TWallet | null;
+  loadingError: boolean;
 }
 
 const initialState: State = {
@@ -65,6 +66,8 @@ const initialState: State = {
   isLoading: true,
   eta: '',
   intervalMs: 1000,
+  wallet: null,
+  loadingError: false,
 };
 
 const reducer = (state: State, action: { type: ActionType; payload?: any }): State => {
@@ -85,19 +88,31 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
       return { ...state, intervalMs: action.payload };
     case ActionType.SetAllButtonStatus:
       return { ...state, isCPFPPossible: action.payload, isRBFBumpFeePossible: action.payload, isRBFCancelPossible: action.payload };
+    case ActionType.SetWallet:
+      return { ...state, wallet: action.payload };
+    case ActionType.SetLoadingError:
+      return { ...state, loadingError: action.payload };
     default:
       return state;
   }
 };
 
-const TransactionStatus = () => {
+type TransactionStatusProps = {
+  transaction?: {
+    amount?: number;
+    value?: number;
+    confirmations?: number;
+  };
+  txid?: string;
+};
+
+const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs } = state;
+  const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { setSelectedWalletID, wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions } = useStorage();
-  const { hash, walletID } = useRoute<TransactionStatusProps['route']>().params;
-  const { navigate, setOptions, goBack } = useNavigation<TransactionStatusProps['navigation']>();
+  const { hash, walletID } = useRoute<RouteProps>().params;
+  const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
-  const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout>();
   const stylesHook = StyleSheet.create({
@@ -111,8 +126,6 @@ const TransactionStatus = () => {
       backgroundColor: colors.success,
     },
   });
-
-  // Dispatch Calls
 
   const setTX = (value: any) => {
     dispatch({ type: ActionType.SetTransaction, payload: value });
@@ -146,22 +159,24 @@ const TransactionStatus = () => {
     dispatch({ type: ActionType.SetRBFCancelPossible, payload: status });
   };
 
-  //
-
   const navigateToTransactionDetails = useCallback(() => {
-    navigate('TransactionDetails', { hash, walletID });
-  }, [hash, navigate, walletID]);
+    if (walletID && tx && tx.hash) {
+      navigate('TransactionDetails', { tx, hash, walletID });
+    } else {
+      console.error('Cannot navigate to TransactionDetails: Missing tx or hash.');
+    }
+  }, [hash, navigate, tx, walletID]);
 
   const DetailsButton = useMemo(
     () => (
       <HeaderRightButton
         testID="TransactionDetailsButton"
-        disabled={false}
+        disabled={loadingError || isLoading || !tx || !wallet}
         title={loc.send.create_details}
         onPress={navigateToTransactionDetails}
       />
     ),
-    [navigateToTransactionDetails],
+    [navigateToTransactionDetails, loadingError, isLoading, tx, wallet],
   );
 
   useEffect(() => {
@@ -171,24 +186,23 @@ const TransactionStatus = () => {
   }, [DetailsButton, colors, hash, setOptions]);
 
   useEffect(() => {
-    if (wallet.current) {
-      const transactions = wallet.current.getTransactions();
+    if (wallet) {
+      const transactions = wallet.getTransactions();
       const newTx = transactions.find((t: Transaction) => t.hash === hash);
       if (newTx) {
         setTX(newTx);
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash, wallet.current]);
+  }, [hash, wallet]);
 
   useEffect(() => {
-    wallet.current = wallets.find(w => w.getID() === walletID);
+    const foundWallet = wallets.find(w => w.getID() === walletID) || null;
+    dispatch({ type: ActionType.SetWallet, payload: foundWallet });
   }, [walletID, wallets]);
 
   // re-fetching tx status periodically
   useEffect(() => {
-    console.log('transactionStatus - useEffect');
+    console.debug('transactionStatus - useEffect');
 
     if (!tx || tx?.confirmations) return;
     if (!hash) return;
@@ -199,35 +213,47 @@ const TransactionStatus = () => {
       fetchTxInterval.current = undefined;
     }
 
-    console.log('setting up interval to check tx...');
+    console.debug('setting up interval to check tx...');
     fetchTxInterval.current = setInterval(async () => {
       try {
         setIntervalMs(31000); // upon first execution we increase poll interval;
 
-        console.log('checking tx', hash, 'for confirmations...');
+        console.debug('checking tx', hash, 'for confirmations...');
         const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
         const txFromElectrum = transactions[hash];
-        if (!txFromElectrum) return;
+        if (!txFromElectrum) {
+          console.error(`Transaction from Electrum with hash ${hash} not found.`);
+          return;
+        }
 
-        console.log('got txFromElectrum=', txFromElectrum);
+        console.debug('got txFromElectrum=', txFromElectrum);
 
-        const address = (txFromElectrum?.vout[0]?.scriptPubKey?.addresses || []).pop();
-        if (!address) return;
+        const address = txFromElectrum.vout?.[0]?.scriptPubKey?.addresses?.pop();
+        if (!address) {
+          console.error('Address not found in txFromElectrum.');
+          return;
+        }
 
         if (!txFromElectrum.confirmations && txFromElectrum.vsize) {
           const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
           let txFromMempool;
           // searching for a correct tx in case this address has several pending txs:
           for (const tempTxM of txsM) {
-            if (tempTxM.tx_hash === hash) txFromMempool = tempTxM;
+            if (tempTxM?.tx_hash === hash) {
+              txFromMempool = tempTxM;
+              break;
+            }
           }
-          if (!txFromMempool) return;
+          if (!txFromMempool) {
+            console.error(`Transaction from mempool with hash ${hash} not found.`);
+            return;
+          }
 
-          console.log('txFromMempool=', txFromMempool);
+          console.debug('txFromMempool=', txFromMempool);
 
-          const satPerVbyte = Math.round(txFromMempool.fee / txFromElectrum.vsize);
+          const satPerVbyte = txFromMempool.fee && txFromElectrum.vsize ? Math.round(txFromMempool.fee / txFromElectrum.vsize) : 0;
           const fees = await BlueElectrum.estimateFees();
-          console.log('fees=', fees, 'satPerVbyte=', satPerVbyte);
+          console.debug('fees=', fees, 'satPerVbyte=', satPerVbyte);
           if (satPerVbyte >= fees.fast) {
             setEta(loc.formatString(loc.transactions.eta_10m));
           }
@@ -241,18 +267,31 @@ const TransactionStatus = () => {
           // now, handling a case when tx became confirmed!
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           setEta('');
-          setTX((prevState: any) => {
-            return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
-          });
+          if (tx) {
+            setTX((prevState: any) => {
+              return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
+            });
+          } else {
+            console.error('Cannot set confirmations: tx is undefined.');
+          }
           clearInterval(fetchTxInterval.current);
           fetchTxInterval.current = undefined;
-          wallet?.current?.getID() && fetchAndSaveWalletTransactions(wallet.current.getID());
+          if (wallet?.getID()) {
+            fetchAndSaveWalletTransactions(wallet.getID());
+          } else {
+            console.error('Cannot fetch and save wallet transactions: wallet ID is undefined.');
+          }
         }
       } catch (error) {
-        console.log(error);
+        console.error('Error in fetchTxInterval:', error);
       }
     }, intervalMs);
-  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions]);
+
+    return () => {
+      clearInterval(fetchTxInterval.current);
+      fetchTxInterval.current = undefined;
+    };
+  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
   const handleBackButton = () => {
     goBack();
@@ -276,36 +315,39 @@ const TransactionStatus = () => {
       await checkPossibilityOfRBFBumpFee();
       await checkPossibilityOfRBFCancel();
     } catch (e) {
+      console.error('Error in initialButtonsState:', e);
       setAllButtonStatus(ButtonStatus.NotPossible);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
-    initialButtonsState();
+    initialButtonsState().catch(error => console.error('Unhandled error in initialButtonsState:', error));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, wallets]);
 
-  useEffect(() => {
-    const wID = wallet.current?.getID();
-    if (wID) {
-      setSelectedWalletID(wallet.current?.getID());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.current]);
+  useEffect(() => {}, [tx, wallets]);
 
   useEffect(() => {
-    console.log('transactionStatus - useEffect');
+    const wID = wallet?.getID();
+    if (wID) {
+      setSelectedWalletID(wallet?.getID());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet]);
+
+  useEffect(() => {
+    console.debug('transactionStatus - useEffect');
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
-    if (!wallet.current?.allowRBF()) {
+    if (!wallet?.allowRBF()) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
-    if (wallet.current) {
-      const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
+    if (wallet) {
+      const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
       if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
         return setIsCPFPPossible(ButtonStatus.Possible);
       } else {
@@ -316,11 +358,11 @@ const TransactionStatus = () => {
   };
 
   const checkPossibilityOfRBFBumpFee = async () => {
-    if (!wallet.current?.allowRBF()) {
+    if (!wallet?.allowRBF()) {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -334,11 +376,11 @@ const TransactionStatus = () => {
   };
 
   const checkPossibilityOfRBFCancel = async () => {
-    if (!wallet.current?.allowRBF()) {
+    if (!wallet?.allowRBF()) {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -354,21 +396,21 @@ const TransactionStatus = () => {
   const navigateToRBFBumpFee = () => {
     navigate('RBFBumpFee', {
       txid: tx.hash,
-      wallet: wallet.current,
+      wallet,
     });
   };
 
   const navigateToRBFCancel = () => {
     navigate('RBFCancel', {
       txid: tx.hash,
-      wallet: wallet.current,
+      wallet,
     });
   };
 
   const navigateToCPFP = () => {
     navigate('CPFP', {
       txid: tx.hash,
-      wallet: wallet.current,
+      wallet,
     });
   };
 
@@ -471,94 +513,143 @@ const TransactionStatus = () => {
     );
   };
 
-  if (isLoading || !tx || wallet.current === undefined) {
-    return (
-      <SafeArea>
-        <BlueLoading />
-      </SafeArea>
-    );
-  }
+  useEffect(() => {
+    if (!tx && txid) {
+      // Fetch transaction details using txid
+      const fetchTransaction = async () => {
+        try {
+          const transactions = await BlueElectrum.multiGetTransactionByTxid([txid], true, 10);
+          const fetchedTx = transactions[txid];
+          if (fetchedTx) {
+            setTX(fetchedTx);
+          } else {
+            console.error(`Transaction with txid ${txid} not found.`);
+            dispatch({ type: ActionType.SetLoadingError, payload: true });
+            dispatch({ type: ActionType.SetLoading, payload: false });
+          }
+        } catch (error) {
+          console.error('Error fetching transaction:', error);
+          dispatch({ type: ActionType.SetLoadingError, payload: true });
+          dispatch({ type: ActionType.SetLoading, payload: false });
+        }
+      };
+      fetchTransaction().catch(error => console.error('Unhandled error in fetchTransaction:', error));
+    }
+  }, [tx, txid]);
+
+  useEffect(() => {
+    if (isLoading) {
+      let isComponentMounted = true;
+      const loadingTimeout = setTimeout(() => {
+        if (isComponentMounted && isLoading) {
+          dispatch({ type: ActionType.SetLoadingError, payload: true });
+          dispatch({ type: ActionType.SetLoading, payload: false });
+          console.error('Loading timed out. There was an issue fetching the transaction.');
+        }
+      }, 10000);
+
+      return () => {
+        isComponentMounted = false;
+        clearTimeout(loadingTimeout);
+      };
+    }
+  }, [isLoading]);
+
   return (
     <SafeArea>
-      <HandOffComponent
-        title={loc.transactions.details_title}
-        type={HandOffActivityType.ViewInBlockExplorer}
-        url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
-      />
-
-      <View style={styles.container}>
+      {loadingError ? (
         <BlueCard>
-          <View style={styles.center}>
-            <Text style={[styles.value, stylesHook.value]} selectable>
-              {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
-              {wallet.current?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
-              )}
-            </Text>
-          </View>
-
-          {renderTXMetadata()}
-          {renderTXCounterparty()}
-
-          <View style={[styles.iconRoot, stylesHook.iconRoot]}>
-            <View>
-              <Icon name="check" size={50} type="font-awesome" color={colors.successCheck} />
-            </View>
-            <View style={[styles.iconWrap, styles.margin]}>
-              {(() => {
-                if (!tx.confirmations) {
-                  return (
-                    <View style={styles.icon}>
-                      <TransactionPendingIcon />
-                    </View>
-                  );
-                } else if (tx.value < 0) {
-                  return (
-                    <View style={styles.icon}>
-                      <TransactionOutgoingIcon />
-                    </View>
-                  );
-                } else {
-                  return (
-                    <View style={styles.icon}>
-                      <TransactionIncomingIcon />
-                    </View>
-                  );
-                }
-              })()}
-            </View>
-          </View>
-
-          {tx.fee && (
-            <View style={styles.fee}>
-              <BlueText style={styles.feeText}>
-                {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.current.preferredBalanceUnit, true)}{' '}
-                {wallet.current?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current?.preferredBalanceUnit}
-              </BlueText>
-            </View>
-          )}
-
-          <View style={styles.confirmations}>
-            <Text style={styles.confirmationsText}>
-              {loc.formatString(loc.transactions.confirmations_lowercase, {
-                confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
-              })}
-            </Text>
-          </View>
-          {eta ? (
-            <View style={styles.eta}>
-              <BlueSpacing10 />
-              <Text style={styles.confirmationsText}>{eta}</Text>
-            </View>
-          ) : null}
+          <BlueText>{loc.transactions.transaction_loading_error}</BlueText>
         </BlueCard>
+      ) : isLoading || !tx || wallet === undefined ? (
+        <BlueLoading />
+      ) : !transaction && !tx ? (
+        <BlueText>{loc.transactions.transaction_not_available}</BlueText>
+      ) : (
+        <>
+          <HandOffComponent
+            title={loc.transactions.details_title}
+            type={HandOffActivityType.ViewInBlockExplorer}
+            url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
+          />
 
-        <View style={styles.actions}>
-          {renderCPFP()}
-          {renderRBFBumpFee()}
-          {renderRBFCancel()}
-        </View>
-      </View>
+          <View style={styles.container}>
+            <BlueCard>
+              <View style={styles.center}>
+                <Text style={[styles.value, stylesHook.value]} selectable>
+                  {wallet && formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
+                  {` `}
+                  {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet && (
+                    <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.preferredBalanceUnit}</Text>
+                  )}
+                </Text>
+              </View>
+
+              {renderTXMetadata()}
+              {renderTXCounterparty()}
+
+              <View style={[styles.iconRoot, stylesHook.iconRoot]}>
+                <View>
+                  <Icon name="check" size={50} type="font-awesome" color={colors.successCheck} />
+                </View>
+                <View style={[styles.iconWrap, styles.margin]}>
+                  {(() => {
+                    if (!tx.confirmations) {
+                      return (
+                        <View style={styles.icon}>
+                          <TransactionPendingIcon />
+                        </View>
+                      );
+                    } else if (tx.value < 0) {
+                      return (
+                        <View style={styles.icon}>
+                          <TransactionOutgoingIcon />
+                        </View>
+                      );
+                    } else {
+                      return (
+                        <View style={styles.icon}>
+                          <TransactionIncomingIcon />
+                        </View>
+                      );
+                    }
+                  })()}
+                </View>
+              </View>
+
+              {tx.fee && (
+                <View style={styles.fee}>
+                  <BlueText style={styles.feeText}>
+                    {`${loc.send.create_fee.toLowerCase()} `}
+                    {formatBalanceWithoutSuffix(tx.fee, wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC, true)}
+                    {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet?.preferredBalanceUnit}
+                  </BlueText>
+                </View>
+              )}
+
+              <View style={styles.confirmations}>
+                <Text style={styles.confirmationsText}>
+                  {loc.formatString(loc.transactions.confirmations_lowercase, {
+                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                  })}
+                </Text>
+              </View>
+              {eta ? (
+                <View style={styles.eta}>
+                  <BlueSpacing10 />
+                  <Text style={styles.confirmationsText}>{eta}</Text>
+                </View>
+              ) : null}
+            </BlueCard>
+
+            <View style={styles.actions}>
+              {renderCPFP()}
+              {renderRBFBumpFee()}
+              {renderRBFCancel()}
+            </View>
+          </View>
+        </>
+      )}
     </SafeArea>
   );
 };

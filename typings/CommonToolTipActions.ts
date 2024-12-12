@@ -299,11 +299,13 @@ export const CommonToolTipActions = {
     id: keys.SignVerify,
     text: loc.addresses.sign_title,
     icon: icons.Signature,
+    hidden: false,
   },
   ExportPrivateKey: {
     id: keys.ExportPrivateKey,
     text: loc.addresses.copy_private_key,
     icon: icons.ExportPrivateKey,
+    hidden: false,
   },
   ResetToDefault: {
     id: keys.ResetToDefault,

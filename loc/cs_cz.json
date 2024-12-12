@@ -320,12 +320,14 @@
     "would_you_like_to_receive_notifications": "Chcete dostávat oznámení o příchozích platbách?",
     "notifications_subtitle": "Příchozí platby a potvrzení transakcí",
     "no_and_dont_ask": "Ne, a už se mě znovu neptejte.",
-    "ask_me_later": "Zeptejte se mě později."
+    "permission_denied_message": "Nemáte povolené oprávnění pro zasílání oznámení. Jestliže chcete dostávat oznámení, povolte oprávnění v nastavení vašeho zařízení."
   },
   "transactions": {
     "cancel_explain": "Tuto transakci nahradíme takovou, která vám zaplatí a bude mít vyšší poplatky. Tím se zruší aktuální transakce. Toto se nazývá RBF – Replace by Fee.",
     "cancel_no": "Tato transakce není nahraditelná.",
     "cancel_title": "Zrušit tuto transakci (RBF)",
+    "transaction_loading_error": "Během načítání transakce došlo k problému. Zkuste to prosím znovu později.",
+    "transaction_not_available": "Transakce není dostupná",
     "confirmations_lowercase": "{confirmations} potvrzení",
     "copy_link": "Zkopírovat odkaz",
     "expand_note": "Rozbalit poznámku",
@@ -336,7 +338,6 @@
     "details_balance_hide": "Skrýt zůstatek",
     "details_balance_show": "Zobrazit zůstatek",
     "details_copy": "Zkopírovat",
-    "details_copy_amount": "Zkopírovat částku",
     "details_copy_block_explorer_link": "Zkopírovat odkaz na průzkumník bloků",
     "details_copy_note": "Zkopírovat poznámku",
     "details_copy_txid": "Zkopírovat ID transakce",
@@ -448,6 +449,7 @@
     "import_discovery_subtitle": "Vyberte si objevenou peněženku",
     "import_discovery_derivation": "Použít vlastní derivační cestu",
     "import_discovery_no_wallets": "Nebyly nalezeny žádné peněženky.",
+    "import_discovery_offline": "Aplikace BlueWallet je aktuálně v režimu offline. V tomto režimu nemůže ověřovat existenci peněženky, takže budete muset tu správnou vybrat ručně.",
     "import_derivation_found": "Nalezeno",
     "import_derivation_found_not": "Nenalezeno",
     "import_derivation_loading": "Načítání…",
@@ -488,7 +490,8 @@
   },
   "total_balance_view": {
     "display_in_bitcoin": "Zobrazit v bitcoinech",
-    "display_in_sats": "Zobrazit v sat",
+    "hide": "Skrýt",
+    "display_in_sats": "Zobrazit v satoshi",
     "display_in_fiat": "Zobrazit v {currency}",
     "title": "Celkový zůstatek",
     "explanation": "Zobrazit celkový zůstatek všech vašich peněženek na přehledové obrazovce."
@@ -592,7 +595,14 @@
     "header": "Řízení mincí",
     "use_coin": "Použít minci",
     "use_coins": "Použít mince",
-    "tip": "Tato funkce umožňuje zobrazit, označit, zmrazit nebo vybrat mince pro lepší správu peněženky. Klepnutím na barevné kruhy můžete vybrat více mincí."
+    "tip": "Tato funkce umožňuje zobrazit, označit, zmrazit nebo vybrat mince pro lepší správu peněženky. Klepnutím na barevné kruhy můžete vybrat více mincí.",
+    "sort_asc": "Vzestupně",
+    "sort_desc": "Sestupně",
+    "sort_height": "Výška",
+    "sort_value": "Hodnota",
+    "sort_label": "Popisek",
+    "sort_status": "Stav",
+    "sort_by": "Seřadit podle"
   },
   "units": {
     "BTC": "BTC",

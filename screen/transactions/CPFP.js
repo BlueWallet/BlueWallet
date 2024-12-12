@@ -220,7 +220,14 @@ export default class CPFP extends Component {
 
     return (
       <SafeArea style={styles.explain}>
-        <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
+        <ScrollView
+          automaticallyAdjustContentInsets
+          automaticallyAdjustKeyboardInsets
+          automaticallyAdjustsScrollIndicatorInsets
+          contentInsetAdjustmentBehavior="automatic"
+        >
+          {this.renderStage1(loc.transactions.cpfp_exp)}
+        </ScrollView>
       </SafeArea>
     );
   }

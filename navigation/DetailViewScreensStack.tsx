@@ -249,7 +249,7 @@ const DetailViewStackScreensStack = () => {
         component={AddWalletStack}
         options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
       />
-      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormModalOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
