@@ -1,3 +1,6 @@
+/**
+ * @fileOverview see tests/custom-reporter.js for more information
+ */
 import NodeEnvironment from 'jest-environment-node';
 class CustomEnvironment extends NodeEnvironment {
   async handleTestEvent(event) {
