@@ -266,7 +266,6 @@
     "details_balance_hide": "Verberg saldo",
     "details_balance_show": "Toon saldo",
     "details_copy": "Kopiëren",
-    "details_copy_amount": "Kopieer aantal",
     "details_copy_block_explorer_link": "Kopieer blok explorer Link",
     "details_copy_note": "Kopieer Note",
     "details_copy_txid": "Kopieer Transactie ID",
@@ -458,7 +457,8 @@
     "header": "Coin Control",
     "use_coin": "Gebruik Coin",
     "use_coins": "Gebruik Coins",
-    "tip": "Hiermee kunt u coins zien, labelen, bevriezen of selecteren voor verbeterd walletbeheer."
+    "tip": "Hiermee kunt u coins zien, labelen, bevriezen of selecteren voor verbeterd walletbeheer.",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

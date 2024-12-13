@@ -29,7 +29,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isNotificationsEnabledState, setNotificationsEnabledState] = useState(false);
+  const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
@@ -99,30 +99,33 @@ const NotificationSettings: React.FC = () => {
       } else {
         await setLevels(false);
         await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
+        setNotificationsEnabledState(false);
       }
 
       setNotificationsEnabledState(await isNotificationsEnabled());
     } catch (error) {
       console.error(error);
       presentAlert({ message: (error as Error).message });
+      setNotificationsEnabledState(false);
     }
   };
 
   const updateNotificationStatus = async () => {
-    const currentStatus = await checkNotificationPermissionStatus();
-
-    if (currentStatus !== 'granted') {
-      console.debug('System-level notifications are disabled. Treating as user-disabled.');
-
-      await setLevels(false);
-
-      await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
-      setNotificationsEnabledState(false);
-    } else {
+    try {
+      const currentStatus = await checkNotificationPermissionStatus();
       const isEnabled = await isNotificationsEnabled();
-      setNotificationsEnabledState(isEnabled);
+      const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+
+      if (!isDisabledByUser) {
+        setNotificationsEnabledState(currentStatus === 'granted' && isEnabled);
+      } else {
+        setNotificationsEnabledState(false);
+      }
+    } catch (error) {
+      console.log('Error updating notification status:', error);
     }
   };
+
   useEffect(() => {
     (async () => {
       try {
@@ -154,7 +157,12 @@ const NotificationSettings: React.FC = () => {
 
     const appStateListener = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
-        setTimeout(updateNotificationStatus, 300);
+        setTimeout(async () => {
+          const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+          if (!isDisabledByUser) {
+            updateNotificationStatus();
+          }
+        }, 300);
       }
     });
 
@@ -178,7 +186,7 @@ const NotificationSettings: React.FC = () => {
         presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
-      console.warn(error);
+      console.error('Error saving URI:', error);
     }
     setIsLoading(false);
   }, [URI]);
@@ -194,6 +202,7 @@ const NotificationSettings: React.FC = () => {
         title={loc.settings.notifications}
         subtitle={loc.notifications.notifications_subtitle}
         disabled={isLoading}
+        isLoading={isNotificationsEnabledState === undefined}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledState, testID: 'NotificationsSwitch' }}
       />
 

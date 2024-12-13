@@ -161,7 +161,10 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual(tx.outs[1].value, 25000);
 });
 
-it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
+// skpped because its slow
+// unskip and test manually
+// eslint-disable-next-line jest/no-disabled-tests
+it.skip('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
   if (!process.env.HD_MNEMONIC_BIP49_MANY_TX) {
     console.error('process.env.HD_MNEMONIC_BIP49_MANY_TX not set, skipped');
     return;

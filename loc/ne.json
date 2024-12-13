@@ -232,7 +232,6 @@
     "details_balance_hide": "रकम लुकाउनुहोस्",
     "details_balance_show": "रकम देखाउनुहोस्",
     "details_copy": "कापी",
-    "details_copy_amount": "कापी रकम",
     "details_copy_note": "नोट कापी",
     "date": "मिति",
     "details_received": "प्राप्त भयो",
@@ -335,7 +334,8 @@
     "freezeLabel_un": "अनफ्रिज गर्नुहोस्",
     "header": "सिक्का नियन्त्रण",
     "use_coin": "कोइन प्रयोग गर्नुहोस्",
-    "use_coins": "कोइनहरू प्रयोग गर्नुहोस्"
+    "use_coins": "कोइनहरू प्रयोग गर्नुहोस्",
+    "sort_status": "स्थिति"
   },
   "addresses": {
     "sign_title": "हस्ताक्षर/प्रमाणित सन्देश",

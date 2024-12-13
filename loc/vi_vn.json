@@ -267,7 +267,6 @@
     "details_balance_hide": "Giấu số dư",
     "details_balance_show": "Hiển thị số dư ",
     "details_copy": "Sao chép",
-    "details_copy_amount": "Sao chép số tiền",
     "details_copy_block_explorer_link": "Sao chép liên kết Block Explorer",
     "details_copy_note": "Sao chép ghi chú",
     "details_copy_txid": "Sao chép ID giao dịch",
@@ -465,7 +464,8 @@
     "header": "Kiểm soát coin",
     "use_coin": "Sử dùng coin",
     "use_coins": "Sử dụng các coin",
-    "tip": "Tính năng này cho phép bạn xem, dán nhãn, đóng băng hoặc chọn tiền để quản lý ví cải tiến. Bạn có thể chọn nhiều coin bằng cách chạm vào các vòng tròn màu."
+    "tip": "Tính năng này cho phép bạn xem, dán nhãn, đóng băng hoặc chọn tiền để quản lý ví cải tiến. Bạn có thể chọn nhiều coin bằng cách chạm vào các vòng tròn màu.",
+    "sort_status": " Trạng thái"
   },
   "units": {
     "BTC": "BTC",

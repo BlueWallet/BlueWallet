@@ -246,7 +246,6 @@
     "details_balance_hide": "Sembunyikan Saldo",
     "details_balance_show": "Tunjukkan Saldo",
     "details_copy": "Salin",
-    "details_copy_amount": "Salin Nominal",
     "details_copy_note": "Salin Catatan",
     "details_copy_txid": "Salin ID Transaksi",
     "details_from": "Input",
@@ -367,7 +366,8 @@
     "freezeLabel": "Bekukan",
     "freezeLabel_un": "Jangan bekukan",
     "use_coin": "Gunakan Koin",
-    "use_coins": "Gunakan koin"
+    "use_coins": "Gunakan koin",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",
