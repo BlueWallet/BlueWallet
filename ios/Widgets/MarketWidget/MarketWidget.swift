@@ -30,42 +30,46 @@ struct MarketWidgetProvider: TimelineProvider {
         let currentDate = Date()
         var entries: [MarketWidgetEntry] = []
 
-        var marketDataEntry = MarketWidgetEntry(date: currentDate, marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0))
-        entries.append(marketDataEntry) // Initial entry with no data
+        let marketDataEntry = MarketWidgetEntry(date: currentDate, marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0))
+        entries.append(marketDataEntry) // Initial placeholder entry
 
-        Task {
-            let userPreferredCurrency = Currency.getUserPreferredCurrency()
-            let entry = await fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3)
+        let userPreferredCurrency = Currency.getUserPreferredCurrency()
+        fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
+            let entry = MarketWidgetEntry(date: Date(), marketData: marketData)
             entries.append(entry)
-
             let timeline = Timeline(entries: entries, policy: .atEnd)
             completion(timeline)
         }
     }
 
-    private func fetchMarketDataWithRetry(currency: String, retries: Int) async -> MarketWidgetEntry {
-        var marketData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
+    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
+        var attempt = 0
 
-        for attempt in 0..<retries {
-            do {
-                print("Attempt \(attempt + 1) to fetch market data.")
-                let fetchedData = try await fetchMarketData(currency: currency)
-                marketData = fetchedData
-                print("Successfully fetched market data on attempt \(attempt + 1).")
-                break
-            } catch {
-                print("Fetch market data failed (attempt \(attempt + 1)): \(error.localizedDescription)")
-                try? await Task.sleep(nanoseconds: UInt64(2 * 1_000_000_000)) // Wait 2 seconds before retrying
+        func attemptFetch() {
+            attempt += 1
+            print("Attempt \(attempt) to fetch market data.")
+
+            MarketAPI.fetchMarketData(currency: currency) { result in
+                switch result {
+                case .success(let marketData):
+                    print("Successfully fetched market data on attempt \(attempt).")
+                    completion(marketData)
+                case .failure(let error):
+                    print("Fetch market data failed (attempt \(attempt)): \(error.localizedDescription)")
+                    if attempt < retries {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                            attemptFetch()
+                        }
+                    } else {
+                        print("Failed to fetch market data after \(retries) attempts.")
+                        let fallbackData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
+                        completion(fallbackData)
+                    }
+                }
             }
         }
 
-        let marketDataEntry = MarketWidgetEntry(date: Date(), marketData: marketData)
-        return marketDataEntry
-    }
-
-    private func fetchMarketData(currency: String) async throws -> MarketData {
-        let marketData = try await MarketAPI.fetchMarketData(currency: currency)
-        return marketData
+        attemptFetch()
     }
 }
 

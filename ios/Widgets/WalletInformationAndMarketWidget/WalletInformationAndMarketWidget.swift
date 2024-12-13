@@ -48,43 +48,54 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
             let timeline = Timeline(entries: entries, policy: .atEnd)
             completion(timeline)
         } else {
-            Task {
-                let userPreferredCurrency = Currency.getUserPreferredCurrency()
-                let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
+            let userPreferredCurrency = Currency.getUserPreferredCurrency()
+            let allWalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
 
-                var retryCount = 0
-                let maxRetries = 3
-                var success = false
+            fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
+                let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketData, allWalletsBalance: allWalletsBalance)
+                Task {
+                    await entryStore.setLastSuccessfulEntry(entry)
+                    entries.append(entry)
+                    let timeline = Timeline(entries: entries, policy: .atEnd)
+                    completion(timeline)
+                }
+            }
+        }
+    }
 
-                while retryCount < maxRetries && !success {
-                    do {
-                        print("Fetching market data for currency: \(userPreferredCurrency)") 
-                        let result = try await MarketAPI.fetchMarketData(currency: userPreferredCurrency)
-                        let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
-                        await entryStore.setLastSuccessfulEntry(entry)
-                        entries.append(entry)
-                        success = true
-                    } catch {
-                        retryCount += 1
-                        print("Error fetching market data: \(error.localizedDescription). Retry \(retryCount)/\(maxRetries)") 
-                        if retryCount == maxRetries {
-                            print("Max retries reached. Blacklisting server.") 
+    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
+        var attempt = 0
+
+        func attemptFetch() {
+            attempt += 1
+            print("Attempt \(attempt) to fetch market data.")
+
+          MarketAPI.fetchMarketData(currency: currency) { result in
+                switch result {
+                case .success(let marketData):
+                    print("Successfully fetched market data on attempt \(attempt).")
+                    completion(marketData)
+                case .failure(let error):
+                    print("Error fetching market data: \(error.localizedDescription). Retry \(attempt)/\(retries)")
+                    if attempt < retries {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                            attemptFetch()
+                        }
+                    } else {
+                        print("Max retries reached.")
+                        Task {
                             if let lastEntry = await entryStore.getLastSuccessfulEntry() {
-                                print("Using last successful entry.") 
-                                entries.append(lastEntry)
+                                completion(lastEntry.marketData)
                             } else {
-                                print("Using placeholder entry as fallback.") 
-                                entries.append(WalletInformationAndMarketWidgetEntry.placeholder)
+                                completion(WalletInformationAndMarketWidgetEntry.placeholder.marketData)
                             }
                         }
                     }
                 }
-
-                let timeline = Timeline(entries: entries, policy: .atEnd)
-                print("Submitting timeline with \(entries.count) entries.") 
-                completion(timeline)
             }
         }
+
+        attemptFetch()
     }
 }
 

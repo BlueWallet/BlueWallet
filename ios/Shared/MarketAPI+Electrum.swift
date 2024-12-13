@@ -85,5 +85,16 @@ extension MarketAPI {
         
         return marketDataEntry
     }
+
+    static func fetchMarketData(currency: String, completion: @escaping (Result<MarketData, Error>) -> ()) {
+        Task {
+            do {
+                let marketData = try await fetchMarketData(currency: currency)
+                completion(.success(marketData))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
 }
 
