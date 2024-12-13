@@ -58,6 +58,15 @@
     "Colombia (Colombian Peso)" : {
 
     },
+    "Configure Market Widget with ${electrumHost}" : {
+
+    },
+    "Configure Market Widget with ${electrumHost} and show error messages: ${showErrorMessages}" : {
+
+    },
+    "Configure the Market Widget to show the Electrum host connected to/being attempted and display error messages if data retrieval fails." : {
+
+    },
     "Croatia (Croatian Kuna)" : {
 
     },
@@ -77,6 +86,34 @@
 
     },
     "Denmark (Danish Krone)" : {
+
+    },
+    "display_in_BROWSER_TITLE" : {
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver en el navegador"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir dans le navigateur"
+          }
+        }
+      }
+    },
+    "Electrum Host" : {
+
+    },
+    "Error" : {
 
     },
     "European Union (Euro)" : {
@@ -155,6 +192,15 @@
     "Market Rate" : {
 
     },
+    "Market Widget" : {
+
+    },
+    "Market Widget Configuration" : {
+
+    },
+    "Market Widget is connected to ${electrumHost}" : {
+
+    },
     "Mexico (Mexican Peso)" : {
 
     },
@@ -204,6 +250,9 @@
 
     },
     "send" : {
+
+    },
+    "Show Error Messages" : {
 
     },
     "Singapore (Singapore Dollar)" : {
@@ -284,6 +333,9 @@
     "View the current price of Bitcoin." : {
 
     },
+    "View the Electrum host connected to/being attempted" : {
+
+    },
     "View your accumulated balance." : {
 
     },
@@ -303,28 +355,6 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Ver dirección en el navegador"
-          }
-        }
-      }
-    },
-    "display_in_BROWSER_TITLE" : {
-      "localizations" : {
-        "en_US" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View in Browser"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ver en el navegador"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voir dans le navigateur"
           }
         }
       }

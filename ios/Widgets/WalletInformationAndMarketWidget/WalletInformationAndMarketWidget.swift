@@ -35,27 +35,45 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
             let timeline = Timeline(entries: entries, policy: .atEnd)
             completion(timeline)
         } else {
-            let userPreferredCurrency = Currency.getUserPreferredCurrency()
-            let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
+            Task {
+                let userPreferredCurrency = Currency.getUserPreferredCurrency()
+                let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
 
-            MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
-                let entry: WalletInformationAndMarketWidgetEntry
+                var retryCount = 0
+                let maxRetries = 3
+                var success = false
 
-                if let result = result {
-                    entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
-                    WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.append(entry)
-                    if WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count > 5 {
-                        WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.removeFirst()
-                    }
-                } else {
-                    if let lastEntry = WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.last {
-                        entry = lastEntry
-                    } else {
-                        entry = WalletInformationAndMarketWidgetEntry.placeholder
+                while retryCount < maxRetries && !success {
+                    do {
+                        print("Fetching market data for currency: \(userPreferredCurrency)") 
+                        let result = try await MarketAPI.fetchMarketData(currency: userPreferredCurrency)
+                        let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
+                        WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.append(entry)
+                        print("Appended new entry. Total successful entries: \(WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count)") 
+                        if WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count > 5 {
+                            WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.removeFirst()
+                            print("Removed oldest entry to maintain a maximum of 5 entries.") 
+                        }
+                        entries.append(entry)
+                        success = true
+                    } catch {
+                        retryCount += 1
+                        print("Error fetching market data: \(error.localizedDescription). Retry \(retryCount)/\(maxRetries)") 
+                        if retryCount == maxRetries {
+                            print("Max retries reached. Blacklisting server.") 
+                            if let lastEntry = WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.last {
+                                print("Using last successful entry.") 
+                                entries.append(lastEntry)
+                            } else {
+                                print("Using placeholder entry as fallback.") 
+                                entries.append(WalletInformationAndMarketWidgetEntry.placeholder)
+                            }
+                        }
                     }
                 }
-                entries.append(entry)
+
                 let timeline = Timeline(entries: entries, policy: .atEnd)
+                print("Submitting timeline with \(entries.count) entries.") 
                 completion(timeline)
             }
         }
