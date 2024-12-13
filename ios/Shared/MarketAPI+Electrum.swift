@@ -21,7 +21,7 @@ extension MarketAPI {
             print("Closed SwiftTCPClient connection.") 
         }
 
-        guard await client.connectToNextAvailable(validateCertificates: true) else {
+        guard await client.connectToNextAvailable(validateCertificates: false) else {
             print("Failed to connect to any Electrum peer.") 
             throw APIError()
         }

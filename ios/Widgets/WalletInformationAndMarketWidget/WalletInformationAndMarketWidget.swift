@@ -11,7 +11,20 @@ import SwiftUI
 
 struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
     typealias Entry = WalletInformationAndMarketWidgetEntry
-    static var lastSuccessfulEntries: [WalletInformationAndMarketWidgetEntry] = []
+
+    actor LastSuccessfulEntryStore {
+        private var lastSuccessfulEntry: WalletInformationAndMarketWidgetEntry?
+
+        func getLastSuccessfulEntry() -> WalletInformationAndMarketWidgetEntry? {
+            return lastSuccessfulEntry
+        }
+
+        func setLastSuccessfulEntry(_ entry: WalletInformationAndMarketWidgetEntry) {
+            lastSuccessfulEntry = entry
+        }
+    }
+
+    let entryStore = LastSuccessfulEntryStore()
 
     func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
         return WalletInformationAndMarketWidgetEntry.placeholder
@@ -48,12 +61,7 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
                         print("Fetching market data for currency: \(userPreferredCurrency)") 
                         let result = try await MarketAPI.fetchMarketData(currency: userPreferredCurrency)
                         let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
-                        WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.append(entry)
-                        print("Appended new entry. Total successful entries: \(WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count)") 
-                        if WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count > 5 {
-                            WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.removeFirst()
-                            print("Removed oldest entry to maintain a maximum of 5 entries.") 
-                        }
+                        await entryStore.setLastSuccessfulEntry(entry)
                         entries.append(entry)
                         success = true
                     } catch {
@@ -61,7 +69,7 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
                         print("Error fetching market data: \(error.localizedDescription). Retry \(retryCount)/\(maxRetries)") 
                         if retryCount == maxRetries {
                             print("Max retries reached. Blacklisting server.") 
-                            if let lastEntry = WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.last {
+                            if let lastEntry = await entryStore.getLastSuccessfulEntry() {
                                 print("Using last successful entry.") 
                                 entries.append(lastEntry)
                             } else {
