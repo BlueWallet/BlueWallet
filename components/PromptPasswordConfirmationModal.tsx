@@ -5,6 +5,7 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { SecondButton } from './SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import { useKeyboard } from '../hooks/useKeyboard';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -47,6 +48,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
     const scrollView = useRef<ScrollView>(null);
+    const { isVisible } = useKeyboard();
 
     const stylesHook = StyleSheet.create({
       modalContent: {
@@ -264,7 +266,9 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         showCloseButton={!isSuccess}
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
+        isGrabberVisible={!isSuccess}
         scrollRef={scrollView}
+        keyboardMode="pan"
         dismissible={false}
         footer={
           !isSuccess ? (
@@ -278,8 +282,8 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
-                <View style={styles.feeModalFooter}>
+              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooter]}>
+                {!isVisible && (
                   <SecondButton
                     title={isLoading ? '' : loc._.ok}
                     onPress={handleSubmit}
@@ -287,7 +291,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                     loading={isLoading}
                     disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
                   />
-                </View>
+                )}
               </Animated.View>
             )
           ) : null
@@ -399,13 +403,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   minHeight: {
-    minHeight: 260,
+    minHeight: 280,
   },
   feeModalFooter: {
-    paddingHorizontal: 16,
+    padding: 16,
   },
   feeModalFooterSpacing: {
-    paddingHorizontal: 16,
+    padding: 16,
   },
   inputContainer: {
     marginBottom: 10,
@@ -419,7 +423,7 @@ const styles = StyleSheet.create({
     width: '100%', // Ensure full width
   },
   textLabel: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '600',
     marginBottom: 16,
     textAlign: 'center',
