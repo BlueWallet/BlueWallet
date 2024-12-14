@@ -15,20 +15,17 @@ struct TransactionListRow: View {
                 Text(transactionTimeToReadable(transaction.time))
                     .font(.caption)
                     .foregroundColor(.secondary)
+              
+              Text(Balance.formatBalance(Decimal(string: transaction.amount) ?? 0, toUnit: .btc))
+                  .font(.subheadline.bold())
+                  .foregroundColor(
+                      transaction.type.isIncoming ? .green :
+                      transaction.type.isOutgoing ? .red :
+                      transaction.type.isPending ? .gray :
+                      .primary
+                  )
             }
-
-            Spacer()
-
-            Text(Balance.formatBalance(Decimal(string: transaction.amount) ?? 0, toUnit: .btc))
-                .font(.subheadline.bold())
-                .foregroundColor(
-                    transaction.type.isIncoming ? .green :
-                    transaction.type.isOutgoing ? .red :
-                    transaction.type.isPending ? .gray :
-                    .primary
-                )
         }
-        .padding(.vertical, 4)
     }
     
     private func transactionTimeToReadable(_ time: String) -> String {

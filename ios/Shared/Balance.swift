@@ -18,13 +18,6 @@ class Balance {
             let value = balance / Decimal(100_000_000)
             return "\(removeTrailingZeros(value)) BTC" // Localize unit names as needed.
         }
-      case .localCurrency:
-        fetchLocalCurrencyEquivalent(satoshi: balance, completion: completion)
-        
-      default:
-        let value = balance / Decimal(100_000_000)
-        completion("\(value) BTC") // Localize unit names as needed.
-      }
     }
 
     private static func fetchLocalCurrencyEquivalent(satoshi: Decimal) -> String {
@@ -54,7 +47,7 @@ class Balance {
 }
 
 extension Decimal {
-  func formatted(as unit: BitcoinUnit, withFormatting: Bool = false) -> String {
+  func formatted(as unit: BalanceUnit, withFormatting: Bool = false) -> String {
         switch unit {
         case .sats:
             return withFormatting ? NumberFormatter.localizedString(from: self as NSNumber, number: .decimal) + " SATS" : "\(self) SATS"

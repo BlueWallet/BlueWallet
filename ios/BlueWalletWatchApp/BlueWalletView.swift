@@ -3,7 +3,7 @@ import WatchConnectivity
 
 struct BlueWalletView: View {
     @ObservedObject var dataSource: WatchDataSource = .shared
-    @State private var qrContent: String? = nil
+    @State private var qrContent: QRCodeContent? = nil
 
     var body: some View {
         VStack {
@@ -31,7 +31,7 @@ struct BlueWalletView: View {
                 List {
                     ForEach(dataSource.wallets) { wallet in
                         VStack(alignment: .leading) {
-                            NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
+                            NavigationLink(destination: WalletTransactionsView(wallet: wallet)) {
                                 WalletListRow(wallet: wallet)
                             }
                         }
@@ -42,8 +42,8 @@ struct BlueWalletView: View {
                 .listStyle(CarouselListStyle())
                 .navigationTitle("BlueWallet")
                 .navigationBarTitleDisplayMode(.automatic)
-                .sheet(item: $qrContent) { content in
-                    ViewQRCodeView(content: content)
+                .sheet(item: $qrContent) { qrCode in
+                    ViewQRCodeView(content: qrCode.content)
                 }
             }
         }

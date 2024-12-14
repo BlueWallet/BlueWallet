@@ -30,36 +30,24 @@ class QRCodeGenerator {
         guard let whiteColor = CGColor(colorSpace: colorSpace, components: [1, 1]) else {
             fatalError("Unable to create white CGColor")
         }
+      
+      guard let logo = UIImage(named: logoName) else {
+        fatalError("Unable to load logo image")
+      }
         
-        // Generate QR code data using EFQRCode
         guard let cgImage = EFQRCode.generate(
           for: string,
             size: EFIntSize(width: 300, height: 300),
-            backgroundColor: whiteColor,       // Use the created white CGColor
-            foregroundColor: blackColor        // Use the created black CGColor
+            backgroundColor: whiteColor,
+          foregroundColor: blackColor,
+          watermark: logo.cgImage
         ) else {
-            // Return a default image if QR generation fails
             return Image(systemName: "qrcode")
         }
+                
+      
         
-        let qrUIImage = UIImage(cgImage: cgImage)
-        
-        // Load the logo image from Assets
-        guard let logo = UIImage(named: logoName) else {
-            // If logo not found, return the QR code without logo
-            return Image(uiImage: qrUIImage)
-        }
-        
-        // Embed the logo into the QR code
-        let finalImage = embedLogo(qrImage: qrUIImage, logoImage: logo)
-        
-        // Return the final image as a SwiftUI Image
-        if let finalUIImage = finalImage {
-            return Image(uiImage: finalUIImage)
-        } else {
-            // Fallback to QR code without logo if embedding fails
-            return Image(uiImage: qrUIImage)
-        }
+      return Image(uiImage: UIImage(cgImage: cgImage))
     }
     
     /// Embeds a logo image at the center of the QR code.
