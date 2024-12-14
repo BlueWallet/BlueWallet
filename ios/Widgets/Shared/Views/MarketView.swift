@@ -30,7 +30,7 @@ struct MarketView: View {
           HStack(alignment: .center, spacing: 0, content: {
             Text("Sats/\(Currency.getUserPreferredCurrency())").bold().lineLimit(1).font(Font.system(size:11, weight: .medium, design: .default)).foregroundColor(.textColor)
             Spacer()
-            Text(marketData.sats == "..." ? "..." : marketData.sats).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).minimumScaleFactor(0.1).foregroundColor(.widgetBackground).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color(red: 0.97, green: 0.21, blue: 0.38)).overlay(
+            Text( marketData.sats).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).minimumScaleFactor(0.1).foregroundColor(.widgetBackground).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color(red: 0.97, green: 0.21, blue: 0.38)).overlay(
               RoundedRectangle(cornerRadius: 4.0)
                 .stroke(Color.containerRed, lineWidth: 4.0))
           })
@@ -38,7 +38,7 @@ struct MarketView: View {
           HStack(alignment: .center, spacing: 0, content: {
             Text("Price").bold().lineLimit(1).font(Font.system(size:11, weight: . medium, design: .default)).foregroundColor(.textColor)
             Spacer()
-            Text(marketData.price == "..." ? "..." : marketData.price).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).minimumScaleFactor(0.1).foregroundColor(.widgetBackground).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color(red: 0.29, green: 0.86, blue: 0.73)).overlay(
+            Text( marketData.price).padding(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4)).lineLimit(1).minimumScaleFactor(0.1).foregroundColor(.widgetBackground).font(Font.system(size:11, weight: .semibold, design: .default)).background(Color(red: 0.29, green: 0.86, blue: 0.73)).overlay(
               RoundedRectangle(cornerRadius:4.0)
                 .stroke(Color.containerGreen, lineWidth: 4.0))
           })
