@@ -50,6 +50,9 @@ const keys = {
   SortValue: 'sortValue',
   SortLabel: 'sortLabel',
   SortStatus: 'sortStatus',
+  SortBalance: 'sortBalance',
+  Reset: 'reset',
+  MostRecentTransaction: 'mostRecentTransaction',
 } as const;
 
 const icons = {
@@ -94,6 +97,8 @@ const icons = {
   ClearClipboard: { iconValue: 'clipboard' },
   SortASC: { iconValue: 'arrow.down.to.line' },
   SortDESC: { iconValue: 'arrow.up.to.line' },
+  Reset: { iconValue: 'arrow.counterclockwise' },
+  MostRecentTransaction: { iconValue: 'clock' },
 } as const;
 
 export const CommonToolTipActions = {
@@ -311,6 +316,11 @@ export const CommonToolTipActions = {
     id: keys.ResetToDefault,
     text: loc.settings.electrum_reset,
   },
+  Reset: {
+    id: keys.Reset,
+    text: loc.receive.reset,
+    icon: icons.Reset,
+  },
   ClearHistory: {
     id: keys.ClearHistory,
     text: loc.settings.electrum_clear,
@@ -331,11 +341,13 @@ export const CommonToolTipActions = {
     id: keys.SortASC,
     text: loc.cc.sort_asc,
     icon: icons.SortASC,
+    keepsMenuPresented: true,
   },
   SortDESC: {
     id: keys.SortDESC,
     text: loc.cc.sort_desc,
     icon: icons.SortDESC,
+    keepsMenuPresented: true,
   },
   SortHeight: {
     id: keys.SortHeight,
@@ -352,5 +364,15 @@ export const CommonToolTipActions = {
   SortStatus: {
     id: keys.SortStatus,
     text: loc.cc.sort_status,
+  },
+  SortBalance: {
+    id: keys.SortBalance,
+    text: loc.wallets.balance,
+    icon: icons.ViewInBitcoin,
+  },
+  MostRecentTransaction: {
+    id: keys.MostRecentTransaction,
+    text: loc.transactions.details_title,
+    icon: icons.MostRecentTransaction,
   },
 } as const;

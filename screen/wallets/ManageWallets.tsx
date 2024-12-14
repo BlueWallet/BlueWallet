@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, Image, Text, Alert, I18nManager, Animated, LayoutAnimation } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image, Text, Alert, I18nManager, Animated, LayoutAnimation } from 'react-native';
 import {
   NestableScrollContainer,
   ScaleDecorator,
@@ -25,10 +25,21 @@ import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { ManageWalletsListItem } from '../../components/ManageWalletsListItem';
 import { useSettings } from '../../hooks/context/useSettings';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import MoreOptionsButton from '../../components/icons/MoreOptionsButton';
+import { Action } from '../../components/types';
 
 enum ItemType {
   WalletSection = 'wallet',
   TransactionSection = 'transaction',
+}
+
+enum SortOption {
+  Balance = 'balance',
+  Label = 'label',
+  MostRecent = 'mostRecent',
+  ASC = 'asc',
+  DESC = 'desc',
 }
 
 interface WalletItem {
@@ -50,6 +61,9 @@ const SET_FILTERED_ORDER = 'SET_FILTERED_ORDER';
 const SET_TEMP_ORDER = 'SET_TEMP_ORDER';
 const REMOVE_WALLET = 'REMOVE_WALLET';
 const SAVE_CHANGES = 'SAVE_CHANGES';
+const SET_CURRENT_SORT = 'SET_CURRENT_SORT';
+const SET_CURRENT_SORT_ORDER = 'SET_CURRENT_SORT_ORDER';
+const SET_CURRENT_SORT_PROPERTY = 'SET_CURRENT_SORT_PROPERTY';
 
 interface SaveChangesAction {
   type: typeof SAVE_CHANGES;
@@ -86,14 +100,32 @@ interface RemoveWalletAction {
   payload: string; // Wallet ID
 }
 
-type Action =
+interface SetCurrentSortAction {
+  type: typeof SET_CURRENT_SORT;
+  payload: SortOption;
+}
+
+interface SetCurrentSortOrderAction {
+  type: typeof SET_CURRENT_SORT_ORDER;
+  payload: SortOption;
+}
+
+interface SetCurrentSortPropertyAction {
+  type: typeof SET_CURRENT_SORT_PROPERTY;
+  payload: SortOption;
+}
+
+type ReducerAction =
   | SetSearchQueryAction
   | SetIsSearchFocusedAction
   | SetInitialOrderAction
   | SetFilteredOrderAction
   | SetTempOrderAction
   | SaveChangesAction
-  | RemoveWalletAction;
+  | RemoveWalletAction
+  | SetCurrentSortAction
+  | SetCurrentSortOrderAction
+  | SetCurrentSortPropertyAction;
 
 interface State {
   searchQuery: string;
@@ -102,6 +134,8 @@ interface State {
   tempOrder: Item[];
   wallets: TWallet[];
   txMetadata: TTXMetadata;
+  currentSortOrder: SortOption;
+  currentSortProperty: SortOption;
 }
 
 const initialState: State = {
@@ -111,13 +145,15 @@ const initialState: State = {
   tempOrder: [],
   wallets: [],
   txMetadata: {},
+  currentSortOrder: SortOption.ASC,
+  currentSortProperty: SortOption.Balance,
 };
 
 const deepCopyWallets = (wallets: TWallet[]): TWallet[] => {
   return wallets.map(wallet => Object.assign(Object.create(Object.getPrototypeOf(wallet)), wallet));
 };
 
-const reducer = (state: State, action: Action): State => {
+const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
     case SET_SEARCH_QUERY:
       return { ...state, searchQuery: action.payload };
@@ -181,8 +217,12 @@ const reducer = (state: State, action: Action): State => {
         tempOrder: updatedOrder,
       };
     }
+    case SET_CURRENT_SORT_ORDER:
+      return { ...state, currentSortOrder: action.payload };
+    case SET_CURRENT_SORT_PROPERTY:
+      return { ...state, currentSortProperty: action.payload };
     default:
-      throw new Error(`Unhandled action type: ${(action as Action).type}`);
+      throw new Error(`Unhandled action type: ${(action as ReducerAction).type}`);
   }
 };
 
@@ -221,6 +261,53 @@ const ManageWallets: React.FC = () => {
       dispatch({ type: SET_INITIAL_ORDER, payload: { wallets: walletsRef.current, txMetadata } });
     }
   }, [debouncedSearchQuery, txMetadata]);
+
+  useEffect(() => {
+    const determineSortOptions = (): { order: SortOption; property: SortOption } => {
+      const wallets = state.tempOrder.filter(item => item.type === ItemType.WalletSection).map(item => item.data);
+
+      // Determine sort order
+      const isASC = wallets.every((wallet, index, arr) => {
+        if (index === 0) return true;
+        return arr[index - 1].getLabel()?.localeCompare(wallet.getLabel()!) <= 0;
+      });
+      const isDESC = wallets.every((wallet, index, arr) => {
+        if (index === 0) return true;
+        return arr[index - 1].getLabel()?.localeCompare(wallet.getLabel()!) >= 0;
+      });
+
+      let detectedSortOrder: SortOption = SortOption.ASC;
+      if (isASC) detectedSortOrder = SortOption.ASC;
+      else if (isDESC) detectedSortOrder = SortOption.DESC;
+
+      // Determine sort property
+      const isBalance = wallets.every((current, index, arr) => {
+        if (index === 0) return true;
+        return arr[index - 1].getBalance() <= current.getBalance();
+      });
+      const isLabel = wallets.every((wallet, index, arr) => {
+        if (index === 0) return true;
+        return arr[index - 1].getLabel()?.localeCompare(wallet.getLabel()!) <= 0;
+      });
+      const isMostRecent = wallets.every((current, index, arr) => {
+        if (index === 0) return true;
+        return (arr[index - 1].getTransactions()[0]?.time || 0) >= (current.getTransactions()[0]?.time || 0);
+      });
+
+      let detectedSortProperty: SortOption = SortOption.Balance;
+      if (isBalance) detectedSortProperty = SortOption.Balance;
+      else if (isLabel) detectedSortProperty = SortOption.Label;
+      else if (isMostRecent) detectedSortProperty = SortOption.MostRecent;
+
+      return { order: detectedSortOrder, property: detectedSortProperty };
+    };
+
+    const detectedSort = determineSortOptions();
+    if (detectedSort.order !== state.currentSortOrder || detectedSort.property !== state.currentSortProperty) {
+      dispatch({ type: SET_CURRENT_SORT_ORDER, payload: detectedSort.order });
+      dispatch({ type: SET_CURRENT_SORT_PROPERTY, payload: detectedSort.property });
+    }
+  }, [state.tempOrder, state.currentSortOrder, state.currentSortProperty]);
 
   const handleClose = useCallback(() => {
     if (state.searchQuery.length === 0 && !state.isSearchFocused) {
@@ -263,9 +350,142 @@ const ManageWallets: React.FC = () => {
     [goBack, closeImage],
   );
 
+  const moreOptionsActions = useMemo((): Action[] | Action[][] => {
+    return [
+      {
+        id: 'sort_by_menu',
+        text: loc.cc.sort_by,
+        subactions: [
+          {
+            id: 'sort_by_order',
+            displayInline: true,
+            text: loc.wallets.sort_by_order,
+            keepsMenuPresented: true,
+            subactions: [
+              {
+                ...CommonToolTipActions.SortASC,
+                menuState: state.currentSortOrder === SortOption.ASC,
+              },
+              {
+                ...CommonToolTipActions.SortDESC,
+                menuState: state.currentSortOrder === SortOption.DESC,
+              },
+            ],
+          },
+          {
+            id: 'sort_by_property',
+            displayInline: true,
+            text: loc.wallets.sort_by_property,
+            subactions: [
+              {
+                ...CommonToolTipActions.SortBalance,
+                menuState: state.currentSortProperty === SortOption.Balance,
+                disabled: state.currentSortProperty === SortOption.Balance,
+              },
+              {
+                ...CommonToolTipActions.SortLabel,
+                menuState: state.currentSortProperty === SortOption.Label,
+                disabled: state.currentSortProperty === SortOption.Label,
+              },
+              {
+                ...CommonToolTipActions.MostRecentTransaction,
+                menuState: state.currentSortProperty === SortOption.MostRecent,
+                disabled: state.currentSortProperty === SortOption.MostRecent,
+              },
+            ],
+          },
+          { ...CommonToolTipActions.Reset },
+        ],
+      },
+    ];
+  }, [state.currentSortOrder, state.currentSortProperty]);
+
+  const moreOptionsOnPressMenuItem = useCallback(
+    (id: string) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      switch (id) {
+        case CommonToolTipActions.SortASC.id: {
+          dispatch({ type: SET_CURRENT_SORT_ORDER, payload: SortOption.ASC });
+          const sortedWallets = state.tempOrder
+            .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+            .sort((a, b) => a.data.getLabel()!.localeCompare(b.data.getLabel()!));
+          dispatch({ type: SET_TEMP_ORDER, payload: sortedWallets });
+          break;
+        }
+        case CommonToolTipActions.SortDESC.id: {
+          dispatch({ type: SET_CURRENT_SORT_ORDER, payload: SortOption.DESC });
+          const sortedWallets = state.tempOrder
+            .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+            .sort((a, b) => b.data.getLabel()!.localeCompare(a.data.getLabel()!));
+          dispatch({ type: SET_TEMP_ORDER, payload: sortedWallets });
+          break;
+        }
+
+        case CommonToolTipActions.SortBalance.id: {
+          dispatch({ type: SET_CURRENT_SORT_PROPERTY, payload: SortOption.Balance });
+          const sortedWallets = state.tempOrder
+            .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+            .sort((a, b) => a.data.getBalance() - b.data.getBalance());
+          dispatch({ type: SET_TEMP_ORDER, payload: sortedWallets });
+          break;
+        }
+        case CommonToolTipActions.SortLabel.id: {
+          dispatch({ type: SET_CURRENT_SORT_PROPERTY, payload: SortOption.Label });
+          const sortedWalletsByLabel = state.tempOrder
+            .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+            .sort((a, b) => a.data.getLabel()!.localeCompare(b.data.getLabel()!));
+          dispatch({ type: SET_TEMP_ORDER, payload: sortedWalletsByLabel });
+          break;
+        }
+        case CommonToolTipActions.MostRecentTransaction.id: {
+          dispatch({ type: SET_CURRENT_SORT_PROPERTY, payload: SortOption.MostRecent });
+          const sortedWalletsByMostRecent = state.tempOrder
+            .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+            .sort((a, b) => {
+              return (b.data.getTransactions()[0]?.time || 0) - (a.data.getTransactions()[0]?.time || 0);
+            });
+          dispatch({ type: SET_TEMP_ORDER, payload: sortedWalletsByMostRecent });
+          break;
+        }
+        case CommonToolTipActions.Reset.id: {
+          dispatch({ type: SET_TEMP_ORDER, payload: state.order });
+          dispatch({ type: SET_CURRENT_SORT_ORDER, payload: SortOption.ASC });
+          dispatch({ type: SET_CURRENT_SORT_PROPERTY, payload: SortOption.Balance });
+          break;
+        }
+        default:
+          break;
+      }
+    },
+    [state.order, state.tempOrder],
+  );
+
   const SaveButton = useMemo(
     () => <HeaderRightButton disabled={!hasUnsavedChanges} title={loc.send.input_done} onPress={handleClose} />,
     [handleClose, hasUnsavedChanges],
+  );
+
+  const MoreButton = useMemo(
+    () => (
+      <MoreOptionsButton
+        disabled={state.searchQuery.length > 0 || state.isSearchFocused}
+        isMenuPrimaryAction
+        actions={moreOptionsActions}
+        onPressMenuItem={moreOptionsOnPressMenuItem}
+      />
+    ),
+    [moreOptionsActions, moreOptionsOnPressMenuItem, state.isSearchFocused, state.searchQuery.length],
+  );
+
+  const HeaderRight = useCallback(
+    () => (
+      <>
+        {MoreButton}
+        <View style={styles.separation} />
+        {SaveButton}
+      </>
+    ),
+    [MoreButton, SaveButton],
   );
 
   useLayoutEffect(() => {
@@ -280,10 +500,10 @@ const ManageWallets: React.FC = () => {
 
     setOptions({
       headerLeft: () => HeaderLeftButton,
-      headerRight: () => SaveButton,
+      headerRight: HeaderRight,
       headerSearchBarOptions: searchBarOptions,
     });
-  }, [setOptions, HeaderLeftButton, SaveButton]);
+  }, [setOptions, HeaderLeftButton, SaveButton, MoreButton, HeaderRight]);
 
   useFocusEffect(
     useCallback(() => {
@@ -576,5 +796,8 @@ const styles = StyleSheet.create({
   },
   dimmedText: {
     opacity: 0.8,
+  },
+  separation: {
+    width: 8,
   },
 });
