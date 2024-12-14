@@ -2,6 +2,8 @@ import SwiftUI
 
 @available(iOS 15.0, *)
 struct CompactPriceView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     let price: String
     let lastUpdated: String
     let code: String
@@ -17,9 +19,12 @@ struct CompactPriceView: View {
                 .accessibilityLabel("Bitcoin price: \(price)")
 
             VStack(alignment: .center, spacing: 8) {
-                Text("\(code)")
-                Text("\(lastUpdated)")
-                Text("\(dataSource)")
+                Text(code)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
+                Text(lastUpdated)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
+                Text(dataSource)
+                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
             }
             .font(.subheadline)
             .foregroundColor(.secondary)
@@ -28,5 +33,32 @@ struct CompactPriceView: View {
         }
         .padding()
         .frame(maxWidth: .infinity)
+    }
+
+    private func shadowColor() -> Color {
+        colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.2)
+    }
+}
+
+
+@available(iOS 15.0, *)
+struct CompactPriceView_Previews: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            // Example vibrant background
+            LinearGradient(
+                gradient: Gradient(colors: [.blue, .purple]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            CompactPriceView(
+                price: "$50,000",
+                lastUpdated: "Last updated: Oct 10, 2023",
+                code: "BTC",
+                dataSource: "Data source: CoinDesk"
+            )
+        }
     }
 }

@@ -258,8 +258,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Szeretnél értesítést a bejövő utalásokról? ",
-    "no_and_dont_ask": "Nem és ne kérdezd újra.",
-    "ask_me_later": "Később."
+    "no_and_dont_ask": "Nem és ne kérdezd újra."
   },
   "transactions": {
     "cancel_explain": "Ezt a tranzakciót lecseréljük arra, amely fizet Önnek és magasabb díjakkal rendelkezik. Ez gyakorlatilag törli a tranzakciót. Ezt RBF-nek hívják - azaz díj cserének.",
@@ -275,7 +274,6 @@
     "details_balance_hide": "Egyenleg elrejtése",
     "details_balance_show": "Egyenleg mutatása",
     "details_copy": "Másolás",
-    "details_copy_amount": "Mennyiség Másolása",
     "details_copy_block_explorer_link": "Blokk Böngésző Link Másolása",
     "details_copy_note": "Megjegyzés Másolása",
     "details_copy_txid": "Tranzakciós ID Másolása",
@@ -486,7 +484,9 @@
     "header": "Érme Kontroll",
     "use_coin": "Cryptovaluta használata ",
     "use_coins": "Érmék használata",
-    "tip": "Ez a funkció lehetővé teszi az érmék megtekintését, címkézését, befagyasztását vagy kiválasztását a pénztárca jobb kezelése érdekében. Több érmét is kiválaszthat a színes körök megérintésével."
+    "tip": "Ez a funkció lehetővé teszi az érmék megtekintését, címkézését, befagyasztását vagy kiválasztását a pénztárca jobb kezelése érdekében. Több érmét is kiválaszthat a színes körök megérintésével.",
+    "sort_label": "Cimke",
+    "sort_status": "Állapot"
   },
   "units": {
     "BTC": "BTC",

@@ -320,12 +320,14 @@
     "would_you_like_to_receive_notifications": "支払いを受けた際に通知を受け取りますか？",
     "notifications_subtitle": "受信した支払いやトランザクションの確認",
     "no_and_dont_ask": "いいえ。もう聞かないでください。",
-    "ask_me_later": "後で聞く"
+    "permission_denied_message": "通知が許可されていません。通知を受け取りたい場合は、デバイスの設定で許可してください。"
   },
   "transactions": {
     "cancel_explain": "このトランザクションを、あなたに支払いを行う、より高い手数料を持つものに置き換えます。これは事実上、最初のトランザクションをキャンセルします。これはReplace By Fee - RBFと呼ばれています。",
     "cancel_no": "このトランザクションは交換可能ではありません",
     "cancel_title": "このトランザクションをキャンセル (RBF)",
+    "transaction_loading_error": "トランザクションの読み込み時のエラー。後でもう一度試してください。",
+    "transaction_not_available": "トランザクションがありません",
     "confirmations_lowercase": "{confirmations} コンファメーション",
     "copy_link": "リンクをコピー",
     "expand_note": "ノートを展開",
@@ -336,7 +338,6 @@
     "details_balance_hide": "残高を隠す",
     "details_balance_show": "残高を表示",
     "details_copy": "コピー",
-    "details_copy_amount": "額をコピー",
     "details_copy_block_explorer_link": "ブロックエクスプローラーのリンクをコピー",
     "details_copy_note": "ノートをコピー",
     "details_copy_txid": "取引IDをコピー",
@@ -406,6 +407,7 @@
     "add_wallet_seed_length_24": "24語",
     "clipboard_bitcoin": "クリップボードにビットコインのアドレスがあります。このアドレスを使って取引をしますか？",
     "clipboard_lightning": "クリップボードにライトニングのインボイスがあります。このインボイスを使って取引をしますか？",
+    "clear_clipboard_on_import": "インポート時にクリップボードをクリア",
     "details_address": "アドレス",
     "details_advanced": "高度な設定",
     "details_are_you_sure": "実行しますか?",
@@ -447,6 +449,7 @@
     "import_discovery_subtitle": "発見したウォレットを選択",
     "import_discovery_derivation": "カスタム derivation path を使用",
     "import_discovery_no_wallets": "ウォレットは見つかりませんでした。",
+    "import_discovery_offline": "BlueWalletは現在オフラインモードです。このモードではウォレットの存在を検証できないため、手動で正しいものを選択する必要があります",
     "import_derivation_found": "発見",
     "import_derivation_found_not": "未発見",
     "import_derivation_loading": "読み込み中...",
@@ -487,6 +490,7 @@
   },
   "total_balance_view": {
     "display_in_bitcoin": "ビットコインで表示",
+    "hide": "非表示",
     "display_in_sats": "satsで表示",
     "display_in_fiat": "{currency}で表示",
     "title": "合計残高",
@@ -591,7 +595,14 @@
     "header": "コイン管理",
     "use_coin": "コインを利用",
     "use_coins": "コインを利用",
-    "tip": "ウォレットの閲覧、ラベル付け、フリーズ、コインの選択ができ、管理が向上する機能です。色付きの丸をタップすると複数のコインを選択できます。"
+    "tip": "ウォレットの閲覧、ラベル付け、フリーズ、コインの選択ができ、管理が向上する機能です。色付きの丸をタップすると複数のコインを選択できます。",
+    "sort_asc": "昇順",
+    "sort_desc": "降順",
+    "sort_height": "高さ",
+    "sort_value": "価格",
+    "sort_label": "ラベル",
+    "sort_status": "ステータス",
+    "sort_by": "ソート方法"
   },
   "units": {
     "BTC": "BTC",

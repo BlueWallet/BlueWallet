@@ -26,10 +26,11 @@ enum SwiftTCPClientError: Error, LocalizedError {
 
 class SwiftTCPClient {
     private var connection: NWConnection?
-    private let queue = DispatchQueue(label: "SwiftTCPClientQueue")
+    private let queue = DispatchQueue(label: "SwiftTCPClientQueue", qos: .userInitiated)
     private let readTimeout: TimeInterval = 5.0
+    let maxRetries = 3
 
-    func connect(to host: String, port: UInt16, useSSL: Bool = false) async -> Bool {
+    func connect(to host: String, port: UInt16, useSSL: Bool = false, retries: Int = 0) async -> Bool {
         let parameters: NWParameters
         if useSSL {
             parameters = NWParameters(tls: createTLSOptions(), tcp: .init())
@@ -44,7 +45,7 @@ class SwiftTCPClient {
         connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: parameters)
         connection?.start(queue: queue)
 
-        let serialQueue = DispatchQueue(label: "SwiftTCPClient.connect.serialQueue")
+        let serialQueue = DispatchQueue(label: "SwiftTCPClient.connect.serialQueue", qos: .userInitiated)
         var hasResumed = false
 
         do {
@@ -76,6 +77,10 @@ class SwiftTCPClient {
             return true
         } catch {
             print("Connection failed with error: \(error.localizedDescription)")
+            if retries < maxRetries {
+                print("Retrying connection (\(retries + 1)/\(maxRetries))...")
+                return await connect(to: host, port: port, useSSL: useSSL, retries: retries + 1)
+            }
             return false
         }
     }

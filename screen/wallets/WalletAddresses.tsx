@@ -12,6 +12,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { isDesktop } from '../../blue_modules/environment';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -176,10 +177,10 @@ const WalletAddresses: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(true);
+      if (!isDesktop) disallowScreenshot(true);
       getAddresses();
       return () => {
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
       };
     }, [getAddresses]),
   );

@@ -251,7 +251,6 @@
     "details_balance_hide": "Ascunde balanța",
     "details_balance_show": "Afișează balanța",
     "details_copy": "Copiază",
-    "details_copy_amount": "Copiază sumă",
     "details_copy_block_explorer_link": "Copiază link-ul block explorer-ului.",
     "details_copy_txid": "Copiază ID-ul tranzacției",
     "details_from": "Input",
@@ -435,7 +434,8 @@
     "header": "Controlul monedelor",
     "use_coin": "Folosește moneda",
     "use_coins": "Folosește monedele",
-    "tip": "Această funcționalitate îți permite să vezi, etichetezi, îngheți sau selectezi monedele pentru o administrare îmbunătățită a portofelului. Poți selecta monede multiple apăsînd cercurile colorate. "
+    "tip": "Această funcționalitate îți permite să vezi, etichetezi, îngheți sau selectezi monedele pentru o administrare îmbunătățită a portofelului. Poți selecta monede multiple apăsînd cercurile colorate. ",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

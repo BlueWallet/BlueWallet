@@ -72,9 +72,81 @@ jest.mock('react-native-quick-actions', () => {
 });
 
 jest.mock('react-native-default-preference', () => {
+  let mockPreferences = {};
+  let currentSuiteName = 'default';
+
+  const getSuite = name => {
+    if (!mockPreferences[name]) {
+      mockPreferences[name] = {};
+    }
+    return mockPreferences[name];
+  };
+
   return {
-    setName: jest.fn(),
-    set: jest.fn(),
+    setName: jest.fn(name => {
+      currentSuiteName = name;
+      if (!mockPreferences[name]) {
+        mockPreferences[name] = {};
+      }
+      return Promise.resolve();
+    }),
+
+    getName: jest.fn(() => {
+      return Promise.resolve(currentSuiteName);
+    }),
+
+    get: jest.fn(key => {
+      const suite = getSuite(currentSuiteName);
+      return Promise.resolve(Object.prototype.hasOwnProperty.call(suite, key) ? suite[key] : null);
+    }),
+
+    set: jest.fn((key, value) => {
+      const suite = getSuite(currentSuiteName);
+      suite[key] = value;
+      return Promise.resolve();
+    }),
+
+    clear: jest.fn(key => {
+      const suite = getSuite(currentSuiteName);
+      delete suite[key];
+      return Promise.resolve();
+    }),
+
+    getMultiple: jest.fn(keys => {
+      const suite = getSuite(currentSuiteName);
+      const values = keys.map(key => (Object.prototype.hasOwnProperty.call(suite, key) ? suite[key] : null));
+      return Promise.resolve(values);
+    }),
+
+    setMultiple: jest.fn(keyValuePairs => {
+      const suite = getSuite(currentSuiteName);
+      Object.entries(keyValuePairs).forEach(([key, value]) => {
+        suite[key] = value;
+      });
+      return Promise.resolve();
+    }),
+
+    clearMultiple: jest.fn(keys => {
+      const suite = getSuite(currentSuiteName);
+      keys.forEach(key => delete suite[key]);
+      return Promise.resolve();
+    }),
+
+    getAll: jest.fn(() => {
+      const suite = getSuite(currentSuiteName);
+      return Promise.resolve({ ...suite });
+    }),
+
+    clearAll: jest.fn(() => {
+      mockPreferences[currentSuiteName] = {};
+      return Promise.resolve();
+    }),
+
+    reset: jest.fn(() => {
+      mockPreferences = {};
+      currentSuiteName = 'default'; // Reset the current suite name
+      return Promise.resolve();
+    }),
   };
 });
 

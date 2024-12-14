@@ -28,7 +28,8 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
       return curr.hideBalance ? prev : prev + (curr.getBalance() || 0);
     }, 0);
     return formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true);
-  }, [wallets, totalBalancePreferredUnit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallets, totalBalancePreferredUnit, preferredFiatCurrency]);
 
   const toolTipActions = useMemo(
     () => [

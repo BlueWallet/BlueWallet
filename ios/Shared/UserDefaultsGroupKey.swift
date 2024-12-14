@@ -13,6 +13,8 @@ enum UserDefaultsGroupKey: String {
   case WatchAppBundleIdentifier = "io.bluewallet.bluewallet.watch"
   case BundleIdentifier = "io.bluewallet.bluewallet"
   case PreferredCurrency = "preferredCurrency"
+  case WatchAppBundleIdentifier = "io.bluewallet.bluewallet.watch"
+  case BundleIdentifier = "io.bluewallet.bluewallet"
   case ElectrumSettingsHost = "electrum_host"
   case ElectrumSettingsTCPPort = "electrum_tcp_port"
   case ElectrumSettingsSSLPort = "electrum_ssl_port"

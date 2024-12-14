@@ -215,7 +215,6 @@
     "block_explorer_invalid_custom_url": "Podany adres URL jest nieprawidłowy. Wprowadź poprawny adres zaczynający się od http:// lub https://.",
     "about_selftest_electrum_disabled": "Autotest nie jest dostępny z Electrum w trybie Offline. Wyłącz tryb offline i spróbuj ponownie.",
     "about_selftest_ok": "Wszystkie testy wewnętrzne przebiegły pomyślnie. Portfel działa dobrze.",
-
     "about_sm_github": "GitHub",
     "about_sm_discord": "Serwer Discord",
     "about_sm_telegram": "Chat na Telegramie",
@@ -250,7 +249,8 @@
     "electrum_settings_server": "Serwer Electrum",
     "electrum_status": "Status",
     "electrum_preferred_server": "Preferowany serwer",
-    "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",    "electrum_clear_alert_title": "Wyczyścić historię?",
+    "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",
+    "electrum_clear_alert_title": "Wyczyścić historię?",
     "electrum_clear_alert_message": "Czy chcesz wyczyścić historię serwerów Electrum?",
     "electrum_clear_alert_cancel": "Anuluj",
     "electrum_clear_alert_ok": "Ok",
@@ -320,12 +320,14 @@
     "would_you_like_to_receive_notifications": "Czy chcesz otrzymywać powiadomienia o nadchodzących płatnościach?",
     "notifications_subtitle": "Płatności przychodzące i potwierdzenia transakcji",
     "no_and_dont_ask": "Nie, i nie pytaj mnie ponownie.",
-    "ask_me_later": "Spytaj mnie później."
+    "permission_denied_message": "Odmówiłeś zgody na wysyłanie powiadomień. Jeśli chcesz otrzymywać powiadomienia, włącz je w ustawieniach swojego urządzenia."
   },
   "transactions": {
     "cancel_explain": "Zastąpimy tę transakcję taką, która płaci Tobie i ma wyższe opłaty. To anuluje bieżącą transakcję. To się nazywa RBF—Replace by Fee.",
     "cancel_no": "Ta transakcja jest nie do zastąpienia",
     "cancel_title": "Anuluj tę transakcję (RBF)",
+    "transaction_loading_error": "Wystąpił problem z wczytaniem transakcji. Proszę spróbować ponownie później.",
+    "transaction_not_available": "Transakcja niedostępna",
     "confirmations_lowercase": "Potwierdzenia: {confirmations}",
     "copy_link": "Kopiuj link",
     "expand_note": "Rozwiń notatkę",
@@ -447,6 +449,7 @@
     "import_discovery_subtitle": "Wybierz odnaleziony portfel",
     "import_discovery_derivation": "Użyj niestandardowej ścieżki derywacji",
     "import_discovery_no_wallets": "Nie odnaleziono portfeli.",
+    "import_discovery_offline": "BlueWallet jest obecnie w trybie offline. W tym trybie nie można zweryfikować istnienia portfela, więc musisz wybrać odpowiedni ręcznie",
     "import_derivation_found": "Znaleziono",
     "import_derivation_found_not": "Nie znaleziono",
     "import_derivation_loading": "Ładowanie...",
@@ -478,7 +481,14 @@
     "select_wallet": "Wybierz portfel",
     "xpub_copiedToClipboard": "Skopiowano do schowka.",
     "pull_to_refresh": "Pociągnij by odświeżyć",
-    "warning_do_not_disclose": "Uwaga! Nie ujawniać.",
+    "warning_do_not_disclose": "Nigdy nie ujawniaj poniższych informacji",
+    "scan_import": "Zeskanuj ten kod QR, aby zaimportować swój portfel do innej aplikacji.",
+    "write_down_header": "Utwórz ręczną kopię zapasową",
+    "write_down": "Zapisz i bezpiecznie przechowaj te słowa. Użyj ich, aby odtworzyć swój portfel w późniejszym czasie.",
+    "wallet_type_this": "Ten typ portfela to {type}.",
+    "share_number": "Udostępnij {number}",
+    "copy_ln_url": "Skopiuj i bezpiecznie przechowaj ten URL, aby odtworzyć swój portfel w późniejszym czasie.",
+    "copy_ln_public": "Skopiuj i bezpiecznie przechowaj te informacje, aby odtworzyć swój portfel w późniejszym czasie.",
     "add_ln_wallet_first": "Najpierw musisz dodać portfel Lightning.",
     "identity_pubkey": "Klucz publiczny tożsamości",
     "xpub_title": "XPUB portfela",
@@ -592,7 +602,14 @@
     "header": "Kontrola monet",
     "use_coin": "Użyj tej monety",
     "use_coins": "Użyj tych monet",
-    "tip": "Dzięki tej funkcji możesz lepiej zarządzać monetami poprzez ich wybieranie, zamrażanie lub sprawdzanie i nadawanie im etykiet. Możesz zaznaczyć kilka monet naraz wybierając kolorowe kółka."
+    "tip": "Dzięki tej funkcji możesz lepiej zarządzać monetami poprzez ich wybieranie, zamrażanie lub sprawdzanie i nadawanie im etykiet. Możesz zaznaczyć kilka monet naraz wybierając kolorowe kółka.",
+    "sort_asc": "Rosnąco",
+    "sort_desc": "Malejąco",
+    "sort_height": "Wysokość",
+    "sort_value": "Wartość",
+    "sort_label": "Etykieta",
+    "sort_status": "Status",
+    "sort_by": "Sortuj wg"
   },
   "units": {
     "BTC": "BTC",
@@ -650,7 +667,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }

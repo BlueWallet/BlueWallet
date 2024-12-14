@@ -211,6 +211,13 @@ class AmountInput extends Component {
     });
   };
 
+  handleSelectionChange = event => {
+    const { selection } = event.nativeEvent;
+    if (selection.start !== selection.end || selection.start !== this.props.amount?.length) {
+      this.textInput?.setNativeProps({ selection: { start: this.props.amount?.length, end: this.props.amount?.length } });
+    }
+  };
+
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
@@ -264,7 +271,7 @@ class AmountInput extends Component {
                 {amount !== BitcoinUnit.MAX ? (
                   <TextInput
                     {...this.props}
-                    caretHidden
+                    onSelectionChange={this.handleSelectionChange}
                     testID="BitcoinAmountInput"
                     keyboardType="numeric"
                     adjustsFontSizeToFit

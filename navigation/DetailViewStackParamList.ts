@@ -1,4 +1,4 @@
-import { LightningTransaction } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams } from './SendDetailsStackParamList';
 
@@ -7,11 +7,14 @@ export type DetailViewStackParamList = {
   WalletsList: { scannedData?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { transactionId: string; hash: string; walletID: string };
-  TransactionStatus: { hash?: string; walletID?: string };
-  CPFP: { transactionId: string };
-  RBFBumpFee: { transactionId: string };
-  RBFCancel: { transactionId: string };
+  TransactionDetails: { tx: Transaction; hash: string; walletID: string };
+  TransactionStatus: { hash: string; walletID?: string };
+  CPFP: {
+    wallet: TWallet | null;
+    txid: string;
+  };
+  RBFBumpFee: { txid: string; wallet: TWallet | null };
+  RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: undefined;
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };

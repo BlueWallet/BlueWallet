@@ -215,7 +215,6 @@
     "block_explorer_invalid_custom_url": "La URL proporcionada no es válida. Ingresa una URL válida que comience con http:// o https://.",
     "about_selftest_electrum_disabled": "La autocomprobación no está disponible con el modo sin conexión de Electrum. Desactiva el modo sin conexión y vuelve a intentarlo. ",
     "about_selftest_ok": "Todas las pruebas internas han pasado satisfactoriamente. La billetera funciona bien.",
-
     "about_sm_github": "GitHub",
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
@@ -250,7 +249,8 @@
     "electrum_settings_server": "Servidor Electrum",
     "electrum_status": "Estado",
     "electrum_preferred_server": "Servidor preferido",
-    "electrum_preferred_server_description": "Introduce el servidor que deseas que tu billetera utilice para todas las actividades de Bitcoin. Una vez configurado, tu billetera utilizará exclusivamente este servidor para comprobar saldos, enviar transacciones y obtener datos de la red. Asegúrate de que confías en este servidor antes de configurarlo.",    "electrum_clear_alert_title": "¿Borrar historial?",
+    "electrum_preferred_server_description": "Introduce el servidor que deseas que tu billetera utilice para todas las actividades de Bitcoin. Una vez configurado, tu billetera utilizará exclusivamente este servidor para comprobar saldos, enviar transacciones y obtener datos de la red. Asegúrate de que confías en este servidor antes de configurarlo.",
+    "electrum_clear_alert_title": "¿Borrar historial?",
     "electrum_clear_alert_message": "¿Quieres borrar el historial de los servidores de Electrum?",
     "electrum_clear_alert_cancel": "Cancelar",
     "electrum_clear_alert_ok": "Ok",
@@ -320,13 +320,14 @@
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
     "notifications_subtitle": "Pagos entrantes y confirmaciones de transacciones",
     "no_and_dont_ask": "No, y no me vuelvas a preguntar.",
-    "ask_me_later": "Pregúntame Luego.",
     "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
   "transactions": {
     "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF—Replace by Fee.",
     "cancel_no": "Esta transacción no es reemplazable.",
     "cancel_title": "Cancelar ésta transacción (RBF)",
+    "transaction_loading_error": "Se ha producido un problema al cargar la transacción. Vuelve a intentarlo más tarde.",
+    "transaction_not_available": "Transacción no disponible",
     "confirmations_lowercase": "{confirmations} confirmaciones",
     "copy_link": "Copiar enlace",
     "expand_note": "Expandir Nota",
@@ -659,7 +660,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

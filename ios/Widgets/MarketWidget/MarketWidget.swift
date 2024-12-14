@@ -35,24 +35,31 @@ struct MarketWidgetProvider: TimelineProvider {
         completion(timeline)
       } else {
           let userPreferredCurrency = Currency.getUserPreferredCurrency()
-          MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
-              let entry: MarketWidgetEntry
-
-              if let result = result {
-                  entry = MarketWidgetEntry(date: Date(), marketData: result)
-                  MarketWidgetProvider.lastSuccessfulEntry = entry
-              } else {
-                  // Use the last successful entry if available
-                  if let lastEntry = MarketWidgetProvider.lastSuccessfulEntry {
-                      entry = lastEntry
-                  } else {
-                      // Fallback to a default entry if no successful entry is available
-                      entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
-                  }
-              }
+          fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { (entry) in
               entries.append(entry)
               let timeline = Timeline(entries: entries, policy: .atEnd)
               completion(timeline)
+          }
+      }
+  }
+
+  private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketWidgetEntry) -> ()) {
+      MarketAPI.fetchMarketData(currency: currency) { (result, error) in
+          if let result = result {
+              let entry = MarketWidgetEntry(date: Date(), marketData: result)
+              MarketWidgetProvider.lastSuccessfulEntry = entry
+              completion(entry)
+          } else if retries > 0 {
+              DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                  self.fetchMarketDataWithRetry(currency: currency, retries: retries - 1, completion: completion)
+              }
+          } else {
+              if let lastEntry = MarketWidgetProvider.lastSuccessfulEntry {
+                  completion(lastEntry)
+              } else {
+                  let entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
+                  completion(entry)
+              }
           }
       }
   }

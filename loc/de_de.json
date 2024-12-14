@@ -311,8 +311,7 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "Möchten Sie bei Zahlungseingängen eine Benachrichtigung erhalten?",
     "notifications_subtitle": "Zahlungseingänge und Transaktionsbestätigungen",
-    "no_and_dont_ask": "Nein und nicht erneut fragen.",
-    "ask_me_later": "Später beantworten."
+    "no_and_dont_ask": "Nein und nicht erneut fragen."
   },
   "transactions": {
     "cancel_explain": "BlueWallet ersetzt diese Transaktion durch eine mit höherer Gebühr, welche den Betrag an Dich zurücküberweist. Die aktuelle Transaktion wird dadurch effektiv abgebrochen. Dieses Verfahren wird RBF - Replace By Fee - genannt.",
@@ -328,7 +327,6 @@
     "details_balance_hide": "Guthaben verbergen",
     "details_balance_show": "Guthaben zeigen",
     "details_copy": "Kopieren",
-    "details_copy_amount": "Betrag kopieren",
     "details_copy_block_explorer_link": "Block-Explorer Link kopieren",
     "details_copy_note": "Beschreibung kopieren",
     "details_copy_txid": "Transaktions-ID kopieren",
@@ -475,9 +473,6 @@
     "more_info": "Mehr Infos"
   },
   "total_balance_view": {
-    "display_in_bitcoin": "In bitcoin anzeigen",
-    "display_in_sats": "In sats anzeigen",
-    "display_in_fiat": "In {currency} anzeigen",
     "title": "Gesamtes Guthaben",
     "explanation": "Auf dem Übersichtsbildschirm den Gesamtsaldo aller Wallets anzeigen."
   },
@@ -580,7 +575,9 @@
     "header": "Münzkontrolle",
     "use_coin": "Münzen benutzen",
     "use_coins": "Benutze Münzen",
-    "tip": "Wallet-Verwaltung zum Anzeigen, Beschriften, Einfrieren oder Auswählen von Münzen. Zur Mehrfachselektion auf die Farbkreise tippen."
+    "tip": "Wallet-Verwaltung zum Anzeigen, Beschriften, Einfrieren oder Auswählen von Münzen. Zur Mehrfachselektion auf die Farbkreise tippen.",
+    "sort_label": "Bezeichnung",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

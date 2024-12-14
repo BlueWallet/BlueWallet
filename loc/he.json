@@ -10,6 +10,7 @@
     "never": "אף פעם",
     "of": "{number} מתוך {total}",
     "ok": "אישור",
+    "customize": "התאמה אישית",
     "enter_url": "הכנסת URL",
     "storage_is_encrypted": "האחסון שלך מוצפן. נדרשת סיסמה לפענוח שלו.",
     "yes": "כן",
@@ -224,6 +225,7 @@
     "biom_no_passcode": "למכשירכם אין  אין סיסמה או זיהוי ביומטרי מופעל. במטרה להמשיך, אנא הגדירו סיסמה או זיהוי ביומטרי ביישומון ההגדרות.",
     "biom_remove_decrypt": "כל ארנקיכם ימחקו והאחסון יפוענח. האם אתם בטוחים שברצונכם להמשיך?",
     "currency": "מטבע",
+    "currency_source": "תעריף מתקבל מ- ",
     "currency_fetch_error": "התרחשה שגיאה בזמן השגת התעריף למטבע הנבחר.",
     "default_desc": "כאשר מבוטל, BlueWallet יפתח אוטומטית את הארנק הנבחר בפתיחה.",
     "default_info": "פתיחת ברירת מחדל",
@@ -310,13 +312,14 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "האם ברצונך לקבל התראות כאשר מתקבלים תשלומים נכנסים?",
     "notifications_subtitle": "תשלומים נכנסים ואישורי פעולות",
-    "no_and_dont_ask": "לא, ואל תשאל אותי שוב.",
-    "ask_me_later": "שאל אותי מאוחר יותר."
+    "no_and_dont_ask": "לא, ואל תשאל אותי שוב."
   },
   "transactions": {
     "cancel_explain": "אנחנו נחליף את העברה זאת עם העברה לעצמך עם עמלות גבוהות יותר. זה למעשה מבטל את ההעברה. זה נקרא RBF—Replace by Fee.",
     "cancel_no": "פעולה זאת אינה ניתנת להחלפה",
     "cancel_title": "בטל פעולה זאת (RBF)",
+    "transaction_loading_error": "ישנה בעיה בטעינת פעולה. אנא נסו מאוחר יותר",
+    "transaction_not_available": "פעולה לא זמינה",
     "confirmations_lowercase": "{confirmations} אישורים",
     "copy_link": "העתקת קישור",
     "expand_note": "הרחבת הערה",
@@ -327,7 +330,6 @@
     "details_balance_hide": "הסתרת מאזן",
     "details_balance_show": "הצגת מאזן",
     "details_copy": "העתקה",
-    "details_copy_amount": "העתקת סכום",
     "details_copy_block_explorer_link": "העתקת קישור סייר בלוקים",
     "details_copy_note": "העתקת הערה",
     "details_copy_txid": "העתקת מזהה פעולה",
@@ -336,6 +338,7 @@
     "details_outputs": "פלטים",
     "date": "תאריך",
     "details_received": "התקבל",
+    "details_view_in_browser": "תצוגה בדפדפן",
     "details_title": "פעולה",
     "incoming_transaction": "פעולה נכנסת",
     "outgoing_transaction": "פעולה יוצאת",
@@ -370,6 +373,8 @@
     "add_bitcoin_explain": "ארנק ביטקוין פשוט וחזק",
     "add_create": "יצירה",
     "total_balance": "יתרה כוללת",
+    "add_entropy_reset_title": "איפוס אנטרופיה",
+    "add_entropy_reset_message": "שינוי סוג ארנק יאפס את האנטרופיה הנוכחית. האם ברצונך להמשיך?",
     "add_entropy": "אנטרופיה",
     "add_entropy_bytes": "{bytes} בייטים של אנטרופיה",
     "add_entropy_generated": "{gen} ביתים של אנתרופיה",
@@ -391,6 +396,7 @@
     "add_wallet_seed_length_24": "24 מילים",
     "clipboard_bitcoin": "ישנה כתובת ביטקוין בלוח. האם תרצו להשתמש בה בשביל העברה?",
     "clipboard_lightning": "ישנה חשבונית ברק בלוח שלך. האם להשתמש בה להעברה?",
+    "clear_clipboard_on_import": "ניקוי לוח לאחר יבוא",
     "details_address": "כתובת",
     "details_advanced": "מתקדם",
     "details_are_you_sure": "האם אתם בטוחים?",
@@ -471,9 +477,10 @@
     "more_info": "מידע נוסף"
   },
   "total_balance_view": {
-    "display_in_bitcoin": "הצגה בביטקוין",
-    "display_in_sats": "הצגה בסאטושי",
-    "display_in_fiat": "הצגה ב- {currency}",
+    "display_in_bitcoin": "תצוגה בביטקוין",
+    "hide": "הסתרה",
+    "display_in_sats": "תצוגה בסאטושי",
+    "display_in_fiat": "תצוגה ב- {currency}",
     "title": "יתרה כוללת",
     "explanation": "הצגת המאזן הכולל של כל הארנקים שלך במסך הכללי."
   },
@@ -574,7 +581,14 @@
     "header": "שליטת מטבעות",
     "use_coin": "שימוש במטבע",
     "use_coins": "שימוש במטבעות",
-    "tip": "מאפשר לך לראות, לתייג, להקפיא או לבחור מטבעות למען ניהול טוב יותר של הארנק."
+    "tip": "מאפשר לך לראות, לתייג, להקפיא או לבחור מטבעות למען ניהול טוב יותר של הארנק.",
+    "sort_asc": "עולה",
+    "sort_desc": "יורד",
+    "sort_height": "גובה",
+    "sort_value": "ערך",
+    "sort_label": "תווית",
+    "sort_status": "מצב",
+    "sort_by": "מיון לפי"
   },
   "units": {
     "MAX": "מקס'"
