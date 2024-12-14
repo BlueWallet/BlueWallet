@@ -372,7 +372,6 @@ export const configureNotifications = async onProcessNotifications => {
           },
           permissions: { alert: true, badge: true, sound: true },
           popInitialNotification: true,
-          requestPermissions: Platform.OS === 'ios',
         });
       } catch (error) {
         console.error('Error in configure:', error);
