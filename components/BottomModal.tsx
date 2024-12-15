@@ -232,7 +232,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     minHeight: 22,
-    paddingHorizontal: 22,
     width: '100%',
     top: 16,
     left: 0,

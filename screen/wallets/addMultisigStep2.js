@@ -580,7 +580,7 @@ const WalletsAddMultisigStep2 = () => {
         isGrabberVisible={false}
         dismissible={false}
         showCloseButton={!isLoading}
-        sizes={[Platform.OS ? 'auto' : '80%']}
+        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
         backgroundColor={colors.modal}
         footer={
           <View style={styles.modalFooterBottomPadding}>
@@ -651,7 +651,7 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         isGrabberVisible={false}
         showCloseButton={true}
-        sizes={[Platform.OS ? 'auto' : '80%']}
+        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
         onDismiss={() => {
           Keyboard.dismiss();
           setImportText('');
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  askPassprase: { justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { marginLeft: 32, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 
   secretContainer: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
