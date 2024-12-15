@@ -12,27 +12,31 @@ struct TransactionListRow: View {
                         .foregroundColor(.primary)
                 }
                 
-                Text(transactionTimeToReadable(transaction.time))
+                // Use the `time` property to format the date
+                Text(formattedDate())
                     .font(.caption)
                     .foregroundColor(.secondary)
-              
-              Text(Balance.formatBalance(Decimal(string: transaction.amount) ?? 0, toUnit: .btc))
-                  .font(.subheadline.bold())
-                  .foregroundColor(
-                      transaction.type.isIncoming ? .green :
-                      transaction.type.isOutgoing ? .red :
-                      transaction.type.isPending ? .gray :
-                      .primary
-                  )
+                    .opacity(transaction.time > 0 ? 1 : 0)  // Hide if no time value
+                
+                Text(Balance.formatBalance(transaction.amount, toUnit: .btc))
+                    .font(.subheadline.bold())
+                    .foregroundColor(
+                        transaction.type.isIncoming ? .green :
+                        transaction.type.isOutgoing ? .red :
+                        transaction.type.isPending ? .gray :
+                        .primary
+                    )
             }
         }
     }
     
-    private func transactionTimeToReadable(_ time: String) -> String {
-        guard let date = ISO8601DateFormatter().date(from: time) else {
-            return time
-        }
-        return RelativeDateTimeFormatter().localizedString(for: date, relativeTo: Date())
+    // Helper method to format the `time` property using RelativeDateTimeFormatter
+    private func formattedDate() -> String {
+        let transactionDate = Date(timeIntervalSince1970: TimeInterval(transaction.time))
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        let relativeDate = formatter.localizedString(for: transactionDate, relativeTo: Date())
+        return relativeDate
     }
 }
 
@@ -40,10 +44,10 @@ struct TransactionListRow_Previews: PreviewProvider {
     static var previews: some View {
         TransactionListRow(transaction: Transaction(
             id: UUID(),
-            time: "2024-11-16T14:30:00Z",
+            time: Int(Date().timeIntervalSince1970) - 300,  // 5 minutes ago
             memo: "Payment for coffee",
             type: .received,
-            amount: "500000"
+            amount: 500000
         ))
         .previewLayout(.sizeThatFits)
         .padding()

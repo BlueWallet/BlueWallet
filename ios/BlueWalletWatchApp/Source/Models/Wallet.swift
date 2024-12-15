@@ -5,7 +5,7 @@ import Foundation
 struct Wallet: Codable, Identifiable, Equatable {
     let id: UUID
     let label: String
-    let balance: String
+    let balance: Decimal
     let type: WalletType
     let chain: Chain
     let preferredBalanceUnit: BalanceUnit
@@ -27,7 +27,7 @@ struct Wallet: Codable, Identifiable, Equatable {
     ///   - xpub: Extended public key for HD wallets.
     ///   - hideBalance: Indicates whether the balance should be hidden.
     ///   - paymentCode: Optional payment code associated with the wallet.
-  init(id: UUID = UUID(), label: String, balance: String, type: WalletType, chain: Chain = .onchain, preferredBalanceUnit: BalanceUnit = .sats, receiveAddress: String, transactions: [Transaction], xpub: String, hideBalance: Bool, paymentCode: String? = nil) {
+  init(id: UUID = UUID(), label: String, balance: Decimal, type: WalletType, chain: Chain = .onchain, preferredBalanceUnit: BalanceUnit = .sats, receiveAddress: String, transactions: [Transaction], xpub: String, hideBalance: Bool, paymentCode: String? = nil) {
         self.id = id
         self.label = label
         self.balance = balance
@@ -46,7 +46,7 @@ extension Wallet {
     static var mock: Wallet {
         Wallet(
             label: "Mock Wallet",
-            balance: "1.2345 BTC",
+            balance: 1.2345,
             type: .hdSegwitBech32Wallet,
             preferredBalanceUnit: .btc,
             receiveAddress: "bc1qmockaddressxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",

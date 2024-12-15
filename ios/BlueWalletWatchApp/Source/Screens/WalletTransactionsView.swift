@@ -29,30 +29,30 @@ struct WalletTransactionsView: View {
     @State var wallet: Wallet
     @State private var showingReceiveAlert = false
     @State private var qrCodeContent: QRCodeContent? = nil
+    
     var body: some View {
-      transactionsSection
-        .listStyle(.automatic)
-        .onAppear(perform: loadWalletDetails)
-        .navigationTitle(wallet.label)
-        .navigationBarTitleDisplayMode(.automatic)
-        .toolbar {
-            ToolbarItem(placement: .automatic) {
-                QRButton {
-                      qrCodeContent = QRCodeContent(content: wallet.receiveAddress)
-                    
+        transactionsSection
+            .listStyle(.automatic)
+            .onAppear(perform: loadWalletDetails)
+            .navigationTitle(wallet.label)
+            .navigationBarTitleDisplayMode(.automatic)
+            .toolbar {
+                ToolbarItem(placement: .automatic) {
+                    QRButton {
+                        qrCodeContent = QRCodeContent(content: wallet.receiveAddress)
+                    }
                 }
             }
-        }
-        .sheet(item: $qrCodeContent) { qrCode in
-            ViewQRCodeView(content: qrCode.content)
-        }
+            .sheet(item: $qrCodeContent) { qrCode in
+                ViewQRCodeView(content: qrCode.content)
+            }
     }
 
     // MARK: - Wallet Header
     private var walletDetailsHeader: some View {
         VStack(spacing: 8) {
-                BalanceButton(hideBalance: wallet.hideBalance, balance: wallet.balance) {
-                }
+            BalanceButton(hideBalance: wallet.hideBalance, balance: wallet.balance) {
+            }
         }
     }
 

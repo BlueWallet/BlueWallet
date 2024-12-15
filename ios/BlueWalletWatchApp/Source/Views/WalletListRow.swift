@@ -15,7 +15,7 @@ struct WalletListRow: View {
                         .font(.subheadline)
                         .foregroundColor(.white)
                 } else {
-                    Text(Balance.formatBalance(Decimal(string: wallet.balance) ?? 0, toUnit: wallet.preferredBalanceUnit))
+                  Text(Balance.formatBalance(wallet.balance, toUnit: wallet.preferredBalanceUnit))
                         .font(.subheadline)
                         .foregroundColor(.white)
                 }
@@ -43,7 +43,7 @@ struct WalletListRow_Previews: PreviewProvider {
         WalletListRow(wallet: Wallet(
             id: UUID(),
             label: "Legacy Wallet",
-            balance: "120000000",
+            balance: 12000000,
             type: .legacyWallet,
             chain: .onchain,
             preferredBalanceUnit: .btc,
@@ -51,10 +51,10 @@ struct WalletListRow_Previews: PreviewProvider {
             transactions: [
                 Transaction(
                     id: UUID(),
-                    time: "2023-10-10 10:00",
+                    time: Date().timeIntervalSince1970.exponent,
                     memo: "Payment for services",
                     type: .received,
-                    amount: "10000000"
+                    amount: 10000000
                 )
             ],
             xpub: "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiK...",

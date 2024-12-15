@@ -4,10 +4,10 @@ import Foundation
 /// Conforms to `Codable` and `Identifiable` for encoding/decoding and unique identification.
 struct Transaction: Codable, Identifiable, Equatable {
     let id: UUID
-    let time: String
+    let time: Int  // Changed from Double to Int
     let memo: String
     let type: TransactionType
-    let amount: String
+    let amount: Decimal
     
     /// Initializes a new Transaction instance.
     /// - Parameters:
@@ -16,7 +16,7 @@ struct Transaction: Codable, Identifiable, Equatable {
     ///   - memo: A memo or note associated with the transaction.
     ///   - type: The type of the transaction, defined by `TransactionType`.
     ///   - amount: The amount involved in the transaction as a string.
-    init(id: UUID = UUID(), time: String, memo: String, type: TransactionType, amount: String) {
+    init(id: UUID = UUID(), time: Int, memo: String, type: TransactionType, amount: Decimal) {
         self.id = id
         self.time = time
         self.memo = memo
@@ -28,10 +28,10 @@ struct Transaction: Codable, Identifiable, Equatable {
 extension Transaction {
     static var mock: Transaction {
         Transaction(
-            time: "2024-04-27T12:34:56Z",
+            time: Int(Date().timeIntervalSince1970),  // Use seconds for time
             memo: "Mock Transaction",
             type: .sent,
-            amount: "-0.001 BTC"
+            amount: 1
         )
     }
     
@@ -39,16 +39,16 @@ extension Transaction {
         [
             .mock,
             Transaction(
-                time: "2024-04-26T11:22:33Z",
+                time: Int(Date().timeIntervalSince1970),
                 memo: "Another Mock Transaction",
                 type: .received,
-                amount: "+0.002 BTC"
+                amount: 222
             ),
             Transaction(
-                time: "2024-04-25T10:11:22Z",
-                memo: "Third Mock Transaction",
+                time: Int(Date().timeIntervalSince1970),
+                memo: "Hi",
                 type: .pending,
-                amount: "0.000 BTC"
+                amount: 222
             )
         ]
     }

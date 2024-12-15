@@ -8,7 +8,7 @@
 
  struct BalanceButton: View {
      var hideBalance: Bool
-     var balance: String
+   var balance: Decimal
      var action: () -> Void
 
      var body: some View {
@@ -17,7 +17,7 @@
                      .font(.subheadline)
                      .foregroundColor(.white)
              } else {
-                 Text(balance)
+               Text(balance.description)
                  .font(.subheadline)
                      .foregroundColor(.white)
              

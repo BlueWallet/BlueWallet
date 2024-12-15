@@ -5,18 +5,18 @@ class Balance {
         switch toUnit {
         case .btc:
             let value = balance / Decimal(100_000_000)
-            return "\(removeTrailingZeros(value)) BTC" // Localize unit names as needed.
+            return "\(removeTrailingZeros(value))  \(toUnit.rawValue)" // Localize unit names as needed.
         case .sats:
             if withFormatting {
-                return NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + " SATS"
+                return NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + "  \(toUnit.rawValue)"
             } else {
-                return "\(balance) SATS"
+              return "\(balance) \(toUnit.rawValue)"
             }
         case .localCurrency:
             return fetchLocalCurrencyEquivalent(satoshi: balance)
         default:
             let value = balance / Decimal(100_000_000)
-            return "\(removeTrailingZeros(value)) BTC" // Localize unit names as needed.
+            return "\(removeTrailingZeros(value))  \(toUnit.rawValue)" // Localize unit names as needed.
         }
     }
 
@@ -50,7 +50,7 @@ extension Decimal {
   func formatted(as unit: BalanceUnit, withFormatting: Bool = false) -> String {
         switch unit {
         case .sats:
-            return withFormatting ? NumberFormatter.localizedString(from: self as NSNumber, number: .decimal) + " SATS" : "\(self) SATS"
+            return withFormatting ? NumberFormatter.localizedString(from: self as NSNumber, number: .decimal) + "  \(unit.rawValue)" : "\(self)  \(unit.rawValue)"
         case .localCurrency:
             let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
             if let widgetData = userDefaults?.object(forKey: MarketData.string) as? Data,
@@ -63,7 +63,7 @@ extension Decimal {
             }
         default:
             let value = self / Decimal(100_000_000)
-            return "\(value) BTC"
+            return "\(value) \(unit.rawValue)"
         }
     }
 }

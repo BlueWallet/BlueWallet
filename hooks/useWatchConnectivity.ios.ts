@@ -45,22 +45,6 @@ export function useWatchConnectivity() {
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
-  const createContextPayload = () => ({
-    randomID: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
-  });
-
-  useEffect(() => {
-    if (!isInstalled || !isPaired || !walletsInitialized || !isReachable) return;
-
-    const contextPayload = createContextPayload();
-    try {
-      updateApplicationContext(contextPayload);
-      console.debug('Transferred user info:', contextPayload);
-    } catch (error) {
-      console.error('Failed to transfer user info:', error);
-    }
-  }, [isReachable, walletsInitialized, isInstalled, isPaired]);
-
   useEffect(() => {
     if (!isInstalled || !isPaired || !walletsInitialized || !isReachable || !preferredFiatCurrency) return;
 

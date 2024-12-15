@@ -4,6 +4,7 @@ import WatchConnectivity
 struct BlueWalletView: View {
     @ObservedObject var dataSource: WatchDataSource = .shared
     @State private var qrContent: QRCodeContent? = nil
+    @State private var showingErrorAlert = false  // Added property
 
     var body: some View {
         VStack {
@@ -49,6 +50,23 @@ struct BlueWalletView: View {
         }
         .onAppear {
             WCSession.default.activate()
+        }
+        // Observe changes to dataLoadError
+        .onReceive(dataSource.$dataLoadError) { error in
+            if error != nil {
+                showingErrorAlert = true
+            }
+        }
+        // Present the alert when an error occurs
+        .alert(isPresented: $showingErrorAlert) {
+            Alert(
+                title: Text("Unable to Load Data"),
+                message: Text(dataSource.dataLoadError ?? "An unexpected error occurred while loading your wallets. Please try again."),
+                dismissButton: .default(Text("OK")) {
+                    showingErrorAlert = false
+                    dataSource.dataLoadError = nil  // Reset the error after dismissal
+                }
+            )
         }
     }
 }

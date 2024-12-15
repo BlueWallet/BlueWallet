@@ -89,7 +89,7 @@ struct CreateInvoiceView_Previews: PreviewProvider {
     static var previews: some View {
         CreateInvoiceView(wallet: Wallet(
             label: "My Wallet",
-            balance: "0.5 BTC",
+            balance: 5,
             type: .lightningCustodianWallet,
             chain: .offchain,
             preferredBalanceUnit: .btc,
