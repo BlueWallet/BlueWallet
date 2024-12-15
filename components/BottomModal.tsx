@@ -168,10 +168,10 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
           </View>
         );
 
-      if (header) {
+      if (React.isValidElement(header)) {
         return (
           <View style={styles.headerContainerWithCloseButton}>
-            {React.isValidElement(header) ? header : header ? React.createElement(header as ComponentType<any>) : null}
+            {header}
             {renderTopRightButton()}
           </View>
         );
