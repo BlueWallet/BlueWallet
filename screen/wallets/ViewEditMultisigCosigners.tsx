@@ -431,10 +431,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const dismissAllModals = () => {
-    provideMnemonicsModalRef.current?.dismiss();
-    shareModalRef.current?.dismiss();
-    mnemonicsModalRef.current?.dismiss();
+  const dismissAllModals = async () => {
+    await provideMnemonicsModalRef.current?.dismiss();
+    await shareModalRef.current?.dismiss();
+    await mnemonicsModalRef.current?.dismiss();
   };
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
