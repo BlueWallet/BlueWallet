@@ -1,10 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
 import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Image } from '@rneui/base';
+import { Icon, Image } from '@rneui/base';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -107,7 +106,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               testID="ModalShareButton"
               key="ModalShareButton"
             >
-              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
+              <Icon
+                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                type="font-awesome6"
+                size={20}
+                color={colors.buttonTextColor}
+              />
             </SaveFileButton>,
           );
         } else if (shareButtonOnPress) {
@@ -118,7 +122,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               style={[styles.topRightButton, stylesHook.barButton]}
               onPress={shareButtonOnPress}
             >
-              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
+              <Icon
+                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                type="font-awesome6"
+                size={20}
+                color={colors.buttonTextColor}
+              />
             </TouchableOpacity>,
           );
         }
@@ -131,11 +140,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
             key="ModalDoneButton"
             testID="ModalDoneButton"
           >
-            {Platform.OS === 'ios' ? (
-              <Ionicons name="close" size={20} color={colors.buttonTextColor} />
-            ) : (
-              <Image source={require('../img/close.png')} style={styles.closeButton} />
-            )}
+            <Image source={require('../img/close.png')} style={styles.closeButton} />
           </TouchableOpacity>,
         );
       }
@@ -155,12 +160,23 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         );
       }
 
-      return (
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
-          {renderTopRightButton()}
-        </View>
-      );
+      if (showCloseButton || shareContent)
+        return (
+          <View style={styles.headerContainer}>
+            <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
+            {renderTopRightButton()}
+          </View>
+        );
+
+      if (header) {
+        return (
+          <View style={styles.headerContainerWithCloseButton}>
+            {React.isValidElement(header) ? header : header ? React.createElement(header as ComponentType<any>) : null}
+            {renderTopRightButton()}
+          </View>
+        );
+      }
+      return null;
     };
 
     const renderFooter = (): ReactElement | undefined => {
@@ -209,6 +225,18 @@ const styles = StyleSheet.create({
     minHeight: 22,
     right: 16,
     top: 16,
+  },
+  headerContainerWithCloseButton: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    minHeight: 22,
+    paddingHorizontal: 22,
+    width: '100%',
+    top: 16,
+    left: 0,
+    justifyContent: 'space-between',
   },
   headerContent: {
     flex: 1,

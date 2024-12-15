@@ -38,6 +38,7 @@ import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 const staticCache = {};
 
@@ -63,6 +64,7 @@ const WalletsAddMultisigStep2 = () => {
   const openScannerButton = useRef();
   const { isPrivacyBlurEnabled } = useSettings();
   const data = useRef(new Array(n));
+  const { isVisible } = useKeyboard();
 
   useFocusEffect(
     useCallback(() => {
@@ -578,7 +580,7 @@ const WalletsAddMultisigStep2 = () => {
         isGrabberVisible={false}
         dismissible={false}
         showCloseButton={!isLoading}
-        footerDefaultMargins
+        sizes={[Platform.OS ? 'auto' : '80%']}
         backgroundColor={colors.modal}
         footer={
           <View style={styles.modalFooterBottomPadding}>
@@ -620,40 +622,42 @@ const WalletsAddMultisigStep2 = () => {
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal
-        footerDefaultMargins
         footer={
-          <View style={styles.modalFooterBottomPadding}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <>
-                <Button
-                  testID="DoImportKeyButton"
-                  disabled={importText.trim().length === 0}
-                  title={loc.wallets.import_do_import}
-                  onPress={useMnemonicPhrase}
-                />
-                <BlueButtonLink
-                  testID="ScanOrOpenFile"
-                  ref={openScannerButton}
-                  disabled={isLoading}
-                  onPress={scanOrOpenFile}
-                  title={loc.wallets.import_scan_qr}
-                />
-              </>
-            )}
-          </View>
+          !isVisible && (
+            <View style={styles.modalFooterBottomPadding}>
+              {isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <>
+                  <Button
+                    testID="DoImportKeyButton"
+                    disabled={importText.trim().length === 0}
+                    title={loc.wallets.import_do_import}
+                    onPress={useMnemonicPhrase}
+                  />
+                  <BlueButtonLink
+                    testID="ScanOrOpenFile"
+                    ref={openScannerButton}
+                    disabled={isLoading}
+                    onPress={scanOrOpenFile}
+                    title={loc.wallets.import_scan_qr}
+                  />
+                </>
+              )}
+            </View>
+          )
         }
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
         isGrabberVisible={false}
+        showCloseButton={true}
+        sizes={[Platform.OS ? 'auto' : '80%']}
         onDismiss={() => {
           Keyboard.dismiss();
           setImportText('');
           setAskPassphrase(false);
         }}
-      >
-        <>
+        header={
           <ToolTipMenu
             isButton
             isMenuPrimaryAction
@@ -666,14 +670,14 @@ const WalletsAddMultisigStep2 = () => {
           >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </ToolTipMenu>
-
-          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        }
+      >
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        <BlueSpacing20 />
+        <View style={styles.multiLineTextInput}>
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
           <BlueSpacing20 />
-          <View style={styles.multiLineTextInput}>
-            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            <BlueSpacing20 />
-          </View>
-        </>
+        </View>
       </BottomModal>
     );
   };
@@ -691,14 +695,16 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         shareContent={{ fileContent: cosignerXpub, fileName: cosignerXpubFilename }}
         footerDefaultMargins
-        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
+        contentContainerStyle={styles.modalContent}
         footer={<View style={styles.modalFooterBottomPadding}>{isLoading ? <ActivityIndicator /> : null}</View>}
       >
         <Text style={[styles.headerText, stylesHook.textDestination]}>
           {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
         </Text>
         <BlueSpacing20 />
-        <QRCodeComponent value={cosignerXpubURv2} size={260} />
+        <View style={styles.qrContainer}>
+          <QRCodeComponent value={cosignerXpubURv2} size={260} />
+        </View>
         <BlueSpacing20 />
       </BottomModal>
     );
@@ -765,12 +771,12 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 450,
+    minHeight: 400,
   },
   multiLineTextInput: {
     minHeight: 200,
   },
-  modalFooterBottomPadding: { paddingBottom: 26 },
+  modalFooterBottomPadding: { padding: 26 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
@@ -788,7 +794,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  askPassprase: { top: -44, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
 
   secretContainer: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -799,7 +805,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   headerText: { fontSize: 15, color: '#13244D' },
-  alignItemsCenter: { alignItems: 'center' },
+  qrContainer: {
+    alignItems: 'center',
+  },
   helpButtonWrapper: {
     alignItems: 'flex-end',
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
