@@ -88,8 +88,7 @@ export const AddressInputScanButton = ({
 
             if (getImage) {
               try {
-                const base64Data = getImage.replace(/^data:image\/jpeg;base64,/, '');
-
+                const base64Data = getImage.replace(/^data:image\/png;base64,/, '');
                 const values = await RNQRGenerator.detect({
                   base64: base64Data,
                 });
