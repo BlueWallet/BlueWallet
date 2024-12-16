@@ -61,7 +61,8 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.text(label)).tap();
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-  await element(by.id('DeleteButton')).tap();
+  await element(by.id('HeaderMenuButton')).tap();
+  await element(by.text('Delete')).tap();
   await sup('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {
