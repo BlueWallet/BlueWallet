@@ -269,6 +269,7 @@ const WalletsAdd: React.FC = () => {
 
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
   }, [entropy, entropyButtonText, selectedIndex, selectedWalletType]);
+
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);

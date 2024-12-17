@@ -1,7 +1,7 @@
 import { Alert, Linking, Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import Share from 'react-native-share';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import presentAlert from '../components/Alert';
@@ -16,23 +16,23 @@ const _sanitizeFileName = (fileName: string) => {
 };
 
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
-  return await Share.open({
-    url: 'file://' + filePath,
-    saveToFiles: isDesktop || !showShareDialog,
-    // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
-    useInternalStorage: Platform.OS === 'android',
-    failOnCancel: false,
-  })
-    .catch(error => {
-      console.log(error);
-      // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
-      if (error.message !== 'CANCELLED') {
-        presentAlert({ message: error.message });
-      }
-    })
-    .finally(() => {
-      RNFS.unlink(filePath);
+  try {
+    await Share.open({
+      url: 'file://' + filePath,
+      saveToFiles: isDesktop || !showShareDialog,
+      // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
+      useInternalStorage: Platform.OS === 'android',
+      failOnCancel: false,
     });
+  } catch (error: any) {
+    console.log(error);
+    // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
+    if (error.message !== 'CANCELLED') {
+      presentAlert({ message: error.message });
+    }
+  } finally {
+    await RNFS.unlink(filePath);
+  }
 };
 
 /**
@@ -42,16 +42,18 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
 
 export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   const sanitizedFileName = _sanitizeFileName(fileName);
-  if (Platform.OS === 'ios') {
-    const filePath = RNFS.TemporaryDirectoryPath + `/${sanitizedFileName}`;
-    await RNFS.writeFile(filePath, contents);
-    await _shareOpen(filePath, showShareDialog);
-  } else if (Platform.OS === 'android') {
-    const isAndroidVersion33OrAbove = Platform.Version >= 33;
-    const permissionType = isAndroidVersion33OrAbove ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
-    request(permissionType).then(async result => {
+  try {
+    if (Platform.OS === 'ios') {
+      const filePath = `${RNFS.TemporaryDirectoryPath}/${sanitizedFileName}`;
+      await RNFS.writeFile(filePath, contents);
+      await _shareOpen(filePath, showShareDialog);
+    } else if (Platform.OS === 'android') {
+      const isAndroidVersion33OrAbove = Platform.Version >= 33;
+      const permissionType = isAndroidVersion33OrAbove ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
+
+      const result = await request(permissionType);
       if (result === 'granted') {
-        const filePath = RNFS.ExternalDirectoryPath + `/${sanitizedFileName}`;
+        const filePath = `${RNFS.ExternalDirectoryPath}/${sanitizedFileName}`;
         try {
           await RNFS.writeFile(filePath, contents);
           if (showShareDialog) {
@@ -74,7 +76,9 @@ export const writeFileAndExport = async function (fileName: string, contents: st
           { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ]);
       }
-    });
+    }
+  } catch (error: any) {
+    presentAlert({ message: error.message });
   }
 };
 
@@ -115,36 +119,34 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
   }
 };
 
-export const showImagePickerAndReadImage = (): Promise<string | undefined> => {
-  return new Promise((resolve, reject) =>
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        maxHeight: 800,
-        maxWidth: 600,
-        selectionLimit: 1,
-      },
-      response => {
-        if (!response.didCancel) {
-          const asset = response.assets?.[0] ?? {};
-          if (asset.uri) {
-            RNQRGenerator.detect({
-              uri: decodeURI(asset.uri.toString()),
-            })
-              .then(result => {
-                if (result) {
-                  resolve(result.values[0]);
-                }
-              })
-              .catch(error => {
-                console.error(error);
-                reject(new Error(loc.send.qr_error_no_qrcode));
-              });
-          }
-        }
-      },
-    ),
-  );
+export const showImagePickerAndReadImage = async (): Promise<string | undefined> => {
+  try {
+    const response: ImagePickerResponse = await launchImageLibrary({
+      mediaType: 'photo',
+      maxHeight: 800,
+      maxWidth: 600,
+      selectionLimit: 1,
+    });
+
+    if (response.didCancel) {
+      return undefined;
+    } else if (response.errorCode) {
+      throw new Error(response.errorMessage);
+    } else if (response.assets?.[0]?.uri) {
+      try {
+        const result = await RNQRGenerator.detect({ uri: decodeURI(response.assets[0].uri.toString()) });
+        return result?.values[0];
+      } catch (error) {
+        console.error(error);
+        throw new Error(loc.send.qr_error_no_qrcode);
+      }
+    }
+
+    return undefined;
+  } catch (error: any) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
@@ -165,45 +167,34 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
     });
 
     if (!res.fileCopyUri) {
+      // to make ts happy, should not need this check here
       presentAlert({ message: 'Picking and caching a file failed' });
       return { data: false, uri: false };
     }
 
     const fileCopyUri = decodeURI(res.fileCopyUri);
 
-    let file;
     if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
-      file = await _readPsbtFileIntoBase64(fileCopyUri);
+      const file = await _readPsbtFileIntoBase64(fileCopyUri);
       return { data: file, uri: decodeURI(res.fileCopyUri) };
     }
 
     if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
-      return new Promise(resolve => {
-        if (!res.fileCopyUri) {
-          // to make ts happy, should not need this check here
-          presentAlert({ message: 'Picking and caching a file failed' });
-          resolve({ data: false, uri: false });
-          return;
-        }
+      try {
         const uri2 = res.fileCopyUri.replace('file://', '');
-
-        RNQRGenerator.detect({
-          uri: decodeURI(uri2),
-        })
-          .then(result => {
-            if (result) {
-              resolve({ data: result.values[0], uri: fileCopyUri });
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            resolve({ data: false, uri: false });
-          });
-      });
+        const result = await RNQRGenerator.detect({ uri: decodeURI(uri2) });
+        if (result) {
+          return { data: result.values[0], uri: fileCopyUri };
+        }
+        return { data: false, uri: false };
+      } catch (error) {
+        console.error(error);
+        return { data: false, uri: false };
+      }
     }
 
-    file = await RNFS.readFile(fileCopyUri);
+    const file = await RNFS.readFile(fileCopyUri);
     return { data: file, uri: fileCopyUri };
   } catch (err: any) {
     if (!DocumentPicker.isCancel(err)) {

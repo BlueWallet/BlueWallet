@@ -1315,7 +1315,7 @@ PODS:
     - Yoga
   - react-native-ios-context-menu (1.15.3):
     - React-Core
-  - react-native-menu (1.1.6):
+  - react-native-menu (1.1.7):
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -2226,7 +2226,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
   react-native-image-picker: 19a8d8471a239890675726f88f9c18dd213656d5
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
-  react-native-menu: 6eb1bc1cffd6f3f29e0d33f0326552f805637b9c
+  react-native-menu: 5779f6bd7a4e58d457ca5e0a6f164651dd26cd7f
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796

@@ -809,7 +809,6 @@ const SendDetails = () => {
   };
 
   const onBarScanned = (ret: any) => {
-    navigation.getParent()?.dispatch(popAction);
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
