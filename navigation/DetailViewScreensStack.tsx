@@ -146,9 +146,9 @@ const DetailViewStackScreensStack = () => {
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
+          headerBackTitle: undefined,
           headerRight: () => DetailButton,
           headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
@@ -270,9 +270,7 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerTransparent: true,
           title: loc.settings.header,
-          // workaround to deal with the flicker when headerBackTitleVisible is false
-          headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
+          headerBackButtonDisplayMode: 'default',
           headerShadowVisible: false,
           headerLargeTitle: true,
           animationTypeForReplace: 'push',
