@@ -26,6 +26,10 @@ export type SendDetailsParams = {
   };
 };
 
+export type PsbtMultisigParams = {
+  receivedPSBTBase64: string;
+};
+
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
   Confirm: {
@@ -59,16 +63,14 @@ export type SendDetailsStackParamList = {
     feeSatoshi?: number;
   };
   PsbtMultisig: {
-    memo?: string;
-    psbtBase64: string;
-    walletID: string;
+    psbtBase64?: string;
     launchedBy?: string;
+    walletID?: string;
+    memo: string;
   };
-  PsbtMultisigQRCode: {
-    memo?: string;
+  PSBTMultisigQRCode: {
     psbtBase64: string;
-    fromWallet: string;
-    launchedBy?: string;
+    isShowOpenScanner?: boolean;
   };
   Success: {
     fee: number;

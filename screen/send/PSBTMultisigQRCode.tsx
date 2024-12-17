@@ -1,26 +1,29 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
+import { DynamicQRCode, DynamicQRCodeRef } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { navigationRef } from '../../NavigationService';
 
-const PsbtMultisigQRCode = () => {
-  const { navigate } = useNavigation();
+type RouteProps = RouteProp<SendDetailsStackParamList, 'PSBTMultisigQRCode'>;
+
+const PSBTMultisigQRCode = () => {
   const { colors } = useTheme();
-  const openScannerButton = useRef();
-  const { psbtBase64, isShowOpenScanner } = useRoute().params;
-  const { name } = useRoute();
+  const openScannerButton = useRef(null);
+  const { psbtBase64, isShowOpenScanner } = useRoute<RouteProps>().params;
+  const { name } = useRoute<RouteProps>();
   const [isLoading, setIsLoading] = useState(false);
-  const dynamicQRCode = useRef();
+  const dynamicQRCode = useRef<DynamicQRCodeRef>(null);
   const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
@@ -45,7 +48,7 @@ const PsbtMultisigQRCode = () => {
     }
   }, [isFocused]);
 
-  const onBarScanned = ret => {
+  const onBarScanned = (ret: { data: any }) => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ message: 'BC-UR not decoded. This should never happen' });
@@ -55,7 +58,13 @@ const PsbtMultisigQRCode = () => {
       presentAlert({ message: loc.wallets.import_error });
     } else {
       // psbt base64?
-      navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
+      navigationRef.navigate('PsbtMultisig', {
+        screen: 'PsbtMultisig',
+        params: {
+          psbtBase64: ret.data,
+          merge: true,
+        },
+      });
     }
   };
 
@@ -67,6 +76,7 @@ const PsbtMultisigQRCode = () => {
   const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
+    return Promise.resolve();
   };
 
   const saveFileButtonAfterOnPress = () => {
@@ -129,4 +139,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PsbtMultisigQRCode;
+export default PSBTMultisigQRCode;

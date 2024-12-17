@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Ref } from 'react';
 import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
 
@@ -25,7 +25,12 @@ interface DynamicQRCodeState {
   hideControls?: boolean;
 }
 
-export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeState> {
+export interface DynamicQRCodeRef {
+  startAutoMove: () => void;
+  stopAutoMove: () => void;
+}
+
+class DynamicQRCodeComponent extends Component<DynamicQRCodeProps, DynamicQRCodeState> {
   constructor(props: DynamicQRCodeProps) {
     super(props);
     const qrCodeHeight = height > width ? width - 40 : width / 3;
@@ -221,3 +226,7 @@ const animatedQRCodeStyle = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export const DynamicQRCode = React.forwardRef<DynamicQRCodeRef, DynamicQRCodeProps>((props, ref: Ref<DynamicQRCodeRef>) => (
+  <DynamicQRCodeComponent {...props} ref={ref as React.RefObject<DynamicQRCodeComponent>} />
+));
