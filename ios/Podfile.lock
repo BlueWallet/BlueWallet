@@ -1319,7 +1319,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.14.1):
+  - react-native-safe-area-context (5.0.0):
     - React-Core
   - react-native-screen-capture (0.2.3):
     - React
@@ -1767,7 +1767,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.35.0):
+  - RNScreens (4.3.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2228,7 +2228,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
   react-native-menu: 5779f6bd7a4e58d457ca5e0a6f164651dd26cd7f
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
-  react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
+  react-native-safe-area-context: 314537f8fca6fe2c06bd53fc8905efa9e6aaaf59
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
@@ -2276,7 +2276,7 @@ SPEC CHECKSUMS:
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: ae56eba247f82fa0d8bbf52bb0e7a34a218482de
-  RNScreens: 35bb8e81aeccf111baa0ea01a54231390dbbcfd9
+  RNScreens: e21c8d32fe97737ecc30f1f21e7b6f69f341a1f5
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
   RNSVG: 3421710ac15f4f2dc47e5c122f2c2e4282116830
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
