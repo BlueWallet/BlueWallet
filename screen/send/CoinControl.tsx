@@ -372,14 +372,15 @@ const CoinControl: React.FC = () => {
 
   const handleUseCoin = async (u: Utxo[]) => {
     setOutput(undefined);
-    // @ts-ignore navigation WTF
-    navigation.navigate('SendDetailsRoot', {
-      screen: 'SendDetails',
-      params: {
+    navigation.popTo(
+      // @ts-ignore navigation WTF
+      'SendDetails',
+      {
         utxos: u,
+        walletID,
       },
-      merge: true,
-    });
+      { merge: true },
+    );
   };
 
   const handleMassFreeze = () => {
