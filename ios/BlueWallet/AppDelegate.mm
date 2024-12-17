@@ -130,6 +130,8 @@
     NSString *deviceUID = [NSUserDefaults.standardUserDefaults stringForKey:@"deviceUID"];
     if (deviceUID && deviceUID.length > 0) {
         [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
+                [self.userDefaultsGroup setValue:deviceUID forKey:@"deviceUIDCopy"];
+
     }
 }
 
@@ -194,7 +196,6 @@
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  NSDictionary *userInfo = notification.request.content.userInfo;
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 

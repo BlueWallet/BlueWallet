@@ -34,15 +34,25 @@
 			<key>orderHint</key>
 			<integer>14</integer>
 		</dict>
-		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatchOS Watch App (Complication).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>7</integer>
+			<integer>129</integer>
 		</dict>
-		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatchOS Watch App (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>127</integer>
+		</dict>
+		<key>BlueWalletWatchOS Watch App.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>127</integer>
+		</dict>
+		<key>ComplicationsExtension.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>131</integer>
 		</dict>
 		<key>MarketWidget.xcscheme_^#shared#^_</key>
 		<dict>
@@ -93,6 +103,11 @@
 			<true/>
 		</dict>
 		<key>B47B21E82B2128B8001F6690</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B489847C2CE860D100BB74BB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
