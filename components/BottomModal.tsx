@@ -56,7 +56,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     ref,
   ) => {
     const trueSheetRef = useRef<TrueSheet>(null);
-    const { colors } = useTheme();
+    const { colors, closeImage } = useTheme();
     const stylesHook = StyleSheet.create({
       barButton: {
         backgroundColor: colors.lightButton,
@@ -140,7 +140,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
             key="ModalDoneButton"
             testID="ModalDoneButton"
           >
-            <Image source={require('../img/close.png')} style={styles.closeButton} />
+            <Image source={closeImage} />
           </TouchableOpacity>,
         );
       }
@@ -245,10 +245,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  closeButton: {
-    width: 10,
-    height: 10,
   },
   headerSubtitle: {
     fontSize: 14,
