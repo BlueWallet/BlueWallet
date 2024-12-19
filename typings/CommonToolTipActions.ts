@@ -40,6 +40,7 @@ const keys = {
   CoSignTransaction: 'co_sign_transaction',
   CopyToClipboard: 'copyToClipboard',
   Share: 'share',
+  SaveFile: 'saveFile',
   SignVerify: 'signVerify',
   ExportPrivateKey: 'exportPrivateKey',
   PasteFromClipboard: 'pasteFromClipboard',
@@ -50,6 +51,7 @@ const keys = {
   SortValue: 'sortValue',
   SortLabel: 'sortLabel',
   SortStatus: 'sortStatus',
+  Delete: 'delete',
 } as const;
 
 const icons = {
@@ -94,6 +96,8 @@ const icons = {
   ClearClipboard: { iconValue: 'clipboard' },
   SortASC: { iconValue: 'arrow.down.to.line' },
   SortDESC: { iconValue: 'arrow.up.to.line' },
+  SaveFile: { iconValue: 'square.and.arrow.down' },
+  Delete: { iconValue: 'trash' },
 } as const;
 
 export const CommonToolTipActions = {
@@ -352,5 +356,16 @@ export const CommonToolTipActions = {
   SortStatus: {
     id: keys.SortStatus,
     text: loc.cc.sort_status,
+  },
+  SaveFile: {
+    id: keys.SaveFile,
+    text: loc._.save,
+    icon: icons.SaveFile,
+  },
+  Delete: {
+    id: keys.Delete,
+    text: loc.wallets.details_delete,
+    icon: icons.Delete,
+    destructive: true,
   },
 } as const;
