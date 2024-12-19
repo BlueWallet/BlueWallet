@@ -287,12 +287,6 @@ const WalletDetails: React.FC = () => {
   });
 
   useEffect(() => {
-    setOptions({
-      headerBackTitleVisible: true,
-    });
-  }, [setOptions]);
-
-  useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWalletID(walletID);
     }
