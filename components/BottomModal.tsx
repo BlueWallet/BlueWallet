@@ -1,9 +1,9 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
+import { Keyboard, Image, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Icon, Image } from '@rneui/base';
+import { Icon } from '@rneui/base';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
