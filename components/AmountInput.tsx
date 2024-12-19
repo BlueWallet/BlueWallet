@@ -1,9 +1,20 @@
+import React, { Component } from 'react';
+import {
+  Image,
+  LayoutAnimation,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  NativeSyntheticEvent,
+  TextInputSelectionChangeEventData,
+  TextInputProps,
+} from 'react-native';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Badge, Icon, Text } from '@rneui/themed';
 
 import {
@@ -22,93 +33,110 @@ import { useTheme } from './themes';
 
 dayjs.extend(localizedFormat);
 
-class AmountInput extends Component {
-  static propTypes = {
-    isLoading: PropTypes.bool,
-    /**
-     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
-     */
-    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    /**
-     * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
-     * (btc, sat, fiat)
-     */
-    onChangeText: PropTypes.func.isRequired,
-    /**
-     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
-     */
-    onAmountUnitChange: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
-    colors: PropTypes.object.isRequired,
-    pointerEvents: PropTypes.string,
-    unit: PropTypes.string,
-    onBlur: PropTypes.func,
-    onFocus: PropTypes.func,
-  };
-
+interface AmountInputProps extends TextInputProps {
+  isLoading?: boolean;
   /**
-   * cache of conversions  fiat amount => satoshi
-   * @type {{}}
+   * amount is a string or number that's always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
    */
-  static conversionCache = {};
+  amount?: number | string;
+  /**
+   * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
+   * (btc, sat, fiat)
+   */
+  onChangeText: (text?: string) => void;
+  /**
+   * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
+   */
+  onAmountUnitChange: (newUnit: BitcoinUnit) => void;
+  disabled?: boolean;
+  colors: Record<string, string | number>;
+  pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
+  unit?: BitcoinUnit;
+  onBlur?: () => void;
+  onFocus?: () => void;
+}
 
-  static getCachedSatoshis = amount => {
-    return AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
+interface CurrencyRate {
+  LastUpdated: Date | null;
+}
+interface AmountInputState {
+  mostRecentFetchedRate: CurrencyRate;
+  isRateOutdated: boolean;
+  isRateBeingUpdated: boolean;
+}
+
+class AmountInput extends Component<AmountInputProps, AmountInputState> {
+  /**
+   * cache of conversions fiat amount => satoshi
+   */
+  static conversionCache: Record<string, string> = {};
+
+  static getCachedSatoshis = (amount: string | number) => {
+    return AmountInput.conversionCache[String(amount) + BitcoinUnit.LOCAL_CURRENCY] || false;
   };
 
-  static setCachedSatoshis = (amount, sats) => {
-    AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
+  static setCachedSatoshis = (amount: string | number, sats: string) => {
+    AmountInput.conversionCache[String(amount) + BitcoinUnit.LOCAL_CURRENCY] = sats;
   };
 
-  constructor() {
-    super();
-    this.state = { mostRecentFetchedRate: Date(), isRateOutdated: false, isRateBeingUpdated: false };
+  private textInput = React.createRef<TextInput>();
+
+  constructor(props: AmountInputProps) {
+    super(props);
+    this.state = {
+      mostRecentFetchedRate: { LastUpdated: new Date() },
+      isRateOutdated: false,
+      isRateBeingUpdated: false,
+    };
   }
 
-  componentDidMount() {
-    mostRecentFetchedRate()
-      .then(mostRecentFetchedRateValue => {
-        this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
-      })
-      .finally(() => {
-        isRateOutdated().then(isRateOutdatedValue => this.setState({ isRateOutdated: isRateOutdatedValue }));
-      });
+  async componentDidMount() {
+    try {
+      const mostRecentFetchedRateValue = await mostRecentFetchedRate();
+      this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
+    } finally {
+      const isRateOutdatedValue = await isRateOutdated();
+      this.setState({ isRateOutdated: isRateOutdatedValue });
+    }
   }
 
   /**
-   * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
+   * here we must recalculate old amount value (which was denominated in `previousUnit`) to new denomination `newUnit`
    * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
    *
-   * @param previousUnit {string} one of {BitcoinUnit.*}
-   * @param newUnit {string} one of {BitcoinUnit.*}
+   * @param previousUnit one of {BitcoinUnit.*}
+   * @param newUnit one of {BitcoinUnit.*}
    */
-  onAmountUnitChange(previousUnit, newUnit) {
-    const amount = this.props.amount || 0;
+  onAmountUnitChange(previousUnit: BitcoinUnit, newUnit: BitcoinUnit) {
+    const { amount = 0 } = this.props;
     const log = `${amount}(${previousUnit}) ->`;
-    let sats = 0;
+    let sats = '0';
+
     switch (previousUnit) {
       case BitcoinUnit.BTC:
         sats = new BigNumber(amount).multipliedBy(100000000).toString();
         break;
       case BitcoinUnit.SATS:
-        sats = amount;
+        sats = String(amount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        sats = new BigNumber(fiatToBTC(amount)).multipliedBy(100000000).toString();
+        sats = new BigNumber(fiatToBTC(Number(amount))).multipliedBy(100000000).toString();
         break;
     }
-    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[amount + previousUnit]) {
-      // cache hit! we reuse old value that supposedly doesnt have rounding errors
-      sats = AmountInput.conversionCache[amount + previousUnit];
+
+    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[String(amount) + previousUnit]) {
+      // cache hit! we reuse old value that supposedly doesn't have rounding errors
+      sats = AmountInput.conversionCache[String(amount) + previousUnit];
     }
 
-    const newInputValue = formatBalancePlain(sats, newUnit, false);
+    const newInputValue = formatBalancePlain(Number(sats), newUnit, false);
     console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
-      AmountInput.conversionCache[newInputValue + newUnit] = amount;
+      // we cache conversion, so when we will need reverse conversion there won't be a rounding error
+      AmountInput.conversionCache[newInputValue + newUnit] = String(amount);
     }
+
     this.props.onChangeText(newInputValue);
     this.props.onAmountUnitChange(newUnit);
   }
@@ -117,8 +145,10 @@ class AmountInput extends Component {
    * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
    */
   changeAmountUnit = () => {
-    let previousUnit = this.props.unit;
-    let newUnit;
+    const { unit } = this.props;
+    let previousUnit = unit || BitcoinUnit.BTC;
+    let newUnit: BitcoinUnit;
+
     if (previousUnit === BitcoinUnit.BTC) {
       newUnit = BitcoinUnit.SATS;
     } else if (previousUnit === BitcoinUnit.SATS) {
@@ -129,11 +159,13 @@ class AmountInput extends Component {
       newUnit = BitcoinUnit.BTC;
       previousUnit = BitcoinUnit.SATS;
     }
+
     this.onAmountUnitChange(previousUnit, newUnit);
   };
 
   maxLength = () => {
-    switch (this.props.unit) {
+    const { unit } = this.props;
+    switch (unit) {
       case BitcoinUnit.BTC:
         return 11;
       case BitcoinUnit.SATS:
@@ -143,15 +175,14 @@ class AmountInput extends Component {
     }
   };
 
-  textInput = React.createRef();
-
   handleTextInputOnPress = () => {
-    this.textInput.current.focus();
+    this.textInput.current?.focus();
   };
 
-  handleChangeText = text => {
+  handleChangeText = (text: string) => {
+    const { unit } = this.props;
     text = text.trim();
-    if (this.props.unit !== BitcoinUnit.LOCAL_CURRENCY) {
+    if (unit !== BitcoinUnit.LOCAL_CURRENCY) {
       text = text.replace(',', '.');
       const split = text.split('.');
       if (split.length >= 2) {
@@ -160,12 +191,12 @@ class AmountInput extends Component {
         text = `${parseInt(split[0], 10)}`;
       }
 
-      text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+      text = unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
 
       if (text.startsWith('.')) {
         text = '0.';
       }
-    } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
+    } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
       text = text.replace(/,/gi, '.');
       if (text.split('.').length > 2) {
         // too many dots. stupid code to remove all but first dot:
@@ -200,47 +231,59 @@ class AmountInput extends Component {
     this.setState({ isRateBeingUpdated: true }, async () => {
       try {
         await updateExchangeRate();
-        mostRecentFetchedRate().then(mostRecentFetchedRateValue => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
-        });
+        const mostRecentFetchedRateValue = await mostRecentFetchedRate();
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
       } finally {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        this.setState({ isRateBeingUpdated: false, isRateOutdated: await isRateOutdated() });
+        const outdated = await isRateOutdated();
+        this.setState({ isRateBeingUpdated: false, isRateOutdated: outdated });
       }
     });
   };
 
-  handleSelectionChange = event => {
+  handleSelectionChange = (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
     const { selection } = event.nativeEvent;
-    if (selection.start !== selection.end || selection.start !== this.props.amount?.length) {
-      this.textInput?.setNativeProps({ selection: { start: this.props.amount?.length, end: this.props.amount?.length } });
+    const { amount } = this.props;
+    const amountStr = String(amount || '');
+    if (selection.start !== selection.end || selection.start !== amountStr.length) {
+      this.textInput?.current?.setNativeProps({ selection: { start: amountStr.length, end: amountStr.length } });
     }
   };
 
   render() {
-    const { colors, disabled, unit } = this.props;
-    const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    const { colors, disabled, unit, pointerEvents, isLoading, onBlur, onFocus } = this.props;
+    const { isRateBeingUpdated } = this.state;
+    const amount = this.props.amount ?? 0;
+    const amountStr = String(amount);
+    const amountNumber = parseFloat(amountStr);
+
+    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(Number(amountStr), BitcoinUnit.LOCAL_CURRENCY, false);
 
     // if main display is sat or btc - secondary display is fiat
-    // if main display is fiat - secondary dislay is btc
-    let sat;
+    // if main display is fiat - secondary display is btc
+    let sat: string;
     switch (unit) {
       case BitcoinUnit.BTC:
-        sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        sat = new BigNumber(amountNumber).multipliedBy(100000000).toString();
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(Number(sat), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        sat = isNaN(amountNumber) ? '0' : String(amountNumber);
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(Number(sat), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        secondaryDisplayCurrency = fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
-        if (AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesn't have rounding errors
-          const sats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
-          secondaryDisplayCurrency = satoshiToBTC(sats);
+        {
+          const cacheHit = AmountInput.conversionCache[String(isNaN(amountNumber) ? 0 : amountNumber) + BitcoinUnit.LOCAL_CURRENCY];
+          if (cacheHit) {
+            // cache hit! we reuse old value that supposedly doesn't have rounding errors
+            secondaryDisplayCurrency = satoshiToBTC(Number(cacheHit));
+          } else {
+            secondaryDisplayCurrency = fiatToBTC(isNaN(amountNumber) ? 0 : amountNumber);
+          }
         }
+        break;
+      default:
         break;
     }
 
@@ -248,17 +291,20 @@ class AmountInput extends Component {
 
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
-      localCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
-      input: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2, fontSize: amount.length > 10 ? 20 : 36 },
-      cryptoCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
+      localCurrency: { color: disabled ? String(colors.buttonDisabledTextColor) : String(colors.alternativeTextColor2) },
+      input: {
+        color: disabled ? String(colors.buttonDisabledTextColor) : String(colors.alternativeTextColor2),
+        fontSize: amountStr.length > 10 ? 20 : 36,
+      },
+      cryptoCurrency: { color: disabled ? String(colors.buttonDisabledTextColor) : String(colors.alternativeTextColor2) },
     });
 
     return (
       <TouchableWithoutFeedback
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
-        disabled={this.props.pointerEvents === 'none'}
-        onPress={() => this.textInput.focus()}
+        disabled={pointerEvents === 'none'}
+        onPress={() => this.textInput.current?.focus()}
       >
         <>
           <View style={styles.root}>
@@ -270,24 +316,22 @@ class AmountInput extends Component {
                 )}
                 {amount !== BitcoinUnit.MAX ? (
                   <TextInput
-                    {...this.props}
-                    onSelectionChange={this.handleSelectionChange}
                     testID="BitcoinAmountInput"
                     keyboardType="numeric"
-                    adjustsFontSizeToFit
                     onChangeText={this.handleChangeText}
+                    onSelectionChange={this.handleSelectionChange}
                     onBlur={() => {
-                      if (this.props.onBlur) this.props.onBlur();
+                      if (onBlur) onBlur();
                     }}
                     onFocus={() => {
-                      if (this.props.onFocus) this.props.onFocus();
+                      if (onFocus) onFocus();
                     }}
                     placeholder="0"
                     maxLength={this.maxLength()}
-                    ref={textInput => (this.textInput = textInput)}
-                    editable={!this.props.isLoading && !disabled}
-                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
-                    placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
+                    ref={this.textInput}
+                    editable={!isLoading && !disabled}
+                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : amountNumber >= 0 ? amountStr : undefined}
+                    placeholderTextColor={disabled ? String(colors.buttonDisabledTextColor) : String(colors.alternativeTextColor2)}
                     style={[styles.input, stylesHook.input]}
                   />
                 ) : (
@@ -296,7 +340,7 @@ class AmountInput extends Component {
                   </Pressable>
                 )}
                 {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                  <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
+                  <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit || BitcoinUnit.BTC]}</Text>
                 )}
               </View>
               <View style={styles.secondaryRoot}>
@@ -332,8 +376,8 @@ class AmountInput extends Component {
                 accessibilityRole="button"
                 accessibilityLabel={loc._.refresh}
                 onPress={this.updateRate}
-                disabled={this.state.isRateBeingUpdated}
-                style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
+                disabled={isRateBeingUpdated}
+                style={isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
               >
                 <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
               </TouchableOpacity>
@@ -412,15 +456,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const AmountInputWithStyle = props => {
+const AmountInputWithStyle: React.FC<Partial<AmountInputProps>> = props => {
   const { colors } = useTheme();
-
-  return <AmountInput {...props} colors={colors} />;
+  return <AmountInput {...(props as AmountInputProps)} colors={colors} />;
 };
 
 // expose static methods
-AmountInputWithStyle.conversionCache = AmountInput.conversionCache;
-AmountInputWithStyle.getCachedSatoshis = AmountInput.getCachedSatoshis;
-AmountInputWithStyle.setCachedSatoshis = AmountInput.setCachedSatoshis;
+(AmountInputWithStyle as any).conversionCache = AmountInput.conversionCache;
+(AmountInputWithStyle as any).getCachedSatoshis = AmountInput.getCachedSatoshis;
+(AmountInputWithStyle as any).setCachedSatoshis = AmountInput.setCachedSatoshis;
 
 export default AmountInputWithStyle;
