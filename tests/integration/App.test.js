@@ -1,9 +1,8 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
-
 import { Header } from '../../components/Header';
 import SelfTest from '../../screen/settings/SelfTest';
 import Settings from '../../screen/settings/Settings';
+import { render } from '@testing-library/react-native';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
