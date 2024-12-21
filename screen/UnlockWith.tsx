@@ -104,7 +104,7 @@ const UnlockWith: React.FC = () => {
       if (storageIsEncrypted) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
         unlockWithKey();
-      } else if (biometricUseCapableAndEnabled) {
+      } else if (biometricUseCapableAndEnabled && biometricType) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
         unlockUsingBiometrics();
       } else if (biometricsUseEnabled && biometricType === undefined) {
