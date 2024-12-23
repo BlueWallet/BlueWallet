@@ -16,7 +16,7 @@ import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 import { LightningTransaction } from '../../class/wallets/types';
 
 type LNDViewInvoiceRouteParams = {
@@ -31,15 +31,13 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find((w) => w.getID() === walletID);
-  const [isLoading, setIsLoading] = useState(typeof invoice === "string");
+  const wallet = wallets.find(w => w.getID() === walletID);
+  const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const fetchInvoiceInterval = useRef<any>();
-  const isModal = useNavigationState(
-    (state) => state.routeNames[0] === LNDCreateInvoice.routeName
-  );
+  const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -57,10 +55,10 @@ const LNDViewInvoice = () => {
   });
 
   useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", handleBackButton);
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
     return () => {
-      BackHandler.removeEventListener("hardwareBackPress", handleBackButton);
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
       clearInterval(fetchInvoiceInterval.current);
       fetchInvoiceInterval.current = undefined;
     };
@@ -81,7 +79,7 @@ const LNDViewInvoice = () => {
           headerRight: () => (
             <TouchableOpacity
               accessibilityRole="button"
-              // @ts-ignore
+              // @ts-ignore - button is not suppprted .
               style={styles.button}
               onPress={() => {
                 // @ts-ignore: navigation
@@ -98,7 +96,7 @@ const LNDViewInvoice = () => {
           headerStyle: {
             backgroundColor: colors.customHeader,
           },
-        }
+        },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal]);
@@ -106,22 +104,22 @@ const LNDViewInvoice = () => {
   useEffect(() => {
     if (wallet) {
       setSelectedWalletID(walletID);
-      console.log("LNDViewInvoice - useEffect");
+      console.log('LNDViewInvoice - useEffect');
       if (!invoice.ispaid) {
         fetchInvoiceInterval.current = setInterval(async () => {
           if (isFetchingInvoices) {
             try {
-              //@ts-ignore
+              // @ts-ignore - getUserInvoices is not set on TWallet
               const userInvoices = await wallet.getUserInvoices(20);
               // fetching only last 20 invoices
               // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
               // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
               const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
-                typeof invoice === "object"
+                typeof invoice === 'object'
                   ? filteredInvoice.payment_request === invoice.payment_request
-                  : filteredInvoice.payment_request === invoice
+                  : filteredInvoice.payment_request === invoice,
               )[0];
-              if (typeof updatedUserInvoice !== "undefined") {
+              if (typeof updatedUserInvoice !== 'undefined') {
                 setInvoiceStatusChanged(true);
                 setParams({ invoice: updatedUserInvoice });
                 setIsLoading(false);
@@ -132,8 +130,7 @@ const LNDViewInvoice = () => {
                 } else {
                   const currentDate = new Date();
                   const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-                  const invoiceExpiration =
-                    updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+                  const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
                   if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                     // invoice expired :-(
                     fetchAndSaveWalletTransactions(walletID);
@@ -165,22 +162,17 @@ const LNDViewInvoice = () => {
   };
 
   const navigateToPreImageScreen = () => {
-    navigate("LNDViewAdditionalInvoicePreImage", {
-      preImageData:
-        invoice.payment_preimage && typeof invoice.payment_preimage === "string"
-          ? invoice.payment_preimage
-          : "none",
+    navigate('LNDViewAdditionalInvoicePreImage', {
+      preImageData: invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none',
     });
   };
 
   const handleOnSharePressed = () => {
-    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(
-      (error) => console.log(error)
-    );
+    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
   };
 
   const handleOnViewAdditionalInformationPressed = () => {
-    navigate("LNDViewAdditionalInvoiceInformation", { walletID });
+    navigate('LNDViewAdditionalInvoiceInformation', { walletID });
   };
 
   useEffect(() => {
@@ -198,9 +190,7 @@ const LNDViewInvoice = () => {
 
   const onLayout = (e: any) => {
     const { height, width } = e.nativeEvent.layout;
-    setQRCodeSize(
-      height > width ? width - 40 : e.nativeEvent.layout.width / 1.8
-    );
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
 
   const render = () => {
@@ -211,19 +201,17 @@ const LNDViewInvoice = () => {
         </View>
       );
     }
-    if (typeof invoice === "object") {
+    if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = invoice?.timestamp && invoice?.expire_time
-        ? invoice.timestamp + invoice.expire_time
-        : undefined;
-      if (invoice.ispaid || invoice.type === "paid_invoice") {
+      const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
+      if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;
-        let transactionDate
-        let description
-        if (invoice.type === "paid_invoice" && invoice?.value) {
+        let transactionDate;
+        let description;
+        if (invoice.type === 'paid_invoice' && invoice?.value) {
           amount = invoice.value;
-        } else if (invoice.type === "user_invoice" && invoice.amt) {
+        } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;
         }
         if (invoice.description) {
@@ -232,9 +220,7 @@ const LNDViewInvoice = () => {
           description = invoice.memo;
         }
         if (invoice.timestamp) {
-          transactionDate = new Date(
-            invoice.timestamp * 1000
-          ).toLocaleString();
+          transactionDate = new Date(invoice.timestamp * 1000).toLocaleString();
         }
         return (
           <View style={styles.root}>
@@ -251,18 +237,11 @@ const LNDViewInvoice = () => {
                   {loc.lndViewInvoice.date_time}: {transactionDate}
                 </Text>
               )}
-              {invoice.payment_preimage &&
-                typeof invoice.payment_preimage === "string" ? (
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  style={styles.detailsTouch}
-                  onPress={navigateToPreImageScreen}
-                >
-                  <Text style={[styles.detailsText, stylesHook.detailsText]}>
-                    {loc.send.create_details}
-                  </Text>
+              {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
+                <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
+                  <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
-                    name={I18nManager.isRTL ? "angle-left" : "angle-right"}
+                    name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
                     size={18}
                     type="font-awesome"
                     color={colors.alternativeTextColor}
@@ -275,20 +254,11 @@ const LNDViewInvoice = () => {
       }
       if (invoiceExpiration ? invoiceExpiration < now : undefined) {
         return (
-          <View
-            style={[styles.root, stylesHook.root, styles.justifyContentCenter]}
-          >
+          <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
             <View style={[styles.expired, stylesHook.expired]}>
-              <Icon
-                name="times"
-                size={50}
-                type="font-awesome"
-                color={colors.successCheck}
-              />
+              <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
             </View>
-            <BlueTextCentered>
-              {loc.lndViewInvoice.wasnt_paid_and_expired}
-            </BlueTextCentered>
+            <BlueTextCentered>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueTextCentered>
           </View>
         );
       }
@@ -297,25 +267,19 @@ const LNDViewInvoice = () => {
         <ScrollView>
           <View style={[styles.activeRoot, stylesHook.root]}>
             <View style={styles.activeQrcode}>
-              <QRCodeComponent
-                value={invoice.payment_request ?? "not found"}
-                size={qrCodeSize}
-              />
+              <QRCodeComponent value={invoice.payment_request ?? 'not found'} size={qrCodeSize} />
             </View>
             <BlueSpacing20 />
             <BlueText>
               {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
             </BlueText>
-            {"description" in invoice && (invoice.description?.length ?? 0) > 0 && (
+            {'description' in invoice && (invoice.description?.length ?? 0) > 0 && (
               <BlueText>
-                {loc.lndViewInvoice.for} {invoice.description ?? ""}
+                {loc.lndViewInvoice.for} {invoice.description ?? ''}
               </BlueText>
             )}
-            <CopyTextToClipboard truncated text={invoice.payment_request ?? "not found"} />
-            <Button
-              onPress={handleOnSharePressed}
-              title={loc.receive.details_share}
-            />
+            <CopyTextToClipboard truncated text={invoice.payment_request ?? 'not found'} />
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
             <BlueSpacing20 />
             <Button
