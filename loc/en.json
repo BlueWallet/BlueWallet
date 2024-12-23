@@ -74,6 +74,7 @@
     "please_pay": "Please pay",
     "preimage": "Pre-image",
     "sats": "sats.",
+    "date_time": "Date and Time",
     "wasnt_paid_and_expired": "This invoice was not paid and has expired."
   },
   "plausibledeniability": {
