@@ -57,7 +57,7 @@ struct WalletInformationWidgetProvider: TimelineProvider {
 
 struct WalletInformationWidgetEntry: TimelineEntry {
     let date: Date
-    let marketData: MarketData
+    var marketData: MarketData
     var allWalletsBalance: WalletData = WalletData(balance: 0)
 }
 
