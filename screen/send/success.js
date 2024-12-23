@@ -96,19 +96,14 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           <View style={styles.view}>
             {amount ? (
               <>
-                <Text style={[styles.amountValue, stylesHook.amountValue]}>
-                  {amount}
-                </Text>
-                <Text style={[styles.amountUnit, stylesHook.amountUnit]}>
-                  {" " + loc.units[amountUnit]}
-                </Text>
+                <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
+                <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
               </>
             ) : null}
           </View>
           {fee > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create_fee}: {new BigNumber(fee).toFixed(8)}{" "}
-              {loc.units[BitcoinUnit.BTC]}
+              {loc.send.create_fee}: {new BigNumber(fee).toFixed(8)} {loc.units[BitcoinUnit.BTC]}
             </Text>
           )}
           <Text numberOfLines={0} style={styles.feeText}>
@@ -120,22 +115,22 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
       <View style={styles.ready}>
         <LottieView
           style={styles.lottie}
-          source={require("../../img/bluenice.json")}
+          source={require('../../img/bluenice.json')}
           autoPlay={shouldAnimate}
           ref={animationRef}
           loop={false}
           progress={shouldAnimate ? 0 : 1}
           colorFilters={[
             {
-              keypath: "spark",
+              keypath: 'spark',
               color: colors.success,
             },
             {
-              keypath: "circle",
+              keypath: 'circle',
               color: colors.success,
             },
             {
-              keypath: "Oval",
+              keypath: 'Oval',
               color: colors.successCheck,
             },
           ]}
