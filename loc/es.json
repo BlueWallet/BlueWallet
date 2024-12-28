@@ -374,7 +374,6 @@
     "select_wallet": "Selecciona una cartera",
     "xpub_copiedToClipboard": "Copiado a portapapeles.",
     "pull_to_refresh": "Desliza el dedo de arriba a abajo para actualizar",
-    "warning_do_not_disclose": "¡Advertencia! No comparta esta información",
     "add_ln_wallet_first": "Primero tienes que agregar una cartera Lightning.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB de la cartera"

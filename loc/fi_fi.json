@@ -412,7 +412,6 @@
     "select_wallet": "Valitse Lompakko",
     "xpub_copiedToClipboard": "Kopioitu leikepöydälle.",
     "pull_to_refresh": "vedä päivittääksesi",
-    "warning_do_not_disclose": "Varoitus! Älä paljasta",
     "add_ln_wallet_first": "Sinun on ensin lisättävä Salamalompakko.",
     "identity_pubkey": "Tunnus Pubkey",
     "xpub_title": "lompakon XPUB"
