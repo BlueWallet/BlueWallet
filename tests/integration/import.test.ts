@@ -489,6 +489,24 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
   });
 
+  it('can import watch-only xpub as a zpub if it has been used', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      'xpub6C8z87Nj7vuUqntJdNfkY4LJBSih9BkA3kUVjmTbSmA4Fk88vrBJwcjCt2q8yb2Pt8axgDkonSfdGiACPYNH7yoyQnX3iETHLneSYvPcnRy',
+      false,
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(
+      store.state.wallets[0].getSecret(),
+      'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
+    );
+  });
+
   it('can import BIP39 wallets with truncated words', async () => {
     // 12 words
     const store1 = createStore();
