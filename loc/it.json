@@ -380,7 +380,6 @@
     "select_wallet": "Seleziona Portafoglio",
     "xpub_copiedToClipboard": "Copiata negli appunti.",
     "pull_to_refresh": "Tira verso il basso per aggiornare",
-    "warning_do_not_disclose": "Attenzione! Non rivelare.",
     "add_ln_wallet_first": "Devi prima aggiungere un portafoglio Lightning.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB del Portafoglio"

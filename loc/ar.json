@@ -19,6 +19,7 @@
     "close": "اغلاق",
     "change_input_currency": "تغيير عملة الادخال",
     "refresh": "تحديث",
+    "pick_file": "اختر ملف",
     "enter_amount": "أدخل القيمة",
     "qr_custom_input_button": "أنقر ١٠ مرات لإدخال قيمة مخصصة"
   },
@@ -384,7 +385,6 @@
     "select_wallet": "اختيار محفظة",
     "xpub_copiedToClipboard": "تم النسخ إلى الحافظة.",
     "pull_to_refresh": "اسحب للتحديث",
-    "warning_do_not_disclose": "تحذير! لا تنشر هذا.",
     "add_ln_wallet_first": "يجب عليك أولاً إضافة محفظة برق.",
     "identity_pubkey": "هوية Pubkey",
     "xpub_title": "عنوان XPUB للمحفظة"

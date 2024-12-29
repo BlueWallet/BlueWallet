@@ -387,7 +387,6 @@
     "select_wallet": "Válassz tárcát",
     "xpub_copiedToClipboard": "Vágólapra másolva",
     "pull_to_refresh": "Húzza le a frissítéshez",
-    "warning_do_not_disclose": "VESZÉLY! Ezt soha senkivel ne ossza meg!",
     "add_ln_wallet_first": "Először egy Lightning Tárcát kell létrehoznod vagy beadnod.",
     "identity_pubkey": "Nyilvános kulcs",
     "xpub_title": "a tárca XPUB kulcsa"

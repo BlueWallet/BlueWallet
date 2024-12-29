@@ -465,7 +465,6 @@
     "select_wallet": "Выбрать кошелёк",
     "xpub_copiedToClipboard": "Скопировано в буфер обмена.",
     "pull_to_refresh": "Потяните, чтобы обновить",
-    "warning_do_not_disclose": "Внимание! Не разглашать.",
     "add_ln_wallet_first": "Сначала добавьте Лайтнинг-кошелёк.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB кошелька",

@@ -386,7 +386,6 @@
     "select_wallet": "지갑 선택",
     "xpub_copiedToClipboard": "클립보드에 복사완료",
     "pull_to_refresh": "갱신하려면 당기세요",
-    "warning_do_not_disclose": "경고! 공개하지 마십시오.",
     "add_ln_wallet_first": "먼저 라이트닝 월렛을 추가해야합니다.",
     "identity_pubkey": "아이덴티티 퍼브키",
     "xpub_title": "지갑 XPUB"
