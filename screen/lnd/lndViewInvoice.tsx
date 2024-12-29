@@ -79,8 +79,6 @@ const LNDViewInvoice = () => {
             headerRight: () => (
               <TouchableOpacity
                 accessibilityRole="button"
-                // @ts-ignore - button is not suppprted .
-                style={styles.button}
                 onPress={() => {
                   // @ts-ignore: navigation
                   navigation?.getParent().pop();
