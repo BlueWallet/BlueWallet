@@ -110,8 +110,10 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
-  const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+  const balance = useMemo(() => {
+    return utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
+  }, [utxos, wallet]);
+  const allBalance = useMemo(() => formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true), [balance]);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
