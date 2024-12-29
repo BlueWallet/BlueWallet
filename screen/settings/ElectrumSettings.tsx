@@ -22,20 +22,24 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Divider } from '@rneui/themed';
 import { Header } from '../../components/Header';
 import AddressInput from '../../components/AddressInput';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { Action } from '../../components/types';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
+import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
 export interface ElectrumServerItem {
   host: string;
-  port?: number;
-  sslPort?: number;
+  tcp?: number;
+  ssl?: number;
 }
+
+const SET_PREFERRED_PREFIX = 'set_preferred_';
+const DELETE_PREFIX = 'delete_';
+const PREFERRED_SERVER_ROW = 'preferredserverrow';
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
@@ -79,35 +83,53 @@ const ElectrumSettings: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    let configInterval: NodeJS.Timeout | null = null;
-    const fetchData = async () => {
-      const savedHost = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_HOST);
-      const savedPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_TCP_PORT);
-      const savedSslPort = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SSL_PORT);
-      const serverHistoryStr = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+  const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
-      const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
+  const fetchData = React.useCallback(async () => {
+    console.log('Fetching data...');
+    const preferredServer = await BlueElectrum.getPreferredServer();
+    const savedHost = preferredServer?.host;
+    const savedPort = preferredServer?.tcp;
+    const savedSslPort = preferredServer?.ssl;
+    const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
 
-      setHost(savedHost || '');
-      setPort(savedPort ? Number(savedPort) : undefined);
-      setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
-      setServerHistory(parsedServerHistory);
+    console.log('Preferred server:', preferredServer);
+    console.log('Server history string:', serverHistoryStr);
 
+    const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
+    const filteredServerHistory = parsedServerHistory.filter(
+      v =>
+        v.host &&
+        (v.tcp || v.ssl) &&
+        !suggestedServers.some(suggested => suggested.host === v.host && suggested.tcp === v.tcp && suggested.ssl === v.ssl) &&
+        !hardcodedPeers.some(peer => peer.host === v.host),
+    );
+
+    console.log('Filtered server history:', filteredServerHistory);
+
+    setHost(savedHost || '');
+    setPort(savedPort ? Number(savedPort) : undefined);
+    setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
+    setServerHistory(filteredServerHistory);
+
+    setConfig(await BlueElectrum.getConfig());
+    configIntervalRef.current = setInterval(async () => {
       setConfig(await BlueElectrum.getConfig());
-      configInterval = setInterval(async () => {
-        setConfig(await BlueElectrum.getConfig());
-      }, 500);
+    }, 500);
 
-      setIsLoading(false);
-    };
-
-    fetchData();
+    setIsLoading(false);
 
     return () => {
-      if (configInterval) clearInterval(configInterval);
+      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    return () => {
+      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
+    };
+  }, [fetchData]);
 
   useEffect(() => {
     if (server) {
@@ -132,56 +154,60 @@ const ElectrumSettings: React.FC = () => {
 
   const clearHistory = useCallback(async () => {
     setIsLoading(true);
-    await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify([]));
+    await DefaultPreference.clear(BlueElectrum.ELECTRUM_SERVER_HISTORY);
     setServerHistory([]);
     setIsLoading(false);
   }, []);
 
   const serverExists = useCallback(
     (value: ElectrumServerItem) => {
-      return serverHistory.some(s => `${s.host}:${s.port}:${s.sslPort}` === `${value.host}:${value.port}:${value.sslPort}`);
+      return serverHistory.some(s => `${s.host}:${s.tcp}:${s.ssl}` === `${value.host}:${value.tcp}:${value.ssl}`);
     },
     [serverHistory],
   );
 
-  const save = useCallback(async () => {
-    Keyboard.dismiss();
-    setIsLoading(true);
+  const save = useCallback(
+    async (v?: ElectrumServerItem) => {
+      Keyboard.dismiss();
+      setIsLoading(true);
 
-    try {
-      if (!host && !port && !sslPort) {
-        await AsyncStorage.removeItem(BlueElectrum.ELECTRUM_HOST);
-        await AsyncStorage.removeItem(BlueElectrum.ELECTRUM_TCP_PORT);
-        await AsyncStorage.removeItem(BlueElectrum.ELECTRUM_SSL_PORT);
-        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-        await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
-        await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-        await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
-      } else {
-        await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, host);
-        await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, port?.toString() || '');
-        await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SSL_PORT, sslPort?.toString() || '');
-        if (!serverExists({ host, port, sslPort })) {
-          const newServerHistory = [...serverHistory, { host, port, sslPort }];
-          await AsyncStorage.setItem(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(newServerHistory));
-          setServerHistory(newServerHistory);
+      try {
+        const serverHost = v?.host || host;
+        const serverPort = v?.tcp || port?.toString() || '';
+        const serverSslPort = v?.ssl || sslPort?.toString() || '';
+
+        if (serverHost && (serverPort || serverSslPort)) {
+          await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+          await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
+          await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
+          await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
+
+          if (
+            !serverExists({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) }) &&
+            serverHost &&
+            (serverPort || serverSslPort) &&
+            !hardcodedPeers.some(peer => peer.host === serverHost)
+          ) {
+            const newServerHistory = [...serverHistory, { host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) }];
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(newServerHistory));
+            setServerHistory(newServerHistory);
+          }
         }
-        await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-        await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
-        await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port?.toString() || '');
-        await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort?.toString() || '');
+
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        presentAlert({ message: loc.settings.electrum_saved });
+      } catch (error) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: (error as Error).message });
+      } finally {
+        setIsLoading(false);
       }
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      presentAlert({ message: loc.settings.electrum_saved });
-    } catch (error) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (error as Error).message });
-    }
-    setIsLoading(false);
-  }, [host, port, sslPort, serverExists, serverHistory]);
+    },
+    [host, port, sslPort, serverExists, serverHistory],
+  );
 
   const resetToDefault = useCallback(() => {
-    Alert.alert(loc.settings.electrum_reset, loc.settings.electrum_reset_to_default, [
+    Alert.alert(loc.settings.electrum_preferred_server, loc.settings.electrum_preferred_server_description, [
       {
         text: loc._.cancel,
         onPress: () => console.log('Cancel Pressed'),
@@ -191,22 +217,22 @@ const ElectrumSettings: React.FC = () => {
         text: loc._.ok,
         style: 'destructive',
         onPress: async () => {
+          await BlueElectrum.removePreferredServer();
           setHost('');
           setPort(undefined);
           setSslPort(undefined);
-          await save();
         },
       },
     ]);
-  }, [save]);
+  }, []);
 
   const selectServer = useCallback(
     (value: string) => {
       const parsedServer = JSON.parse(value) as ElectrumServerItem;
       setHost(parsedServer.host);
-      setPort(parsedServer.port);
-      setSslPort(parsedServer.sslPort);
-      save();
+      setPort(parsedServer.tcp);
+      setSslPort(parsedServer.ssl);
+      save(parsedServer);
     },
     [save],
   );
@@ -215,55 +241,139 @@ const ElectrumSettings: React.FC = () => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
     Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
       { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-      { text: loc.settings.electrum_clear_alert_ok, onPress: () => clearHistory() },
+      { text: loc._.ok, onPress: () => clearHistory() },
     ]);
   }, [clearHistory]);
 
   const onPressMenuItem = useCallback(
     (id: string) => {
-      switch (id) {
-        case CommonToolTipActions.ResetToDefault.id:
-          resetToDefault();
-          break;
-        case CommonToolTipActions.ClearHistory.id:
-          clearHistoryAlert();
-          break;
-        default:
-          try {
-            selectServer(id);
-          } catch (error) {
-            console.warn('Unknown menu item selected:', id);
+      if (id.startsWith(SET_PREFERRED_PREFIX)) {
+        const rawServer = JSON.parse(id.replace(SET_PREFERRED_PREFIX, ''));
+        selectServer(JSON.stringify(rawServer));
+      } else if (id.startsWith(DELETE_PREFIX)) {
+        const rawServer = JSON.parse(id.replace(DELETE_PREFIX, ''));
+        const newServerHistory = serverHistory
+          .filter(s => !(s.host === rawServer.host && s.tcp === rawServer.tcp && s.ssl === rawServer.ssl))
+          .filter(
+            v => !suggestedServers.some(suggested => suggested.host === v.host && suggested.tcp === v.tcp && suggested.ssl === v.ssl),
+          );
+        setServerHistory(newServerHistory);
+        DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(newServerHistory));
+      } else if (id === PREFERRED_SERVER_ROW) {
+        presentResetToDefaultsAlert().then(async result => {
+          if (result) {
+            await BlueElectrum.removePreferredServer();
+            fetchData();
           }
-          break;
+        });
+      } else {
+        switch (id) {
+          case CommonToolTipActions.ResetToDefault.id:
+            resetToDefault();
+            break;
+          case CommonToolTipActions.ClearHistory.id:
+            clearHistoryAlert();
+            break;
+          default:
+            try {
+              selectServer(id);
+            } catch (error) {
+              console.warn('Unknown menu item selected:', id);
+            }
+            break;
+        }
       }
     },
-    [clearHistoryAlert, resetToDefault, selectServer],
+    [selectServer, serverHistory, fetchData, resetToDefault, clearHistoryAlert],
   );
 
-  const toolTipActions = useMemo(() => {
-    const actions: Action[] = [CommonToolTipActions.ResetToDefault];
+  const createServerAction = useCallback(
+    (value: ElectrumServerItem, seenHosts: Set<string>) => {
+      const hostKey = `${value.host}:${value.ssl ?? value.tcp}`;
+      if (seenHosts.has(hostKey)) return null;
 
-    if (serverHistory.length > 0) {
-      const serverSubactions: Action[] = serverHistory.map(value => ({
+      seenHosts.add(hostKey);
+      return {
         id: JSON.stringify(value),
-        text: `${value.host}`,
-        subtitle: `${value.port || value.sslPort}`,
-        menuState: `${host}:${port}:${sslPort}` === `${value.host}:${value.port}:${value.sslPort}`,
-        disabled: isLoading || (host === value.host && (port === value.port || sslPort === value.sslPort)),
-      }));
+        text: Platform.OS === 'android' ? `${value.host}:${value.ssl ?? value.tcp}` : value.host,
+        subactions: [
+          ...(host === value.host && (port === value.tcp || sslPort === value.ssl)
+            ? []
+            : [
+                {
+                  id: `${SET_PREFERRED_PREFIX}${JSON.stringify(value)}`,
+                  text: loc.settings.set_as_preferred,
+                  subtitle: `${loc._.port}: ${value.ssl ?? value.tcp}`,
+                },
+              ]),
+          ...(hardcodedPeers.some(peer => peer.host === value.host)
+            ? []
+            : [
+                {
+                  id: `${DELETE_PREFIX}${JSON.stringify(value)}`,
+                  text: loc.wallets.details_delete,
+                },
+              ]),
+        ],
+      } as Action;
+    },
+    [host, port, sslPort],
+  );
+
+  const generateToolTipActions = useCallback(() => {
+    const actions: Action[] = [];
+    const seenHosts = new Set<string>();
+
+    if (host) {
+      const preferred = {
+        id: 'preferred',
+        hidden: false,
+        displayInline: true,
+        text: loc.settings.electrum_preferred_server,
+        subactions: [
+          {
+            id: PREFERRED_SERVER_ROW,
+            text: Platform.OS === 'android' ? `${host} (${sslPort ?? port})` : host,
+            subtitle: `${loc._.port}: ${sslPort ?? port}`,
+            menuState: true,
+          },
+        ],
+      };
+      actions.push(preferred);
+      seenHosts.add(`${host}:${sslPort ?? port}`);
+    }
+
+    const suggestedServersAction: Action = {
+      id: 'suggested_servers',
+      text: loc._.suggested,
+      displayInline: true,
+      subtitle: loc.settings.electrum_suggested_description,
+      subactions: suggestedServers.map(value => createServerAction(value, seenHosts)).filter((action): action is Action => action !== null),
+    };
+
+    actions.push(suggestedServersAction);
+
+    console.warn('serverHistory', serverHistory);
+    if (serverHistory.length > 0) {
+      const serverSubactions: Action[] = serverHistory
+        .map(value => createServerAction(value, seenHosts))
+        .filter((action): action is Action => action !== null);
 
       actions.push({
         id: 'server_history',
         text: loc.settings.electrum_history,
+        displayInline: serverHistory.length <= 5 && serverHistory.length > 0,
         subactions: [CommonToolTipActions.ClearHistory, ...serverSubactions],
+        hidden: serverHistory.length === 0,
       });
     }
+
     return actions;
-  }, [host, isLoading, port, serverHistory, sslPort]);
+  }, [createServerAction, host, port, serverHistory, sslPort]);
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
-    [onPressMenuItem, toolTipActions],
+    () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
+    [onPressMenuItem, generateToolTipActions],
   );
 
   useEffect(() => {
@@ -330,6 +440,8 @@ const ElectrumSettings: React.FC = () => {
       presentAlert({ message: (error as Error).message });
     }
   };
+
+  const preferredServerIsEmpty = !host || (!port && !sslPort);
 
   const renderElectrumSettings = () => {
     return (
@@ -411,13 +523,19 @@ const ElectrumSettings: React.FC = () => {
               testID="SSLPortInput"
               value={sslPort !== undefined}
               onValueChange={onSSLPortChange}
-              disabled={host?.endsWith('.onion') ?? false}
+              disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}
             />
           </View>
         </BlueCard>
         <BlueCard>
           <BlueSpacing20 />
-          <Button showActivityIndicator={isLoading} disabled={isLoading} testID="Save" onPress={save} title={loc.settings.save} />
+          <Button
+            showActivityIndicator={isLoading}
+            disabled={isLoading || preferredServerIsEmpty}
+            testID="Save"
+            onPress={save}
+            title={loc.settings.save}
+          />
         </BlueCard>
 
         {Platform.select({

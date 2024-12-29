@@ -55,6 +55,14 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
         image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
         state: subaction.menuState === undefined ? undefined : ((subaction.menuState ? 'on' : 'off') as MenuState),
         attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
+        subactions: subaction.subactions?.map(subsubaction => ({
+          id: subsubaction.id.toString(),
+          title: subsubaction.text,
+          subtitle: subsubaction.subtitle,
+          image: subsubaction.icon?.iconValue ? subsubaction.icon.iconValue : undefined,
+          state: subsubaction.menuState === undefined ? undefined : ((subsubaction.menuState ? 'on' : 'off') as MenuState),
+          attributes: { disabled: subsubaction.disabled, destructive: subsubaction.destructive, hidden: subsubaction.hidden },
+        })),
       })) || [];
 
     return {

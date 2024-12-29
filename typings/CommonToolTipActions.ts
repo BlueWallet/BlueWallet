@@ -313,7 +313,9 @@ export const CommonToolTipActions = {
   },
   ResetToDefault: {
     id: keys.ResetToDefault,
-    text: loc.settings.electrum_reset,
+    text: loc.settings.only_use_preferred,
+    hidden: true,
+    menuState: true,
   },
   ClearHistory: {
     id: keys.ClearHistory,
