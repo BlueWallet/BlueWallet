@@ -321,6 +321,7 @@ export const CommonToolTipActions = {
     id: keys.ClearHistory,
     text: loc.settings.electrum_clear,
     icon: icons.ClearHistory,
+    destructive: true,
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,
