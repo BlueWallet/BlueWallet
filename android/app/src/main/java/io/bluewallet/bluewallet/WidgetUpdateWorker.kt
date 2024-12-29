@@ -1,5 +1,6 @@
 package io.bluewallet.bluewallet
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
