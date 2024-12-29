@@ -347,7 +347,6 @@
     "select_wallet": "Alege portofel",
     "xpub_copiedToClipboard": "Copiat în clipboard.",
     "pull_to_refresh": "Trage pentru a reîncărca",
-    "warning_do_not_disclose": "Atenție! Nu dezvălui.",
     "add_ln_wallet_first": " Trebuie mai întîi să adaugi un portofel Lightning.",
     "identity_pubkey": "Pubkey identitate",
     "xpub_title": "XPUB-ul portofelului"
