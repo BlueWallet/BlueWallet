@@ -184,7 +184,6 @@ const ElectrumSettings: React.FC = () => {
 
           if (
             !serverExists({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) }) &&
-            serverHost &&
             (serverPort || serverSslPort) &&
             !hardcodedPeers.some(peer => peer.host === serverHost)
           ) {
