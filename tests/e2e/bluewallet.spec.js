@@ -93,6 +93,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await sup('OK');
     await element(by.text('OK')).tap();
     await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Preferred Server')).tap();
     await element(by.text('electrum.blockstream.info')).tap();
     await sup('OK');
     await element(by.text('OK')).tap();
