@@ -368,7 +368,6 @@
     "select_wallet": "Velg Lommebok",
     "xpub_copiedToClipboard": "Kopiert til utklippstavlen.",
     "pull_to_refresh": "Dra for å oppdatere",
-    "warning_do_not_disclose": "Advarsel! Ikke avslør.",
     "add_ln_wallet_first": "Du må først legge til en Lightning-lommebok.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB"

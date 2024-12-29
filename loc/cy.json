@@ -187,8 +187,7 @@
     "list_tryagain": "Trio eto",
     "select_wallet": "Dewis waled",
     "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd.",
-    "pull_to_refresh": "Tynnu i Adnewyddu",
-    "warning_do_not_disclose": "Rhybudd! Paid ei ddatgelu."
+    "pull_to_refresh": "Tynnu i Adnewyddu"
   },
   "total_balance_view": {
     "title": "Balans Llawn"
