@@ -67,17 +67,11 @@ type MempoolTransaction = {
   fee: number;
 };
 
-type Peer =
-  | {
-      host: string;
-      ssl: number;
-      tcp?: undefined;
-    }
-  | {
-      host: string;
-      tcp: number;
-      ssl?: undefined;
-    };
+type Peer = {
+  host: string;
+  ssl?: number;
+  tcp?: number;
+};
 
 export const ELECTRUM_HOST = 'electrum_host';
 export const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
