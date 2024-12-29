@@ -64,6 +64,7 @@ interface IPaymentDestinations {
   amountSats?: number | string;
   amount?: string | number | 'MAX';
   key: string; // random id to look up this record
+  unit?: BitcoinUnit;
 }
 
 interface IFee {
@@ -101,7 +102,6 @@ const SendDetails = () => {
   const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
-  const [units, setUnits] = useState<BitcoinUnit[]>([]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
@@ -144,9 +144,9 @@ const SendDetails = () => {
       try {
         const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
 
-        setUnits(u => {
-          u[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
-          return [...u];
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
+          return [...addrs];
         });
 
         setAddresses(addrs => {
@@ -178,14 +178,11 @@ const SendDetails = () => {
         if (currentAddress && currentAddress.address && routeParams.address) {
           currentAddress.address = routeParams.address;
           value[scrollIndex.current] = currentAddress;
+          value[scrollIndex.current].unit = unit;
           return [...value];
         } else {
           return [...value, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
         }
-      });
-      setUnits(u => {
-        u[scrollIndex.current] = unit;
-        return [...u];
       });
     } else if (routeParams.addRecipientParams) {
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
@@ -451,9 +448,9 @@ const SendDetails = () => {
         addrs[scrollIndex.current].amountSats = new BigNumber(options?.amount ?? 0).multipliedBy(100000000).toNumber();
         return [...addrs];
       });
-      setUnits(u => {
-        u[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
-        return [...u];
+      setAddresses(addrs => {
+        addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
+        return [...addrs];
       });
       setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
@@ -971,7 +968,10 @@ const SendDetails = () => {
 
     const recipientActions: Action[] = [
       CommonToolTipActions.AddRecipient,
-      CommonToolTipActions.RemoveRecipient,
+      {
+        ...CommonToolTipActions.RemoveRecipient,
+        hidden: addresses.length <= 1,
+      },
       {
         ...CommonToolTipActions.RemoveAllRecipients,
         hidden: !(addresses.length > 1),
@@ -1073,9 +1073,9 @@ const SendDetails = () => {
           addrs[scrollIndex.current].amountSats = BitcoinUnit.MAX;
           return [...addrs];
         });
-        setUnits(u => {
-          u[scrollIndex.current] = BitcoinUnit.BTC;
-          return [...u];
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
+          return [...addrs];
         });
       }
     });
@@ -1206,15 +1206,15 @@ const SendDetails = () => {
               addrs[index] = addr;
               return [...addrs];
             });
-            setUnits(u => {
-              u[index] = unit;
-              return [...u];
+            setAddresses(addrs => {
+              addrs[index].unit = unit;
+              return [...addrs];
             });
           }}
           onChangeText={(text: string) => {
             setAddresses(addrs => {
               item.amount = text;
-              switch (units[index] || amountUnit) {
+              switch (item.unit || amountUnit) {
                 case BitcoinUnit.BTC:
                   item.amountSats = btcToSatoshi(item.amount);
                   break;
@@ -1230,7 +1230,7 @@ const SendDetails = () => {
               return [...addrs];
             });
           }}
-          unit={units[index] || amountUnit}
+          unit={item.unit || amountUnit}
           editable={isEditable}
           disabled={!isEditable}
           inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
@@ -1341,7 +1341,7 @@ const SendDetails = () => {
           feeRate={feeRate}
           setCustomFee={setCustomFee}
           setFeePrecalc={setFeePrecalc}
-          feeUnit={units[scrollIndex.current]}
+          feeUnit={addresses[scrollIndex.current]?.unit ?? BitcoinUnit.BTC}
         />
       </View>
       <DismissKeyboardInputAccessory />
