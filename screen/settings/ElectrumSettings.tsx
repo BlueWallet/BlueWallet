@@ -220,6 +220,7 @@ const ElectrumSettings: React.FC = () => {
           setHost('');
           setPort(undefined);
           setSslPort(undefined);
+          presentAlert({ message: loc.settings.electrum_saved });
         },
       },
     ]);
@@ -262,6 +263,7 @@ const ElectrumSettings: React.FC = () => {
         presentResetToDefaultsAlert().then(async result => {
           if (result) {
             await BlueElectrum.removePreferredServer();
+            presentAlert({ message: loc.settings.electrum_saved });
             fetchData();
           }
         });
