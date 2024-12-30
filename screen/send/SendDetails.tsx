@@ -64,7 +64,7 @@ interface IPaymentDestinations {
   amountSats?: number | string;
   amount?: string | number | 'MAX';
   key: string; // random id to look up this record
-  unit?: BitcoinUnit;
+  unit: BitcoinUnit;
 }
 
 interface IFee {
@@ -101,7 +101,9 @@ const SendDetails = () => {
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
-  const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
+  const [addresses, setAddresses] = useState<IPaymentDestinations[]>([
+    { address: '', key: String(Math.random()), unit: amountUnit } as IPaymentDestinations,
+  ]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
