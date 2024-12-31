@@ -1,6 +1,7 @@
 import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
 export type SendDetailsParams = {
   transactionMemo?: string;
@@ -12,6 +13,7 @@ export type SendDetailsParams = {
   address?: string;
   amount?: number;
   amountSats?: number;
+  onBarScanned?: string;
   unit?: BitcoinUnit;
   noRbf?: boolean;
   walletID: string;
@@ -84,4 +86,5 @@ export type SendDetailsStackParamList = {
   PaymentCodeList: {
     walletID: string;
   };
+  ScanQRCode: ScanQRCodeParamList;
 };
