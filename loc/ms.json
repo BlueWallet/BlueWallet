@@ -339,7 +339,6 @@
     "select_wallet": "Pilih Dompet",
     "xpub_copiedToClipboard": "Disalin ke papan sepit.",
     "pull_to_refresh": "Tarik untuk Segar Semula",
-    "warning_do_not_disclose": "Amaran! Jangan dedahkan.",
     "add_ln_wallet_first": "Anda perlu menambah dompet Lightning terlebih dahulu.",
     "identity_pubkey": "Kunci Umum Keperibadian",
     "xpub_title": "Dompet XPUB"

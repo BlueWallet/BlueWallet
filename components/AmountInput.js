@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Badge, Icon, Text } from '@rneui/themed';
 
 import {
@@ -254,7 +254,7 @@ class AmountInput extends Component {
     });
 
     return (
-      <TouchableWithoutFeedback
+      <Pressable
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
         disabled={this.props.pointerEvents === 'none'}
@@ -340,7 +340,7 @@ class AmountInput extends Component {
             </View>
           )}
         </>
-      </TouchableWithoutFeedback>
+      </Pressable>
     );
   }
 }

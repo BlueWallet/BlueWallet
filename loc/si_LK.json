@@ -364,7 +364,6 @@
     "select_wallet": "පසුම්බිය තෝරන්න",
     "xpub_copiedToClipboard": "පසුරු පුවරුවට පිටපත් කර ඇත.",
     "pull_to_refresh": "නැවුම් කිරීමට අදින්න",
-    "warning_do_not_disclose": "අනතුරු ඇඟවීම! හෙළි නොකරන්න.",
     "add_ln_wallet_first": "ඔබ මුලින්ම ලයිට්නින් පසුම්බියක් එකතු කළ යුතුයි.",
     "identity_pubkey": "අනන්‍යතා Pubkey",
     "xpub_title": "XPUB පසුම්බිය"

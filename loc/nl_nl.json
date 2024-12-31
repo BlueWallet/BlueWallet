@@ -369,7 +369,6 @@
     "select_wallet": "Selecteer wallet",
     "xpub_copiedToClipboard": "Gekopieerd naar het klembord.",
     "pull_to_refresh": "Pull om te refreshen.",
-    "warning_do_not_disclose": "Waarschuwing! Niet bekendmaken",
     "add_ln_wallet_first": "U moet eerst een Lightning-wallet toevoegen.",
     "identity_pubkey": "Identiteit PubKey",
     "xpub_title": "Wallet XPUB"

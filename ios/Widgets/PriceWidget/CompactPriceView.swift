@@ -16,6 +16,7 @@ struct CompactPriceView: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(.large ... .accessibility5)
+                .foregroundColor(textColor())
                 .accessibilityLabel("Bitcoin price: \(price)")
 
             VStack(alignment: .center, spacing: 8) {
@@ -27,7 +28,7 @@ struct CompactPriceView: View {
                     .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
             }
             .font(.subheadline)
-            .foregroundColor(.secondary)
+            .foregroundColor(textColor())
             .multilineTextAlignment(.center)
             .accessibilityElement(children: .combine)
         }
@@ -35,8 +36,12 @@ struct CompactPriceView: View {
         .frame(maxWidth: .infinity)
     }
 
+    private func textColor() -> Color {
+        colorScheme == .dark ? .white : .black
+    }
+
     private func shadowColor() -> Color {
-        colorScheme == .dark ? .white.opacity(0.2) : .black.opacity(0.2)
+        textColor().opacity(0.2)
     }
 }
 
@@ -45,7 +50,6 @@ struct CompactPriceView: View {
 struct CompactPriceView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            // Example vibrant background
             LinearGradient(
                 gradient: Gradient(colors: [.blue, .purple]),
                 startPoint: .top,
