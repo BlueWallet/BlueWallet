@@ -11,6 +11,7 @@ import { ScanQRCodeParamList } from './DetailViewStackParamList';
 export type ViewEditMultisigCosignersStackParamList = {
   ViewEditMultisigCosigners: {
     walletID: string;
+    onBarScanned?: string;
   };
   ScanQRCode: ScanQRCodeParamList;
 };
