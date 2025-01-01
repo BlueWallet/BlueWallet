@@ -104,7 +104,7 @@ const Broadcast: React.FC = () => {
   };
 
   const handleQRScan = () => {
-    navigate('ScanQRCode')
+    navigate('ScanQRCode');
   };
 
   let status;

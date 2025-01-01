@@ -51,7 +51,7 @@ const ScanLndInvoiceRoot = () => {
           gestureEnabled: false,
         })(theme)}
       />
-            <Stack.Screen
+      <Stack.Screen
         name="ScanQRCode"
         component={ScanQRCodeComponent}
         options={navigationStyle({

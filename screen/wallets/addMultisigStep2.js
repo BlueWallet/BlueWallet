@@ -481,9 +481,9 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   useEffect(() => {
-    const data = params.onBarScanned;
-    if (data) {
-      onBarScanned(data);
+    const scannedData = params.onBarScanned;
+    if (scannedData) {
+      onBarScanned(scannedData);
       setParams({ onBarScanned: undefined });
     }
   }, [onBarScanned, params.onBarScanned, setParams]);

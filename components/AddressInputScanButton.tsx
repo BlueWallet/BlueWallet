@@ -10,7 +10,6 @@ import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useRoute } from '@react-navigation/native';
-import { navigate } from '../NavigationService';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 interface AddressInputScanButtonProps {
@@ -35,8 +34,7 @@ export const AddressInputScanButton = ({
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
 
-  
-  const { setParams } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const params = useRoute().params as RouteParams;
   const stylesHook = StyleSheet.create({
     scan: {
@@ -50,10 +48,10 @@ export const AddressInputScanButton = ({
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
     Keyboard.dismiss();
-    if (launchedBy) {
-      navigate('ScanQRCode');
-    }
-  }, [launchedBy, scanButtonTapped]);
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
+  }, [navigation, scanButtonTapped]);
 
   const actions = useMemo(() => {
     const availableActions = [
@@ -73,7 +71,7 @@ export const AddressInputScanButton = ({
     const data = params.onBarScanned;
     if (data) {
       onBarScanned({ data });
-      setParams({ onBarScanned: undefined });
+      navigation.setParams({ onBarScanned: undefined });
     }
   });
 
@@ -83,7 +81,9 @@ export const AddressInputScanButton = ({
       switch (action) {
         case CommonToolTipActions.ScanQR.id:
           scanButtonTapped();
-          navigate('ScanQRCode');
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
           break;
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
@@ -147,7 +147,7 @@ export const AddressInputScanButton = ({
       }
       Keyboard.dismiss();
     },
-    [onBarScanned, onChangeText, scanButtonTapped],
+    [navigation, onBarScanned, onChangeText, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);

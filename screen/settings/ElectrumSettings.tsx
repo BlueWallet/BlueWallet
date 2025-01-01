@@ -39,7 +39,7 @@ export interface ElectrumServerItem {
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
- const params = useRoute<RouteProps>().params;
+  const params = useRoute<RouteProps>().params;
   const { server } = params;
   const { setOptions, setParams } = useExtendedNavigation();
   const [isLoading, setIsLoading] = useState(true);
@@ -307,12 +307,12 @@ const ElectrumSettings: React.FC = () => {
   };
 
   useEffect(() => {
-    const data = params.onBarScanned
+    const data = params.onBarScanned;
     if (data) {
-      onBarScanned(data)
-      setParams({ onBarScanned: undefined })
+      onBarScanned(data);
+      setParams({ onBarScanned: undefined });
     }
-  }, [params.onBarScanned, setParams])
+  }, [params.onBarScanned, setParams]);
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();

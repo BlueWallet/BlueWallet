@@ -89,14 +89,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     (ret?: { data?: any }) => {
       if (!isLoading) {
         setIsLoading(true);
-        const params = {
+        const parameters = {
           walletID,
           uri: ret?.data ? ret.data : ret,
         };
         if (wallet?.chain === Chain.ONCHAIN) {
-          navigate('SendDetailsRoot', { screen: 'SendDetails', params });
+          navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
         } else {
-          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
+          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: parameters });
         }
         setIsLoading(false);
       }

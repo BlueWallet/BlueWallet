@@ -34,7 +34,7 @@ export type DetailViewStackParamList = {
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: { onBarScanned?: string };
-  IsItMyAddress: { address?: string, onBarScanned?: string };
+  IsItMyAddress: { address?: string; onBarScanned?: string };
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {
@@ -71,7 +71,7 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   DefaultView: undefined;
-  ElectrumSettings: { server?: ElectrumServerItem, onBarScanned?: string };
+  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
   EncryptStorage: undefined;
   Language: undefined;
