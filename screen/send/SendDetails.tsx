@@ -826,6 +826,42 @@ const SendDetails = () => {
     [_importTransactionMultisig],
   );
 
+  const handlePsbtSign = async (psbtBase64: string) => {
+    let tx;
+    let psbt;
+    try {
+      psbt = bitcoin.Psbt.fromBase64(psbtBase64);
+      tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
+    } catch (e: any) {
+      presentAlert({ title: loc.errors.error, message: e.message });
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+
+    if (!tx || !wallet) return setIsLoading(false);
+
+    // we need to remove change address from recipients, so that Confirm screen show more accurate info
+    const changeAddresses: string[] = [];
+    // @ts-ignore hacky
+    for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+      // @ts-ignore hacky
+      changeAddresses.push(wallet._getInternalAddressByIndex(c));
+    }
+    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
+
+    navigation.navigate('CreateTransaction', {
+      fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
+      feeSatoshi: psbt.getFee(),
+      wallet,
+      tx: tx.toHex(),
+      recipients,
+      satoshiPerByte: psbt.getFeeRate(),
+      showAnimatedQr: true,
+      psbt,
+    });
+  };
+
   useEffect(() => {
     const data = routeParams.onBarScanned;
     if (data) {
@@ -837,6 +873,11 @@ const SendDetails = () => {
         ) {
           if (selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR) {
             importQrTransactionOnBarScanned(data);
+          } else if (
+            selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
+            selectedDataProcessor.current === CommonToolTipActions.SignPSBT
+          ) {
+            handlePsbtSign(data);
           } else {
             onBarScanned(data);
           }
