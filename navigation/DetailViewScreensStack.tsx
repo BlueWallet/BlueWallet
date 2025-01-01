@@ -65,6 +65,7 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import ScanQRCode from '../screen/send/ScanQRCode';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -371,7 +372,7 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewStack.Screen
         name="ScanQRCode"
-        component={ScanQRCode}
+        component={ScanQRCodeComponent}
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,

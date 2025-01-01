@@ -10,6 +10,7 @@ import {
   LNDViewInvoiceComponent,
   SelectWalletComponent,
 } from './LazyLoadLNDCreateInvoiceStack';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +54,16 @@ const LNDCreateInvoiceRoot = () => {
         name="LNDViewAdditionalInvoicePreImage"
         component={LNDViewAdditionalInvoicePreImageComponent}
         options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
+      />
+      <Stack.Screen
+        name="ScanQRCode"
+        component={ScanQRCodeComponent}
+        options={navigationStyle({
+          headerShown: false,
+          statusBarHidden: true,
+          presentation: 'fullScreenModal',
+          headerShadowVisible: false,
+        })(theme)}
       />
     </Stack.Navigator>
   );

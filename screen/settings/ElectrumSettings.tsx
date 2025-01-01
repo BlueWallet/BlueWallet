@@ -6,7 +6,6 @@ import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComp
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import {
   DoneAndDismissKeyboardInputAccessory,
@@ -28,6 +27,7 @@ import { Action } from '../../components/types';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
+import { navigate } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -39,8 +39,9 @@ export interface ElectrumServerItem {
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
-  const { server } = useRoute<RouteProps>().params;
-  const { setOptions } = useExtendedNavigation();
+ const params = useRoute<RouteProps>().params;
+  const { server } = params;
+  const { setOptions, setParams } = useExtendedNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<ElectrumServerItem[]>([]);
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
@@ -302,11 +303,16 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const importScan = async () => {
-    const scanned = await scanQrHelper('ElectrumSettings', true);
-    if (scanned) {
-      onBarScanned(scanned);
-    }
+    navigate('ScanQRCode');
   };
+
+  useEffect(() => {
+    const data = params.onBarScanned
+    if (data) {
+      onBarScanned(data)
+      setParams({ onBarScanned: undefined })
+    }
+  }, [params.onBarScanned, setParams])
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();

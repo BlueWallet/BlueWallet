@@ -106,7 +106,6 @@ const WalletsList: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
-  const routeName = route.name;
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
@@ -360,7 +359,9 @@ const WalletsList: React.FC = () => {
   };
 
   const onScanButtonPressed = useCallback(() => {
-    navigation.navigate('ScanQRCode')
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
   }, [navigation]);
 
   const pasteFromClipboard = useCallback(async () => {
@@ -396,7 +397,9 @@ const WalletsList: React.FC = () => {
             });
           break;
         case 2:
-          navigation.navigate('ScanQRCode');
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
           break;
         case 3:
           if (!isClipboardEmpty) {
