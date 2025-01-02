@@ -88,6 +88,12 @@ export type LightningTransaction = {
   expire_time?: number;
   ispaid?: boolean;
   walletID?: string;
+  value?: number;
+  amt?: number;
+  fee?: number;
+  payment_preimage?: string;
+  payment_request?: string;
+  description?: string;
 };
 
 export type Transaction = {
