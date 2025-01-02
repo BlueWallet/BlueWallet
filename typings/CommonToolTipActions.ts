@@ -103,6 +103,7 @@ const icons = {
 export type ToolTipAction = {
   id: string;
   text: string;
+  subtitle?: string;
   icon?: { iconValue: string };
   hidden?: boolean;
   menuState?: boolean;

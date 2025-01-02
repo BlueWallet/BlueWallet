@@ -44,7 +44,7 @@ const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
   const params = useRoute<RouteProps>().params;
   const { server } = params;
-  const { setOptions, setParams } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<ElectrumServerItem[]>([]);
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
@@ -378,10 +378,10 @@ const ElectrumSettings: React.FC = () => {
   );
 
   useEffect(() => {
-    setOptions({
+    navigation.setOptions({
       headerRight: isElectrumDisabled ? null : () => HeaderRight,
     });
-  }, [HeaderRight, isElectrumDisabled, setOptions]);
+  }, [HeaderRight, isElectrumDisabled, navigation]);
 
   const checkServer = async () => {
     setIsLoading(true);
@@ -413,16 +413,16 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const importScan = async () => {
-    navigate('ScanQRCode');
+    navigation.navigate('ScanQRCode');
   };
 
   useEffect(() => {
     const data = params.onBarScanned;
     if (data) {
       onBarScanned(data);
-      setParams({ onBarScanned: undefined });
+      navigation.setParams({ onBarScanned: undefined });
     }
-  }, [params.onBarScanned, setParams]);
+  }, [navigation, params.onBarScanned]);
 
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
