@@ -112,8 +112,6 @@ const save = useCallback(async () => {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     if (URI) {
       const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
-
-      // Validate the normalized URI
       await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
       await setLNDHub(normalizedURI);
