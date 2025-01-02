@@ -106,29 +106,30 @@ const LightningSettings: React.FC = () => {
 
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
-  const save = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      if (URI) {
-        const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
+const save = useCallback(async () => {
+  setIsLoading(true);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    if (URI) {
+      const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
 
-        await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
+      // Validate the normalized URI
+      await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
-        await setLNDHub(normalizedURI);
-      } else {
-        await clearLNDHub();
-      }
-
-      presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    } catch (error) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
-      console.log(error);
+      await setLNDHub(normalizedURI);
+    } else {
+      await clearLNDHub();
     }
-    setIsLoading(false);
-  }, [URI]);
+
+    presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+  } catch (error) {
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+    presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
+    console.log(error);
+  }
+  setIsLoading(false);
+}, [URI]);
 
   const importScan = () => {
     scanQrHelper(route.name).then(data => {
