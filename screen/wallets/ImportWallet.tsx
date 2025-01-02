@@ -11,7 +11,6 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -30,7 +29,6 @@ const ImportWallet = () => {
   const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
-  const scannedData = route?.params?.scannedData ?? '';
   const [importText, setImportText] = useState<string>(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState<boolean>(false);
   const [, setSpeedBackdoor] = useState<number>(0);
@@ -108,11 +106,18 @@ const ImportWallet = () => {
   );
 
   const importScan = useCallback(async () => {
-    const data = await scanQrHelper(route.name, true);
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    const data = route.params?.onBarScanned;
     if (data) {
       onBarScanned(data);
+      navigation.setParams({ onBarScanned: undefined });
     }
-  }, [route.name, onBarScanned]);
+  }, [route.name, onBarScanned, route.params?.onBarScanned, navigation]);
 
   const speedBackdoorTap = () => {
     setSpeedBackdoor(v => {
@@ -161,12 +166,6 @@ const ImportWallet = () => {
   useEffect(() => {
     if (triggerImport) handleImport();
   }, [triggerImport, handleImport]);
-
-  useEffect(() => {
-    if (scannedData) {
-      onBarScanned(scannedData);
-    }
-  }, [scannedData, onBarScanned]);
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {

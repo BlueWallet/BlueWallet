@@ -17,13 +17,15 @@ import {
   WalletsAddMultisigHelpComponent,
   WalletsAddMultisigStep2Component,
 } from './LazyLoadAddWalletStack';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
 export type AddWalletStackParamList = {
   AddWallet: undefined;
   ImportWallet?: {
     label?: string;
     triggerImport?: boolean;
-    scannedData?: string;
+    onBarScanned?: string;
   };
   ImportWalletDiscovery: {
     importText: string;
@@ -55,6 +57,7 @@ export type AddWalletStackParamList = {
     format: string;
   };
   WalletsAddMultisigHelp: undefined;
+  ScanQRCode: ScanQRCodeParamList;
 };
 
 const Stack = createNativeStackNavigator<AddWalletStackParamList>();
@@ -135,6 +138,16 @@ const AddWalletStack = () => {
           headerTintColor: '#FFFFFF',
           headerBackTitleVisible: false,
           statusBarStyle: 'light',
+          headerShadowVisible: false,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="ScanQRCode"
+        component={ScanQRCodeComponent}
+        options={navigationStyle({
+          headerShown: false,
+          statusBarHidden: true,
+          presentation: 'fullScreenModal',
           headerShadowVisible: false,
         })(theme)}
       />

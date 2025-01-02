@@ -1,4 +1,4 @@
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -26,7 +26,6 @@ import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -53,14 +52,15 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
-  const { walletID } = route.params;
-  const { name } = useRoute();
+  const { params, name } = useRoute<RouteProps>();
+  const { walletID } = params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
@@ -84,6 +84,33 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       setOptions(getWalletTransactionsOptions({ route }));
     }, [route, setOptions]),
   );
+
+  const onBarCodeRead = useCallback(
+    (ret?: { data?: any }) => {
+      if (!isLoading) {
+        setIsLoading(true);
+        const parameters = {
+          walletID,
+          uri: ret?.data ? ret.data : ret,
+        };
+        if (wallet?.chain === Chain.ONCHAIN) {
+          navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
+        } else {
+          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: parameters });
+        }
+        setIsLoading(false);
+      }
+    },
+    [isLoading, walletID, wallet?.chain, navigate],
+  );
+
+  useEffect(() => {
+    const data = route.params?.onBarScanned;
+    if (data) {
+      onBarCodeRead({ data });
+      navigation.setParams({ onBarScanned: undefined });
+    }
+  }, [navigation, onBarCodeRead, route.params]);
 
   const getTransactions = useCallback(
     (lmt = Infinity): Transaction[] => {
@@ -259,25 +286,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     <TransactionListItem item={item.item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />
   );
 
-  const onBarCodeRead = useCallback(
-    (ret?: { data?: any }) => {
-      if (!isLoading) {
-        setIsLoading(true);
-        const params = {
-          walletID,
-          uri: ret?.data ? ret.data : ret,
-        };
-        if (wallet?.chain === Chain.ONCHAIN) {
-          navigate('SendDetailsRoot', { screen: 'SendDetails', params });
-        } else {
-          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
-        }
-        setIsLoading(false);
-      }
-    },
-    [isLoading, walletID, wallet?.chain, navigate],
-  );
-
   const choosePhoto = () => {
     fs.showImagePickerAndReadImage()
       .then(data => {
@@ -351,10 +359,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             break;
           }
           case 2: {
-            const data = await scanQrHelper(name, true);
-            if (data) {
-              onBarCodeRead({ data });
-            }
+            navigate('ScanQRCode', {
+              showImportFileButton: true,
+            });
             break;
           }
           case 3:
