@@ -166,11 +166,12 @@ const ReceiveDetails = () => {
     }
   }, [showConfirmedBalance]);
 
+  const isBIP47Enabled = wallet?.isBIP47Enabled();
   const toolTipActions = useMemo(() => {
-    const action = CommonToolTipActions.PaymentsCode;
-    action.menuState = wallet?.isBIP47Enabled();
+    const action = { ...CommonToolTipActions.PaymentsCode };
+    action.menuState = isBIP47Enabled;
     return [action];
-  }, [wallet]);
+  }, [isBIP47Enabled]);
 
   const onPressMenuItem = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -203,10 +204,9 @@ const ReceiveDetails = () => {
 
   useEffect(() => {
     wallet?.allowBIP47() &&
-      wallet?.isBIP47Enabled() &&
       setOptions({
-        headerLeft: () => (wallet?.isBIP47Enabled() ? null : HeaderLeft),
-        headerRight: () => (wallet?.isBIP47Enabled() ? HeaderLeft : HeaderRight),
+        headerLeft: () => HeaderLeft,
+        headerRight: () => HeaderRight,
       });
   }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
