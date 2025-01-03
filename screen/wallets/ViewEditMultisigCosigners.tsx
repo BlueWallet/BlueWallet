@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CommonActions, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -38,7 +38,6 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { disallowScreenshot } from 'react-native-screen-capture';
@@ -48,6 +47,12 @@ import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
+import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { navigationRef } from '../../NavigationService';
+
+type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
+type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
@@ -55,10 +60,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, addListener } = useExtendedNavigation();
+  const { navigate, dispatch, addListener, setParams } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
-  const route = useRoute();
-  const { walletID } = route.params as { walletID: string };
+  const route = useRoute<RouteParams>();
+  const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
@@ -183,7 +188,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setIsSaveButtonDisabled(true);
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
-      navigate('WalletsList');
+      // dismiss this modal
+      navigationRef.dispatch(CommonActions.navigate({ name: 'WalletsList' }));
     }, 500);
   };
   useFocusEffect(
@@ -496,10 +502,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current?.dismiss();
-    const scanned = await scanQrHelper(route.name, true, undefined);
-    setImportText(String(scanned));
-    provideMnemonicsModalRef.current?.present();
+    navigate('ScanQRCode', { showFileImportButton: true });
   };
+
+  useEffect(() => {
+    const scannedData = route.params.onBarScanned;
+    if (scannedData) {
+      setImportText(String(scannedData));
+      setParams({ onBarScanned: undefined });
+      provideMnemonicsModalRef.current?.present();
+    }
+  }, [route.params.onBarScanned, setParams]);
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();

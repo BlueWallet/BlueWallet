@@ -11,6 +11,7 @@ import {
   SelectWalletComponent,
   SuccessComponent,
 } from './LazyLoadScanLndInvoiceStack';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,16 @@ const ScanLndInvoiceRoot = () => {
           title: '',
           headerBackVisible: false,
           gestureEnabled: false,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="ScanQRCode"
+        component={ScanQRCodeComponent}
+        options={navigationStyle({
+          headerShown: false,
+          statusBarHidden: true,
+          presentation: 'fullScreenModal',
+          headerShadowVisible: false,
         })(theme)}
       />
     </Stack.Navigator>
