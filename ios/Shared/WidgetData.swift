@@ -16,7 +16,6 @@ class WidgetData {
   static func savePriceRateAndLastUpdate(rate: String, lastUpdate: String) {
     guard let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue) else { return }
     userDefaults.setValue(["rate": rate, "lastUpdate": lastUpdate], forKey: WidgetDataStoreKey)
-    userDefaults.synchronize()
   }
   
 }

@@ -40,12 +40,6 @@ const CompanionDelegates = () => {
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
-  useWatchConnectivity();
-  useWidgetCommunication();
-  useMenuElements();
-  useDeviceQuickActions();
-  useHandoffListener();
-
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     try {
@@ -308,6 +302,12 @@ const CompanionDelegates = () => {
       subscriptions.appStateSubscription?.remove();
     };
   }, [addListeners]);
+
+  useWatchConnectivity();
+  useWidgetCommunication();
+  useMenuElements();
+  useDeviceQuickActions();
+  useHandoffListener();
 
   return null;
 };

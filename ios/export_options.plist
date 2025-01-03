@@ -22,12 +22,12 @@
           <string>match AppStore io.bluewallet.bluewallet</string>
           <key>io.bluewallet.bluewallet.watch</key>
           <string>match AppStore io.bluewallet.bluewallet.watch</string>
-          <key>io.bluewallet.bluewallet.watch.extension</key>
-          <string>match AppStore io.bluewallet.bluewallet.watch.extension</string>
           <key>io.bluewallet.bluewallet.Stickers</key>
           <string>match AppStore io.bluewallet.bluewallet.Stickers</string>
           <key>io.bluewallet.bluewallet.MarketWidget</key>
           <string>match AppStore io.bluewallet.bluewallet.MarketWidget</string>
+          <key>io.bluewallet.bluewallet.watch.Complications</key>
+          <string>match AppStore io.bluewallet.bluewallet.watch.Complications</string>
       </dict>
   </dict>
 </plist>

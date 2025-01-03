@@ -1,45 +1,56 @@
 import Foundation
 
 class Balance {
-    static func formatBalance(_ balance: Decimal, toUnit: BitcoinUnit, withFormatting: Bool = false, completion: @escaping (String) -> Void) {
-      switch toUnit {
-      case .sats:
-        if withFormatting {
-          completion(NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + " SATS")
-        } else {
-          completion("\(balance) SATS")
+    static func formatBalance(_ balance: Decimal, toUnit: BalanceUnit, withFormatting: Bool = false) -> String {
+        switch toUnit {
+        case .btc:
+            let value = balance / Decimal(100_000_000)
+            return "\(removeTrailingZeros(value))  \(toUnit.rawValue)" // Localize unit names as needed.
+        case .sats:
+            if withFormatting {
+                return NumberFormatter.localizedString(from: balance as NSNumber, number: .decimal) + "  \(toUnit.rawValue)"
+            } else {
+              return "\(balance) \(toUnit.rawValue)"
+            }
+        case .localCurrency:
+            return fetchLocalCurrencyEquivalent(satoshi: balance)
+        default:
+            let value = balance / Decimal(100_000_000)
+            return "\(removeTrailingZeros(value))  \(toUnit.rawValue)" // Localize unit names as needed.
         }
-      case .localCurrency:
-        fetchLocalCurrencyEquivalent(satoshi: balance, completion: completion)
-        
-      default:
-        let value = balance / Decimal(100_000_000)
-        completion("\(value) BTC") // Localize unit names as needed.
-      }
     }
 
-    private static func fetchLocalCurrencyEquivalent(satoshi: Decimal, completion: @escaping (String) -> Void) {
-      
+    private static func fetchLocalCurrencyEquivalent(satoshi: Decimal) -> String {
         let currency = Currency.getUserPreferredCurrency() // Ensure this method retrieves the correct currency code.
+        var result = "0 \(currency)"
         MarketAPI.fetchPrice(currency: currency) { dataStore, error in
             DispatchQueue.main.async {
                 guard let dataStore = dataStore, error == nil else {
-                    completion("Error: \(error?.localizedDescription ?? "Unknown error")")
+                    result = "Error: \(error?.localizedDescription ?? "Unknown error")"
                     return
                 }
                 let rate = Decimal(string: dataStore.rate) ?? Decimal(0)
                 let convertedAmount = (satoshi / Decimal(100_000_000)) * rate
-                completion("\(convertedAmount) \(currency)")
+                result = "\(convertedAmount) \(currency)"
             }
         }
+        return result
+    }
+
+    private static func removeTrailingZeros(_ value: Decimal) -> String {
+        var stringValue = "\(value)"
+        while stringValue.last == "0" || stringValue.last == "." {
+            stringValue.removeLast()
+        }
+        return stringValue
     }
 }
 
 extension Decimal {
-  func formatted(as unit: BitcoinUnit, withFormatting: Bool = false) -> String {
+  func formatted(as unit: BalanceUnit, withFormatting: Bool = false) -> String {
         switch unit {
         case .sats:
-            return withFormatting ? NumberFormatter.localizedString(from: self as NSNumber, number: .decimal) + " SATS" : "\(self) SATS"
+            return withFormatting ? NumberFormatter.localizedString(from: self as NSNumber, number: .decimal) + "  \(unit.rawValue)" : "\(self)  \(unit.rawValue)"
         case .localCurrency:
             let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
             if let widgetData = userDefaults?.object(forKey: MarketData.string) as? Data,
@@ -52,7 +63,7 @@ extension Decimal {
             }
         default:
             let value = self / Decimal(100_000_000)
-            return "\(value) BTC"
+            return "\(value) \(unit.rawValue)"
         }
     }
 }

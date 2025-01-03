@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,14 +11,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
-		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
 		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32C5C52596CE3A008C077C /* EventEmitter.m */; };
-		6D4AF15925D21172009DD853 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
-		6D4AF16D25D21192009DD853 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */; };
-		6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
-		6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		6DD4109D266CADF10087DE03 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6DD4109E266CADF10087DE03 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD410A0266CADF10087DE03 /* Widgets.swift */; };
@@ -40,99 +35,62 @@
 		6DD410BF266CB13D0087DE03 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */; };
 		6DD410C0266CB1460087DE03 /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9946622555A660000E52E8 /* MarketWidget.swift */; };
 		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
-		6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 6DFC806F24EA0B6C007B8700 /* EFQRCode */; };
-		6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
-		849047CA2702A32A008EE567 /* Handoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849047C92702A32A008EE567 /* Handoff.swift */; };
 		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
-		B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E32225841EC00428FCC /* Interface.storyboard */; };
-		B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		B40D4E3D225841ED00428FCC /* BlueWalletWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B40D4E44225841ED00428FCC /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E43225841ED00428FCC /* ExtensionDelegate.swift */; };
-		B40D4E46225841ED00428FCC /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E45225841ED00428FCC /* NotificationController.swift */; };
-		B40D4E4D225841ED00428FCC /* BlueWalletWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B40D4E30225841EC00428FCC /* BlueWalletWatch.app */; platformFilter = ios; };
-		B40D4E5D2258425500428FCC /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E552258425400428FCC /* InterfaceController.swift */; };
-		B40D4E5E2258425500428FCC /* NumericKeypadInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E562258425400428FCC /* NumericKeypadInterfaceController.swift */; };
-		B40D4E602258425500428FCC /* SpecifyInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E582258425400428FCC /* SpecifyInterfaceController.swift */; };
-		B40D4E632258425500428FCC /* ReceiveInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E5B2258425500428FCC /* ReceiveInterfaceController.swift */; };
-		B40D4E642258425500428FCC /* WalletDetailsInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E5C2258425500428FCC /* WalletDetailsInterfaceController.swift */; };
 		B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
-		B41B76852B66B2FF002C48D5 /* Bugsnag in Frameworks */ = {isa = PBXBuildFile; productRef = B41B76842B66B2FF002C48D5 /* Bugsnag */; };
-		B41B76872B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */; };
 		B41C2E562BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
-		B41C2E572BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
 		B41C2E582BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
-		B43D0378225847C500FBAA95 /* WalletGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0372225847C500FBAA95 /* WalletGradient.swift */; };
-		B43D0379225847C500FBAA95 /* WatchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0373225847C500FBAA95 /* WatchDataSource.swift */; };
-		B43D037A225847C500FBAA95 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0374225847C500FBAA95 /* Transaction.swift */; };
-		B43D037B225847C500FBAA95 /* TransactionTableRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0375225847C500FBAA95 /* TransactionTableRow.swift */; };
-		B43D037C225847C500FBAA95 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0376225847C500FBAA95 /* Wallet.swift */; };
-		B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0377225847C500FBAA95 /* WalletInformation.swift */; };
-		B44033BF2BCC32F800162242 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033BE2BCC32F800162242 /* BitcoinUnit.swift */; };
-		B44033C02BCC32F800162242 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033BE2BCC32F800162242 /* BitcoinUnit.swift */; };
-		B44033C12BCC32F800162242 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033BE2BCC32F800162242 /* BitcoinUnit.swift */; };
+		B4395BBE2CE9C4F30052377D /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		B44033C42BCC332400162242 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
-		B44033C52BCC332400162242 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
 		B44033C62BCC332400162242 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
 		B44033CA2BCC350A00162242 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C92BCC350A00162242 /* Currency.swift */; };
-		B44033CB2BCC350A00162242 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C92BCC350A00162242 /* Currency.swift */; };
 		B44033CC2BCC350A00162242 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C92BCC350A00162242 /* Currency.swift */; };
 		B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
-		B44033D02BCC352F00162242 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
 		B44033D32BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
-		B44033D42BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
 		B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
 		B44033D82BCC369500162242 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		B44033DA2BCC369A00162242 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
-		B44033DB2BCC369B00162242 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
-		B44033DE2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B44033DF2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */; };
 		B44033E42BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
-		B44033E52BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
 		B44033E62BCC36FF00162242 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
-		B44033EA2BCC371A00162242 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B44033EB2BCC371A00162242 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
 		B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
-		B44033EF2BCC374500162242 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
 		B44033F02BCC374500162242 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
 		B44033F42BCC377F00162242 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F32BCC377F00162242 /* WidgetData.swift */; };
-		B44033F52BCC377F00162242 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F32BCC377F00162242 /* WidgetData.swift */; };
 		B44033F62BCC377F00162242 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F32BCC377F00162242 /* WidgetData.swift */; };
 		B44033F92BCC379200162242 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
-		B44033FA2BCC379200162242 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
 		B44033FB2BCC379200162242 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
 		B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
 		B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033FF2BCC37F800162242 /* Bundle+decode.swift */; };
-		B44034012BCC37F800162242 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033FF2BCC37F800162242 /* Bundle+decode.swift */; };
 		B44034022BCC37F800162242 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033FF2BCC37F800162242 /* Bundle+decode.swift */; };
 		B44034052BCC389200162242 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B44034072BCC38A000162242 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
 		B440340F2BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
-		B44034102BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B44034112BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
-		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
 		B45942C42CDECF2400B3DC2E /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */; };
+		B45A794E2CEB053B0001D6B3 /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C32BCC332400162242 /* Balance.swift */; };
+		B45AF59B2CE885E50054BBCC /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
+		B45AF59C2CE885F50054BBCC /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
+		B45AF59E2CE886230054BBCC /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
+		B45AF5BC2CE887D60054BBCC /* Bugsnag in Frameworks */ = {isa = PBXBuildFile; productRef = B45AF5BB2CE887D60054BBCC /* Bugsnag */; };
+		B45AF5BE2CE887D60054BBCC /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B45AF5BD2CE887D60054BBCC /* BugsnagNetworkRequestPlugin */; };
+		B45AF5BF2CE887FA0054BBCC /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
+		B45AF5C12CE888BB0054BBCC /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
+		B45AF5C22CE888C00054BBCC /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C92BCC350A00162242 /* Currency.swift */; };
+		B45AF5C32CE888DE0054BBCC /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B45AF5C42CE888ED0054BBCC /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F32BCC377F00162242 /* WidgetData.swift */; };
+		B45AF5C62CE889B40054BBCC /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
 		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
 		B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
-		B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
-		B4742E992CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E9A2CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E9B2CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
-		B4793DBB2CEDACBD00C92C2E /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DBA2CEDACBD00C92C2E /* Chain.swift */; };
-		B4793DBC2CEDACBD00C92C2E /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DBA2CEDACBD00C92C2E /* Chain.swift */; };
-		B4793DBD2CEDACBD00C92C2E /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DBA2CEDACBD00C92C2E /* Chain.swift */; };
-		B4793DBF2CEDACDA00C92C2E /* TransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DBE2CEDACDA00C92C2E /* TransactionType.swift */; };
-		B4793DC12CEDACE700C92C2E /* WalletType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DC02CEDACE700C92C2E /* WalletType.swift */; };
-		B4793DC32CEDAD4400C92C2E /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */; };
-		B4793DC42CEDAD4400C92C2E /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */; };
-		B4793DC52CEDAD4400C92C2E /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */; };
 		B48630D62CCEE67100A8425C /* PriceWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630D52CCEE67100A8425C /* PriceWidgetProvider.swift */; };
 		B48630DD2CCEE7AC00A8425C /* PriceWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */; };
 		B48630DE2CCEE7AC00A8425C /* PriceWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */; };
@@ -145,6 +103,29 @@
 		B48630EC2CCEEEA700A8425C /* WalletAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */; };
 		B48630ED2CCEEEB000A8425C /* WalletAppShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */; };
 		B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48630D02CCEE3B300A8425C /* PriceIntent.swift */; };
+		B48984A02CE860D300BB74BB /* BlueWalletWatchOS Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B49168BD2CEA8ECC00A747CF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
+		B49168BE2CEA8ECC00A747CF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
+		B49168C72CEA8ECD00A747CF /* ComplicationsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B49168BC2CEA8ECC00A747CF /* ComplicationsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B49168CF2CEA900700A747CF /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
+		B49168D02CEA902500A747CF /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
+		B49168D12CEA903400A747CF /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F82BCC379200162242 /* WidgetDataStore.swift */; };
+		B49168D22CEA903C00A747CF /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
+		B49168D32CEA904000A747CF /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
+		B49168D42CEA905900A747CF /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033ED2BCC374500162242 /* Numeric+abbreviated.swift */; };
+		B49168D52CEA906000A747CF /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033C92BCC350A00162242 /* Currency.swift */; };
+		B49168D62CEA907300A747CF /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B49168D72CEA908300A747CF /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
+		B49168D82CEA909C00A747CF /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
+		B49168D92CEA90F900A747CF /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033F32BCC377F00162242 /* WidgetData.swift */; };
+		B49168DC2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */; };
+		B49168DD2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */; };
+		B49168DE2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */; };
+		B49168DF2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */; };
+		B49168E02CEA95C100A747CF /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
+		B49168E12CEA95E600A747CF /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */; };
+		B49168E22CEA960800A747CF /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E32BCC36FF00162242 /* WalletData.swift */; };
+		B49168E72CEA962400A747CF /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B49A28BB2CD18999006B08E4 /* CompactPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */; };
 		B49A28BC2CD18999006B08E4 /* CompactPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */; };
 		B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
@@ -152,16 +133,11 @@
 		B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
 		B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
-		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
 		B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
-		B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */; };
-		B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */; };
-		B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */; };
-		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
-		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
+		B4CB6A3D2CE890AD005456F6 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
+		B4CB6AA92CE989FC005456F6 /* EFQRCode in Frameworks */ = {isa = PBXBuildFile; productRef = B4CB6AA82CE989FC005456F6 /* EFQRCode */; };
 		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
@@ -187,19 +163,19 @@
 			remoteGlobalIDString = 6DD4109B266CADF10087DE03;
 			remoteInfo = WidgetsExtension;
 		};
-		B40D4E3E225841ED00428FCC /* PBXContainerItemProxy */ = {
+		B489849E2CE860D300BB74BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = B40D4E3B225841ED00428FCC;
-			remoteInfo = "BlueWalletWatch Extension";
+			remoteGlobalIDString = B489847C2CE860D100BB74BB;
+			remoteInfo = "BlueWalletWatchOS Watch App";
 		};
-		B40D4E4B225841ED00428FCC /* PBXContainerItemProxy */ = {
+		B49168C52CEA8ECD00A747CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = B40D4E2F225841EC00428FCC;
-			remoteInfo = BlueWalletWatch;
+			remoteGlobalIDString = B49168BB2CEA8ECC00A747CF;
+			remoteInfo = ComplicationsExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -222,20 +198,20 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				B40D4E4D225841ED00428FCC /* BlueWalletWatch.app in Embed Watch Content */,
+				B48984A02CE860D300BB74BB /* BlueWalletWatchOS Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B40D4E51225841ED00428FCC /* Embed App Extensions */ = {
+		B49168C82CEA8ECD00A747CF /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B40D4E3D225841ED00428FCC /* BlueWalletWatch Extension.appex in Embed App Extensions */,
+				B49168C72CEA8ECD00A747CF /* ComplicationsExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -257,9 +233,7 @@
 		32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BlueWallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		32B5A3292334450100F8D608 /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
 		32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BlueWalletRelease.entitlements; path = BlueWallet/BlueWalletRelease.entitlements; sourceTree = "<group>"; };
-		32F0A24F2310B0700095C559 /* BlueWalletWatch Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BlueWalletWatch Extension.entitlements"; sourceTree = "<group>"; };
 		32F0A2502310B0910095C559 /* BlueWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BlueWallet.entitlements; path = BlueWallet/BlueWallet.entitlements; sourceTree = "<group>"; };
-		32F0A2992311DBB20095C559 /* ComplicationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		334051161886419EA186F4BA /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		3703B10AAB374CF896CCC2EA /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
 		44BC9E3EE0E9476A830CCCB9 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
@@ -267,29 +241,6 @@
 		4F12F501B686459183E0BE0D /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
 		5A8F67CF29564E41882ECEF8 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		6A65D81712444D37BA152B06 /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
-		6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlueWalletWatch.entitlements; sourceTree = "<group>"; };
-		6D294A7324D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7524D510D60039E22B /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7724D510E60039E22B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A7924D510EA0039E22B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A7B24D510F40039E22B /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7D24D5111E0039E22B /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7F24D511640039E22B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8124D511690039E22B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8324D511720039E22B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8524D511750039E22B /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8724D5117A0039E22B /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8924D511800039E22B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8B24D511CB0039E22B /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8D24D5121D0039E22B /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A8F24D512230039E22B /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A9124D512260039E22B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9324D512320039E22B /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9524D5125F0039E22B /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9724D512620039E22B /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9924D512690039E22B /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9B24D512770039E22B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9D24D5127F0039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/Interface.strings; sourceTree = "<group>"; };
 		6D2A6461258BA92C0092292B /* Stickers.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Stickers.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D2A6463258BA92D0092292B /* Stickers.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Stickers.xcassets; sourceTree = "<group>"; };
 		6D2A6465258BA92D0092292B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -319,13 +270,11 @@
 		6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholders.swift; sourceTree = "<group>"; };
 		6DEB4C3A254FBF4800E9F9AA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewQRCodefaceController.swift; sourceTree = "<group>"; };
 		6EB3338E347F4AFAA8C85C04 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
 		70C9C17A3F52430B99582AF4 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		78A87E7251D94144A71A2F67 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ToolTipMenuTests.xctest; sourceTree = "<group>"; };
-		849047C92702A32A008EE567 /* Handoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Handoff.swift; sourceTree = "<group>"; };
 		84E05A832721191B001A0D3A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		8637D4B5E14D443A9031DA95 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		90F86BC5194548CA87D729A9 /* libToolTipMenu.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libToolTipMenu.a; sourceTree = "<group>"; };
@@ -336,31 +285,10 @@
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
-		B40D4E30225841EC00428FCC /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B40D4E33225841EC00428FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
-		B40D4E35225841ED00428FCC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B40D4E37225841ED00428FCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "BlueWalletWatch Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B40D4E43225841ED00428FCC /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
-		B40D4E45225841ED00428FCC /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		B40D4E49225841ED00428FCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B40D4E4A225841ED00428FCC /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
-		B40D4E552258425400428FCC /* InterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
-		B40D4E562258425400428FCC /* NumericKeypadInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumericKeypadInterfaceController.swift; sourceTree = "<group>"; };
-		B40D4E582258425400428FCC /* SpecifyInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecifyInterfaceController.swift; sourceTree = "<group>"; };
-		B40D4E5B2258425500428FCC /* ReceiveInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceController.swift; sourceTree = "<group>"; };
-		B40D4E5C2258425500428FCC /* WalletDetailsInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletDetailsInterfaceController.swift; sourceTree = "<group>"; };
 		B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTCPClient.swift; sourceTree = "<group>"; };
 		B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B43B69BA225C46D800925B1E /* libRCTLinking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRCTLinking.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B43D0372225847C500FBAA95 /* WalletGradient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletGradient.swift; sourceTree = "<group>"; };
-		B43D0373225847C500FBAA95 /* WatchDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchDataSource.swift; sourceTree = "<group>"; };
-		B43D0374225847C500FBAA95 /* Transaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
-		B43D0375225847C500FBAA95 /* TransactionTableRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionTableRow.swift; sourceTree = "<group>"; };
-		B43D0376225847C500FBAA95 /* Wallet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
-		B43D0377225847C500FBAA95 /* WalletInformation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletInformation.swift; sourceTree = "<group>"; };
 		B43D046E22584C1B00FBAA95 /* libRNWatch.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNWatch.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B44033BE2BCC32F800162242 /* BitcoinUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinUnit.swift; sourceTree = "<group>"; };
 		B44033C32BCC332400162242 /* Balance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Balance.swift; sourceTree = "<group>"; };
 		B44033C92BCC350A00162242 /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
 		B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsGroupKey.swift; sourceTree = "<group>"; };
@@ -379,29 +307,25 @@
 		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
 		B4742E962CCDBE8300380EEE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
-		B4742E9C2CCDC31300380EEE /* en_US */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en_US; path = en_US.lproj/Interface.strings; sourceTree = "<group>"; };
-		B4793DBA2CEDACBD00C92C2E /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
-		B4793DBE2CEDACDA00C92C2E /* TransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionType.swift; sourceTree = "<group>"; };
-		B4793DC02CEDACE700C92C2E /* WalletType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletType.swift; sourceTree = "<group>"; };
-		B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
 		B48630D02CCEE3B300A8425C /* PriceIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceIntent.swift; sourceTree = "<group>"; };
 		B48630D52CCEE67100A8425C /* PriceWidgetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetProvider.swift; sourceTree = "<group>"; };
 		B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetEntry.swift; sourceTree = "<group>"; };
 		B48630DF2CCEE7C800A8425C /* PriceWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetEntryView.swift; sourceTree = "<group>"; };
 		B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAppShortcuts.swift; sourceTree = "<group>"; };
+		B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BlueWalletWatchOS Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
+		B49168BC2CEA8ECC00A747CF /* ComplicationsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ComplicationsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B49168CD2CEA8EDB00A747CF /* ComplicationsExtensionDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ComplicationsExtensionDebug.entitlements; sourceTree = "<group>"; };
+		B49168CE2CEA8EF000A747CF /* ComplicationsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ComplicationsExtension.entitlements; sourceTree = "<group>"; };
+		B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarketAPI+ExchangeRate.swift"; sourceTree = "<group>"; };
 		B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactPriceView.swift; sourceTree = "<group>"; };
 		B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnitEnum.swift; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
-		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
 		B4C075282CDDB3BE00322A84 /* MenuElementsEmitter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MenuElementsEmitter.h; sourceTree = "<group>"; };
 		B4C075292CDDB3C500322A84 /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuElementsEmitter.m; sourceTree = "<group>"; };
-		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
-		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
-		B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceMode.swift; sourceTree = "<group>"; };
-		B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMethod.swift; sourceTree = "<group>"; };
+		B4CB6A3E2CE8958C005456F6 /* BlueWalletWatchOS Watch AppDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BlueWalletWatchOS Watch AppDebug.entitlements"; sourceTree = "<group>"; };
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
@@ -420,6 +344,52 @@
 		FD7977067E1A496F94D8B1B7 /* libRNDeviceInfo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceInfo.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B45AF5952CE884FB0054BBCC /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Source/Models/Handoff.swift,
+				Source/Models/ReceiveType.swift,
+			);
+			target = B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */;
+		};
+		B49168CC2CEA8ECD00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */;
+		};
+		B49168E52CEA961F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Source/Models/BalanceUnit.swift,
+			);
+			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
+		};
+		B49168E62CEA961F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Source/Models/BalanceUnit.swift,
+			);
+			target = B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */;
+		};
+		B49168E92CEA963F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Source/Models/BalanceUnit.swift,
+			);
+			target = 13B07F861A680F5B00A75B9A /* BlueWallet */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B489847E2CE860D100BB74BB /* BlueWalletWatchApp */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B49168E92CEA963F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, B49168E52CEA961F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, B45AF5952CE884FB0054BBCC /* PBXFileSystemSynchronizedBuildFileExceptionSet */, B49168E62CEA961F00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BlueWalletWatchApp; sourceTree = "<group>"; };
+		B489848F2CE860D200BB74BB /* BlueWalletWatchOS Watch AppTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "BlueWalletWatchOS Watch AppTests"; sourceTree = "<group>"; };
+		B48984992CE860D300BB74BB /* BlueWalletWatchOS Watch AppUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "BlueWalletWatchOS Watch AppUITests"; sourceTree = "<group>"; };
+		B49168BF2CEA8ECC00A747CF /* Complications */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (B49168CC2CEA8ECD00A747CF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Complications; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -429,13 +399,6 @@
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
 				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		421830728822A20A50D8A07C /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -455,13 +418,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B40D4E39225841ED00428FCC /* Frameworks */ = {
+		B489847A2CE860D100BB74BB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B41B76852B66B2FF002C48D5 /* Bugsnag in Frameworks */,
-				B41B76872B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin in Frameworks */,
-				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
+				B45AF5BE2CE887D60054BBCC /* BugsnagNetworkRequestPlugin in Frameworks */,
+				B45AF5BC2CE887D60054BBCC /* Bugsnag in Frameworks */,
+				B4CB6AA92CE989FC005456F6 /* EFQRCode in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B49168B92CEA8ECC00A747CF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B49168BE2CEA8ECC00A747CF /* SwiftUI.framework in Frameworks */,
+				B49168BD2CEA8ECC00A747CF /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,17 +615,22 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B49168CE2CEA8EF000A747CF /* ComplicationsExtension.entitlements */,
+				B49168CD2CEA8EDB00A747CF /* ComplicationsExtensionDebug.entitlements */,
+				B4CB6A3E2CE8958C005456F6 /* BlueWalletWatchOS Watch AppDebug.entitlements */,
 				B45010A12C1504E900619044 /* Components */,
 				B44033C82BCC34AC00162242 /* Shared */,
 				B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */,
 				B4549F2E2B80FEA1002E3153 /* ci_scripts */,
 				13B07FAE1A68108700A75B9A /* BlueWallet */,
 				00E356EF1AD99517003FC87E /* BlueWalletTests */,
-				B40D4E31225841EC00428FCC /* BlueWalletWatch */,
-				B40D4E40225841ED00428FCC /* BlueWalletWatch Extension */,
 				6D2A6462258BA92C0092292B /* Stickers */,
 				6DD4109F266CADF10087DE03 /* Widgets */,
 				B47B21EA2B2128B8001F6690 /* BlueWalletUITests */,
+				B489847E2CE860D100BB74BB /* BlueWalletWatchApp */,
+				B489848F2CE860D200BB74BB /* BlueWalletWatchOS Watch AppTests */,
+				B48984992CE860D300BB74BB /* BlueWalletWatchOS Watch AppUITests */,
+				B49168BF2CEA8ECC00A747CF /* Complications */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B40FE50A21FAD228005D5578 /* Recovered References */,
@@ -669,44 +646,12 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* BlueWallet.app */,
-				B40D4E30225841EC00428FCC /* BlueWalletWatch.app */,
-				B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */,
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
+				B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */,
+				B49168BC2CEA8ECC00A747CF /* ComplicationsExtension.appex */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		B40D4E31225841EC00428FCC /* BlueWalletWatch */ = {
-			isa = PBXGroup;
-			children = (
-				6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */,
-				B40D4E32225841EC00428FCC /* Interface.storyboard */,
-				B40D4E35225841ED00428FCC /* Assets.xcassets */,
-				B40D4E37225841ED00428FCC /* Info.plist */,
-			);
-			path = BlueWalletWatch;
-			sourceTree = "<group>";
-		};
-		B40D4E40225841ED00428FCC /* BlueWalletWatch Extension */ = {
-			isa = PBXGroup;
-			children = (
-				32F0A24F2310B0700095C559 /* BlueWalletWatch Extension.entitlements */,
-				B43D03242258474500FBAA95 /* Objects */,
-				32F0A2992311DBB20095C559 /* ComplicationController.swift */,
-				B40D4E43225841ED00428FCC /* ExtensionDelegate.swift */,
-				B40D4E45225841ED00428FCC /* NotificationController.swift */,
-				B40D4E552258425400428FCC /* InterfaceController.swift */,
-				B40D4E562258425400428FCC /* NumericKeypadInterfaceController.swift */,
-				B40D4E5B2258425500428FCC /* ReceiveInterfaceController.swift */,
-				6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */,
-				B40D4E582258425400428FCC /* SpecifyInterfaceController.swift */,
-				B40D4E5C2258425500428FCC /* WalletDetailsInterfaceController.swift */,
-				B40D4E49225841ED00428FCC /* Info.plist */,
-				B40D4E4A225841ED00428FCC /* PushNotificationPayload.apns */,
-				B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */,
-			);
-			path = "BlueWalletWatch Extension";
 			sourceTree = "<group>";
 		};
 		B40FE50A21FAD228005D5578 /* Recovered References */ = {
@@ -740,29 +685,10 @@
 			name = "Recovered References";
 			sourceTree = "<group>";
 		};
-		B43D03242258474500FBAA95 /* Objects */ = {
-			isa = PBXGroup;
-			children = (
-				B4793DC02CEDACE700C92C2E /* WalletType.swift */,
-				B4793DBE2CEDACDA00C92C2E /* TransactionType.swift */,
-				B43D0374225847C500FBAA95 /* Transaction.swift */,
-				B43D0375225847C500FBAA95 /* TransactionTableRow.swift */,
-				B43D0376225847C500FBAA95 /* Wallet.swift */,
-				B43D0372225847C500FBAA95 /* WalletGradient.swift */,
-				B43D0377225847C500FBAA95 /* WalletInformation.swift */,
-				B43D0373225847C500FBAA95 /* WatchDataSource.swift */,
-				849047C92702A32A008EE567 /* Handoff.swift */,
-				B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */,
-				B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */,
-				B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */,
-			);
-			path = Objects;
-			sourceTree = "<group>";
-		};
 		B44033C82BCC34AC00162242 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				B4793DBA2CEDACBD00C92C2E /* Chain.swift */,
+				B49168DB2CEA950300A747CF /* MarketAPI+ExchangeRate.swift */,
 				B450109A2C0FCD7E00619044 /* Utilities */,
 				6D2AA8062568B8E50090B089 /* Fiat */,
 				6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */,
@@ -780,7 +706,6 @@
 				B44033F82BCC379200162242 /* WidgetDataStore.swift */,
 				B44033FF2BCC37F800162242 /* Bundle+decode.swift */,
 				6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */,
-				B44033BE2BCC32F800162242 /* BitcoinUnit.swift */,
 				B44033C32BCC332400162242 /* Balance.swift */,
 			);
 			path = Shared;
@@ -789,7 +714,6 @@
 		B450109A2C0FCD7E00619044 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */,
 				B450109B2C0FCD8A00619044 /* Utilities.swift */,
 			);
 			path = Utilities;
@@ -869,10 +793,10 @@
 			buildRules = (
 			);
 			dependencies = (
-				B40D4E4C225841ED00428FCC /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
+				B489849F2CE860D300BB74BB /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -913,45 +837,54 @@
 			productReference = 6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		B40D4E2F225841EC00428FCC /* BlueWalletWatch */ = {
+		B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B40D4E52225841ED00428FCC /* Build configuration list for PBXNativeTarget "BlueWalletWatch" */;
+			buildConfigurationList = B48984A12CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch App" */;
 			buildPhases = (
-				B40D4E2E225841EC00428FCC /* Resources */,
-				B40D4E51225841ED00428FCC /* Embed App Extensions */,
-				421830728822A20A50D8A07C /* Frameworks */,
+				B48984792CE860D100BB74BB /* Sources */,
+				B489847A2CE860D100BB74BB /* Frameworks */,
+				B489847B2CE860D100BB74BB /* Resources */,
+				B49168C82CEA8ECD00A747CF /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B40D4E3F225841ED00428FCC /* PBXTargetDependency */,
+				B49168C62CEA8ECD00A747CF /* PBXTargetDependency */,
 			);
-			name = BlueWalletWatch;
-			productName = BlueWalletWatch;
-			productReference = B40D4E30225841EC00428FCC /* BlueWalletWatch.app */;
-			productType = "com.apple.product-type.application.watchapp2";
-		};
-		B40D4E3B225841ED00428FCC /* BlueWalletWatch Extension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B40D4E4E225841ED00428FCC /* Build configuration list for PBXNativeTarget "BlueWalletWatch Extension" */;
-			buildPhases = (
-				B40D4E38225841ED00428FCC /* Sources */,
-				B40D4E39225841ED00428FCC /* Frameworks */,
-				B40D4E3A225841ED00428FCC /* Resources */,
+			fileSystemSynchronizedGroups = (
+				B489847E2CE860D100BB74BB /* BlueWalletWatchApp */,
 			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "BlueWalletWatch Extension";
+			name = "BlueWalletWatchOS Watch App";
 			packageProductDependencies = (
-				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
-				B41B76842B66B2FF002C48D5 /* Bugsnag */,
-				B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */,
+				B45AF5BB2CE887D60054BBCC /* Bugsnag */,
+				B45AF5BD2CE887D60054BBCC /* BugsnagNetworkRequestPlugin */,
+				B4CB6AA82CE989FC005456F6 /* EFQRCode */,
 			);
-			productName = "BlueWalletWatch Extension";
-			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
-			productType = "com.apple.product-type.watchkit2-extension";
+			productName = "BlueWalletWatchOS Watch App";
+			productReference = B489847D2CE860D100BB74BB /* BlueWalletWatchOS Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B49168CB2CEA8ECD00A747CF /* Build configuration list for PBXNativeTarget "ComplicationsExtension" */;
+			buildPhases = (
+				B49168B82CEA8ECC00A747CF /* Sources */,
+				B49168B92CEA8ECC00A747CF /* Frameworks */,
+				B49168BA2CEA8ECC00A747CF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B49168BF2CEA8ECC00A747CF /* Complications */,
+			);
+			name = ComplicationsExtension;
+			packageProductDependencies = (
+			);
+			productName = ComplicationsExtension;
+			productReference = B49168BC2CEA8ECC00A747CF /* ComplicationsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -959,7 +892,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = BlueWallet;
 				TargetAttributes = {
@@ -977,18 +910,11 @@
 					6DD4109B266CADF10087DE03 = {
 						CreatedOnToolsVersion = 12.5;
 					};
-					B40D4E2F225841EC00428FCC = {
-						CreatedOnToolsVersion = 10.2;
-						LastSwiftMigration = 1240;
+					B489847C2CE860D100BB74BB = {
+						CreatedOnToolsVersion = 16.1;
 					};
-					B40D4E3B225841ED00428FCC = {
-						CreatedOnToolsVersion = 10.2;
-						LastSwiftMigration = 1130;
-						SystemCapabilities = {
-							com.apple.Keychain = {
-								enabled = 0;
-							};
-						};
+					B49168BB2CEA8ECC00A747CF = {
+						CreatedOnToolsVersion = 16.1;
 					};
 				};
 			};
@@ -1027,18 +953,18 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 				B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */,
+				B4CB6AA72CE989FC005456F6 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* BlueWallet */,
-				B40D4E2F225841EC00428FCC /* BlueWalletWatch */,
-				B40D4E3B225841ED00428FCC /* BlueWalletWatch Extension */,
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
+				B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */,
+				B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -1078,24 +1004,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B40D4E2E225841EC00428FCC /* Resources */ = {
+		B489847B2CE860D100BB74BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
-				B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */,
-				B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B40D4E3A225841ED00428FCC /* Resources */ = {
+		B49168BA2CEA8ECC00A747CF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B41C2E572BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */,
-				B44034102BCC40A400162242 /* fiatUnits.json in Resources */,
-				B4742E992CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
-				B4EE583C226703320003363C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1252,6 +1171,7 @@
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B45942C42CDECF2400B3DC2E /* MenuElementsEmitter.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
+				B49168DC2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
 				B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */,
 				B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */,
@@ -1260,7 +1180,6 @@
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
 				B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */,
 				B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */,
-				B4793DBB2CEDACBD00C92C2E /* Chain.swift in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B48630E12CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
@@ -1269,8 +1188,6 @@
 				B49A28BC2CD18999006B08E4 /* CompactPriceView.swift in Sources */,
 				B44033D82BCC369500162242 /* UserDefaultsExtension.swift in Sources */,
 				B44033E42BCC36FF00162242 /* WalletData.swift in Sources */,
-				B4793DC52CEDAD4400C92C2E /* KeychainHelper.swift in Sources */,
-				B44033BF2BCC32F800162242 /* BitcoinUnit.swift in Sources */,
 				B44034052BCC389200162242 /* XMLParserDelegate.swift in Sources */,
 				B48630DD2CCEE7AC00A8425C /* PriceWidgetEntry.swift in Sources */,
 				B44033F92BCC379200162242 /* WidgetDataStore.swift in Sources */,
@@ -1284,7 +1201,6 @@
 				6DD410BE266CAF5C0087DE03 /* SendReceiveButtons.swift in Sources */,
 				B48630E02CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
 				6DD410B4266CAF5C0087DE03 /* MarketAPI.swift in Sources */,
-				B4793DC32CEDAD4400C92C2E /* KeychainHelper.swift in Sources */,
 				B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */,
 				B48630EC2CCEEEA700A8425C /* WalletAppShortcuts.swift in Sources */,
 				6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */,
@@ -1292,6 +1208,7 @@
 				B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */,
 				6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */,
 				B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */,
+				B49168DF2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */,
 				B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
 				6DD410B2266CAF5C0087DE03 /* WalletInformationView.swift in Sources */,
 				B44034022BCC37F800162242 /* Bundle+decode.swift in Sources */,
@@ -1301,12 +1218,10 @@
 				B48630DE2CCEE7AC00A8425C /* PriceWidgetEntry.swift in Sources */,
 				B49A28BB2CD18999006B08E4 /* CompactPriceView.swift in Sources */,
 				6DD410B3266CAF5C0087DE03 /* Colors.swift in Sources */,
-				B44033C12BCC32F800162242 /* BitcoinUnit.swift in Sources */,
 				6DD410BB266CAF5C0087DE03 /* MarketView.swift in Sources */,
 				B44033F02BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B44033DF2BCC36C300162242 /* LatestTransaction.swift in Sources */,
 				6DD410C0266CB1460087DE03 /* MarketWidget.swift in Sources */,
-				B4793DBC2CEDACBD00C92C2E /* Chain.swift in Sources */,
 				B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */,
 				B44033F62BCC377F00162242 /* WidgetData.swift in Sources */,
 				6DD410BA266CAF5C0087DE03 /* FiatUnit.swift in Sources */,
@@ -1324,54 +1239,46 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B40D4E38225841ED00428FCC /* Sources */ = {
+		B48984792CE860D100BB74BB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B43D037C225847C500FBAA95 /* Wallet.swift in Sources */,
-				6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */,
-				B43D037A225847C500FBAA95 /* Transaction.swift in Sources */,
-				32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */,
-				B40D4E602258425500428FCC /* SpecifyInterfaceController.swift in Sources */,
-				B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */,
-				B43D0379225847C500FBAA95 /* WatchDataSource.swift in Sources */,
-				B450109F2C0FCDA500619044 /* Utilities.swift in Sources */,
-				B44033D42BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
-				B44034012BCC37F800162242 /* Bundle+decode.swift in Sources */,
-				B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */,
-				849047CA2702A32A008EE567 /* Handoff.swift in Sources */,
-				B44033EA2BCC371A00162242 /* MarketData.swift in Sources */,
-				B44033CB2BCC350A00162242 /* Currency.swift in Sources */,
-				6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */,
-				B40D4E46225841ED00428FCC /* NotificationController.swift in Sources */,
-				B40D4E5D2258425500428FCC /* InterfaceController.swift in Sources */,
-				B4793DBD2CEDACBD00C92C2E /* Chain.swift in Sources */,
-				B44033FA2BCC379200162242 /* WidgetDataStore.swift in Sources */,
-				B44033DE2BCC36C300162242 /* LatestTransaction.swift in Sources */,
-				B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */,
-				B43D037B225847C500FBAA95 /* TransactionTableRow.swift in Sources */,
-				B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */,
-				6D4AF15925D21172009DD853 /* MarketAPI.swift in Sources */,
-				B40D4E642258425500428FCC /* WalletDetailsInterfaceController.swift in Sources */,
-				B40D4E44225841ED00428FCC /* ExtensionDelegate.swift in Sources */,
-				6D4AF16D25D21192009DD853 /* Placeholders.swift in Sources */,
-				B4793DC42CEDAD4400C92C2E /* KeychainHelper.swift in Sources */,
-				B44033DB2BCC369B00162242 /* Colors.swift in Sources */,
-				B40D4E632258425500428FCC /* ReceiveInterfaceController.swift in Sources */,
-				B43D0378225847C500FBAA95 /* WalletGradient.swift in Sources */,
-				B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */,
-				B44033C02BCC32F800162242 /* BitcoinUnit.swift in Sources */,
-				B44033E52BCC36FF00162242 /* WalletData.swift in Sources */,
-				B44033EF2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
-				B4793DC12CEDACE700C92C2E /* WalletType.swift in Sources */,
-				B4793DBF2CEDACDA00C92C2E /* TransactionType.swift in Sources */,
-				B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */,
-				B44033D02BCC352F00162242 /* UserDefaultsGroup.swift in Sources */,
-				B44033C52BCC332400162242 /* Balance.swift in Sources */,
-				6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
-				B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */,
-				B40D4E5E2258425500428FCC /* NumericKeypadInterfaceController.swift in Sources */,
-				B44033F52BCC377F00162242 /* WidgetData.swift in Sources */,
+				B45A794E2CEB053B0001D6B3 /* Balance.swift in Sources */,
+				B45AF5C12CE888BB0054BBCC /* WidgetDataStore.swift in Sources */,
+				B4CB6A3D2CE890AD005456F6 /* XMLParserDelegate.swift in Sources */,
+				B45AF59E2CE886230054BBCC /* UserDefaultsGroupKey.swift in Sources */,
+				B4395BBE2CE9C4F30052377D /* UserDefaultsExtension.swift in Sources */,
+				B45AF5C32CE888DE0054BBCC /* Utilities.swift in Sources */,
+				B45AF5C62CE889B40054BBCC /* Numeric+abbreviated.swift in Sources */,
+				B45AF5BF2CE887FA0054BBCC /* MarketData.swift in Sources */,
+				B45AF5C42CE888ED0054BBCC /* WidgetData.swift in Sources */,
+				B45AF5C22CE888C00054BBCC /* Currency.swift in Sources */,
+				B45AF59B2CE885E50054BBCC /* FiatUnit.swift in Sources */,
+				B45AF59C2CE885F50054BBCC /* MarketAPI.swift in Sources */,
+				B49168DD2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B49168B82CEA8ECC00A747CF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B49168CF2CEA900700A747CF /* UserDefaultsGroupKey.swift in Sources */,
+				B49168E72CEA962400A747CF /* LatestTransaction.swift in Sources */,
+				B49168D92CEA90F900A747CF /* WidgetData.swift in Sources */,
+				B49168E12CEA95E600A747CF /* Placeholders.swift in Sources */,
+				B49168D02CEA902500A747CF /* FiatUnit.swift in Sources */,
+				B49168E02CEA95C100A747CF /* Colors.swift in Sources */,
+				B49168D42CEA905900A747CF /* Numeric+abbreviated.swift in Sources */,
+				B49168D52CEA906000A747CF /* Currency.swift in Sources */,
+				B49168D72CEA908300A747CF /* XMLParserDelegate.swift in Sources */,
+				B49168D12CEA903400A747CF /* WidgetDataStore.swift in Sources */,
+				B49168D62CEA907300A747CF /* Utilities.swift in Sources */,
+				B49168DE2CEA950300A747CF /* MarketAPI+ExchangeRate.swift in Sources */,
+				B49168D32CEA904000A747CF /* MarketAPI.swift in Sources */,
+				B49168D22CEA903C00A747CF /* MarketData.swift in Sources */,
+				B49168E22CEA960800A747CF /* WalletData.swift in Sources */,
+				B49168D82CEA909C00A747CF /* UserDefaultsExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1393,53 +1300,17 @@
 			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
 			targetProxy = 6DD410A5266CADF40087DE03 /* PBXContainerItemProxy */;
 		};
-		B40D4E3F225841ED00428FCC /* PBXTargetDependency */ = {
+		B489849F2CE860D300BB74BB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B40D4E3B225841ED00428FCC /* BlueWalletWatch Extension */;
-			targetProxy = B40D4E3E225841ED00428FCC /* PBXContainerItemProxy */;
+			target = B489847C2CE860D100BB74BB /* BlueWalletWatchOS Watch App */;
+			targetProxy = B489849E2CE860D300BB74BB /* PBXContainerItemProxy */;
 		};
-		B40D4E4C225841ED00428FCC /* PBXTargetDependency */ = {
+		B49168C62CEA8ECD00A747CF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = B40D4E2F225841EC00428FCC /* BlueWalletWatch */;
-			targetProxy = B40D4E4B225841ED00428FCC /* PBXContainerItemProxy */;
+			target = B49168BB2CEA8ECC00A747CF /* ComplicationsExtension */;
+			targetProxy = B49168C52CEA8ECD00A747CF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		B40D4E32225841EC00428FCC /* Interface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B40D4E33225841EC00428FCC /* Base */,
-				6D294A7324D510AC0039E22B /* af */,
-				6D294A7524D510D60039E22B /* ca */,
-				6D294A7724D510E60039E22B /* zh-Hant */,
-				6D294A7924D510EA0039E22B /* zh-Hans */,
-				6D294A7B24D510F40039E22B /* hr */,
-				6D294A7D24D5111E0039E22B /* da */,
-				6D294A7F24D511640039E22B /* nl */,
-				6D294A8124D511690039E22B /* es */,
-				6D294A8324D511720039E22B /* fr */,
-				6D294A8524D511750039E22B /* it */,
-				6D294A8724D5117A0039E22B /* id */,
-				6D294A8924D511800039E22B /* ja */,
-				6D294A8B24D511CB0039E22B /* hu */,
-				6D294A8D24D5121D0039E22B /* pt-BR */,
-				6D294A8F24D512230039E22B /* pt-PT */,
-				6D294A9124D512260039E22B /* ru */,
-				6D294A9324D512320039E22B /* sk */,
-				6D294A9524D5125F0039E22B /* th */,
-				6D294A9724D512620039E22B /* vi */,
-				6D294A9924D512690039E22B /* uk */,
-				6D294A9B24D512770039E22B /* tr */,
-				6D294A9D24D5127F0039E22B /* xh */,
-				B4B31A352C77BBA000663334 /* nb */,
-				B4742E9C2CCDC31300380EEE /* en_US */,
-			);
-			name = Interface.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -1453,7 +1324,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1467,11 +1338,9 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_BUNDLE_IDENTIFIER).ComplicationController";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				INFOPLIST_KEY_WKExtensionDelegateClassName = "$(PRODUCT_BUNDLE_IDENTIFIER).ExtensionDelegate";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1481,7 +1350,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1516,7 +1385,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1525,11 +1394,9 @@
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_BUNDLE_IDENTIFIER).ComplicationController";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				INFOPLIST_KEY_WKExtensionDelegateClassName = "$(PRODUCT_BUNDLE_IDENTIFIER).ExtensionDelegate";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1539,7 +1406,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1575,7 +1442,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1588,7 +1455,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
@@ -1618,7 +1485,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -1631,7 +1498,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
@@ -1662,7 +1529,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1681,7 +1548,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
@@ -1718,7 +1585,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703136899;
+				CURRENT_PROJECT_VERSION = 1703136699;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -1737,7 +1604,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				MARKETING_VERSION = 7.0.5;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
@@ -1821,7 +1688,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -1887,207 +1754,225 @@
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
-		B40D4E4F225841ED00428FCC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
-				DEAD_CODE_STRIPPING = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "BlueWalletWatch Extension/Info.plist";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_BUNDLE_IDENTIFIER).ComplicationController";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				INFOPLIST_KEY_WKExtensionDelegateClassName = "$(PRODUCT_BUNDLE_IDENTIFIER).ExtensionDelegate";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
-					"$(inherited)",
-				);
-				MARKETING_VERSION = 7.0.7;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development io.bluewallet.bluewallet.watch.extension";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
-			};
-			name = Debug;
-		};
-		B40D4E50225841ED00428FCC /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703136899;
-				DEAD_CODE_STRIPPING = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "BlueWalletWatch Extension/Info.plist";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_BUNDLE_IDENTIFIER).ComplicationController";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				INFOPLIST_KEY_WKExtensionDelegateClassName = "$(PRODUCT_BUNDLE_IDENTIFIER).ExtensionDelegate";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
-					"$(inherited)",
-				);
-				MARKETING_VERSION = 7.0.7;
-				MTL_FAST_MATH = YES;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore io.bluewallet.bluewallet.watch.extension";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
-			};
-			name = Release;
-		};
-		B40D4E53225841ED00428FCC /* Debug */ = {
+		B48984A22CE860D300BB74BB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatchOS Watch AppDebug.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703136899;
-				DEAD_CODE_STRIPPING = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "\"BlueWalletWatchApp/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IBSC_MODULE = BlueWalletWatch_Extension;
-				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 7.0.7;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BlueWallet;
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development io.bluewallet.bluewallet.watch";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
-		B40D4E54225841ED00428FCC /* Release */ = {
+		B48984A32CE860D300BB74BB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatchApp/BlueWalletWatchOS Watch AppRelease.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703136899;
-				DEAD_CODE_STRIPPING = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"BlueWalletWatchApp/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				IBSC_MODULE = BlueWalletWatch_Extension;
-				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BlueWallet;
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
+					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 7.0.7;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore io.bluewallet.bluewallet.watch";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Release;
+		};
+		B49168C92CEA8ECD00A747CF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ComplicationsExtensionDebug.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Complications/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Complications;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 BlueWallet. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.Complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match Development io.bluewallet.bluewallet.watch.Complications";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Debug;
+		};
+		B49168CA2CEA8ECD00A747CF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = ComplicationsExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=watchos*]" = A7W54YZ4WU;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Complications/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Complications;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2024 BlueWallet. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.Complications;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=watchos*]" = "match AppStore io.bluewallet.bluewallet.watch.Complications";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
@@ -2130,20 +2015,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B40D4E4E225841ED00428FCC /* Build configuration list for PBXNativeTarget "BlueWalletWatch Extension" */ = {
+		B48984A12CE860D300BB74BB /* Build configuration list for PBXNativeTarget "BlueWalletWatchOS Watch App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B40D4E4F225841ED00428FCC /* Debug */,
-				B40D4E50225841ED00428FCC /* Release */,
+				B48984A22CE860D300BB74BB /* Debug */,
+				B48984A32CE860D300BB74BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B40D4E52225841ED00428FCC /* Build configuration list for PBXNativeTarget "BlueWalletWatch" */ = {
+		B49168CB2CEA8ECD00A747CF /* Build configuration list for PBXNativeTarget "ComplicationsExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B40D4E53225841ED00428FCC /* Debug */,
-				B40D4E54225841ED00428FCC /* Release */,
+				B49168C92CEA8ECD00A747CF /* Debug */,
+				B49168CA2CEA8ECD00A747CF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -2151,14 +2036,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
-			requirement = {
-				kind = exactVersion;
-				version = 6.2.2;
-			};
-		};
 		B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bugsnag/bugsnag-cocoa";
@@ -2167,23 +2044,31 @@
 				version = 6.28.1;
 			};
 		};
+		B4CB6AA72CE989FC005456F6 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.2.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
-			productName = EFQRCode;
-		};
-		B41B76842B66B2FF002C48D5 /* Bugsnag */ = {
+		B45AF5BB2CE887D60054BBCC /* Bugsnag */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */;
 			productName = Bugsnag;
 		};
-		B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */ = {
+		B45AF5BD2CE887D60054BBCC /* BugsnagNetworkRequestPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */;
 			productName = BugsnagNetworkRequestPlugin;
+		};
+		B4CB6AA82CE989FC005456F6 /* EFQRCode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4CB6AA72CE989FC005456F6 /* XCRemoteSwiftPackageReference "EFQRCode" */;
+			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

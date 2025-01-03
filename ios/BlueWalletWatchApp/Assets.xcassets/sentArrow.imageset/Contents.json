@@ -1,0 +1,13 @@
+{
+  "images" : [
+    {
+      "filename" : "path-copy@2x.png",
+      "idiom" : "watch",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
