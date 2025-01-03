@@ -1,4 +1,4 @@
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -195,7 +195,9 @@ const ScanQRCode = () => {
         }
         if (launchedBy) {
           const merge = true;
-          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned }, merge);
+
+          navigation.dispatch(popToAction);
         } else {
           onBarScanned && onBarScanned({ data });
         }
@@ -261,7 +263,9 @@ const ScanQRCode = () => {
       if (launchedBy) {
         const merge = true;
 
-        navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        const popToAction = StackActions.popTo(launchedBy, { onBarScanned }, merge);
+
+        navigation.dispatch(popToAction);
       } else {
         onBarScanned && onBarScanned({ data });
       }
@@ -274,7 +278,9 @@ const ScanQRCode = () => {
         if (launchedBy) {
           const merge = true;
 
-          navigation.navigate({ name: launchedBy, params: { onBarScanned: ret.data }, merge });
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, merge);
+
+          navigation.dispatch(popToAction);
         } else {
           onBarScanned && onBarScanned(ret.data);
         }
@@ -340,7 +346,9 @@ const ScanQRCode = () => {
       if (typeof onBarScanned !== 'function') {
         merge = false;
       }
-      navigation.navigate({ name: launchedBy, params: {}, merge });
+      const popToAction = StackActions.popTo(launchedBy, {}, merge);
+
+      navigation.dispatch(popToAction);
     } else {
       navigation.goBack();
     }
