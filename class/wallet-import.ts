@@ -348,11 +348,31 @@ const startImport = (
 
     // maybe its a watch-only address?
     yield { progress: 'watch only' };
-    const watchOnly = new WatchOnlyWallet();
-    watchOnly.setSecret(text);
-    if (watchOnly.valid()) {
-      await fetch(watchOnly, true);
-      yield { wallet: watchOnly };
+    const wo1 = new WatchOnlyWallet();
+    wo1.setSecret(text);
+    if (wo1.valid()) {
+      wo1.init();
+      if (text.startsWith('xpub')) {
+        // for xpub we also check ypub and zpub. If any of them was used, we import it.
+        let found = false;
+        const pubs = [text, wo1._xpubToYpub(text), wo1._xpubToZpub(text)];
+        for (const pub of pubs) {
+          const wo2 = new WatchOnlyWallet();
+          wo2.setSecret(pub);
+          wo2.init();
+          if (await wasUsed(wo2)) {
+            yield { wallet: wo2 };
+            found = true;
+          }
+        }
+        if (!found) {
+          await fetch(wo1, true);
+          yield { wallet: wo1 };
+        }
+      } else {
+        await fetch(wo1, true);
+        yield { wallet: wo1 };
+      }
     }
 
     // electrum p2wpkh-p2sh

@@ -103,7 +103,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           </View>
           {fee > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create_fee}: {new BigNumber(fee).toFixed()} {loc.units[BitcoinUnit.BTC]}
+              {loc.send.create_fee}: {new BigNumber(fee).toFixed(8)} {loc.units[BitcoinUnit.BTC]}
             </Text>
           )}
           <Text numberOfLines={0} style={styles.feeText}>

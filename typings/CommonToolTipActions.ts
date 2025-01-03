@@ -215,7 +215,8 @@ export const CommonToolTipActions = {
   },
   PaymentsCode: {
     id: keys.PaymentsCode,
-    text: loc.bip47.purpose,
+    text: loc.bip47.bip47_explain,
+    subtitle: loc.bip47.bip47_explain_subtitle,
     icon: icons.PaymentsCode,
     menuState: false,
   },
@@ -313,12 +314,15 @@ export const CommonToolTipActions = {
   },
   ResetToDefault: {
     id: keys.ResetToDefault,
-    text: loc.settings.electrum_reset,
+    text: loc.settings.only_use_preferred,
+    hidden: true,
+    menuState: true,
   },
   ClearHistory: {
     id: keys.ClearHistory,
     text: loc.settings.electrum_clear,
     icon: icons.ClearHistory,
+    destructive: true,
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,

@@ -1417,6 +1417,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!this.allowBIP47()) {
       return false;
     }
+    try {
+      // watch-only wallet will throw an error here
+      this.getDerivationPath();
+    } catch (_) {
+      return false;
+    }
     // only check BIP47 if derivation path is regular, otherwise too many wallets will be found
     if (!["m/84'/0'/0'", "m/44'/0'/0'", "m/49'/0'/0'"].includes(this.getDerivationPath() as string)) {
       return false;
