@@ -1174,7 +1174,7 @@ const SendDetails = () => {
       return (
         <View style={styles.select}>
           <CoinsSelected
-            number={utxos?.length || 0}
+            number={utxos.length || 0}
             onContainerPress={handleCoinControl}
             onClose={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
