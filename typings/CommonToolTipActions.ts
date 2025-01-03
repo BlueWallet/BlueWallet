@@ -100,7 +100,17 @@ const icons = {
   Delete: { iconValue: 'trash' },
 } as const;
 
-export const CommonToolTipActions = {
+export type ToolTipAction = {
+  id: string;
+  text: string;
+  subtitle?: string;
+  icon?: { iconValue: string };
+  hidden?: boolean;
+  menuState?: boolean;
+  destructive?: boolean;
+};
+
+export const CommonToolTipActions: Record<string, ToolTipAction> = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -314,9 +324,8 @@ export const CommonToolTipActions = {
   },
   ResetToDefault: {
     id: keys.ResetToDefault,
-    text: loc.settings.only_use_preferred,
-    hidden: true,
-    menuState: true,
+    text: loc.settings.electrum_reset,
+    hidden: false,
   },
   ClearHistory: {
     id: keys.ClearHistory,

@@ -29,6 +29,7 @@
     "qr_custom_input_button": "Tap 10 times to enter custom input",
     "unlock": "Unlock",
     "port": "Port",
+    "ssl_port": "SSL Port",
     "suggested": "Suggested"
   },
   "azteco": {
@@ -217,7 +218,8 @@
     "block_explorer_invalid_custom_url": "The URL provided is invalid. Please enter a valid URL starting with http:// or https://.",
     "about_selftest_electrum_disabled": "Self-testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",
-
+    "delete_server_title": "Delete Server",
+    "delete_server_from_history": "Are you sure you want to delete {host}:{port} from your server history?",
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram channel",
@@ -255,7 +257,6 @@
     "electrum_preferred_server_description": "Enter the server you want your wallet to use for all Bitcoin activities. Once set, your wallet will exclusively use this server to check balances, send transactions, and fetch network data. Ensure you trust this server before setting it.",    "electrum_clear_alert_title": "Clear history?",
     "electrum_clear_alert_message": "Do you want to clear electrum servers history?",
     "electrum_clear_alert_cancel": "Cancel",
-    "only_use_preferred": "Only connect to preferred server",
     "electrum_unable_to_connect": "Unable to connect to {server}.",
     "electrum_history": "History",
     "electrum_reset_to_default": "This will let BlueWallet randomly choose a server from the suggested list and history. Your server history will remain unchanged.",
@@ -275,6 +276,7 @@
     "encrypt_tstorage": "Storage",
     "encrypt_use": "Use {type}",
     "set_as_preferred": "Set as preferred",
+    "set_as_preferred_electrum": "Setting {host}:{port} as preferred server will disable connecting to a suggested server at random.",
     "encrypted_feature_disabled": "This feature cannot be used with encrypted storage enabled.",
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet. {type} will not be used to unlock encrypted storage.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
