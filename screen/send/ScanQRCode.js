@@ -5,20 +5,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from '@rneui/themed';
-import { launchImageLibrary } from 'react-native-image-picker';
-
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
 import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
-import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
-import RNQRGenerator from 'rn-qr-generator';
 
 let decoder = false;
 
@@ -297,42 +293,11 @@ const ScanQRCode = () => {
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
-      launchImageLibrary(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-          maxHeight: 800,
-          maxWidth: 600,
-          selectionLimit: 1,
-        },
-        response => {
-          if (response.didCancel) {
-            setIsLoading(false);
-          } else {
-            const asset = response.assets[0];
-            if (asset.uri) {
-              RNQRGenerator.detect({
-                uri: decodeURI(asset.uri.toString()),
-              })
-                .then(result => {
-                  if (result) {
-                    onBarCodeRead({ data: result.values[0] });
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                  presentAlert({ message: loc.send.qr_error_no_qrcode });
-                })
-                .finally(() => {
-                  setIsLoading(false);
-                });
-            } else {
-              setIsLoading(false);
-            }
-          }
-        },
-      );
+      fs.showImagePickerAndReadImage()
+        .then(data => {
+          if (data) onBarCodeRead({ data });
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
