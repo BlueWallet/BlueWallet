@@ -24,7 +24,6 @@ import AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
@@ -36,7 +35,7 @@ const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
-  const { name } = useRoute();
+  const { params } = useRoute();
   const { colors } = useTheme();
   const { navigate, getParent, goBack, pop, setParams } = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
@@ -74,6 +73,100 @@ const LNDCreateInvoice = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
+
+  const processLnurl = useCallback(
+    async data => {
+      setIsLoading(true);
+      if (!wallet.current) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: loc.wallets.no_ln_wallet_error });
+        return goBack();
+      }
+
+      // decoding the lnurl
+      const url = Lnurl.getUrlFromLnurl(data);
+      const { query } = parse(url, true);
+
+      if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
+        navigate('LnurlAuth', {
+          lnurl: data,
+          walletID: walletID ?? wallet.current.getID(),
+        });
+        return;
+      }
+
+      // calling the url
+      try {
+        const resp = await fetch(url, { method: 'GET' });
+        if (resp.status >= 300) {
+          throw new Error('Bad response from server');
+        }
+        const reply = await resp.json();
+        if (reply.status === 'ERROR') {
+          throw new Error('Reply from server: ' + reply.reason);
+        }
+
+        if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
+          // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
+          // invoices (including through lnurl-withdraw)
+          navigate('ScanLndInvoiceRoot', {
+            screen: 'LnurlPay',
+            params: {
+              lnurl: data,
+              walletID: walletID ?? wallet.current.getID(),
+            },
+          });
+          return;
+        }
+
+        if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
+          throw new Error('Unsupported lnurl');
+        }
+
+        // amount that comes from lnurl is always in sats
+        let newAmount = (reply.maxWithdrawable / 1000).toString();
+        const sats = newAmount;
+        switch (unit) {
+          case BitcoinUnit.SATS:
+            // nop
+            break;
+          case BitcoinUnit.BTC:
+            newAmount = satoshiToBTC(newAmount);
+            break;
+          case BitcoinUnit.LOCAL_CURRENCY:
+            newAmount = formatBalancePlain(newAmount, BitcoinUnit.LOCAL_CURRENCY);
+            AmountInput.setCachedSatoshis(newAmount, sats);
+            break;
+        }
+
+        // setting the invoice creating screen with the parameters
+        setLNURLParams({
+          k1: reply.k1,
+          callback: reply.callback,
+          fixed: reply.minWithdrawable === reply.maxWithdrawable,
+          min: (reply.minWithdrawable || 0) / 1000,
+          max: reply.maxWithdrawable / 1000,
+        });
+        setAmount(newAmount);
+        setDescription(reply.defaultDescription);
+        setIsLoading(false);
+      } catch (Err) {
+        Keyboard.dismiss();
+        setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: Err.message });
+      }
+    },
+    [goBack, navigate, unit, walletID],
+  );
+
+  useEffect(() => {
+    const data = params.onBarScanned;
+    if (data) {
+      processLnurl(data);
+      setParams({ onBarScanned: undefined });
+    }
+  }, [params.onBarScanned, processLnurl, setParams]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
@@ -228,89 +321,6 @@ const LNDCreateInvoice = () => {
     }
   };
 
-  const processLnurl = async data => {
-    setIsLoading(true);
-    if (!wallet.current) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.wallets.no_ln_wallet_error });
-      return goBack();
-    }
-
-    // decoding the lnurl
-    const url = Lnurl.getUrlFromLnurl(data);
-    const { query } = parse(url, true);
-
-    if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
-      navigate('LnurlAuth', {
-        lnurl: data,
-        walletID: walletID ?? wallet.current.getID(),
-      });
-      return;
-    }
-
-    // calling the url
-    try {
-      const resp = await fetch(url, { method: 'GET' });
-      if (resp.status >= 300) {
-        throw new Error('Bad response from server');
-      }
-      const reply = await resp.json();
-      if (reply.status === 'ERROR') {
-        throw new Error('Reply from server: ' + reply.reason);
-      }
-
-      if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
-        // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
-        // invoices (including through lnurl-withdraw)
-        navigate('ScanLndInvoiceRoot', {
-          screen: 'LnurlPay',
-          params: {
-            lnurl: data,
-            walletID: walletID ?? wallet.current.getID(),
-          },
-        });
-        return;
-      }
-
-      if (reply.tag !== Lnurl.TAG_WITHDRAW_REQUEST) {
-        throw new Error('Unsupported lnurl');
-      }
-
-      // amount that comes from lnurl is always in sats
-      let newAmount = (reply.maxWithdrawable / 1000).toString();
-      const sats = newAmount;
-      switch (unit) {
-        case BitcoinUnit.SATS:
-          // nop
-          break;
-        case BitcoinUnit.BTC:
-          newAmount = satoshiToBTC(newAmount);
-          break;
-        case BitcoinUnit.LOCAL_CURRENCY:
-          newAmount = formatBalancePlain(newAmount, BitcoinUnit.LOCAL_CURRENCY);
-          AmountInput.setCachedSatoshis(newAmount, sats);
-          break;
-      }
-
-      // setting the invoice creating screen with the parameters
-      setLNURLParams({
-        k1: reply.k1,
-        callback: reply.callback,
-        fixed: reply.minWithdrawable === reply.maxWithdrawable,
-        min: (reply.minWithdrawable || 0) / 1000,
-        max: reply.maxWithdrawable / 1000,
-      });
-      setAmount(newAmount);
-      setDescription(reply.defaultDescription);
-      setIsLoading(false);
-    } catch (Err) {
-      Keyboard.dismiss();
-      setIsLoading(false);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: Err.message });
-    }
-  };
-
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
@@ -320,7 +330,9 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToScanQRCode = () => {
-    scanQrHelper(name, true, processLnurl);
+    navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
     Keyboard.dismiss();
   };
 
