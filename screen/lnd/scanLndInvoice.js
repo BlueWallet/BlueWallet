@@ -18,13 +18,14 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
+  const route = useRoute();
   const { walletID, uri, invoice } = useRoute().params;
-  const name = useRoute().name;
   /** @type {LightningCustodianWallet} */
   const [wallet, setWallet] = useState(
     wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN),
@@ -281,6 +282,25 @@ const ScanLndInvoice = () => {
     pop();
   };
 
+  const onBarScanned = useCallback(
+    value => {
+      if (!value) return;
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        navigate(...completionValue);
+      });
+    },
+    [navigate],
+  );
+
+  useEffect(() => {
+    const data = route.params?.onBarScanned;
+    if (data) {
+      onBarScanned(data);
+      setParams({ onBarScanned: undefined });
+    }
+  }, [navigate, onBarScanned, route.params?.onBarScanned, setParams]);
+
   if (wallet === undefined || !wallet) {
     return (
       <View style={[styles.loadingIndicator, stylesHook.root]}>
@@ -323,7 +343,6 @@ const ScanLndInvoice = () => {
               isLoading={isLoading}
               placeholder={loc.lnd.placeholder}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-              launchedBy={name}
               onBlur={onBlur}
               keyboardType="email-address"
               style={styles.addressInput}

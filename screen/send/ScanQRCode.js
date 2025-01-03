@@ -89,7 +89,11 @@ const ScanQRCode = () => {
   const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
-  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
+  const navigationState = navigation.getState();
+  const previousRoute = navigationState.routes[navigationState.routes.length - 2];
+  const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
+
+  const { launchedBy = defaultLaunchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -139,13 +143,11 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -192,13 +194,11 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
@@ -259,13 +259,12 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
       if (launchedBy) {
-        let merge = true;
-        if (typeof onBarScanned !== 'function') {
-          merge = false;
-        }
-        navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+        const merge = true;
+
+        navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+      } else {
+        onBarScanned && onBarScanned({ data });
       }
-      onBarScanned && onBarScanned({ data });
       return;
     } catch (_) {}
 
@@ -273,13 +272,12 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: ret.data }, merge });
+          const merge = true;
+
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: ret.data }, merge });
+        } else {
+          onBarScanned && onBarScanned(ret.data);
         }
-        onBarScanned && onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }

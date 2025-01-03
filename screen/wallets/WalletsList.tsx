@@ -13,7 +13,6 @@ import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel from '../../components/WalletsCarousel';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -104,10 +103,9 @@ const WalletsList: React.FC = () => {
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
-  const routeName = route.name;
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
@@ -179,13 +177,25 @@ const WalletsList: React.FC = () => {
     walletsCount.current = wallets.length;
   }, [wallets]);
 
+  const onBarScanned = useCallback(
+    (value: any) => {
+      if (!value) return;
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        // @ts-ignore: for now
+        navigation.navigate(...completionValue);
+      });
+    },
+    [navigation],
+  );
+
   useEffect(() => {
-    const scannedData = route.params?.scannedData;
-    if (scannedData) {
-      onBarScanned(scannedData);
+    const data = route.params?.onBarScanned;
+    if (data) {
+      onBarScanned(data);
+      navigation.setParams({ onBarScanned: undefined });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params?.scannedData]);
+  }, [navigation, onBarScanned, route.params?.onBarScanned]);
 
   useEffect(() => {
     refreshTransactions(false, true);
@@ -196,15 +206,15 @@ const WalletsList: React.FC = () => {
     (item?: TWallet) => {
       if (item?.getID) {
         const walletID = item.getID();
-        navigate('WalletTransactions', {
+        navigation.navigate('WalletTransactions', {
           walletID,
           walletType: item.type,
         });
       } else {
-        navigate('AddWalletRoot');
+        navigation.navigate('AddWalletRoot');
       }
     },
-    [navigate],
+    [navigation],
   );
 
   const setIsLoading = useCallback((value: boolean) => {
@@ -240,8 +250,8 @@ const WalletsList: React.FC = () => {
   }, [stylesHook.listHeaderBack, stylesHook.listHeaderText]);
 
   const handleLongPress = useCallback(() => {
-    navigate('ManageWallets');
-  }, [navigate]);
+    navigation.navigate('ManageWallets');
+  }, [navigation]);
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
@@ -349,20 +359,10 @@ const WalletsList: React.FC = () => {
   };
 
   const onScanButtonPressed = useCallback(() => {
-    scanQrHelper(routeName, true, undefined, false);
-  }, [routeName]);
-
-  const onBarScanned = useCallback(
-    (value: any) => {
-      if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        // @ts-ignore: for now
-        navigate(...completionValue);
-      });
-    },
-    [navigate],
-  );
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
+  }, [navigation]);
 
   const pasteFromClipboard = useCallback(async () => {
     onBarScanned(await getClipboardContent());
@@ -397,7 +397,9 @@ const WalletsList: React.FC = () => {
             });
           break;
         case 2:
-          scanQrHelper(routeName, true, undefined, false);
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
           break;
         case 3:
           if (!isClipboardEmpty) {
@@ -406,7 +408,7 @@ const WalletsList: React.FC = () => {
           break;
       }
     });
-  }, [pasteFromClipboard, onBarScanned, routeName]);
+  }, [onBarScanned, navigation, pasteFromClipboard]);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
