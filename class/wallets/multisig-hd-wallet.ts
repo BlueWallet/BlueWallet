@@ -629,7 +629,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
           }
 
-          const path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          let path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          if (path === 'm/') {
+            // not considered valid by Bip32 lib
+            path = 'm/0';
+          }
           let xpub = m[2];
           if (xpub.indexOf('/') !== -1) {
             xpub = xpub.substr(0, xpub.indexOf('/'));
