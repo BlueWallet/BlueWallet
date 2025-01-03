@@ -132,13 +132,19 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
       return undefined;
     } else if (response.errorCode) {
       throw new Error(response.errorMessage);
-    } else if (response.assets?.[0]?.uri) {
+    } else if (response.assets) {
       try {
-        const result = await RNQRGenerator.detect({ uri: decodeURI(response.assets[0].uri.toString()) });
-        return result?.values[0];
+        const uri = response.assets[0].uri;
+        if (uri) {
+          const result = await RNQRGenerator.detect({ uri: decodeURI(uri.toString()) });
+          if (result?.values.length > 0) {
+            return result?.values[0];
+          }
+        }
+        throw new Error(loc.send.qr_error_no_qrcode);
       } catch (error) {
         console.error(error);
-        throw new Error(loc.send.qr_error_no_qrcode);
+        presentAlert({ message: loc.send.qr_error_no_qrcode });
       }
     }
 
@@ -187,9 +193,11 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
         if (result) {
           return { data: result.values[0], uri: fileCopyUri };
         }
+        presentAlert({ message: loc.send.qr_error_no_qrcode });
         return { data: false, uri: false };
       } catch (error) {
         console.error(error);
+        presentAlert({ message: loc.send.qr_error_no_qrcode });
         return { data: false, uri: false };
       }
     }
