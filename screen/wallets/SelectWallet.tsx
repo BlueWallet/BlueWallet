@@ -11,28 +11,19 @@ import { useStorage } from '../../hooks/context/useStorage';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { TWallet } from '../../class/wallets/types';
-import { CloseButtonPosition } from '../../components/navigationStyle';
 import { pop } from '../../NavigationService';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
-type SelectWalletRouteProp = RouteProp<
-  {
-    SelectWallet: {
-      chainType?: Chain;
-      onWalletSelect?: (wallet: TWallet, navigation: any) => void;
-      availableWallets?: TWallet[];
-      noWalletExplanationText?: string;
-      onChainRequireSend?: boolean;
-    };
-  },
-  'SelectWallet'
->;
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SelectWallet'>;
+
+type RouteProps = RouteProp<SendDetailsStackParamList, 'SelectWallet'>;
 
 const SelectWallet: React.FC = () => {
-  const route = useRoute<SelectWalletRouteProp>();
+  const route = useRoute<RouteProps>();
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = route.params;
   const [isLoading, setIsLoading] = useState(true);
-  const navigation = useExtendedNavigation();
-  const { navigate, setOptions } = navigation;
+  const navigation = useExtendedNavigation<NavigationProps>();
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const isModal = useNavigationState(state => state.routes.length === 1);
@@ -67,23 +58,24 @@ const SelectWallet: React.FC = () => {
   }, [availableWallets, chainType, onChainRequireSend, wallets]);
 
   useEffect(() => {
-    setOptions({
+    navigation.setOptions({
       statusBarStyle: isLoading || (availableWallets || filterWallets()).length === 0 ? 'light' : 'auto',
     });
-  }, [isLoading, availableWallets, setOptions, filterWallets]);
+  }, [isLoading, availableWallets, filterWallets, navigation]);
 
   useEffect(() => {
     if (!isModal) {
-      setOptions({ CloseButtonPosition: CloseButtonPosition.None });
+      navigation.setOptions({ headerBackVisible: false });
     }
-  }, [isModal, setOptions]);
+  }, [isModal, navigation]);
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
     if (onWalletSelect) {
-      onWalletSelect(item, { navigation: { pop, navigate } });
+      onWalletSelect(item, { navigation: { pop, navigation: navigation.navigate } });
     } else {
-      navigate(previousRouteName, { walletID: item.getID(), merge: true });
+      // @ts-ignore: fix later
+      navigation.popTo(previousRouteName, { walletID: item.getID(), merge: true });
     }
   };
 

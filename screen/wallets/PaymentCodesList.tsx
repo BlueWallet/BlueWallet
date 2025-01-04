@@ -179,14 +179,13 @@ export default function PaymentCodesList() {
   };
 
   const _navigateToSend = (pc: string) => {
-    navigation.navigate('SendDetailsRoot', {
-      screen: 'SendDetails',
-      params: {
-        walletID,
-        addRecipientParams: {
-          address: pc,
-        },
+    // @ts-expect-error: Needs to be updated for Nav 7
+    navigation.popTo('SendDetails', {
+      walletID,
+      addRecipientParams: {
+        address: pc,
       },
+
       merge: true,
     });
   };
