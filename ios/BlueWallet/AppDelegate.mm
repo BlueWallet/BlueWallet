@@ -58,7 +58,7 @@
   center.delegate = self;
 
   [self setupUserDefaultsListener];
-  [self registerNotificationCategories];
+  [self registerNotificationCategories]; // Register notification categories
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
@@ -92,7 +92,31 @@
                                                                               intentIdentifiers:@[]
                                                                                         options:UNNotificationCategoryOptionCustomDismissAction];
 
-    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithObject:transactionCategory]];
+    // Define actions for presentResetToDefaultsAlert
+    UNNotificationAction *resetToDefaultsAction = [UNNotificationAction actionWithIdentifier:@"RESET_TO_DEFAULTS_ACTION"
+                                                                                      title:NSLocalizedString(@"RESET_TO_DEFAULTS_TITLE", nil)
+                                                                                    options:UNNotificationActionOptionDestructive];
+
+    UNNotificationCategory *resetToDefaultsCategory = [UNNotificationCategory categoryWithIdentifier:@"RESET_TO_DEFAULTS_CATEGORY"
+                                                                                             actions:@[resetToDefaultsAction]
+                                                                                   intentIdentifiers:@[]
+                                                                                             options:UNNotificationCategoryOptionCustomDismissAction];
+
+    // Define actions for presentNetworkErrorAlert
+    UNNotificationAction *tryAgainAction = [UNNotificationAction actionWithIdentifier:@"TRY_AGAIN_ACTION"
+                                                                                title:NSLocalizedString(@"TRY_AGAIN_TITLE", nil)
+                                                                              options:UNNotificationActionOptionForeground];
+
+    UNNotificationAction *resetElectrumAction = [UNNotificationAction actionWithIdentifier:@"RESET_ELECTRUM_ACTION"
+                                                                                     title:NSLocalizedString(@"RESET_ELECTRUM_TITLE", nil)
+                                                                                   options:UNNotificationActionOptionDestructive];
+
+    UNNotificationCategory *networkErrorCategory = [UNNotificationCategory categoryWithIdentifier:@"NETWORK_ERROR_CATEGORY"
+                                                                                          actions:@[tryAgainAction, resetElectrumAction]
+                                                                                intentIdentifiers:@[]
+                                                                                          options:UNNotificationCategoryOptionCustomDismissAction];
+
+    [[UNUserNotificationCenter currentNotificationCenter] setNotificationCategories:[NSSet setWithObjects:transactionCategory, resetToDefaultsCategory, networkErrorCategory, nil]];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
@@ -194,7 +218,6 @@
 //Called when a notification is delivered to a foreground app.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
-  NSDictionary *userInfo = notification.request.content.userInfo;
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
@@ -280,12 +303,14 @@
 // Required for the register event.
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
+  NSLog(@"Successfully registered for remote notifications with device token: %@", deviceToken);
  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
 // Required for the registrationError event.
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
+  NSLog(@"Failed to register for remote notifications with error: %@", error);
  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
@@ -294,7 +319,10 @@
              withCompletionHandler:(void (^)(void))completionHandler
 {
     NSDictionary *userInfo = response.notification.request.content.userInfo;
-  NSString *blockExplorer = [[[NSUserDefaults standardUserDefaults] initWithSuiteName:@"group.io.bluewallet.bluewallet"] stringForKey:@"blockExplorer"];
+
+    NSLog(@"Notification response received with action identifier: %@", response.actionIdentifier);
+
+    NSString *blockExplorer = [[[NSUserDefaults standardUserDefaults] initWithSuiteName:@"group.io.bluewallet.bluewallet"] stringForKey:@"blockExplorer"];
     if (blockExplorer == nil || [blockExplorer length] == 0) {
         blockExplorer = @"https://www.mempool.space";
     }
@@ -315,6 +343,15 @@
         if ([[UIApplication sharedApplication] canOpenURL:url]) {
             [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
         }
+    } else if ([response.actionIdentifier isEqualToString:@"RESET_TO_DEFAULTS_ACTION"]) {
+        NSLog(@"Reset to defaults action pressed");
+        // Handle reset to defaults action
+    } else if ([response.actionIdentifier isEqualToString:@"TRY_AGAIN_ACTION"]) {
+        NSLog(@"Try again action pressed");
+        // Handle try again action
+    } else if ([response.actionIdentifier isEqualToString:@"RESET_ELECTRUM_ACTION"]) {
+        NSLog(@"Reset Electrum action pressed");
+        // Handle reset Electrum action
     }
 
     [RNCPushNotificationIOS didReceiveNotificationResponse:response];

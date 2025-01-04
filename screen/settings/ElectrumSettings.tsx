@@ -4,7 +4,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import {
@@ -263,7 +263,7 @@ const ElectrumSettings: React.FC = () => {
         presentResetToDefaultsAlert().then(async result => {
           if (result) {
             await BlueElectrum.removePreferredServer();
-            presentAlert({ message: loc.settings.electrum_saved });
+            presentAlert({ message: loc.settings.electrum_saved, type: AlertType.Alert });
             fetchData();
           }
         });
