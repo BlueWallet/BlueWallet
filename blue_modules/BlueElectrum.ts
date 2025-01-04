@@ -5,10 +5,12 @@ import RNFS from 'react-native-fs';
 import Realm from 'realm';
 
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
+import { AlertButton } from 'react-native';
+import { navigationRef } from '../NavigationService';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -98,7 +100,7 @@ let mainConnected: boolean = false;
 let wasConnectedAtLeastOnce: boolean = false;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
-let connectionAttempt: number = 0;
+let connectionAttempt: number = 5;
 let currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
 const txhashHeightCache: Record<string, number> = {};
@@ -178,6 +180,7 @@ export async function isDisabled(): Promise<boolean> {
     console.error('Error getting Electrum connection disabled state:', error);
     result = false;
   }
+  console.debug('Returning Electrum connection disabled state:', result);
   return !!result;
 }
 
@@ -324,12 +327,11 @@ export async function connectMain(): Promise<void> {
   }
 }
 
-export async function presentResetToDefaultsAlert(): Promise<boolean> {
+export async function presentResetToDefaultsAlert(type: AlertType = AlertType.Alert): Promise<boolean> {
   return new Promise(resolve => {
-    presentAlert({
-      title: loc.settings.electrum_reset,
-      message: loc.settings.electrum_reset_to_default,
-      buttons: [
+    let buttons: AlertButton[] = [];
+    if (type === AlertType.Alert) {
+      buttons = [
         {
           text: loc._.cancel,
           style: 'cancel',
@@ -350,19 +352,83 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
             resolve(true);
           },
         },
-      ],
+      ];
+    } else if (type === AlertType.Notification) {
+      buttons = [
+        {
+          text: loc.settings.electrum_reset,
+          onPress: async () => {
+            try {
+              await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+              await DefaultPreference.clear(ELECTRUM_HOST);
+              await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+              await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+            } catch (e) {
+              console.log(e); // Must be running on Android
+            }
+            resolve(true);
+          },
+          style: 'destructive',
+        },
+      ];
+    }
+
+    presentAlert({
+      title: loc.settings.electrum_reset,
+      message: loc.settings.electrum_reset_to_default,
+      type,
+      buttons,
       options: { cancelable: true },
+      category: 'RESET_TO_DEFAULTS_CATEGORY',
     });
   });
-}
+};
 
-const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
+const presentNetworkErrorAlert = async (usingPeer?: Peer, type: AlertType = AlertType.Notification) => {
   if (await isDisabled()) {
     console.log(
       'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
     );
     return;
   }
+
+  const buttons: AlertButton[] = [
+    {
+      text: loc.wallets.list_tryagain,
+      onPress: () => {
+        connectionAttempt = 0;
+        mainClient.close() && mainClient.close();
+        setTimeout(connectMain, 500);
+      },
+      style: 'default',
+    },
+    {
+      text: loc.settings.electrum_reset,
+      onPress: () => {
+        console.warn('User decided to reset Electrum settings to default');
+        presentResetToDefaultsAlert(AlertType.Alert).then(result => {
+          if (result) {
+            connectionAttempt = 0;
+            mainClient.close() && mainClient.close();
+            setTimeout(connectMain, 500);
+          }
+        });
+      },
+      style: 'destructive',
+    },
+  ];
+
+  if (type === AlertType.Alert) {
+    buttons.push({
+      text: loc._.cancel,
+      onPress: () => {},
+      style: 'cancel',
+    });
+  }
+
+  const navigateToElectrumSettings = () => {
+    navigationRef.current?.navigate('ElectrumSettings');
+  };
 
   presentAlert({
     allowRepeat: false,
@@ -371,39 +437,11 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
       usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
       usingPeer ? { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` } : {},
     ),
-    buttons: [
-      {
-        text: loc.wallets.list_tryagain,
-        onPress: () => {
-          connectionAttempt = 0;
-          mainClient.close() && mainClient.close();
-          setTimeout(connectMain, 500);
-        },
-        style: 'default',
-      },
-      {
-        text: loc.settings.electrum_reset,
-        onPress: () => {
-          presentResetToDefaultsAlert().then(result => {
-            if (result) {
-              connectionAttempt = 0;
-              mainClient.close() && mainClient.close();
-              setTimeout(connectMain, 500);
-            }
-          });
-        },
-        style: 'destructive',
-      },
-      {
-        text: loc._.cancel,
-        onPress: () => {
-          connectionAttempt = 0;
-          mainClient.close() && mainClient.close();
-        },
-        style: 'cancel',
-      },
-    ],
+    type,
+    buttons,
     options: { cancelable: false },
+    category: 'NETWORK_ERROR_CATEGORY',
+    onPress: navigateToElectrumSettings,
   });
 };
 
