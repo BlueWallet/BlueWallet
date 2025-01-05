@@ -153,13 +153,6 @@ const ElectrumSettings: React.FC = () => {
     }
   }, [server]);
 
-  const clearHistory = useCallback(async () => {
-    setIsLoading(true);
-    await DefaultPreference.clear(BlueElectrum.ELECTRUM_SERVER_HISTORY);
-    setServerHistory(new Set());
-    setIsLoading(false);
-  }, []);
-
   const serverExists = useCallback(
     (value: ElectrumServerItem) => {
       return Array.from(serverHistory).some(s => `${s.host}:${s.tcp}:${s.ssl}` === `${value.host}:${value.tcp}:${value.ssl}`);
@@ -219,14 +212,6 @@ const ElectrumSettings: React.FC = () => {
     },
     [save],
   );
-
-  const clearHistoryAlert = useCallback(() => {
-    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-    Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
-      { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-      { text: loc._.ok, onPress: () => clearHistory() },
-    ]);
-  }, [clearHistory]);
 
   const presentSelectServerAlert = useCallback(
     (value: ElectrumServerItem) => {
@@ -299,9 +284,6 @@ const ElectrumSettings: React.FC = () => {
               }
             });
             break;
-          case CommonToolTipActions.ClearHistory.id:
-            clearHistoryAlert();
-            break;
           default:
             try {
               selectServer(id);
@@ -312,7 +294,7 @@ const ElectrumSettings: React.FC = () => {
         }
       }
     },
-    [presentSelectServerAlert, presentDeleteServerAlert, clearHistoryAlert, fetchData, selectServer],
+    [presentSelectServerAlert, presentDeleteServerAlert, fetchData, selectServer],
   );
 
   type TCreateServerActionParameters = {
@@ -404,7 +386,7 @@ const ElectrumSettings: React.FC = () => {
         id: 'server_history',
         text: loc.settings.electrum_history,
         displayInline: serverHistory.size <= 5 && serverHistory.size > 0,
-        subactions: [CommonToolTipActions.ClearHistory, ...serverSubactions],
+        subactions: serverSubactions,
         hidden: serverHistory.size === 0,
       });
     }
