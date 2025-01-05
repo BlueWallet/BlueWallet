@@ -172,6 +172,8 @@ interface WalletCarouselItemProps {
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
   animationsEnabled?: boolean;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
 }
 
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
@@ -186,6 +188,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     renderHighlightedText,
     animationsEnabled = true,
     isPlaceHolder = false,
+    onPressIn,
+    onPressOut,
   }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
@@ -203,7 +207,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           tension: 100,
         }).start();
       }
-    }, [scaleValue, animationsEnabled]);
+      if (onPressIn) onPressIn();
+    }, [scaleValue, animationsEnabled, onPressIn]);
 
     const onPressedOut = useCallback(() => {
       if (animationsEnabled) {
@@ -214,7 +219,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           tension: 100,
         }).start();
       }
-    }, [scaleValue, animationsEnabled]);
+      if (onPressOut) onPressOut();
+    }, [scaleValue, animationsEnabled, onPressOut]);
 
     const handlePress = useCallback(() => {
       onPressedOut();
