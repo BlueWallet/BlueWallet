@@ -888,8 +888,9 @@ const SendDetails = () => {
           }
         } else {
           processAddressData(data);
-          console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
+      } else {
+        processAddressData(data);
       }
       setParams({ onBarScanned: undefined });
     }
