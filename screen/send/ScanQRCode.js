@@ -5,20 +5,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from '@rneui/themed';
-import { launchImageLibrary } from 'react-native-image-picker';
-
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
 import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
-import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
-import RNQRGenerator from 'rn-qr-generator';
 
 let decoder = false;
 
@@ -89,7 +85,11 @@ const ScanQRCode = () => {
   const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
-  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
+  const navigationState = navigation.getState();
+  const previousRoute = navigationState.routes[navigationState.routes.length - 2];
+  const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
+
+  const { launchedBy = defaultLaunchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -139,13 +139,11 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -192,13 +190,11 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
@@ -259,13 +255,12 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
       if (launchedBy) {
-        let merge = true;
-        if (typeof onBarScanned !== 'function') {
-          merge = false;
-        }
-        navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+        const merge = true;
+
+        navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+      } else {
+        onBarScanned && onBarScanned({ data });
       }
-      onBarScanned && onBarScanned({ data });
       return;
     } catch (_) {}
 
@@ -273,13 +268,12 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: ret.data }, merge });
+          const merge = true;
+
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: ret.data }, merge });
+        } else {
+          onBarScanned && onBarScanned(ret.data);
         }
-        onBarScanned && onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }
@@ -297,42 +291,11 @@ const ScanQRCode = () => {
   const showImagePicker = () => {
     if (!isLoading) {
       setIsLoading(true);
-      launchImageLibrary(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-          maxHeight: 800,
-          maxWidth: 600,
-          selectionLimit: 1,
-        },
-        response => {
-          if (response.didCancel) {
-            setIsLoading(false);
-          } else {
-            const asset = response.assets[0];
-            if (asset.uri) {
-              RNQRGenerator.detect({
-                uri: decodeURI(asset.uri.toString()),
-              })
-                .then(result => {
-                  if (result) {
-                    onBarCodeRead({ data: result.values[0] });
-                  }
-                })
-                .catch(error => {
-                  console.error(error);
-                  presentAlert({ message: loc.send.qr_error_no_qrcode });
-                })
-                .finally(() => {
-                  setIsLoading(false);
-                });
-            } else {
-              setIsLoading(false);
-            }
-          }
-        },
-      );
+      fs.showImagePickerAndReadImage()
+        .then(data => {
+          if (data) onBarCodeRead({ data });
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 

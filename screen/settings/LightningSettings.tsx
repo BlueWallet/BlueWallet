@@ -9,11 +9,12 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const styles = StyleSheet.create({
   uri: {
@@ -38,21 +39,14 @@ const styles = StyleSheet.create({
   },
 });
 
-type LightingSettingsRouteProps = RouteProp<
-  {
-    params?: {
-      url?: string;
-    };
-  },
-  'params'
->;
+type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
-  const route = useRoute();
+  const { navigate, setParams } = useExtendedNavigation();
   const styleHook = StyleSheet.create({
     uri: {
       borderColor: colors.formBorder,
@@ -106,37 +100,42 @@ const LightningSettings: React.FC = () => {
 
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
-  const save = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      if (URI) {
-        const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
+const save = useCallback(async () => {
+  setIsLoading(true);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    if (URI) {
+      const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
+      await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
-        await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
-
-        await setLNDHub(normalizedURI);
-      } else {
-        await clearLNDHub();
-      }
-
-      presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    } catch (error) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
-      console.log(error);
+      await setLNDHub(normalizedURI);
+    } else {
+      await clearLNDHub();
     }
-    setIsLoading(false);
-  }, [URI]);
+
+    presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+  } catch (error) {
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+    presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
+    console.log(error);
+  }
+  setIsLoading(false);
+}, [URI]);
 
   const importScan = () => {
-    scanQrHelper(route.name).then(data => {
-      if (data) {
-        setLndhubURI(data);
-      }
+    navigate('ScanQRCode', {
+      showFileImportButton: true,
     });
   };
+
+  useEffect(() => {
+    const data = params?.onBarScanned;
+    if (data) {
+      setLndhubURI(data);
+      setParams({ onBarScanned: undefined });
+    }
+  }, [params?.onBarScanned, setParams]);
 
   return (
     <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
