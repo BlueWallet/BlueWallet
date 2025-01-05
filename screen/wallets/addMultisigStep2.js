@@ -373,7 +373,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = useCallback(
-   async ret => {
+    async ret => {
       if (!ret.data) ret = { data: ret };
 
       try {
