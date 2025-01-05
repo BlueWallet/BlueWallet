@@ -1650,7 +1650,7 @@ PODS:
     - Yoga
   - RNLocalize (3.3.0):
     - React-Core
-  - RNPermissions (5.2.1):
+  - RNPermissions (5.2.2):
     - React-Core
   - RNQrGenerator (1.4.2):
     - React
@@ -2270,7 +2270,7 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
   RNLocalize: d024afa9204c13885e61dc88b8190651bcaabac9
-  RNPermissions: 979aa94a1a2091e3b2c3e7130ef0a1a6e331e05a
+  RNPermissions: 6f08c623b0c8ca7d95faa71c3956b159b34f25c3
   RNQrGenerator: 7c604c0eb608af64ff586ab0c040796a04eff247
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
