@@ -45,7 +45,7 @@ const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, navigateToWalletsList, setParams } = useExtendedNavigation();
+  const { navigate, setParams, goBack } = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -179,7 +179,7 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    navigateToWalletsList();
+    goBack();
   };
 
   const generateNewKey = () => {

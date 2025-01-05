@@ -95,14 +95,9 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
     })();
   };
 
-  const navigateToWalletsList = () => {
-    enhancedNavigate('WalletsList');
-  };
-
   return {
     ...originalNavigation,
     navigate: enhancedNavigate,
-    navigateToWalletsList,
   };
 };
 

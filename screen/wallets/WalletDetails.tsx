@@ -39,7 +39,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp, usePreventRemove } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { unsubscribe } from '../../blue_modules/notifications';
@@ -68,7 +68,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate, addListener } = useExtendedNavigation();
+  const { setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
@@ -407,13 +407,9 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet, walletName, saveToDisk]);
 
-  useEffect(() => {
-    const subscribe = addListener('beforeRemove', () => {
-      walletNameTextInputOnBlur();
-    });
-
-    return subscribe;
-  }, [addListener, walletName, walletNameTextInputOnBlur]);
+  usePreventRemove(false, () => {
+    walletNameTextInputOnBlur();
+  });
 
   const onViewMasterFingerPrintPress = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

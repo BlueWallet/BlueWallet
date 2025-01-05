@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CommonActions, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -49,7 +49,6 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { navigationRef } from '../../NavigationService';
 import SafeArea from '../../components/SafeArea';
 
 type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
@@ -61,7 +60,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, addListener, setParams } = useExtendedNavigation<NavigationProp>();
+  const { navigate, dispatch, addListener, setParams, goBack } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -190,7 +189,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
       // dismiss this modal
-      navigationRef.dispatch(CommonActions.navigate({ name: 'WalletsList' }));
+      goBack();
     }, 500);
   };
   useFocusEffect(
