@@ -38,6 +38,10 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import {
+  DoneAndDismissKeyboardInputAccessory,
+  DoneAndDismissKeyboardInputAccessoryViewID,
+} from '../../components/DoneAndDismissKeyboardInputAccessory';
 
 const staticCache = {};
 
@@ -685,6 +689,16 @@ const WalletsAddMultisigStep2 = () => {
         <BlueSpacing20 />
         <View style={styles.multiLineTextInput}>
           <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          <BlueFormMultiInput
+            value={importText}
+            onChangeText={setImportText}
+            inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+          />
+          {Platform.select({
+            ios: <DoneAndDismissKeyboardInputAccessory />,
+            android: isVisible && <DoneAndDismissKeyboardInputAccessory />,
+          })}
+
           <BlueSpacing20 />
         </View>
       </BottomModal>
