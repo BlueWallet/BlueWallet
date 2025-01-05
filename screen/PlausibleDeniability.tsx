@@ -46,13 +46,13 @@ function reducer(state: State, action: Action): State {
 const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate } = useExtendedNavigation();
+  const { popToTop } = useExtendedNavigation();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
     dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
-    promptRef.current?.present();
+    await promptRef.current?.present();
   };
 
   const handleConfirmationSuccess = async (password: string) => {
@@ -74,7 +74,7 @@ const PlausibleDeniability: React.FC = () => {
 
       success = true;
       setTimeout(() => {
-        navigate('WalletsList');
+        popToTop();
       }, 3000);
     } catch {
       success = false;
