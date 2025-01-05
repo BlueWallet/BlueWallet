@@ -322,6 +322,7 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     id: keys.ResetToDefault,
     text: loc.settings.electrum_reset,
     hidden: false,
+    destructive: true,
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,
