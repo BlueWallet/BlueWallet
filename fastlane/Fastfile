@@ -36,14 +36,15 @@ platform :android do
     end
   end
 
- desc "Update version, build number, and sign APK"
-  lane :update_version_build_and_sign_apk do
+desc "Update version, build number, and sign APK"
+lane :update_version_build_and_sign_apk do
   Dir.chdir(project_root) do
     build_number = ENV['BUILD_NUMBER']
     UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
 
     # Extract versionName from build.gradle
     version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+    UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
 
     # Update versionCode in build.gradle
     UI.message("Updating versionCode in build.gradle to #{build_number}...")
@@ -53,7 +54,8 @@ platform :android do
     File.write(build_gradle_path, new_build_gradle_contents)
 
     # Determine branch name and sanitize it
-    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[^a-zA-Z0-9_-]/, '_')
+    branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
+    branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '_') # Replace non-alphanumeric characters with underscore
     branch_name = 'master' if branch_name.nil? || branch_name.empty?
 
     # Define APK name based on branch
@@ -67,7 +69,7 @@ platform :android do
 
     # Build APK
     UI.message("Building APK...")
-    sh("cd android && ./gradlew assembleRelease")
+    sh("cd android && ./gradlew assembleRelease --no-daemon")
     UI.message("APK build completed.")
 
     # Rename APK
@@ -82,7 +84,8 @@ platform :android do
 
     # Sign APK
     UI.message("Signing APK with apksigner...")
-    apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/34.0.0/apksigner"
+    apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
+    UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
     sh("#{apksigner_path} sign --ks #{project_root}/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
     UI.message("APK signed successfully: #{signed_apk_path}")
   end
