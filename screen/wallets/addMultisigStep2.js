@@ -373,7 +373,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = useCallback(
-    ret => {
+   async ret => {
       if (!ret.data) ret = { data: ret };
 
       try {
@@ -391,8 +391,8 @@ const WalletsAddMultisigStep2 = () => {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       } else if (isValidMnemonicSeed(ret.data)) {
         setImportText(ret.data);
-        setTimeout(() => {
-          provideMnemonicsModalRef.current.present().then(() => {});
+        setTimeout(async () => {
+          await provideMnemonicsModalRef.current.present().then(() => {});
         }, 100);
       } else {
         if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
@@ -403,7 +403,7 @@ const WalletsAddMultisigStep2 = () => {
         }
         let cosigner = new MultisigCosigner(ret.data);
         if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
-        provideMnemonicsModalRef.current.dismiss();
+        await provideMnemonicsModalRef.current.dismiss();
         if (cosigner.howManyCosignersWeHave() > 1) {
           // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
           // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -477,7 +477,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    navigate('ScanQRCode');
+    navigate('ScanQRCode', { showFileImportButton: true });
   };
 
   useEffect(() => {
@@ -644,6 +644,7 @@ const WalletsAddMultisigStep2 = () => {
                     title={loc.wallets.import_do_import}
                     onPress={useMnemonicPhrase}
                   />
+                  <View style={styles.height16} />
                   <BlueButtonLink
                     testID="ScanOrOpenFile"
                     ref={openScannerButton}
@@ -764,6 +765,9 @@ const styles = StyleSheet.create({
   wrapBox: {
     flex: 1,
     marginVertical: 24,
+  },
+  height16: {
+    height: 16,
   },
   buttonBottom: {
     marginHorizontal: 20,
