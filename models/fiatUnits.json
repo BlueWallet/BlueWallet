@@ -125,6 +125,13 @@
         "symbol": "£",
         "country": "United Kingdom (British Pound)"
     },
+    "HKD": {
+        "endPointKey": "HKD",
+        "locale": "zh-HK",
+        "source": "CoinGecko",
+        "symbol": "HK$",
+        "country": "Hong Kong (Hong Kong Dollar)"
+    },
     "HRK": {
         "endPointKey": "HRK",
         "locale": "hr-HR",

@@ -155,9 +155,13 @@ const MultipleStepsListItem = props => {
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
                   onPress={props.button.onPress}
                 >
-                  <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText, styles.rightButton]}>
-                    {props.button.text}
-                  </Text>
+                  {props.button.showActivityIndicator ? (
+                    <ActivityIndicator />
+                  ) : (
+                    <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText, styles.rightButton]}>
+                      {props.button.text}
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
             )}
@@ -171,7 +175,11 @@ const MultipleStepsListItem = props => {
               style={styles.rightButton}
               onPress={props.rightButton.onPress}
             >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
+              {props.rightButton.showActivityIndicator ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}
@@ -194,11 +202,13 @@ MultipleStepsListItem.propTypes = {
     disabled: PropTypes.bool,
     buttonType: PropTypes.number,
     leftText: PropTypes.string,
+    showActivityIndicator: PropTypes.bool,
   }),
   rightButton: PropTypes.shape({
     text: PropTypes.string,
     onPress: PropTypes.func,
     disabled: PropTypes.bool,
+    showActivityIndicator: PropTypes.bool,
   }),
 };
 
