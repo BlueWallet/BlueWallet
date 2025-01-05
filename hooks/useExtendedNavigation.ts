@@ -3,6 +3,7 @@ import { navigationRef } from '../NavigationService';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
 import { unlockWithBiometrics, useBiometrics } from './useBiometrics';
 import { useStorage } from './context/useStorage';
+import { requestCameraAuthorization } from '../helpers/scan-qr';
 
 // List of screens that require biometrics
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
@@ -89,6 +90,10 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
 
           return; // Prevent proceeding with the original navigation if the reminder is shown
         }
+      }
+
+      if (screenName === 'ScanQRCode') {
+        await requestCameraAuthorization();
       }
       proceedWithNavigation();
     })();
