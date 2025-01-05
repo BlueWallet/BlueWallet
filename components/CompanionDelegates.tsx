@@ -183,6 +183,9 @@ const CompanionDelegates = () => {
 
         if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
           try {
+            if (!decodedUrl) {
+              throw new Error(loc.send.qr_error_no_qrcode);
+            }
             const values = await RNQRGenerator.detect({
               uri: decodedUrl,
             });
@@ -200,11 +203,12 @@ const CompanionDelegates = () => {
                 },
               );
             } else {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              presentAlert({ message: loc.send.qr_error_no_qrcode });
+              throw new Error(loc.send.qr_error_no_qrcode);
             }
           } catch (error) {
             console.error('Error detecting QR code:', error);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            presentAlert({ message: loc.send.qr_error_no_qrcode });
           }
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
