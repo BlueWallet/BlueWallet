@@ -11,6 +11,7 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
 } from '../components/PromptPasswordConfirmationModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { StackActions } from '@react-navigation/native';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -46,7 +47,7 @@ function reducer(state: State, action: Action): State {
 const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { popToTop } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
@@ -74,7 +75,8 @@ const PlausibleDeniability: React.FC = () => {
 
       success = true;
       setTimeout(() => {
-        popToTop();
+        const popToTop = StackActions.popToTop();
+        navigation.dispatch(popToTop);
       }, 3000);
     } catch {
       success = false;

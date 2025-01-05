@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -60,7 +60,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, addListener, setParams, goBack } = useExtendedNavigation<NavigationProp>();
+  const { navigate, dispatch, setParams, goBack } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -80,7 +80,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const data = useRef<any[]>();
+  const walletData = useRef<any[]>();
   /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
     user tries to leave the screen with unsaved changes.
     Why the container view ? It was the easiest to get the ref for. No other reason.
@@ -114,53 +114,37 @@ const ViewEditMultisigCosigners: React.FC = () => {
       color: colors.buttonTextColor,
     },
   });
-  useFocusEffect(
-    useCallback(() => {
-      const unsubscribe = addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
-        // Check if there are unsaved changes
-        if (isSaveButtonDisabled) {
-          // If there are no unsaved changes, let the user leave the screen
-          return;
-        }
 
-        // Prevent the default action (going back)
-        e.preventDefault();
-
-        // Show an alert asking the user to discard changes or cancel
-        if (isDesktop) {
-          if (!discardChangesRef.current) return dispatch(e.data.action);
-          const anchor = findNodeHandle(discardChangesRef.current);
-          if (!anchor) return dispatch(e.data.action);
-          ActionSheet.showActionSheetWithOptions(
-            {
-              options: [loc._.cancel, loc._.ok],
-              cancelButtonIndex: 0,
-              title: loc._.discard_changes,
-              message: loc._.discard_changes_explain,
-              anchor,
-            },
-            buttonIndex => {
-              if (buttonIndex === 1) {
-                dispatch(e.data.action);
-              }
-            },
-          );
-        } else {
-          Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-            { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-            {
-              text: loc._.ok,
-              style: 'default',
-              // If the user confirms, then we dispatch the action we blocked earlier
-              onPress: () => dispatch(e.data.action),
-            },
-          ]);
-        }
-      });
-
-      return unsubscribe;
-    }, [isSaveButtonDisabled, addListener, dispatch]),
-  );
+  usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
+    if (isDesktop) {
+      if (!discardChangesRef.current) return dispatch(data.action);
+      const anchor = findNodeHandle(discardChangesRef.current);
+      if (!anchor) return dispatch(data.action);
+      ActionSheet.showActionSheetWithOptions(
+        {
+          options: [loc._.cancel, loc._.ok],
+          cancelButtonIndex: 0,
+          title: loc._.discard_changes,
+          message: loc._.discard_changes_explain,
+          anchor,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            dispatch(data.action);
+          }
+        },
+      );
+    } else {
+      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+        { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+        {
+          text: loc._.ok,
+          style: 'default',
+          onPress: () => dispatch(data.action),
+        },
+      ]);
+    }
+  });
 
   const onSave = async () => {
     await dismissAllModals();
@@ -208,7 +192,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           w.current.setNativeSegwit();
         } else {
           tempWallet.current.setSecret(w.current.getSecret());
-          data.current = new Array(tempWallet.current.getN());
+          walletData.current = new Array(tempWallet.current.getN());
           setWallet(tempWallet.current);
         }
         hasLoaded.current = true;
@@ -313,7 +297,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }
 
     // @ts-ignore not sure which one is correct
-    const length = data?.length ?? data.current?.length ?? 0;
+    const length = walletData?.length ?? walletData.current?.length ?? 0;
 
     return (
       <View>
@@ -673,7 +657,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
         <FlatList
           ListHeaderComponent={tipKeys}
-          data={data.current}
+          data={walletData.current}
           extraData={vaultKeyData}
           renderItem={_renderKeyItem}
           automaticallyAdjustKeyboardInsets
