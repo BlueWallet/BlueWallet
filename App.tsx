@@ -15,17 +15,17 @@ const App = () => {
   const colorScheme = useColorScheme();
 
   return (
-    <LargeScreenProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-        <SafeAreaProvider>
+    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <SafeAreaProvider>
+        <LargeScreenProvider>
           <StorageProvider>
             <SettingsProvider>
               <MasterView />
             </SettingsProvider>
           </StorageProvider>
-        </SafeAreaProvider>
-      </NavigationContainer>
-    </LargeScreenProvider>
+        </LargeScreenProvider>
+      </SafeAreaProvider>
+    </NavigationContainer>
   );
 };
 

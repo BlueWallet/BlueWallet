@@ -50,6 +50,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { navigationRef } from '../../NavigationService';
+import SafeArea from '../../components/SafeArea';
 
 type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
@@ -443,7 +444,35 @@ const ViewEditMultisigCosigners: React.FC = () => {
     await shareModalRef.current?.dismiss();
     await mnemonicsModalRef.current?.dismiss();
   };
-  const handleUseMnemonicPhrase = async () => {
+
+  const _handleUseMnemonicPhrase = useCallback(
+    (mnemonic: string, passphrase?: string) => {
+      if (!wallet || !currentlyEditingCosignerNum) {
+        // failsafe
+        return;
+      }
+
+      const hd = new HDSegwitBech32Wallet();
+      hd.setSecret(mnemonic);
+      if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
+      try {
+        wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
+      } catch (e: any) {
+        console.log(e);
+        return presentAlert({ message: e.message });
+      }
+
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setWallet(wallet);
+      provideMnemonicsModalRef.current?.dismiss();
+      setIsSaveButtonDisabled(false);
+      setImportText('');
+      setAskPassphrase(false);
+    },
+    [wallet, currentlyEditingCosignerNum],
+  );
+
+  const handleUseMnemonicPhrase = useCallback(async () => {
     let passphrase;
     if (askPassphrase) {
       try {
@@ -457,31 +486,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
     return _handleUseMnemonicPhrase(importText, passphrase);
-  };
-
-  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase?: string) => {
-    if (!wallet || !currentlyEditingCosignerNum) {
-      // failsafe
-      return;
-    }
-
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonic);
-    if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
-    try {
-      wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
-    } catch (e: any) {
-      console.log(e);
-      return presentAlert({ message: e.message });
-    }
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setWallet(wallet);
-    provideMnemonicsModalRef.current?.dismiss();
-    setIsSaveButtonDisabled(false);
-    setImportText('');
-    setAskPassphrase(false);
-  };
+  }, [askPassphrase, importText, _handleUseMnemonicPhrase]);
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -508,11 +513,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
   useEffect(() => {
     const scannedData = route.params.onBarScanned;
     if (scannedData) {
-      setImportText(String(scannedData));
       setParams({ onBarScanned: undefined });
-      provideMnemonicsModalRef.current?.present();
+      setImportText(String(scannedData));
+      handleUseMnemonicPhrase();
     }
-  }, [route.params.onBarScanned, setParams]);
+  }, [route.params.onBarScanned, setParams, handleUseMnemonicPhrase]);
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
@@ -634,24 +639,26 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
-    <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-      <FlatList
-        ListHeaderComponent={tipKeys}
-        data={data.current}
-        extraData={vaultKeyData}
-        renderItem={_renderKeyItem}
-        automaticallyAdjustKeyboardInsets
-        contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets
-        keyExtractor={(_item, index) => `${index}`}
-        contentContainerStyle={styles.contentContainerStyle}
-      />
-      <BlueCard>{footer}</BlueCard>
+    <SafeArea>
+      <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
+        <FlatList
+          ListHeaderComponent={tipKeys}
+          data={data.current}
+          extraData={vaultKeyData}
+          renderItem={_renderKeyItem}
+          automaticallyAdjustKeyboardInsets
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets
+          keyExtractor={(_item, index) => `${index}`}
+          contentContainerStyle={styles.contentContainerStyle}
+        />
+        <BlueCard>{footer}</BlueCard>
 
-      {renderProvideMnemonicsModal()}
+        {renderProvideMnemonicsModal()}
 
-      {renderMnemonicsModal()}
-    </View>
+        {renderMnemonicsModal()}
+      </View>
+    </SafeArea>
   );
 };
 

@@ -78,11 +78,6 @@ const navigationStyle = (
       let headerRight;
       let headerLeft;
 
-      if (!headerBackVisible) {
-        headerLeft = () => <></>;
-        opts.headerLeft = headerLeft;
-      }
-
       if (closeButton === CloseButtonPosition.Right) {
         headerRight = () => (
           <TouchableOpacity
@@ -115,7 +110,9 @@ const navigationStyle = (
           fontWeight: '600',
           color: theme.colors.foregroundColor,
         },
+        headerBackVisible,
         headerBackTitle: undefined,
+        headerBackButtonDisplayMode: 'minimal',
         headerTintColor: theme.colors.foregroundColor,
         headerRight,
         headerLeft,

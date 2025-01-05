@@ -192,6 +192,7 @@ const WalletsList: React.FC = () => {
   useEffect(() => {
     const data = route.params?.onBarScanned;
     if (data) {
+      console.warn('WalletsList onBarScanned', data);
       onBarScanned(data);
       navigation.setParams({ onBarScanned: undefined });
     }

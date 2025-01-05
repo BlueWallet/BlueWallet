@@ -245,26 +245,6 @@ const DetailViewStackScreensStack = () => {
       />
 
       <DetailViewStack.Screen
-        name="AddWalletRoot"
-        component={AddWalletStack}
-        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationDefaultOptions })(theme)}
-      />
-      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
-      {/* screens */}
-      <DetailViewStack.Screen
-        name="WalletExportRoot"
-        component={WalletExportStack}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <DetailViewStack.Screen
-        name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupStack}
-        options={NavigationDefaultOptions}
-      />
-      <DetailViewStack.Screen
         name="Settings"
         component={Settings}
         options={navigationStyle({
@@ -339,6 +319,27 @@ const DetailViewStackScreensStack = () => {
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
+      <DetailViewStack.Screen
+        name="AddWalletRoot"
+        component={AddWalletStack}
+        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationDefaultOptions })(theme)}
+      />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+      {/* screens */}
+      <DetailViewStack.Screen
+        name="WalletExportRoot"
+        component={WalletExportStack}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+      />
+      <DetailViewStack.Screen
+        name="ExportMultisigCoordinationSetupRoot"
+        component={ExportMultisigCoordinationSetupStack}
+        options={NavigationDefaultOptions}
+      />
+
       <DetailViewStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersStackRoot}

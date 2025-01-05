@@ -1,4 +1,4 @@
-import { StackActions, useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -19,6 +19,7 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import RNQRGenerator from 'rn-qr-generator';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 let decoder = false;
 
@@ -87,13 +88,13 @@ const styles = StyleSheet.create({
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { setIsDrawerShouldHide } = useSettings();
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const route = useRoute();
   const navigationState = navigation.getState();
   const previousRoute = navigationState.routes[navigationState.routes.length - 2];
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
-  const { launchedBy = defaultLaunchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params || {};
+  const { launchedBy = defaultLaunchedBy, onDismiss, showFileImportButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -144,16 +145,15 @@ const ScanQRCode = () => {
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
           const merge = true;
-          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
-        } else {
-          onBarScanned && onBarScanned({ data });
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
+
+          navigation.dispatch(popToAction);
         }
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
       }
     } catch (error) {
-      console.warn(error);
       setIsLoading(true);
       Alert.alert(
         loc.send.scan_error,
@@ -195,17 +195,14 @@ const ScanQRCode = () => {
         }
         if (launchedBy) {
           const merge = true;
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned }, merge);
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
 
           navigation.dispatch(popToAction);
-        } else {
-          onBarScanned && onBarScanned({ data });
         }
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
     } catch (error) {
-      console.warn(error);
       setIsLoading(true);
       Alert.alert(
         loc.send.scan_error,
@@ -260,32 +257,25 @@ const ScanQRCode = () => {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
+
       if (launchedBy) {
         const merge = true;
-
-        const popToAction = StackActions.popTo(launchedBy, { onBarScanned }, merge);
-
+        const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
         navigation.dispatch(popToAction);
-      } else {
-        onBarScanned && onBarScanned({ data });
       }
       return;
-    } catch (_) {}
-
-    if (!isLoading) {
-      setIsLoading(true);
-      try {
-        if (launchedBy) {
+    } catch (_) {
+      if (!isLoading) {
+        setIsLoading(true);
+        try {
           const merge = true;
 
           const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, merge);
 
           navigation.dispatch(popToAction);
-        } else {
-          onBarScanned && onBarScanned(ret.data);
+        } catch (e) {
+          console.log(e);
         }
-      } catch (e) {
-        console.log(e);
       }
     }
     setIsLoading(false);
@@ -342,10 +332,7 @@ const ScanQRCode = () => {
 
   const dismiss = () => {
     if (launchedBy) {
-      let merge = true;
-      if (typeof onBarScanned !== 'function') {
-        merge = false;
-      }
+      const merge = true;
       const popToAction = StackActions.popTo(launchedBy, {}, merge);
 
       navigation.dispatch(popToAction);
