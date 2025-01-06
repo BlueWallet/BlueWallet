@@ -371,7 +371,7 @@
     "list_title": "Transacciones",
     "transaction": "Transacción",
     "open_url_error": "No se puede abrir el enlace con el navegador predeterminado. Cambia tu navegador predeterminado y vuelve a intentarlo.",
-    "rbf_explain": "Reemplazaremos esta transacción con una con una tarifa más alta para que se extraiga más rápido. Esto se llama RBF—Replace by Fee.",
+    "rbf_explain": "Reemplazaremos esta transacción con una con una tarifa más alta para que se extraiga más rápido. Esto se llama RBF (Replace by Fee)",
     "rbf_title": "Aumentar Comisión (RBF)",
     "status_bump": "Aumentar Comisión",
     "status_cancel": "Cancelar Transacción",
