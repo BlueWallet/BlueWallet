@@ -336,7 +336,7 @@
     "copy_link": "Copiar enlace",
     "expand_note": "Expandir Nota",
     "cpfp_create": "Crear",
-    "cpfp_exp": "Crearemos otra transacción que gaste tu transacción no confirmada. La tarifa total será más alta que la tarifa de la transacción original, por lo que debería extraerse más rápido. Esto se llama CPFP — Child Pays for Parent.",
+    "cpfp_exp": "Crearemos otra transacción que gaste tu transacción no confirmada. La tarifa total será más alta que la tarifa de la transacción original, por lo que debería extraerse más rápido. Esto se llama CPFP (Child Pays for Parent).",
     "cpfp_no_bump": "Esta transacción no se puede acelerar.",
     "cpfp_title": "Aumentar Comisión (CPFP)",
     "details_balance_hide": "Ocultar Balance",
