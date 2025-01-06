@@ -413,6 +413,12 @@ class DeeplinkSchemaMatch {
   }
 
   static bip21encode(address: string, options: TOptions): string {
+    // uppercase address if bech32 to satisfy BIP_0173
+    const isBech32 = address.startsWith('bc1');
+    if (isBech32) {
+      address = address.toUpperCase();
+    }
+
     for (const key in options) {
       if (key === 'label' && String(options[key]).replace(' ', '').length === 0) {
         delete options[key];
