@@ -22,6 +22,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 
 const PsbtWithHardwareWallet = () => {
+  const { name } = useRoute();
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -201,6 +202,20 @@ const PsbtWithHardwareWallet = () => {
     dynamicQRCode.current?.startAutoMove();
   };
 
+  const signOnNfcDevice = async () => {
+    navigation.navigate({
+      name: 'NfcSignPsbt',
+      params: {
+        launchedBy: name,
+        psbt: typeof psbt === 'string' ? psbt : psbt.toBase64(),
+        onReturn: data => {
+          console.log('gsom!', data);
+          onBarScanned({ data });
+        },
+      },
+    });
+  };
+
   const openSignedTransaction = async () => {
     try {
       const res = await DocumentPicker.pickSingle({
@@ -288,6 +303,16 @@ const PsbtWithHardwareWallet = () => {
             title={loc.send.psbt_tx_export}
           />
         </SaveFileButton>
+        <BlueSpacing20 />
+        <SecondButton
+          icon={{
+            name: 'nfc',
+            type: 'ionicons',
+            color: colors.secondButtonTextColor,
+          }}
+          onPress={signOnNfcDevice}
+          title="Sign via NFC device"
+        />
         <BlueSpacing20 />
         <View style={styles.copyToClipboard}>
           <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />

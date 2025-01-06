@@ -42,7 +42,7 @@ function NfcPair() {
       {/* <Button onPress={() => getStatus()} title="getStatus" /> */}
 
       {PortalDevice.isReading() ? (
-        <BlueText>Reading the NFC...</BlueText>
+        <BlueText>Reading... Place phone on the NFC device</BlueText>
       ) : (
         <View>
           <BlueText>Reading stopped</BlueText>
@@ -70,7 +70,7 @@ function NfcPair() {
 
       {status?.unlocked === false && status.initialized ? (
         <Button
-          title="unlock portal"
+          title="unlock Portal"
           onPress={async () => {
             const password = await prompt(loc._.enter_password, '', true);
             if (password) {

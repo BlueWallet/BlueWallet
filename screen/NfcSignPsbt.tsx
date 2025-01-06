@@ -16,7 +16,6 @@ type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'NfcSi
 
 function NfcSignPsbt() {
   const { launchedBy, onReturn, psbt } = useRoute<RouteProps>().params;
-  console.log('route params:', { psbt });
   const navigation = useNavigation<NavigationProp>();
   const [status, setStatus] = useState<CardStatus | null>(null);
   const [, setRedraw] = useState<number>(0);
@@ -40,10 +39,8 @@ function NfcSignPsbt() {
 
   return (
     <View style={styles.wrapper}>
-      {/* <Button onPress={() => getStatus()} title="getStatus" /> */}
-
       {PortalDevice.isReading() ? (
-        <BlueText>Reading the NFC...</BlueText>
+        <BlueText>Reading... Place phone on the NFC device</BlueText>
       ) : (
         <View>
           <BlueText>Reading stopped</BlueText>
@@ -59,7 +56,7 @@ function NfcSignPsbt() {
 
       {status?.unlocked === false && status.initialized ? (
         <Button
-          title="unlock portal"
+          title="unlock Portal"
           onPress={async () => {
             const password = await prompt(loc._.enter_password, '', true);
             if (password) {
