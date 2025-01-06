@@ -327,7 +327,7 @@
     "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
   "transactions": {
-    "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF—Replace by Fee.",
+    "cancel_explain": "Reemplazaremos esta transacción con una que te pague y tenga tarifas más altas. Esto cancela efectivamente la transacción actual. Esto se llama RBF (Replace by Fee).",
     "cancel_no": "Esta transacción no es reemplazable.",
     "cancel_title": "Cancelar ésta transacción (RBF)",
     "transaction_loading_error": "Se ha producido un problema al cargar la transacción. Vuelve a intentarlo más tarde.",
