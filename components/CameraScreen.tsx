@@ -106,7 +106,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           zoom={zoom}
           maxZoom={10}
           onZoom={e => {
-            console.log('zoom', e.nativeEvent.zoom);
+            console.debug('zoom', e.nativeEvent.zoom);
             setZoom(e.nativeEvent.zoom);
           }}
           onReadCode={onReadCode}
@@ -119,23 +119,23 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
             // However, we include onOrientationChange so you can match your UI to what the camera does
             switch (e.nativeEvent.orientation) {
               case Orientation.PORTRAIT_UPSIDE_DOWN:
-                console.log('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+                console.debug('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
                 rotateUiTo(1);
                 break;
               case Orientation.LANDSCAPE_LEFT:
-                console.log('orientationChange', 'LANDSCAPE_LEFT');
+                console.debug('orientationChange', 'LANDSCAPE_LEFT');
                 rotateUiTo(2);
                 break;
               case Orientation.PORTRAIT:
-                console.log('orientationChange', 'PORTRAIT');
+                console.debug('orientationChange', 'PORTRAIT');
                 rotateUiTo(3);
                 break;
               case Orientation.LANDSCAPE_RIGHT:
-                console.log('orientationChange', 'LANDSCAPE_RIGHT');
+                console.debug('orientationChange', 'LANDSCAPE_RIGHT');
                 rotateUiTo(4);
                 break;
               default:
-                console.log('orientationChange', e.nativeEvent);
+                console.debug('orientationChange', e.nativeEvent);
                 break;
             }
           }}
