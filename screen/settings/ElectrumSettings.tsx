@@ -38,7 +38,6 @@ export interface ElectrumServerItem {
 
 const SET_PREFERRED_PREFIX = 'set_preferred_';
 
-
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
   const params = useRoute<RouteProps>().params;

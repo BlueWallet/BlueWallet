@@ -218,8 +218,6 @@
     "block_explorer_invalid_custom_url": "The URL provided is invalid. Please enter a valid URL starting with http:// or https://.",
     "about_selftest_electrum_disabled": "Self-testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",
-    "delete_server_title": "Delete Server",
-    "delete_server_from_history": "Are you sure you want to delete {host}:{port} from your server history?",
     "about_sm_github": "GitHub",
     "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram channel",
