@@ -2,9 +2,7 @@ import { StackActions, useFocusEffect, useIsFocused, useRoute } from '@react-nav
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { CameraScreen } from 'react-native-camera-kit';
-import { Icon } from '@rneui/themed';
+import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
@@ -16,6 +14,7 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import CameraScreen from '../../components/CameraScreen';
 
 let decoder = false;
 
@@ -23,39 +22,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  closeTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 16,
-    top: 55,
-  },
-  closeImage: {
-    alignSelf: 'center',
-  },
-  imagePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 24,
-    bottom: 48,
-  },
-  filePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 96,
-    bottom: 48,
   },
   openSettingsContainer: {
     flex: 1,
@@ -68,6 +34,9 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: 'rgba(0,0,0,0.01)',
     position: 'absolute',
+    top: 10,
+    left: '50%',
+    transform: [{ translateX: -30 }],
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
   progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
@@ -90,7 +59,7 @@ const ScanQRCode = () => {
   const previousRoute = navigationState.routes[navigationState.routes.length - 2];
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
-  const { launchedBy = defaultLaunchedBy, onDismiss, showFileImportButton } = route.params || {};
+  const { launchedBy = defaultLaunchedBy, showFileImportButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -284,7 +253,7 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
-  const showImagePicker = () => {
+  const onShowImagePickerButtonPress = () => {
     if (!isLoading) {
       setIsLoading(true);
       fs.showImagePickerAndReadImage()
@@ -296,15 +265,7 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    if (launchedBy) {
-      const merge = true;
-      const popToAction = StackActions.popTo(launchedBy, {}, merge);
-
-      navigation.dispatch(popToAction);
-    } else {
-      navigation.goBack();
-    }
-    if (onDismiss) onDismiss();
+    navigation.goBack();
   };
 
   const render = isLoading ? (
@@ -325,29 +286,13 @@ const ScanQRCode = () => {
           cameraFlipImage={require('../../img/camera-rotate-solid.png')}
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
+          showFilePickerButton={showFileImportButton}
+          showImagePickerButton={true}
+          onFilePickerButtonPress={showFilePicker}
+          onImagePickerButtonPress={onShowImagePickerButtonPress}
+          onCancelButtonPress={dismiss}
         />
       ) : null}
-      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
-        <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.pick_image}
-        style={styles.imagePickerTouch}
-        onPress={showImagePicker}
-      >
-        <Icon name="image" type="font-awesome" color="#ffffff" />
-      </TouchableOpacity>
-      {showFileImportButton && (
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={loc._.pick_file}
-          style={styles.filePickerTouch}
-          onPress={showFilePicker}
-        >
-          <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
-        </TouchableOpacity>
-      )}
       {urTotal > 0 && (
         <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
           <BlueText>{loc.wallets.please_continue_scanning}</BlueText>

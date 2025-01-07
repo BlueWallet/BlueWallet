@@ -1588,8 +1588,27 @@ PODS:
     - React-logger (= 0.75.4)
     - React-perflogger (= 0.75.4)
     - React-utils (= 0.75.4)
-  - ReactNativeCameraKit (13.0.0):
+  - ReactNativeCameraKit (14.1.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RealmJS (20.1.0):
     - React
   - RNCAsyncStorage (2.1.0):
@@ -2258,7 +2277,7 @@ SPEC CHECKSUMS:
   React-utils: 02526ea15628a768b8db9517b6017a1785c734d2
   ReactCodegen: 8b5341ecb61898b8bd40a73ebc443c6bf2d14423
   ReactCommon: 36d48f542b4010786d6b2bcee615fe5f906b7105
-  ReactNativeCameraKit: f058d47e0b1e55fd819bb55ee16505a2e0ca53db
+  ReactNativeCameraKit: e72b838dac4ea2da19b7eb5d00b23125072790fd
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: c91d753ede6dc21862c4922cd13f98f7cfde578e
   RNCClipboard: dbcf25b8f666b4685c02eeb65be981d30198e505
