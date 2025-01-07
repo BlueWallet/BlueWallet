@@ -243,27 +243,6 @@ const DetailViewStackScreensStack = () => {
         component={WalletAddresses}
         options={navigationStyle({ title: loc.addresses.addresses_title, statusBarStyle: 'auto' })(theme)}
       />
-
-      <DetailViewStack.Screen
-        name="AddWalletRoot"
-        component={AddWalletStack}
-        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
-      />
-      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormModalOptions} />
-      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
-      {/* screens */}
-      <DetailViewStack.Screen
-        name="WalletExportRoot"
-        component={WalletExportStack}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <DetailViewStack.Screen
-        name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupStack}
-        options={NavigationDefaultOptions}
-      />
       <DetailViewStack.Screen
         name="Settings"
         component={Settings}
@@ -342,10 +321,41 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
       <DetailViewStack.Screen
+        name="ScanQRCode"
+        component={ScanQRCodeComponent}
+        options={navigationStyle({
+          headerShown: false,
+          statusBarHidden: true,
+          presentation: 'fullScreenModal',
+          headerShadowVisible: false,
+        })(theme)}
+      />
+      <DetailViewStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersStackRoot}
         options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
         initialParams={{ walletID: undefined, cosigners: undefined }}
+      />
+
+      <DetailViewStack.Screen
+        name="AddWalletRoot"
+        component={AddWalletStack}
+        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
+      />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormModalOptions} />
+      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+      {/* screens */}
+      <DetailViewStack.Screen
+        name="WalletExportRoot"
+        component={WalletExportStack}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+      />
+      <DetailViewStack.Screen
+        name="ExportMultisigCoordinationSetupRoot"
+        component={ExportMultisigCoordinationSetupStack}
+        options={NavigationDefaultOptions}
       />
       <DetailViewStack.Screen
         name="WalletXpubRoot"
@@ -367,16 +377,6 @@ const DetailViewStackScreensStack = () => {
           presentation: 'containedModal',
           title: loc.wallets.manage_title,
           statusBarStyle: 'auto',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ScanQRCode"
-        component={ScanQRCodeComponent}
-        options={navigationStyle({
-          headerShown: false,
-          statusBarHidden: true,
-          presentation: 'fullScreenModal',
-          headerShadowVisible: false,
         })(theme)}
       />
     </DetailViewStack.Navigator>
