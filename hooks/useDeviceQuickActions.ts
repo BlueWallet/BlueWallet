@@ -49,15 +49,18 @@ const useDeviceQuickActions = () => {
 
   const handleWalletQuickAction = useCallback(
     (data: any): void => {
-      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
-      if (wallet) {
-        navigation.navigate({
-          name: 'WalletTransactions',
-          params: {
-            walletID: wallet.getID(),
-            walletType: wallet.type,
-          },
-        });
+      const urlParts = data.userInfo.url.split('wallet/');
+      if (urlParts.length > 1) {
+        const wallet = wallets.find(w => w.getID() === urlParts[1]);
+        if (wallet) {
+          navigation.navigate({
+            name: 'WalletTransactions',
+            params: {
+              walletID: wallet.getID(),
+              walletType: wallet.type,
+            },
+          });
+        }
       }
     },
     [navigation, wallets],
@@ -92,15 +95,18 @@ const useDeviceQuickActions = () => {
 
   const walletQuickActions = useCallback(
     (data: { userInfo: { url: string } }): void => {
-      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
-      if (wallet) {
-        navigation.navigate({
-          name: 'WalletTransactions',
-          params: {
-            walletID: wallet.getID(),
-            walletType: wallet.type,
-          },
-        });
+      const urlParts = data.userInfo.url.split('wallet/');
+      if (urlParts.length > 1) {
+        const wallet = wallets.find(w => w.getID() === urlParts[1]);
+        if (wallet) {
+          navigation.navigate({
+            name: 'WalletTransactions',
+            params: {
+              walletID: wallet.getID(),
+              walletType: wallet.type,
+            },
+          });
+        }
       }
     },
     [navigation, wallets],
