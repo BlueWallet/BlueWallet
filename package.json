@@ -15,7 +15,6 @@
     "@react-native/js-polyfills": "^0.75.4",
     "@react-native/metro-babel-transformer": "^0.75.4",
     "@react-native/typescript-config": "^0.75.4",
-    "@testing-library/react-native": "13.0.0",
     "@types/bip38": "^3.1.2",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
