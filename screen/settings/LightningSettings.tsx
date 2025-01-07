@@ -106,7 +106,6 @@ const LightningSettings: React.FC = () => {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       if (URI) {
         const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
-
         await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
         await setLNDHub(normalizedURI);
