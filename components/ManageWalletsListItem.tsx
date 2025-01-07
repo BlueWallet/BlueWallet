@@ -6,6 +6,7 @@ import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { TouchableOpacityWrapper } from './ListItem';
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -29,11 +30,14 @@ interface ManageWalletsListItemProps {
   isDraggingDisabled: boolean;
   drag?: () => void;
   isPlaceHolder?: boolean;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
   handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  isActive?: boolean;
 }
 
 interface SwipeContentProps {
@@ -67,6 +71,9 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   renderHighlightedText,
   handleDeleteWallet,
   handleToggleHideBalance,
+  onPressIn,
+  onPressOut,
+  isActive,
 }) => {
   const { colors } = useTheme();
 
@@ -110,6 +117,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         containerStyle={{ backgroundColor: colors.background }}
         leftContent={leftContent}
         rightContent={rightContent}
+        Component={TouchableOpacityWrapper}
+        onPressOut={onPressOut}
+        onPressIn={onPressIn}
+        style={isActive ? styles.activeItem : undefined}
       >
         <ListItem.Content
           style={{
@@ -121,6 +132,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
               item={item.data}
               handleLongPress={isDraggingDisabled ? undefined : drag}
               onPress={onPress}
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}
               animationsEnabled={false}
               searchQuery={state.searchQuery}
               isPlaceHolder={isPlaceHolder}
@@ -163,6 +176,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'red',
+  },
+  activeItem: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
 });
 
