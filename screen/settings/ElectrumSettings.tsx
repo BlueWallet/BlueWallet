@@ -37,7 +37,7 @@ export interface ElectrumServerItem {
 }
 
 const SET_PREFERRED_PREFIX = 'set_preferred_';
-const DELETE_PREFIX = 'delete_';
+
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
@@ -235,44 +235,11 @@ const ElectrumSettings: React.FC = () => {
     [selectServer],
   );
 
-  const presentDeleteServerAlert = useCallback(
-    (value: ElectrumServerItem) => {
-      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-      Alert.alert(
-        loc.settings.delete_server_title,
-        loc.formatString(loc.settings.delete_server_from_history, { host: value.host, port: String(value.ssl ?? value.tcp) }),
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              const newServerHistory = new Set(
-                Array.from(serverHistory)
-                  .filter(s => !(s.host === value.host && s.tcp === value.tcp && s.ssl === value.ssl))
-                  .filter(
-                    v =>
-                      !suggestedServers.some(suggested => suggested.host === v.host && suggested.tcp === v.tcp && suggested.ssl === v.ssl),
-                  ),
-              );
-              setServerHistory(newServerHistory);
-              DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    },
-    [serverHistory],
-  );
-
   const onPressMenuItem = useCallback(
     (id: string) => {
       if (id.startsWith(SET_PREFERRED_PREFIX)) {
         const rawServer = JSON.parse(id.replace(SET_PREFERRED_PREFIX, ''));
         presentSelectServerAlert(rawServer);
-      } else if (id.startsWith(DELETE_PREFIX)) {
-        presentDeleteServerAlert(JSON.parse(id.replace(DELETE_PREFIX, '')));
       } else {
         switch (id) {
           case CommonToolTipActions.ResetToDefault.id:
@@ -294,7 +261,7 @@ const ElectrumSettings: React.FC = () => {
         }
       }
     },
-    [presentSelectServerAlert, presentDeleteServerAlert, fetchData, selectServer],
+    [presentSelectServerAlert, fetchData, selectServer],
   );
 
   type TCreateServerActionParameters = {
@@ -328,15 +295,6 @@ const ElectrumSettings: React.FC = () => {
                         id: `${SET_PREFERRED_PREFIX}${JSON.stringify(value)}`,
                         text: loc.settings.set_as_preferred,
                         subtitle: value.ssl ? `${loc._.ssl_port}: ${value.ssl}` : `${loc._.port}: ${value.tcp}`,
-                      },
-                    ]),
-                ...(hardcodedPeers.some(peer => peer.host === value.host)
-                  ? []
-                  : [
-                      {
-                        id: `${DELETE_PREFIX}${JSON.stringify(value)}`,
-                        text: loc.wallets.details_delete,
-                        destructive: true,
                       },
                     ]),
               ],
