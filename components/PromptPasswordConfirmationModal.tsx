@@ -262,12 +262,12 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       <BottomModal
         ref={modalRef}
         onDismiss={onModalDismiss}
-        grabber={false}
         showCloseButton={!isSuccess}
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
         scrollRef={scrollView}
+        sizes={['auto']}
         keyboardMode="pan"
         dismissible={false}
         footer={
@@ -282,7 +282,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooter]}>
+              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooterSpacing]}>
                 {!isVisible && (
                   <SecondButton
                     title={isLoading ? '' : loc._.ok}
@@ -302,14 +302,12 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Animated.ScrollView style={styles.explanationScrollView} ref={scrollView}>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
-                    {loc.settings.encrypt_storage_explanation_description_line1}
-                  </Text>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
-                    {loc.settings.encrypt_storage_explanation_description_line2}
-                  </Text>
-                </Animated.ScrollView>
+                <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  {loc.settings.encrypt_storage_explanation_description_line1}
+                </Text>
+                <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  {loc.settings.encrypt_storage_explanation_description_line2}
+                </Text>
                 <View style={styles.feeModalFooter} />
               </Animated.View>
             )}
@@ -409,7 +407,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   feeModalFooterSpacing: {
-    padding: 16,
+    padding: 24,
+    marginVertical: 16,
   },
   inputContainer: {
     marginBottom: 10,
@@ -430,13 +429,14 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    marginBottom: 12,
+    marginVertical: 12,
     textAlign: 'center',
   },
   successContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 100,
+    height: 200,
+    paddingVertical: 20,
   },
   circle: {
     width: 60,
