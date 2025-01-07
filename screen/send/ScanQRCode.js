@@ -335,16 +335,7 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    if (launchedBy) {
-      let merge = true;
-      if (typeof onBarScanned !== 'function') {
-        merge = false;
-      }
-      navigation.navigate({ name: launchedBy, params: {}, merge });
-    } else {
-      navigation.goBack();
-    }
-    if (onDismiss) onDismiss();
+    navigation.goBack();
   };
 
   const render = isLoading ? (
