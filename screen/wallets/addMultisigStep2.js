@@ -688,7 +688,6 @@ const WalletsAddMultisigStep2 = () => {
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.multiLineTextInput}>
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
           <BlueFormMultiInput
             value={importText}
             onChangeText={setImportText}
