@@ -198,11 +198,11 @@ const ManageWallets: React.FC = () => {
       color: colors.foregroundColor,
     },
   };
-  const [data, setData] = useState(state.tempOrder);
+  const [walletData, setWalletData] = useState(state.tempOrder);
   const listRef = useRef<FlatList<Item> | null>(null);
 
   useEffect(() => {
-    setData(state.tempOrder);
+    setWalletData(state.tempOrder);
   }, [state.tempOrder]);
 
   useEffect(() => {
@@ -469,7 +469,7 @@ const ManageWallets: React.FC = () => {
           automaticallyAdjustKeyboardInsets
           automaticallyAdjustsScrollIndicatorInsets
           contentInsetAdjustmentBehavior="automatic"
-          data={data}
+          data={walletData}
           containerStyle={[{ backgroundColor: colors.background }, styles.root]}
           keyExtractor={keyExtractor}
           onReordered={onReordered}
