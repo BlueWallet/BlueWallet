@@ -4,7 +4,6 @@ import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Te
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
@@ -15,6 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
+import { navigate } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'IsItMyAddress'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'IsItMyAddress'>;
@@ -109,11 +109,16 @@ const IsItMyAddress: React.FC = () => {
   };
 
   const importScan = async () => {
-    const data = await scanQrHelper(route.name, true, undefined, true);
+    navigate('ScanQRCode');
+  };
+
+  useEffect(() => {
+    const data = route.params?.onBarScanned;
     if (data) {
       onBarScanned(data);
+      navigation.setParams({ onBarScanned: undefined });
     }
-  };
+  }, [navigation, route.name, route.params?.onBarScanned]);
 
   const viewQRCode = () => {
     if (!resultCleanAddress) return;

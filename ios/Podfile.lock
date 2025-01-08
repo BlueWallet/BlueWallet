@@ -1315,7 +1315,7 @@ PODS:
     - Yoga
   - react-native-ios-context-menu (1.15.3):
     - React-Core
-  - react-native-menu (1.1.7):
+  - react-native-menu (1.2.0):
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -1588,8 +1588,27 @@ PODS:
     - React-logger (= 0.75.4)
     - React-perflogger (= 0.75.4)
     - React-utils (= 0.75.4)
-  - ReactNativeCameraKit (13.0.0):
+  - ReactNativeCameraKit (14.1.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RealmJS (20.1.0):
     - React
   - RNCAsyncStorage (2.1.0):
@@ -1650,7 +1669,7 @@ PODS:
     - Yoga
   - RNLocalize (3.3.0):
     - React-Core
-  - RNPermissions (5.2.1):
+  - RNPermissions (5.2.2):
     - React-Core
   - RNQrGenerator (1.4.2):
     - React
@@ -1680,7 +1699,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.16.5):
+  - RNReanimated (3.16.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1700,10 +1719,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.16.5)
-    - RNReanimated/worklets (= 3.16.5)
+    - RNReanimated/reanimated (= 3.16.6)
+    - RNReanimated/worklets (= 3.16.6)
     - Yoga
-  - RNReanimated/reanimated (3.16.5):
+  - RNReanimated/reanimated (3.16.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1723,9 +1742,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.16.5)
+    - RNReanimated/reanimated/apple (= 3.16.6)
     - Yoga
-  - RNReanimated/reanimated/apple (3.16.5):
+  - RNReanimated/reanimated/apple (3.16.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1746,7 +1765,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.16.5):
+  - RNReanimated/worklets (3.16.6):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2226,7 +2245,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
   react-native-image-picker: 19a8d8471a239890675726f88f9c18dd213656d5
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
-  react-native-menu: 5779f6bd7a4e58d457ca5e0a6f164651dd26cd7f
+  react-native-menu: 74230a5879e0ca697e98ee7c3087297dc774bf06
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
@@ -2258,7 +2277,7 @@ SPEC CHECKSUMS:
   React-utils: 02526ea15628a768b8db9517b6017a1785c734d2
   ReactCodegen: 8b5341ecb61898b8bd40a73ebc443c6bf2d14423
   ReactCommon: 36d48f542b4010786d6b2bcee615fe5f906b7105
-  ReactNativeCameraKit: f058d47e0b1e55fd819bb55ee16505a2e0ca53db
+  ReactNativeCameraKit: e72b838dac4ea2da19b7eb5d00b23125072790fd
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: c91d753ede6dc21862c4922cd13f98f7cfde578e
   RNCClipboard: dbcf25b8f666b4685c02eeb65be981d30198e505
@@ -2270,12 +2289,12 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
   RNLocalize: d024afa9204c13885e61dc88b8190651bcaabac9
-  RNPermissions: 979aa94a1a2091e3b2c3e7130ef0a1a6e331e05a
+  RNPermissions: 6f08c623b0c8ca7d95faa71c3956b159b34f25c3
   RNQrGenerator: 7c604c0eb608af64ff586ab0c040796a04eff247
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
-  RNReanimated: ae56eba247f82fa0d8bbf52bb0e7a34a218482de
+  RNReanimated: 000b758cfbcd9c20c15b7ef305f98f036b288feb
   RNScreens: 35bb8e81aeccf111baa0ea01a54231390dbbcfd9
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
   RNSVG: 3421710ac15f4f2dc47e5c122f2c2e4282116830

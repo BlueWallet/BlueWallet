@@ -1,15 +1,16 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
-import { scanQrHelper } from '../helpers/scan-qr';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
 import { useTheme } from './themes';
 import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
+import { useRoute } from '@react-navigation/native';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 interface AddressInputScanButtonProps {
   isLoading: boolean;
@@ -17,6 +18,10 @@ interface AddressInputScanButtonProps {
   scanButtonTapped: () => void;
   onBarScanned: (ret: { data?: any }) => void;
   onChangeText: (text: string) => void;
+}
+
+interface RouteParams {
+  onBarScanned?: any;
 }
 
 export const AddressInputScanButton = ({
@@ -28,6 +33,9 @@ export const AddressInputScanButton = ({
 }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
+
+  const navigation = useExtendedNavigation();
+  const params = useRoute().params as RouteParams;
   const stylesHook = StyleSheet.create({
     scan: {
       backgroundColor: colors.scanLabel,
@@ -40,8 +48,10 @@ export const AddressInputScanButton = ({
   const toolTipOnPress = useCallback(async () => {
     await scanButtonTapped();
     Keyboard.dismiss();
-    if (launchedBy) scanQrHelper(launchedBy, true).then(value => onBarScanned({ data: value }));
-  }, [launchedBy, onBarScanned, scanButtonTapped]);
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
+  }, [navigation, scanButtonTapped]);
 
   const actions = useMemo(() => {
     const availableActions = [
@@ -57,20 +67,23 @@ export const AddressInputScanButton = ({
     return availableActions;
   }, [isClipboardGetContentEnabled]);
 
+  useEffect(() => {
+    const data = params.onBarScanned;
+    if (data) {
+      onBarScanned({ data });
+      navigation.setParams({ onBarScanned: undefined });
+    }
+  });
+
   const onMenuItemPressed = useCallback(
     async (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
         case CommonToolTipActions.ScanQR.id:
           scanButtonTapped();
-          if (launchedBy) {
-            scanQrHelper(launchedBy)
-              .then(value => onBarScanned({ data: value }))
-              .catch(error => {
-                presentAlert({ message: error.message });
-              });
-          }
-
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
           break;
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
@@ -134,7 +147,7 @@ export const AddressInputScanButton = ({
       }
       Keyboard.dismiss();
     },
-    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
+    [navigation, onBarScanned, onChangeText, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);

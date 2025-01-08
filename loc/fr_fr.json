@@ -5,10 +5,13 @@
     "continue": "Continuer",
     "clipboard": "Presse-papier",
     "discard_changes": "Supprimer les changements ?",
+    "discard_changes_explain": "Certaines modifications n'ont pas été enregistrées. Êtes-vous sûr de vouloir les supprimer et quitter cet écran ?",
     "enter_password": "Saisir le mot de passe",
     "never": "Jamais",
     "of": "{number} sur {total}",
     "ok": "OK",
+    "customize": "Personnaliser",
+    "enter_url": "Entrer une URL",
     "storage_is_encrypted": "L'espace de stockage est chiffré. le mot de passe est requis pour le déchiffrer.",
     "yes": "Oui",
     "no": "Non",
@@ -17,7 +20,14 @@
     "success": "Succès",
     "wallet_key": "Clé du portefeuille",
     "invalid_animated_qr_code_fragment": "Fragment du QR Code animé invalide. Veuillez réessayer.",
-    "enter_amount": "Entrer un montant"
+    "close": "Fermer",
+    "change_input_currency": "Changer la devise d'entrée",
+    "refresh": "Actualiser",
+    "pick_image": "Copier depuis la librairie",
+    "pick_file": "Choisir un fichier",
+    "enter_amount": "Entrer un montant",
+    "unlock": "Deverouiller",
+    "suggested": "Suggéré"
   },
   "azteco": {
     "codeIs": "Votre code promo est",
@@ -43,6 +53,7 @@
     "expired": "Expiré",
     "expiresIn": "Expire dans {time} minutes",
     "payButton": "Payer",
+    "payment": "Paiement",
     "placeholder": "Facture ou adresse",
     "potentialFee": "Frais potentiels : {fee}",
     "refill": "Déposer des fonds",
@@ -85,6 +96,7 @@
     "details_create": "Créer",
     "details_label": "Description",
     "details_setAmount": "Recevoir avec un montant spécifique",
+    "details_share": "partager",
     "header": "Recevoir",
     "maxSats": "Le montant maximal est de {max} sats",
     "maxSatsFull": "Le montant maximal est de {max} sats ou {currency}",
@@ -233,6 +245,7 @@
     "language": "Langue",
     "last_updated": "Dernière mise à jour",
     "language_isRTL": "Il est nécessaire de redémarrer BlueWallet pour que le changement de langue prenne effet.",
+    "license": "License",
     "lightning_saved": "Les changements ont bien été enregistrés",
     "lightning_settings": "Paramètres Lightning",
     "network": "Réseau",
@@ -285,8 +298,11 @@
     "details_from": "De",
     "details_inputs": "Inputs",
     "details_outputs": "Outputs",
+    "date": "Date",
     "details_received": "Reçu",
     "details_title": "Transaction",
+    "offchain": "Offchain",
+    "onchain": "Onchain",
     "details_to": "À",
     "enable_offline_signing": "Ce portefeuille n'est pas utilisé en conjonction avec une signature hors ligne. Voulez-vous l'activer maintenant ? ",
     "list_conf": "Conf: {number}",
@@ -393,12 +409,13 @@
     "select_wallet": "Choix du portefeuille",
     "xpub_copiedToClipboard": "Copié dans le presse-papiers.",
     "pull_to_refresh": "Tirer pour rafraichir",
-    "warning_do_not_disclose": "Attention! Ne pas divulguer",
     "add_ln_wallet_first": "Vous devez d'abord ajouter un portefeuille Lightning.",
     "identity_pubkey": "Clé publique identité",
-    "xpub_title": "XPUB portefeuille"
+    "xpub_title": "XPUB portefeuille",
+    "more_info": "Plus d'information"
   },
   "total_balance_view": {
+    "hide": "Cacher",
     "title": "Solde total"
   },
   "multisig": {
@@ -412,6 +429,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "Confirmer",
     "header": "Envoyer",
+    "share": "partager",
     "view": "Vue",
     "manage_keys": "Gérer les clés",
     "how_many_signatures_can_bluewallet_make": "Combien de signatures BlueWallet peut-il faire",
@@ -491,6 +509,10 @@
     "use_coin": "Utiliser l'UTXO",
     "use_coins": "Utiliser les UTXO",
     "tip": "Permet de voir, étiqueter, bloquer ou sélectionner des UTXOs pour une meilleure gestion du portefeuille. Vous pouvez sélectionner plusieurs UTXOs en appuyant sur les cercles colorés.",
+    "sort_asc": "Ascendant",
+    "sort_desc": "Descendant",
+    "sort_height": "Hauteur",
+    "sort_value": "Valeur",
     "sort_label": "Libelé",
     "sort_status": "Statut"
   },
@@ -531,5 +553,10 @@
     "auth_answer": "Vous vous êtes authentifié avec succès à {hostname}!",
     "could_not_auth": "Nous n'avons pas pu vous authentifier à {hostname}.",
     "authenticate": "Authentifier"
+  },
+  "bip47": {
+    "payment_code": "Code de paiement",
+    "contacts": "Contacts",
+    "rename": "Renommer"
   }
 }

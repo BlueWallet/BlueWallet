@@ -312,4 +312,9 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this._hdWalletInstance) return this._hdWalletInstance.isSegwit();
     return super.isSegwit();
   }
+
+  wasEverUsed(): Promise<boolean> {
+    if (this._hdWalletInstance) return this._hdWalletInstance.wasEverUsed();
+    return super.wasEverUsed();
+  }
 }

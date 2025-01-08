@@ -22,7 +22,6 @@ const keys = {
   ClearClipboard: 'clearClipboard',
   PaymentsCode: 'paymentsCode',
   ResetToDefault: 'resetToDefault',
-  ClearHistory: 'clearHistory',
   ScanQR: 'scan_qr',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
@@ -78,29 +77,36 @@ const icons = {
   CoinControl: { iconValue: 'switch.2' },
   CoSignTransaction: { iconValue: 'signature' },
   PaymentsCode: { iconValue: 'qrcode.viewfinder' },
-  ClearHistory: {
-    iconValue: 'trash',
-  },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
   ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
   ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo.on.rectangle' : 'ic_menu_gallery' },
   Clipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_file' },
-  ExportPrivateKey: { iconValue: 'key' },
-  Share: { iconValue: 'square.and.arrow.up' },
-  Signature: { iconValue: 'signature' },
-  PasteFromClipboard: { iconValue: 'document.on.clipboard' },
-  ImportFile: { iconValue: 'document.viewfinder' },
-  Hide: { iconValue: 'eye.slash' },
-  ClearClipboard: { iconValue: 'clipboard' },
-  SortASC: { iconValue: 'arrow.down.to.line' },
-  SortDESC: { iconValue: 'arrow.up.to.line' },
-  SaveFile: { iconValue: 'square.and.arrow.down' },
-  Delete: { iconValue: 'trash' },
+  ExportPrivateKey: { iconValue: Platform.OS === 'ios' ? 'key' : 'ic_lock_idle_lock' },
+  Share: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.up' : 'ic_menu_share' },
+  Signature: { iconValue: Platform.OS === 'ios' ? 'signature' : 'ic_menu_edit' },
+  PasteFromClipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_paste' },
+  ImportFile: { iconValue: Platform.OS === 'ios' ? 'document.viewfinder' : 'ic_menu_upload' },
+  Hide: { iconValue: Platform.OS === 'ios' ? 'eye.slash' : 'ic_menu_close_clear_cancel' },
+  ClearClipboard: { iconValue: Platform.OS === 'ios' ? 'clipboard' : 'ic_menu_delete' },
+  SortASC: { iconValue: Platform.OS === 'ios' ? 'arrow.down.to.line' : 'ic_menu_sort_alphabetically' },
+  SortDESC: { iconValue: Platform.OS === 'ios' ? 'arrow.up.to.line' : 'ic_menu_sort_by_size' },
+  SaveFile: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.down' : 'ic_menu_save' },
+  Delete: { iconValue: Platform.OS === 'ios' ? 'trash' : 'ic_menu_delete' },
 } as const;
 
-export const CommonToolTipActions = {
+export type ToolTipAction = {
+  id: string;
+  text: string;
+  subtitle?: string;
+  icon?: { iconValue: string };
+  hidden?: boolean;
+  menuState?: boolean;
+  destructive?: boolean;
+};
+
+export const CommonToolTipActions: Record<string, ToolTipAction> = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -215,7 +221,8 @@ export const CommonToolTipActions = {
   },
   PaymentsCode: {
     id: keys.PaymentsCode,
-    text: loc.bip47.purpose,
+    text: loc.bip47.bip47_explain,
+    subtitle: loc.bip47.bip47_explain_subtitle,
     icon: icons.PaymentsCode,
     menuState: false,
   },
@@ -314,11 +321,8 @@ export const CommonToolTipActions = {
   ResetToDefault: {
     id: keys.ResetToDefault,
     text: loc.settings.electrum_reset,
-  },
-  ClearHistory: {
-    id: keys.ClearHistory,
-    text: loc.settings.electrum_clear,
-    icon: icons.ClearHistory,
+    hidden: false,
+    destructive: true,
   },
   PasteFromClipboard: {
     id: keys.PasteFromClipboard,

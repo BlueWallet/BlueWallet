@@ -13,13 +13,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="end">
+        android:gravity="end"
+        android:layout_gravity="end">
         <TextView
             android:id="@+id/last_updated_label"
             style="@style/WidgetTextSecondary"
@@ -29,69 +30,85 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:layout_marginEnd="8dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_gravity="end"/>
 
         <TextView
             android:id="@+id/last_updated_time"
             style="@style/WidgetTextPrimary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="--:--"
             android:textSize="12sp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="2dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:layout_gravity="end"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="end">
+        android:gravity="end"
+        android:layout_gravity="end">
 
         <TextView
             android:id="@+id/price_value"
             style="@style/WidgetTextPrimary"
             android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:text=""
-android:textSize="24sp"
-android:textStyle="bold"
-android:layout_marginEnd="8dp"
-android:layout_marginBottom="8dp"
-android:visibility="gone"/>
-    <LinearLayout
-        android:id="@+id/price_arrow_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/price_arrow"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/previous_price_label"
-            style="@style/WidgetTextPrimary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="From:"
-            android:textSize="12sp"
+            android:layout_gravity="end"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"/>
-        <TextView
-            android:id="@+id/previous_price"
-            style="@style/WidgetTextPrimary"
+            android:layout_marginBottom="8dp"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeStepGranularity="2sp"
+            android:autoSizeTextType="uniform"
+            android:duplicateParentState="false"
+            android:editable="false"
+            android:lines="1"
+            android:text="Loading..."
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+        <LinearLayout
+            android:id="@+id/price_arrow_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"/>
-    </LinearLayout></LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:visibility="gone"
+            android:layout_gravity="end">
+
+            <ImageView
+                android:id="@+id/price_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="end"/>
+
+            <TextView
+                android:id="@+id/previous_price_label"
+                style="@style/WidgetTextPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From:"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="end"/>
+            <TextView
+                android:id="@+id/previous_price"
+                style="@style/WidgetTextPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_gravity="end"/>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
