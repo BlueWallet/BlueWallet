@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
@@ -88,13 +88,13 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onPress = () => {
+  const onPress = useCallback(() => {
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
     }
-  };
+  }, [item, navigateToWallet]);
 
   const handleLeftPress = (reset: () => void) => {
     handleToggleHideBalance(item.data as TWallet);
