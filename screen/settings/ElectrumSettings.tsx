@@ -523,7 +523,7 @@ const ElectrumSettings: React.FC = () => {
           <BlueSpacing20 />
           <Button
             showActivityIndicator={isLoading}
-            disabled={isLoading || preferredServerIsEmpty || isServerAlreadySaved}
+            disabled={isLoading || preferredServerIsEmpty}
             testID="Save"
             onPress={save}
             title={loc.settings.save}
