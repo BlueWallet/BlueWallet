@@ -49,7 +49,6 @@
     "default_info": "Normal info",
     "default_title": "As you launch",
     "default_wallets": "See all your wallets",
-    "electrum_clear_alert_title": "You wan clear history?",
     "electrum_clear_alert_message": "You wan clear electrum servers history?",
     "electrum_clear_alert_cancel": "Cancel",
     "electrum_clear_alert_ok": "Ok",

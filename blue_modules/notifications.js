@@ -14,6 +14,8 @@ export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK
 let alreadyConfigured = false;
 let baseURI = groundControlUri;
 
+const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
 const checkAndroidNotificationPermission = async () => {
   try {
     const { status } = await checkNotifications();
@@ -323,8 +325,8 @@ export const configureNotifications = async onProcessNotifications => {
     };
 
     const handleNotification = async notification => {
-      // Deep clone to  avoid modifying the original object
-      const payload = structuredClone({
+      // Deep clone to avoid modifying the original object
+      const payload = deepClone({
         ...notification,
         ...notification.data,
       });
