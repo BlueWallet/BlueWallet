@@ -97,6 +97,7 @@ jobs:
         with:
           name: signed-apk
           path: ${{ env.APK_PATH }}
+          if-no-files-found: error
 
   browserstack:
     runs-on: ubuntu-latest
