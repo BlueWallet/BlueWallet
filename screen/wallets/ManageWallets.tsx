@@ -1,5 +1,16 @@
-import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, Image, Text, Alert, I18nManager, Animated, LayoutAnimation, FlatList } from 'react-native';
+import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, lazy, Suspense } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Text,
+  Alert,
+  I18nManager,
+  Animated,
+  LayoutAnimation,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -15,9 +26,10 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import presentAlert from '../../components/Alert';
 import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import { ManageWalletsListItem } from '../../components/ManageWalletsListItem';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
+
+const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -489,27 +501,29 @@ const ManageWallets: React.FC = () => {
   }, [state.searchQuery, state.wallets.length, state.txMetadata, stylesHook.noResultsText]);
 
   return (
-    <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
-      <>
-        {renderHeader}
-        <DragList
-          automaticallyAdjustContentInsets
-          automaticallyAdjustKeyboardInsets
-          automaticallyAdjustsScrollIndicatorInsets
-          contentInsetAdjustmentBehavior="automatic"
-          data={data}
-          containerStyle={[{ backgroundColor: colors.background }, styles.root]}
-          keyExtractor={keyExtractor}
-          onReordered={onReordered}
-          renderItem={renderItem}
-          ref={listRef}
-        />
-      </>
-    </GestureHandlerRootView>
+    <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
+      <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
+        <>
+          {renderHeader}
+          <DragList
+            automaticallyAdjustContentInsets
+            automaticallyAdjustKeyboardInsets
+            automaticallyAdjustsScrollIndicatorInsets
+            contentInsetAdjustmentBehavior="automatic"
+            data={data}
+            containerStyle={[{ backgroundColor: colors.background }, styles.root]}
+            keyExtractor={keyExtractor}
+            onReordered={onReordered}
+            renderItem={renderItem}
+            ref={listRef}
+          />
+        </>
+      </GestureHandlerRootView>
+    </Suspense>
   );
 };
 
-export default ManageWallets;
+export default React.memo(ManageWallets);
 
 const styles = StyleSheet.create({
   root: {
