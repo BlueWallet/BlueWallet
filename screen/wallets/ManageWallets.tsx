@@ -430,14 +430,15 @@ const ManageWallets: React.FC = () => {
     },
     [goBack, navigate],
   );
+
   const renderItem = useCallback(
     (info: DragListRenderItemInfo<Item>) => {
-      const { item, onDragStart, onDragEnd, isActive } = info;
+      const { item, onDragStart, isActive } = info;
       return (
         <ManageWalletsListItem
           item={item}
-          onPressIn={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : onDragStart}
-          onPressOut={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : onDragEnd}
+          onPressIn={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : undefined}
+          onPressOut={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : undefined}
           isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
           state={state}
           navigateToWallet={navigateToWallet}
@@ -445,7 +446,7 @@ const ManageWallets: React.FC = () => {
           handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
           isActive={isActive}
-          drag={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : onDragStart}
+          drag={onDragStart}
         />
       );
     },
@@ -457,6 +458,8 @@ const ManageWallets: React.FC = () => {
       const copy = [...state.order];
       const removed = copy.splice(fromIndex, 1);
       copy.splice(toIndex, 0, removed[0]);
+
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       dispatch({ type: SET_TEMP_ORDER, payload: copy });
       dispatch({
         type: SET_INITIAL_ORDER,

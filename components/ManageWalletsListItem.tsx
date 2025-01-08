@@ -38,6 +38,7 @@ interface ManageWalletsListItemProps {
   handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
   isActive?: boolean;
+  style?: ViewStyle;
 }
 
 interface SwipeContentProps {
@@ -74,6 +75,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   onPressIn,
   onPressOut,
   isActive,
+  style,
 }) => {
   const { colors } = useTheme();
 
@@ -114,7 +116,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        containerStyle={{ backgroundColor: colors.background }}
+        containerStyle={[{ backgroundColor: colors.background }, style]}
         leftContent={leftContent}
         rightContent={rightContent}
         Component={TouchableOpacityWrapper}
@@ -158,7 +160,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     );
   }
 
-  console.error('Unrecognized item type:', item);
   return null;
 };
 
