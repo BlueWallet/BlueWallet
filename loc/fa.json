@@ -390,7 +390,6 @@
     "select_wallet": "انتخاب کیف پول",
     "xpub_copiedToClipboard": "در کلیپ‌بورد کپی شد.",
     "pull_to_refresh": "برای به‌روزسانی به پایین بکشید",
-    "warning_do_not_disclose": "هشدار! فاش نکنید.",
     "add_ln_wallet_first": "ابتدا باید یک کیف پول لایتنینگ اضافه کنید.",
     "identity_pubkey": "هویت/کلید عمومی",
     "xpub_title": "کلید XPUB کیف پول"

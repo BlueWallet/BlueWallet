@@ -373,7 +373,6 @@
     "select_wallet": "Izberite Denarnico",
     "xpub_copiedToClipboard": "Kopirano v odložišče.",
     "pull_to_refresh": "Povlecite za osvežitev",
-    "warning_do_not_disclose": "Opozorilo! Ne razkrivajte",
     "add_ln_wallet_first": "Najprej morate dodati Lightning denarnico.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB denarnice"

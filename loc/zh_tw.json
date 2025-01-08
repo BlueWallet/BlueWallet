@@ -315,7 +315,6 @@
     "select_wallet": "選擇錢包",
     "xpub_copiedToClipboard": "複製到貼上板.",
     "pull_to_refresh": "拉動來刷新",
-    "warning_do_not_disclose": "警告！ 不要透露。",
     "add_ln_wallet_first": "您必須先添加一個閃電錢包。",
     "identity_pubkey": "身份公鑰",
     "xpub_title": "錢包公鑰"

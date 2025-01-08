@@ -1,7 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
@@ -14,7 +14,6 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -62,34 +61,40 @@ const PsbtWithHardwareWallet = () => {
     },
   });
 
-  const _combinePSBT = receivedPSBT => {
-    return wallet.combinePsbt(psbt, receivedPSBT);
-  };
+  const _combinePSBT = useCallback(
+    receivedPSBT => {
+      return wallet.combinePsbt(psbt, receivedPSBT);
+    },
+    [psbt, wallet],
+  );
 
-  const onBarScanned = ret => {
-    if (ret && !ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-    }
-    if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      setTxHex(ret.data);
-      return;
-    }
-    try {
-      const Tx = _combinePSBT(ret.data);
-      setTxHex(Tx.toHex());
-      if (launchedBy) {
-        // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
-        // most likely for LN channel opening
-        navigation.navigate({ name: launchedBy, params: { psbt }, merge: true });
-        // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
-        // (passed by reference)
+  const onBarScanned = useCallback(
+    ret => {
+      if (ret && !ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       }
-    } catch (Err) {
-      presentAlert({ message: Err.message });
-    }
-  };
+      if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        setTxHex(ret.data);
+        return;
+      }
+      try {
+        const Tx = _combinePSBT(ret.data);
+        setTxHex(Tx.toHex());
+        if (launchedBy) {
+          // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
+          // most likely for LN channel opening
+          navigation.navigate({ name: launchedBy, params: { psbt }, merge: true });
+          // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
+          // (passed by reference)
+        }
+      } catch (Err) {
+        presentAlert({ message: Err.message });
+      }
+    },
+    [_combinePSBT, launchedBy, navigation, psbt],
+  );
 
   useEffect(() => {
     if (isFocused) {
@@ -217,11 +222,18 @@ const PsbtWithHardwareWallet = () => {
     }
   };
 
-  const openScanner = async () => {
-    const data = await scanQrHelper(route.name, true);
+  useEffect(() => {
+    const data = route.params.onBarScanned;
     if (data) {
       onBarScanned(data);
+      navigation.setParams({ onBarScanned: undefined });
     }
+  }, [navigation, onBarScanned, route.params.onBarScanned]);
+
+  const openScanner = async () => {
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
   };
 
   if (txHex) return _renderBroadcastHex();

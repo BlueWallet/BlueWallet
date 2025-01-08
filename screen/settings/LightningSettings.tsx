@@ -9,11 +9,12 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const styles = StyleSheet.create({
   uri: {
@@ -38,21 +39,14 @@ const styles = StyleSheet.create({
   },
 });
 
-type LightingSettingsRouteProps = RouteProp<
-  {
-    params?: {
-      url?: string;
-    };
-  },
-  'params'
->;
+type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
-  const route = useRoute();
+  const { navigate, setParams } = useExtendedNavigation();
   const styleHook = StyleSheet.create({
     uri: {
       borderColor: colors.formBorder,
@@ -112,7 +106,6 @@ const LightningSettings: React.FC = () => {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       if (URI) {
         const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
-
         await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
         await setLNDHub(normalizedURI);
@@ -131,12 +124,18 @@ const LightningSettings: React.FC = () => {
   }, [URI]);
 
   const importScan = () => {
-    scanQrHelper(route.name).then(data => {
-      if (data) {
-        setLndhubURI(data);
-      }
+    navigate('ScanQRCode', {
+      showFileImportButton: true,
     });
   };
+
+  useEffect(() => {
+    const data = params?.onBarScanned;
+    if (data) {
+      setLndhubURI(data);
+      setParams({ onBarScanned: undefined });
+    }
+  }, [params?.onBarScanned, setParams]);
 
   return (
     <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">

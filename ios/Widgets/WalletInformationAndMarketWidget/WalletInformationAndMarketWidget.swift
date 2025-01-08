@@ -11,7 +11,20 @@ import SwiftUI
 
 struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
     typealias Entry = WalletInformationAndMarketWidgetEntry
-    static var lastSuccessfulEntries: [WalletInformationAndMarketWidgetEntry] = []
+
+    actor LastSuccessfulEntryStore {
+        private var lastSuccessfulEntry: WalletInformationAndMarketWidgetEntry?
+
+        func getLastSuccessfulEntry() -> WalletInformationAndMarketWidgetEntry? {
+            return lastSuccessfulEntry
+        }
+
+        func setLastSuccessfulEntry(_ entry: WalletInformationAndMarketWidgetEntry) {
+            lastSuccessfulEntry = entry
+        }
+    }
+
+    let entryStore = LastSuccessfulEntryStore()
 
     func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
         return WalletInformationAndMarketWidgetEntry.placeholder
@@ -36,29 +49,53 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
             completion(timeline)
         } else {
             let userPreferredCurrency = Currency.getUserPreferredCurrency()
-            let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
+            let allWalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
 
-            MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
-                let entry: WalletInformationAndMarketWidgetEntry
-
-                if let result = result {
-                    entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
-                    WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.append(entry)
-                    if WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.count > 5 {
-                        WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.removeFirst()
-                    }
-                } else {
-                    if let lastEntry = WalletInformationAndMarketWidgetProvider.lastSuccessfulEntries.last {
-                        entry = lastEntry
-                    } else {
-                        entry = WalletInformationAndMarketWidgetEntry.placeholder
-                    }
+            fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
+                let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketData, allWalletsBalance: allWalletsBalance)
+                Task {
+                    await entryStore.setLastSuccessfulEntry(entry)
+                    entries.append(entry)
+                    let timeline = Timeline(entries: entries, policy: .atEnd)
+                    completion(timeline)
                 }
-                entries.append(entry)
-                let timeline = Timeline(entries: entries, policy: .atEnd)
-                completion(timeline)
             }
         }
+    }
+
+    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
+        var attempt = 0
+
+        func attemptFetch() {
+            attempt += 1
+            print("Attempt \(attempt) to fetch market data.")
+
+          MarketAPI.fetchMarketData(currency: currency) { result in
+                switch result {
+                case .success(let marketData):
+                    print("Successfully fetched market data on attempt \(attempt).")
+                    completion(marketData)
+                case .failure(let error):
+                    print("Error fetching market data: \(error.localizedDescription). Retry \(attempt)/\(retries)")
+                    if attempt < retries {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                            attemptFetch()
+                        }
+                    } else {
+                        print("Max retries reached.")
+                        Task {
+                            if let lastEntry = await entryStore.getLastSuccessfulEntry() {
+                                completion(lastEntry.marketData)
+                            } else {
+                                completion(WalletInformationAndMarketWidgetEntry.placeholder.marketData)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        attemptFetch()
     }
 }
 

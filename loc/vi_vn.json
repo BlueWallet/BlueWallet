@@ -375,7 +375,6 @@
     "select_wallet": "Chọn ví",
     "xpub_copiedToClipboard": "Đã sao chép vào bảng tạm.",
     "pull_to_refresh": "Kéo để làm mới",
-    "warning_do_not_disclose": "Cảnh báo! Không tiết lộ.",
     "add_ln_wallet_first": "Đầu tiên bạn phải thêm một ví Lightning.",
     "identity_pubkey": "PubKey danh tính",
     "xpub_title": "XPUB của ví"
