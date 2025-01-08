@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
@@ -48,7 +48,7 @@ interface SwipeContentProps {
   colors: any;
 }
 
-const LeftSwipeContent: React.FC<SwipeContentProps> = React.memo(({ onPress, hideBalance, colors }) => (
+const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, colors }) => (
   <TouchableOpacity
     onPress={onPress}
     style={[styles.leftButtonContainer, { backgroundColor: colors.buttonAlternativeTextColor } as ViewStyle]}
@@ -57,9 +57,9 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = React.memo(({ onPress, hid
   >
     <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} type="font-awesome-5" />
   </TouchableOpacity>
-));
+);
 
-const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = React.memo(({ onPress }) => (
+const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) => (
   <TouchableOpacity
     onPress={onPress}
     style={styles.rightButtonContainer as ViewStyle}
@@ -68,7 +68,7 @@ const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = React.memo(({ on
   >
     <Icon name="delete-outline" color="#FFFFFF" />
   </TouchableOpacity>
-));
+);
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
@@ -88,41 +88,29 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
 
-  const onPress = useCallback(() => {
+  const onPress = () => {
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
     }
-  }, [item, navigateToWallet]);
+  };
 
-  const handleLeftPress = useCallback(
-    (reset: () => void) => {
-      handleToggleHideBalance(item.data as TWallet);
-      reset();
-    },
-    [handleToggleHideBalance, item.data],
+  const handleLeftPress = (reset: () => void) => {
+    handleToggleHideBalance(item.data as TWallet);
+    reset();
+  };
+
+  const leftContent = (reset: () => void) => (
+    <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />
   );
 
-  const leftContent = useCallback(
-    (reset: () => void) => (
-      <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />
-    ),
-    [colors, handleLeftPress, item.data],
-  );
+  const handleRightPress = (reset: () => void) => {
+    handleDeleteWallet(item.data as TWallet);
+    reset();
+  };
 
-  const handleRightPress = useCallback(
-    (reset: () => void) => {
-      handleDeleteWallet(item.data as TWallet);
-      reset();
-    },
-    [handleDeleteWallet, item.data],
-  );
-
-  const rightContent = useCallback(
-    (reset: () => void) => <RightSwipeContent onPress={() => handleRightPress(reset)} />,
-    [handleRightPress],
-  );
+  const rightContent = (reset: () => void) => <RightSwipeContent onPress={() => handleRightPress(reset)} />;
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;
