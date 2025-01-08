@@ -237,6 +237,26 @@
     "receive" : {
 
     },
+    "RESET_ELECTRUM_TITLE" : {
+  "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset to defaults"
+          }
+        },
+      }
+    },
+    "RESET_TO_DEFAULTS_TITLE" : {
+       "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset to defaults"
+          }
+        },
+      }
+    },
     "Romania (Romanian Leu)" : {
 
     },
@@ -284,6 +304,16 @@
     },
     "Thailand (Thai Baht)" : {
 
+    },
+    "TRY_AGAIN_TITLE" : {
+       "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        },
+      }
     },
     "Turkey (Turkish Lira)" : {
 
