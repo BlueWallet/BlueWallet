@@ -96,30 +96,32 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     }
   }, [item, navigateToWallet]);
 
+  const handleLeftPress = useCallback(
+    (reset: () => void) => {
+      handleToggleHideBalance(item.data as TWallet);
+      reset();
+    },
+    [handleToggleHideBalance, item.data],
+  );
+
   const leftContent = useCallback(
     (reset: () => void) => (
-      <LeftSwipeContent
-        onPress={() => {
-          handleToggleHideBalance(item.data as TWallet);
-          reset();
-        }}
-        hideBalance={(item.data as TWallet).hideBalance}
-        colors={colors}
-      />
+      <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />
     ),
-    [colors, handleToggleHideBalance, item.data],
+    [colors, handleLeftPress, item.data],
+  );
+
+  const handleRightPress = useCallback(
+    (reset: () => void) => {
+      handleDeleteWallet(item.data as TWallet);
+      reset();
+    },
+    [handleDeleteWallet, item.data],
   );
 
   const rightContent = useCallback(
-    (reset: () => void) => (
-      <RightSwipeContent
-        onPress={() => {
-          handleDeleteWallet(item.data as TWallet);
-          reset();
-        }}
-      />
-    ),
-    [handleDeleteWallet, item.data],
+    (reset: () => void) => <RightSwipeContent onPress={() => handleRightPress(reset)} />,
+    [handleRightPress],
   );
 
   if (isLoading) {
