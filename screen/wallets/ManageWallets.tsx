@@ -437,8 +437,8 @@ const ManageWallets: React.FC = () => {
       return (
         <ManageWalletsListItem
           item={item}
-          onPressIn={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : undefined}
-          onPressOut={state.isSearchFocused || state.searchQuery.length > 0 ? undefined : undefined}
+          onPressIn={undefined}
+          onPressOut={undefined}
           isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
           state={state}
           navigateToWallet={navigateToWallet}
