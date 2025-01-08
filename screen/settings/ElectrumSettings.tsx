@@ -154,7 +154,12 @@ const ElectrumSettings: React.FC = () => {
 
   const serverExists = useCallback(
     (value: ElectrumServerItem) => {
-      return Array.from(serverHistory).some(s => `${s.host}:${s.tcp}:${s.ssl}` === `${value.host}:${value.tcp}:${value.ssl}`);
+      for (const s of serverHistory) {
+        if (`${s.host}:${s.tcp}:${s.ssl}` === `${value.host}:${value.tcp}:${value.ssl}`) {
+          return true;
+        }
+      }
+      return false;
     },
     [serverHistory],
   );
