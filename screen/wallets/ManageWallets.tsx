@@ -485,7 +485,7 @@ const ManageWallets: React.FC = () => {
             automaticallyAdjustKeyboardInsets
             automaticallyAdjustsScrollIndicatorInsets
             contentInsetAdjustmentBehavior="automatic"
-            data={data}
+            data={walletData}
             containerStyle={[{ backgroundColor: colors.background }, styles.root]}
             keyExtractor={keyExtractor}
             onReordered={onReordered}

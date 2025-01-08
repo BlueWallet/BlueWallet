@@ -135,10 +135,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ]).start(() => {
-        confirmPasswordInputRef.current?.focus();
-        confirmPasswordInputRef.current?.setNativeProps({ selection: { start: 0, end: confirmPassword.length } });
-      });
+      ]).start();
     };
 
     const handleSuccessAnimation = () => {
