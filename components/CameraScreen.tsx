@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { Animated, ImageURISource, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
+
+const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
 interface CameraScreenProps {
   onCancelButtonPress: () => void;
@@ -10,10 +12,8 @@ interface CameraScreenProps {
   showFilePickerButton?: boolean;
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
-  torchOnImage?: ImageURISource;
-  torchOffImage?: ImageURISource;
+
   onReadCode?: (event: any) => void;
-  cameraFlipImage?: ImageURISource;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -22,10 +22,8 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   showFilePickerButton,
   onImagePickerButtonPress,
   onFilePickerButtonPress,
-  torchOnImage,
-  torchOffImage,
+
   onReadCode,
-  cameraFlipImage,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [torchMode, setTorchMode] = useState(false);
@@ -51,7 +49,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
     inputRange: [1, 4],
     outputRange: ['180deg', '-90deg'],
   });
-  const uiRotationStyle = rotateUi ? { transform: [{ rotate: uiRotation }] } : undefined;
+  const uiRotationStyle = rotateUi ? { transform: [{ rotate: uiRotation }] } : {};
 
   function rotateUiTo(rotationValue: number) {
     Animated.timing(orientationAnim, {
@@ -67,10 +65,11 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
       <StatusBar hidden />
       <SafeAreaView style={styles.topButtons}>
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
-          <Animated.Image
-            source={torchMode ? torchOnImage : torchOffImage}
-            resizeMode="contain"
-            style={[styles.topButtonImg, uiRotationStyle]}
+          <AnimatedIcon
+            name={torchMode ? 'flashlight-on' : 'flashlight-off'}
+            type="font-awesome-6"
+            color="#ffffff"
+            style={{ ...styles.topButtonImg, ...uiRotationStyle }}
           />
         </TouchableOpacity>
         <View style={styles.rightButtonsContainer}>
@@ -81,7 +80,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onImagePickerButtonPress}
             >
-              <Icon name="image" type="font-awesome" color="#ffffff" />
+              <AnimatedIcon name="image" type="font-awesome" color="#ffffff" style={{ ...styles.topButtonImg, ...uiRotationStyle }} />
             </TouchableOpacity>
           )}
           {showFilePickerButton && (
@@ -91,7 +90,12 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onFilePickerButtonPress}
             >
-              <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+              <AnimatedIcon
+                name="file-import"
+                type="font-awesome-5"
+                color="#ffffff"
+                style={{ ...styles.topButtonImg, ...uiRotationStyle }}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -147,7 +151,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomButton} onPress={onSwitchCameraPressed}>
-          <Animated.Image source={cameraFlipImage as ImageURISource} resizeMode="contain" style={[styles.topButtonImg, uiRotationStyle]} />
+          <AnimatedIcon name="cameraswitch" type="font-awesome-6" color="#ffffff" style={{ ...styles.topButtonImg, ...uiRotationStyle }} />
         </TouchableOpacity>
       </SafeAreaView>
     </View>
