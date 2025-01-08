@@ -152,18 +152,6 @@ const ElectrumSettings: React.FC = () => {
     }
   }, [server]);
 
-  const serverExists = useCallback(
-    (value: ElectrumServerItem) => {
-      for (const s of serverHistory) {
-        if (`${s.host}:${s.tcp}:${s.ssl}` === `${value.host}:${value.tcp}:${value.ssl}`) {
-          return true;
-        }
-      }
-      return false;
-    },
-    [serverHistory],
-  );
-
   const save = useCallback(
     async (v?: ElectrumServerItem) => {
       Keyboard.dismiss();
@@ -437,8 +425,6 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const preferredServerIsEmpty = !host || (!port && !sslPort);
-  const isServerAlreadySaved =
-    suggestedServers.some(s => s.host === host && (s.tcp === port || s.ssl === sslPort)) || serverExists({ host, tcp: port, ssl: sslPort });
 
   const renderElectrumSettings = () => {
     return (
