@@ -117,7 +117,7 @@
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "junderw-crc32c": "1.2.0",
-    "libportal-react-native": "github:BlueWallet/libportal-react-native#e979bbc",
+    "libportal-react-native": "github:BlueWallet/libportal-react-native#6d020d3",
     "lottie-react-native": "7.1.0",
     "path-browserify": "1.0.1",
     "payjoin-client": "1.0.1",

@@ -1,6 +1,7 @@
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { PortalSdk, type NfcOut, type CardStatus } from 'libportal-react-native';
 import assert from 'assert';
+import { MnemonicWords, Network } from 'libportal-react-native/src';
 
 let sdk: PortalSdk | null = null;
 let keepReading = false;
@@ -106,6 +107,16 @@ export const publicDescriptors = async () => {
   assert(sdk, 'sdk is null');
   return sdk.publicDescriptors();
 };
+
+export const debugWipeDevice = async () => {
+  assert(sdk, 'sdk is null');
+  return sdk.debugWipeDevice();
+};
+
+export function generateMnemonic(words: MnemonicWords, network: Network, pairCode: string) {
+  assert(sdk, 'sdk is null');
+  return sdk.generateMnemonic(words, network, pairCode);
+}
 
 export const signPsbt = async (psbt: string) => {
   assert(sdk, 'sdk is null');
