@@ -282,7 +282,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooter]}>
+              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooterSpacing]}>
                 {!isVisible && (
                   <SecondButton
                     title={isLoading ? '' : loc._.ok}
@@ -410,6 +410,7 @@ const styles = StyleSheet.create({
   },
   feeModalFooterSpacing: {
     padding: 16,
+    marginVertical: 16,
   },
   inputContainer: {
     marginBottom: 10,

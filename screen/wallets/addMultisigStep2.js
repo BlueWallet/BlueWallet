@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -43,6 +43,7 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { dispatch } from '../../NavigationService';
 
 const staticCache = {};
 
@@ -50,7 +51,7 @@ const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, setParams, goBack } = useExtendedNavigation();
+  const { navigate, setParams, dispatch } = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -184,7 +185,7 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    goBack();
+    dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'WalletsList' }] }));
   };
 
   const generateNewKey = () => {
