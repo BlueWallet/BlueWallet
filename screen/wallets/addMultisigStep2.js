@@ -42,6 +42,7 @@ import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const staticCache = {};
 
@@ -319,57 +320,6 @@ const WalletsAddMultisigStep2 = () => {
     [cosigners, getPath],
   );
 
-  const useMnemonicPhrase = async () => {
-    setIsLoading(true);
-
-    if (MultisigHDWallet.isXpubValid(importText)) {
-      return tryUsingXpub(importText);
-    }
-    try {
-      const jsonText = JSON.parse(importText);
-      let fp;
-      let path;
-      if (jsonText.xpub) {
-        if (jsonText.xfp) {
-          fp = jsonText.xfp;
-        }
-        if (jsonText.path) {
-          path = jsonText.path;
-        }
-        return tryUsingXpub(jsonText.xpub, fp, path);
-      }
-    } catch {}
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(importText);
-    if (!hd.validateMnemonic()) {
-      setIsLoading(false);
-      return presentAlert({ message: loc.multisig.invalid_mnemonics });
-    }
-
-    let passphrase;
-    if (askPassphrase) {
-      try {
-        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-      } catch (e) {
-        if (e.message === 'Cancel Pressed') {
-          setIsLoading(false);
-          return;
-        }
-        throw e;
-      }
-    }
-
-    const cosignersCopy = [...cosigners];
-    cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
-    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setCosigners(cosignersCopy);
-
-    provideMnemonicsModalRef.current.dismiss();
-    setIsLoading(false);
-    setImportText('');
-    setAskPassphrase(false);
-  };
-
   const isValidMnemonicSeed = mnemonicSeed => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonicSeed);
@@ -484,13 +434,65 @@ const WalletsAddMultisigStep2 = () => {
     navigate('ScanQRCode', { showFileImportButton: true });
   };
 
+  const utilizeMnemonicPhrase = useCallback(async () => {
+    setIsLoading(true);
+
+    if (MultisigHDWallet.isXpubValid(importText)) {
+      return tryUsingXpub(importText);
+    }
+    try {
+      const jsonText = JSON.parse(importText);
+      let fp;
+      let path;
+      if (jsonText.xpub) {
+        if (jsonText.xfp) {
+          fp = jsonText.xfp;
+        }
+        if (jsonText.path) {
+          path = jsonText.path;
+        }
+        return tryUsingXpub(jsonText.xpub, fp, path);
+      }
+    } catch {}
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(importText);
+    if (!hd.validateMnemonic()) {
+      setIsLoading(false);
+      return presentAlert({ message: loc.multisig.invalid_mnemonics });
+    }
+
+    let passphrase;
+    if (askPassphrase) {
+      try {
+        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      } catch (e) {
+        if (e.message === 'Cancel Pressed') {
+          setIsLoading(false);
+          return;
+        }
+        throw e;
+      }
+    }
+
+    const cosignersCopy = [...cosigners];
+    cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
+    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCosigners(cosignersCopy);
+
+    provideMnemonicsModalRef.current.dismiss();
+    setIsLoading(false);
+    setImportText('');
+    setAskPassphrase(false);
+  }, [askPassphrase, cosigners, importText, tryUsingXpub]);
+
   useEffect(() => {
     const scannedData = params.onBarScanned;
     if (scannedData) {
       onBarScanned(scannedData);
+      utilizeMnemonicPhrase();
       setParams({ onBarScanned: undefined });
     }
-  }, [onBarScanned, params.onBarScanned, setParams]);
+  }, [onBarScanned, params.onBarScanned, setParams, utilizeMnemonicPhrase]);
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
@@ -646,7 +648,7 @@ const WalletsAddMultisigStep2 = () => {
                     testID="DoImportKeyButton"
                     disabled={importText.trim().length === 0}
                     title={loc.wallets.import_do_import}
-                    onPress={useMnemonicPhrase}
+                    onPress={utilizeMnemonicPhrase}
                   />
                   <View style={styles.height16} />
                   <BlueButtonLink
@@ -695,8 +697,24 @@ const WalletsAddMultisigStep2 = () => {
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
           />
           {Platform.select({
-            ios: <DoneAndDismissKeyboardInputAccessory />,
-            android: isVisible && <DoneAndDismissKeyboardInputAccessory />,
+            ios: (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
+                }}
+              />
+            ),
+            android: isVisible && (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
+                }}
+              />
+            ),
           })}
 
           <BlueSpacing20 />
