@@ -281,13 +281,12 @@ const ScanQRCode = () => {
           <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+          <BlueSpacing40 />
+          <Button title={loc._.cancel} onPress={dismiss} />
         </View>
       ) : isFocused ? (
         <CameraScreen
           scanBarcode
-          torchOffImage={require('../../img/flash-off.png')}
-          torchOnImage={require('../../img/flash-on.png')}
-          cameraFlipImage={require('../../img/camera-rotate-solid.png')}
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
           showFilePickerButton={showFileImportButton}
