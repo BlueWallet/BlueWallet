@@ -43,7 +43,6 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { dispatch } from '../../NavigationService';
 
 const staticCache = {};
 
