@@ -489,10 +489,9 @@ const WalletsAddMultisigStep2 = () => {
     const scannedData = params.onBarScanned;
     if (scannedData) {
       onBarScanned(scannedData);
-      utilizeMnemonicPhrase();
       setParams({ onBarScanned: undefined });
     }
-  }, [onBarScanned, params.onBarScanned, setParams, utilizeMnemonicPhrase]);
+  }, [onBarScanned, params.onBarScanned, setParams]);
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
