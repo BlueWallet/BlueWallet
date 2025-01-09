@@ -14,6 +14,7 @@ import { popToTop } from '../../NavigationService';
 import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -64,6 +65,7 @@ const reducer = (state: State, action: Action): State => {
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
+  const { setIsQuickActionsEnabledStorage } = useSettings();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
@@ -201,6 +203,7 @@ const EncryptStorage = () => {
             try {
               await encryptStorage(password);
               await saveToDisk();
+              await setIsQuickActionsEnabledStorage(false);
               dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
               success = true;
             } catch (error) {
@@ -211,6 +214,7 @@ const EncryptStorage = () => {
             try {
               await decryptStorage(password);
               await saveToDisk();
+              await setIsQuickActionsEnabledStorage(true);
               popToTop();
               success = true;
             } catch (error) {

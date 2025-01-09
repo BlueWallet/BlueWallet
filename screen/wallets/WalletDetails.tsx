@@ -405,7 +405,6 @@ const WalletDetails: React.FC = () => {
       // Only save if the name has changed
       wallet.setLabel(trimmedWalletName);
       try {
-        console.warn('saving wallet name:', trimmedWalletName);
         await saveToDisk();
       } catch (error) {
         console.error((error as Error).message);
