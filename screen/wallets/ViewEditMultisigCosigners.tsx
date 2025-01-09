@@ -60,7 +60,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, setParams, goBack } = useExtendedNavigation<NavigationProp>();
+  const { navigate, dispatch, setParams, getParent } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -174,7 +174,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
       // dismiss this modal
-      goBack();
+      getParent()?.goBack();
     }, 500);
   };
   useFocusEffect(
@@ -465,6 +465,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return;
       }
 
+
       const hd = new HDSegwitBech32Wallet();
       hd.setSecret(mnemonic);
       if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
@@ -526,7 +527,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   useEffect(() => {
     const scannedData = route.params.onBarScanned;
     if (scannedData) {
-      setParams({ onBarScanned: undefined });
       setImportText(String(scannedData));
       handleUseMnemonicPhrase();
     }
@@ -573,10 +573,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
             ) : (
               <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
+
+            {!isLoading &&
             <>
-              <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
               <BlueSpacing20 />
-            </>
+            </>}
           </>
         }
       >
@@ -584,7 +586,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
           <View style={styles.multiLineTextInput}>
-            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+            <BlueFormMultiInput editable={!isLoading} value={importText} onChangeText={setImportText} />
           </View>
         </>
       </BottomModal>
