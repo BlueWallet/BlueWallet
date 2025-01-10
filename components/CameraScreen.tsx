@@ -145,6 +145,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           zoom={zoom}
           maxZoom={10}
           scanBarcode
+          resizeMode="cover"
           onZoom={handleZoom}
           onReadCode={handleReadCode}
           onError={handleCameraError}
