@@ -30,7 +30,7 @@ const presentAlert = (() => {
     }
   };
 
-  if (navigationRef.isReady()) {
+  if (navigationRef.current?.isReady()) {
     return ({
       title,
       message,
