@@ -312,6 +312,10 @@ const ScanQRCode = () => {
           <BlueSpacing40 />
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
           <BlueSpacing40 />
+          {showFileImportButton && <Button title={loc.wallets.import_file} onPress={showFilePicker} />}
+          <BlueSpacing40 />
+          <Button title={loc.wallets.list_long_choose} onPress={showFilePicker} />
+          <BlueSpacing40 />
           <Button title={loc._.cancel} onPress={dismiss} />
         </View>
       ) : isFocused ? (
