@@ -15,6 +15,7 @@ import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
 import presentAlert from '../../components/Alert';
+import SafeArea from '../../components/SafeArea';
 
 let decoder = false;
 
@@ -305,7 +306,7 @@ const ScanQRCode = () => {
   const render = isLoading ? (
     <BlueLoading />
   ) : (
-    <>
+    <SafeArea>
       {!cameraStatusGranted ? (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
@@ -364,7 +365,7 @@ const ScanQRCode = () => {
         style={styles.backdoorButton}
         onPress={handleInvisibleBackdoorPress}
       />
-    </>
+    </SafeArea>
   );
 
   return <View style={styles.root}>{render}</View>;
