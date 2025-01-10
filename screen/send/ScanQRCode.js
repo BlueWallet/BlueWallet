@@ -14,6 +14,7 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
+import presentAlert from '../../components/Alert';
 
 let decoder = false;
 
@@ -272,6 +273,35 @@ const ScanQRCode = () => {
     navigation.goBack();
   };
 
+  const handleCameraError = e => {
+    console.warn(e);
+    presentAlert({
+      title: loc.send.camera_init_failure,
+      message: loc.send.camera_init_failure_desc,
+      buttons: [{ text: loc._.ok, onPress: dismiss }],
+    });
+  };
+
+  const handleReadCode = event => {
+    onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
+  };
+
+  const handleBackdoorOkPress = () => {
+    setBackdoorVisible(false);
+    setBackdoorText('');
+    if (backdoorText) onBarCodeRead({ data: backdoorText });
+  };
+
+  // this is an invisible backdoor button on bottom left screen corner
+  // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
+  // this allows to mock and test QR scanning in e2e tests
+  const handleInvisibleBackdoorPress = async () => {
+    setBackdoorPressed(backdoorPressed + 1);
+    if (backdoorPressed < 5) return;
+    setBackdoorPressed(0);
+    setBackdoorVisible(true);
+  };
+
   const render = isLoading ? (
     <BlueLoading />
   ) : (
@@ -286,8 +316,8 @@ const ScanQRCode = () => {
         </View>
       ) : isFocused ? (
         <CameraScreen
-          scanBarcode
-          onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
+          onError={handleCameraError}
+          onReadCode={handleReadCode}
           showFrame={false}
           showFilePickerButton={showFileImportButton}
           showImagePickerButton={true}
@@ -320,16 +350,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <Button
-            title="OK"
-            testID="scanQrBackdoorOkButton"
-            onPress={() => {
-              setBackdoorVisible(false);
-              setBackdoorText('');
-
-              if (backdoorText) onBarCodeRead({ data: backdoorText });
-            }}
-          />
+          <Button title="OK" testID="scanQrBackdoorOkButton" onPress={handleBackdoorOkPress} />
         </View>
       )}
       <TouchableOpacity
@@ -337,15 +358,7 @@ const ScanQRCode = () => {
         accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
-        onPress={async () => {
-          // this is an invisible backdoor button on bottom left screen corner
-          // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
-          // this allows to mock and test QR scanning in e2e tests
-          setBackdoorPressed(backdoorPressed + 1);
-          if (backdoorPressed < 5) return;
-          setBackdoorPressed(0);
-          setBackdoorVisible(true);
-        }}
+        onPress={handleInvisibleBackdoorPress}
       />
     </>
   );

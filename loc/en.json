@@ -163,6 +163,8 @@
     "details_wallet_before_tx": "Before creating a transaction, you must first add a Bitcoin wallet.",
     "dynamic_init": "Initializing",
     "dynamic_next": "Next",
+    "camera_init_failure": "Failed to initialize camera",
+    "camera_init_failure_desc": "The camera failed to initialize. Please check if the camera is enabled in your device settings.",
     "dynamic_prev": "Previous",
     "dynamic_start": "Start",
     "dynamic_stop": "Stop",
