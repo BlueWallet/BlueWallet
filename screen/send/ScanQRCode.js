@@ -2,7 +2,7 @@ import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-na
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
@@ -14,8 +14,8 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
-import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 let decoder = false;
 
@@ -122,20 +122,13 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(
-        loc.send.scan_error,
-        loc._.invalid_animated_qr_code_fragment,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              setIsLoading(false);
-            },
-            style: 'default',
-          },
-        ],
-        { cancelabe: false },
-      );
+      presentAlert({
+        title: loc.send.scan_error,
+        message: loc._.invalid_animated_qr_code_fragment,
+        onPress: () => {
+          setIsLoading(false);
+        },
+      });
     }
   };
 
@@ -172,20 +165,14 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(
-        loc.send.scan_error,
-        loc._.invalid_animated_qr_code_fragment,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              setIsLoading(false);
-            },
-            style: 'default',
-          },
-        ],
-        { cancelabe: false },
-      );
+
+      presentAlert({
+        title: loc.send.scan_error,
+        message: loc._.invalid_animated_qr_code_fragment,
+        onPress: () => {
+          setIsLoading(false);
+        },
+      });
     }
   };
 
@@ -274,15 +261,6 @@ const ScanQRCode = () => {
     navigation.goBack();
   };
 
-  const handleCameraError = e => {
-    console.warn(e);
-    presentAlert({
-      title: loc.send.camera_init_failure,
-      message: loc.send.camera_init_failure_desc,
-      buttons: [{ text: loc._.ok, onPress: dismiss }],
-    });
-  };
-
   const handleReadCode = event => {
     onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
   };
@@ -321,7 +299,6 @@ const ScanQRCode = () => {
         </View>
       ) : isFocused ? (
         <CameraScreen
-          onError={handleCameraError}
           onReadCode={handleReadCode}
           showFrame={false}
           showFilePickerButton={showFileImportButton}

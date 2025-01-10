@@ -13,7 +13,6 @@ interface CameraScreenProps {
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
   onReadCode?: (event: OnReadCodeData) => void;
-  onError?: (event: { nativeEvent: { errorMessage: string } }) => void;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -23,7 +22,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   onImagePickerButtonPress,
   onFilePickerButtonPress,
   onReadCode,
-  onError,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [torchMode, setTorchMode] = useState(false);
@@ -91,10 +89,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
     }
   };
 
-  const handleCameraError = (event: { nativeEvent: { errorMessage: string } }) => {
-    onError?.(event);
-  };
-
   const handleReadCode = (event: OnReadCodeData) => {
     onReadCode?.(event);
   };
@@ -148,7 +142,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           resizeMode="cover"
           onZoom={handleZoom}
           onReadCode={handleReadCode}
-          onError={handleCameraError}
           torchMode={torchMode ? 'on' : 'off'}
           shutterPhotoSound
           maxPhotoQualityPrioritization="quality"
