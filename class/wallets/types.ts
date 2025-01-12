@@ -117,7 +117,15 @@ export type Transaction = {
    * if known, who is on the other end of the transaction (BIP47 payment code)
    */
   counterparty?: string;
+  memo: string;
 };
+
+export interface Transaction {
+  hash: string;
+  memo: string;
+  value: number;
+  // ...other transaction fields...
+}
 
 /**
  * in some cases we add additional data to each tx object so the code that works with that transaction can find the
@@ -145,5 +153,11 @@ export type TWallet =
   | SegwitBech32Wallet
   | SegwitP2SHWallet
   | WatchOnlyWallet;
+
+export interface TWallet {
+  getID: () => string;
+  getTransactions: () => Transaction[];
+  // ...other wallet methods...
+}
 
 export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet;

@@ -55,7 +55,9 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
+  const { selectedWalletID, wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const { saveToDisk, setSelectedWalletID } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
