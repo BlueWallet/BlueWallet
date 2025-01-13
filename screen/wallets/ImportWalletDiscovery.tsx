@@ -68,7 +68,7 @@ const ImportWalletDiscovery: React.FC = () => {
       if (importing.current) return;
       importing.current = true;
       addAndSaveWallet(wallet);
-      navigation.goBack();
+      navigation.getParent()?.goBack();
     },
     [addAndSaveWallet, navigation],
   );
@@ -143,13 +143,8 @@ const ImportWalletDiscovery: React.FC = () => {
     };
     // ignoring "navigation" here, because it is constantly mutating
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askPassphrase, importText, isElectrumDisabled, saveWallet, searchAccounts]);
+  }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      task.current?.stop();
-    }, []),
-  );
   const handleCustomDerivation = () => {
     task.current?.stop();
     if (!isDesktop) {
