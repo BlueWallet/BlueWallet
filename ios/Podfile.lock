@@ -13,7 +13,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.75.4)
   - hermes-engine/Pre-built (0.75.4)
   - lottie-ios (4.5.0)
-  - lottie-react-native (7.2.1):
+  - lottie-react-native (7.1.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1613,7 +1613,7 @@ PODS:
     - React
   - RNCAsyncStorage (2.1.0):
     - React-Core
-  - RNCClipboard (1.16.0):
+  - RNCClipboard (1.15.0):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -1623,7 +1623,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.22.0):
+  - RNGestureHandler (2.21.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1667,7 +1667,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNLocalize (3.4.1):
+  - RNLocalize (3.3.0):
     - React-Core
   - RNPermissions (5.2.2):
     - React-Core
@@ -1829,7 +1829,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.11.1):
+  - RNSVG (15.10.1):
     - React-Core
   - RNVectorIcons (10.2.0):
     - DoubleConversion
@@ -2209,7 +2209,7 @@ SPEC CHECKSUMS:
   glog: 69ef571f3de08433d766d614c73a9838a06bf7eb
   hermes-engine: ea92f60f37dba025e293cbe4b4a548fd26b610a0
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 816fb00189b309b3eee7c152ddfc8d37f56d1865
+  lottie-react-native: 015e84640c4b8dd47049a8c981996fd203001ddf
   RCT-Folly: 34124ae2e667a0e5f0ea378db071d27548124321
   RCTDeprecation: 726d24248aeab6d7180dac71a936bbca6a994ed1
   RCTRequired: a94e7febda6db0345d207e854323c37e3a31d93b
@@ -2280,15 +2280,15 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: e72b838dac4ea2da19b7eb5d00b23125072790fd
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: c91d753ede6dc21862c4922cd13f98f7cfde578e
-  RNCClipboard: d05e3f409b80d63c6507fd5753846e5992057799
+  RNCClipboard: dbcf25b8f666b4685c02eeb65be981d30198e505
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: ae26ae45db3f9937f038a284bcd0a1db8d70db96
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 43970f04f34f186b4a5b2057cbf99c3039753c36
+  RNGestureHandler: 5b24d10761754ad271b714e536c457fd89b17c54
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
-  RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
+  RNLocalize: d024afa9204c13885e61dc88b8190651bcaabac9
   RNPermissions: 6f08c623b0c8ca7d95faa71c3956b159b34f25c3
   RNQrGenerator: 7c604c0eb608af64ff586ab0c040796a04eff247
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
@@ -2297,7 +2297,7 @@ SPEC CHECKSUMS:
   RNReanimated: 000b758cfbcd9c20c15b7ef305f98f036b288feb
   RNScreens: 35bb8e81aeccf111baa0ea01a54231390dbbcfd9
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
-  RNSVG: 46769c92d1609e617dbf9326ad8a0cff912d0982
+  RNSVG: 3421710ac15f4f2dc47e5c122f2c2e4282116830
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
