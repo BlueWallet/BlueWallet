@@ -28,6 +28,8 @@
     "enter_amount": "Wprowadź kwotę",
     "qr_custom_input_button": "Stuknij 10 razy, aby wprowadzić niestandardowe dane",
     "unlock": "Odblokuj",
+    "port": "Port",
+    "ssl_port": "Port SSL",
     "suggested": "Sugerowane"
   },
   "azteco": {
@@ -74,6 +76,7 @@
     "please_pay": "Proszę zapłać",
     "preimage": "Obraz pierwotny",
     "sats": "satoshi.",
+    "date_time": "Data i czas",
     "wasnt_paid_and_expired": "Ta faktura nie została opłacona i przeterminowała się."
   },
   "plausibledeniability": {
@@ -190,7 +193,7 @@
     "outdated_rate": "Ostatnia aktualizacja kursu: {date}",
     "psbt_tx_open": "Otwórz podpisaną transakcję",
     "psbt_tx_scan": "Skanuj Podpisane Transakcje",
-    "qr_error_no_qrcode": "Nie udało nam się znaleźć kodu QR na wybranym obrazie. Upewnij się, że obraz zawiera tylko kod QR bez dodatkowych treści, takich jak tekst czy przyciski.",
+    "qr_error_no_qrcode": "Nie udało nam się znaleźć prawidłowego kodu QR w wybranym obrazie. Upewnij się, że obraz zawiera tylko kod QR i nie ma dodatkowych elementów, takich jak tekst lub przyciski.",
     "reset_amount": "Resetuj ilość",
     "reset_amount_confirm": "Czy chcesz zresetować ilość?",
     "success_done": "Zrobione",
@@ -250,15 +253,10 @@
     "electrum_status": "Status",
     "electrum_preferred_server": "Preferowany serwer",
     "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",
-    "electrum_clear_alert_title": "Wyczyścić historię?",
-    "electrum_clear_alert_message": "Czy chcesz wyczyścić historię serwerów Electrum?",
-    "electrum_clear_alert_cancel": "Anuluj",
-    "electrum_clear_alert_ok": "Ok",
-    "electrum_reset": "Ustaw wartości domyślne",
     "electrum_unable_to_connect": "Nie można się połączyć z {server}.",
     "electrum_history": "Historia",
-    "electrum_reset_to_default": "Czy na pewno ustawić domyślne ustawienia Electrum?",
-    "electrum_clear": "Wyczyść historię",
+    "electrum_reset_to_default": "To pozwoli BlueWallet losowo wybrać serwer z sugerowanej listy i historii. Historia Twoich serwerów pozostanie niezmieniona.",
+    "electrum_reset": "Ustaw wartości domyślne",
     "encrypt_decrypt": "Odszyfruj Magazyn Danych",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
     "encrypt_enc_and_pass": "Szyfrowany i chroniony hasłem",
@@ -272,6 +270,8 @@
     "encrypt_title": "Zabezpieczenia",
     "encrypt_tstorage": "Dane",
     "encrypt_use": "Użyj {type}",
+    "set_as_preferred": "Ustaw jako preferowany",
+    "set_as_preferred_electrum": "Ustawienie {host}:{port} jako preferowanego serwera wyłączy losowe łączenie się z sugerowanym serwerem.",
     "encrypted_feature_disabled": "Ta funkcja nie może być używana z włączonym szyfrowaniem pamięci.",
     "encrypt_use_expl": "{type} będzie użyty w celu potwierdzenia twojej tożsamości przed wykonaniem transakcji, odblokowaniem, eksportem lub usunięciem portfela. {type} nie będzie użyty do odblokowania danych zaszyfrowanych.",
     "biometrics_fail": "Jeśli {type} nie jest włączony lub nie udaje się odblokować, możesz alternatywnie użyć kodu dostępu swojego urządzenia.",
@@ -291,6 +291,7 @@
     "network": "Sieć",
     "network_broadcast": "Rozgłoś transakcję",
     "network_electrum": "Serwer Electrum",
+    "electrum_suggested_description": "Gdy preferowany serwer nie jest ustawiony, sugerowany serwer zostanie wybrany losowo do użycia.",
     "not_a_valid_uri": "Nieprawidłowy adres",
     "notifications": "Powiadomienia",
     "open_link_in_explorer": "Otwórz link w eksploratorze bloków",
@@ -654,6 +655,8 @@
   "bip47": {
     "payment_code": "Kod płatności",
     "contacts": "Kontakty",
+    "bip47_explain": "Kod wielokrotnego użytku i do udostępnienia.",
+    "bip47_explain_subtitle": "BIP47",
     "purpose": "Kod wielokrotnego użytku możliwy do udostępnienia (BIP47)",
     "pay_this_contact": "Zapłać temu kontaktowi",
     "rename_contact": "Zmień nazwę kontaktu",
@@ -667,7 +670,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }
