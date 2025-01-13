@@ -62,7 +62,7 @@ function NfcPair() {
           <BlueText>Reading stopped</BlueText>
           <Button
             title="start reading NFC device"
-            onPress={async () => {
+            onPress={() => {
               PortalDevice.startReading()?.then(() => {
                 getStatus();
                 setRedraw(Math.random());
