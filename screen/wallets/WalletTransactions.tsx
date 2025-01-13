@@ -161,17 +161,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet && wallet.getLastTxFetch() === 0) {
-          refreshTransactions();
-        }
-      });
 
-      return () => task.cancel();
-    }, [refreshTransactions, wallet]),
-  );
+  useEffect(() => {
+    if (wallet && wallet.getLastTxFetch() === 0) {
+      refreshTransactions();
+    }
+  }
+  , [wallet, refreshTransactions]);
 
   useEffect(() => {
     if (wallet) {
