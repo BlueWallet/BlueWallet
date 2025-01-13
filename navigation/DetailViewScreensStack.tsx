@@ -382,16 +382,6 @@ const DetailViewStackScreensStack = () => {
         })(theme)}
       />
       <DetailViewStack.Screen
-        name="ScanQRCode"
-        component={ScanQRCodeComponent}
-        options={navigationStyle({
-          headerShown: false,
-          statusBarHidden: true,
-          presentation: 'fullScreenModal',
-          headerShadowVisible: false,
-        })(theme)}
-      />
-      <DetailViewStack.Screen
         name="NfcPair"
         component={NfcPair}
         options={navigationStyle({

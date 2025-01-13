@@ -14,6 +14,7 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
+import { Icon } from '@rneui/themed';
 
 let decoder = false;
 
