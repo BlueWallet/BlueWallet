@@ -3,8 +3,8 @@ import { Animated, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View }
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
-
-const AnimatedIcon = Animated.createAnimatedComponent(Icon);
+import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
+import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 
 interface CameraScreenProps {
   onCancelButtonPress: () => void;
@@ -12,8 +12,7 @@ interface CameraScreenProps {
   showFilePickerButton?: boolean;
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
-
-  onReadCode?: (event: any) => void;
+  onReadCode?: (event: OnReadCodeData) => void;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -22,7 +21,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   showFilePickerButton,
   onImagePickerButtonPress,
   onFilePickerButtonPress,
-
   onReadCode,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
@@ -35,10 +33,12 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
     const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
     setCameraType(direction);
     setZoom(1); // When changing camera type, reset to default zoom for that camera
+    triggerSelectionHapticFeedback();
   };
 
   const onSetTorch = () => {
     setTorchMode(!torchMode);
+    triggerSelectionHapticFeedback();
   };
 
   // Counter-rotate the icons to indicate the actual orientation of the captured photo.
@@ -60,17 +60,47 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
     }).start();
   }
 
+  const handleZoom = (e: { nativeEvent: { zoom: number } }) => {
+    console.debug('zoom', e.nativeEvent.zoom);
+    setZoom(e.nativeEvent.zoom);
+  };
+
+  const handleOrientationChange = (e: OnOrientationChangeData) => {
+    switch (e.nativeEvent.orientation) {
+      case Orientation.PORTRAIT_UPSIDE_DOWN:
+        console.debug('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
+        rotateUiTo(1);
+        break;
+      case Orientation.LANDSCAPE_LEFT:
+        console.debug('orientationChange', 'LANDSCAPE_LEFT');
+        rotateUiTo(2);
+        break;
+      case Orientation.PORTRAIT:
+        console.debug('orientationChange', 'PORTRAIT');
+        rotateUiTo(3);
+        break;
+      case Orientation.LANDSCAPE_RIGHT:
+        console.debug('orientationChange', 'LANDSCAPE_RIGHT');
+        rotateUiTo(4);
+        break;
+      default:
+        console.debug('orientationChange', e.nativeEvent);
+        break;
+    }
+  };
+
+  const handleReadCode = (event: OnReadCodeData) => {
+    onReadCode?.(event);
+  };
+
   return (
     <View style={styles.screen}>
       <StatusBar hidden />
       <SafeAreaView style={styles.topButtons}>
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
-          <AnimatedIcon
-            name={torchMode ? 'flashlight-on' : 'flashlight-off'}
-            type="font-awesome-6"
-            color="#ffffff"
-            style={{ ...styles.topButtonImg, ...uiRotationStyle }}
-          />
+          <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+            <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color="#ffffff" />
+          </Animated.View>
         </TouchableOpacity>
         <View style={styles.rightButtonsContainer}>
           {showImagePickerButton && (
@@ -80,7 +110,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onImagePickerButtonPress}
             >
-              <AnimatedIcon name="image" type="font-awesome" color="#ffffff" style={{ ...styles.topButtonImg, ...uiRotationStyle }} />
+              <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+                <Icon name="image" type="font-awesome" color="#ffffff" />
+              </Animated.View>
             </TouchableOpacity>
           )}
           {showFilePickerButton && (
@@ -90,12 +122,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onFilePickerButtonPress}
             >
-              <AnimatedIcon
-                name="file-import"
-                type="font-awesome-5"
-                color="#ffffff"
-                style={{ ...styles.topButtonImg, ...uiRotationStyle }}
-              />
+              <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+                <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+              </Animated.View>
             </TouchableOpacity>
           )}
         </View>
@@ -109,40 +138,14 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           resetFocusWhenMotionDetected
           zoom={zoom}
           maxZoom={10}
-          onZoom={e => {
-            console.debug('zoom', e.nativeEvent.zoom);
-            setZoom(e.nativeEvent.zoom);
-          }}
-          onReadCode={onReadCode}
+          scanBarcode
+          resizeMode="cover"
+          onZoom={handleZoom}
+          onReadCode={handleReadCode}
           torchMode={torchMode ? 'on' : 'off'}
           shutterPhotoSound
           maxPhotoQualityPrioritization="quality"
-          onOrientationChange={e => {
-            // We recommend locking the camera UI to portrait (using a different library)
-            // and rotating the UI elements counter to the orientation
-            // However, we include onOrientationChange so you can match your UI to what the camera does
-            switch (e.nativeEvent.orientation) {
-              case Orientation.PORTRAIT_UPSIDE_DOWN:
-                console.debug('orientationChange', 'PORTRAIT_UPSIDE_DOWN');
-                rotateUiTo(1);
-                break;
-              case Orientation.LANDSCAPE_LEFT:
-                console.debug('orientationChange', 'LANDSCAPE_LEFT');
-                rotateUiTo(2);
-                break;
-              case Orientation.PORTRAIT:
-                console.debug('orientationChange', 'PORTRAIT');
-                rotateUiTo(3);
-                break;
-              case Orientation.LANDSCAPE_RIGHT:
-                console.debug('orientationChange', 'LANDSCAPE_RIGHT');
-                rotateUiTo(4);
-                break;
-              default:
-                console.debug('orientationChange', e.nativeEvent);
-                break;
-            }
-          }}
+          onOrientationChange={handleOrientationChange}
         />
       </View>
 
@@ -151,7 +154,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomButton} onPress={onSwitchCameraPressed}>
-          <AnimatedIcon name="cameraswitch" type="font-awesome-6" color="#ffffff" style={{ ...styles.topButtonImg, ...uiRotationStyle }} />
+          <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+            <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+          </Animated.View>
         </TouchableOpacity>
       </SafeAreaView>
     </View>
