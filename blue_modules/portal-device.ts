@@ -118,6 +118,11 @@ export function generateMnemonic(words: MnemonicWords, network: Network, pairCod
   return sdk.generateMnemonic(words, network, pairCode);
 }
 
+export function resume() {
+  assert(sdk, 'sdk is null');
+  return sdk.resume();
+}
+
 export const signPsbt = async (psbt: string) => {
   assert(sdk, 'sdk is null');
   return sdk.signPsbt(psbt);

@@ -11,6 +11,7 @@ import loc from '../loc';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList.ts';
 import { MnemonicWords, Network } from 'libportal-react-native/src';
+import presentAlert from '../components/Alert.ts';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'NfcPair'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'NfcPair'>;
@@ -54,8 +55,6 @@ function NfcPair() {
 
   return (
     <View style={styles.wrapper}>
-      {/* <Button onPress={() => getStatus()} title="getStatus" /> */}
-
       {PortalDevice.isReading() ? (
         <BlueText onPress={() => setBackdoor(prevState => prevState + 1)}>Reading... Place phone on the NFC device</BlueText>
       ) : (
@@ -64,24 +63,26 @@ function NfcPair() {
           <Button
             title="start reading NFC device"
             onPress={async () => {
-              PortalDevice.startReading();
-              setRedraw(Math.random());
+              PortalDevice.startReading()?.then(() => {
+                getStatus();
+                setRedraw(Math.random());
+              });
             }}
           />
         </View>
       )}
 
-      {/* {PortalDevice.isReading() ? (
+      {backdoor >= 20 && PortalDevice.isReading() ? (
         <Button
           title="stop reading NFC device"
           onPress={async () => {
-            PortalDevice.stopReading();
-            setRedraw(Math.random());
+            PortalDevice.stopReading().then(() => {
+              presentAlert({ title: '', message: 'Remove the device' });
+              setRedraw(Math.random());
+            });
           }}
         />
-      ) : (
-
-      )} */}
+      ) : null}
 
       {status?.unlocked === false && status.initialized ? (
         <Button
@@ -110,7 +111,7 @@ function NfcPair() {
 
       <BlueSpacing20 />
 
-      {status && !status.initialized ? (
+      {status && !status.initialized && !status.unverified ? (
         <Button
           title="Initialize device"
           onPress={async () => {
@@ -122,6 +123,20 @@ function NfcPair() {
             PortalDevice.generateMnemonic(MnemonicWords.Words12, Network.Bitcoin, password)
               .then(() => {
                 console.log('generateMnemonic succeeded');
+                doPair();
+              })
+              .catch(alert);
+          }}
+        />
+      ) : null}
+
+      {status && !status.initialized && status.unverified ? (
+        <Button
+          title="Continue pairing the device"
+          onPress={async () => {
+            PortalDevice.resume()
+              .then(() => {
+                console.log('resume succeeded');
                 doPair();
               })
               .catch(alert);
