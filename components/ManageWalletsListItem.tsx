@@ -1,11 +1,13 @@
-import React, { useCallback } from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { TouchableOpacityWrapper } from './ListItem';
+import loc from '../loc';
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -29,11 +31,15 @@ interface ManageWalletsListItemProps {
   isDraggingDisabled: boolean;
   drag?: () => void;
   isPlaceHolder?: boolean;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
   handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  isActive?: boolean;
+  style?: ViewStyle;
 }
 
 interface SwipeContentProps {
@@ -46,13 +52,20 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
   <TouchableOpacity
     onPress={onPress}
     style={[styles.leftButtonContainer, { backgroundColor: colors.buttonAlternativeTextColor } as ViewStyle]}
+    accessibilityRole="button"
+    accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
     <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} type="font-awesome-5" />
   </TouchableOpacity>
 );
 
 const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.rightButtonContainer as ViewStyle}>
+  <TouchableOpacity
+    onPress={onPress}
+    style={styles.rightButtonContainer as ViewStyle}
+    accessibilityRole="button"
+    accessibilityLabel="Delete Wallet"
+  >
     <Icon name="delete-outline" color="#FFFFFF" />
   </TouchableOpacity>
 );
@@ -67,49 +80,54 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   renderHighlightedText,
   handleDeleteWallet,
   handleToggleHideBalance,
+  onPressIn,
+  onPressOut,
+  isActive,
+  style,
 }) => {
   const { colors } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onPress = useCallback(() => {
     if (item.type === ItemType.WalletSection) {
+      setIsLoading(true);
       navigateToWallet(item.data);
+      setIsLoading(false);
     }
   }, [item, navigateToWallet]);
 
-  const leftContent = useCallback(
-    (reset: () => void) => (
-      <LeftSwipeContent
-        onPress={() => {
-          handleToggleHideBalance(item.data as TWallet);
-          reset();
-        }}
-        hideBalance={(item.data as TWallet).hideBalance}
-        colors={colors}
-      />
-    ),
-    [colors, handleToggleHideBalance, item.data],
+  const handleLeftPress = (reset: () => void) => {
+    handleToggleHideBalance(item.data as TWallet);
+    reset();
+  };
+
+  const leftContent = (reset: () => void) => (
+    <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />
   );
 
-  const rightContent = useCallback(
-    (reset: () => void) => (
-      <RightSwipeContent
-        onPress={() => {
-          handleDeleteWallet(item.data as TWallet);
-          reset();
-        }}
-      />
-    ),
-    [handleDeleteWallet, item.data],
-  );
+  const handleRightPress = (reset: () => void) => {
+    handleDeleteWallet(item.data as TWallet);
+    reset();
+  };
+
+  const rightContent = (reset: () => void) => <RightSwipeContent onPress={() => handleRightPress(reset)} />;
+
+  if (isLoading) {
+    return <ActivityIndicator size="large" color={colors.brandingColor} />;
+  }
 
   if (item.type === ItemType.WalletSection) {
     return (
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        containerStyle={{ backgroundColor: colors.background }}
+        containerStyle={[{ backgroundColor: colors.background }, style]}
         leftContent={leftContent}
         rightContent={rightContent}
+        Component={TouchableOpacityWrapper}
+        onPressOut={onPressOut}
+        onPressIn={onPressIn}
+        style={isActive ? styles.activeItem : undefined}
       >
         <ListItem.Content
           style={{
@@ -121,6 +139,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
               item={item.data}
               handleLongPress={isDraggingDisabled ? undefined : drag}
               onPress={onPress}
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}
               animationsEnabled={false}
               searchQuery={state.searchQuery}
               isPlaceHolder={isPlaceHolder}
@@ -145,7 +165,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     );
   }
 
-  console.error('Unrecognized item type:', item);
   return null;
 };
 
@@ -164,6 +183,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'red',
   },
+  activeItem: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
 });
 
-export { ManageWalletsListItem, LeftSwipeContent, RightSwipeContent };
+export { LeftSwipeContent, RightSwipeContent };
+export default ManageWalletsListItem;

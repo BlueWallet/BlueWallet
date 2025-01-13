@@ -261,7 +261,7 @@ GEM
     rouge (2.0.7)
     ruby-macho (2.5.1)
     ruby2_keywords (0.0.5)
-    rubyzip (2.3.2)
+    rubyzip (2.4.1)
     securerandom (0.3.1)
     security (0.1.5)
     signet (0.19.0)
@@ -309,10 +309,10 @@ DEPENDENCIES
   fastlane (>= 2.225.0)
   fastlane-plugin-browserstack
   fastlane-plugin-bugsnag_sourcemaps_upload
-  rubyzip (= 2.3.2)
+  rubyzip (= 2.4.1)
 
 RUBY VERSION
-   ruby 3.3.5p100
+   ruby 3.1.6p260
 
 BUNDLED WITH
    2.5.18
