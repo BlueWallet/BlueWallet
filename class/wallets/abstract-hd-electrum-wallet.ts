@@ -1305,7 +1305,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       throw new Error('Internal error: could not create p2wpkh output during _addPsbtInput');
     }
 
-    psbt.addInput({
+    const _input: any /* because PsbtInputExtended is not exported in bitcoinjs-lib */ = {
       hash: input.txid,
       index: input.vout,
       sequence,
@@ -1320,7 +1320,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         script: p2wpkh.output,
         value: input.value,
       },
-    });
+    };
+    if (input.txhex) _input.nonWitnessUtxo = Buffer.from(input.txhex, 'hex');
+    psbt.addInput(_input);
 
     return psbt;
   }

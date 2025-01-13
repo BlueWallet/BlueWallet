@@ -108,6 +108,7 @@ const ImportWallet = () => {
   const importScan = useCallback(async () => {
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
+      showNfcButton: true,
     });
   }, [navigation]);
 

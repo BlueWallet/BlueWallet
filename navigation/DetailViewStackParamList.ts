@@ -11,6 +11,7 @@ export type ScanQRCodeParamList = {
   backdoorText?: string;
   onBarScanned?: (data: string) => void;
   showFileImportButton?: boolean;
+  showNfcButton?: boolean;
   backdoorVisible?: boolean;
   animatedQRCodeData?: Record<string, any>;
 };
@@ -105,4 +106,13 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   ManageWallets: undefined;
+  NfcPair: {
+    launchedBy: string;
+    onReturn: (data: string) => void;
+  };
+  NfcSignPsbt: {
+    launchedBy: string;
+    onReturn: (data: string) => void;
+    psbt: string;
+  };
 };
