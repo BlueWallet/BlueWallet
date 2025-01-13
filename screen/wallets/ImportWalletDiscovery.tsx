@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, LayoutAnimation, Platform, StyleSheet, UIManager, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
@@ -17,7 +17,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
-import { navigate } from '../../NavigationService';
 import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
@@ -30,6 +29,10 @@ type WalletEntry = {
   subtitle: string;
   id: string;
 };
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const ImportWalletDiscovery: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProp>();
@@ -65,9 +68,9 @@ const ImportWalletDiscovery: React.FC = () => {
       if (importing.current) return;
       importing.current = true;
       addAndSaveWallet(wallet);
-      navigate('WalletsList');
+      navigation.getParent()?.goBack();
     },
-    [addAndSaveWallet],
+    [addAndSaveWallet, navigation],
   );
 
   const handleSave = () => {
@@ -139,8 +142,9 @@ const ImportWalletDiscovery: React.FC = () => {
       task.current?.stop();
     };
     // ignoring "navigation" here, because it is constantly mutating
+    // removed all deps as they were leading to a rerender and retask loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askPassphrase, importText, isElectrumDisabled, saveWallet, searchAccounts]);
+  }, []);
 
   const handleCustomDerivation = () => {
     task.current?.stop();
