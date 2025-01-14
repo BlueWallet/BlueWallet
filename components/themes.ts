@@ -86,6 +86,7 @@ export const BlueDarkTheme: Theme = {
     customHeader: '#000000',
     brandingColor: '#000000',
     borderTopColor: '#9aa0aa',
+    background: '#000000',
     foregroundColor: '#ffffff',
     buttonDisabledBackgroundColor: '#3A3A3C',
     buttonBackgroundColor: '#3A3A3C',
