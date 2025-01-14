@@ -61,7 +61,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
-  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
+  const [wallet, setWallet] = useState(() => wallets.find(w => w.getID() === walletID));
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
@@ -78,6 +78,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       backgroundColor: colors.background,
     },
   });
+
+  useEffect(() => {
+    const newWallet = wallets.find(w => w.getID() === walletID);
+    setWallet(newWallet);
+  }, [walletID, wallets]);
 
   useFocusEffect(
     useCallback(() => {
