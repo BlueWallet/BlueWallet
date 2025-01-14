@@ -161,13 +161,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
 
-
   useEffect(() => {
     if (wallet && wallet.getLastTxFetch() === 0) {
       refreshTransactions();
     }
-  }
-  , [wallet, refreshTransactions]);
+  }, [wallet, refreshTransactions]);
 
   useEffect(() => {
     if (wallet) {
