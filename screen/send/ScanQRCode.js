@@ -284,7 +284,7 @@ const ScanQRCode = () => {
   const render = isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeArea>
+    <View>
       {!cameraStatusGranted ? (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
@@ -342,10 +342,10 @@ const ScanQRCode = () => {
         style={styles.backdoorButton}
         onPress={handleInvisibleBackdoorPress}
       />
-    </SafeArea>
+    </View>
   );
 
-  return <View style={styles.root}>{render}</View>;
+  return <SafeArea style={styles.root}>{render}</SafeArea>;
 };
 
 export default ScanQRCode;
