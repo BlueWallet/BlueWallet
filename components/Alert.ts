@@ -23,65 +23,63 @@ const presentAlert = (() => {
   };
 
   const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && navigationRef.isReady()) {
       RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
     } else {
       RNAlert.alert(title ?? '', message, buttons, options);
     }
   };
 
-  if (navigationRef.current?.isReady()) {
-    return ({
-      title,
-      message,
-      type = AlertType.Alert,
-      hapticFeedback,
-      buttons = [],
-      options = { cancelable: false },
-      allowRepeat = true,
-    }: {
-      title?: string;
-      message: string;
-      type?: AlertType;
-      hapticFeedback?: HapticFeedbackTypes;
-      buttons?: AlertButton[];
-      options?: AlertOptions;
-      allowRepeat?: boolean;
-    }) => {
-      const currentAlertParams = { title, message, type, hapticFeedback, buttons, options };
+  return ({
+    title,
+    message,
+    type = AlertType.Alert,
+    hapticFeedback,
+    buttons = [],
+    options = { cancelable: false },
+    allowRepeat = true,
+  }: {
+    title?: string;
+    message: string;
+    type?: AlertType;
+    hapticFeedback?: HapticFeedbackTypes;
+    buttons?: AlertButton[];
+    options?: AlertOptions;
+    allowRepeat?: boolean;
+  }) => {
+    const currentAlertParams = { title, message, type, hapticFeedback, buttons, options };
 
-      if (!allowRepeat && lastAlertParams && JSON.stringify(lastAlertParams) === JSON.stringify(currentAlertParams)) {
-        return;
-      }
+    if (!allowRepeat && lastAlertParams && JSON.stringify(lastAlertParams) === JSON.stringify(currentAlertParams)) {
+      return;
+    }
 
-      if (JSON.stringify(lastAlertParams) !== JSON.stringify(currentAlertParams)) {
-        clearCache();
-      }
+    if (JSON.stringify(lastAlertParams) !== JSON.stringify(currentAlertParams)) {
+      clearCache();
+    }
 
-      lastAlertParams = currentAlertParams;
+    lastAlertParams = currentAlertParams;
 
-      if (hapticFeedback) {
-        triggerHapticFeedback(hapticFeedback);
-      }
+    if (hapticFeedback) {
+      triggerHapticFeedback(hapticFeedback);
+    }
 
-      const wrappedButtons: AlertButton[] = buttons.length > 0 ? buttons : [{ text: loc._.ok, onPress: () => {}, style: 'default' }];
+    const wrappedButtons: AlertButton[] = buttons.length > 0 ? buttons : [{ text: loc._.ok, onPress: () => {}, style: 'default' }];
 
-      switch (type) {
-        case AlertType.Toast:
-          if (Platform.OS === 'android') {
-            ToastAndroid.show(message, ToastAndroid.LONG);
-            clearCache();
-          } else {
-            // For iOS, treat Toast as a normal alert
-            showAlert(title, message, wrappedButtons, options);
-          }
-          break;
-        default:
+    switch (type) {
+      case AlertType.Toast:
+        if (Platform.OS === 'android') {
+          ToastAndroid.show(message, ToastAndroid.LONG);
+          clearCache();
+        } else {
+          // For iOS, treat Toast as a normal alert
           showAlert(title, message, wrappedButtons, options);
-          break;
-      }
-    };
-  }
+        }
+        break;
+      default:
+        showAlert(title, message, wrappedButtons, options);
+        break;
+    }
+  };
 })();
 
 export default presentAlert;
