@@ -465,7 +465,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return;
       }
 
-
       const hd = new HDSegwitBech32Wallet();
       hd.setSecret(mnemonic);
       if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
@@ -574,11 +573,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
               <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
 
-            {!isLoading &&
-            <>
-             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
-              <BlueSpacing20 />
-            </>}
+            {!isLoading && (
+              <>
+                <BlueButtonLink
+                  ref={openScannerButtonRef}
+                  disabled={isLoading}
+                  onPress={scanOrOpenFile}
+                  title={loc.wallets.import_scan_qr}
+                />
+                <BlueSpacing20 />
+              </>
+            )}
           </>
         }
       >
