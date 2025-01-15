@@ -1090,8 +1090,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   getID() {
-    const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    const string2hash = [...this._cosignersFingerprints].sort().join(',');
+    const id = createHash('sha256').update(string2hash).digest().toString('hex');
+    return id;
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {
