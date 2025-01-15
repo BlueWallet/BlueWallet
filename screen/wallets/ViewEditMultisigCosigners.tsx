@@ -677,6 +677,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         contentContainerStyle={styles.contentContainerStyle}
       />
       <BlueCard>{footer}</BlueCard>
+      <BlueSpacing20 />
 
       {renderProvideMnemonicsModal()}
 
