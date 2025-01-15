@@ -82,7 +82,7 @@
     "@ngraveio/bc-ur": "1.1.13",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "2.1.0",
-    "@react-native-clipboard/clipboard": "1.16.0",
+    "@react-native-clipboard/clipboard": "1.16.1",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-menu/menu": "https://github.com/BlueWallet/menu.git#14bab79",
     "@react-native/gradle-plugin": "0.75.4",
