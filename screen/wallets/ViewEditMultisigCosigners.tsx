@@ -50,6 +50,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import SafeArea from '../../components/SafeArea';
+import { TWallet } from '../../class/wallets/types';
 
 type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
@@ -80,7 +81,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const walletData = useRef<any[]>();
+  const [walletData, setWalletData] = useState<TWallet[]>([]);
   /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
     user tries to leave the screen with unsaved changes.
     Why the container view ? It was the easiest to get the ref for. No other reason.
@@ -192,7 +193,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           w.current.setNativeSegwit();
         } else {
           tempWallet.current.setSecret(w.current.getSecret());
-          walletData.current = new Array(tempWallet.current.getN());
+          setWalletData(new Array(tempWallet.current.getN()));
           setWallet(tempWallet.current);
         }
         hasLoaded.current = true;
@@ -296,8 +297,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
     }
 
-    // @ts-ignore not sure which one is correct
-    const length = walletData?.length ?? walletData.current?.length ?? 0;
+    const length = walletData.length;
 
     return (
       <View>
@@ -660,26 +660,25 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
-    <SafeArea>
-      <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
-        <FlatList
-          ListHeaderComponent={tipKeys}
-          data={walletData.current}
-          extraData={vaultKeyData}
-          renderItem={_renderKeyItem}
-          automaticallyAdjustKeyboardInsets
-          contentInsetAdjustmentBehavior="automatic"
-          automaticallyAdjustContentInsets
-          keyExtractor={(_item, index) => `${index}`}
-          contentContainerStyle={styles.contentContainerStyle}
-        />
-        <BlueCard>{footer}</BlueCard>
+    <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
+      <FlatList
+        ListHeaderComponent={tipKeys}
+        data={walletData}
+        extraData={vaultKeyData}
+        renderItem={_renderKeyItem}
+        automaticallyAdjustKeyboardInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        keyExtractor={(_item, index) => `${index}`}
+        contentContainerStyle={styles.contentContainerStyle}
+      />
+      <BlueCard>{footer}</BlueCard>
+      <BlueSpacing20 />
 
-        {renderProvideMnemonicsModal()}
+      {renderProvideMnemonicsModal()}
 
-        {renderMnemonicsModal()}
-      </View>
-    </SafeArea>
+      {renderMnemonicsModal()}
+    </View>
   );
 };
 
