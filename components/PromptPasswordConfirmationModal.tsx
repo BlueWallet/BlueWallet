@@ -299,10 +299,10 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
                 <Animated.View>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line1}
                   </Text>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line2}
                   </Text>
                 </Animated.View>
