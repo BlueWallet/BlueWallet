@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -47,7 +47,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
-    const scrollView = useRef<ScrollView>(null);
     const { isVisible } = useKeyboard();
 
     const stylesHook = StyleSheet.create({
@@ -135,10 +134,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ]).start(() => {
-        confirmPasswordInputRef.current?.focus();
-        confirmPasswordInputRef.current?.setNativeProps({ selection: { start: 0, end: confirmPassword.length } });
-      });
+      ]).start();
     };
 
     const handleSuccessAnimation = () => {
@@ -267,9 +263,9 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
-        scrollRef={scrollView}
         keyboardMode="pan"
         dismissible={false}
+        sizes={Platform.OS === 'ios' ? ['auto'] : [350, 'auto']}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
@@ -282,7 +278,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooter]}>
+              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooterSpacing]}>
                 {!isVisible && (
                   <SecondButton
                     title={isLoading ? '' : loc._.ok}
@@ -302,14 +298,14 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Animated.ScrollView style={styles.explanationScrollView} ref={scrollView}>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                <Animated.View>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line1}
                   </Text>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line2}
                   </Text>
-                </Animated.ScrollView>
+                </Animated.View>
                 <View style={styles.feeModalFooter} />
               </Animated.View>
             )}
@@ -410,6 +406,7 @@ const styles = StyleSheet.create({
   },
   feeModalFooterSpacing: {
     padding: 16,
+    marginVertical: 16,
   },
   inputContainer: {
     marginBottom: 10,
