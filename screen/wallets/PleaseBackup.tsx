@@ -35,7 +35,7 @@ const PleaseBackup: React.FC = () => {
 
   const handleBackButton = useCallback(() => {
     // @ts-ignore: Ignore
-    navigation.getParent()?.pop();
+    navigation.getParent()?.goBack();
     return true;
   }, [navigation]);
 

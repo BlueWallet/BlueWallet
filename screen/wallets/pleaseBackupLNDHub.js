@@ -23,7 +23,7 @@ const PleaseBackupLNDHub = () => {
   const { isPrivacyBlurEnabled } = useSettings();
 
   const handleBackButton = useCallback(() => {
-    navigation.getParent().pop();
+    navigation.getParent().goBack();
     return true;
   }, [navigation]);
   const styles = StyleSheet.create({

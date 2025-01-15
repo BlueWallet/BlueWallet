@@ -16,11 +16,7 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
 
-  const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = (
-    screenOrOptions: any,
-    params?: any,
-    options?: { merge?: boolean },
-  ) => {
+  const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = (screenOrOptions: any, params?: any, merge?: boolean) => {
     let screenName: string;
     if (typeof screenOrOptions === 'string') {
       screenName = screenOrOptions;
@@ -38,9 +34,9 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
       console.log('Proceeding with navigation to', screenName);
       if (navigationRef.current?.isReady()) {
         if (typeof screenOrOptions === 'string') {
-          originalNavigation.navigate({ name: screenOrOptions, params, merge: options?.merge });
+          originalNavigation.navigate({ name: screenOrOptions, params, merge });
         } else {
-          originalNavigation.navigate({ ...screenOrOptions, params, merge: options?.merge });
+          originalNavigation.navigate({ ...screenOrOptions, params, merge });
         }
       }
     };
@@ -99,14 +95,9 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
     })();
   };
 
-  const navigateToWalletsList = () => {
-    enhancedNavigate('WalletsList');
-  }
-
   return {
     ...originalNavigation,
     navigate: enhancedNavigate,
-    navigateToWalletsList,
   };
 };
 

@@ -14,10 +14,6 @@ export function dispatch(action: NavigationAction) {
   }
 }
 
-export function navigateToWalletsList() {
-  navigate('WalletsList');
-}
-
 export function reset() {
   if (navigationRef.isReady()) {
     navigationRef.current?.reset({

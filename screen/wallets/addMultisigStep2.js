@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -42,6 +42,7 @@ import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const staticCache = {};
 
@@ -49,7 +50,7 @@ const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, navigateToWalletsList, setParams } = useExtendedNavigation();
+  const { navigate, setParams, dispatch } = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -183,7 +184,7 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    navigateToWalletsList();
+    dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'WalletsList' }] }));
   };
 
   const generateNewKey = () => {
@@ -319,57 +320,6 @@ const WalletsAddMultisigStep2 = () => {
     [cosigners, getPath],
   );
 
-  const useMnemonicPhrase = async () => {
-    setIsLoading(true);
-
-    if (MultisigHDWallet.isXpubValid(importText)) {
-      return tryUsingXpub(importText);
-    }
-    try {
-      const jsonText = JSON.parse(importText);
-      let fp;
-      let path;
-      if (jsonText.xpub) {
-        if (jsonText.xfp) {
-          fp = jsonText.xfp;
-        }
-        if (jsonText.path) {
-          path = jsonText.path;
-        }
-        return tryUsingXpub(jsonText.xpub, fp, path);
-      }
-    } catch {}
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(importText);
-    if (!hd.validateMnemonic()) {
-      setIsLoading(false);
-      return presentAlert({ message: loc.multisig.invalid_mnemonics });
-    }
-
-    let passphrase;
-    if (askPassphrase) {
-      try {
-        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-      } catch (e) {
-        if (e.message === 'Cancel Pressed') {
-          setIsLoading(false);
-          return;
-        }
-        throw e;
-      }
-    }
-
-    const cosignersCopy = [...cosigners];
-    cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
-    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setCosigners(cosignersCopy);
-
-    provideMnemonicsModalRef.current.dismiss();
-    setIsLoading(false);
-    setImportText('');
-    setAskPassphrase(false);
-  };
-
   const isValidMnemonicSeed = mnemonicSeed => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonicSeed);
@@ -377,7 +327,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = useCallback(
-    ret => {
+    async ret => {
       if (!ret.data) ret = { data: ret };
 
       try {
@@ -395,8 +345,8 @@ const WalletsAddMultisigStep2 = () => {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       } else if (isValidMnemonicSeed(ret.data)) {
         setImportText(ret.data);
-        setTimeout(() => {
-          provideMnemonicsModalRef.current.present().then(() => {});
+        setTimeout(async () => {
+          await provideMnemonicsModalRef.current.present().then(() => {});
         }, 100);
       } else {
         if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
@@ -407,7 +357,7 @@ const WalletsAddMultisigStep2 = () => {
         }
         let cosigner = new MultisigCosigner(ret.data);
         if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
-        provideMnemonicsModalRef.current.dismiss();
+        await provideMnemonicsModalRef.current.dismiss();
         if (cosigner.howManyCosignersWeHave() > 1) {
           // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
           // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -481,8 +431,59 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    navigate('ScanQRCode');
+    navigate('ScanQRCode', { showFileImportButton: true });
   };
+
+  const utilizeMnemonicPhrase = useCallback(async () => {
+    setIsLoading(true);
+
+    if (MultisigHDWallet.isXpubValid(importText)) {
+      return tryUsingXpub(importText);
+    }
+    try {
+      const jsonText = JSON.parse(importText);
+      let fp;
+      let path;
+      if (jsonText.xpub) {
+        if (jsonText.xfp) {
+          fp = jsonText.xfp;
+        }
+        if (jsonText.path) {
+          path = jsonText.path;
+        }
+        return tryUsingXpub(jsonText.xpub, fp, path);
+      }
+    } catch {}
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(importText);
+    if (!hd.validateMnemonic()) {
+      setIsLoading(false);
+      return presentAlert({ message: loc.multisig.invalid_mnemonics });
+    }
+
+    let passphrase;
+    if (askPassphrase) {
+      try {
+        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      } catch (e) {
+        if (e.message === 'Cancel Pressed') {
+          setIsLoading(false);
+          return;
+        }
+        throw e;
+      }
+    }
+
+    const cosignersCopy = [...cosigners];
+    cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
+    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCosigners(cosignersCopy);
+
+    provideMnemonicsModalRef.current.dismiss();
+    setIsLoading(false);
+    setImportText('');
+    setAskPassphrase(false);
+  }, [askPassphrase, cosigners, importText, tryUsingXpub]);
 
   useEffect(() => {
     const scannedData = params.onBarScanned;
@@ -646,8 +647,9 @@ const WalletsAddMultisigStep2 = () => {
                     testID="DoImportKeyButton"
                     disabled={importText.trim().length === 0}
                     title={loc.wallets.import_do_import}
-                    onPress={useMnemonicPhrase}
+                    onPress={utilizeMnemonicPhrase}
                   />
+                  <View style={styles.height16} />
                   <BlueButtonLink
                     testID="ScanOrOpenFile"
                     ref={openScannerButton}
@@ -694,8 +696,24 @@ const WalletsAddMultisigStep2 = () => {
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
           />
           {Platform.select({
-            ios: <DoneAndDismissKeyboardInputAccessory />,
-            android: isVisible && <DoneAndDismissKeyboardInputAccessory />,
+            ios: (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
+                }}
+              />
+            ),
+            android: isVisible && (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
+                }}
+              />
+            ),
           })}
 
           <BlueSpacing20 />
@@ -777,6 +795,9 @@ const styles = StyleSheet.create({
   wrapBox: {
     flex: 1,
     marginVertical: 24,
+  },
+  height16: {
+    height: 16,
   },
   buttonBottom: {
     marginHorizontal: 20,

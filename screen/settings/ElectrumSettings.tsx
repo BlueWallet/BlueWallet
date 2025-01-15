@@ -389,10 +389,6 @@ const ElectrumSettings: React.FC = () => {
     }
   };
 
-  const importScan = async () => {
-    navigation.navigate('ScanQRCode');
-  };
-
   useEffect(() => {
     const data = params.onBarScanned;
     if (data) {
@@ -465,7 +461,6 @@ const ElectrumSettings: React.FC = () => {
             address={host}
             onChangeText={text => setHost(text.trim())}
             editable={!isLoading}
-            onBarScanned={importScan}
             keyboardType="default"
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
             onFocus={() => setIsAndroidAddressKeyboardVisible(true)}

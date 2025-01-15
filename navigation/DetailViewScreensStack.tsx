@@ -26,7 +26,7 @@ import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
-import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
+import { NavigationDefaultOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
@@ -146,9 +146,9 @@ const DetailViewStackScreensStack = () => {
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
+          headerBackTitle: undefined,
           headerRight: () => DetailButton,
           headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
@@ -243,15 +243,14 @@ const DetailViewStackScreensStack = () => {
         component={WalletAddresses}
         options={navigationStyle({ title: loc.addresses.addresses_title, statusBarStyle: 'auto' })(theme)}
       />
+
       <DetailViewStack.Screen
         name="Settings"
         component={Settings}
         options={navigationStyle({
           headerTransparent: true,
           title: loc.settings.header,
-          // workaround to deal with the flicker when headerBackTitleVisible is false
-          headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
+          headerBackButtonDisplayMode: 'default',
           headerShadowVisible: false,
           headerLargeTitle: true,
           animationTypeForReplace: 'push',
@@ -321,28 +320,11 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
       <DetailViewStack.Screen
-        name="ScanQRCode"
-        component={ScanQRCodeComponent}
-        options={navigationStyle({
-          headerShown: false,
-          statusBarHidden: true,
-          presentation: 'fullScreenModal',
-          headerShadowVisible: false,
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ViewEditMultisigCosignersRoot"
-        component={ViewEditMultisigCosignersStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
-        initialParams={{ walletID: undefined, cosigners: undefined }}
-      />
-
-      <DetailViewStack.Screen
         name="AddWalletRoot"
         component={AddWalletStack}
-        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationFormModalOptions })(theme)}
+        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationDefaultOptions })(theme)}
       />
-      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormModalOptions} />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
@@ -356,6 +338,13 @@ const DetailViewStackScreensStack = () => {
         name="ExportMultisigCoordinationSetupRoot"
         component={ExportMultisigCoordinationSetupStack}
         options={NavigationDefaultOptions}
+      />
+
+      <DetailViewStack.Screen
+        name="ViewEditMultisigCosignersRoot"
+        component={ViewEditMultisigCosignersStackRoot}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
+        initialParams={{ walletID: undefined, cosigners: undefined }}
       />
       <DetailViewStack.Screen
         name="WalletXpubRoot"
@@ -377,6 +366,16 @@ const DetailViewStackScreensStack = () => {
           presentation: 'containedModal',
           title: loc.wallets.manage_title,
           statusBarStyle: 'auto',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ScanQRCode"
+        component={ScanQRCodeComponent}
+        options={navigationStyle({
+          headerShown: false,
+          statusBarHidden: true,
+          presentation: 'fullScreenModal',
+          headerShadowVisible: false,
         })(theme)}
       />
     </DetailViewStack.Navigator>

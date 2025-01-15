@@ -78,12 +78,16 @@ const ImportWallet = () => {
           console.error('Failed to clear clipboard:', error);
         }
       }
+
+      Keyboard.dismiss();
+
       navigation.navigate('ImportWalletDiscovery', {
         importText: text,
         askPassphrase: askPassphraseMenuState,
         searchAccounts: searchAccountsMenuState,
       });
     },
+
     [askPassphraseMenuState, clearClipboardMenuState, navigation, searchAccountsMenuState],
   );
 
