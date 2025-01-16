@@ -176,6 +176,19 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       });
     };
 
+    const handleConfirmationFailure = () => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      if (!isSuccess) {
+        handleShakeAnimation();
+      }
+      onConfirmationFailure();
+    };
+
+    const handleConfirmSuccess = () => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      handleSuccessAnimation();
+    };
+
     const handleSubmit = async () => {
       Keyboard.dismiss();
       setIsLoading(true);
@@ -185,37 +198,13 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
           if (password === confirmPassword && password) {
             success = await onConfirmationSuccess(password);
-            if (success) {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              handleSuccessAnimation();
-            } else {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              onConfirmationFailure();
-              if (!isSuccess) {
-                // Prevent shake animation if success is detected
-                handleShakeAnimation();
-              }
-            }
+            success ? handleConfirmSuccess() : handleConfirmationFailure();
           } else {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            if (!isSuccess) {
-              // Prevent shake animation if success is detected
-              handleShakeAnimation();
-            }
+            handleConfirmationFailure();
           }
         } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           success = await onConfirmationSuccess(password);
-          if (success) {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-            handleSuccessAnimation();
-          } else {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            if (!isSuccess) {
-              // Prevent shake animation if success is detected
-              handleShakeAnimation();
-            }
-            onConfirmationFailure();
-          }
+          success ? handleConfirmSuccess() : handleConfirmationFailure();
         }
       } finally {
         setIsLoading(false); // Ensure loading state is reset
@@ -257,15 +246,14 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     return (
       <BottomModal
         ref={modalRef}
-        onDismiss={onModalDismiss}
+        onClose={onModalDismiss}
         grabber={false}
         showCloseButton={!isSuccess}
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
-        keyboardMode="pan"
         dismissible={false}
-        sizes={Platform.OS === 'ios' ? ['auto'] : [350, 'auto']}
+        sizes={Platform.OS === 'ios' ? ['auto'] : [420, 'auto']}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
@@ -399,7 +387,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   minHeight: {
-    minHeight: 280,
+    minHeight: 420,
   },
   feeModalFooter: {
     padding: 16,
