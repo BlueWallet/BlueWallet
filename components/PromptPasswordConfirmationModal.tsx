@@ -43,7 +43,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const shakeAnimation = useRef(new Animated.Value(0)).current;
-    const explanationOpacity = useRef(new Animated.Value(1)).current; // New animated value for opacity
+    const explanationOpacity = useRef(new Animated.Value(1)).current;
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
@@ -102,39 +102,43 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalType]);
 
-    const handleShakeAnimation = () => {
+    const performShake = (shakeAnimRef: Animated.Value) => {
       Animated.sequence([
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 10,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: -10,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 5,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: -5,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 0,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ]).start();
+    };
+
+    const handleShakeAnimation = () => {
+      performShake(shakeAnimation);
     };
 
     const handleSuccessAnimation = () => {
@@ -178,9 +182,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
 
     const handleConfirmationFailure = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      if (!isSuccess) {
-        handleShakeAnimation();
-      }
+      if (!isSuccess) handleShakeAnimation();
       onConfirmationFailure();
     };
 
@@ -243,6 +245,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       onConfirmationFailure();
     };
 
+    const opacity = isVisible ? 0 : 1;
     return (
       <BottomModal
         ref={modalRef}
@@ -266,16 +269,19 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooterSpacing]}>
-                {!isVisible && (
-                  <SecondButton
-                    title={isLoading ? '' : loc._.ok}
-                    onPress={handleSubmit}
-                    testID="OKButton"
-                    loading={isLoading}
-                    disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
-                  />
-                )}
+              <Animated.View
+                style={[
+                  { opacity: isVisible ? opacity : fadeOutAnimation, transform: [{ scale: scaleAnimation }] },
+                  styles.feeModalFooterSpacing,
+                ]}
+              >
+                <SecondButton
+                  title={isLoading ? '' : loc._.ok}
+                  onPress={handleSubmit}
+                  testID="OKButton"
+                  loading={isLoading}
+                  disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
+                />
               </Animated.View>
             )
           ) : null
@@ -382,7 +388,7 @@ export default PromptPasswordConfirmationModal;
 const styles = StyleSheet.create({
   modalContent: {
     padding: 22,
-    width: '100%', // Ensure modal content takes full width
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -398,14 +404,14 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 10,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   input: {
     borderRadius: 4,
     padding: 8,
     marginVertical: 8,
     fontSize: 16,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   textLabel: {
     fontSize: 20,
@@ -421,7 +427,6 @@ const styles = StyleSheet.create({
   successContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 100,
   },
   circle: {
     width: 60,
