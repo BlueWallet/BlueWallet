@@ -268,7 +268,7 @@
     "block_explorer_preferred": "Utiliser l'explorateur de bloc préféré",
     "block_explorer_error_saving_custom": "Erreur lors de la sauvegarde de l'explorateur de bloc préféré",
     "encrypt_title": "Sécurité",
-    "encrypt_tstorage": "stockage",
+    "encrypt_tstorage": "Stockage",
     "encrypt_use": "Utiliser {type}",
     "set_as_preferred": "Définir comme préféré ",
     "set_as_preferred_electrum": "Définir {host} : {port} comme serveur préféré désactivera la connexion aléatoire à un serveur suggéré.",
