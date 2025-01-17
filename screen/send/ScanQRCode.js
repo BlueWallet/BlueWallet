@@ -14,6 +14,7 @@ import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
+import { Icon } from '@rneui/themed';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 
@@ -29,6 +30,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
+  },
+  NfcTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    right: 48,
+    bottom: 48,
   },
   backdoorButton: {
     width: 60,
@@ -52,6 +63,7 @@ const styles = StyleSheet.create({
 });
 
 const ScanQRCode = () => {
+  const { name } = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
@@ -59,8 +71,7 @@ const ScanQRCode = () => {
   const navigationState = navigation.getState();
   const previousRoute = navigationState.routes[navigationState.routes.length - 2];
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
-
-  const { launchedBy = defaultLaunchedBy, onBarScanned, showFileImportButton } = route.params || {};
+  const { launchedBy = defaultLaunchedBy, onBarScanned, showFileImportButton, showNfcButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -246,6 +257,18 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
+  const showNfc = async () => {
+    navigation.navigate({
+      name: 'NfcPair',
+      params: {
+        launchedBy: name,
+        onReturn: data => {
+          onBarCodeRead({ data });
+        },
+      },
+    });
+  };
+
   const onShowImagePickerButtonPress = () => {
     if (!isLoading) {
       setIsLoading(true);
@@ -335,6 +358,13 @@ const ScanQRCode = () => {
           <Button title="OK" testID="scanQrBackdoorOkButton" onPress={handleBackdoorOkPress} />
         </View>
       )}
+
+      {showNfcButton ? (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="NFC" style={styles.NfcTouch} onPress={showNfc}>
+          <Icon name="nfc" type="ionicons" color="#ffffff" />
+        </TouchableOpacity>
+      ) : null}
+
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc._.qr_custom_input_button}

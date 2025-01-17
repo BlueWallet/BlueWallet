@@ -8,6 +8,7 @@ import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { LegacyWallet } from './legacy-wallet';
 import { THDWalletForWatchOnly } from './types';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum.ts';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -173,7 +174,20 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   async fetchUtxo() {
-    if (this._hdWalletInstance) return this._hdWalletInstance.fetchUtxo();
+    if (this._hdWalletInstance) {
+      await this._hdWalletInstance.fetchUtxo();
+      // since we are in watch-only wallet, the transaction being created is probably for a hw wallet,
+      // and to mitigate some vulns we would need to provide full txhex for each input in `nonWitnessUtxo` field
+      // @see https://blog.trezor.io/details-of-firmware-updates-for-trezor-one-version-1-9-1-and-trezor-model-t-version-2-3-1-1eba8f60f2dd
+      const txhexes = await BlueElectrum.multiGetTransactionByTxid(
+        this._hdWalletInstance.getUtxo().map(x => x.txid),
+        false,
+      );
+
+      for (const u of this._hdWalletInstance.getUtxo()) {
+        if (txhexes[u.txid]) u.txhex = txhexes[u.txid];
+      }
+    }
     throw new Error('Not initialized');
   }
 

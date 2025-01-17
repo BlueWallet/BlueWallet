@@ -26,6 +26,8 @@ import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
+import NfcPair from '../screen/NfcPair';
+import NfcSignPsbt from '../screen/NfcSignPsbt.tsx';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
@@ -376,6 +378,28 @@ const DetailViewStackScreensStack = () => {
           gestureEnabled: false,
           presentation: 'containedModal',
           title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="NfcPair"
+        component={NfcPair}
+        options={navigationStyle({
+          headerBackVisible: false,
+          gestureEnabled: false,
+          presentation: 'containedModal',
+          title: 'NFC',
+          statusBarStyle: 'auto',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="NfcSignPsbt"
+        component={NfcSignPsbt}
+        options={navigationStyle({
+          headerBackVisible: false,
+          gestureEnabled: false,
+          presentation: 'containedModal',
+          title: 'NFC',
           statusBarStyle: 'auto',
         })(theme)}
       />
