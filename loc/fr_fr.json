@@ -576,7 +576,7 @@
     "ms_help_title4": "importation Coffre",
     "ms_help_4": "Pour importer un coffre Multi-signature, utilisez votre fichier de sauvegarde multisig et utilisez la fonction d'importation. Si vous ne disposez que de clés étendues et des graines, vous pouvez utiliser les champs d'importation individuels du flux Ajouter un coffre.\n",
     "ms_help_title5": "Options avancées",
-    "ms_help_5": "Par défaut, BlueWallet générera un coffre 2de3. Pour créer un quorum différent ou pour changer le type d'adresse, activez les options avancées dans les paramètres."
+    "ms_help_5": "Par défaut, BlueWallet générera un coffre 2-de-3. Pour créer un quorum différent ou pour changer le type d'adresse, activez les options avancées dans les paramètres."
   },
   "is_it_my_address": {
     "title": "Est ce mon adresse?",
