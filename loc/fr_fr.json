@@ -286,7 +286,7 @@
     "license": "License",
     "lightning_error_lndhub_uri": "URI LNDhub invalide",
     "lightning_saved": "Les changements ont bien été enregistrés",
-    "lightning_settings": "Paramètres Lightning",
+    "lightning_settings": "Réglages Lightning",
     "lightning_settings_explain": "Pour vous connecter à votre propre nœud LND, veuillez installer LNDhub et mettre son URL ici dans les paramètres. Veuillez noter que seuls les portefeuilles créés après avoir enregistré les modifications se connecteront au LNDhub spécifié.",
     "network": "Réseau",
     "network_broadcast": "Diffuser une transaction",
