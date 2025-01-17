@@ -633,39 +633,40 @@ const WalletsAddMultisigStep2 = () => {
   }, [askPassphrase]);
 
   const renderProvideMnemonicsModal = () => {
+    const opacity = isVisible ? 0 : 1;
     return (
       <BottomModal
         footer={
-          !isVisible && (
-            <View style={styles.modalFooterBottomPadding}>
-              {isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <>
-                  <Button
-                    testID="DoImportKeyButton"
-                    disabled={importText.trim().length === 0}
-                    title={loc.wallets.import_do_import}
-                    onPress={utilizeMnemonicPhrase}
-                  />
-                  <View style={styles.height16} />
-                  <BlueButtonLink
-                    testID="ScanOrOpenFile"
-                    ref={openScannerButton}
-                    disabled={isLoading}
-                    onPress={scanOrOpenFile}
-                    title={loc.wallets.import_scan_qr}
-                  />
-                </>
-              )}
-            </View>
-          )
+          <View style={[styles.modalFooterBottomPadding, { opacity }]} pointerEvents={isVisible ? 'none' : 'auto'}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <Button
+                  testID="DoImportKeyButton"
+                  disabled={importText.trim().length === 0}
+                  title={loc.wallets.import_do_import}
+                  onPress={utilizeMnemonicPhrase}
+                />
+                <View style={styles.height16} />
+                <BlueButtonLink
+                  testID="ScanOrOpenFile"
+                  ref={openScannerButton}
+                  disabled={isLoading}
+                  onPress={scanOrOpenFile}
+                  title={loc.wallets.import_scan_qr}
+                />
+              </>
+            )}
+          </View>
         }
+        keyboardMode="auto"
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
+        contentContainerStyle={styles.provideMnemonicsModalStyle}
         isGrabberVisible={false}
         showCloseButton={true}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
+        sizes={[Platform.OS === 'ios' ? 'auto' : 420]}
         onDismiss={() => {
           Keyboard.dismiss();
           setImportText('');
@@ -696,15 +697,6 @@ const WalletsAddMultisigStep2 = () => {
           />
           {Platform.select({
             ios: (
-              <DoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => setImportText('')}
-                onPasteTapped={async () => {
-                  const paste = await Clipboard.getString();
-                  setImportText(paste);
-                }}
-              />
-            ),
-            android: isVisible && (
               <DoneAndDismissKeyboardInputAccessory
                 onClearTapped={() => setImportText('')}
                 onPasteTapped={async () => {
@@ -865,6 +857,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
+  },
+  provideMnemonicsModalStyle: {
+    minHeight: 420,
   },
 });
 
