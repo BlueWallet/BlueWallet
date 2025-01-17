@@ -183,7 +183,7 @@
     "input_total": "Total :",
     "permission_camera_message": "Nous avons besoin de votre permission pour utiliser l'appareil photo",
     "psbt_sign": "Signer une transaction",
-    "open_settings": "Ouvrir les Réglages",
+    "open_settings": "Ouvrir les Paramètres",
     "permission_storage_denied_message": "BlueWallet est incapable d'enregistrer ce fichier. Veuillez ouvrir les paramètres de votre appareil et activer les autorisation de stockage.",
     "permission_storage_title": "Permission d'accès au stockage pour BlueWallet",
     "psbt_clipboard": "Copier dans le presse-papier",
