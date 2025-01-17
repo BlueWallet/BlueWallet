@@ -172,9 +172,10 @@ const WalletsList: React.FC = () => {
   useEffect(() => {
     // new wallet added
     if (wallets.length > walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsLength -1], viewPosition: 0.5 });
+      InteractionManager.runAfterInteractions(() => {
+        walletsCarousel.current.scrollToIndex({ index: walletsLength - 1, animated: true });
+      });
     }
-
     walletsCount.current = wallets.length;
   }, [walletsLength, wallets]);
 

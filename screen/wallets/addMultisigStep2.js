@@ -783,6 +783,7 @@ const WalletsAddMultisigStep2 = () => {
 
       {renderCosignersXpubModal()}
       {footer}
+      <BlueSpacing20 />
     </View>
   );
 };
