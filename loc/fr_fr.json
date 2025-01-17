@@ -400,7 +400,7 @@
     "add_lndhub_placeholder": "l'adresse de votre noeud",
     "add_placeholder": "mon premier portefeuille",
     "add_title": "Ajouter Portefeuille",
-    "add_wallet_name": "Nom",
+    "add_wallet_name": "nom",
     "add_wallet_type": "type",
     "add_wallet_seed_length": "Longueur de graîne",
     "add_wallet_seed_length_message": "Choisissez la longueur de la phrase de départ que vous souhaitez utiliser pour ce portefeuille.",
