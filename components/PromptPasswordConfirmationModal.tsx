@@ -263,7 +263,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
-        keyboardMode="pan"
         dismissible={false}
         sizes={Platform.OS === 'ios' ? ['auto'] : [350, 'auto']}
         footer={
