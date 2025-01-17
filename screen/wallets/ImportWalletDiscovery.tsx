@@ -141,10 +141,10 @@ const ImportWalletDiscovery: React.FC = () => {
       if (!isDesktop) keepAwake(false);
       task.current?.stop();
     };
-    // ignoring "navigation" here, because it is constantly mutating
+    // ignoring "navigation" and "saveWallet" here, because it is constantly mutating
     // removed all deps as they were leading to a rerender and retask loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [askPassphrase, importText, isElectrumDisabled, searchAccounts]);
 
   const handleCustomDerivation = () => {
     task.current?.stop();
