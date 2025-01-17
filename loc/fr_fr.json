@@ -115,7 +115,7 @@
     "provided_address_is_invoice": "Cette adresse semble correspondre à une facture Lightning. Veuillez utiliser votre portefeuille Lightning pour payer cette facture.",
     "broadcastButton": "DIFFUSER",
     "broadcastError": "erreur",
-    "broadcastNone": "Hash de l'input de la transaction",
+    "broadcastNone": "Inserez la transaction en format hexadécimal",
     "broadcastPending": "en cours",
     "broadcastSuccess": "succès",
     "confirm_header": "Confirmer",
