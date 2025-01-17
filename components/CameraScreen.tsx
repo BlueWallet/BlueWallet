@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Animated, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
@@ -95,8 +95,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 
   return (
     <View style={styles.screen}>
-      <StatusBar hidden />
-      <SafeAreaView style={styles.topButtons}>
+      <View style={styles.topButtons}>
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
           <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
             <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color="#ffffff" />
@@ -128,7 +127,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
             </TouchableOpacity>
           )}
         </View>
-      </SafeAreaView>
+      </View>
 
       <View style={styles.cameraContainer}>
         <Camera
@@ -149,7 +148,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         />
       </View>
 
-      <SafeAreaView style={styles.bottomButtons}>
+      <View style={styles.bottomButtons}>
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
@@ -158,7 +157,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
             <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
           </Animated.View>
         </TouchableOpacity>
-      </SafeAreaView>
+      </View>
     </View>
   );
 };
@@ -171,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   topButtons: {
-    margin: 10,
+    padding: 10,
     zIndex: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -198,7 +197,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   bottomButtons: {
-    margin: 10,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
