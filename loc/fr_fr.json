@@ -113,7 +113,7 @@
   },
   "send": {
     "provided_address_is_invoice": "Cette adresse semble correspondre à une facture Lightning. Veuillez utiliser votre portefeuille Lightning pour payer cette facture.",
-    "broadcastButton": "DIFFUSER",
+    "broadcastButton": "Diffuser",
     "broadcastError": "erreur",
     "broadcastNone": "Inserez la transaction en format hexadécimal",
     "broadcastPending": "en cours",
