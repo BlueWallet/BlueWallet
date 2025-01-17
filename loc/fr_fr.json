@@ -535,7 +535,7 @@
     "what_is_vault": "Un coffre est un portefeuille de ",
     "what_is_vault_numberOfWallets": " {m}-de-{n}  multi signaures",
     "what_is_vault_wallet": ".",
-    "vault_advanced_customize": "Réglages du coffre",
+    "vault_advanced_customize": "Paramètres du coffre",
     "needs": "Il a besoin",
     "what_is_vault_description_number_of_vault_keys": " {m} clés de coffre",
     "what_is_vault_description_to_spend": "pour dépenser et une troisième \nque vous pouvez utiliser en backup.",
