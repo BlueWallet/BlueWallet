@@ -168,15 +168,15 @@ const WalletsList: React.FC = () => {
     }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
   );
 
-  const walletsLenth = wallets.length;
+  const walletsLength = wallets.length;
   useEffect(() => {
     // new wallet added
     if (wallets.length > walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current], viewPosition: 0.5 });
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsLength -1], viewPosition: 0.5 });
     }
 
     walletsCount.current = wallets.length;
-  }, [walletsLenth, wallets]);
+  }, [walletsLength, wallets]);
 
   const onBarScanned = useCallback(
     (value: any) => {
