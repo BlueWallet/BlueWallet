@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CommonActions, useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -47,10 +47,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
+  const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, setParams, dispatch } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -94,7 +94,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const handleOnHelpPress = async () => {
     await dismissAllModals();
-    navigate('WalletsAddMultisigHelp');
+    navigation.navigate('WalletsAddMultisigHelp');
   };
 
   const dismissAllModals = async () => {
@@ -180,11 +180,10 @@ const WalletsAddMultisigStep2 = () => {
       await w.fetchBalance();
     }
 
-    addWallet(w);
-    await saveToDisk();
+    addAndSaveWallet(w);
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'WalletsList' }] }));
+    navigation.getParent()?.goBack();
   };
 
   const generateNewKey = () => {
@@ -431,7 +430,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    navigate('ScanQRCode', { showFileImportButton: true });
+    navigation.navigate('ScanQRCode', { showFileImportButton: true });
   };
 
   const utilizeMnemonicPhrase = useCallback(async () => {
@@ -489,9 +488,9 @@ const WalletsAddMultisigStep2 = () => {
     const scannedData = params.onBarScanned;
     if (scannedData) {
       onBarScanned(scannedData);
-      setParams({ onBarScanned: undefined });
+      navigation.setParams({ onBarScanned: undefined });
     }
-  }, [onBarScanned, params.onBarScanned, setParams]);
+  }, [navigation, onBarScanned, params.onBarScanned]);
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
