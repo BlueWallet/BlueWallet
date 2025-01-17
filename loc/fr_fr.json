@@ -279,7 +279,7 @@
     "general_continuity": "Continuité",
     "general_continuity_e": "Si activé, vous pourrez visualiser les portefeuilles sélectionnés ainsi que leurs transactions depuis vos autres appareils Apple iCloud connectés.",
     "groundcontrol_explanation": "GroundControl est un serveur de notifications push pour les portefeuilles Bitcoin gratuit et open source. Vous pouvez installer votre propre serveur GroundControl et insérer ici son URL pour ne pas reposer sur l'infrastructure de BlueWallet. Laissez vide pour conserver l'option par défaut.",
-    "header": "réglages",
+    "header": "Réglages",
     "language": "Langue",
     "last_updated": "Dernière mise à jour",
     "language_isRTL": "Il est nécessaire de redémarrer BlueWallet pour que le changement de langue prenne effet.",
