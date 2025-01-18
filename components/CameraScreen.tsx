@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
@@ -98,7 +98,10 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
       <View style={styles.topButtons}>
         <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
           <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color="#ffffff" />
+            {Platform.select({
+              android: <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color="#ffffff" />,
+              ios: <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color="#ffffff" />,
+            })}
           </Animated.View>
         </TouchableOpacity>
         <View style={styles.rightButtonsContainer}>
@@ -154,7 +157,10 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomButton} onPress={onSwitchCameraPressed}>
           <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+            {Platform.select({
+              android: <Icon name="camera" type="material" color="#ffffff" />,
+              ios: <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />,
+            })}
           </Animated.View>
         </TouchableOpacity>
       </View>
