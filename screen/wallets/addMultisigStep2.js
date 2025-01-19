@@ -21,10 +21,6 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
-import MultipleStepsListItem, {
-  MultipleStepsListItemButtohType,
-  MultipleStepsListItemDashType,
-} from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
@@ -42,6 +38,10 @@ import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
+import MultipleStepsListItem, {
+  MultipleStepsListItemButtonType,
+  MultipleStepsListItemDashType,
+} from '../../components/MultipleStepsListItem';
 
 const staticCache = {};
 
@@ -495,15 +495,15 @@ const WalletsAddMultisigStep2 = () => {
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
       if (index === lastIndex) {
-        return MultipleStepsListItemDashType.top;
+        return MultipleStepsListItemDashType;
       } else {
-        return MultipleStepsListItemDashType.topAndBottom;
+        return MultipleStepsListItemDashType.TopAndBottom;
       }
     } else {
       if (index === lastIndex) {
-        return isFocus ? MultipleStepsListItemDashType.topAndBottom : MultipleStepsListItemDashType.top;
+        return isFocus ? MultipleStepsListItemDashType.TopAndBottom : MultipleStepsListItemDashType.Top;
       } else {
-        return MultipleStepsListItemDashType.topAndBottom;
+        return MultipleStepsListItemDashType.TopAndBottom;
       }
     }
   };
@@ -531,7 +531,7 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 onPress: () => {
                   setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
                   generateNewKey();
@@ -539,18 +539,18 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.multisig.create_new_key,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={MultipleStepsListItemDashType.topAndBottom}
+              dashes={MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
             />
             <MultipleStepsListItem
               button={{
                 testID: 'VaultCosignerImport' + String(el.index + 1),
                 onPress: iHaveMnemonics,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
             />
           </>
