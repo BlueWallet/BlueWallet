@@ -66,7 +66,7 @@ const WalletsAddMultisigStep2 = () => {
   const [askPassphrase, setAskPassphrase] = useState(false);
   const openScannerButton = useRef();
   const { isPrivacyBlurEnabled } = useSettings();
-  const data = useRef(new Array(n));
+  const [data, setData] = useState(new Array(n));
   const { isVisible } = useKeyboard();
 
   useFocusEffect(
@@ -91,6 +91,10 @@ const WalletsAddMultisigStep2 = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
+
+  useEffect(() => {
+    setData(new Array(n));
+  }, [cosigners, n]);
 
   const handleOnHelpPress = async () => {
     await dismissAllModals();
@@ -516,7 +520,7 @@ const WalletsAddMultisigStep2 = () => {
         <MultipleStepsListItem
           circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
+          dashes={dashType({ index: el.index, lastIndex: data.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
@@ -550,7 +554,7 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
             />
           </>
@@ -766,7 +770,7 @@ const WalletsAddMultisigStep2 = () => {
     <View style={[styles.root, stylesHook.root]}>
       {renderHelp()}
       <View style={styles.wrapBox}>
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
       </View>
       {renderMnemonicsModal()}
 

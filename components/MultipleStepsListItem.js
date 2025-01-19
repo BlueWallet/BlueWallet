@@ -197,6 +197,7 @@ MultipleStepsListItem.propTypes = {
   actionSheetOptions: PropTypes.shape(ActionSheetOptions),
   dashes: PropTypes.number,
   button: PropTypes.shape({
+    testID: PropTypes.string,
     text: PropTypes.string,
     onPress: PropTypes.func,
     disabled: PropTypes.bool,

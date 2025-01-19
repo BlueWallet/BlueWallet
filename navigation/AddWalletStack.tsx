@@ -55,6 +55,7 @@ export type AddWalletStackParamList = {
     n: number;
     walletLabel: string;
     format: string;
+    onBarScanned?: string;
   };
   WalletsAddMultisigHelp: undefined;
   ScanQRCode: ScanQRCodeParamList;
