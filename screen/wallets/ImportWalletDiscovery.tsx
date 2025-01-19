@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, LayoutAnimation, Platform, StyleSheet, UIManager, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
@@ -19,6 +19,7 @@ import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -34,7 +35,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 const ImportWalletDiscovery: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useExtendedNavigation<NavigationProp>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
@@ -140,10 +141,7 @@ const ImportWalletDiscovery: React.FC = () => {
       if (!isDesktop) keepAwake(false);
       task.current?.stop();
     };
-    // ignoring "navigation" here, because it is constantly mutating
-    // removed all deps as they were leading to a rerender and retask loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askPassphrase, importText, isElectrumDisabled, saveWallet, searchAccounts]);
+  }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts]);
 
   const handleCustomDerivation = () => {
     task.current?.stop();

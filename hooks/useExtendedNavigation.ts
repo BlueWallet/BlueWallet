@@ -4,7 +4,7 @@ import { presentWalletExportReminder } from '../helpers/presentWalletExportRemin
 import { unlockWithBiometrics, useBiometrics } from './useBiometrics';
 import { useStorage } from './context/useStorage';
 import { requestCameraAuthorization } from '../helpers/scan-qr';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 // List of screens that require biometrics
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
@@ -96,18 +96,21 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
         proceedWithNavigation();
       })();
     },
-    [originalNavigation, isBiometricUseEnabled, wallets, saveToDisk]
+    [originalNavigation, isBiometricUseEnabled, wallets, saveToDisk],
   );
 
-  const navigateToWalletsList = () => {
+  const navigateToWalletsList = useCallback(() => {
     enhancedNavigate('WalletsList');
-  }
+  }, [enhancedNavigate]);
 
-  return {
-    ...originalNavigation,
-    navigate: enhancedNavigate,
-    navigateToWalletsList,
-  };
+  return useMemo(
+    () => ({
+      ...originalNavigation,
+      navigate: enhancedNavigate,
+      navigateToWalletsList,
+    }),
+    [originalNavigation, enhancedNavigate, navigateToWalletsList],
+  );
 };
 
 // Usage example:
