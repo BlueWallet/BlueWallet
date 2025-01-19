@@ -12,7 +12,6 @@ import { useTheme } from '../../components/themes';
 import WalletToImport from '../../components/WalletToImport';
 import prompt from '../../helpers/prompt';
 import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -20,6 +19,7 @@ import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -141,10 +141,7 @@ const ImportWalletDiscovery: React.FC = () => {
       if (!isDesktop) keepAwake(false);
       task.current?.stop();
     };
-    // ignoring "navigation" here, because it is constantly mutating
-    // removed all deps as they were leading to a rerender and retask loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts]);
 
   const handleCustomDerivation = () => {
     task.current?.stop();
