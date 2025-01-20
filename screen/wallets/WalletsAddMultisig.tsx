@@ -53,7 +53,6 @@ const WalletsAddMultisig: React.FC = () => {
   });
 
   const onLetsStartPress = () => {
-    bottomModalRef.current?.dismiss();
     navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
   };
 
