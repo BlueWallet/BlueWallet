@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import {
@@ -17,7 +17,6 @@ import {
   View,
 } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
-
 import debounce from '../../blue_modules/debounce';
 import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import { TWallet, Utxo } from '../../class/wallets/types';
@@ -372,15 +371,8 @@ const CoinControl: React.FC = () => {
 
   const handleUseCoin = async (u: Utxo[]) => {
     setOutput(undefined);
-    navigation.popTo(
-      // @ts-ignore navigation WTF
-      'SendDetails',
-      {
-        utxos: u,
-        walletID,
-      },
-      { merge: true },
-    );
+    const popToAction = StackActions.popTo('SendDetails', { walletID }, true);
+    navigation.dispatch(popToAction);
   };
 
   const handleMassFreeze = () => {

@@ -226,7 +226,7 @@ const PsbtWithHardwareWallet = () => {
   useEffect(() => {
     const data = route.params.onBarScanned;
     if (data) {
-      onBarScanned(data);
+      onBarScanned({ data });
       navigation.setParams({ onBarScanned: undefined });
     }
   }, [navigation, onBarScanned, route.params.onBarScanned]);
