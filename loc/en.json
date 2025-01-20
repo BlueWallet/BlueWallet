@@ -109,7 +109,7 @@
     "minSats": "Minimal amount is {min} sats",
     "minSatsFull": "Minimal amount is {min} sats or {currency}",
     "qrcode_for_the_address": "QR Code for the address",
-    "bip47_explanation": "Payment codes are an universal address that avoids disclosing your wallet addresses. Not all services will support them."
+    "bip47_explanation": "Payment codes are a universal address that avoids disclosing your wallet addresses. Not all services will support them."
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
