@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   I18nManager,
+  InteractionManager,
   Keyboard,
   LayoutAnimation,
   Platform,
@@ -66,7 +67,7 @@ const WalletsAddMultisigStep2 = () => {
   const [askPassphrase, setAskPassphrase] = useState(false);
   const openScannerButton = useRef();
   const { isPrivacyBlurEnabled } = useSettings();
-  const [data, setData] = useState(new Array(n));
+  const data = useRef(new Array(n));
   const { isVisible } = useKeyboard();
 
   useFocusEffect(
@@ -92,24 +93,8 @@ const WalletsAddMultisigStep2 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
 
-  useEffect(() => {
-    setData(new Array(n));
-  }, [cosigners, n]);
-
   const handleOnHelpPress = async () => {
-    await dismissAllModals();
     navigation.navigate('WalletsAddMultisigHelp');
-  };
-
-  const dismissAllModals = async () => {
-    try {
-      await mnemonicsModalRef.current?.dismiss();
-      await provideMnemonicsModalRef.current?.dismiss();
-      await renderCosignersXpubModalRef.current?.dismiss();
-    } catch (e) {
-      // in rare occasions trying to dismiss non visible modals can error out
-      console.debug('dismissAllModals error', e);
-    }
   };
 
   const stylesHook = StyleSheet.create({
@@ -276,7 +261,6 @@ const WalletsAddMultisigStep2 = () => {
   const tryUsingXpub = useCallback(
     async (xpub, fp, path) => {
       if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
-        provideMnemonicsModalRef.current.dismiss();
         setIsLoading(false);
         setImportText('');
         setAskPassphrase(false);
@@ -310,7 +294,6 @@ const WalletsAddMultisigStep2 = () => {
         }
       }
 
-      provideMnemonicsModalRef.current.dismiss();
       setIsLoading(false);
       setImportText('');
       setAskPassphrase(false);
@@ -360,7 +343,6 @@ const WalletsAddMultisigStep2 = () => {
         }
         let cosigner = new MultisigCosigner(ret.data);
         if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
-        await provideMnemonicsModalRef.current.dismiss();
         if (cosigner.howManyCosignersWeHave() > 1) {
           // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
           // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -392,9 +374,14 @@ const WalletsAddMultisigStep2 = () => {
           }
         }
 
+        console.warn('running! before');
+        console.warn(cosigner);
         for (const existingCosigner of cosigners) {
           if (existingCosigner[0] === cosigner.getXpub()) return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
         }
+
+        console.warn('running! after');
+        console.warn(cosigner);
 
         // now, validating that cosigner is in correct format:
 
@@ -425,11 +412,12 @@ const WalletsAddMultisigStep2 = () => {
 
         const cosignersCopy = [...cosigners];
         cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
-        if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setCosigners(cosignersCopy);
       }
     },
-    [cosigners, format, tryUsingXpub],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const scanOrOpenFile = async () => {
@@ -438,6 +426,7 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const utilizeMnemonicPhrase = useCallback(async () => {
+    await provideMnemonicsModalRef.current.dismiss();
     setIsLoading(true);
 
     if (MultisigHDWallet.isXpubValid(importText)) {
@@ -482,19 +471,21 @@ const WalletsAddMultisigStep2 = () => {
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
 
-    provideMnemonicsModalRef.current.dismiss();
     setIsLoading(false);
     setImportText('');
     setAskPassphrase(false);
   }, [askPassphrase, cosigners, importText, tryUsingXpub]);
 
   useEffect(() => {
-    const scannedData = params.onBarScanned;
-    if (scannedData) {
-      onBarScanned(scannedData);
-      navigation.setParams({ onBarScanned: undefined });
-    }
-  }, [navigation, onBarScanned, params.onBarScanned]);
+    InteractionManager.runAfterInteractions(() => {
+      const scannedData = params.onBarScanned;
+      if (scannedData) {
+        onBarScanned(scannedData);
+        navigation.setParams({ onBarScanned: undefined });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, params.onBarScanned]);
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
@@ -520,7 +511,7 @@ const WalletsAddMultisigStep2 = () => {
         <MultipleStepsListItem
           circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={dashType({ index: el.index, lastIndex: data.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
+          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
             disabled: vaultKeyData.isLoading,
@@ -554,7 +545,7 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               checked={isChecked}
             />
           </>
@@ -770,7 +761,7 @@ const WalletsAddMultisigStep2 = () => {
     <View style={[styles.root, stylesHook.root]}>
       {renderHelp()}
       <View style={styles.wrapBox}>
-        <FlatList data={data} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
       </View>
       {renderMnemonicsModal()}
 
