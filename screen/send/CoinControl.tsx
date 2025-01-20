@@ -34,6 +34,7 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -313,6 +314,7 @@ const CoinControl: React.FC = () => {
   const [output, setOutput] = useState<Utxo | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
+  const { isVisible } = useKeyboard();
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
@@ -371,7 +373,7 @@ const CoinControl: React.FC = () => {
 
   const handleUseCoin = async (u: Utxo[]) => {
     setOutput(undefined);
-    const popToAction = StackActions.popTo('SendDetails', { walletID }, true);
+    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, true);
     navigation.dispatch(popToAction);
   };
 
@@ -517,15 +519,17 @@ const CoinControl: React.FC = () => {
         contentContainerStyle={styles.modalMinHeight}
         footer={
           <View style={mStyles.buttonContainer}>
-            <Button
-              testID="UseCoin"
-              title={loc.cc.use_coin}
-              onPress={async () => {
-                if (!output) throw new Error('output is not set');
-                await bottomModalRef.current?.dismiss();
-                handleUseCoin([output]);
-              }}
-            />
+            {!isVisible && (
+              <Button
+                testID="UseCoin"
+                title={loc.cc.use_coin}
+                onPress={async () => {
+                  if (!output) throw new Error('output is not set');
+                  await bottomModalRef.current?.dismiss();
+                  handleUseCoin([output]);
+                }}
+              />
+            )}
           </View>
         }
       >

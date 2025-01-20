@@ -1,5 +1,5 @@
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -62,6 +62,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
   const [wallet, setWallet] = useState(() => wallets.find(w => w.getID() === walletID));
+  const [isWalletOnchainAddressAllowed, setIsWalletOnchainAddressAllowed] = useState(false);
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
@@ -82,6 +83,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);
     setWallet(newWallet);
+    newWallet?.type === LightningCustodianWallet.type && newWallet.allowOnchainAddress().then(setIsWalletOnchainAddressAllowed);
   }, [walletID, wallets]);
 
   useFocusEffect(
@@ -385,18 +387,27 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
+  const balance = useMemo(() => {
+    if (!wallet) return 0;
+    return wallet.getBalance();
+  }, [wallet]);
 
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
   return (
     <View style={styles.flex}>
       {wallet && (
         <TransactionsNavigationHeader
-          wallet={wallet}
+          unit={wallet.preferredBalanceUnit}
+          hideBalance={wallet.hideBalance}
+          type={wallet.type}
+          balance={balance}
+          preferredBalanceUnit={wallet.preferredBalanceUnit}
+          allowOnchainAddress={isWalletOnchainAddressAllowed}
+          label={wallet.getLabel()}
           onWalletUnitChange={async selectedUnit => {
             wallet.preferredBalanceUnit = selectedUnit;
             await saveToDisk();
           }}
-          unit={wallet.preferredBalanceUnit}
           onWalletBalanceVisibilityChange={async isShouldBeVisible => {
             const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
             if (wallet?.hideBalance && isBiometricsEnabled) {

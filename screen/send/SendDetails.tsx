@@ -359,9 +359,7 @@ const SendDetails = () => {
     useCallback(() => {
       setIsLoading(false);
       setDumb(v => !v);
-      return () => {
-        feeModalRef.current?.dismiss();
-      };
+      return () => {};
     }, []),
   );
 

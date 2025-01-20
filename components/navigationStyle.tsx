@@ -1,6 +1,6 @@
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
-import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import loc from '../loc';
 import { Theme } from './themes';
@@ -59,7 +59,7 @@ const navigationStyle = (
   {
     closeButtonPosition,
     onCloseButtonPressed,
-    headerBackVisible = true,
+    headerBackVisible = Platform.OS === 'ios' || !closeButtonPosition,
     ...opts
   }: NativeStackNavigationOptions & {
     closeButtonPosition?: CloseButtonPosition;
