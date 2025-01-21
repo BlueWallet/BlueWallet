@@ -91,6 +91,32 @@ const DevMenu: React.FC = () => {
         Alert.alert('New Wallet created!', `Wallet secret copied to clipboard.\nLabel: ${label}`);
       });
 
+      DevSettings.addMenuItem('Purge Wallet Transactions', () => {
+        if (wallets.length === 0) {
+          Alert.alert('No wallets available');
+          return;
+        }
+
+        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', wallet => {
+          const msg = 'Transactions purged successfully!';
+
+          if (wallet.type === HDSegwitBech32Wallet.type) {
+            wallet._txs_by_external_index = {};
+            wallet._txs_by_internal_index = {};
+          }
+
+          // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
+          if (wallet._hdWalletInstance) {
+            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
+            wallet._hdWalletInstance._txs_by_external_index = {};
+            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
+            wallet._hdWalletInstance._txs_by_internal_index = {};
+          }
+
+          Alert.alert(msg);
+        });
+      });
+
       DevSettings.addMenuItem('Copy Wallet Secret', () => {
         if (wallets.length === 0) {
           Alert.alert('No wallets available');
@@ -100,6 +126,22 @@ const DevMenu: React.FC = () => {
         showAlertWithWalletOptions(wallets, 'Copy Wallet Secret', 'Select the wallet to copy the secret', wallet => {
           Clipboard.setString(wallet.getSecret());
           Alert.alert('Wallet Secret copied to clipboard!');
+        });
+      });
+
+      DevSettings.addMenuItem('Copy Wallet Receive Address', () => {
+        if (wallets.length === 0) {
+          Alert.alert('No wallets available');
+          return;
+        }
+
+        showAlertWithWalletOptions(wallets, 'Copy Wallet Receive Address', 'Select the wallet to copy the receive address', wallet => {
+          wallet.getAddressAsync().then(address => {
+            if (address) {
+              Clipboard.setString(address);
+            }
+            Alert.alert('Wallet Receive Address copied to clipboard!');
+          });
         });
       });
 
@@ -136,47 +178,6 @@ const DevMenu: React.FC = () => {
           },
           wallet => typeof wallet.getXpub === 'function',
         );
-      });
-
-      DevSettings.addMenuItem('Purge Wallet Transactions', () => {
-        if (wallets.length === 0) {
-          Alert.alert('No wallets available');
-          return;
-        }
-
-        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', wallet => {
-          const msg = 'Transactions purged successfully!';
-
-          if (wallet.type === HDSegwitBech32Wallet.type) {
-            wallet._txs_by_external_index = {};
-            wallet._txs_by_internal_index = {};
-          }
-
-          // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
-          if (wallet._hdWalletInstance) {
-            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
-            wallet._hdWalletInstance._txs_by_external_index = {};
-            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
-            wallet._hdWalletInstance._txs_by_internal_index = {};
-          }
-
-          Alert.alert(msg);
-        });
-      });
-
-      DevSettings.addMenuItem('Force Large Screen Interface', () => {
-        setLargeScreenValue('LargeScreen');
-        Alert.alert('Large Screen Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Force Handheld Interface', () => {
-        setLargeScreenValue('Handheld');
-        Alert.alert('Handheld Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Reset Screen Interface', () => {
-        setLargeScreenValue(undefined);
-        Alert.alert('Screen Interface reset to default.');
       });
     }
   }, [wallets, addWallet, setLargeScreenValue]);
