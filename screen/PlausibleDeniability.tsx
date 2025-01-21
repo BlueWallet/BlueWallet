@@ -74,7 +74,8 @@ const PlausibleDeniability: React.FC = () => {
       dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
 
       success = true;
-      setTimeout(() => {
+      setTimeout(async () => {
+        await promptRef.current?.dismiss();
         const popToTop = StackActions.popToTop();
         navigation.dispatch(popToTop);
       }, 3000);

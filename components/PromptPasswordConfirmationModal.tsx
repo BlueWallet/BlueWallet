@@ -399,8 +399,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   feeModalFooterSpacing: {
-    padding: 16,
-    marginVertical: 16,
+    padding: 24,
+    marginVertical: 24,
   },
   inputContainer: {
     marginBottom: 10,
@@ -427,6 +427,8 @@ const styles = StyleSheet.create({
   successContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 24,
+    marginBottom: 48,
   },
   circle: {
     width: 60,
