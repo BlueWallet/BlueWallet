@@ -211,8 +211,7 @@ const EncryptStorage = () => {
             try {
               await decryptStorage(password);
               await saveToDisk();
-              popToTop();
-              success = true;
+              return popToTop();
             } catch (error) {
               success = false;
             }
