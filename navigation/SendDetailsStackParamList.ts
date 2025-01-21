@@ -21,6 +21,7 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
+  paymentCode?: string;
   addRecipientParams?: {
     address: string;
     amount?: number;

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
@@ -179,15 +179,23 @@ export default function PaymentCodesList() {
   };
 
   const _navigateToSend = (pc: string) => {
-    // @ts-expect-error: Needs to be updated for Nav 7
-    navigation.popTo('SendDetails', {
-      walletID,
-      addRecipientParams: {
-        address: pc,
-      },
+    const previousRoute = state.routes[state.routes.length - 2];
 
-      merge: true,
-    });
+    if (previousRoute.name === 'SendDetailsRoot') {
+      const popToAction = StackActions.popTo('SendDetails', {
+        walletID,
+        addRecipientParams: {
+          address: pc,
+        },
+        merge: true,
+      });
+      navigation.dispatch(popToAction);
+    } else {
+      navigation.navigate('SendDetailsRoot', {
+        paymentCode: pc,
+        walletID,
+      });
+    }
   };
 
   const renderItem = (pc: string, index: number) => {
