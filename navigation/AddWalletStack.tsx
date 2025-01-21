@@ -21,7 +21,10 @@ import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
 export type AddWalletStackParamList = {
-  AddWallet: undefined;
+  AddWallet: {
+    entropy?: string;
+    words?: number;
+  };
   ImportWallet?: {
     label?: string;
     triggerImport?: boolean;
@@ -44,8 +47,8 @@ export type AddWalletStackParamList = {
     walletID: string;
   };
   ProvideEntropy: {
-    onGenerated: (entropy: Buffer) => void;
     words: number;
+    entropy?: string;
   };
   WalletsAddMultisig: {
     walletLabel: string;
