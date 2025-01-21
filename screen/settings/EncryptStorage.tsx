@@ -10,10 +10,10 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
-import { popToTop } from '../../NavigationService';
 import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { StackActions } from '@react-navigation/native';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -65,7 +65,7 @@ const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
@@ -134,7 +134,12 @@ const EncryptStorage = () => {
   };
 
   const navigateToPlausibleDeniability = () => {
-    navigate('PlausibleDeniability');
+    navigation.navigate('PlausibleDeniability');
+  };
+
+  const popToTop = () => {
+    const action = StackActions.popToTop();
+    navigation.dispatch(action);
   };
 
   return (
@@ -211,7 +216,8 @@ const EncryptStorage = () => {
             try {
               await decryptStorage(password);
               await saveToDisk();
-              return popToTop();
+              popToTop();
+              return true;
             } catch (error) {
               success = false;
             }
