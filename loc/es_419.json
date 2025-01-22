@@ -109,7 +109,7 @@
     "minSats": "La cantidad mínima es {min} sats",
     "minSatsFull": "La cantidad mínima es {min} sats o {currency}",
     "qrcode_for_the_address": "Código QR para la dirección",
-    "bip47_explanation": "Los códigos de pago son una dirección universal que evita revelar las direcciones de tu billetera. No todos los servicios los admitirán."
+    "bip47_explanation": "Los códigos de pago son una dirección universal que evita revelar la dirección de tu billetera. No todos los servicios los admiten."
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
