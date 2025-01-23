@@ -166,7 +166,7 @@ const WalletsAdd: React.FC = () => {
         setSelectedWalletType(newWalletType);
       }
     },
-    [entropy, setParams],
+    [entropy, setParams, words],
   );
 
   const navigateToEntropy = useCallback(() => {
@@ -181,11 +181,7 @@ const WalletsAdd: React.FC = () => {
         text: loc.wallets.add_wallet_seed_length_24,
         menuState: words === 24,
       },
-      {
-        id: 'reset_entropy',
-        text: loc.settings.electrum_reset,
-        destructive: true,
-      },
+      { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
     ];
 
     const entropyAction: Action = {
@@ -241,7 +237,7 @@ const WalletsAdd: React.FC = () => {
     };
 
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, navigateToEntropy()] : [walletAction];
-  }, [navigateToEntropy, selectedWalletType]);
+  }, [navigateToEntropy, selectedWalletType, selectedIndex]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
@@ -266,14 +262,14 @@ const WalletsAdd: React.FC = () => {
             navigate('ProvideEntropy', { words: 12, entropy: entropy?.toString('hex') });
           } else if (id === '24_words') {
             navigate('ProvideEntropy', { words: 24, entropy: entropy?.toString('hex') });
-          } else if (id === 'reset_entropy') {
+          } else if (id === CommonToolTipActions.ResetToDefault.id) {
             confirmResetEntropy(ButtonSelected.ONCHAIN);
           }
         }}
         actions={toolTipActions}
       />
     ),
-    [handleOnLightningButtonPressed, navigateToEntropy, toolTipActions, entropy],
+    [handleOnLightningButtonPressed, navigateToEntropy, toolTipActions, entropy, confirmResetEntropy, navigate],
   );
 
   useEffect(() => {
