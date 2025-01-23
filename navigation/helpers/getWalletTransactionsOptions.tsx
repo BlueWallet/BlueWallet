@@ -10,7 +10,7 @@ import { RouteProp } from '@react-navigation/native';
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }): NativeStackNavigationOptions => {
-  const { walletID, walletType } = route.params;
+  const { isLoading = false, walletID, walletType } = route.params;
 
   const onPress = () => {
     navigationRef.navigate('WalletDetails', {
@@ -19,7 +19,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
   };
 
   const RightButton = (
-    <TouchableOpacity accessibilityRole="button" testID="WalletDetails" style={styles.walletDetails} onPress={onPress}>
+    <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
       <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
     </TouchableOpacity>
   );
@@ -34,6 +34,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     },
     headerShadowVisible: false,
     headerTintColor: '#FFFFFF',
+    headerBackTitleVisible: true,
     headerRight: () => RightButton,
   };
 };
