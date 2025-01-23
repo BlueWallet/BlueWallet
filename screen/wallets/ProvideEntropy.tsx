@@ -259,7 +259,7 @@ const D20Tab = ({ active }: { active: boolean }) => {
 
 const ProvideEntropy = () => {
   const [entropy, dispatch] = useReducer(eReducer, initialState);
-  const { onGenerated, words } = useRoute<RouteProps>().params;
+  const { words } = useRoute<RouteProps>().params;
   const navigation = useNavigation<NavigationProp>();
   const [tab, setTab] = useState(1);
   const [show, setShow] = useState(false);
@@ -323,8 +323,10 @@ const ProvideEntropy = () => {
               buf = Buffer.concat([buf, random], bufLength);
             }
 
-            navigation.pop();
-            onGenerated(buf);
+            /* Convert Buffer to hex string before navigating as React Navigation
+              does not support passing Buffer objects between screens
+            */
+            navigation.navigate('AddWallet', { entropy: buf.toString('hex') });
           },
           style: 'default',
         },
