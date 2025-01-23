@@ -293,6 +293,13 @@
         "symbol": "zł",
         "country": "Poland (Polish Zloty)"
     },
+    "PYG": {
+        "endPointKey": "PYG",
+        "locale": "es-PY",
+        "source": "CoinDesk",
+        "symbol": "₲",
+        "country": "Paraguay (Paraguayan Guarani)"
+    },
     "QAR": {
         "endPointKey": "QAR",
         "locale": "ar-QA",
