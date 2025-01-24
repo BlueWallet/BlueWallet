@@ -163,20 +163,25 @@ const ElectrumSettings: React.FC = () => {
         const serverSslPort = v?.ssl || sslPort?.toString() || '';
 
         if (serverHost && (serverPort || serverSslPort)) {
-          await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
+          const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
+          if (testConnect) {
+            await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
+            await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
 
-          const serverExistsInHistory = Array.from(serverHistory).some(
-            s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
-          );
+            const serverExistsInHistory = Array.from(serverHistory).some(
+              s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
+            );
 
-          if (!serverExistsInHistory && (serverPort || serverSslPort) && !hardcodedPeers.some(peer => peer.host === serverHost)) {
-            const newServerHistory = new Set(serverHistory);
-            newServerHistory.add({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) });
-            await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
-            setServerHistory(newServerHistory);
+            if (!serverExistsInHistory && (serverPort || serverSslPort) && !hardcodedPeers.some(peer => peer.host === serverHost)) {
+              const newServerHistory = new Set(serverHistory);
+              newServerHistory.add({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) });
+              await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
+              setServerHistory(newServerHistory);
+            }
+          } else {
+            throw new Error(loc.settings.electrum_error_connect);
           }
         }
 
