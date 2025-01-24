@@ -326,7 +326,7 @@ const ProvideEntropy = () => {
             /* Convert Buffer to hex string before navigating as React Navigation
               does not support passing Buffer objects between screens
             */
-            navigation.navigate('AddWallet', { entropy: buf.toString('hex') });
+            navigation.navigate('AddWallet', { entropy: buf.toString('hex'), words });
           },
           style: 'default',
         },
