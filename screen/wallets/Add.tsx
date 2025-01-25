@@ -169,38 +169,6 @@ const WalletsAdd: React.FC = () => {
     [entropy, setParams, words],
   );
 
-  const navigateToEntropy = useCallback(() => {
-    const subactions: Action[] = [
-      {
-        id: '12_words',
-        text: loc.wallets.add_wallet_seed_length_12,
-        menuState: words === 12,
-      },
-      {
-        id: '24_words',
-        text: loc.wallets.add_wallet_seed_length_24,
-        menuState: words === 24,
-      },
-      { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
-    ];
-
-    const entropyAction: Action = {
-      ...CommonToolTipActions.Entropy,
-      text: entropyButtonText,
-      subactions,
-      menuState: !!entropy,
-    };
-
-    const entropyActions: Action = {
-      id: 'entropy',
-      text: loc.wallets.add_entropy_provide,
-      subactions: [entropyAction],
-      displayInline: true,
-    };
-
-    return entropyActions;
-  }, [entropy, entropyButtonText, words]);
-
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
       {
@@ -236,8 +204,36 @@ const WalletsAdd: React.FC = () => {
       displayInline: true,
     };
 
-    return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, navigateToEntropy()] : [walletAction];
-  }, [navigateToEntropy, selectedWalletType, selectedIndex]);
+    const entropySubActions: Action[] = [
+      {
+        id: '12_words',
+        text: loc.wallets.add_wallet_seed_length_12,
+        menuState: words === 12,
+      },
+      {
+        id: '24_words',
+        text: loc.wallets.add_wallet_seed_length_24,
+        menuState: words === 24,
+      },
+      { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
+    ];
+
+    const entropyAction: Action = {
+      ...CommonToolTipActions.Entropy,
+      text: entropyButtonText,
+      subactions: entropySubActions,
+      menuState: !!entropy,
+    };
+
+    const entropyActions: Action = {
+      id: 'entropy',
+      text: loc.wallets.add_entropy_provide,
+      subactions: [entropyAction],
+      displayInline: true,
+    };
+
+    return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
+  }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
@@ -256,8 +252,6 @@ const WalletsAdd: React.FC = () => {
             setSelectedIndex(2);
           } else if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
-          } else if (id === CommonToolTipActions.Entropy.id) {
-            navigateToEntropy();
           } else if (id === '12_words') {
             navigate('ProvideEntropy', { words: 12, entropy: entropy?.toString('hex') });
           } else if (id === '24_words') {
@@ -269,7 +263,7 @@ const WalletsAdd: React.FC = () => {
         actions={toolTipActions}
       />
     ),
-    [handleOnLightningButtonPressed, navigateToEntropy, toolTipActions, entropy, confirmResetEntropy, navigate],
+    [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
   );
 
   useEffect(() => {
@@ -277,7 +271,7 @@ const WalletsAdd: React.FC = () => {
       headerRight: () => HeaderRight,
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
+  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
 
   useEffect(() => {
     getLNDHub()
