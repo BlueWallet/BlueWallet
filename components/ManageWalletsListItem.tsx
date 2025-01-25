@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
@@ -66,7 +66,7 @@ const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) =>
     accessibilityRole="button"
     accessibilityLabel="Delete Wallet"
   >
-    <Icon name="delete-outline" color="#FFFFFF" />
+    <Icon name={Platform.OS === 'android' ? 'delete' : 'delete-outline'} color="#FFFFFF" />
   </TouchableOpacity>
 );
 
