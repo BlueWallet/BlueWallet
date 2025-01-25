@@ -1,0 +1,384 @@
+{
+  "sourceLanguage" : "en_US",
+  "strings" : {
+    "%@" : {
+
+    },
+    "Argentina (Argentine Peso)" : {
+
+    },
+    "Aruba (Aruban Florin)" : {
+
+    },
+    "at %@" : {
+
+    },
+    "Australia (Australian Dollar)" : {
+
+    },
+    "Bahrain (Bahraini Dinar)" : {
+
+    },
+    "Balance" : {
+
+    },
+    "Bitcoin (%@)" : {
+
+    },
+    "Bitcoin price: %@" : {
+
+    },
+    "Brazil (Brazilian Real)" : {
+
+    },
+    "BTC" : {
+
+    },
+    "Canada (Canadian Dollar)" : {
+
+    },
+    "Central African Republic (Central African Franc)" : {
+
+    },
+    "Checked at %@" : {
+
+    },
+    "Chile (Chilean Peso)" : {
+
+    },
+    "China (Chinese Yuan)" : {
+
+    },
+    "Choose your preferred currency." : {
+
+    },
+    "Choose your preferred fiat currency." : {
+
+    },
+    "Colombia (Colombian Peso)" : {
+
+    },
+    "Configure Market Widget with ${electrumHost}" : {
+
+    },
+    "Configure Market Widget with ${electrumHost} and show error messages: ${showErrorMessages}" : {
+
+    },
+    "Configure the Market Widget to show the Electrum host connected to/being attempted and display error messages if data retrieval fails." : {
+
+    },
+    "Croatia (Croatian Kuna)" : {
+
+    },
+    "Currency" : {
+
+    },
+    "Currency: %@" : {
+
+    },
+    "Current Bitcoin Market Rate" : {
+
+    },
+    "Current Bitcoin Price: %@" : {
+
+    },
+    "Czech Republic (Czech Koruna)" : {
+
+    },
+    "Denmark (Danish Krone)" : {
+
+    },
+    "display_in_BROWSER_TITLE" : {
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver en el navegador"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voir dans le navigateur"
+          }
+        }
+      }
+    },
+    "Electrum Host" : {
+
+    },
+    "Error" : {
+
+    },
+    "European Union (Euro)" : {
+
+    },
+    "Failed to retrieve the Bitcoin market rate." : {
+
+    },
+    "Fiat Currency" : {
+
+    },
+    "from" : {
+
+    },
+    "From %@" : {
+
+    },
+    "Ghana (Ghanaian Cedi)" : {
+
+    },
+    "Hungary (Hungarian Forint)" : {
+
+    },
+    "Iceland (Icelandic Króna)" : {
+
+    },
+    "India (Indian Rupee)" : {
+
+    },
+    "Indonesia (Indonesian Rupiah)" : {
+
+    },
+    "Iran (Iranian Rial)" : {
+
+    },
+    "Iran (Iranian Toman)" : {
+
+    },
+    "Israel (Israeli New Shekel)" : {
+
+    },
+    "Japan (Japanese Yen)" : {
+
+    },
+    "Kenya (Kenyan Shilling)" : {
+
+    },
+    "Kuwait (Kuwaiti Dinar)" : {
+
+    },
+    "Last Updated" : {
+
+    },
+    "Last updated %@ from %@" : {
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Last updated %1$@ from %2$@"
+          }
+        }
+      }
+    },
+    "Latest transaction" : {
+
+    },
+    "Lebanon (Lebanese Pound)" : {
+
+    },
+    "Malaysia (Malaysian Ringgit)" : {
+
+    },
+    "Market" : {
+
+    },
+    "Market Rate" : {
+
+    },
+    "Market Widget" : {
+
+    },
+    "Market Widget Configuration" : {
+
+    },
+    "Market Widget is connected to ${electrumHost}" : {
+
+    },
+    "Mexico (Mexican Peso)" : {
+
+    },
+    "Mozambique (Mozambican Metical)" : {
+
+    },
+    "New Zealand (New Zealand Dollar)" : {
+
+    },
+    "Next Block" : {
+
+    },
+    "Nigeria (Nigerian Naira)" : {
+
+    },
+    "Norway (Norwegian Krone)" : {
+
+    },
+    "Oman (Omani Rial)" : {
+
+    },
+    "Philippines (Philippine Peso)" : {
+
+    },
+    "Poland (Polish Zloty)" : {
+
+    },
+    "Price" : {
+
+    },
+    "Qatar (Qatari Riyal)" : {
+
+    },
+    "receive" : {
+
+    },
+    "Romania (Romanian Leu)" : {
+
+    },
+    "Russia (Russian Ruble)" : {
+
+    },
+    "Sats/%@" : {
+
+    },
+    "Saudi Arabia (Saudi Riyal)" : {
+
+    },
+    "send" : {
+
+    },
+    "Show Error Messages" : {
+
+    },
+    "Singapore (Singapore Dollar)" : {
+
+    },
+    "Source: %@" : {
+
+    },
+    "South Africa (South African Rand)" : {
+
+    },
+    "South Korea (South Korean Won)" : {
+
+    },
+    "Sri Lanka (Sri Lankan Rupee)" : {
+
+    },
+    "Sweden (Swedish Krona)" : {
+
+    },
+    "Switzerland (Swiss Franc)" : {
+
+    },
+    "Taiwan (New Taiwan Dollar)" : {
+
+    },
+    "Tanzania (Tanzanian Shilling)" : {
+
+    },
+    "Thailand (Thai Baht)" : {
+
+    },
+    "Turkey (Turkish Lira)" : {
+
+    },
+    "Uganda (Ugandan Shilling)" : {
+
+    },
+    "Ukraine (Ukrainian Hryvnia)" : {
+
+    },
+    "United Arab Emirates (UAE Dirham)" : {
+
+    },
+    "United Kingdom (British Pound)" : {
+
+    },
+    "United States of America (US Dollar)" : {
+
+    },
+    "Updated: %@" : {
+
+    },
+    "Uruguay (Uruguayan Peso)" : {
+
+    },
+    "Venezuela (Venezuelan Bolívar Fuerte)" : {
+
+    },
+    "Venezuela (Venezuelan Bolívar Soberano)" : {
+
+    },
+    "View the current Bitcoin market rate in your preferred currency." : {
+
+    },
+    "View the current Bitcoin market rate in your preferred fiat currency." : {
+
+    },
+    "View the current Bitcoin market rate." : {
+
+    },
+    "View the current market information." : {
+
+    },
+    "View the current price of Bitcoin" : {
+
+    },
+    "View the current price of Bitcoin." : {
+
+    },
+    "View the Electrum host connected to/being attempted" : {
+
+    },
+    "View your accumulated balance." : {
+
+    },
+    "View your total wallet balance and network prices." : {
+
+    },
+    "VIEW_ADDRESS_TRANSACTIONS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Address in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ver dirección en el navegador"
+          }
+        }
+      }
+    },
+    "VIEW_TRANSACTION_DETAILS_TITLE" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Transaction in Browser"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Ver transacción en el navegador"
+          }
+        }
+      }
+    },
+    "Wallet and Market" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,21 +1,27 @@
 {
   "_": {
-    "bad_password": "Hatalı şifre, lütfen tekrar deneyiniz.",
-    "cancel": "Vazgeç",
+    "bad_password": "Yanlış şifre. Lütfen tekrar deneyin.",
+    "cancel": "İptal",
     "continue": "Devam et",
     "clipboard": "Pano",
-    "discard_changes": "Değişiklikleri iptal et?",
-    "enter_password": "Şifre gir",
+    "discard_changes": "Değişiklikleri silmek istiyor musunuz?",
+    "discard_changes_explain": "Kaydedilmemiş değişiklikleriniz var. Bunları silip ekrandan çıkmak istediğinizden emin misiniz?",
+    "enter_password": "Şifreyi girin",
     "never": "Asla",
     "of": "{number} / {total}",
-    "ok": "Tamam",
-    "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",
+    "ok": "Evet",
+    "customize": "Özelleştir",
+    "enter_url": "URL girin",
+    "storage_is_encrypted": "Depolama alanınız şifrelenmiş. Şifrelemeyi çözmek için şifre gereklidir.",
     "yes": "Evet",
     "no": "Hayır",
     "save": "Kaydet",
     "seed": "Seed",
     "success": "Başarılı",
-    "wallet_key": "Cüzdan anahtarı"
+    "wallet_key": "Cüzdan anahtarı",
+    "invalid_animated_qr_code_fragment": "Geçersiz animasyonlu QR Kod parçası. Lütfen tekrar deneyin.",
+    "close": "Kapat",
+    "change_input_currency": "Giriş para birimini değiştir"
   },
   "azteco": {
     "codeIs": "Bilet kodunuz ",
@@ -142,7 +148,6 @@
     "biometrics": "Biyometrikler",
     "currency": "Para Birimi",
     "electrum_clear_alert_cancel": "Vazgeç",
-    "electrum_clear": "Temizle",
     "header": "ayarlar",
     "language": "Dil",
     "lightning_settings": "Lightning Ayarları",
@@ -159,7 +164,6 @@
     "cpfp_create": "Oluştur",
     "details_copy": "Kopya",
     "details_from": "Girdi",
-    "details_show_in_block_explorer": "Blok gezgininde göster",
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "pending": "Beklemede",
@@ -195,6 +199,7 @@
     "list_create_a_wallet": "Cüzdan oluştur",
     "list_empty_txs1": "İşlemleriniz burada görünür,",
     "list_latest_transaction": "en son işlem",
+    "paste_from_clipboard": "Yapıştır",
     "list_title": "cüzdanlar",
     "select_wallet": "Cüzdan Seç",
     "xpub_copiedToClipboard": "Panoya kopyalandı",
@@ -215,6 +220,9 @@
     "title": "Adres bana mı ait?",
     "enter_address": "Adres gir",
     "check_address": "Adresi kontrol et"
+  },
+  "cc": {
+    "sort_label": "Etiket"
   },
   "units": {
     "BTC": "BTC",

@@ -8,11 +8,12 @@
 
 import Foundation
 
-struct MarketData:Codable  {
-  var nextBlock: String
-  var sats: String
-  var price: String
-  var rate: Double
+public struct MarketData:Codable  {
+  public var nextBlock: String
+  public var sats: String
+  public var price: String
+  public var rate: Double
+
   var formattedNextBlock: String {
     if nextBlock == "..." {
       return "..."

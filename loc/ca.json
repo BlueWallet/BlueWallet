@@ -19,8 +19,6 @@
     "close": "Tancar",
     "change_input_currency": "Canviar moneda d'entrada",
     "refresh": "Refresca",
-    "pick_image": "Trieu una imatge de la biblioteca",
-    "pick_file": "Trieu un fitxer",
     "enter_amount": "Introdueix la quantitat",
     "qr_custom_input_button": "Toqueu 10 vegades per introduir una entrada personalitzada"
   },
@@ -169,14 +167,11 @@
     "electrum_connected_not": "No conectat",
     "use_ssl": "Utilitza SSL",
     "electrum_settings_server": "Servidor Electrum",
-    "electrum_settings_explain": "Deixa-ho buit per usar el valor per defecte",
     "electrum_status": "estat",
     "electrum_clear_alert_title": "Netejar l'historial?",
     "electrum_clear_alert_cancel": "Cancel·lar",
     "electrum_clear_alert_ok": "D'acord",
-    "electrum_select": "selecciona",
     "electrum_reset": "Restableix la configuració predeterminada",
-    "electrum_clear": "Neteja",
     "encrypt_title": "Seguretat",
     "encrypt_use": "Utilitza {type}",
     "general": "General",
@@ -207,13 +202,11 @@
     "details_balance_hide": "Amaga el saldo",
     "details_balance_show": "Mostra el saldo",
     "details_copy": "Copiar",
-    "details_copy_amount": "Còpia la quantitat",
     "details_from": "De",
     "details_inputs": "Entrades",
     "details_outputs": "Sortides",
     "date": "Data",
     "details_received": "Rebut",
-    "details_show_in_block_explorer": "Mostrar en l'explorador de blocs",
     "details_title": "Transacció",
     "details_to": "A",
     "list_conf": "Conf: {number}",
@@ -264,6 +257,7 @@
     "list_empty_txs1_lightning": "Els moneders Lightning poden ser usats per les seves transaccions diàries. Les comissions són baixes i els pagaments ràpids.",
     "list_latest_transaction": "última transacció",
     "list_long_choose": "Tria la foto",
+    "paste_from_clipboard": "Enganxar",
     "import_file": "Importar arxiu",
     "list_long_scan": "Escaneja el codi QR",
     "list_title": "moneders",
@@ -287,6 +281,10 @@
     "scan_or_open_file": "Escanejar o obrir arxiu",
     "ms_help": "Ajuda",
     "ms_help_title5": "Habilitar el mode avançat"
+  },
+  "cc": {
+    "sort_label": "Etiqueta",
+    "sort_status": "estat"
   },
   "units": {
     "sats": "sats"

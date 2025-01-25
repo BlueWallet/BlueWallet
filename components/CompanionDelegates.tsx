@@ -1,14 +1,20 @@
 import 'react-native-gesture-handler'; // should be on top
 
 import { CommonActions } from '@react-navigation/native';
-import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
-
+import { useCallback, useEffect, useRef } from 'react';
+import { AppState, AppStateStatus, Linking } from 'react-native';
 import A from '../blue_modules/analytics';
-import BlueClipboard from '../blue_modules/clipboard';
+import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import Notifications from '../blue_modules/notifications';
+import {
+  clearStoredNotifications,
+  getDeliveredNotifications,
+  getStoredNotifications,
+  initializeNotifications,
+  removeAllDeliveredNotifications,
+  setApplicationIconBadgeNumber,
+} from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
@@ -16,15 +22,13 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
-
-const MenuElements = lazy(() => import('../components/MenuElements'));
-const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
-const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
-const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
-const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
-
-// @ts-ignore: NativeModules.EventEmitter is not typed
-const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
+import RNQRGenerator from 'rn-qr-generator';
+import presentAlert from './Alert';
+import useMenuElements from '../hooks/useMenuElements';
+import useWidgetCommunication from '../hooks/useWidgetCommunication';
+import useWatchConnectivity from '../hooks/useWatchConnectivity';
+import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
+import useHandoffListener from '../hooks/useHandoffListener';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -36,109 +40,211 @@ const CompanionDelegates = () => {
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
+  useWatchConnectivity();
+  useWidgetCommunication();
+  useMenuElements();
+  useDeviceQuickActions();
+  useHandoffListener();
+
   const processPushNotifications = useCallback(async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
-    // @ts-ignore: Notifications type is not defined
-    const notifications2process = await Notifications.getStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    await Notifications.clearStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    Notifications.setApplicationIconBadgeNumber(0);
-    // @ts-ignore: Notifications type is not defined
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000);
+    try {
+      const notifications2process = await getStoredNotifications();
+      await clearStoredNotifications();
+      setApplicationIconBadgeNumber(0);
 
-    for (const payload of notifications2process) {
-      const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+      const deliveredNotifications = await getDeliveredNotifications();
+      setTimeout(async () => {
+        try {
+          removeAllDeliveredNotifications();
+        } catch (error) {
+          console.error('Failed to remove delivered notifications:', error);
+        }
+      }, 5000);
 
-      console.log('processing push notification:', payload);
-      let wallet;
-      switch (+payload.type) {
-        case 2:
-        case 3:
-          wallet = wallets.find(w => w.weOwnAddress(payload.address));
-          break;
-        case 1:
-        case 4:
-          wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-          break;
-      }
+      // Process notifications
+      for (const payload of notifications2process) {
+        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
-      if (wallet) {
-        const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
-        if (wasTapped) {
-          if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-            navigationRef.dispatch(
-              CommonActions.navigate({
-                name: 'WalletTransactions',
+        console.log('processing push notification:', payload);
+        let wallet;
+        switch (+payload.type) {
+          case 2:
+          case 3:
+            wallet = wallets.find(w => w.weOwnAddress(payload.address));
+            break;
+          case 1:
+          case 4:
+            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            break;
+        }
+
+        if (wallet) {
+          const walletID = wallet.getID();
+          fetchAndSaveWalletTransactions(walletID);
+          if (wasTapped) {
+            if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+              navigationRef.dispatch(
+                CommonActions.navigate({
+                  name: 'WalletTransactions',
+                  params: {
+                    walletID,
+                    walletType: wallet.type,
+                  },
+                }),
+              );
+            } else {
+              navigationRef.navigate('ReceiveDetailsRoot', {
+                screen: 'ReceiveDetails',
                 params: {
                   walletID,
-                  walletType: wallet.type,
+                  address: payload.address,
                 },
-              }),
-            );
-          } else {
-            navigationRef.navigate('ReceiveDetailsRoot', {
-              screen: 'ReceiveDetails',
-              params: {
-                walletID,
-                address: payload.address,
-              },
-            });
+              });
+            }
+
+            return true;
+          }
+        } else {
+          console.log('could not find wallet while processing push notification, NOP');
+        }
+      }
+
+      if (deliveredNotifications.length > 0) {
+        for (const payload of deliveredNotifications) {
+          const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+
+          console.log('processing push notification:', payload);
+          let wallet;
+          switch (+payload.type) {
+            case 2:
+            case 3:
+              wallet = wallets.find(w => w.weOwnAddress(payload.address));
+              break;
+            case 1:
+            case 4:
+              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+              break;
           }
 
-          return true;
+          if (wallet) {
+            const walletID = wallet.getID();
+            fetchAndSaveWalletTransactions(walletID);
+            if (wasTapped) {
+              if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'WalletTransactions',
+                    params: {
+                      walletID,
+                      walletType: wallet.type,
+                    },
+                  }),
+                );
+              } else {
+                navigationRef.navigate('ReceiveDetailsRoot', {
+                  screen: 'ReceiveDetails',
+                  params: {
+                    walletID,
+                    address: payload.address,
+                  },
+                });
+              }
+
+              return true;
+            }
+          } else {
+            console.log('could not find wallet while processing push notification, NOP');
+          }
         }
-      } else {
-        console.log('could not find wallet while processing push notification, NOP');
       }
-    }
 
-    if (deliveredNotifications.length > 0) {
-      refreshAllWalletTransactions();
+      if (deliveredNotifications.length > 0) {
+        refreshAllWalletTransactions();
+      }
+    } catch (error) {
+      console.error('Failed to process push notifications:', error);
     }
-
     return false;
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
 
-  const handleOpenURL = useCallback(
-    (event: { url: string }) => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
-    },
-    [addWallet, saveToDisk, setSharedCosigner, wallets],
-  );
+  useEffect(() => {
+    initializeNotifications(processPushNotifications);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  const handleOpenURL = useCallback(
+    async (event: { url: string }): Promise<void> => {
+      const { url } = event;
+
+      if (url) {
+        const decodedUrl = decodeURIComponent(url);
+        const fileName = decodedUrl.split('/').pop()?.toLowerCase();
+
+        if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
+          try {
+            if (!decodedUrl) {
+              throw new Error(loc.send.qr_error_no_qrcode);
+            }
+            const values = await RNQRGenerator.detect({
+              uri: decodedUrl,
+            });
+
+            if (values && values.values.length > 0) {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              DeeplinkSchemaMatch.navigationRouteFor(
+                { url: values.values[0] },
+                (value: [string, any]) => navigationRef.navigate(...value),
+                {
+                  wallets,
+                  addWallet,
+                  saveToDisk,
+                  setSharedCosigner,
+                },
+              );
+            } else {
+              throw new Error(loc.send.qr_error_no_qrcode);
+            }
+          } catch (error) {
+            console.error('Error detecting QR code:', error);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            presentAlert({ message: loc.send.qr_error_no_qrcode });
+          }
+        } else {
+          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
+            wallets,
+            addWallet,
+            saveToDisk,
+            setSharedCosigner,
+          });
+        }
+      }
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-      BlueClipboard()
-        .getClipboardContent()
-        .then(clipboard => {
-          ActionSheet.showActionSheetWithOptions(
-            {
-              title: loc._.clipboard,
-              message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-              options: [loc._.cancel, loc._.continue],
-              cancelButtonIndex: 0,
-            },
-            buttonIndex => {
-              switch (buttonIndex) {
-                case 0:
-                  break;
-                case 1:
-                  handleOpenURL({ url: clipboard });
-                  break;
-              }
-            },
-          );
-        });
+      getClipboardContent().then(clipboard => {
+        if (!clipboard) return;
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc._.clipboard,
+            message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
+            options: [loc._.cancel, loc._.continue],
+            cancelButtonIndex: 0,
+          },
+          buttonIndex => {
+            switch (buttonIndex) {
+              case 0:
+                break;
+              case 1:
+                handleOpenURL({ url: clipboard });
+                break;
+            }
+          },
+        );
+      });
     },
     [handleOpenURL],
   );
@@ -151,7 +257,8 @@ const CompanionDelegates = () => {
         updateExchangeRate();
         const processed = await processPushNotifications();
         if (processed) return;
-        const clipboard = await BlueClipboard().getClipboardContent();
+        const clipboard = await getClipboardContent();
+        if (!clipboard) return;
         const isAddressFromStoredWallet = wallets.some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
             return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
@@ -187,32 +294,15 @@ const CompanionDelegates = () => {
     [processPushNotifications, showClipboardAlert, wallets],
   );
 
-  const onNotificationReceived = useCallback(
-    async (notification: { data: { data: any } }) => {
-      const payload = Object.assign({}, notification, notification.data);
-      if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-      // @ts-ignore: Notifications type is not defined
-      payload.foreground = true;
-
-      // @ts-ignore: Notifications type is not defined
-      await Notifications.addNotification(payload);
-      // @ts-ignore: Notifications type is not defined
-      if (payload.foreground) await processPushNotifications();
-    },
-    [processPushNotifications],
-  );
-
   const addListeners = useCallback(() => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
 
     return {
       urlSubscription,
       appStateSubscription,
-      notificationSubscription,
     };
-  }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
+  }, [handleOpenURL, handleAppStateChange]);
 
   useEffect(() => {
     const subscriptions = addListeners();
@@ -220,22 +310,10 @@ const CompanionDelegates = () => {
     return () => {
       subscriptions.urlSubscription?.remove();
       subscriptions.appStateSubscription?.remove();
-      subscriptions.notificationSubscription?.remove();
     };
   }, [addListeners]);
 
-  return (
-    <>
-      <Notifications onProcessNotifications={processPushNotifications} />
-      <Suspense fallback={null}>
-        <MenuElements />
-        <DeviceQuickActions />
-        <HandOffComponentListener />
-        <WidgetCommunication />
-        <WatchConnectivity />
-      </Suspense>
-    </>
-  );
+  return null;
 };
 
 export default CompanionDelegates;

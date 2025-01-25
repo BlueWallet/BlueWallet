@@ -87,7 +87,6 @@
     "biometrics": "بیومتریک",
     "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",
     "currency": "واهد پیلٛ",
-    "currency_source": "قیمت گرته بیه د",
     "default_info": "دونسمنیا پؽش فرز",
     "default_title": "موقه ره ونن",
     "electrum_offline_mode": "هالت آفلاین",
@@ -99,7 +98,6 @@
     "electrum_clear_alert_message": "مؽهای ویرگار سرور الکترامن پاک بکی؟",
     "electrum_clear_alert_cancel": "لقو",
     "electrum_clear_alert_ok": "خو",
-    "electrum_history": "ویرگار سرور",
     "encrypt_title": "امنیت",
     "encrypt_use": "{type} نه وه کار بییر",
     "header": "سامونیا",
@@ -115,9 +113,6 @@
     "rate": "نرخ",
     "widgets": "اوزارکیا",
     "tools": "اوزاریا"
-  },
-  "notifications": {
-    "ask_me_later": "دماتر دم بپورس."
   },
   "transactions": {
     "copy_link": "لٛف گری لینگ",
@@ -137,6 +132,9 @@
     "co_sign_transaction": "امزا کردن تراکونش",
     "of": "د",
     "ms_help_title5": "هالت پؽش رته"
+  },
+  "cc": {
+    "sort_status": "وزیت"
   },
   "addresses": {
     "sign_placeholder_address": "آدرس",

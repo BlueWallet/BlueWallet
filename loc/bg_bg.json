@@ -172,12 +172,9 @@
     "electrum_clear_alert_message": "Искате ли да изтриете електрум сървър историята?",
     "electrum_clear_alert_cancel": "Отказ",
     "electrum_clear_alert_ok": "Ок",
-    "electrum_select": "Избери",
     "electrum_reset": "Начални настройки",
     "electrum_unable_to_connect": "Не възможно свързване със сървър {server}.",
-    "electrum_history": "Сървър история",
     "electrum_reset_to_default": "Сигурни ли сте, че искате да върнете Електрум към първоначалните настройки?",
-    "electrum_clear": "Изчисти",
     "encrypt_decrypt": "Декриптирай хранилището",
     "encrypt_decrypt_q": "Сигурни ли сте, че искате да декриптирате хранилището? Това ще направи портфейлите ви достъпни без парола.",
     "encrypt_enc_and_pass": "Криптиран и защитен с парола",
@@ -195,7 +192,8 @@
   "wallets": {
     "add_create": "Създай",
     "add_entropy": "Ентропия",
-    "details_address": "Адрес"
+    "details_address": "Адрес",
+    "paste_from_clipboard": "Постави"
   },
   "multisig": {
     "confirm": "Потвърди",
@@ -203,6 +201,9 @@
     "create": "Създай",
     "co_sign_transaction": "Подпиши транзакция",
     "ms_help_title5": "Развирени Настройки"
+  },
+  "cc": {
+    "sort_status": "Статус"
   },
   "addresses": {
     "sign_placeholder_address": "Адрес",

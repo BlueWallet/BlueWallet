@@ -72,7 +72,6 @@
     "cpfp_create": "Opret",
     "details_copy": "Kopier",
     "details_from": "Fra",
-    "details_show_in_block_explorer": "Vis i block-explorer",
     "details_title": "Transaktion",
     "details_to": "Til",
     "list_title": "transaktioner",
@@ -109,6 +108,9 @@
     "confirm": "Bekræft",
     "create": "Opret",
     "ms_help_title5": "Enable advanced mode"
+  },
+  "cc": {
+    "sort_label": "Etiket"
   },
   "addresses": {
     "sign_placeholder_address": "adresse",

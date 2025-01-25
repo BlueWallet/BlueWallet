@@ -1,24 +1,21 @@
 import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
-import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { CameraScreen } from 'react-native-camera-kit';
-import { Icon } from '@rneui/themed';
-import { launchImageLibrary } from 'react-native-image-picker';
-
+import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
 import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
-import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import CameraScreen from '../../components/CameraScreen';
+import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 let decoder = false;
 
@@ -26,39 +23,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  closeTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 16,
-    top: 55,
-  },
-  closeImage: {
-    alignSelf: 'center',
-  },
-  imagePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 24,
-    bottom: 48,
-  },
-  filePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 96,
-    bottom: 48,
   },
   openSettingsContainer: {
     flex: 1,
@@ -71,6 +35,9 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: 'rgba(0,0,0,0.01)',
     position: 'absolute',
+    top: 10,
+    left: '50%',
+    transform: [{ translateX: -30 }],
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
   progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
@@ -89,7 +56,11 @@ const ScanQRCode = () => {
   const { setIsDrawerShouldHide } = useSettings();
   const navigation = useNavigation();
   const route = useRoute();
-  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
+  const navigationState = navigation.getState();
+  const previousRoute = navigationState.routes[navigationState.routes.length - 2];
+  const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
+
+  const { launchedBy = defaultLaunchedBy, onBarScanned, showFileImportButton } = route.params || {};
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -139,13 +110,11 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -153,20 +122,13 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(
-        loc.send.scan_error,
-        loc._.invalid_animated_qr_code_fragment,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              setIsLoading(false);
-            },
-            style: 'default',
-          },
-        ],
-        { cancelabe: false },
-      );
+      presentAlert({
+        title: loc.send.scan_error,
+        message: loc._.invalid_animated_qr_code_fragment,
+        onPress: () => {
+          setIsLoading(false);
+        },
+      });
     }
   };
 
@@ -192,33 +154,25 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+          const merge = true;
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+        } else {
+          onBarScanned && onBarScanned({ data });
         }
-        onBarScanned && onBarScanned({ data });
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(
-        loc.send.scan_error,
-        loc._.invalid_animated_qr_code_fragment,
-        [
-          {
-            text: loc._.ok,
-            onPress: () => {
-              setIsLoading(false);
-            },
-            style: 'default',
-          },
-        ],
-        { cancelabe: false },
-      );
+
+      presentAlert({
+        title: loc.send.scan_error,
+        message: loc._.invalid_animated_qr_code_fragment,
+        onPress: () => {
+          setIsLoading(false);
+        },
+      });
     }
   };
 
@@ -259,13 +213,12 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
       if (launchedBy) {
-        let merge = true;
-        if (typeof onBarScanned !== 'function') {
-          merge = false;
-        }
-        navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
+        const merge = true;
+
+        navigation.navigate({ name: launchedBy, params: { onBarScanned: data }, merge });
+      } else {
+        onBarScanned && onBarScanned({ data });
       }
-      onBarScanned && onBarScanned({ data });
       return;
     } catch (_) {}
 
@@ -273,13 +226,12 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          let merge = true;
-          if (typeof onBarScanned !== 'function') {
-            merge = false;
-          }
-          navigation.navigate({ name: launchedBy, params: { scannedData: ret.data }, merge });
+          const merge = true;
+
+          navigation.navigate({ name: launchedBy, params: { onBarScanned: ret.data }, merge });
+        } else {
+          onBarScanned && onBarScanned(ret.data);
         }
-        onBarScanned && onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }
@@ -294,96 +246,68 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
-  const showImagePicker = () => {
+  const onShowImagePickerButtonPress = () => {
     if (!isLoading) {
       setIsLoading(true);
-      launchImageLibrary(
-        {
-          title: null,
-          mediaType: 'photo',
-          takePhotoButtonTitle: null,
-          maxHeight: 800,
-          maxWidth: 600,
-          selectionLimit: 1,
-        },
-        response => {
-          if (response.didCancel) {
-            setIsLoading(false);
-          } else {
-            const asset = response.assets[0];
-            if (asset.uri) {
-              const uri = asset.uri.toString().replace('file://', '');
-              LocalQRCode.decode(uri, (error, result) => {
-                if (!error) {
-                  onBarCodeRead({ data: result });
-                } else {
-                  presentAlert({ message: loc.send.qr_error_no_qrcode });
-                  setIsLoading(false);
-                }
-              });
-            } else {
-              setIsLoading(false);
-            }
-          }
-        },
-      );
+      fs.showImagePickerAndReadImage()
+        .then(data => {
+          if (data) onBarCodeRead({ data });
+        })
+        .finally(() => setIsLoading(false));
     }
   };
 
   const dismiss = () => {
-    if (launchedBy) {
-      let merge = true;
-      if (typeof onBarScanned !== 'function') {
-        merge = false;
-      }
-      navigation.navigate({ name: launchedBy, params: {}, merge });
-    } else {
-      navigation.goBack();
-    }
-    if (onDismiss) onDismiss();
+    navigation.goBack();
+  };
+
+  const handleReadCode = event => {
+    onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
+  };
+
+  const handleBackdoorOkPress = () => {
+    setBackdoorVisible(false);
+    setBackdoorText('');
+    if (backdoorText) onBarCodeRead({ data: backdoorText });
+  };
+
+  // this is an invisible backdoor button on bottom left screen corner
+  // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
+  // this allows to mock and test QR scanning in e2e tests
+  const handleInvisibleBackdoorPress = async () => {
+    setBackdoorPressed(backdoorPressed + 1);
+    if (backdoorPressed < 5) return;
+    setBackdoorPressed(0);
+    setBackdoorVisible(true);
   };
 
   const render = isLoading ? (
     <BlueLoading />
   ) : (
-    <>
+    <View>
       {!cameraStatusGranted ? (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+          <BlueSpacing40 />
+          {showFileImportButton && <Button title={loc.wallets.import_file} onPress={showFilePicker} />}
+          <BlueSpacing40 />
+          <Button title={loc.wallets.list_long_choose} onPress={showFilePicker} />
+          <BlueSpacing40 />
+          <Button title={loc._.cancel} onPress={dismiss} />
         </View>
       ) : isFocused ? (
         <CameraScreen
-          scanBarcode
-          torchOffImage={require('../../img/flash-off.png')}
-          torchOnImage={require('../../img/flash-on.png')}
-          cameraFlipImage={require('../../img/camera-rotate-solid.png')}
-          onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
+          onReadCode={handleReadCode}
           showFrame={false}
+          showFilePickerButton={showFileImportButton}
+          showImagePickerButton={true}
+          onFilePickerButtonPress={showFilePicker}
+          onImagePickerButtonPress={onShowImagePickerButtonPress}
+          onCancelButtonPress={dismiss}
         />
       ) : null}
-      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
-        <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.pick_image}
-        style={styles.imagePickerTouch}
-        onPress={showImagePicker}
-      >
-        <Icon name="image" type="font-awesome" color="#ffffff" />
-      </TouchableOpacity>
-      {showFileImportButton && (
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={loc._.pick_file}
-          style={styles.filePickerTouch}
-          onPress={showFilePicker}
-        >
-          <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
-        </TouchableOpacity>
-      )}
       {urTotal > 0 && (
         <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
           <BlueText>{loc.wallets.please_continue_scanning}</BlueText>
@@ -408,16 +332,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <Button
-            title="OK"
-            testID="scanQrBackdoorOkButton"
-            onPress={() => {
-              setBackdoorVisible(false);
-              setBackdoorText('');
-
-              if (backdoorText) onBarCodeRead({ data: backdoorText });
-            }}
-          />
+          <Button title="OK" testID="scanQrBackdoorOkButton" onPress={handleBackdoorOkPress} />
         </View>
       )}
       <TouchableOpacity
@@ -425,20 +340,12 @@ const ScanQRCode = () => {
         accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
-        onPress={async () => {
-          // this is an invisible backdoor button on bottom left screen corner
-          // tapping it 10 times fires prompt dialog asking for a string thats gona be passed to onBarCodeRead.
-          // this allows to mock and test QR scanning in e2e tests
-          setBackdoorPressed(backdoorPressed + 1);
-          if (backdoorPressed < 5) return;
-          setBackdoorPressed(0);
-          setBackdoorVisible(true);
-        }}
+        onPress={handleInvisibleBackdoorPress}
       />
-    </>
+    </View>
   );
 
-  return <View style={styles.root}>{render}</View>;
+  return <SafeArea style={styles.root}>{render}</SafeArea>;
 };
 
 export default ScanQRCode;

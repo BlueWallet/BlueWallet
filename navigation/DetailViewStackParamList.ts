@@ -1,22 +1,39 @@
-import { LightningTransaction } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams } from './SendDetailsStackParamList';
+
+export type ScanQRCodeParamList = {
+  cameraStatusGranted?: boolean;
+  backdoorPressed?: boolean;
+  launchedBy?: string;
+  urTotal?: number;
+  urHave?: number;
+  backdoorText?: string;
+  onBarScanned?: (data: string) => void;
+  showFileImportButton?: boolean;
+  backdoorVisible?: boolean;
+  animatedQRCodeData?: Record<string, any>;
+};
 
 export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
-  WalletsList: { scannedData?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string };
+  WalletsList: { onBarScanned?: string };
+  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { transactionId: string; hash: string; walletID: string };
-  TransactionStatus: { hash?: string; walletID?: string };
-  CPFP: { transactionId: string };
-  RBFBumpFee: { transactionId: string };
-  RBFCancel: { transactionId: string };
+  TransactionDetails: { tx: Transaction; hash: string; walletID: string };
+  TransactionStatus: { hash: string; walletID?: string };
+  CPFP: {
+    wallet: TWallet | null;
+    txid: string;
+  };
+  RBFBumpFee: { txid: string; wallet: TWallet | null };
+  RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: undefined;
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
-  Broadcast: { scannedData?: string };
-  IsItMyAddress: { address?: string };
+  Broadcast: { onBarScanned?: string };
+  IsItMyAddress: { address?: string; onBarScanned?: string };
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {
@@ -53,17 +70,18 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   DefaultView: undefined;
-  ElectrumSettings: undefined;
+  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
     url?: string;
+    onBarScanned?: string;
   };
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
-  Tools: undefined;
+  ToolsScreen: undefined;
   SettingsPrivacy: undefined;
   ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
   WalletXpubRoot: undefined;
@@ -81,22 +99,7 @@ export type DetailViewStackParamList = {
       address: string;
     };
   };
-  ScanQRCodeRoot: {
-    screen: string;
-    params: {
-      isLoading: false;
-      cameraStatusGranted?: boolean;
-      backdoorPressed?: boolean;
-      launchedBy?: string;
-      urTotal?: number;
-      urHave?: number;
-      backdoorText?: string;
-      onDismiss?: () => void;
-      showFileImportButton: true;
-      backdoorVisible?: boolean;
-      animatedQRCodeData?: Record<string, any>;
-    };
-  };
+  ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {
     paymentCode: string;
     walletID: string;

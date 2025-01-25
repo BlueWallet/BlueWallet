@@ -12,20 +12,56 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       ipa_output_path: ${{ steps.build_app.outputs.ipa_output_path }}
-      latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
+      latest_commit_message: ${{ steps.get_latest_commit_details.outputs.commit_message }}
+      branch_name: ${{ steps.get_latest_commit_details.outputs.branch_name }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
+
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetches all history
+          fetch-depth: 0 # Ensures the full Git history is available
+
+      - name: Ensure Correct Branch
+        if: github.ref != 'refs/heads/master'
+        run: |
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
+            git checkout ${GITHUB_HEAD_REF}
+          else
+            git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
+            git checkout ${GITHUB_REF##*/}
+          fi
+          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Get Latest Commit Details
+        id: get_latest_commit_details
+        run: |
+          # Check if we are in a detached HEAD state
+          if [ "$(git rev-parse --abbrev-ref HEAD)" == "HEAD" ]; then
+            CURRENT_BRANCH=$(git show-ref --head -s HEAD | xargs -I {} git branch --contains {} | grep -v "detached" | head -n 1 | sed 's/^[* ]*//')
+          else
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          fi
+          
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          
+          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
+          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+      - name: Print Commit Details
+        run: |
+          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
+          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
@@ -40,7 +76,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -53,21 +88,6 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           bundle exec fastlane ios install_pods
-
-      - name: Cache CocoaPods Pods
-        uses: actions/cache@v4
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pods-
-
-      - name: Get Latest Commit Message
-        id: get_latest_commit_message
-        run: |
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "commit_message=$LATEST_COMMIT_MESSAGE" >> $GITHUB_OUTPUT
 
       - name: Generate Build Number Based on Timestamp
         id: generate_build_number
@@ -110,37 +130,20 @@ jobs:
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
 
-      - name: Cache Provisioning Profiles
-        id: cache_provisioning_profiles
-        uses: actions/cache@v4
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles
-          key: ${{ runner.os }}-provisioning-profiles-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-profiles-
-
-      - name: Check Cache Status for Provisioning Profiles
-        run: |
-          if [ -n "${{ steps.cache_provisioning_profiles.outputs.cache-hit }}" ]; then
-            echo "Provisioning profiles were restored from cache."
-          else
-            echo "No cache found for provisioning profiles. A new cache will be created."
-          fi
-
-      - name: Verify Provisioning Profiles Exist
-        run: |
-          if [ -d "~/Library/MobileDevice/Provisioning Profiles" ]; then
-            echo "Provisioning profiles are available in the cache."
-            ls -la ~/Library/MobileDevice/Provisioning\ Profiles
-          else
-            echo "Provisioning profiles directory does not exist."
-          fi
-
       - name: Build App
         id: build_app
         run: |
           bundle exec fastlane ios build_app_lane --verbose
           echo "ipa_output_path=$IPA_OUTPUT_PATH" >> $GITHUB_OUTPUT # Set the IPA output path for future jobs
+
+      - name: Upload Bugsnag Sourcemaps
+        if: success()
+        run: bundle exec fastlane ios upload_bugsnag_sourcemaps
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
+          BUGSNAG_RELEASE_STAGE: production
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+          NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
 
       - name: Upload Build Logs
         if: always()
@@ -155,16 +158,17 @@ jobs:
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
           path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
- 
+
   testflight-upload:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-15
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
@@ -173,15 +177,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
-
-      - name: Cache Ruby Gems
-        uses: actions/cache@v4
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
 
       - name: Install Dependencies with Bundler
         run: |
@@ -192,7 +187,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
-          path: ./ # Download the IPA file to the current working directory
+          path: ./
 
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
@@ -203,7 +198,7 @@ jobs:
           pwd
           echo "Files in current directory:"
           ls -la ./
-      
+
       - name: Set IPA Path Environment Variable
         run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
 
@@ -213,6 +208,11 @@ jobs:
             echo "IPA file not found at path: $IPA_OUTPUT_PATH"
             exit 1
           fi
+
+      - name: Print Environment Variables for Debugging
+        run: |
+          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
+          echo "BRANCH_NAME: $BRANCH_NAME"
 
       - name: Upload to TestFlight
         run: |

@@ -1,152 +1,278 @@
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 3/23/23.
-//  Copyright © 2023 BlueWallet. All rights reserved.
-
 import Foundation
+import Network
 
-/**
- `SwiftTCPClient` is a simple TCP client class that allows for establishing a TCP connection,
- sending data, and receiving data over the network. It supports both plain TCP and SSL-secured connections.
+enum SwiftTCPClientError: Error, LocalizedError {
+    case connectionNil
+    case connectionCancelled
+    case readTimedOut
+    case noDataReceived
+    case unknown(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .connectionNil:
+            return "Connection is nil."
+        case .connectionCancelled:
+            return "Connection was cancelled."
+        case .readTimedOut:
+            return "Read timed out."
+        case .noDataReceived:
+            return "No data received."
+        case .unknown(let error):
+            return error.localizedDescription
+        }
+    }
+}
 
- The class uses `InputStream` and `OutputStream` for network communication, encapsulating the complexity of stream management and data transfer.
+actor HostManager {
+    var availableHosts: [(host: String, port: UInt16, useSSL: Bool)]
+    var hostFailureCounts: [String: Int] = [:]
+    let maxRetriesPerHost: Int
 
- - Note: When using SSL, this implementation disables certificate chain validation for simplicity. This is not recommended for production code due to security risks.
+    init(hosts: [(host: String, port: UInt16, useSSL: Bool)], maxRetriesPerHost: Int) {
+        self.availableHosts = hosts
+        self.maxRetriesPerHost = maxRetriesPerHost
+    }
 
- ## Examples
+    func getNextHost() -> (host: String, port: UInt16, useSSL: Bool)? {
+        guard !availableHosts.isEmpty else {
+            return nil
+        }
+        // Rotate the first host to the end
+        let currentHost = availableHosts.removeFirst()
+        availableHosts.append(currentHost)
+        return currentHost
+    }
 
- ### Creating an instance and connecting to a server:
+    func shouldSkipHost(_ host: String) -> Bool {
+        if let failureCount = hostFailureCounts[host], failureCount >= maxRetriesPerHost {
+            return true
+        }
+        return false
+    }
 
- ```swift
- let client = SwiftTCPClient()
- let success = client.connect(to: "example.com", port: 12345, useSSL: false)
+    func resetFailureCount(for host: String) {
+        hostFailureCounts[host] = 0
+    }
 
- if success {
-     print("Connected successfully.")
- } else {
-     print("Failed to connect.")
- }
-**/
+    func incrementFailureCount(for host: String) {
+        hostFailureCounts[host, default: 0] += 1
+    }
+}
 
-class SwiftTCPClient: NSObject {
-    private var inputStream: InputStream?
-    private var outputStream: OutputStream?
-    private let bufferSize = 1024
-    private var readData = Data()
-    private let readTimeout = 5.0 // Timeout in seconds
+class SwiftTCPClient {
+    private var connection: NWConnection?
+    private let queue = DispatchQueue(label: "SwiftTCPClientQueue", qos: .userInitiated)
+    private let readTimeout: TimeInterval = 5.0
+    let maxRetries = 3
+    private let hostManager: HostManager
+    
+    init(hosts: [(host: String, port: UInt16, useSSL: Bool)] = [], maxRetriesPerHost: Int = 3) {
+        self.hostManager = HostManager(hosts: hosts, maxRetriesPerHost: maxRetriesPerHost)
+    }
 
-     func connect(to host: String, port: UInt32, useSSL: Bool = false) -> Bool {
-        var readStream: Unmanaged<CFReadStream>?
-        var writeStream: Unmanaged<CFWriteStream>?
-
-        CFStreamCreatePairWithSocketToHost(kCFAllocatorDefault, host as CFString, port, &readStream, &writeStream)
-
-        guard let read = readStream?.takeRetainedValue(), let write = writeStream?.takeRetainedValue() else {
+    func connect(to host: String, port: UInt16, useSSL: Bool = false, validateCertificates: Bool = true, retries: Int = 0) async -> Bool {
+        // Skip host if it has failed too many times
+        if await hostManager.shouldSkipHost(host) {
+            print("Skipping host \(host) after \(hostManager.maxRetriesPerHost) retries.")
             return false
         }
 
-        inputStream = read as InputStream
-        outputStream = write as OutputStream
-
+        let parameters: NWParameters
         if useSSL {
-            // Configure SSL settings for the streams
-            let sslSettings: [NSString: Any] = [
-                kCFStreamSSLLevel as NSString: kCFStreamSocketSecurityLevelNegotiatedSSL as Any,
-                kCFStreamSSLValidatesCertificateChain as NSString: kCFBooleanFalse as Any
-                // Note: Disabling certificate chain validation (kCFStreamSSLValidatesCertificateChain: kCFBooleanFalse)
-                // is typically not recommended for production code as it introduces significant security risks.
-            ]
-            inputStream?.setProperty(sslSettings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
-            outputStream?.setProperty(sslSettings, forKey: kCFStreamPropertySSLSettings as Stream.PropertyKey)
+            parameters = NWParameters(tls: createTLSOptions(validateCertificates: validateCertificates), tcp: .init())
+        } else {
+            parameters = NWParameters.tcp
         }
 
-        inputStream?.delegate = self
-        outputStream?.delegate = self
-
-        inputStream?.schedule(in: .current, forMode: RunLoop.Mode.default)
-        outputStream?.schedule(in: .current, forMode: RunLoop.Mode.default)
-
-        inputStream?.open()
-        outputStream?.open()
-
-        return true
-    }
-    
-
-    func send(data: Data) -> Bool {
-        guard let outputStream = outputStream else {
+        guard let nwPort = NWEndpoint.Port(rawValue: port) else {
+            print("Invalid port number: \(port)")
             return false
         }
+        connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: parameters)
+        connection?.start(queue: queue)
 
-        let bytesWritten = data.withUnsafeBytes { bufferPointer -> Int in
-            guard let baseAddress = bufferPointer.baseAddress else {
-                return 0
-            }
-            return outputStream.write(baseAddress.assumingMemoryBound(to: UInt8.self), maxLength: data.count)
-        }
+        print("Attempting to connect to \(host):\(port) (SSL: \(useSSL))") 
 
-        return bytesWritten == data.count
-    }
+        do {
+            try await withCheckedThrowingContinuation { continuation in
+                connection?.stateUpdateHandler = { [weak self] state in
+                    guard let self = self else { return }
 
-    func receive() throws -> Data {
-    guard let inputStream = inputStream else {
-        throw NSError(domain: "SwiftTCPClientError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Input stream is nil."])
-    }
-    
-    // Check if the input stream is ready for reading
-    if inputStream.streamStatus != .open && inputStream.streamStatus != .reading {
-        throw NSError(domain: "SwiftTCPClientError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Stream is not ready for reading."])
-    }
-
-    readData = Data()
-
-    // Wait for data to be available or timeout
-    let timeoutDate = Date().addingTimeInterval(readTimeout)
-    repeat {
-        RunLoop.current.run(mode: RunLoop.Mode.default, before: Date(timeIntervalSinceNow: 0.1))
-        if readData.count > 0 || Date() > timeoutDate {
-            break
-        }
-    } while inputStream.streamStatus == .open || inputStream.streamStatus == .reading
-
-    if readData.count == 0 && Date() > timeoutDate {
-        throw NSError(domain: "SwiftTCPClientError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Read timed out."])
-    }
-
-    return readData
-}
-
-
-    func close() {
-        inputStream?.close()
-        outputStream?.close()
-        inputStream?.remove(from: .current, forMode: RunLoop.Mode.default)
-        outputStream?.remove(from: .current, forMode: RunLoop.Mode.default)
-        inputStream = nil
-        outputStream = nil
-    }
-}
-
-extension SwiftTCPClient: StreamDelegate {
-    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        switch eventCode {
-        case .hasBytesAvailable:
-            if aStream == inputStream, let inputStream = inputStream {
-                let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
-                while inputStream.hasBytesAvailable {
-                    let bytesRead = inputStream.read(buffer, maxLength: bufferSize)
-                    if bytesRead > 0 {
-                        readData.append(buffer, count: bytesRead)
+                    switch state {
+                    case .ready:
+                        print("Successfully connected to \(host):\(port)") 
+                        self.connection?.stateUpdateHandler = nil
+                        continuation.resume()
+                    case .failed(let error):
+                        if let nwError = error as? NWError, self.isTLSError(nwError) {
+                            print("SSL Error while connecting to \(host):\(port) - \(error.localizedDescription)") 
+                        }
+                        print("Connection to \(host):\(port) failed with error: \(error.localizedDescription)") 
+                        self.connection?.stateUpdateHandler = nil
+                        continuation.resume(throwing: error)
+                    case .cancelled:
+                        print("Connection to \(host):\(port) was cancelled.") 
+                        self.connection?.stateUpdateHandler = nil
+                        continuation.resume(throwing: SwiftTCPClientError.connectionCancelled)
+                    default:
+                        break
                     }
                 }
-                buffer.deallocate()
             }
-        case .errorOccurred:
-            print("Stream error occurred")
-        case .endEncountered:
-            close()
-        default:
-            break
+            // Reset failure count on successful connection
+            await hostManager.resetFailureCount(for: host)
+            return true
+        } catch {
+            print("Connection to \(host) failed with error: \(error.localizedDescription)") 
+            await hostManager.incrementFailureCount(for: host)
+
+            if retries < maxRetries - 1 {
+                print("Retrying connection to \(host) (\(retries + 1)/\(maxRetries))...") 
+                return await connect(to: host, port: port, useSSL: useSSL, validateCertificates: validateCertificates, retries: retries + 1)
+            } else {
+                print("Host \(host) failed after \(maxRetries) retries. Skipping.") 
+                return false
+            }
         }
+    }
+
+    private func isTLSError(_ error: NWError) -> Bool {
+        let nsError = error as NSError
+        let code = nsError.code
+        if #available(iOS 16.4, *) {
+            switch code {
+            case 20, 21, 22:
+                return true
+            case 1, 2, 3, 4:
+                return false
+            default:
+                return false
+            }
+        } else {
+            switch code {
+            case 20, 21, 22:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+
+    func connectToNextAvailable(validateCertificates: Bool = true) async -> Bool {
+        while true {
+            guard let currentHost = await hostManager.getNextHost() else {
+                print("No available hosts to connect.") 
+                return false
+            }
+
+            if await hostManager.shouldSkipHost(currentHost.host) {
+                print("Skipping host \(currentHost.host) after \(hostManager.maxRetriesPerHost) retries.") 
+                continue
+            }
+
+            print("Attempting to connect to next available host: \(currentHost.host):\(currentHost.port) (SSL: \(currentHost.useSSL))") 
+
+            if await connect(to: currentHost.host, port: currentHost.port, useSSL: currentHost.useSSL, validateCertificates: validateCertificates) {
+                print("Connected to host \(currentHost.host):\(currentHost.port)") 
+                await hostManager.resetFailureCount(for: currentHost.host)
+                return true
+            } else {
+                print("Failed to connect to host \(currentHost.host):\(currentHost.port)") 
+                await hostManager.incrementFailureCount(for: currentHost.host)
+            }
+        }
+    }
+
+    func send(data: Data) async -> Bool {
+        guard let connection = connection else {
+            print("Send failed: No active connection.") 
+            return false
+        }
+        
+        do {
+            print("Sending data: \(data)") 
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                connection.send(content: data, completion: .contentProcessed { error in
+                    if let error = error {
+                        print("Send error: \(error.localizedDescription)") 
+                        continuation.resume(throwing: error)
+                    } else {
+                        print("Data sent successfully.") 
+                        continuation.resume()
+                    }
+                })
+            }
+            return true
+        } catch {
+            print("Send failed with error: \(error.localizedDescription)") 
+            return false
+        }
+    }
+
+    func receive() async throws -> Data {
+        guard let connection = connection else {
+            throw SwiftTCPClientError.connectionNil
+        }
+
+        print("Attempting to receive data...") 
+
+        return try await withThrowingTaskGroup(of: Data.self) { group in
+            group.addTask {
+                return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Error>) in
+                    connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { data, _, isComplete, error in
+                        if let error = error {
+                            print("Receive error: \(error.localizedDescription)") 
+                            continuation.resume(throwing: SwiftTCPClientError.unknown(error))
+                            return
+                        }
+
+                        if let data = data, !data.isEmpty {
+                            print("Received data: \(data)") 
+                            continuation.resume(returning: data)
+                        } else if isComplete {
+                            print("Connection closed by peer.") 
+                            self.close()
+                            continuation.resume(throwing: SwiftTCPClientError.noDataReceived)
+                        } else {
+                            print("Read timed out.") 
+                            continuation.resume(throwing: SwiftTCPClientError.readTimedOut)
+                        }
+                    }
+                }
+            }
+            
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(self.readTimeout * 1_000_000_000))
+                print("Receive operation timed out after \(self.readTimeout) seconds.") 
+                throw SwiftTCPClientError.readTimedOut
+            }
+            
+            if let firstResult = try await group.next() {
+                group.cancelAll()
+                print("Receive operation completed successfully.") 
+                return firstResult
+            } else {
+                print("Receive operation timed out.") 
+                throw SwiftTCPClientError.readTimedOut
+            }
+        }
+    }
+
+    func close() {
+        print("Closing connection.") 
+        connection?.cancel()
+        connection = nil
+    }
+
+    private func createTLSOptions(validateCertificates: Bool = true) -> NWProtocolTLS.Options {
+        let tlsOptions = NWProtocolTLS.Options()
+        if (!validateCertificates) {
+            sec_protocol_options_set_verify_block(tlsOptions.securityProtocolOptions, { _, _, completion in
+                completion(true)
+            }, DispatchQueue.global())
+            print("SSL certificate validation is disabled.") 
+        }
+        return tlsOptions
     }
 }

@@ -1,6 +1,7 @@
 import { Alert as RNAlert, Platform, ToastAndroid, AlertButton, AlertOptions } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
+import { navigationRef } from '../NavigationService';
 
 export enum AlertType {
   Alert,
@@ -22,7 +23,7 @@ const presentAlert = (() => {
   };
 
   const showAlert = (title: string | undefined, message: string, buttons: AlertButton[], options: AlertOptions) => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === 'ios' && navigationRef.isReady()) {
       RNAlert.alert(title ?? message, title && message ? message : undefined, buttons, options);
     } else {
       RNAlert.alert(title ?? '', message, buttons, options);

@@ -629,7 +629,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
           }
 
-          const path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          let path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+          if (path === 'm/') {
+            // not considered valid by Bip32 lib
+            path = 'm/0';
+          }
           let xpub = m[2];
           if (xpub.indexOf('/') !== -1) {
             xpub = xpub.substr(0, xpub.indexOf('/'));
@@ -1086,8 +1090,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   getID() {
-    const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    const string2hash = [...this._cosignersFingerprints].sort().join(',');
+    const id = createHash('sha256').update(string2hash).digest().toString('hex');
+    return id;
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {

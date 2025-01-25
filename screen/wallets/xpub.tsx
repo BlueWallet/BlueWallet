@@ -13,6 +13,8 @@ import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
+import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -27,6 +29,7 @@ const WalletXpub: React.FC = () => {
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID);
+  const { isPrivacyBlurEnabled } = useSettings();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
@@ -36,7 +39,7 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      disallowScreenshot(true);
+      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
       // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;
@@ -55,10 +58,10 @@ const WalletXpub: React.FC = () => {
       });
       lastWalletIdRef.current = walletID;
       return () => {
+        if (!isDesktop) disallowScreenshot(false);
         task.cancel();
-        disallowScreenshot(false);
       };
-    }, [walletID, wallet, xpub, navigation]),
+    }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation]),
   );
 
   useEffect(() => {

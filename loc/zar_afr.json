@@ -139,7 +139,6 @@
     "about": "info",
     "currency": "Geldeenheid",
     "electrum_clear_alert_cancel": "Kanselleer",
-    "electrum_clear": "Maak skoon",
     "header": "instellings",
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",
@@ -147,14 +146,10 @@
     "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
     "save": "stoor"
   },
-  "notifications": {
-    "ask_me_later": "Vra my later. "
-  },
   "transactions": {
     "cpfp_create": "Skep",
     "details_copy": "Kopieer",
     "details_from": "Inset",
-    "details_show_in_block_explorer": "Wys in blok verkenner",
     "details_title": "Transaksie",
     "details_to": "Resultaat",
     "list_title": "transaksies",
@@ -190,6 +185,7 @@
     "list_empty_txs1": "Jou transaksies sal hier verskyn.",
     "list_empty_txs2": "Begin met jou beursie.",
     "list_latest_transaction": "laaste transaksie",
+    "paste_from_clipboard": "Plak",
     "list_title": "beursies",
     "no_ln_wallet_error": "Voordat jy 'n Lightning faktuur betaal moet jy eers 'n Lightning beursie aanwys.",
     "select_wallet": "Kies Beursie",
@@ -204,6 +200,9 @@
     "create": "Skep",
     "co_sign_transaction": "Teken ñ transaksie",
     "ms_help_title5": "Enable advanced mode"
+  },
+  "cc": {
+    "sort_label": "Etiket"
   },
   "addresses": {
     "sign_placeholder_address": "adres",

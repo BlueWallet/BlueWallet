@@ -17,7 +17,6 @@ import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AmountInput from '../../components/AmountInput';
@@ -37,12 +36,15 @@ import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { useSettings } from '../../hooks/context/useSettings';
+import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { isElectrumDisabled } = useSettings();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
@@ -65,7 +67,6 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
-  const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
     customAmount: {
       borderColor: colors.formBorder,
@@ -107,15 +108,20 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([address], [], []);
+      try {
+        await tryToObtainPermissions();
+        majorTomToGroundControl([address], [], []);
+      } catch (error) {
+        console.error('Error obtaining notifications permissions:', error);
+      }
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
           if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-        } catch (_) {}
+        } catch (error) {
+          console.warn('Error fetching wallet address (ONCHAIN):', error);
+        }
         if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
@@ -125,9 +131,10 @@ const ReceiveDetails = () => {
         try {
           await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
           newAddress = wallet.getAddress();
-        } catch (_) {}
+        } catch (error) {
+          console.warn('Error fetching wallet address (OFFCHAIN):', error);
+        }
         if (newAddress === undefined) {
-          // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet.getAddress();
         } else {
@@ -135,10 +142,15 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions(receiveAddressButton);
-      Notifications.majorTomToGroundControl([newAddress], [], []);
+      try {
+        await tryToObtainPermissions();
+        majorTomToGroundControl([newAddress], [], []);
+      } catch (error) {
+        console.error('Error obtaining notifications permissions:', error);
+      }
     }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet.allowBIP47()) {
@@ -154,11 +166,12 @@ const ReceiveDetails = () => {
     }
   }, [showConfirmedBalance]);
 
+  const isBIP47Enabled = wallet?.isBIP47Enabled();
   const toolTipActions = useMemo(() => {
-    const action = CommonToolTipActions.PaymentCode;
-    action.menuState = wallet?.isBIP47Enabled();
+    const action = { ...CommonToolTipActions.PaymentsCode };
+    action.menuState = isBIP47Enabled;
     return [action];
-  }, [wallet]);
+  }, [isBIP47Enabled]);
 
   const onPressMenuItem = useCallback(() => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -167,7 +180,6 @@ const ReceiveDetails = () => {
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
-
     [onPressMenuItem, toolTipActions],
   );
 
@@ -192,10 +204,9 @@ const ReceiveDetails = () => {
 
   useEffect(() => {
     wallet?.allowBIP47() &&
-      wallet?.isBIP47Enabled() &&
       setOptions({
-        headerLeft: () => (wallet?.isBIP47Enabled() ? null : HeaderLeft),
-        headerRight: () => (wallet?.isBIP47Enabled() ? HeaderLeft : HeaderRight),
+        headerLeft: () => HeaderLeft,
+        headerRight: () => HeaderRight,
       });
   }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
@@ -271,7 +282,7 @@ const ReceiveDetails = () => {
           }
         }
       } catch (error) {
-        console.debug(error);
+        console.debug('Error checking balance:', error);
       }
     }, intervalMs);
 
@@ -354,7 +365,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <CopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
+          <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
       </>
     );
@@ -363,10 +374,14 @@ const ReceiveDetails = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(async () => {
-        if (wallet) {
-          obtainWalletAddress();
-        } else if (!wallet && address) {
-          setAddressBIP21Encoded(address);
+        try {
+          if (wallet) {
+            await obtainWalletAddress();
+          } else if (!wallet && address) {
+            setAddressBIP21Encoded(address);
+          }
+        } catch (error) {
+          console.error('Error during focus effect:', error);
         }
       });
       return () => {
@@ -423,7 +438,7 @@ const ReceiveDetails = () => {
 
   const handleShareButtonPressed = () => {
     Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
-      console.debug(error),
+      console.debug('Error sharing:', error),
     );
   };
 

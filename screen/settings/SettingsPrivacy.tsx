@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { isDesktop } from '../../blue_modules/environment';
 
 enum SettingsPrivacySection {
   None,
@@ -28,7 +28,7 @@ const SettingsPrivacy: React.FC = () => {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
     isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabledState,
+    setIsPrivacyBlurEnabled,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
@@ -82,7 +82,6 @@ const SettingsPrivacy: React.FC = () => {
   const onWidgetsTotalBalanceValueChange = async (value: boolean) => {
     setIsLoading(SettingsPrivacySection.Widget);
     try {
-      await setBalanceDisplayAllowed(value);
       setIsWidgetBalanceDisplayAllowedStorage(value);
     } catch (e) {
       console.debug('onWidgetsTotalBalanceValueChange catch', e);
@@ -102,7 +101,7 @@ const SettingsPrivacy: React.FC = () => {
 
   const onTemporaryScreenshotsValueChange = (value: boolean) => {
     setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-    setIsPrivacyBlurEnabledState(!value);
+    setIsPrivacyBlurEnabled(!value);
     setIsLoading(SettingsPrivacySection.None);
   };
 
@@ -127,11 +126,7 @@ const SettingsPrivacy: React.FC = () => {
           disabled: isLoading === SettingsPrivacySection.All,
           testID: 'ClipboardSwitch',
         }}
-        subtitle={
-          <Pressable accessibilityRole="button">
-            <Text style={styles.subtitleText}>{loc.settings.privacy_clipboard_explanation}</Text>
-          </Pressable>
-        }
+        subtitle={loc.settings.privacy_clipboard_explanation}
       />
 
       <ListItem
@@ -163,16 +158,18 @@ const SettingsPrivacy: React.FC = () => {
         subtitle={<Text style={styles.subtitleText}>{loc.total_balance_view.explanation}</Text>}
       />
 
-      <ListItem
-        title={loc.settings.privacy_temporary_screenshots}
-        Component={TouchableWithoutFeedback}
-        switch={{
-          onValueChange: onTemporaryScreenshotsValueChange,
-          value: !isPrivacyBlurEnabled,
-          disabled: isLoading === SettingsPrivacySection.All,
-        }}
-        subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>}
-      />
+      {!isDesktop && (
+        <ListItem
+          title={loc.settings.privacy_temporary_screenshots}
+          Component={TouchableWithoutFeedback}
+          switch={{
+            onValueChange: onTemporaryScreenshotsValueChange,
+            value: !isPrivacyBlurEnabled,
+            disabled: isLoading === SettingsPrivacySection.All,
+          }}
+          subtitle={<Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>}
+        />
+      )}
 
       <ListItem
         title={loc.settings.privacy_do_not_track}

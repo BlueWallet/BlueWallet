@@ -19,7 +19,7 @@ export interface Action {
 }
 
 export interface ToolTipMenuProps {
-  actions: Action[];
+  actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
   dismissMenu?: () => void;

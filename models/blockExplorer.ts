@@ -70,7 +70,7 @@ export const removeBlockExplorer = async (): Promise<boolean> => {
 
 export const getBlockExplorerUrl = async (): Promise<string> => {
   try {
-    const url = await DefaultPreference.get(BLOCK_EXPLORER_STORAGE_KEY);
+    const url = (await DefaultPreference.get(BLOCK_EXPLORER_STORAGE_KEY)) as string | null;
     return url ?? BLOCK_EXPLORERS.default.url;
   } catch (error) {
     console.error('Error getting block explorer:', error);

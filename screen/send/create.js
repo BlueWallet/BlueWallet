@@ -19,11 +19,13 @@ import { useTheme } from '../../components/themes';
 import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
   const transaction = bitcoin.Transaction.fromHex(tx);
   const size = transaction.virtualSize();
+  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
 
@@ -47,11 +49,11 @@ const SendCreate = () => {
 
   useEffect(() => {
     console.log('send/create - useEffect');
-    disallowScreenshot(true);
+    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
-      disallowScreenshot(false);
+      if (!isDesktop) disallowScreenshot(false);
     };
-  }, []);
+  }, [isPrivacyBlurEnabled]);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;

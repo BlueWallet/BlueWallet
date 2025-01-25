@@ -14,79 +14,87 @@ struct APIError: LocalizedError {
 
 extension MarketAPI {
 
-    static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
-        let settings = userElectrumSettings
-        let portToUse = settings.sslPort ?? settings.port
-        let isSSLSupported = settings.sslPort != nil
+    static func fetchNextBlockFee() async throws -> MarketData {
+        let client = SwiftTCPClient(hosts: hardcodedPeers)
+        defer {
+            client.close()
+            print("Closed SwiftTCPClient connection.") 
+        }
 
-        DispatchQueue.global(qos: .background).async {
-            let client = SwiftTCPClient()
+        guard await client.connectToNextAvailable(validateCertificates: false) else {
+            print("Failed to connect to any Electrum peer.") 
+            throw APIError()
+        }
 
-            defer {
-                print("Closing connection to \(String(describing: settings.host)):\(String(describing: portToUse)).")
-                client.close()
+        let message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
+        guard let data = message.data(using: .utf8) else {
+            print("Failed to encode message to data.") 
+            throw APIError()
+        }
+
+        print("Sending fee histogram request: \(message)") 
+
+        guard await client.send(data: data) else {
+            print("Failed to send fee histogram request.") 
+            throw APIError()
+        }
+
+        do {
+            let receivedData = try await client.receive()
+            print("Received data: \(receivedData)") 
+
+            guard let json = try JSONSerialization.jsonObject(with: receivedData, options: .allowFragments) as? [String: AnyObject],
+                  let feeHistogram = json["result"] as? [[Double]] else {
+                print("Invalid JSON structure in response.") 
+                throw APIError()
             }
 
-            guard let host = settings.host, let portToUse = portToUse else { return }
-
-            print("Attempting to connect to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
-
-            if client.connect(to: host, port: UInt32(portToUse), useSSL: isSSLSupported) {
-                print("Successfully connected to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-            } else {
-                print("Failed to connect to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-                completion(nil, APIError())
-                return
-            }
-
-            let message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
-            guard let data = message.data(using: .utf8), client.send(data: data) else {
-                print("Message sending failed to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
-                completion(nil, APIError())
-                return
-            }
-            print("Message sent successfully to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
-
-            do {
-                let receivedData = try client.receive()
-                print("Data received. Parsing...")
-                guard let responseString = String(data: receivedData, encoding: .utf8),
-                      let responseData = responseString.data(using: .utf8),
-                      let json = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: AnyObject],
-                      let feeHistogram = json["result"] as? [[Double]] else {
-                    print("Failed to parse response from \(String(describing: settings.host)).")
-                    completion(nil, APIError())
-                    return
-                }
-
-                let fastestFee = calcEstimateFeeFromFeeHistogram(numberOfBlocks: 1, feeHistogram: feeHistogram)
-                let marketData = MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0)
-                completion(marketData, nil) // Successfully fetched data, return it
-            } catch {
-                print("Error receiving data from \(String(describing: settings.host)): \(error.localizedDescription)")
-                completion(nil, APIError())
-            }
+            let fastestFee = calcEstimateFeeFromFeeHistogram(numberOfBlocks: 1, feeHistogram: feeHistogram)
+            print("Calculated fastest fee: \(fastestFee)") 
+            return MarketData(nextBlock: String(format: "%.0f", fastestFee), sats: "0", price: "0", rate: 0, dateString: "")
+        } catch {
+            print("Error during fetchNextBlockFee: \(error.localizedDescription)") 
+            throw APIError()
         }
     }
 
-    static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
+    static func fetchMarketData(currency: String) async throws -> MarketData {
         var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-        MarketAPI.fetchPrice(currency: currency, completion: { (result, error) in
-            if let result = result {
-                marketDataEntry.rate = result.rateDouble
-                marketDataEntry.price = result.formattedRate ?? "!"
+        
+        do {
+            if let priceResult = try await fetchPrice(currency: currency) {
+                marketDataEntry.rate = priceResult.rateDouble
+                marketDataEntry.price = priceResult.formattedRate ?? "!"
+                print("Fetched price data: rateDouble=\(priceResult.rateDouble), formattedRate=\(priceResult.formattedRate ?? "nil")") 
             }
-            MarketAPI.fetchNextBlockFee { (marketData, error) in
-                if let nextBlock = marketData?.nextBlock {
-                    marketDataEntry.nextBlock = nextBlock
-                } else {
-                    marketDataEntry.nextBlock = "!"
-                }
-                if let rateDouble = result?.rateDouble {
-                    marketDataEntry.sats = numberFormatter.string(from: NSNumber(value: Double(10 / rateDouble) * 10000000)) ?? "!"
-                }
-                completion(marketDataEntry, nil)
+        } catch {
+            print("Error fetching price: \(error.localizedDescription)")
+        }
+
+        do {
+            let nextBlockData = try await fetchNextBlockFee()
+            marketDataEntry.nextBlock = nextBlockData.nextBlock
+            print("Fetched next block fee data: nextBlock=\(nextBlockData.nextBlock)")
+        } catch {
+            print("Error fetching next block fee: \(error.localizedDescription)") 
+            marketDataEntry.nextBlock = "!"
+        }
+
+        marketDataEntry.sats = numberFormatter.string(from: NSNumber(value: Double(10 / marketDataEntry.rate) * 10000000)) ?? "!"
+        print("Calculated sats: \(marketDataEntry.sats)") 
+        
+        return marketDataEntry
+    }
+
+    static func fetchMarketData(currency: String, completion: @escaping (Result<MarketData, Error>) -> ()) {
+        Task {
+            do {
+                let marketData = try await fetchMarketData(currency: currency)
+                completion(.success(marketData))
+            } catch {
+                completion(.failure(error))
             }
-        })
+        }
     }
 }
+

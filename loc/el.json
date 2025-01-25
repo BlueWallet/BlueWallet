@@ -15,8 +15,6 @@
     "success": "Επιτυχία",
     "close": "Κλείσιμο",
     "refresh": "Ανανέωση",
-    "pick_image": "Επιλογή εικόνας από βιβλιοθήκη",
-    "pick_file": "Επιλογή ενός αρχείου",
     "enter_amount": "Εισαγωγή ενός ποσού"
   },
   "azteco": {
@@ -159,7 +157,6 @@
     "biometrics": "Βιομετρικά",
     "biom_conf_identity": "Παρακαλώ επιβεβαιώστε την ταυτότητα σας.",
     "currency": "Νόμισμα",
-    "currency_source": "Η τιμή προέρχεται από",
     "default_title": "Στην έναρξη",
     "default_wallets": "Προβολή όλων των πορτοφολιών",
     "electrum_connected": "Σε σύνδεση",
@@ -174,11 +171,8 @@
     "electrum_clear_alert_title": "Καθαρισμός ιστορικού;",
     "electrum_clear_alert_cancel": "Ακύρωση",
     "electrum_clear_alert_ok": "Εντάξει",
-    "electrum_select": "Επιλογή",
     "electrum_reset": "Επαναφορά προεπιλογής",
     "electrum_unable_to_connect": "Αδυναμία σύνδεσης στον {server}.",
-    "electrum_history": "Ιστορικό διακομιστή",
-    "electrum_clear": "Καθαρισμός",
     "encrypt_decrypt": "Αποκρυπτογράφηση αποθηκευτικού χώρου",
     "encrypt_title": "Ασφάλεια",
     "encrypt_use": "Χρήση {type}",
@@ -206,9 +200,6 @@
     "total_balance": "Συνολικό υπόλοιπο",
     "tools": "Εργαλεία"
   },
-  "notifications": {
-    "ask_me_later": "Να ερωτηθώ αργότερα."
-  },
   "transactions": {
     "cancel_no": "Αυτή η συναλλαγή δεν μπορεί να αντικατασταθεί.",
     "confirmations_lowercase": "{confirmations} επιβεβαιώσεις",
@@ -218,12 +209,10 @@
     "details_balance_hide": "Απόκρυψη υπολοίπου",
     "details_balance_show": "Εμφάνιση υπολοίπου",
     "details_copy": "Αντέγραψε",
-    "details_copy_amount": "Αντιγραφή ποσού",
     "details_copy_note": "Αντιγραφή σημείωσης",
     "details_from": "Εισερχόμενες διευθύνσεις",
     "date": "Ημερομηνία",
     "details_received": "Ελήφθη",
-    "details_show_in_block_explorer": "Προβολή στον block explorer",
     "details_title": "Συναλλαγή",
     "details_to": "Εξερχόμενες διευθύνσεις",
     "pending": "Σε επεξεργασία",
@@ -282,7 +271,7 @@
     "list_empty_txs1": "Οι συναλλαγές θα εμφανιστούν εδώ,",
     "list_latest_transaction": "Τελευταία συναλλαγή",
     "list_long_choose": "Επιλογή φωτογραφίας",
-    "list_long_clipboard": "Αντιγραφή από το πρόχειρο",
+    "paste_from_clipboard": "Επικόλληση",
     "list_long_scan": "Σάρωση QR Code",
     "list_title": "Πορτοφόλια",
     "list_tryagain": "Προσπαθήστε ξανά",
@@ -319,7 +308,9 @@
     "view_qrcode": "Προβολή κωδικού QR"
   },
   "cc": {
-    "change": "Αλλαγή"
+    "change": "Αλλαγή",
+    "sort_label": "Ετικέτα",
+    "sort_status": "Κατάσταση"
   },
   "units": {
     "BTC": "BTC",

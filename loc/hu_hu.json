@@ -188,7 +188,6 @@
     "biom_conf_identity": "Kérem azonosítsa magát.",
     "biom_remove_decrypt": "Minden pénztárcáját eltávolítjuk, és a tárolójáról visszafejtjük a titkosítást. Biztosan folytatja?",
     "currency": "Valuta",
-    "currency_source": "Árak forrása",
     "currency_fetch_error": "Hibatörtént a ráta lekérdezésekor a kijelölt fiat pénznél.",
     "default_desc": "Ha le van tiltva, a BlueWallet azonnal megnyitja a kiválasztott tárcát indításkor. ",
     "default_info": "Alapértelmezett információ",
@@ -206,18 +205,14 @@
     "electrum_saved": "A változtatás sikeresen elmentve. Az új beállítások aktiválásához űjraindításra lehet szükség.",
     "set_electrum_server_as_default": "{server} bállítása alapértelmezett Electrum szerverként?",
     "electrum_settings_server": "Electrum Szerver",
-    "electrum_settings_explain": "Hagydja üresen ha az alapértelmezettet szerené használni.",
     "electrum_status": "Állapot",
     "electrum_clear_alert_title": "Előzmények törlése?",
     "electrum_clear_alert_message": "Kiszeretné törölni az Electrum Szerver előzményeket?",
     "electrum_clear_alert_cancel": "Mégse",
     "electrum_clear_alert_ok": "OK",
-    "electrum_select": "Kiválasztás",
     "electrum_reset": "alapértelmezett beállítások visszaállítása",
     "electrum_unable_to_connect": "Nincs kapcsolat {server} -hez.",
-    "electrum_history": "Szerver előzmények",
     "electrum_reset_to_default": "Biztosan vissza akarja alapértelmezettre állitani az Electrum szerver beállításait?",
-    "electrum_clear": "Törlés",
     "encrypt_decrypt": "Háttértár titkosításának feloldása",
     "encrypt_decrypt_q": "Biztosan feloldod a háttértár titkosítását? Ez lehetővé teszi a tárca jelszó nélküli használatát. ",
     "encrypt_enc_and_pass": "Titkosítva és jelszóval védve",
@@ -263,8 +258,7 @@
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Szeretnél értesítést a bejövő utalásokról? ",
-    "no_and_dont_ask": "Nem és ne kérdezd újra.",
-    "ask_me_later": "Később."
+    "no_and_dont_ask": "Nem és ne kérdezd újra."
   },
   "transactions": {
     "cancel_explain": "Ezt a tranzakciót lecseréljük arra, amely fizet Önnek és magasabb díjakkal rendelkezik. Ez gyakorlatilag törli a tranzakciót. Ezt RBF-nek hívják - azaz díj cserének.",
@@ -280,7 +274,6 @@
     "details_balance_hide": "Egyenleg elrejtése",
     "details_balance_show": "Egyenleg mutatása",
     "details_copy": "Másolás",
-    "details_copy_amount": "Mennyiség Másolása",
     "details_copy_block_explorer_link": "Blokk Böngésző Link Másolása",
     "details_copy_note": "Megjegyzés Másolása",
     "details_copy_txid": "Tranzakciós ID Másolása",
@@ -288,7 +281,6 @@
     "details_inputs": "Bejövő utalások",
     "details_outputs": "Kimenő utalások",
     "details_received": "Fogadott",
-    "details_show_in_block_explorer": "Mutasd a block explorerben",
     "details_title": "Tranzakció",
     "details_to": "Kimenő utalás",
     "enable_offline_signing": "Ezt a pénztárcát nem használják offline aláírással. Szeretné most engedélyezni?",
@@ -382,7 +374,7 @@
     "list_empty_txs2_lightning": "\nA kezdéshez kattints a \"Kezelés\"-re, és töltsd fel az egyenleged.",
     "list_latest_transaction": "utolsó tranzakció",
     "list_long_choose": "Válassz fényképet",
-    "list_long_clipboard": "Másolás vágólapról",
+    "paste_from_clipboard": "beillesztés",
     "import_file": "fájl importálása",
     "list_long_scan": "QR kód szkennelése",
     "list_title": "tárcák",
@@ -395,7 +387,6 @@
     "select_wallet": "Válassz tárcát",
     "xpub_copiedToClipboard": "Vágólapra másolva",
     "pull_to_refresh": "Húzza le a frissítéshez",
-    "warning_do_not_disclose": "VESZÉLY! Ezt soha senkivel ne ossza meg!",
     "add_ln_wallet_first": "Először egy Lightning Tárcát kell létrehoznod vagy beadnod.",
     "identity_pubkey": "Nyilvános kulcs",
     "xpub_title": "a tárca XPUB kulcsa"
@@ -492,7 +483,9 @@
     "header": "Érme Kontroll",
     "use_coin": "Cryptovaluta használata ",
     "use_coins": "Érmék használata",
-    "tip": "Ez a funkció lehetővé teszi az érmék megtekintését, címkézését, befagyasztását vagy kiválasztását a pénztárca jobb kezelése érdekében. Több érmét is kiválaszthat a színes körök megérintésével."
+    "tip": "Ez a funkció lehetővé teszi az érmék megtekintését, címkézését, befagyasztását vagy kiválasztását a pénztárca jobb kezelése érdekében. Több érmét is kiválaszthat a színes körök megérintésével.",
+    "sort_label": "Cimke",
+    "sort_status": "Állapot"
   },
   "units": {
     "BTC": "BTC",

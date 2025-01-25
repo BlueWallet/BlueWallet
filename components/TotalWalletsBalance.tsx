@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { TouchableOpacity, Text, StyleSheet, LayoutAnimation, View } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
@@ -12,107 +12,102 @@ import { useTheme } from './themes';
 export const TotalWalletsBalancePreferredUnit = 'TotalWalletsBalancePreferredUnit';
 export const TotalWalletsBalanceKey = 'TotalWalletsBalance';
 
-const TotalWalletsBalance: React.FC = () => {
+const TotalWalletsBalance: React.FC = React.memo(() => {
   const { wallets } = useStorage();
-  const { preferredFiatCurrency, setIsTotalBalanceEnabledStorage, totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage } =
-    useSettings();
+  const {
+    preferredFiatCurrency,
+    isTotalBalanceEnabled,
+    setIsTotalBalanceEnabledStorage,
+    totalBalancePreferredUnit,
+    setTotalBalancePreferredUnitStorage,
+  } = useSettings();
   const { colors } = useTheme();
 
-  const styleHooks = StyleSheet.create({
-    balance: {
-      color: colors.foregroundColor,
-    },
-    currency: {
-      color: colors.foregroundColor,
-    },
-  });
-
-  // Calculate total balance from all wallets
-  const totalBalance = wallets.reduce((prev, curr) => {
-    if (!curr.hideBalance) {
-      return prev + curr.getBalance();
-    }
-    return prev;
-  }, 0);
-
-  const formattedBalance = useMemo(
-    () => formatBalanceWithoutSuffix(Number(totalBalance), totalBalancePreferredUnit, true),
+  const totalBalanceFormatted = useMemo(() => {
+    const totalBalance = wallets.reduce((prev, curr) => {
+      return curr.hideBalance ? prev : prev + (curr.getBalance() || 0);
+    }, 0);
+    return formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [totalBalance, totalBalancePreferredUnit, preferredFiatCurrency],
+  }, [wallets, totalBalancePreferredUnit, preferredFiatCurrency]);
+
+  const toolTipActions = useMemo(
+    () => [
+      {
+        id: 'viewInActions',
+        text: '',
+        displayInline: true,
+        subactions: [
+          {
+            ...CommonToolTipActions.ViewInFiat,
+            text: loc.formatString(loc.total_balance_view.display_in_fiat, { currency: preferredFiatCurrency.endPointKey }),
+            hidden: totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY,
+          },
+          { ...CommonToolTipActions.ViewInSats, hidden: totalBalancePreferredUnit === BitcoinUnit.SATS },
+          { ...CommonToolTipActions.ViewInBitcoin, hidden: totalBalancePreferredUnit === BitcoinUnit.BTC },
+        ],
+      },
+      CommonToolTipActions.CopyAmount,
+      CommonToolTipActions.Hide,
+    ],
+    [preferredFiatCurrency, totalBalancePreferredUnit],
   );
 
-  const toolTipActions = useMemo(() => {
-    let viewIn;
-
-    if (totalBalancePreferredUnit === BitcoinUnit.SATS) {
-      viewIn = {
-        ...CommonToolTipActions.ViewInFiat,
-        text: loc.formatString(loc.total_balance_view.view_in_fiat, { currency: preferredFiatCurrency.endPointKey }),
-      };
-    } else if (totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      viewIn = CommonToolTipActions.ViewInBitcoin;
-    } else if (totalBalancePreferredUnit === BitcoinUnit.BTC) {
-      viewIn = CommonToolTipActions.ViewInSats;
-    } else {
-      viewIn = CommonToolTipActions.ViewInBitcoin;
-    }
-
-    return [viewIn, CommonToolTipActions.CopyAmount, CommonToolTipActions.HideBalance];
-  }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
-
-  const onPressMenuItem = useMemo(
-    () => async (id: string) => {
+  const onPressMenuItem = useCallback(
+    async (id: string) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
-        case CommonToolTipActions.ViewInBitcoin.id:
-        case CommonToolTipActions.ViewInSats.id:
-          switch (totalBalancePreferredUnit) {
-            case BitcoinUnit.BTC:
-              await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
-              break;
-            case BitcoinUnit.SATS:
-              await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
-              break;
-            case BitcoinUnit.LOCAL_CURRENCY:
-              await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
-              break;
-            default:
-              break;
-          }
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
           break;
-        case CommonToolTipActions.HideBalance.id:
-          setIsTotalBalanceEnabledStorage(false);
+        case CommonToolTipActions.ViewInSats.id:
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
+          break;
+        case CommonToolTipActions.ViewInBitcoin.id:
+          await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
+          break;
+        case CommonToolTipActions.Hide.id:
+          await setIsTotalBalanceEnabledStorage(false);
           break;
         case CommonToolTipActions.CopyAmount.id:
-          Clipboard.setString(formattedBalance.toString());
+          Clipboard.setString(totalBalanceFormatted.toString());
           break;
         default:
           break;
       }
     },
-    [totalBalancePreferredUnit, setIsTotalBalanceEnabledStorage, formattedBalance, setTotalBalancePreferredUnitStorage],
+    [setIsTotalBalanceEnabledStorage, totalBalanceFormatted, setTotalBalancePreferredUnitStorage],
   );
 
+  const handleBalanceOnPress = useCallback(async () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    const nextUnit =
+      totalBalancePreferredUnit === BitcoinUnit.BTC
+        ? BitcoinUnit.SATS
+        : totalBalancePreferredUnit === BitcoinUnit.SATS
+          ? BitcoinUnit.LOCAL_CURRENCY
+          : BitcoinUnit.BTC;
+    await setTotalBalancePreferredUnitStorage(nextUnit);
+  }, [totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage]);
+
+  if (wallets.length <= 1 || !isTotalBalanceEnabled) return null;
+
   return (
-    (wallets.length > 1 && (
-      <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
-        <View style={styles.container}>
-          <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
-            <Text style={[styles.balance, styleHooks.balance]}>
-              {formattedBalance}{' '}
-              {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                <Text style={[styles.currency, styleHooks.currency]}>{totalBalancePreferredUnit}</Text>
-              )}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ToolTipMenu>
-    )) ||
-    null
+    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
+      <View style={styles.container}>
+        <Text style={styles.label}>{loc.wallets.total_balance}</Text>
+        <TouchableOpacity onPress={handleBalanceOnPress}>
+          <Text style={[styles.balance, { color: colors.foregroundColor }]}>
+            {totalBalanceFormatted}{' '}
+            {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              <Text style={[styles.currency, { color: colors.foregroundColor }]}>{totalBalancePreferredUnit}</Text>
+            )}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ToolTipMenu>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -128,12 +123,10 @@ const styles = StyleSheet.create({
   balance: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1D2B53',
   },
   currency: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1D2B53',
   },
 });
 

@@ -1,4 +1,4 @@
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -27,7 +26,6 @@ import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -42,6 +40,11 @@ import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTran
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
+import useMenuElements from '../../hooks/useMenuElements';
+import { useSettings } from '../../hooks/context/useSettings';
+import { getClipboardContent } from '../../blue_modules/clipboard';
+import HandOffComponent from '../../components/HandOffComponent';
+import { HandOffActivityType } from '../../components/types';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -49,19 +52,22 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, isElectrumDisabled, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
+  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
-  const { walletID } = route.params;
-  const { name } = useRoute();
+  const { params, name } = useRoute<RouteProps>();
+  const { walletID } = params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
   const { setOptions, navigate } = navigation;
   const { colors } = useTheme();
+  const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
@@ -78,6 +84,33 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       setOptions(getWalletTransactionsOptions({ route }));
     }, [route, setOptions]),
   );
+
+  const onBarCodeRead = useCallback(
+    (ret?: { data?: any }) => {
+      if (!isLoading) {
+        setIsLoading(true);
+        const parameters = {
+          walletID,
+          uri: ret?.data ? ret.data : ret,
+        };
+        if (wallet?.chain === Chain.ONCHAIN) {
+          navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
+        } else {
+          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: parameters });
+        }
+        setIsLoading(false);
+      }
+    },
+    [isLoading, walletID, wallet?.chain, navigate],
+  );
+
+  useEffect(() => {
+    const data = route.params?.onBarScanned;
+    if (data) {
+      onBarCodeRead({ data });
+      navigation.setParams({ onBarScanned: undefined });
+    }
+  }, [navigation, onBarCodeRead, route.params]);
 
   const getTransactions = useCallback(
     (lmt = Infinity): Transaction[] => {
@@ -253,25 +286,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     <TransactionListItem item={item.item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />
   );
 
-  const onBarCodeRead = useCallback(
-    (ret?: { data?: any }) => {
-      if (!isLoading) {
-        setIsLoading(true);
-        const params = {
-          walletID,
-          uri: ret?.data ? ret.data : ret,
-        };
-        if (wallet?.chain === Chain.ONCHAIN) {
-          navigate('SendDetailsRoot', { screen: 'SendDetails', params });
-        } else {
-          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
-        }
-        setIsLoading(false);
-      }
-    },
-    [isLoading, walletID, wallet?.chain, navigate],
-  );
-
   const choosePhoto = () => {
     fs.showImagePickerAndReadImage()
       .then(data => {
@@ -288,8 +302,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const _keyExtractor = (_item: any, index: number) => index.toString();
 
-  const copyFromClipboard = async () => {
-    onBarCodeRead({ data: await BlueClipboard().getClipboardContent() });
+  const pasteFromClipboard = async () => {
+    onBarCodeRead({ data: await getClipboardContent() });
   };
 
   const sendButtonPress = () => {
@@ -321,12 +335,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await getClipboardContent())?.trim().length === 0;
     const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
     const cancelButtonIndex = 0;
 
     if (!isClipboardEmpty) {
-      options.push(loc.wallets.list_long_clipboard);
+      options.push(loc.wallets.paste_from_clipboard);
     }
 
     ActionSheet.showActionSheetWithOptions(
@@ -345,15 +359,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             break;
           }
           case 2: {
-            const data = await scanQrHelper(name, true);
-            if (data) {
-              onBarCodeRead({ data });
-            }
+            navigate('ScanQRCode', {
+              showImportFileButton: true,
+            });
             break;
           }
           case 3:
             if (!isClipboardEmpty) {
-              copyFromClipboard();
+              pasteFromClipboard();
             }
             break;
         }
@@ -370,7 +383,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+    }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
@@ -492,6 +505,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           />
         )}
       </FContainer>
+      {wallet?.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub() ? (
+        <HandOffComponent
+          title={wallet.getLabel()}
+          type={HandOffActivityType.Xpub}
+          url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
+        />
+      ) : null}
     </View>
   );
 };

@@ -1,10 +1,9 @@
-import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, ReactNode } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Keyboard, Image, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Image } from '@rneui/base';
+import { Icon } from '@rneui/base';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -57,7 +56,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     ref,
   ) => {
     const trueSheetRef = useRef<TrueSheet>(null);
-    const { colors } = useTheme();
+    const { colors, closeImage } = useTheme();
     const stylesHook = StyleSheet.create({
       barButton: {
         backgroundColor: colors.lightButton,
@@ -107,7 +106,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               testID="ModalShareButton"
               key="ModalShareButton"
             >
-              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
+              <Icon
+                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                type="font-awesome6"
+                size={20}
+                color={colors.buttonTextColor}
+              />
             </SaveFileButton>,
           );
         } else if (shareButtonOnPress) {
@@ -118,7 +122,12 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               style={[styles.topRightButton, stylesHook.barButton]}
               onPress={shareButtonOnPress}
             >
-              <Ionicons name="share" size={20} color={colors.buttonTextColor} />
+              <Icon
+                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                type="font-awesome6"
+                size={20}
+                color={colors.buttonTextColor}
+              />
             </TouchableOpacity>,
           );
         }
@@ -131,11 +140,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
             key="ModalDoneButton"
             testID="ModalDoneButton"
           >
-            {Platform.OS === 'ios' ? (
-              <Ionicons name="close" size={20} color={colors.buttonTextColor} />
-            ) : (
-              <Image source={require('../img/close.png')} style={styles.closeButton} />
-            )}
+            <Image source={closeImage} />
           </TouchableOpacity>,
         );
       }
@@ -155,18 +160,26 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         );
       }
 
-      return (
-        <View style={styles.headerContainer}>
-          <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
-          {renderTopRightButton()}
-        </View>
-      );
+      if (showCloseButton || shareContent)
+        return (
+          <View style={styles.headerContainer}>
+            <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
+            {renderTopRightButton()}
+          </View>
+        );
+
+      if (React.isValidElement(header)) {
+        return (
+          <View style={styles.headerContainerWithCloseButton}>
+            {header}
+            {renderTopRightButton()}
+          </View>
+        );
+      }
+      return null;
     };
 
     const renderFooter = (): ReactElement | undefined => {
-      // Footer is not working correctly on Android yet.
-      if (!footer) return undefined;
-
       if (React.isValidElement(footer)) {
         return footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
       } else if (typeof footer === 'function') {
@@ -177,7 +190,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       return undefined;
     };
 
-    const FooterComponent = Platform.OS !== 'android' && renderFooter();
+    const FooterComponent = renderFooter();
 
     return (
       <TrueSheet
@@ -191,7 +204,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         {...props}
       >
         <View style={styles.childrenContainer}>{children}</View>
-        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
         {renderHeader()}
       </TrueSheet>
     );
@@ -214,6 +226,17 @@ const styles = StyleSheet.create({
     right: 16,
     top: 16,
   },
+  headerContainerWithCloseButton: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    minHeight: 22,
+    width: '100%',
+    top: 16,
+    left: 0,
+    justifyContent: 'space-between',
+  },
   headerContent: {
     flex: 1,
     justifyContent: 'center',
@@ -222,10 +245,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  closeButton: {
-    width: 10,
-    height: 10,
   },
   headerSubtitle: {
     fontSize: 14,

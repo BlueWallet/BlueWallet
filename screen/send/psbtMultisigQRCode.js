@@ -1,6 +1,6 @@
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
@@ -10,15 +10,14 @@ import SafeArea from '../../components/SafeArea';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 
 const PsbtMultisigQRCode = () => {
-  const { navigate } = useNavigation();
+  const navigation = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
-  const { psbtBase64, isShowOpenScanner } = useRoute().params;
-  const { name } = useRoute();
+  const { params } = useRoute();
+  const { psbtBase64, isShowOpenScanner } = params;
   const [isLoading, setIsLoading] = useState(false);
   const dynamicQRCode = useRef();
   const isFocused = useIsFocused();
@@ -45,23 +44,35 @@ const PsbtMultisigQRCode = () => {
     }
   }, [isFocused]);
 
-  const onBarScanned = ret => {
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-      presentAlert({ message: loc.wallets.import_error });
-    } else {
-      // psbt base64?
-      navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
-    }
-  };
+  const onBarScanned = useCallback(
+    ret => {
+      if (!ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        // we dont support it in this flow
+        presentAlert({ message: loc.wallets.import_error });
+      } else {
+        // psbt base64?
+        navigation.navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
+      }
+    },
+    [navigation],
+  );
 
-  const openScanner = async () => {
-    const scanned = await scanQrHelper(name, true);
-    onBarScanned({ data: scanned });
+  useEffect(() => {
+    const data = params.onBarScanned;
+    if (data) {
+      onBarScanned({ data });
+      navigation.setParams({ onBarScanned: undefined });
+    }
+  }, [onBarScanned, params.onBarScanned, navigation]);
+
+  const openScanner = () => {
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
   };
 
   const saveFileButtonBeforeOnPress = () => {

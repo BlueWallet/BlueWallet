@@ -12,8 +12,8 @@ import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
-import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const branch = require('../../current-branch.json');
 
@@ -21,7 +21,7 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useStorage();
+  const { isElectrumDisabled } = useSettings();
 
   const stylesHook = StyleSheet.create({
     textBackup: {
@@ -207,23 +207,19 @@ const About: React.FC = () => {
       <BlueTextCentered>
         w, h = {width}, {height}
       </BlueTextCentered>
-      {process.env.NODE_ENV !== 'development' && (
-        <>
-          <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
-          <View style={styles.copyToClipboard}>
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={() => {
-                const stringToCopy = 'userId:' + getUniqueIdSync();
-                A.logError('copied unique id');
-                Clipboard.setString(stringToCopy);
-              }}
-            >
-              <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
+      <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
+      <View style={styles.copyToClipboard}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={() => {
+            const stringToCopy = 'userId:' + getUniqueIdSync();
+            A.logError('copied unique id');
+            Clipboard.setString(stringToCopy);
+          }}
+        >
+          <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
+        </TouchableOpacity>
+      </View>
       <BlueSpacing20 />
       <BlueSpacing20 />
     </ScrollView>

@@ -83,7 +83,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "7.0.5"
+        versionName "7.0.9"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -133,7 +133,7 @@ dependencies {
     androidTestImplementation('com.wix:detox:0.1.1')
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 apply plugin: "com.bugsnag.android.gradle"

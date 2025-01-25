@@ -80,7 +80,6 @@
     "cpfp_create": "Stvori",
     "details_copy": "Kopiraj",
     "details_from": "Od",
-    "details_show_in_block_explorer": "Prikaži u blok eksploreru",
     "details_title": "Transakcija",
     "details_to": "Za",
     "list_title": "transakcije",
@@ -123,6 +122,9 @@
     "header": "Šalji",
     "create": "Stvori",
     "ms_help_title5": "Enable advanced mode"
+  },
+  "cc": {
+    "sort_label": "Oznaka"
   },
   "addresses": {
     "sign_placeholder_address": "adresa",

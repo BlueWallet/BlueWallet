@@ -2,6 +2,7 @@ package io.bluewallet.bluewallet
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import com.bugsnag.android.Bugsnag
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -16,6 +17,14 @@ import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
 
 class MainApplication : Application(), ReactApplication {
+
+    private lateinit var sharedPref: SharedPreferences
+    private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+        if (key == "preferredCurrency") {
+            prefs.edit().remove("previous_price").apply()
+            WidgetUpdateWorker.scheduleWork(this)
+        }
+    }
 
     override val reactNativeHost: ReactNativeHost =
         object : DefaultReactNativeHost(this) {
@@ -36,10 +45,10 @@ class MainApplication : Application(), ReactApplication {
     override val reactHost: ReactHost
         get() = getDefaultReactHost(applicationContext, reactNativeHost)
 
-
-
     override fun onCreate() {
         super.onCreate()
+        sharedPref = getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        sharedPref.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
         val sharedI18nUtilInstance = I18nUtil.getInstance()
         sharedI18nUtilInstance.allowRTL(applicationContext, true)
         SoLoader.init(this, OpenSourceMergedSoMapping)
@@ -48,14 +57,17 @@ class MainApplication : Application(), ReactApplication {
             load()
         }
 
-        val sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        initializeBugsnag()
+    }
 
-        // Retrieve the "donottrack" value. Default to "0" if not found.
+    override fun onTerminate() {
+        super.onTerminate()
+        sharedPref.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+    }
+
+    private fun initializeBugsnag() {
         val isDoNotTrackEnabled = sharedPref.getString("donottrack", "0")
-
-        // Check if do not track is not enabled and initialize Bugsnag if so
         if (isDoNotTrackEnabled != "1") {
-            // Initialize Bugsnag or your error tracking here
             Bugsnag.start(this)
         }
     }

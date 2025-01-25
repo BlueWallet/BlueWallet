@@ -11,6 +11,8 @@ import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
+import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -72,6 +74,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { params } = useRoute<RouteProp<ExportMultisigCoordinationSetupStackRootParamList, 'ExportMultisigCoordinationSetup'>>();
   const walletID = params.walletID;
   const { wallets } = useStorage();
+  const { isPrivacyBlurEnabled } = useSettings();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();
@@ -99,7 +102,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(() => {
-        disallowScreenshot(true);
+        if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
         if (wallet) {
           setTimeout(async () => {
             try {
@@ -125,7 +128,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
       return () => {
         task.cancel();
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),

@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -31,7 +30,6 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
-import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -44,6 +42,10 @@ import { popToTop } from '../../NavigationService';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { unsubscribe } from '../../blue_modules/notifications';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { Action } from '../../components/types';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -85,11 +87,165 @@ const WalletDetails: React.FC = () => {
       return null;
     }
   }, [wallet]);
-  const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState<boolean>(false);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
 
-  const onMenuWillShow = () => setIsToolTipMenuVisible(true);
-  const onMenuWillHide = () => setIsToolTipMenuVisible(false);
+  const navigateToOverviewAndDeleteWallet = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const externalAddresses = wallet.getAllExternalAddresses();
+      if (externalAddresses.length > 0) {
+        await unsubscribe(externalAddresses, [], []);
+      }
+      deleteWallet(wallet);
+      saveToDisk(true);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      popToTop();
+    } catch (e: unknown) {
+      console.error(e);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: (e as Error).message });
+      setIsLoading(false);
+    }
+  }, [deleteWallet, saveToDisk, wallet]);
+
+  const presentWalletHasBalanceAlert = useCallback(async () => {
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    try {
+      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
+      const walletBalanceConfirmation = await prompt(
+        loc.wallets.details_delete_wallet,
+        loc.formatString(loc.wallets.details_del_wb_q, { balance }),
+        true,
+        'numeric',
+        true,
+        loc.wallets.details_delete,
+      );
+      // Remove any non-numeric characters before comparison
+      const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
+
+      if (Number(cleanedConfirmation) === wallet.getBalance()) {
+        await navigateToOverviewAndDeleteWallet();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        setIsLoading(false);
+        presentAlert({ message: loc.wallets.details_del_wb_err });
+      }
+    } catch (_) {}
+  }, [navigateToOverviewAndDeleteWallet, wallet]);
+
+  const handleDeleteButtonTapped = useCallback(() => {
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    Alert.alert(
+      loc.wallets.details_delete_wallet,
+      loc.wallets.details_are_you_sure,
+      [
+        {
+          text: loc.wallets.details_yes_delete,
+          onPress: async () => {
+            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+
+            if (isBiometricsEnabled) {
+              if (!(await unlockWithBiometrics())) {
+                return;
+              }
+            }
+            if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
+              presentWalletHasBalanceAlert();
+            } else {
+              navigateToOverviewAndDeleteWallet();
+            }
+          },
+          style: 'destructive',
+        },
+        { text: loc.wallets.details_no_cancel, onPress: () => {}, style: 'cancel' },
+      ],
+      { cancelable: false },
+    );
+  }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
+
+  const exportHistoryContent = useCallback(() => {
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
+    if (wallet.chain === Chain.OFFCHAIN) {
+      headers.push(loc.lnd.payment);
+    }
+
+    const rows = [headers.join(',')];
+    const transactions = wallet.getTransactions();
+
+    transactions.forEach((transaction: Transaction & LightningTransaction) => {
+      const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
+      let hash: string = transaction.hash || '';
+      let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
+      let status = '';
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
+        memo = transaction.memo || '';
+        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
+        if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
+          hash = Buffer.from((hash as any).data).toString('hex');
+        }
+      }
+
+      const date = transaction.received ? new Date(transaction.received).toString() : '';
+      const data = [date, hash, value, memo];
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        data.push(status);
+      }
+
+      rows.push(data.join(','));
+    });
+
+    return rows.join('\n');
+  }, [wallet, txMetadata]);
+
+  const fileName = useMemo(() => {
+    const label = wallet.getLabel().replace(' ', '-');
+    return `${label}-history.csv`;
+  }, [wallet]);
+
+  const toolTipOnPressMenuItem = useCallback(
+    async (id: string) => {
+      if (id === CommonToolTipActions.Delete.id) {
+        handleDeleteButtonTapped();
+      } else if (id === CommonToolTipActions.Share.id) {
+        await writeFileAndExport(fileName, exportHistoryContent(), true);
+      } else if (id === CommonToolTipActions.SaveFile.id) {
+        await writeFileAndExport(fileName, exportHistoryContent(), false);
+      }
+    },
+    [exportHistoryContent, fileName, handleDeleteButtonTapped],
+  );
+
+  const toolTipActions = useMemo(() => {
+    const actions: Action[] = [
+      {
+        id: loc.wallets.details_export_history,
+        text: loc.wallets.details_export_history,
+        displayInline: true,
+        hidden: walletTransactionsLength === 0,
+        subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
+      },
+      CommonToolTipActions.Delete,
+    ];
+
+    return actions;
+  }, [walletTransactionsLength]);
+
+  const HeaderRight = useMemo(
+    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
+    [toolTipOnPressMenuItem, toolTipActions, isLoading],
+  );
+
+  // Adding the ToolTipMenu to the header
+  useEffect(() => {
+    setOptions({
+      headerRight: () => HeaderRight,
+    });
+  }, [HeaderRight, setOptions]);
 
   useEffect(() => {
     setIsContactsVisible(wallet.allowBIP47 && wallet.allowBIP47() && isBIP47Enabled);
@@ -128,9 +284,6 @@ const WalletDetails: React.FC = () => {
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
-    delete: {
-      color: isToolTipMenuVisible ? colors.buttonDisabledTextColor : '#d0021b',
-    },
   });
 
   useEffect(() => {
@@ -145,45 +298,6 @@ const WalletDetails: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
-
-  const navigateToOverviewAndDeleteWallet = () => {
-    setIsLoading(true);
-    let externalAddresses: string[] = [];
-    try {
-      if (wallet.getAllExternalAddresses) {
-        externalAddresses = wallet.getAllExternalAddresses();
-      }
-    } catch (_) {}
-
-    // @ts-ignore: ts-ify later
-    Notifications.unsubscribe(externalAddresses, [], []);
-    deleteWallet(wallet);
-    saveToDisk(true);
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    popToTop();
-  };
-
-  const presentWalletHasBalanceAlert = useCallback(async () => {
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    try {
-      const walletBalanceConfirmation = await prompt(
-        loc.wallets.details_delete_wallet,
-        loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
-        true,
-        'plain-text',
-        true,
-        loc.wallets.details_delete,
-      );
-      if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
-        navigateToOverviewAndDeleteWallet();
-      } else {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        setIsLoading(false);
-        presentAlert({ message: loc.wallets.details_del_wb_err });
-      }
-    } catch (_) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
@@ -236,7 +350,7 @@ const WalletDetails: React.FC = () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
     if (wallet.type !== HDSegwitBech32Wallet.type) return;
-    const fileName = 'wallet-externals.json';
+    const fileNameExternals = 'wallet-externals.json';
     const contents = JSON.stringify(
       {
         _balances_by_external_index: wallet._balances_by_external_index,
@@ -258,7 +372,7 @@ const WalletDetails: React.FC = () => {
       2,
     );
 
-    await writeFileAndExport(fileName, contents, false);
+    await writeFileAndExport(fileNameExternals, contents, false);
   };
 
   const purgeTransactions = async () => {
@@ -300,84 +414,12 @@ const WalletDetails: React.FC = () => {
   }, [wallet, walletName, saveToDisk]);
 
   useEffect(() => {
-    const unsubscribe = addListener('beforeRemove', () => {
+    const subscribe = addListener('beforeRemove', () => {
       walletNameTextInputOnBlur();
     });
 
-    return unsubscribe;
+    return subscribe;
   }, [addListener, walletName, walletNameTextInputOnBlur]);
-
-  const exportHistoryContent = useCallback(() => {
-    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
-    if (wallet.chain === Chain.OFFCHAIN) {
-      headers.push(loc.lnd.payment);
-    }
-
-    const rows = [headers.join(',')];
-    const transactions = wallet.getTransactions();
-
-    transactions.forEach((transaction: Transaction & LightningTransaction) => {
-      const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      let hash: string = transaction.hash || '';
-      let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
-      let status = '';
-
-      if (wallet.chain === Chain.OFFCHAIN) {
-        hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
-        memo = transaction.memo || '';
-        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
-        if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
-          hash = Buffer.from((hash as any).data).toString('hex');
-        }
-      }
-
-      const date = transaction.received ? new Date(transaction.received).toString() : '';
-      const data = [date, hash, value, memo];
-
-      if (wallet.chain === Chain.OFFCHAIN) {
-        data.push(status);
-      }
-
-      rows.push(data.join(','));
-    });
-
-    return rows.join('\n');
-  }, [wallet, txMetadata]);
-
-  const handleDeleteButtonTapped = () => {
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    Alert.alert(
-      loc.wallets.details_delete_wallet,
-      loc.wallets.details_are_you_sure,
-      [
-        {
-          text: loc.wallets.details_yes_delete,
-          onPress: async () => {
-            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
-            if (isBiometricsEnabled) {
-              if (!(await unlockWithBiometrics())) {
-                return;
-              }
-            }
-            if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
-              presentWalletHasBalanceAlert();
-            } else {
-              navigateToOverviewAndDeleteWallet();
-            }
-          },
-          style: 'destructive',
-        },
-        { text: loc.wallets.details_no_cancel, onPress: () => {}, style: 'cancel' },
-      ],
-      { cancelable: false },
-    );
-  };
-
-  const fileName = useMemo(() => {
-    const label = wallet.getLabel().replace(' ', '-');
-    return `${label}-history.csv`;
-  }, [wallet]);
 
   const onViewMasterFingerPrintPress = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -483,17 +525,18 @@ const WalletDetails: React.FC = () => {
               <View style={styles.hardware}>
                 <BlueText>{loc.wallets.details_display}</BlueText>
                 <Switch
-                  disabled={isToolTipMenuVisible}
                   value={hideTransactionsInWalletsList}
                   onValueChange={async (value: boolean) => {
                     if (wallet.setHideTransactionsInWalletsList) {
                       wallet.setHideTransactionsInWalletsList(!value);
+                      triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
                       setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
                     }
                     try {
                       await saveToDisk();
                     } catch (error: any) {
-                      console.log(error.message);
+                      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                      console.error(error.message);
                     }
                   }}
                 />
@@ -517,11 +560,13 @@ const WalletDetails: React.FC = () => {
                       setIsBIP47Enabled(value);
                       if (wallet.switchBIP47) {
                         wallet.switchBIP47(value);
+                        triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
                       }
                       try {
                         await saveToDisk();
-                      } catch (error: any) {
-                        console.log(error.message);
+                      } catch (error: unknown) {
+                        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                        console.error((error as Error).message);
                       }
                     }}
                     testID="BIP47Switch"
@@ -543,11 +588,13 @@ const WalletDetails: React.FC = () => {
                         setWalletUseWithHardwareWallet(value);
                         if (wallet.setUseWithHardwareWalletEnabled) {
                           wallet.setUseWithHardwareWalletEnabled(value);
+                          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
                         }
                         try {
                           await saveToDisk();
-                        } catch (error: any) {
-                          console.log(error.message);
+                        } catch (error: unknown) {
+                          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                          console.error((error as Error).message);
                         }
                       }}
                     />
@@ -580,38 +627,17 @@ const WalletDetails: React.FC = () => {
             </View>
           </BlueCard>
           {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) && (
-            <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+            <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
           )}
-          {isContactsVisible ? (
-            <ListItem disabled={isToolTipMenuVisible} onPress={navigateToContacts} title={loc.bip47.contacts} chevron />
-          ) : null}
+          {isContactsVisible ? <ListItem onPress={navigateToContacts} title={loc.bip47.contacts} chevron /> : null}
           <BlueCard style={styles.address}>
             <View>
               <BlueSpacing20 />
-              <Button
-                disabled={isToolTipMenuVisible}
-                onPress={navigateToWalletExport}
-                testID="WalletExport"
-                title={loc.wallets.details_export_backup}
-              />
-              {walletTransactionsLength > 0 && (
-                <>
-                  <BlueSpacing20 />
-                  <SaveFileButton
-                    onMenuWillHide={onMenuWillHide}
-                    onMenuWillShow={onMenuWillShow}
-                    fileName={fileName}
-                    fileContent={exportHistoryContent()}
-                  >
-                    <SecondButton title={loc.wallets.details_export_history} />
-                  </SaveFileButton>
-                </>
-              )}
+              <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <BlueSpacing20 />
                   <SecondButton
-                    disabled={isToolTipMenuVisible}
                     onPress={navigateToMultisigCoordinationSetup}
                     testID="MultisigCoordinationSetup"
                     title={loc.multisig.export_coordination_setup.replace(/^\w/, (c: string) => c.toUpperCase())}
@@ -622,47 +648,22 @@ const WalletDetails: React.FC = () => {
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <BlueSpacing20 />
-                  <SecondButton
-                    disabled={isToolTipMenuVisible}
-                    onPress={navigateToViewEditCosigners}
-                    testID="ViewEditCosigners"
-                    title={loc.multisig.view_edit_cosigners}
-                  />
+                  <SecondButton onPress={navigateToViewEditCosigners} testID="ViewEditCosigners" title={loc.multisig.view_edit_cosigners} />
                 </>
               )}
 
               {wallet.allowXpub && wallet.allowXpub() && (
                 <>
                   <BlueSpacing20 />
-                  <SecondButton
-                    disabled={isToolTipMenuVisible}
-                    onPress={navigateToXPub}
-                    testID="XPub"
-                    title={loc.wallets.details_show_xpub}
-                  />
+                  <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
                 </>
               )}
               {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
                 <>
                   <BlueSpacing20 />
-                  <SecondButton
-                    disabled={isToolTipMenuVisible}
-                    onPress={navigateToSignVerify}
-                    testID="SignVerify"
-                    title={loc.addresses.sign_title}
-                  />
+                  <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
                 </>
               )}
-              <BlueSpacing20 />
-              <BlueSpacing20 />
-              <TouchableOpacity
-                disabled={isToolTipMenuVisible}
-                accessibilityRole="button"
-                onPress={handleDeleteButtonTapped}
-                testID="DeleteButton"
-              >
-                <Text textBreakStrategy="simple" style={[styles.delete, stylesHook.delete]}>{`${loc.wallets.details_delete}${'  '}`}</Text>
-              </TouchableOpacity>
               <BlueSpacing20 />
               <BlueSpacing20 />
             </View>
@@ -714,11 +715,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  delete: {
-    fontSize: 15,
-    fontWeight: '500',
-    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',

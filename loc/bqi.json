@@ -18,8 +18,6 @@
     "close": "بستن",
     "change_input_currency": "آلشتکاری ارز وۊرۊڌی",
     "refresh": "وانۊ کردن",
-    "pick_image": "پسند شؽوات ز شؽوات مال",
-    "pick_file": "پسند فایل",
     "enter_amount": "مقدار نه بزن",
     "qr_custom_input_button": "سی زیڌن وۊرۊڌی سفارشی، 10 کرت ریس بزن",
     "unlock": "گۊشیڌن چفت"
@@ -176,7 +174,6 @@
     "biometrics": "بیومتریک",
     "biom_conf_identity": "هۊویته خوته تاییڌ کو.",
     "currency": "واهڌ پیل",
-    "currency_source": "قیمت گرؽڌه وابیڌه زه",
     "currency_fetch_error": "منه گرؽڌن نرخ سی واهڌ پیل پسند بیڌه یه ختا پؽش اووڌ.",
     "default_info": "دۉسمندیا پؽش فرز",
     "default_title": "موقه ره وندن",
@@ -189,18 +186,14 @@
     "use_ssl": "SSL نه به کار بگر",
     "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموو بۊوه؟",
     "electrum_settings_server": "سرور الکترام",
-    "electrum_settings_explain": "سی استفاڌه زه سامووا پؽش فرز، بؽلین پتی بمهنه.",
     "electrum_status": "وزیت",
     "electrum_clear_alert_title": "ویرگار پاک بۊ؟",
     "electrum_clear_alert_message": "اخۊی ویرگار سرورا الکترام نه پاک کۊنی؟",
     "electrum_clear_alert_cancel": "لقو",
     "electrum_clear_alert_ok": "هری",
-    "electrum_select": "پسند",
     "electrum_reset": "ورگندن به پؽش فرز",
     "electrum_unable_to_connect": "نا مۉفق منه منپیز به {server}",
-    "electrum_history": "ویرگار سرور",
     "electrum_reset_to_default": "الن اخۊی سامووا الکترام نه به هالت پؽش فرز وورنشۊوی کۊنی؟",
-    "electrum_clear": "روفتن",
     "encrypt_decrypt": "رزم گوشایی جاگه زفت کردنی",
     "encrypt_title": "امنیت",
     "encrypt_tstorage": "جاگه زفت کردنی",
@@ -226,9 +219,6 @@
     "widgets": "اوزارکا",
     "tools": "اوزارا"
   },
-  "notifications": {
-    "ask_me_later": "دینداتر زوم بپورس."
-  },
   "transactions": {
     "copy_link": "لف گیری لینگ",
     "cpfp_create": "وورکل",
@@ -242,7 +232,8 @@
     "add_bitcoin": "بیت کوین",
     "add_create": "وورکل",
     "add_entropy": "آنتروپی",
-    "details_address": "آدرس"
+    "details_address": "آدرس",
+    "paste_from_clipboard": "جا وندن"
   },
   "multisig": {
     "confirm": "تاییڌ",
@@ -251,6 +242,9 @@
     "create": "وورکل",
     "co_sign_transaction": "امزا کردن تراکونش",
     "ms_help_title5": "هالت پؽش رئڌه"
+  },
+  "cc": {
+    "sort_status": "وزیت"
   },
   "addresses": {
     "sign_placeholder_address": "آدرس",

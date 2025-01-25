@@ -1,16 +1,24 @@
 import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
 export type SendDetailsParams = {
-  memo?: string;
+  transactionMemo?: string;
+  isTransactionReplaceable?: boolean;
+  payjoinUrl?: string;
+  feeUnit?: BitcoinUnit;
+  frozenBalance?: number;
+  amountUnit?: BitcoinUnit;
   address?: string;
   amount?: number;
   amountSats?: number;
+  onBarScanned?: string;
   unit?: BitcoinUnit;
   noRbf?: boolean;
   walletID: string;
   launchedBy?: string;
+  utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
   addRecipientParams?: {
@@ -74,9 +82,9 @@ export type SendDetailsStackParamList = {
   };
   CoinControl: {
     walletID: string;
-    onUTXOChoose: (u: CreateTransactionUtxo[]) => void;
   };
   PaymentCodeList: {
     walletID: string;
   };
+  ScanQRCode: ScanQRCodeParamList;
 };

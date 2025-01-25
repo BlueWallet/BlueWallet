@@ -10,7 +10,7 @@ const PsbtMultisig = lazy(() => import('../screen/send/psbtMultisig'));
 const PsbtMultisigQRCode = lazy(() => import('../screen/send/psbtMultisigQRCode'));
 const Success = lazy(() => import('../screen/send/success'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
-const CoinControl = lazy(() => import('../screen/send/coinControl'));
+const CoinControl = lazy(() => import('../screen/send/CoinControl'));
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 
 // Export each component with its lazy loader and optional configurations

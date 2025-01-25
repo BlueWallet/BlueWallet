@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import loc from '../loc';
 
 const keys = {
@@ -18,64 +19,94 @@ const keys = {
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
   SaveChanges: 'saveChanges',
+  ClearClipboard: 'clearClipboard',
   PaymentsCode: 'paymentsCode',
+  ResetToDefault: 'resetToDefault',
+  ScanQR: 'scan_qr',
   RemoveAllRecipients: 'RemoveAllRecipients',
   AddRecipient: 'AddRecipient',
   RemoveRecipient: 'RemoveRecipient',
-};
+  ChoosePhoto: 'choose_photo',
+  ImportFile: 'import_file',
+  InsertContact: 'insert_contact',
+  SignPSBT: 'sign_psbt',
+  SendMax: 'send_max',
+  AllowRBF: 'allow_rbf',
+  ImportTransaction: 'import_transaction',
+  ImportTransactionMultsig: 'import_transaction_multisig',
+  ImportTransactionQR: 'import_transaction_qr',
+  CoinControl: 'coin_control',
+  CoSignTransaction: 'co_sign_transaction',
+  CopyToClipboard: 'copyToClipboard',
+  Share: 'share',
+  SaveFile: 'saveFile',
+  SignVerify: 'signVerify',
+  ExportPrivateKey: 'exportPrivateKey',
+  PasteFromClipboard: 'pasteFromClipboard',
+  Hide: 'hide',
+  SortASC: 'sortASC',
+  SortDESC: 'sortDESC',
+  SortHeight: 'sortHeight',
+  SortValue: 'sortValue',
+  SortLabel: 'sortLabel',
+  SortStatus: 'sortStatus',
+  Delete: 'delete',
+} as const;
 
 const icons = {
-  Eye: {
-    iconValue: 'eye',
-  },
-  EyeSlash: {
-    iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
-  },
-  Link: {
-    iconValue: 'link',
-  },
-  Note: {
-    iconValue: 'note.text',
-  },
-  ManageWallets: {
-    iconValue: 'slider.horizontal.3',
-  },
-  ImportWallet: {
-    iconValue: 'square.and.arrow.down.on.square',
-  },
-  ViewInBitcoin: {
-    iconValue: 'bitcoinsign.circle',
-  },
-  ViewInFiat: {
-    iconValue: 'coloncurrencysign.circle',
-  },
-  Entropy: {
-    iconValue: 'dice',
-  },
-  SearchAccount: {
-    iconValue: 'magnifyingglass',
-  },
-  Passphrase: {
-    iconValue: 'rectangle.and.pencil.and.ellipsis',
-  },
-  MoreInfo: {
-    iconValue: 'info.circle',
-  },
-  SaveChanges: {
-    iconValue: 'checkmark',
-  },
-  PaymentsCode: {
-    iconValue: 'qrcode',
-  },
+  Eye: { iconValue: 'eye' },
+  EyeSlash: { iconValue: 'eye.slash' },
+  Link: { iconValue: 'link' },
+  Note: { iconValue: 'note.text' },
+  ManageWallets: { iconValue: 'slider.horizontal.3' },
+  ImportWallet: { iconValue: 'square.and.arrow.down.on.square' },
+  ViewInBitcoin: { iconValue: 'bitcoinsign.circle' },
+  ViewInFiat: { iconValue: 'coloncurrencysign.circle' },
+  Entropy: { iconValue: 'dice' },
+  SearchAccount: { iconValue: 'magnifyingglass' },
+  Passphrase: { iconValue: 'rectangle.and.pencil.and.ellipsis' },
+  MoreInfo: { iconValue: 'info.circle' },
+  SaveChanges: { iconValue: 'checkmark' },
+  InsertContact: { iconValue: 'at.badge.plus' },
+  SignPSBT: { iconValue: 'signature' },
+  SendMax: { iconValue: 'dial.high' },
+  AllowRBF: { iconValue: 'arrowshape.up.circle' },
+  ImportTransaction: { iconValue: 'square.and.arrow.down' },
+  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
+  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
+  CoinControl: { iconValue: 'switch.2' },
+  CoSignTransaction: { iconValue: 'signature' },
+  PaymentsCode: { iconValue: 'qrcode.viewfinder' },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
+  ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
+  ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo.on.rectangle' : 'ic_menu_gallery' },
+  Clipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_file' },
+  ExportPrivateKey: { iconValue: Platform.OS === 'ios' ? 'key' : 'ic_lock_idle_lock' },
+  Share: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.up' : 'ic_menu_share' },
+  Signature: { iconValue: Platform.OS === 'ios' ? 'signature' : 'ic_menu_edit' },
+  PasteFromClipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_paste' },
+  ImportFile: { iconValue: Platform.OS === 'ios' ? 'document.viewfinder' : 'ic_menu_upload' },
+  Hide: { iconValue: Platform.OS === 'ios' ? 'eye.slash' : 'ic_menu_close_clear_cancel' },
+  ClearClipboard: { iconValue: Platform.OS === 'ios' ? 'clipboard' : 'ic_menu_delete' },
+  SortASC: { iconValue: Platform.OS === 'ios' ? 'arrow.down.to.line' : 'ic_menu_sort_alphabetically' },
+  SortDESC: { iconValue: Platform.OS === 'ios' ? 'arrow.up.to.line' : 'ic_menu_sort_by_size' },
+  SaveFile: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.down' : 'ic_menu_save' },
+  Delete: { iconValue: Platform.OS === 'ios' ? 'trash' : 'ic_menu_delete' },
+} as const;
+
+export type ToolTipAction = {
+  id: string;
+  text: string;
+  subtitle?: string;
+  icon?: { iconValue: string };
+  hidden?: boolean;
+  menuState?: boolean;
+  destructive?: boolean;
 };
 
-export const CommonToolTipActions = {
+export const CommonToolTipActions: Record<string, ToolTipAction> = {
   CopyTXID: {
     id: keys.CopyTXID,
     text: loc.transactions.details_copy_txid,
@@ -88,7 +119,7 @@ export const CommonToolTipActions = {
   },
   OpenInBlockExplorer: {
     id: keys.OpenInBlockExplorer,
-    text: loc.transactions.details_show_in_block_explorer,
+    text: loc.transactions.details_view_in_browser,
     icon: icons.Link,
   },
   ExpandNote: {
@@ -98,7 +129,7 @@ export const CommonToolTipActions = {
   },
   CopyAmount: {
     id: keys.CopyAmount,
-    text: loc.transactions.details_copy_amount,
+    text: loc.transactions.details_copy,
     icon: icons.Clipboard,
   },
   AddRecipient: {
@@ -131,25 +162,34 @@ export const CommonToolTipActions = {
     text: loc.transactions.details_balance_hide,
     icon: icons.EyeSlash,
   },
+  Hide: {
+    id: keys.Hide,
+    text: loc.total_balance_view.hide,
+    icon: icons.EyeSlash,
+  },
   ViewInFiat: {
     id: keys.ViewInFiat,
-    text: loc.total_balance_view.view_in_fiat,
+    text: loc.total_balance_view.display_in_fiat,
     icon: icons.ViewInFiat,
+    hidden: false,
   },
   ViewInSats: {
     id: keys.ViewInSats,
-    text: loc.total_balance_view.view_in_sats,
+    text: loc.total_balance_view.display_in_sats,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   ViewInBitcoin: {
     id: keys.ViewInBitcoin,
-    text: loc.total_balance_view.view_in_bitcoin,
+    text: loc.total_balance_view.display_in_bitcoin,
     icon: icons.ViewInBitcoin,
+    hidden: false,
   },
   Entropy: {
     id: keys.Entropy,
     text: loc.wallets.add_entropy_provide,
     icon: icons.Entropy,
+    menuState: false,
   },
   RemoveAllRecipients: {
     id: keys.RemoveAllRecipients,
@@ -179,10 +219,157 @@ export const CommonToolTipActions = {
     text: loc._.save,
     icon: icons.SaveChanges,
   },
-  PaymentCode: {
+  PaymentsCode: {
     id: keys.PaymentsCode,
-    text: loc.bip47.purpose,
+    text: loc.bip47.bip47_explain,
+    subtitle: loc.bip47.bip47_explain_subtitle,
     icon: icons.PaymentsCode,
     menuState: false,
   },
-};
+  ScanQR: {
+    id: keys.ScanQR,
+    text: loc.wallets.list_long_scan,
+    icon: icons.ScanQR,
+  },
+  ChoosePhoto: {
+    id: keys.ChoosePhoto,
+    text: loc.wallets.list_long_choose,
+    icon: icons.ChoosePhoto,
+  },
+  ImportFile: {
+    id: keys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: icons.ImportFile,
+  },
+  InsertContact: {
+    id: keys.InsertContact,
+    text: loc.send.details_insert_contact,
+    icon: icons.InsertContact,
+    hidden: true,
+  },
+  SignPSBT: {
+    id: keys.SignPSBT,
+    text: loc.send.psbt_sign,
+    icon: icons.SignPSBT,
+    hidden: true,
+  },
+  SendMax: {
+    id: keys.SendMax,
+    text: loc.send.details_adv_full,
+    icon: icons.SendMax,
+    hidden: true,
+  },
+  AllowRBF: {
+    id: keys.AllowRBF,
+    text: loc.send.details_adv_fee_bump,
+    icon: icons.AllowRBF,
+    hidden: true,
+    menuState: false,
+  },
+  ImportTransaction: {
+    id: keys.ImportTransaction,
+    text: loc.send.details_adv_import,
+    icon: icons.ImportTransaction,
+    hidden: true,
+  },
+  ImportTransactionQR: {
+    id: keys.ImportTransactionQR,
+    text: loc.send.details_adv_import_qr,
+    icon: icons.ImportTransactionQR,
+    hidden: true,
+  },
+  ImportTransactionMultsig: {
+    id: keys.ImportTransactionMultsig,
+    text: loc.send.details_adv_import,
+    icon: icons.ImportTransactionMultsig,
+    hidden: true,
+  },
+  CoSignTransaction: {
+    id: keys.CoSignTransaction,
+    text: loc.multisig.co_sign_transaction,
+    icon: icons.CoSignTransaction,
+    hidden: true,
+  },
+  CoinControl: {
+    id: keys.CoinControl,
+    text: loc.cc.header,
+    icon: icons.CoinControl,
+    hidden: false,
+  },
+  CopyToClipboard: {
+    id: keys.CopyToClipboard,
+    text: loc.transactions.details_copy,
+    icon: icons.Clipboard,
+  },
+  Share: {
+    id: keys.Share,
+    text: loc.receive.details_share,
+    icon: icons.Share,
+  },
+  SignVerify: {
+    id: keys.SignVerify,
+    text: loc.addresses.sign_title,
+    icon: icons.Signature,
+    hidden: false,
+  },
+  ExportPrivateKey: {
+    id: keys.ExportPrivateKey,
+    text: loc.addresses.copy_private_key,
+    icon: icons.ExportPrivateKey,
+    hidden: false,
+  },
+  ResetToDefault: {
+    id: keys.ResetToDefault,
+    text: loc.settings.electrum_reset,
+    hidden: false,
+    destructive: true,
+  },
+  PasteFromClipboard: {
+    id: keys.PasteFromClipboard,
+    text: loc.wallets.paste_from_clipboard,
+    icon: icons.PasteFromClipboard,
+  },
+  ClearClipboard: {
+    id: keys.ClearClipboard,
+    text: loc.wallets.clear_clipboard_on_import,
+    icon: icons.Clipboard,
+    menuState: true,
+  },
+  SortASC: {
+    id: keys.SortASC,
+    text: loc.cc.sort_asc,
+    icon: icons.SortASC,
+  },
+  SortDESC: {
+    id: keys.SortDESC,
+    text: loc.cc.sort_desc,
+    icon: icons.SortDESC,
+  },
+  SortHeight: {
+    id: keys.SortHeight,
+    text: loc.cc.sort_height,
+  },
+  SortValue: {
+    id: keys.SortValue,
+    text: loc.cc.sort_value,
+  },
+  SortLabel: {
+    id: keys.SortLabel,
+    text: loc.cc.sort_label,
+  },
+  SortStatus: {
+    id: keys.SortStatus,
+    text: loc.cc.sort_status,
+  },
+  SaveFile: {
+    id: keys.SaveFile,
+    text: loc._.save,
+    icon: icons.SaveFile,
+  },
+  Delete: {
+    id: keys.Delete,
+    text: loc.wallets.details_delete,
+    icon: icons.Delete,
+    destructive: true,
+  },
+} as const;

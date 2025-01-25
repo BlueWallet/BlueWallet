@@ -35,7 +35,7 @@ const Settings = () => {
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
       <ListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />
       <ListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} testID="NetworkSettings" chevron />
-      <ListItem title={loc.settings.tools} onPress={() => navigate('Tools')} testID="Tools" chevron />
+      <ListItem title={loc.settings.tools} onPress={() => navigate('ToolsScreen')} testID="Tools" chevron />
       <ListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />
     </ScrollView>
   );

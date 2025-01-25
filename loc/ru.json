@@ -22,8 +22,6 @@
     "close": "Закрыть",
     "change_input_currency": "Сменить валюту",
     "refresh": "Обновить",
-    "pick_image": "Выбрать изображение из библиотеки",
-    "pick_file": "Выбрать файл",
     "enter_amount": "Ввести сумму",
     "qr_custom_input_button": "Нажмите 10 раз, чтобы ввести своё значение.",
     "unlock": "Разблокировать",
@@ -227,7 +225,6 @@
     "biom_no_passcode": "На вашем устройстве не установлен пароль или не включена биометрия. Чтобы продолжить, пожалуйста, установите пароль или включите биометрические данные в приложении «Настройки».",
     "biom_remove_decrypt": "Все кошельки будут удалены, а хранилище расшифровано. Продолжить?",
     "currency": "Валюта",
-    "currency_source": "Курс получается из",
     "currency_fetch_error": "При получении курса для выбранной валюты произошла ошибка.",
     "default_desc": "Когда выключено, BlueWallet сразу же откроет выбранный кошелёк при запуске.",
     "default_info": "Показать",
@@ -246,18 +243,14 @@
     "set_electrum_server_as_default": "Задать {server} как сервер Electrum по умолчанию?",
     "set_lndhub_as_default": "Задать {url} как сервер LNDhub по умолчанию?",
     "electrum_settings_server": "Сервер Electrum",
-    "electrum_settings_explain": "Очистите, чтобы использовать по умолчанию.",
     "electrum_status": "Статус",
     "electrum_clear_alert_title": "Очистить историю?",
     "electrum_clear_alert_message": "Удалить историю серверов Electrum?",
     "electrum_clear_alert_cancel": "Отмена",
     "electrum_clear_alert_ok": "Ок",
-    "electrum_select": "Выбрать",
     "electrum_reset": "По умолчанию",
     "electrum_unable_to_connect": "Невозможно подключиться к {server}.",
-    "electrum_history": "История",
     "electrum_reset_to_default": "Вы уверены, что хотите сбросить значение сервера Electrum?",
-    "electrum_clear": "Очистить",
     "encrypt_decrypt": "Расшифровать хранилище",
     "encrypt_decrypt_q": "Вы уверены, что хотите расшифровать хранилище? Это позволит получить доступ к вашим кошелькам без пароля.",
     "encrypt_enc_and_pass": "Зашифровано и защищено паролем",
@@ -318,8 +311,7 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "Хотите получать уведомления при входящих платежах?",
     "notifications_subtitle": "Входящие платежи и подтверждения транзакций",
-    "no_and_dont_ask": "Нет, и больше не спрашивать.",
-    "ask_me_later": "Спросить позже."
+    "no_and_dont_ask": "Нет, и больше не спрашивать."
   },
   "transactions": {
     "cancel_explain": "Мы заменим эту транзакцию на другую, которая переведет вам деньги и имеет более высокую комиссию. Это позволит отменить текущую транзакцию. Это называется RBF — Replace by Fee.",
@@ -335,7 +327,6 @@
     "details_balance_hide": "Скрыть баланс",
     "details_balance_show": "Показать баланс",
     "details_copy": "Копировать",
-    "details_copy_amount": "Копировать сумму",
     "details_copy_block_explorer_link": "Копировать ссылку на обозреватель блоков",
     "details_copy_note": "Копировать заметку",
     "details_copy_txid": "Копировать ID транзакции",
@@ -344,7 +335,6 @@
     "details_outputs": "Выходы",
     "date": "Дата",
     "details_received": "Получена",
-    "details_show_in_block_explorer": "Показать в блокчейне",
     "details_title": "Детали транзакции",
     "incoming_transaction": "Входящая транзакция",
     "outgoing_transaction": "Исходящая транзакция",
@@ -460,7 +450,7 @@
     "list_empty_txs2_lightning": "\nДля начала использования нажмите на 'Управление средствами' и пополните баланс.",
     "list_latest_transaction": "Последняя транзакция",
     "list_long_choose": "Выбрать фото",
-    "list_long_clipboard": "Вставить из буфера обмена",
+    "paste_from_clipboard": "Вставить",
     "import_file": "Импортировать файл",
     "list_long_scan": "Сканировать QR-код",
     "list_title": "Кошельки",
@@ -475,7 +465,6 @@
     "select_wallet": "Выбрать кошелёк",
     "xpub_copiedToClipboard": "Скопировано в буфер обмена.",
     "pull_to_refresh": "Потяните, чтобы обновить",
-    "warning_do_not_disclose": "Внимание! Не разглашать.",
     "add_ln_wallet_first": "Сначала добавьте Лайтнинг-кошелёк.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB кошелька",
@@ -483,9 +472,6 @@
     "more_info": "Подробнее"
   },
   "total_balance_view": {
-    "view_in_bitcoin": "Показать в Bitcoin",
-    "view_in_sats": "Показать в сатоши",
-    "view_in_fiat": "Показать в {currency}",
     "title": "Общий баланс",
     "explanation": "Просмотр общего баланса всех ваших кошельков на обзорном экране."
   },
@@ -588,7 +574,9 @@
     "header": "Управление монетами",
     "use_coin": "Использовать монету",
     "use_coins": "Использовать монеты",
-    "tip": "Эта функция позволяет просматривать, помечать, замораживать или выбирать монеты для улучшенного управления кошельком. Вы можете выбрать несколько монет, нажав на цветные круги."
+    "tip": "Эта функция позволяет просматривать, помечать, замораживать или выбирать монеты для улучшенного управления кошельком. Вы можете выбрать несколько монет, нажав на цветные круги.",
+    "sort_label": "Метка",
+    "sort_status": "Статус"
   },
   "units": {
     "BTC": "BTC",

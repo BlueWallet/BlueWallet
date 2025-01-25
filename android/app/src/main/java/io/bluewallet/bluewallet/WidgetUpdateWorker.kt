@@ -1,8 +1,10 @@
 package io.bluewallet.bluewallet
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
@@ -13,8 +15,10 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     companion object {
         const val TAG = "WidgetUpdateWorker"
@@ -35,18 +39,37 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
     }
 
     private lateinit var sharedPref: SharedPreferences
-    private lateinit var preferenceChangeListener: SharedPreferences.OnSharedPreferenceChangeListener
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         Log.d(TAG, "Widget update worker running")
 
         sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
-        registerPreferenceChangeListener()
 
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val thisWidget = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
         val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
+
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
+        views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent)
+
+        // Show loading indicator
+        views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+        views.setViewVisibility(R.id.price_value, View.GONE)
+        views.setViewVisibility(R.id.last_updated_label, View.GONE)
+        views.setViewVisibility(R.id.last_updated_time, View.GONE)
+        views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+
+        appWidgetManager.updateAppWidget(appWidgetIds, views)
 
         val preferredCurrency = sharedPref.getString("preferredCurrency", null) ?: "USD"
         val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null) ?: "en-US"
@@ -54,47 +77,19 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
 
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
 
-        fetchPrice(preferredCurrency) { fetchedPrice, error ->
-            handlePriceResult(
-                appWidgetManager, appWidgetIds, views, sharedPref,
-                fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale, error
-            )
-        }
+        val fetchedPrice = fetchPrice(preferredCurrency)
+
+        handlePriceResult(
+            appWidgetManager, appWidgetIds, views, sharedPref,
+            fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale
+        )
 
         return Result.success()
     }
 
-    private fun registerPreferenceChangeListener() {
-        preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == "preferredCurrency" || key == "preferredCurrencyLocale" || key == "previous_price") {
-                Log.d(TAG, "Preference changed: $key")
-                updateWidgetOnPreferenceChange()
-            }
-        }
-        sharedPref.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
-    }
-
-    override fun onStopped() {
-        super.onStopped()
-        sharedPref.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
-    }
-
-    private fun updateWidgetOnPreferenceChange() {
-        val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-        val thisWidget = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
-        val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
-
-        val preferredCurrency = sharedPref.getString("preferredCurrency", null) ?: "USD"
-        val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null) ?: "en-US"
-        val previousPrice = sharedPref.getString("previous_price", null)
-        val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
-
-        fetchPrice(preferredCurrency) { fetchedPrice, error ->
-            handlePriceResult(
-                appWidgetManager, appWidgetIds, views, sharedPref,
-                fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale, error
-            )
+    private suspend fun fetchPrice(currency: String?): String? {
+        return withContext(Dispatchers.IO) {
+            MarketAPI.fetchPrice(applicationContext, currency ?: "USD")
         }
     }
 
@@ -107,24 +102,27 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         previousPrice: String?,
         currentTime: String,
         preferredCurrency: String?,
-        preferredCurrencyLocale: String?,
-        error: String?
+        preferredCurrencyLocale: String?
     ) {
         val isPriceFetched = fetchedPrice != null
         val isPriceCached = previousPrice != null
 
-        if (error != null || !isPriceFetched) {
-            Log.e(TAG, "Error fetching price: $error")
+        if (!isPriceFetched) {
+            Log.e(TAG, "Error fetching price.")
             if (!isPriceCached) {
                 showLoadingError(views)
             } else {
                 displayCachedPrice(views, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale)
             }
         } else {
-            displayFetchedPrice(
-                views, fetchedPrice!!, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale
-            )
-            savePrice(sharedPref, fetchedPrice)
+            if (fetchedPrice != null) {
+                displayFetchedPrice(
+                    views, fetchedPrice, previousPrice, currentTime, preferredCurrency, preferredCurrencyLocale
+                )
+            }
+            if (fetchedPrice != null) {
+                savePrice(sharedPref, fetchedPrice)
+            }
         }
 
         appWidgetManager.updateAppWidget(appWidgetIds, views)
@@ -132,7 +130,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
 
     private fun showLoadingError(views: RemoteViews) {
         views.apply {
-            setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+            setViewVisibility(R.id.loading_indicator, View.GONE)
             setViewVisibility(R.id.price_value, View.GONE)
             setViewVisibility(R.id.last_updated_label, View.GONE)
             setViewVisibility(R.id.last_updated_time, View.GONE)
@@ -214,15 +212,6 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         currencyFormat.decimalFormatSymbols = decimalFormatSymbols
 
         return currencyFormat
-    }
-
-    private fun fetchPrice(currency: String?, callback: (String?, String?) -> Unit) {
-        val price = MarketAPI.fetchPrice(applicationContext, currency ?: "USD")
-        if (price == null) {
-            callback(null, "Failed to fetch price")
-        } else {
-            callback(price, null)
-        }
     }
 
     private fun savePrice(sharedPref: SharedPreferences, price: String) {

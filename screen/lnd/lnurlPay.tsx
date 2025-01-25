@@ -140,9 +140,7 @@ const LnurlPay: React.FC = () => {
       }
 
       const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
-      // @ts-ignore fixme after lnurl.js converted to ts
       await wallet.payInvoice(bolt11payload.pr);
-      // @ts-ignore fixme after lnurl.js converted to ts
       const decoded = wallet.decodeInvoice(bolt11payload.pr);
       setPayButtonDisabled(false);
 

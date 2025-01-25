@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import {
   BlueBigCheckmark,
   BlueButtonLink,
@@ -20,10 +19,12 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { navigate } from '../../NavigationService';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -35,12 +36,13 @@ const BROADCAST_RESULT = Object.freeze({
 type RouteProps = RouteProp<DetailViewStackParamList, 'Broadcast'>;
 
 const Broadcast: React.FC = () => {
-  const { name, params } = useRoute<RouteProps>();
+  const { params } = useRoute<RouteProps>();
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
+  const { setParams } = useExtendedNavigation();
 
   const stylesHooks = StyleSheet.create({
     input: {
@@ -50,13 +52,26 @@ const Broadcast: React.FC = () => {
     },
   });
 
+  const handleScannedData = useCallback((scannedData: string) => {
+    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      return handleUpdateTxHex(scannedData);
+    }
+
+    try {
+      // should be base64 encoded PSBT
+      const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
+      return handleUpdateTxHex(validTx.toHex());
+    } catch (e) {}
+  }, []);
+
   useEffect(() => {
-    const scannedData = params?.scannedData;
+    const scannedData = params?.onBarScanned;
     if (scannedData) {
       handleScannedData(scannedData);
+      setParams({ onBarScanned: undefined });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params?.scannedData]);
+  }, [handleScannedData, params?.onBarScanned, setParams]);
 
   const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
 
@@ -76,8 +91,7 @@ const Broadcast: React.FC = () => {
 
           setBroadcastResult(BROADCAST_RESULT.success);
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: fix later
-          Notifications.majorTomToGroundControl([], [], [txid]);
+          majorTomToGroundControl([], [], [txid]);
         } else {
           setBroadcastResult(BROADCAST_RESULT.error);
         }
@@ -89,21 +103,8 @@ const Broadcast: React.FC = () => {
     }
   };
 
-  const handleScannedData = (scannedData: string) => {
-    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      return handleUpdateTxHex(scannedData);
-    }
-
-    try {
-      // should be base64 encoded PSBT
-      const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
-      return handleUpdateTxHex(validTx.toHex());
-    } catch (e) {}
-  };
-
   const handleQRScan = () => {
-    scanQrHelper(name, true, undefined, false);
+    navigate('ScanQRCode');
   };
 
   let status;
@@ -160,7 +161,7 @@ const Broadcast: React.FC = () => {
             <BlueSpacing20 />
           </BlueCard>
         )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer}/tx/${tx}`} />}
+        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
       </View>
     </SafeArea>
   );

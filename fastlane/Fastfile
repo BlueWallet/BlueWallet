@@ -20,10 +20,10 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
-    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
+    Dir.chdir(project_root) do
+      keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
+      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
 
-    Dir.chdir("android") do
       UI.message("Creating keystore from HEX...")
       File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
@@ -41,52 +41,56 @@ platform :android do
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
-
+ 
       # Extract versionName from build.gradle
       version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-
+      UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
+ 
       # Update versionCode in build.gradle
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
       build_gradle_path = "android/app/build.gradle"
       build_gradle_contents = File.read(build_gradle_path)
       new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
       File.write(build_gradle_path, new_build_gradle_contents)
-
-      # Determine branch name
-      branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip.gsub(/[\/\\:?*"<>|]/, '_')
+ 
+      # Determine branch name and sanitize it
+      branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
+      branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '_') # Replace non-alphanumeric characters with underscore
       branch_name = 'master' if branch_name.nil? || branch_name.empty?
-
+ 
       # Define APK name based on branch
-      signed_apk_name = branch_name != 'master' ? "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" : "BlueWallet-#{version_name}-#{build_number}.apk"
-
+      signed_apk_name = branch_name != 'master' ? 
+        "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" : 
+        "BlueWallet-#{version_name}-#{build_number}.apk"
+ 
+      # Define paths
+      unsigned_apk_path = "android/app/build/outputs/apk/release/app-release-unsigned.apk"
+      signed_apk_path = "android/app/build/outputs/apk/release/#{signed_apk_name}"
+ 
       # Build APK
-      Dir.chdir("android") do
-        UI.message("Building APK...")
-        gradle(task: "assembleRelease", project_dir: "android")
-        UI.message("APK build completed.")
-
-        # Define paths
-        unsigned_apk_path = "app/build/outputs/apk/release/app-release-unsigned.apk"
-        signed_apk_path = "app/build/outputs/apk/release/#{signed_apk_name}"
-
-        # Rename APK
-        if File.exist?(unsigned_apk_path)
-          UI.message("Renaming APK to #{signed_apk_name}...")
-          FileUtils.mv(unsigned_apk_path, signed_apk_path)
-          ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-        else
-          UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
-          next
-        end
-
-        # Sign APK
-        UI.message("Signing APK with apksigner...")
-        apksigner_path = "#{ENV['ANDROID_HOME']}/build-tools/35.0.0/apksigner"
-        sh("#{apksigner_path} sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
-        UI.message("APK signed successfully: #{signed_apk_path}")
+      UI.message("Building APK...")
+      sh("cd android && ./gradlew assembleRelease --no-daemon")
+      UI.message("APK build completed.")
+ 
+      # Rename APK
+      if File.exist?(unsigned_apk_path)
+        UI.message("Renaming APK to #{signed_apk_name}...")
+        FileUtils.mv(unsigned_apk_path, signed_apk_path)
+        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+      else
+        UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
+        next
       end
+ 
+      # Sign APK
+      UI.message("Signing APK with apksigner...")
+      apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
+      UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
+      sh("#{apksigner_path} sign --ks #{project_root}/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+      UI.message("APK signed successfully: #{signed_apk_path}")
     end
   end
+end
 
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
@@ -117,30 +121,62 @@ platform :android do
       browserstack_hashed_id = app_url.gsub('bs://', '')
       pr_number = ENV['GITHUB_PR_NUMBER']
 
+      comment_identifier = '### APK Successfully Uploaded to BrowserStack'
+
       comment = <<~COMMENT
-        ### APK Successfully Uploaded to BrowserStack
-        
+        #{comment_identifier}
+
         You can test it on the following devices:
         
-        - [Google Pixel 5 (Android 12.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 7 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 8 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 3a (Android 9.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-    
-        - [Samsung Galaxy Z Fold 5 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Samsung Galaxy Z Fold 6 (Android 14.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Samsung Galaxy Tab S9 (Android 13.0)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 9 (Android 15)](https://app-live.browserstack.com/dashboard#os=android&os_version=15.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 8 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 7 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 5 (Android 12)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 3a (Android 9)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        
+        - [Samsung Galaxy Z Fold 6 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Z Fold 5 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Tab S9 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-    
+
+        - [OnePlus 11R (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=OnePlus+11R&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
         **Filename**: [#{apk_filename}](#{apk_download_url})
         **BrowserStack App URL**: #{app_url}
       COMMENT
 
-      # Post PR comment if PR number is available
+      # Delete Previous BrowserStack Comments
       if pr_number
         begin
-          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{comment}'")
-          UI.success("Posted comment to PR ##{pr_number}")
+          repo = ENV['GITHUB_REPOSITORY'] # Format: "owner/repo"
+          repo_owner, repo_name = repo.split('/')
+
+          UI.message("Fetching existing comments for PR ##{pr_number}...")
+
+          comments_json = `gh api -X GET /repos/#{repo_owner}/#{repo_name}/issues/#{pr_number}/comments`
+          comments = JSON.parse(comments_json)
+
+          comments.each do |comment|
+            if comment['body'].start_with?(comment_identifier)
+              comment_id = comment['id']
+              UI.message("Deleting previous comment ID: #{comment_id}...")
+              `gh api -X DELETE /repos/#{repo_owner}/#{repo_name}/issues/comments/#{comment_id}`
+              UI.success("Deleted comment ID: #{comment_id}")
+            end
+          end
+
+        rescue => e
+          UI.error("Failed to delete previous comments: #{e.message}")
+        end
+      else
+        UI.important("No PR number found. Skipping deletion of previous comments.")
+      end
+
+      # Post New Comment to PR
+      if pr_number
+        begin
+          escaped_comment = comment.gsub("'", "'\\''")
+          sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{escaped_comment}'")
+          UI.success("Posted new comment to PR ##{pr_number}")
         rescue => e
           UI.error("Failed to post comment to PR: #{e.message}")
         end
@@ -148,9 +184,8 @@ platform :android do
         UI.important("No PR number found. Skipping PR comment.")
       end
     end
-  end
-
 end
+
 
 # ===========================
 #       iOS Lanes
@@ -294,26 +329,76 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-  desc "Upload IPA to TestFlight"
-lane :upload_to_testflight_lane do
-  ipa_path = ENV['IPA_OUTPUT_PATH']
-  changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
-  # Check if IPA exists before proceeding
+  desc "Upload IPA to TestFlight"
+  lane :upload_to_testflight_lane do
+
+  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+
+
+  changelog = <<~CHANGELOG
+    Build Information:
+  CHANGELOG
+
+  # Include the branch name only if it is not 'master'
+  if branch_name != 'master'
+    changelog += <<~CHANGELOG
+      - Branch: #{branch_name}
+    CHANGELOG
+  end
+
+  changelog += <<~CHANGELOG
+    - Commit: #{last_commit_message}
+  CHANGELOG
+
+  ipa_path = ENV['IPA_OUTPUT_PATH']
+  
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
 
   UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+  UI.message("Changelog:\n#{changelog}")
+
 
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
     ipa: ipa_path,
-    skip_waiting_for_build_processing: true, # Do not wait for processing
+    skip_waiting_for_build_processing: true,
     changelog: changelog
   )
 
   UI.success("Successfully uploaded IPA to TestFlight!")
+end
+
+desc "Upload iOS source maps to Bugsnag"
+lane :upload_bugsnag_sourcemaps do
+  bugsnag_api_key = ENV['BUGSNAG_API_KEY']
+  bugsnag_release_stage = ENV['BUGSNAG_RELEASE_STAGE'] || "production"
+  version = ENV['PROJECT_VERSION']
+  build_number = ENV['NEW_BUILD_NUMBER']
+
+  UI.user_error!("BUGSNAG_API_KEY environment variable is missing") if bugsnag_api_key.nil?
+  UI.user_error!("PROJECT_VERSION environment variable is missing") if version.nil?
+  UI.user_error!("NEW_BUILD_NUMBER environment variable is missing") if build_number.nil?
+
+  ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
+
+  if File.exist?(ios_sourcemap)
+    UI.message("Uploading iOS source map to Bugsnag...")
+    bugsnag_sourcemaps_upload(
+      api_key: bugsnag_api_key,
+      source_map: ios_sourcemap,
+      minified_file: "./ios/main.jsbundle",
+      code_bundle_id: "#{version}-#{build_number}",
+      release_stage: bugsnag_release_stage,
+      app_version: version
+    )
+    UI.success("iOS source map uploaded successfully.")
+  else
+    UI.error("iOS source map not found at #{ios_sourcemap}")
+  end
 end
 
   desc "Build the iOS app"
@@ -324,6 +409,8 @@ lane :build_app_lane do
     workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
     export_options_path = File.join(project_root, "ios", "export_options.plist")
 
+    clear_derived_data_lane
+    
     begin
       build_ios_app(
         scheme: "BlueWallet",
@@ -357,7 +444,7 @@ lane :build_app_lane do
     end
   end
 end
-
+end
 # ===========================
 #       Global Lanes
 # ===========================
@@ -449,7 +536,7 @@ lane :update_release_notes do |options|
   # Define release notes
   release_notes_text = options[:release_notes]
   if release_notes_text.nil? || release_notes_text.strip.empty?
-    release_notes_path = "../../release-notes.txt"
+    release_notes_path = "../release-notes.txt"
     unless File.exist?(release_notes_path)
       UI.error("Release notes file does not exist at path: #{release_notes_path}")
       UI.user_error!("No release notes provided and no file found. Failing the lane.")
@@ -505,6 +592,5 @@ lane :update_release_notes do |options|
     else
       UI.error("No localization found for locale #{locale}")
     end
-  end
   end
 end

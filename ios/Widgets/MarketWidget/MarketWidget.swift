@@ -10,98 +10,103 @@ import WidgetKit
 import SwiftUI
 
 struct MarketWidgetProvider: TimelineProvider {
-  static var lastSuccessfulEntry: MarketWidgetEntry?
+    static var lastSuccessfulEntry: MarketWidgetEntry?
 
-  func placeholder(in context: Context) -> MarketWidgetEntry {
-    return MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
-  }
-  
-  func getSnapshot(in context: Context, completion: @escaping (MarketWidgetEntry) -> ()) {
-    let entry: MarketWidgetEntry
-    if (context.isPreview) {
-      entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
-    } else {
-      entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
+    func placeholder(in context: Context) -> MarketWidgetEntry {
+        return MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
     }
-    completion(entry)
-  }
-  
-  func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-      var entries: [MarketWidgetEntry] = []
-      if context.isPreview {
-        let entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
-        entries.append(entry)
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
-      } else {
-          let userPreferredCurrency = Currency.getUserPreferredCurrency()
-          MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
-              let entry: MarketWidgetEntry
 
-              if let result = result {
-                  entry = MarketWidgetEntry(date: Date(), marketData: result)
-                  MarketWidgetProvider.lastSuccessfulEntry = entry
-              } else {
-                  // Use the last successful entry if available
-                  if let lastEntry = MarketWidgetProvider.lastSuccessfulEntry {
-                      entry = lastEntry
-                  } else {
-                      // Fallback to a default entry if no successful entry is available
-                      entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
-                  }
-              }
-              entries.append(entry)
-              let timeline = Timeline(entries: entries, policy: .atEnd)
-              completion(timeline)
-          }
-      }
-  }
+    func getSnapshot(in context: Context, completion: @escaping (MarketWidgetEntry) -> ()) {
+        let entry: MarketWidgetEntry
+        if context.isPreview {
+            entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
+        } else {
+            entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0))
+        }
+        completion(entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        let currentDate = Date()
+        var entries: [MarketWidgetEntry] = []
+
+        let marketDataEntry = MarketWidgetEntry(date: currentDate, marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0))
+        entries.append(marketDataEntry) // Initial placeholder entry
+
+        let userPreferredCurrency = Currency.getUserPreferredCurrency()
+        fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
+            let entry = MarketWidgetEntry(date: Date(), marketData: marketData)
+            entries.append(entry)
+            let timeline = Timeline(entries: entries, policy: .atEnd)
+            completion(timeline)
+        }
+    }
+
+    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
+        var attempt = 0
+
+        func attemptFetch() {
+            attempt += 1
+            print("Attempt \(attempt) to fetch market data.")
+
+            MarketAPI.fetchMarketData(currency: currency) { result in
+                switch result {
+                case .success(let marketData):
+                    print("Successfully fetched market data on attempt \(attempt).")
+                    completion(marketData)
+                case .failure(let error):
+                    print("Fetch market data failed (attempt \(attempt)): \(error.localizedDescription)")
+                    if attempt < retries {
+                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
+                            attemptFetch()
+                        }
+                    } else {
+                        print("Failed to fetch market data after \(retries) attempts.")
+                        let fallbackData = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
+                        completion(fallbackData)
+                    }
+                }
+            }
+        }
+
+        attemptFetch()
+    }
 }
 
 struct MarketWidgetEntry: TimelineEntry {
-  let date: Date
-  let marketData: MarketData
+    let date: Date
+    var marketData: MarketData
 }
 
-struct MarketWidgetEntryView : View {
-  var entry: MarketWidgetProvider.Entry
-  
-  var MarketStack: some View {
-    MarketView(marketData: entry.marketData).padding(EdgeInsets(top: 18, leading: 11, bottom: 18, trailing: 11))
+struct MarketWidgetEntryView: View {
+    var entry: MarketWidgetEntry
+
+ var MarketStack: some View {
+    MarketView(marketData: entry.marketData)
   }
   
   var body: some View {
     VStack(content: {
-      MarketStack.background(Color.widgetBackground)
+      MarketStack.containerBackground(Color.widgetBackground, for: .widget)
     })
   }
 }
 
 struct MarketWidget: Widget {
-  let kind: String = "MarketWidget"
-  
-  var body: some WidgetConfiguration {
-    if #available(iOSApplicationExtension 16.0, *) {
-      return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
-        MarketWidgetEntryView(entry: entry)
-      }
-      .configurationDisplayName("Market")
-      .description("View the current market information.").supportedFamilies([.systemSmall])
-      .contentMarginsDisabledIfAvailable()
-    } else {
-      return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
-        MarketWidgetEntryView(entry: entry)
-      }
-      .configurationDisplayName("Market")
-      .description("View the current market information.").supportedFamilies([.systemSmall])
-      .contentMarginsDisabledIfAvailable()
+    let kind: String = "MarketWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
+            MarketWidgetEntryView(entry: entry)
+        }
+        .configurationDisplayName("Market")
+        .description("View the current market information.").supportedFamilies([.systemSmall])
     }
-  }
 }
 
 struct MarketWidget_Previews: PreviewProvider {
-  static var previews: some View {
-    MarketWidgetEntryView(entry: MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0)))
-      .previewContext(WidgetPreviewContext(family: .systemSmall))
-  }
+    static var previews: some View {
+        MarketWidgetEntryView(entry: MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9,134", price: "$10,000", rate: 0)))
+            .previewContext(WidgetPreviewContext(family: .systemSmall))
+    }
 }

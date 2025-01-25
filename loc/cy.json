@@ -111,8 +111,6 @@
     "electrum_connected_not": "Heb Gysylltu",
     "electrum_clear_alert_cancel": "Canslo",
     "electrum_clear_alert_ok": "Iawn",
-    "electrum_select": "Dewis",
-    "electrum_clear": "Clirio",
     "encrypt_decrypt": "Dadgryptio'r Storfa",
     "encrypt_title": "Diogelwch",
     "encrypt_tstorage": "Storfa",
@@ -183,14 +181,13 @@
     "list_empty_txs2": "Dechrau efo dy waled",
     "list_latest_transaction": "Trafodyn Diweddaraf",
     "list_long_choose": "Dewis Llun",
-    "list_long_clipboard": "Copio o'r Clipfwrdd",
+    "paste_from_clipboard": "Pastio",
     "import_file": "Mewnforio ffeil",
     "list_title": "Waledi",
     "list_tryagain": "Trio eto",
     "select_wallet": "Dewis waled",
     "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd.",
-    "pull_to_refresh": "Tynnu i Adnewyddu",
-    "warning_do_not_disclose": "Rhybudd! Paid ei ddatgelu."
+    "pull_to_refresh": "Tynnu i Adnewyddu"
   },
   "total_balance_view": {
     "title": "Balans Llawn"

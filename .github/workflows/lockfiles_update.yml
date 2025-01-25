@@ -8,7 +8,7 @@ on:
 
 jobs:
   pod-update:
-    runs-on: macos-latest
+    runs-on: macos-15
     permissions:
       contents: write
     steps:
@@ -87,7 +87,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.LOCKFILES_WORKFLOW }} # Use the LockFiles PAT for PR creation
 
   cleanup:
-    runs-on: macos-latest
+    runs-on: macos-15
     if: github.event.pull_request.merged == true || github.event.pull_request.state == 'closed'
     needs: pod-update
     steps:

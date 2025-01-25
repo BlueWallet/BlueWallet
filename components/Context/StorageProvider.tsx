@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InteractionManager } from 'react-native';
 import A from '../../blue_modules/analytics';
-import Notifications from '../../blue_modules/notifications';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
@@ -9,6 +8,7 @@ import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
+import { majorTomToGroundControl } from '../../blue_modules/notifications';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -35,10 +35,6 @@ interface StorageContextType {
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
-  isElectrumDisabled: boolean;
-  setIsElectrumDisabled: (value: boolean) => void;
-  reloadTransactionsMenuActionFunction: () => void;
-  setReloadTransactionsMenuActionFunction: (func: () => void) => void;
   getTransactions: typeof BlueApp.getTransactions;
   fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
   fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
@@ -73,9 +69,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
-  const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -119,12 +113,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   // Initialize wallets and connect to Electrum
   useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       setWallets(BlueApp.getWallets());
-      BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
 
@@ -236,9 +228,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
 
-      // @ts-ignore: Notifications type is not defined
-      Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       await w.fetchBalance();
+      try {
+        await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      } catch (error) {
+        console.warn('Failed to setup notifications:', error);
+        // Consider if user should be notified of notification setup failure
+      }
     },
     [wallets, addWallet, saveToDisk],
   );
@@ -278,10 +274,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      isElectrumDisabled,
-      setIsElectrumDisabled,
-      reloadTransactionsMenuActionFunction,
-      setReloadTransactionsMenuActionFunction,
     }),
     [
       wallets,
@@ -300,10 +292,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
-      isElectrumDisabled,
-      setIsElectrumDisabled,
-      reloadTransactionsMenuActionFunction,
-      setReloadTransactionsMenuActionFunction,
     ],
   );
 

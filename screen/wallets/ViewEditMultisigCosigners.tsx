@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CommonActions, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -38,7 +38,6 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { disallowScreenshot } from 'react-native-screen-capture';
@@ -47,16 +46,25 @@ import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { useSettings } from '../../hooks/context/useSettings';
+import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { navigationRef } from '../../NavigationService';
+import SafeArea from '../../components/SafeArea';
+
+type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
+type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
+  const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { navigate, dispatch, addListener } = useExtendedNavigation();
+  const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
+  const { navigate, dispatch, addListener, setParams } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
-  const route = useRoute();
-  const { walletID } = route.params as { walletID: string };
+  const route = useRoute<RouteParams>();
+  const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
@@ -71,6 +79,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
+  const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const data = useRef<any[]>();
   /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
@@ -155,7 +164,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   );
 
   const onSave = async () => {
-    dismissAllModals();
+    await dismissAllModals();
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
@@ -178,9 +187,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
       await wallet?.fetchBalance();
     }
     newWallets.push(wallet);
-    navigate('WalletsList');
+    setIsSaveButtonDisabled(true);
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
+      // dismiss this modal
+      navigationRef.dispatch(CommonActions.navigate({ name: 'WalletsList' }));
     }, 500);
   };
   useFocusEffect(
@@ -189,7 +200,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (hasLoaded.current) return;
       setIsLoading(true);
 
-      disallowScreenshot(true);
+      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {
@@ -205,7 +216,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setIsLoading(false);
       });
       return () => {
-        disallowScreenshot(false);
+        if (!isDesktop) disallowScreenshot(false);
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -217,10 +228,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
       <BottomModal
         ref={mnemonicsModalRef}
         backgroundColor={colors.elevated}
-        contentContainerStyle={styles.newKeyModalContent}
+        contentContainerStyle={[styles.newKeyModalContent, styles.paddingTop44]}
         shareButtonOnPress={() => {
           shareModalRef.current?.present();
         }}
+        sizes={[Platform.OS === 'ios' ? 'auto' : '50%']}
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -265,6 +277,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
+  const resetModalData = () => {
+    setVaultKeyData({
+      keyIndex: 1,
+      xpub: '',
+      seed: '',
+      passphrase: '',
+      path: '',
+      fp: '',
+      isLoading: false,
+    });
+    setImportText('');
+    setExportString('{}');
+    setExportStringURv2('');
+    setExportFilename('');
+    setIsSaveButtonDisabled(false);
+    setAskPassphrase(false);
+  };
+
   const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
     if (!wallet) {
       // failsafe
@@ -302,29 +332,34 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   buttonType: MultipleStepsListItemButtohType.partial,
                   leftText,
                   text: loc.multisig.view,
+                  showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
                   disabled: vaultKeyData.isLoading,
                   onPress: () => {
-                    const keyIndex = el.index + 1;
-                    const xpub = wallet.getCosigner(keyIndex);
-                    const fp = wallet.getFingerprint(keyIndex);
-                    const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                    if (!path) {
-                      presentAlert({ message: 'Cannot find derivation path for this cosigner' });
-                      return;
-                    }
-                    setVaultKeyData({
-                      keyIndex,
-                      seed: '',
-                      passphrase: '',
-                      xpub,
-                      fp,
-                      path,
-                      isLoading: false,
-                    });
-                    setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                    setExportFilename('bw-cosigner-' + fp + '.json');
-                    mnemonicsModalRef.current?.present();
+                    setIsVaultKeyIndexDataLoading(el.index + 1);
+                    setTimeout(() => {
+                      const keyIndex = el.index + 1;
+                      const xpub = wallet.getCosigner(keyIndex);
+                      const fp = wallet.getFingerprint(keyIndex);
+                      const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                      if (!path) {
+                        presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                        return;
+                      }
+                      setVaultKeyData({
+                        keyIndex,
+                        seed: '',
+                        passphrase: '',
+                        xpub,
+                        fp,
+                        path,
+                        isLoading: false,
+                      });
+                      setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                      setExportFilename('bw-cosigner-' + fp + '.json');
+                      mnemonicsModalRef.current?.present();
+                      setIsVaultKeyIndexDataLoading(undefined);
+                    }, 100);
                   },
                 }}
                 dashes={MultipleStepsListItemDashType.topAndBottom}
@@ -353,31 +388,36 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   leftText,
                   text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
+                  showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
                   buttonType: MultipleStepsListItemButtohType.partial,
                   onPress: () => {
-                    const keyIndex = el.index + 1;
-                    const seed = wallet.getCosigner(keyIndex);
-                    const passphrase = wallet.getCosignerPassphrase(keyIndex);
-                    setVaultKeyData({
-                      keyIndex,
-                      seed,
-                      xpub: '',
-                      fp: '',
-                      path: '',
-                      passphrase: passphrase ?? '',
-                      isLoading: false,
-                    });
-                    mnemonicsModalRef.current?.present();
-                    const fp = wallet.getFingerprint(keyIndex);
-                    const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                    if (!path) {
-                      presentAlert({ message: 'Cannot find derivation path for this cosigner' });
-                      return;
-                    }
-                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-                    setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                    setExportFilename('bw-cosigner-' + fp + '.json');
+                    setIsVaultKeyIndexDataLoading(el.index + 1);
+                    setTimeout(() => {
+                      const keyIndex = el.index + 1;
+                      const seed = wallet.getCosigner(keyIndex);
+                      const passphrase = wallet.getCosignerPassphrase(keyIndex);
+                      setVaultKeyData({
+                        keyIndex,
+                        seed,
+                        xpub: '',
+                        fp: '',
+                        path: '',
+                        passphrase: passphrase ?? '',
+                        isLoading: false,
+                      });
+                      const fp = wallet.getFingerprint(keyIndex);
+                      const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                      if (!path) {
+                        presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                        return;
+                      }
+                      const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+                      setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                      setExportFilename('bw-cosigner-' + fp + '.json');
+                      mnemonicsModalRef.current?.present();
+                      setIsVaultKeyIndexDataLoading(undefined);
+                    }, 100);
                   },
                 }}
                 dashes={MultipleStepsListItemDashType.topAndBottom}
@@ -428,10 +468,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const dismissAllModals = () => {
-    provideMnemonicsModalRef.current?.dismiss();
-    shareModalRef.current?.dismiss();
-    mnemonicsModalRef.current?.dismiss();
+  const dismissAllModals = async () => {
+    await provideMnemonicsModalRef.current?.dismiss();
+    await shareModalRef.current?.dismiss();
+    await mnemonicsModalRef.current?.dismiss();
+    resetModalData();
   };
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
@@ -468,9 +509,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
     provideMnemonicsModalRef.current?.dismiss();
-    setIsSaveButtonDisabled(false);
-    setImportText('');
-    setAskPassphrase(false);
+    resetModalData();
   };
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
@@ -492,24 +531,28 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current?.dismiss();
-    const scanned = await scanQrHelper(route.name, true, undefined);
-    setImportText(String(scanned));
-    provideMnemonicsModalRef.current?.present();
+    navigate('ScanQRCode', { showFileImportButton: true });
   };
+
+  useEffect(() => {
+    const scannedData = route.params.onBarScanned;
+    if (scannedData) {
+      setImportText(String(scannedData));
+      setParams({ onBarScanned: undefined });
+      provideMnemonicsModalRef.current?.present();
+    }
+  }, [route.params.onBarScanned, setParams]);
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
     provideMnemonicsModalRef.current?.dismiss();
-    setImportText('');
-    setAskPassphrase(false);
+    resetModalData();
   };
 
   const hideShareModal = () => {};
 
   const toolTipActions = useMemo(() => {
-    const passphrase = CommonToolTipActions.Passphrase;
-    passphrase.menuState = askPassphrase;
-    return [passphrase];
+    return [{ ...CommonToolTipActions.Passphrase, menuState: askPassphrase }];
   }, [askPassphrase]);
 
   const renderProvideMnemonicsModal = () => {
@@ -520,6 +563,20 @@ const ViewEditMultisigCosigners: React.FC = () => {
         contentContainerStyle={styles.newKeyModalContent}
         backgroundColor={colors.elevated}
         footerDefaultMargins
+        header={
+          <ToolTipMenu
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={(id: string) => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setAskPassphrase(!askPassphrase);
+            }}
+            actions={toolTipActions}
+            style={[styles.askPassprase, stylesHook.askPassphrase]}
+          >
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+          </ToolTipMenu>
+        }
         footer={
           <>
             {isLoading ? (
@@ -535,22 +592,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
         }
       >
         <>
-          <ToolTipMenu
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={(id: string) => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setAskPassphrase(!askPassphrase);
-            }}
-            actions={toolTipActions}
-            style={[styles.askPassprase, stylesHook.askPassphrase]}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </ToolTipMenu>
-
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          <View style={styles.multiLineTextInput}>
+            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          </View>
         </>
       </BottomModal>
     );
@@ -565,13 +611,15 @@ const ViewEditMultisigCosigners: React.FC = () => {
         backgroundColor={colors.elevated}
         shareContent={{ fileName: exportFilename, fileContent: exportString }}
       >
-        <View style={styles.alignItemsCenter}>
-          <Text style={[styles.headerText, stylesHook.textDestination]}>
-            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-          </Text>
-          <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-          <BlueSpacing20 />
-        </View>
+        <SafeArea>
+          <View style={styles.alignItemsCenter}>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>
+              {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+            </Text>
+            <BlueSpacing20 />
+            <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+          </View>
+        </SafeArea>
       </BottomModal>
     );
   };
@@ -628,7 +676,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         keyExtractor={(_item, index) => `${index}`}
         contentContainerStyle={styles.contentContainerStyle}
       />
-      <BlueSpacing10 />
       <BlueCard>{footer}</BlueCard>
       <BlueSpacing20 />
 
@@ -650,7 +697,11 @@ const styles = StyleSheet.create({
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    minHeight: 320,
+    minHeight: 350,
+  },
+  paddingTop44: { paddingTop: 44 },
+  multiLineTextInput: {
+    minHeight: 200,
   },
   contentContainerStyle: {
     padding: 16,
