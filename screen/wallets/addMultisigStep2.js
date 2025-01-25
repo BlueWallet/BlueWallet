@@ -581,6 +581,10 @@ const WalletsAddMultisigStep2 = () => {
     return component;
   };
 
+  const dismissMnemonicsModal = async () => {
+    await mnemonicsModalRef.current.dismiss();
+  };
+
   const renderMnemonicsModal = () => {
     return (
       <BottomModal
@@ -592,11 +596,7 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         footer={
           <View style={styles.modalFooterBottomPadding}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
-            )}
+            {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={dismissMnemonicsModal} />}
           </View>
         }
       >

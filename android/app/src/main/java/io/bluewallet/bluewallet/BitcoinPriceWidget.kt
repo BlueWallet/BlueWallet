@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.work.WorkManager
 
 class BitcoinPriceWidget : AppWidgetProvider() {
@@ -27,7 +28,8 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val widgetCount = sharedPref.getInt(WIDGET_COUNT_KEY, 0)
         if (widgetCount >= 1) {
-            Log.e(TAG, "Only one widget instance is allowed.")
+            Toast.makeText(context, "Only one widget instance is allowed.", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "Attempted to add multiple widget instances.")
             return
         }
         sharedPref.edit().putInt(WIDGET_COUNT_KEY, widgetCount + 1).apply()
@@ -37,9 +39,7 @@ class BitcoinPriceWidget : AppWidgetProvider() {
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-        val widgetCount = sharedPref.getInt(WIDGET_COUNT_KEY, 1)
-        sharedPref.edit().putInt(WIDGET_COUNT_KEY, widgetCount - 1).apply()
+        clearWidgetCount(context)
         Log.d(TAG, "onDisabled called")
         clearCache(context)
         WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.WORK_NAME)
@@ -49,8 +49,15 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         super.onDeleted(context, appWidgetIds)
         val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val widgetCount = sharedPref.getInt(WIDGET_COUNT_KEY, 1)
-        sharedPref.edit().putInt(WIDGET_COUNT_KEY, widgetCount - appWidgetIds.size).apply()
+        val newCount = widgetCount - appWidgetIds.size
+        sharedPref.edit().putInt(WIDGET_COUNT_KEY, if (newCount >= 0) newCount else 0).apply()
         Log.d(TAG, "onDeleted called for widgets: ${appWidgetIds.joinToString()}")
+    }
+
+    private fun clearWidgetCount(context: Context) {
+        val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        sharedPref.edit().putInt(WIDGET_COUNT_KEY, 0).apply()
+        Log.d(TAG, "Widget count reset to 0")
     }
 
     private fun clearCache(context: Context) {

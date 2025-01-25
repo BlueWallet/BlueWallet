@@ -34,7 +34,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     },
     headerShadowVisible: false,
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: true,
+    headerBackTitle: undefined,
     headerRight: () => RightButton,
   };
 };
