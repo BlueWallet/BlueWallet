@@ -6,7 +6,7 @@ def node_require(script)
       {paths: [process.argv[1]]},
     )", __dir__]).strip
 end
-
+ENV['RCT_NEW_ARCH_ENABLED'] = '0'
 min_ios_version_supported = '15.1'
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
