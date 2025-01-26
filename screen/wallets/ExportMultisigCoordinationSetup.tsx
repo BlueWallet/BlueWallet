@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -178,9 +178,9 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       )}
 
       <BlueSpacing20 />
-      <TextInput multiline editable={false} style={[styles.secret, stylesHook.secret]}>
+      <Text selectable style={[styles.secret, stylesHook.secret]}>
         {xpub}
-      </TextInput>
+      </Text>
     </>
   ) : null;
 
