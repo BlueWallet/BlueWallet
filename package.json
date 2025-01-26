@@ -167,7 +167,7 @@
     "readable-stream": "3.6.2",
     "realm": "20.1.0",
     "rn-nodeify": "10.3.0",
-    "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#eacee6d6546eb5b43bfd257255d0a7aa3bd90165",
+    "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#731ed8eb445f65f3a659632232e18ff7e1ce56d6",
     "scryptsy": "2.1.0",
     "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
