@@ -1704,7 +1704,7 @@ PODS:
     - React-Core
   - RNPermissions (5.2.4):
     - React-Core
-  - RNQrGenerator (1.4.2):
+  - RNQrGenerator (1.4.3):
     - React
     - ZXingObjC
   - RNQuickAction (0.3.13):
@@ -2307,7 +2307,7 @@ SPEC CHECKSUMS:
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
   RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
   RNPermissions: 257cd3630c304d59877aeb36f885c21543adde41
-  RNQrGenerator: 7c604c0eb608af64ff586ab0c040796a04eff247
+  RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
