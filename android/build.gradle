@@ -3,8 +3,8 @@
 buildscript {
     ext {
         minSdkVersion = 24
-        buildToolsVersion = "34.0.0"
-        compileSdkVersion = 34
+        buildToolsVersion = "35.0.0"
+        compileSdkVersion = 35
         targetSdkVersion = 34
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
@@ -58,8 +58,8 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                buildToolsVersion "34.0.0"
-                compileSdkVersion 34
+                buildToolsVersion "35.0.0"
+                compileSdkVersion 35
                  defaultConfig {
                     minSdkVersion 24
                 }

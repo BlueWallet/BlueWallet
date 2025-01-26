@@ -13,7 +13,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 
 const PsbtMultisigQRCode = () => {
-  const { navigate } = useNavigation();
+  const navigation = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
   const { params } = useRoute();
@@ -55,21 +55,22 @@ const PsbtMultisigQRCode = () => {
         presentAlert({ message: loc.wallets.import_error });
       } else {
         // psbt base64?
-        navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
+        navigation.navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
       }
     },
-    [navigate],
+    [navigation],
   );
 
   useEffect(() => {
     const data = params.onBarScanned;
     if (data) {
       onBarScanned({ data });
+      navigation.setParams({ onBarScanned: undefined });
     }
-  }, [onBarScanned, params.onBarScanned]);
+  }, [onBarScanned, params.onBarScanned, navigation]);
 
   const openScanner = () => {
-    navigate('ScanQRCode', {
+    navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
     });
   };
