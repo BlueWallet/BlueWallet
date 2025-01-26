@@ -128,18 +128,18 @@ end
 
         You can test it on the following devices:
         
-        - [Google Pixel 9 (Android 15)](https://app-live.browserstack.com/dashboard#os=android&os_version=15.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 8 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 7 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 5 (Android 12)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Google Pixel 3a (Android 9)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Google Pixel 9 (Android 15)](https://app-live.browserstack.com/dashboard#os=android&os_version=15.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Google Pixel 8 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Google+Pixel+8&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Google Pixel 7 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Google+Pixel+7&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Google Pixel 5 (Android 12)](https://app-live.browserstack.com/dashboard#os=android&os_version=12.0&device=Google+Pixel+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Google Pixel 3a (Android 9)](https://app-live.browserstack.com/dashboard#os=android&os_version=9.0&device=Google+Pixel+3a&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
         
-        - [Samsung Galaxy Z Fold 6 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Samsung Galaxy Z Fold 5 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Samsung Galaxy Tab S9 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
-        - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [Samsung Galaxy Z Fold 6 (Android 14)](https://app-live.browserstack.com/dashboard#os=android&os_version=14.0&device=Samsung+Galaxy+Z+Fold+6&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Samsung Galaxy Z Fold 5 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Z+Fold+5&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Samsung Galaxy Tab S9 (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=Samsung+Galaxy+Tab+S9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
+        - [Samsung Galaxy Note 9 (Android 8.1)](https://app-live.browserstack.com/dashboard#os=android&os_version=8.1&device=Samsung+Galaxy+Note+9&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
 
-        - [OnePlus 11R (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=OnePlus+11R&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true)
+        - [OnePlus 11R (Android 13)](https://app-live.browserstack.com/dashboard#os=android&os_version=13.0&device=OnePlus+11R&app_hashed_id=#{browserstack_hashed_id}&scale_to_fit=true&speed=1&start=true&browser=chrome)
         **Filename**: [#{apk_filename}](#{apk_download_url})
         **BrowserStack App URL**: #{app_url}
       COMMENT
