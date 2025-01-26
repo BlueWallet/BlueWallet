@@ -31,6 +31,7 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { RouteProp, useRoute } from '@react-navigation/native';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -46,8 +47,6 @@ interface State {
   selectedIndex: number;
   label: string;
   selectedWalletType: ButtonSelected;
-  entropy: Buffer | undefined;
-  entropyButtonText: string;
 }
 
 const ActionTypes = {
@@ -56,8 +55,6 @@ const ActionTypes = {
   SET_SELECTED_INDEX: 'SET_SELECTED_INDEX',
   SET_LABEL: 'SET_LABEL',
   SET_SELECTED_WALLET_TYPE: 'SET_SELECTED_WALLET_TYPE',
-  SET_ENTROPY: 'SET_ENTROPY',
-  SET_ENTROPY_BUTTON_TEXT: 'SET_ENTROPY_BUTTON_TEXT',
 } as const;
 type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
 
@@ -72,8 +69,6 @@ const initialState: State = {
   selectedIndex: 0,
   label: '',
   selectedWalletType: ButtonSelected.ONCHAIN,
-  entropy: undefined,
-  entropyButtonText: loc.wallets.add_entropy_provide,
 };
 
 const walletReducer = (state: State, action: TAction): State => {
@@ -88,19 +83,15 @@ const walletReducer = (state: State, action: TAction): State => {
       return { ...state, label: action.payload };
     case ActionTypes.SET_SELECTED_WALLET_TYPE:
       return { ...state, selectedWalletType: action.payload };
-    case ActionTypes.SET_ENTROPY:
-      if (!action.payload) {
-        return { ...state, entropy: action.payload, entropyButtonText: loc.wallets.add_entropy_provide };
-      }
-      return { ...state, entropy: action.payload };
-    case ActionTypes.SET_ENTROPY_BUTTON_TEXT:
-      return { ...state, entropyButtonText: action.payload };
     default:
       return state;
   }
 };
 
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'AddWallet'>;
+
+type RouteProps = RouteProp<AddWalletStackParamList, 'AddWallet'>;
+
 const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
 
@@ -111,12 +102,12 @@ const WalletsAdd: React.FC = () => {
   const selectedIndex = state.selectedIndex;
   const label = state.label;
   const selectedWalletType = state.selectedWalletType;
-  const entropy = state.entropy;
-  const entropyButtonText = state.entropyButtonText;
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
-  const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
+  const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
+  const entropy = entropyHex ? Buffer.from(entropyHex, 'hex') : undefined;
+  const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -139,23 +130,18 @@ const WalletsAdd: React.FC = () => {
     },
   };
 
-  const entropyGenerated = useCallback((newEntropy: Buffer) => {
-    let entropyTitle;
-    if (!newEntropy) {
-      entropyTitle = loc.wallets.add_entropy_provide;
-    } else {
-      entropyTitle = loc.formatString(loc.wallets.add_entropy_bytes, {
-        bytes: newEntropy.length,
-      });
+  const entropyButtonText = useMemo(() => {
+    if (!entropy) {
+      return loc.wallets.add_wallet_seed_length_message;
     }
-
-    setEntropy(newEntropy);
-    setEntropyButtonText(entropyTitle);
-  }, []);
+    return loc.formatString(loc.wallets.add_entropy_bytes, {
+      bytes: entropy?.length,
+    });
+  }, [entropy]);
 
   const confirmResetEntropy = useCallback(
     (newWalletType: ButtonSelected) => {
-      if (entropy) {
+      if (entropy || words) {
         Alert.alert(
           loc.wallets.add_entropy_reset_title,
           loc.wallets.add_entropy_reset_message,
@@ -168,8 +154,7 @@ const WalletsAdd: React.FC = () => {
               text: loc._.ok,
               style: 'destructive',
               onPress: () => {
-                setEntropy(undefined);
-                setEntropyButtonText(loc.wallets.add_entropy_provide);
+                setParams({ entropy: undefined, words: undefined });
                 setSelectedWalletType(newWalletType);
               },
             },
@@ -181,43 +166,8 @@ const WalletsAdd: React.FC = () => {
         setSelectedWalletType(newWalletType);
       }
     },
-    [entropy],
+    [entropy, setParams, words],
   );
-
-  const navigateToEntropy = useCallback(() => {
-    Alert.alert(
-      loc.wallets.add_wallet_seed_length,
-      loc.wallets.add_wallet_seed_length_message,
-      [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc.settings.electrum_reset,
-          onPress: () => {
-            confirmResetEntropy(ButtonSelected.ONCHAIN);
-          },
-          style: 'destructive',
-        },
-        {
-          text: loc.wallets.add_wallet_seed_length_12,
-          onPress: () => {
-            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 12 });
-          },
-          style: 'default',
-        },
-        {
-          text: loc.wallets.add_wallet_seed_length_24,
-          onPress: () => {
-            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 24 });
-          },
-        },
-      ],
-      { cancelable: true },
-    );
-  }, [confirmResetEntropy, entropyGenerated, navigate]);
 
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
@@ -254,21 +204,35 @@ const WalletsAdd: React.FC = () => {
       displayInline: true,
     };
 
-    const entropyAction = {
+    const entropySubActions: Action[] = [
+      {
+        id: '12_words',
+        text: loc.wallets.add_wallet_seed_length_12,
+        menuState: words === 12,
+      },
+      {
+        id: '24_words',
+        text: loc.wallets.add_wallet_seed_length_24,
+        menuState: words === 24,
+      },
+      { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
+    ];
+
+    const entropyAction: Action = {
       ...CommonToolTipActions.Entropy,
       text: entropyButtonText,
-      menuState: !!entropy,
+      subactions: entropySubActions,
     };
 
     const entropyActions: Action = {
       id: 'entropy',
-      text: loc._.customize,
+      text: loc.wallets.add_entropy_provide,
       subactions: [entropyAction],
       displayInline: true,
     };
 
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
-  }, [entropy, entropyButtonText, selectedIndex, selectedWalletType]);
+  }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
@@ -287,14 +251,18 @@ const WalletsAdd: React.FC = () => {
             setSelectedIndex(2);
           } else if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
-          } else if (id === CommonToolTipActions.Entropy.id) {
-            navigateToEntropy();
+          } else if (id === '12_words') {
+            navigate('ProvideEntropy', { words: 12, entropy: entropy?.toString('hex') });
+          } else if (id === '24_words') {
+            navigate('ProvideEntropy', { words: 24, entropy: entropy?.toString('hex') });
+          } else if (id === CommonToolTipActions.ResetToDefault.id) {
+            confirmResetEntropy(ButtonSelected.ONCHAIN);
           }
         }}
         actions={toolTipActions}
       />
     ),
-    [handleOnLightningButtonPressed, navigateToEntropy, toolTipActions],
+    [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
   );
 
   useEffect(() => {
@@ -302,7 +270,7 @@ const WalletsAdd: React.FC = () => {
       headerRight: () => HeaderRight,
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, navigateToEntropy, setOptions, toolTipActions]);
+  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
 
   useEffect(() => {
     getLNDHub()
@@ -329,14 +297,6 @@ const WalletsAdd: React.FC = () => {
 
   const setSelectedWalletType = (value: ButtonSelected) => {
     dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
-  };
-
-  const setEntropy = (value: Buffer | undefined) => {
-    dispatch({ type: 'SET_ENTROPY', payload: value });
-  };
-
-  const setEntropyButtonText = (value: string | undefined) => {
-    dispatch({ type: 'SET_ENTROPY_BUTTON_TEXT', payload: value ?? loc.wallets.add_entropy_provide });
   };
 
   const createWallet = async () => {

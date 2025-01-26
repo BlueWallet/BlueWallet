@@ -10,7 +10,6 @@
     "never": "Never",
     "of": "{number} of {total}",
     "ok": "OK",
-    "customize": "Customize",
     "enter_url": "Enter URL",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "yes": "Yes",
@@ -109,7 +108,7 @@
     "minSats": "Minimal amount is {min} sats",
     "minSatsFull": "Minimal amount is {min} sats or {currency}",
     "qrcode_for_the_address": "QR Code for the address",
-    "bip47_explanation": "Payment codes are an universal address that avoids disclosing your wallet addresses. Not all services will support them."
+    "bip47_explanation": "Payment codes are a universal address that avoids disclosing your wallet addresses. Not all services will support them."
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
@@ -403,7 +402,7 @@
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
     "add_wallet_seed_length": "Seed Length",
-    "add_wallet_seed_length_message": "Choose the length of the seed phrase you wish to use for this wallet.",
+    "add_wallet_seed_length_message": "Seed phrase length",
     "add_wallet_seed_length_12": "12 words",
     "add_wallet_seed_length_24": "24 words",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
