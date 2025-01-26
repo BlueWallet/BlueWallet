@@ -25,4 +25,4 @@ mv ./app/build/outputs/apk/release/app-release-unsigned.apk "./app/build/outputs
 echo wheres waldo?
 find $ANDROID_HOME | grep apksigner | grep -v jar
 
-$ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "./app/build/outputs/apk/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"
+$ANDROID_HOME/build-tools/35.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "./app/build/outputs/apk/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"
