@@ -80,7 +80,7 @@
     "@bugsnag/react-native": "8.1.3",
     "@bugsnag/source-maps": "2.3.3",
     "@react-native-community/cli": "15.1.3",
-    "@react-native-community/cli-platform-android": "15.0.1",
+    "@react-native-community/cli-platform-android": "15.1.3",
     "@react-native-community/cli-platform-ios": "15.0.1",
     "@keystonehq/bc-ur-registry": "0.7.0",
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#c6fee8925120d94328dc2aace45d4fa0a111d57f",
