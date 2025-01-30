@@ -735,9 +735,15 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const renderHelp = () => {
+    const opacity = isLoading ? 0.5 : 1;
     return (
       <View style={styles.helpButtonWrapper}>
-        <TouchableOpacity accessibilityRole="button" style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[styles.helpButton, stylesHook.helpButton, { opacity }]}
+          onPress={handleOnHelpPress}
+          disabled={isLoading}
+        >
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
