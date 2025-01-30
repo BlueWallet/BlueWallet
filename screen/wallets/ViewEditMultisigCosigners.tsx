@@ -5,6 +5,7 @@ import {
   Alert,
   findNodeHandle,
   FlatList,
+  GestureResponderEvent,
   InteractionManager,
   Keyboard,
   LayoutAnimation,
@@ -31,7 +32,7 @@ import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
-  MultipleStepsListItemButtohType,
+  MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -321,7 +322,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         <MultipleStepsListItem
           checked
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
+          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
         />
 
         {isXpub ? (
@@ -329,7 +330,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             {!vaultKeyData.isLoading && (
               <MultipleStepsListItem
                 button={{
-                  buttonType: MultipleStepsListItemButtohType.partial,
+                  buttonType: MultipleStepsListItemButtonType.Partial,
                   leftText,
                   text: loc.multisig.view,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
@@ -362,21 +363,21 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     }, 100);
                   },
                 }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
+                dashes={MultipleStepsListItemDashType.TopAndBottom}
               />
             )}
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               button={{
                 text: loc.multisig.i_have_mnemonics,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
                   setCurrentlyEditingCosignerNum(el.index + 1);
                   provideMnemonicsModalRef.current?.present();
                 },
               }}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
             />
           </View>
         ) : (
@@ -389,7 +390,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
-                  buttonType: MultipleStepsListItemButtohType.partial,
+                  buttonType: MultipleStepsListItemButtonType.Partial,
                   onPress: () => {
                     setIsVaultKeyIndexDataLoading(el.index + 1);
                     setTimeout(() => {
@@ -420,7 +421,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     }, 100);
                   },
                 }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
+                dashes={MultipleStepsListItemDashType.TopAndBottom}
               />
             )}
 
@@ -433,14 +434,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 confirmButtonIndex: 1,
               }}
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               button={{
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
 
-                onPress: (buttonIndex: number) => {
-                  if (buttonIndex === 0) return;
+                onPress: (e: number | GestureResponderEvent) => {
+                  if (e === 0) return;
                   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setVaultKeyData({
                     ...vaultKeyData,

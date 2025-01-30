@@ -1,23 +1,66 @@
-import PropTypes from 'prop-types';
 import React, { useRef } from 'react';
-import { ActivityIndicator, findNodeHandle, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  findNodeHandle,
+  GestureResponderEvent,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { Icon } from '@rneui/themed';
-
 import ActionSheet from '../screen/ActionSheet';
-import ActionSheetOptions from '../screen/ActionSheet.common';
 import { useTheme } from './themes';
-export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
-export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
+import { ActionSheetOptions } from '../screen/ActionSheet.common';
 
-const MultipleStepsListItem = props => {
+export enum MultipleStepsListItemDashType {
+  None = 0,
+  Top = 1,
+  Bottom = 2,
+  TopAndBottom = 3,
+}
+
+export enum MultipleStepsListItemButtonType {
+  Partial = 0,
+  Full = 1,
+}
+
+interface MultipleStepsListItemProps {
+  circledText?: string;
+  checked?: boolean;
+  leftText?: string;
+  showActivityIndicator?: boolean;
+  isActionSheet?: boolean;
+  actionSheetOptions?: ActionSheetOptions;
+  dashes?: MultipleStepsListItemDashType;
+  button?: {
+    text?: string;
+    onPress?: (e: GestureResponderEvent | number) => void;
+    disabled?: boolean;
+    buttonType?: MultipleStepsListItemButtonType;
+    leftText?: string;
+    showActivityIndicator?: boolean;
+    testID?: string;
+  };
+  rightButton?: {
+    text?: string;
+    onPress?: () => void;
+    disabled?: boolean;
+    showActivityIndicator?: boolean;
+  };
+}
+
+const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
   const { colors } = useTheme();
   const {
     showActivityIndicator = false,
-    dashes = MultipleStepsListItemDashType.none,
+    dashes = MultipleStepsListItemDashType.None,
     circledText = '',
     leftText = '',
     checked = false,
-    useActionSheet = false,
+    isActionSheet = false,
     actionSheetOptions = null, // Default to null or appropriate default
   } = props;
   const stylesHook = StyleSheet.create({
@@ -43,7 +86,7 @@ const MultipleStepsListItem = props => {
   const selfRef = useRef(null); // Create a ref for the component itself
 
   const handleOnPressForActionSheet = () => {
-    if (useActionSheet && actionSheetOptions) {
+    if (isActionSheet && actionSheetOptions) {
       // Clone options to modify them
       let modifiedOptions = { ...actionSheetOptions };
 
@@ -57,16 +100,16 @@ const MultipleStepsListItem = props => {
 
       ActionSheet.showActionSheetWithOptions(modifiedOptions, buttonIndex => {
         // Call the original onPress function, if provided, and not cancelled
-        if (buttonIndex !== -1 && props.button.onPress) {
+        if (buttonIndex !== -1 && props.button?.onPress) {
           props.button.onPress(buttonIndex);
         }
       });
     }
   };
 
-  const renderDashes = () => {
+  const renderDashes = (): StyleProp<ViewStyle> => {
     switch (dashes) {
-      case MultipleStepsListItemDashType.topAndBottom:
+      case MultipleStepsListItemDashType.TopAndBottom:
         return {
           width: 1,
           borderStyle: 'dashed',
@@ -77,7 +120,7 @@ const MultipleStepsListItem = props => {
           marginLeft: 20,
           position: 'absolute',
         };
-      case MultipleStepsListItemDashType.bottom:
+      case MultipleStepsListItemDashType.Bottom:
         return {
           width: 1,
           borderStyle: 'dashed',
@@ -88,7 +131,7 @@ const MultipleStepsListItem = props => {
           marginLeft: 20,
           position: 'absolute',
         };
-      case MultipleStepsListItemDashType.top:
+      case MultipleStepsListItemDashType.Top:
         return {
           width: 1,
           borderStyle: 'dashed',
@@ -105,6 +148,7 @@ const MultipleStepsListItem = props => {
   };
   const buttonOpacity = { opacity: props.button?.disabled ? 0.5 : 1.0 };
   const rightButtonOpacity = { opacity: props.rightButton?.disabled ? 0.5 : 1.0 };
+  const onPress = isActionSheet ? handleOnPressForActionSheet : props.button?.onPress;
   return (
     <View>
       <View style={renderDashes()} />
@@ -131,19 +175,19 @@ const MultipleStepsListItem = props => {
         {!showActivityIndicator && props.button && (
           <>
             {props.button.buttonType === undefined ||
-              (props.button.buttonType === MultipleStepsListItemButtohType.full && (
+              (props.button.buttonType === MultipleStepsListItemButtonType.Full && (
                 <TouchableOpacity
-                  ref={useActionSheet ? selfRef : null}
+                  ref={isActionSheet ? selfRef : null}
                   testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
-                  onPress={useActionSheet ? handleOnPressForActionSheet : props.button.onPress}
+                  onPress={onPress}
                 >
                   <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
                 </TouchableOpacity>
               ))}
-            {props.button.buttonType === MultipleStepsListItemButtohType.partial && (
+            {props.button.buttonType === MultipleStepsListItemButtonType.Partial && (
               <View style={styles.buttonPartialContainer}>
                 <Text numberOfLines={1} style={[styles.rowPartialLeftText, stylesHook.rowPartialLeftText]} lineBreakMode="middle">
                   {props.button.leftText}
@@ -153,7 +197,7 @@ const MultipleStepsListItem = props => {
                   accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
-                  onPress={props.button.onPress}
+                  onPress={onPress}
                 >
                   {props.button.showActivityIndicator ? (
                     <ActivityIndicator />
@@ -186,30 +230,6 @@ const MultipleStepsListItem = props => {
       </View>
     </View>
   );
-};
-
-MultipleStepsListItem.propTypes = {
-  circledText: PropTypes.string,
-  checked: PropTypes.bool,
-  leftText: PropTypes.string,
-  showActivityIndicator: PropTypes.bool,
-  useActionSheet: PropTypes.bool,
-  actionSheetOptions: PropTypes.shape(ActionSheetOptions),
-  dashes: PropTypes.number,
-  button: PropTypes.shape({
-    text: PropTypes.string,
-    onPress: PropTypes.func,
-    disabled: PropTypes.bool,
-    buttonType: PropTypes.number,
-    leftText: PropTypes.string,
-    showActivityIndicator: PropTypes.bool,
-  }),
-  rightButton: PropTypes.shape({
-    text: PropTypes.string,
-    onPress: PropTypes.func,
-    disabled: PropTypes.bool,
-    showActivityIndicator: PropTypes.bool,
-  }),
 };
 
 const styles = StyleSheet.create({

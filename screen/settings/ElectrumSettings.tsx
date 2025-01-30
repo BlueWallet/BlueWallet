@@ -83,7 +83,7 @@ const ElectrumSettings: React.FC = () => {
 
   const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const fetchData = React.useCallback(async () => {
+  const fetchData = useCallback(async () => {
     console.log('Fetching data...');
     const preferredServer = await BlueElectrum.getPreferredServer();
     const savedHost = preferredServer?.host;
@@ -95,12 +95,22 @@ const ElectrumSettings: React.FC = () => {
     console.log('Server history string:', serverHistoryStr);
 
     const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
+
+    // Allow duplicates for same host if ssl/tcp differs. Only skip if host, ssl, and tcp are all the same:
+    const newServerHistoryArray: ElectrumServerItem[] = [];
+    for (const item of parsedServerHistory) {
+      const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
+      if (!existing) {
+        newServerHistoryArray.push(item);
+      }
+    }
+
     const filteredServerHistory = new Set(
-      parsedServerHistory.filter(
+      newServerHistoryArray.filter(
         v =>
           v.host &&
           (v.tcp || v.ssl) &&
-          !suggestedServers.some(suggested => suggested.host === v.host && suggested.tcp === v.tcp && suggested.ssl === v.ssl) &&
+          !suggestedServers.some(s => s.host === v.host && s.tcp === v.tcp && s.ssl === v.ssl) &&
           !hardcodedPeers.some(peer => peer.host === v.host),
       ),
     );
@@ -183,7 +193,7 @@ const ElectrumSettings: React.FC = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         presentAlert({ message: loc.settings.electrum_saved });
 
-        fetchData();
+        await fetchData();
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ message: (error as Error).message });
@@ -256,6 +266,13 @@ const ElectrumSettings: React.FC = () => {
     [presentSelectServerAlert, fetchData, selectServer],
   );
 
+  const isPreferred = useCallback(
+    (value: ElectrumServerItem) => {
+      return host === value.host && ((sslPort !== undefined && value.ssl === sslPort) || (sslPort === undefined && port === value.tcp));
+    },
+    [host, port, sslPort],
+  );
+
   type TCreateServerActionParameters = {
     value: ElectrumServerItem;
     seenHosts: Set<string>;
@@ -264,7 +281,7 @@ const ElectrumSettings: React.FC = () => {
     isSuggested?: boolean;
   };
   const createServerAction = useCallback(
-    ({ value, seenHosts, isPreferred = false, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
+    ({ value, seenHosts, isPreferred: _unused, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
       const hostKey = `${value.host}:${value.ssl ?? value.tcp}`;
       if (seenHosts.has(hostKey)) return null;
 
@@ -272,27 +289,13 @@ const ElectrumSettings: React.FC = () => {
       return {
         id: `${SET_PREFERRED_PREFIX}${JSON.stringify(value)}`,
         text: Platform.OS === 'android' ? `${value.host}:${value.ssl ?? value.tcp}` : value.host,
-        icon: isPreferred ? { iconValue: Platform.OS === 'ios' ? 'star.fill' : 'star_off' } : undefined,
+        icon: isPreferred(value) ? { iconValue: Platform.OS === 'ios' ? 'star.fill' : 'star_off' } : undefined,
         menuState: isConnectedTo,
-        disabled: isPreferred,
+        disabled: isPreferred(value),
         subtitle: value.ssl ? `${loc._.ssl_port}: ${value.ssl}` : `${loc._.port}: ${value.tcp}`,
-        subactions:
-          isSuggested || isPreferred
-            ? []
-            : [
-                ...(host === value.host && (port === value.tcp || sslPort === value.ssl)
-                  ? []
-                  : [
-                      {
-                        id: `${SET_PREFERRED_PREFIX}${JSON.stringify(value)}`,
-                        text: loc.settings.set_as_preferred,
-                        subtitle: value.ssl ? `${loc._.ssl_port}: ${value.ssl}` : `${loc._.port}: ${value.tcp}`,
-                      },
-                    ]),
-              ],
       } as Action;
     },
-    [host, port, sslPort],
+    [isPreferred],
   );
 
   const generateToolTipActions = useCallback(() => {
@@ -309,7 +312,7 @@ const ElectrumSettings: React.FC = () => {
           createServerAction({
             value,
             seenHosts,
-            isPreferred: host === value.host && (port === value.tcp || sslPort === value.ssl),
+            isPreferred: isPreferred(value),
             isConnectedTo: config?.host === value.host && (config.port === value.tcp || config.port === value.ssl),
             isSuggested: true,
           }),
@@ -325,7 +328,7 @@ const ElectrumSettings: React.FC = () => {
           createServerAction({
             value,
             seenHosts,
-            isPreferred: host === value.host && (port === value.tcp || sslPort === value.ssl),
+            isPreferred: isPreferred(value),
             isConnectedTo: config?.host === value.host && (config.port === value.tcp || config.port === value.ssl),
             isSuggested: false,
           }),
@@ -342,12 +345,12 @@ const ElectrumSettings: React.FC = () => {
     }
 
     const resetToDefaults = { ...CommonToolTipActions.ResetToDefault };
-    resetToDefaults.hidden = !host;
+    resetToDefaults.hidden = !host && serverHistory.size === 0;
 
     actions.push(resetToDefaults);
 
     return actions;
-  }, [config?.host, config.port, createServerAction, host, port, serverHistory, sslPort]);
+  }, [config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
@@ -404,9 +407,11 @@ const ElectrumSettings: React.FC = () => {
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
     if (value) {
-      setPort(undefined);
+      // Move the current port to sslPort
       setSslPort(port);
+      setPort(undefined);
     } else {
+      // Move the current sslPort to port
       setPort(sslPort);
       setSslPort(undefined);
     }
