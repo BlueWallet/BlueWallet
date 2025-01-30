@@ -180,21 +180,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }
 
     setOptions({ headerRight: () => null });
-    // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter(newWallet => {
-      return newWallet.getID() !== walletID;
-    }) as MultisigHDWallet[];
-    if (!isElectrumDisabled) {
-      await wallet?.fetchBalance();
-    }
-    newWallets.push(wallet);
-    setIsSaveButtonDisabled(true);
-    setWalletsWithNewOrder(newWallets);
-    setTimeout(() => {
-      navigationRef.dispatch(
-        CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
-      );
-    }, 500);
+
+    setTimeout(async () => {
+      // eslint-disable-next-line prefer-const
+      let newWallets = wallets.filter(newWallet => {
+        return newWallet.getID() !== walletID;
+      }) as MultisigHDWallet[];
+      if (!isElectrumDisabled) {
+        await wallet?.fetchBalance();
+      }
+      newWallets.push(wallet);
+      setIsSaveButtonDisabled(true);
+      setWalletsWithNewOrder(newWallets);
+      setTimeout(() => {
+        navigationRef.dispatch(
+          CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
+        );
+      }, 500);
+    }, 100);
   };
 
   useFocusEffect(
