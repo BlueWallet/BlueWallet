@@ -1,14 +1,7 @@
 import React, { Ref, useCallback, useMemo } from 'react';
 import { Platform, Pressable, TouchableOpacity } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
-import {
-  ContextMenuView,
-  RenderItem,
-  OnPressMenuItemEventObject,
-  MenuState,
-  IconConfig,
-  MenuElementConfig,
-} from 'react-native-ios-context-menu';
+import { ContextMenuView, RenderItem, OnPressMenuItemEventObject, IconConfig, MenuElementConfig } from 'react-native-ios-context-menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
@@ -48,33 +41,51 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
 
     // Check for subactions
     const subactions =
-      action.subactions?.map(subaction => ({
-        id: subaction.id.toString(),
-        title: subaction.text,
-        subtitle: subaction.subtitle,
-        image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
-        state: subaction.menuState === undefined ? undefined : ((subaction.menuState ? 'on' : 'off') as MenuState),
-        attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
-        subactions: subaction.subactions?.map(subsubaction => ({
-          id: subsubaction.id.toString(),
-          title: subsubaction.text,
-          subtitle: subsubaction.subtitle,
-          image: subsubaction.icon?.iconValue ? subsubaction.icon.iconValue : undefined,
-          state: subsubaction.menuState === undefined ? undefined : ((subsubaction.menuState ? 'on' : 'off') as MenuState),
-          attributes: { disabled: subsubaction.disabled, destructive: subsubaction.destructive, hidden: subsubaction.hidden },
-        })),
-      })) || [];
+      action.subactions?.map(subaction => {
+        const subMenuItem: MenuAction = {
+          id: subaction.id.toString(),
+          title: subaction.text,
+          subtitle: subaction.subtitle,
+          image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
+          attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
+        };
+        if ('menuState' in subaction) {
+          subMenuItem.state = subaction.menuState ? 'on' : 'off';
+        }
+        if (subaction.subactions && subaction.subactions.length > 0) {
+          const deepSubactions = subaction.subactions.map(deepSub => {
+            const deepMenuItem: MenuAction = {
+              id: deepSub.id.toString(),
+              title: deepSub.text,
+              subtitle: deepSub.subtitle,
+              image: deepSub.icon?.iconValue ? deepSub.icon.iconValue : undefined,
+              attributes: { disabled: deepSub.disabled, destructive: deepSub.destructive, hidden: deepSub.hidden },
+            };
+            if ('menuState' in deepSub) {
+              deepMenuItem.state = deepSub.menuState ? 'on' : 'off';
+            }
+            return deepMenuItem;
+          });
+          subMenuItem.subactions = deepSubactions;
+        }
+        return subMenuItem;
+      }) || [];
 
-    return {
+    const menuItem: MenuAction = {
       id: action.id.toString(),
       title: action.text,
       subtitle: action.subtitle,
       image: action.icon?.iconValue ? action.icon.iconValue : undefined,
-      state: action.menuState === undefined ? undefined : ((action.menuState ? 'on' : 'off') as MenuState),
       attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
-      subactions: subactions.length > 0 ? subactions : undefined,
       displayInline: action.displayInline || false,
     };
+    if ('menuState' in action) {
+      menuItem.state = action.menuState ? 'on' : 'off';
+    }
+    if (subactions.length > 0) {
+      menuItem.subactions = subactions;
+    }
+    return menuItem;
   }, []);
 
   const contextMenuItems = useMemo(() => {

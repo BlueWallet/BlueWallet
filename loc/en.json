@@ -403,7 +403,6 @@
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
     "add_wallet_seed_length": "Seed Length",
-    "add_wallet_seed_length_message": "Seed phrase length",
     "add_wallet_seed_length_12": "12 words",
     "add_wallet_seed_length_24": "24 words",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
