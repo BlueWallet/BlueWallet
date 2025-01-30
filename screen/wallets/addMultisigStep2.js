@@ -49,7 +49,7 @@ const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, navigateToWalletsList, setParams } = useExtendedNavigation();
+  const { navigate, navigateToWalletsList, setParams, setOptions } = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -139,11 +139,13 @@ const WalletsAddMultisigStep2 = () => {
 
   const onCreate = async () => {
     setIsLoading(true);
+    setOptions({ headerBackVisible: false });
     await sleep(100);
     try {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
+      setOptions({ headerBackVisible: true });
       presentAlert({ message: e.message });
       console.log('create MS wallet error', e);
     }
@@ -733,9 +735,15 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const renderHelp = () => {
+    const opacity = isLoading ? 0.5 : 1;
     return (
       <View style={styles.helpButtonWrapper}>
-        <TouchableOpacity accessibilityRole="button" style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[styles.helpButton, stylesHook.helpButton, { opacity }]}
+          onPress={handleOnHelpPress}
+          disabled={isLoading}
+        >
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
@@ -798,7 +806,7 @@ const styles = StyleSheet.create({
   multiLineTextInput: {
     minHeight: 200,
   },
-  modalFooterBottomPadding: { padding: 26 },
+  modalFooterBottomPadding: { padding: 38 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
