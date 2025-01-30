@@ -189,7 +189,6 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     id: keys.Entropy,
     text: loc.wallets.add_entropy_provide,
     icon: icons.Entropy,
-    menuState: false,
   },
   RemoveAllRecipients: {
     id: keys.RemoveAllRecipients,
