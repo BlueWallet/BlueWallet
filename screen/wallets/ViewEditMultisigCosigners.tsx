@@ -5,6 +5,7 @@ import {
   Alert,
   findNodeHandle,
   FlatList,
+  GestureResponderEvent,
   InteractionManager,
   Keyboard,
   LayoutAnimation,
@@ -31,7 +32,7 @@ import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
-  MultipleStepsListItemButtohType,
+  MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -61,7 +62,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, setParams, getParent } = useExtendedNavigation<NavigationProp>();
+  const { navigate, dispatch, addListener, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -148,7 +149,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   });
 
   const onSave = async () => {
-    await dismissAllModals();
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
@@ -163,27 +163,32 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
 
-    // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter(newWallet => {
-      return newWallet.getID() !== walletID;
-    }) as MultisigHDWallet[];
-    if (!isElectrumDisabled) {
-      await wallet?.fetchBalance();
-    }
-    newWallets.push(wallet);
-    setIsSaveButtonDisabled(true);
-    setTimeout(() => {
+    setOptions({ headerRight: () => null });
+
+    setTimeout(async () => {
+      // eslint-disable-next-line prefer-const
+      let newWallets = wallets.filter(newWallet => {
+        return newWallet.getID() !== walletID;
+      }) as MultisigHDWallet[];
+      if (!isElectrumDisabled) {
+        await wallet?.fetchBalance();
+      }
+      newWallets.push(wallet);
+      setIsSaveButtonDisabled(true);
       setWalletsWithNewOrder(newWallets);
-      // dismiss this modal
-      getParent()?.goBack();
-    }, 500);
+      setTimeout(() => {
+        navigationRef.dispatch(
+          CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
+        );
+      }, 500);
+    }, 100);
   };
+
   useFocusEffect(
     useCallback(() => {
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
       if (hasLoaded.current) return;
       setIsLoading(true);
-
       if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
 
       const task = InteractionManager.runAfterInteractions(async () => {
@@ -304,7 +309,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         <MultipleStepsListItem
           checked
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
+          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Bottom : MultipleStepsListItemDashType.TopAndBottom}
         />
 
         {isXpub ? (
@@ -312,7 +317,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             {!vaultKeyData.isLoading && (
               <MultipleStepsListItem
                 button={{
-                  buttonType: MultipleStepsListItemButtohType.partial,
+                  buttonType: MultipleStepsListItemButtonType.Partial,
                   leftText,
                   text: loc.multisig.view,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
@@ -345,21 +350,21 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     }, 100);
                   },
                 }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
+                dashes={MultipleStepsListItemDashType.TopAndBottom}
               />
             )}
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               button={{
                 text: loc.multisig.i_have_mnemonics,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
                   setCurrentlyEditingCosignerNum(el.index + 1);
                   provideMnemonicsModalRef.current?.present();
                 },
               }}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
             />
           </View>
         ) : (
@@ -372,7 +377,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
                   showActivityIndicator: isVaultKeyIndexDataLoading === el.index + 1,
-                  buttonType: MultipleStepsListItemButtohType.partial,
+                  buttonType: MultipleStepsListItemButtonType.Partial,
                   onPress: () => {
                     setIsVaultKeyIndexDataLoading(el.index + 1);
                     setTimeout(() => {
@@ -403,7 +408,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     }, 100);
                   },
                 }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
+                dashes={MultipleStepsListItemDashType.TopAndBottom}
               />
             )}
 
@@ -416,14 +421,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 confirmButtonIndex: 1,
               }}
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               button={{
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
 
-                onPress: (buttonIndex: number) => {
-                  if (buttonIndex === 0) return;
+                onPress: (e: number | GestureResponderEvent) => {
+                  if (e === 0) return;
                   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setVaultKeyData({
                     ...vaultKeyData,
@@ -449,13 +454,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         )}
       </View>
     );
-  };
-
-  const dismissAllModals = async () => {
-    await provideMnemonicsModalRef.current?.dismiss();
-    await shareModalRef.current?.dismiss();
-    await mnemonicsModalRef.current?.dismiss();
-    resetModalData();
   };
 
   const _handleUseMnemonicPhrase = useCallback(

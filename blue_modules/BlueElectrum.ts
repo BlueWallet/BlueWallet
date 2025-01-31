@@ -10,6 +10,7 @@ import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
+import { AlertButton } from 'react-native';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -326,33 +327,61 @@ export async function connectMain(): Promise<void> {
 }
 
 export async function presentResetToDefaultsAlert(): Promise<boolean> {
+  const hasPreferredServer = await getPreferredServer();
+  const serverHistoryStr = await DefaultPreference.get(ELECTRUM_SERVER_HISTORY);
+  const serverHistory = typeof serverHistoryStr === 'string' ? JSON.parse(serverHistoryStr) : [];
   return new Promise(resolve => {
     triggerWarningHapticFeedback();
+
+    const buttons: AlertButton[] = [];
+
+    if (hasPreferredServer?.host && (hasPreferredServer.tcp || hasPreferredServer.ssl)) {
+      buttons.push({
+        text: loc.settings.electrum_reset,
+        onPress: async () => {
+          try {
+            await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+            await DefaultPreference.clear(ELECTRUM_HOST);
+            await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+            await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+          } catch (e) {
+            console.log(e); // Must be running on Android
+          }
+          resolve(true);
+        },
+        style: 'default',
+      });
+    }
+
+    if (serverHistory.length > 0) {
+      buttons.push({
+        text: loc.settings.electrum_reset_to_default_and_clear_history,
+        onPress: async () => {
+          try {
+            await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+            await DefaultPreference.clear(ELECTRUM_SERVER_HISTORY);
+            await DefaultPreference.clear(ELECTRUM_HOST);
+            await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+            await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+          } catch (e) {
+            console.log(e); // Must be running on Android
+          }
+          resolve(true);
+        },
+        style: 'destructive',
+      });
+    }
+
+    buttons.push({
+      text: loc._.cancel,
+      onPress: () => resolve(false),
+      style: 'cancel',
+    });
+
     presentAlert({
       title: loc.settings.electrum_reset,
       message: loc.settings.electrum_reset_to_default,
-      buttons: [
-        {
-          text: loc._.cancel,
-          style: 'cancel',
-          onPress: () => resolve(false),
-        },
-        {
-          text: loc._.ok,
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-              await DefaultPreference.clear(ELECTRUM_HOST);
-              await DefaultPreference.clear(ELECTRUM_SSL_PORT);
-              await DefaultPreference.clear(ELECTRUM_TCP_PORT);
-            } catch (e) {
-              console.log(e); // Must be running on Android
-            }
-            resolve(true);
-          },
-        },
-      ],
+      buttons,
       options: { cancelable: true },
     });
   });

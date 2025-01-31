@@ -5,6 +5,7 @@ export interface ActionSheetOptions {
   options: string[]; // Array of button labels.
   destructiveButtonIndex?: number;
   cancelButtonIndex?: number;
+  confirmButtonIndex?: number;
   anchor?: number;
 }
 

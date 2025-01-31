@@ -22,10 +22,6 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
-import MultipleStepsListItem, {
-  MultipleStepsListItemButtohType,
-  MultipleStepsListItemDashType,
-} from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
@@ -44,6 +40,10 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import Clipboard from '@react-native-clipboard/clipboard';
+import MultipleStepsListItem, {
+  MultipleStepsListItemButtonType,
+  MultipleStepsListItemDashType,
+} from '../../components/MultipleStepsListItem';
 
 const staticCache = {};
 
@@ -51,7 +51,7 @@ const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const navigation = useExtendedNavigation();
+  const { navigate, navigateToWalletsList, setParams, setOptions } = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -129,11 +129,13 @@ const WalletsAddMultisigStep2 = () => {
 
   const onCreate = async () => {
     setIsLoading(true);
+    setOptions({ headerBackVisible: false });
     await sleep(100);
     try {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
+      setOptions({ headerBackVisible: true });
       presentAlert({ message: e.message });
       console.log('create MS wallet error', e);
     }
@@ -490,15 +492,15 @@ const WalletsAddMultisigStep2 = () => {
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
       if (index === lastIndex) {
-        return MultipleStepsListItemDashType.top;
+        return MultipleStepsListItemDashType;
       } else {
-        return MultipleStepsListItemDashType.topAndBottom;
+        return MultipleStepsListItemDashType.TopAndBottom;
       }
     } else {
       if (index === lastIndex) {
-        return isFocus ? MultipleStepsListItemDashType.topAndBottom : MultipleStepsListItemDashType.top;
+        return isFocus ? MultipleStepsListItemDashType.TopAndBottom : MultipleStepsListItemDashType.Top;
       } else {
-        return MultipleStepsListItemDashType.topAndBottom;
+        return MultipleStepsListItemDashType.TopAndBottom;
       }
     }
   };
@@ -526,7 +528,7 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 onPress: () => {
                   setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
                   generateNewKey();
@@ -534,18 +536,18 @@ const WalletsAddMultisigStep2 = () => {
                 text: loc.multisig.create_new_key,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={MultipleStepsListItemDashType.topAndBottom}
+              dashes={MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
             />
             <MultipleStepsListItem
               button={{
                 testID: 'VaultCosignerImport' + String(el.index + 1),
                 onPress: iHaveMnemonics,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtonType.Full,
                 text: loc.wallets.import_do_import,
                 disabled: vaultKeyData.isLoading,
               }}
-              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               checked={isChecked}
             />
           </>
@@ -737,9 +739,15 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const renderHelp = () => {
+    const opacity = isLoading ? 0.5 : 1;
     return (
       <View style={styles.helpButtonWrapper}>
-        <TouchableOpacity accessibilityRole="button" style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[styles.helpButton, stylesHook.helpButton, { opacity }]}
+          onPress={handleOnHelpPress}
+          disabled={isLoading}
+        >
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
@@ -806,7 +814,7 @@ const styles = StyleSheet.create({
   multiLineTextInput: {
     minHeight: 200,
   },
-  modalFooterBottomPadding: { padding: 26 },
+  modalFooterBottomPadding: { padding: 38 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,

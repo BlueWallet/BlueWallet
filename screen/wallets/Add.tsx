@@ -132,7 +132,7 @@ const WalletsAdd: React.FC = () => {
 
   const entropyButtonText = useMemo(() => {
     if (!entropy) {
-      return loc.wallets.add_wallet_seed_length_message;
+      return loc.wallets.add_entropy_provide;
     }
     return loc.formatString(loc.wallets.add_entropy_bytes, {
       bytes: entropy?.length,
@@ -208,27 +208,22 @@ const WalletsAdd: React.FC = () => {
       {
         id: '12_words',
         text: loc.wallets.add_wallet_seed_length_12,
+        subtitle: loc.wallets.add_wallet_seed_length,
         menuState: words === 12,
       },
       {
         id: '24_words',
         text: loc.wallets.add_wallet_seed_length_24,
+        subtitle: loc.wallets.add_wallet_seed_length,
         menuState: words === 24,
       },
       { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
     ];
 
-    const entropyAction: Action = {
+    const entropyActions: Action = {
       ...CommonToolTipActions.Entropy,
       text: entropyButtonText,
       subactions: entropySubActions,
-    };
-
-    const entropyActions: Action = {
-      id: 'entropy',
-      text: loc.wallets.add_entropy_provide,
-      subactions: [entropyAction],
-      displayInline: true,
     };
 
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
