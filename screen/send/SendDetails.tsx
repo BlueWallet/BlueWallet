@@ -888,9 +888,10 @@ const SendDetails = () => {
           console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
       }
-      setParams({ onBarScanned: undefined });
     }
-  }, [handlePsbtSign, importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams]);
+    setParams({ onBarScanned: undefined });
+    selectedDataProcessor.current = undefined;
+  }, [handlePsbtSign, importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams, processAddressData]);
 
   const navigateToQRCodeScanner = () => {
     navigation.navigate('ScanQRCode', {
