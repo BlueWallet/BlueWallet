@@ -22,7 +22,6 @@ const PleaseBackupLNDHub = () => {
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { isPrivacyBlurEnabled } = useSettings();
 
-
   const dismiss = useCallback(() => {
     navigation.getParent().goBack();
   }, [navigation]);

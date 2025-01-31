@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, usePreventRemove, CommonActions } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -62,7 +62,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, addListener, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
+  const { navigate, dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
   const openScannerButtonRef = useRef();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -177,7 +177,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       setIsSaveButtonDisabled(true);
       setWalletsWithNewOrder(newWallets);
       setTimeout(() => {
-        navigationRef.dispatch(
+        dispatch(
           CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
         );
       }, 500);
