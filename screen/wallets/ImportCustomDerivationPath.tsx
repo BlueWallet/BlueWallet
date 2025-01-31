@@ -126,7 +126,7 @@ const ImportCustomDerivationPath: React.FC = () => {
     if (wallets[path] === WRONG_PATH) return;
     addAndSaveWallet(wallets[path][type]);
     // @ts-ignore: Navigation
-    navigation.getParent().pop();
+    navigation.getParent()?.goBack();
   };
 
   const renderItem = ({ item }: { item: TItem }) => {
