@@ -168,7 +168,6 @@ export const removePreferredServer = async () => {
 export async function isDisabled(): Promise<boolean> {
   let result;
   try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     const savedValue = await DefaultPreference.get(ELECTRUM_CONNECTION_DISABLED);
     console.log('Getting Electrum connection disabled state:', savedValue);
     if (savedValue === null) {
@@ -184,7 +183,6 @@ export async function isDisabled(): Promise<boolean> {
 }
 
 export async function setDisabled(disabled = true) {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   console.log('Setting Electrum connection disabled state to:', disabled);
   return DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
 }
