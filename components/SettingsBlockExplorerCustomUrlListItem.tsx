@@ -23,6 +23,14 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
 }) => {
   const { colors } = useTheme();
 
+  const onChangeText = (url: string) => {
+    if (url && !/^https?:\/\//i.test(url)) {
+      onCustomUrlChange(`http://${url}`);
+    } else {
+      onCustomUrlChange(url);
+    }
+  };
+
   return (
     <>
       <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
@@ -44,13 +52,14 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
             ref={inputRef}
             value={customUrl}
             placeholder={loc._.enter_url}
-            onChangeText={onCustomUrlChange}
+            onChangeText={onChangeText}
             numberOfLines={1}
             style={[styles.uriText, { color: colors.text }]}
             placeholderTextColor={colors.placeholderTextColor}
             textContentType="URL"
             clearButtonMode="while-editing"
             autoCapitalize="none"
+            dataDetectorTypes="link"
             autoCorrect={false}
             underlineColorAndroid="transparent"
             onSubmitEditing={onSubmitCustomUrl}

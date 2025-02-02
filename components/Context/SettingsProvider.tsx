@@ -18,6 +18,7 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -332,6 +333,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     try {
       const success = await saveBlockExplorer(explorer.url);
       if (success) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         setSelectedBlockExplorer(explorer);
       }
       return success;
