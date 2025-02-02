@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Switch } from 'react-native';
+import { StyleSheet, TextInput, View, Switch, Linking } from 'react-native';
 import { ListItem } from '@rneui/themed';
 import { useTheme } from './themes';
 import loc from '../loc';
+import { SecondButton } from './SecondButton';
 
 interface SettingsBlockExplorerCustomUrlItemProps {
   isCustomEnabled: boolean;
@@ -31,6 +32,12 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
     }
   };
 
+  const onViewInBrowser = () => {
+    if (customUrl) {
+      Linking.openURL(customUrl);
+    }
+  };
+
   return (
     <>
       <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
@@ -47,25 +54,31 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
       </ListItem>
 
       {isCustomEnabled && (
-        <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
-          <TextInput
-            ref={inputRef}
-            value={customUrl}
-            placeholder={loc._.enter_url}
-            onChangeText={onChangeText}
-            numberOfLines={1}
-            style={[styles.uriText, { color: colors.text }]}
-            placeholderTextColor={colors.placeholderTextColor}
-            textContentType="URL"
-            clearButtonMode="while-editing"
-            autoCapitalize="none"
-            dataDetectorTypes="link"
-            autoCorrect={false}
-            underlineColorAndroid="transparent"
-            onSubmitEditing={onSubmitCustomUrl}
-            editable={isCustomEnabled}
-          />
-        </View>
+        <>
+          <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
+            <TextInput
+              ref={inputRef}
+              value={customUrl}
+              placeholder={loc._.enter_url}
+              onChangeText={onChangeText}
+              numberOfLines={1}
+              style={[styles.uriText, { color: colors.text }]}
+              placeholderTextColor={colors.placeholderTextColor}
+              textContentType="URL"
+              clearButtonMode="while-editing"
+              autoCapitalize="none"
+              dataDetectorTypes="link"
+              autoCorrect={false}
+              underlineColorAndroid="transparent"
+              onSubmitEditing={onSubmitCustomUrl}
+              editable={isCustomEnabled}
+            />
+          </View>
+
+          <View style={styles.viewInBrowserContainer}>
+            <SecondButton onPress={onViewInBrowser} title={loc.transactions.details_view_in_browser} />
+          </View>
+        </>
       )}
     </>
   );
@@ -77,6 +90,10 @@ const styles = StyleSheet.create({
   container: {
     minHeight: 60,
     paddingVertical: 10,
+  },
+  viewInBrowserContainer: {
+    marginHorizontal: 15,
+    marginVertical: 10,
   },
   title: {
     fontSize: 16,
