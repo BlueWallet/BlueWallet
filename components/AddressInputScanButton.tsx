@@ -49,7 +49,7 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
   );
 
   const toolTipOnPress = useCallback(async () => {
-    if (!isMenuPrimaryAction) {
+    if (Platform.OS === 'android' || !isMenuPrimaryAction) {
       await scanButtonTapped();
       Keyboard.dismiss();
       navigation.navigate('ScanQRCode', {
@@ -161,7 +161,8 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
       onPressMenuItem={onMenuItemPressed}
       testID="BlueAddressInputScanQrButton"
       disabled={isLoading}
-      isMenuPrimaryAction={isMenuPrimaryAction}
+      // Android permissions handles "unavailable" status differently
+      isMenuPrimaryAction={Platform.OS === 'android' ? false : isMenuPrimaryAction}
       onPress={toolTipOnPress}
       buttonStyle={buttonStyle}
       accessibilityLabel={loc.send.details_scan}

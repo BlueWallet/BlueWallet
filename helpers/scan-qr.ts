@@ -18,10 +18,21 @@ const isCameraAuthorizationStatusRejected = async () => {
 
 const isCameraAuthorizationStatusDeniedByUser = async () => {
   const granted = await isCameraAuthorizationStatusGranted();
-  
+  if (granted) {
+    // Camera access is granted
+    return false;
+  }
   const rejected = await isCameraAuthorizationStatusRejected();
+  if (rejected) {
+    // Camera access is denied by user
+    return true;
+  }
   const unavailable = await isCameraAuthorizationStatusUnavailable();
-  return !granted && !rejected && !unavailable;
+  if (unavailable) {
+    // Camera access is unavailable (probably never been requested)
+    return false;
+  }
+  return false;
 };
 
 const requestCameraAuthorization = () => {
