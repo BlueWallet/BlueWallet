@@ -494,7 +494,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const walletBalance = useMemo(() => {
     if (!wallet) return '';
-    if (wallet.hideBalance) return '***';
+    if (wallet.hideBalance) return '';
     if (isNaN(balance) || balance === 0) return '';
     return formatBalance(balance, wallet.preferredBalanceUnit, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
