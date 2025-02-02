@@ -104,7 +104,6 @@ const AddressInput = ({
       {editable ? (
         <AddressInputScanButton
           isLoading={isLoading}
-          launchedBy={launchedBy}
           scanButtonTapped={scanButtonTapped}
           onBarScanned={onBarScanned}
           onChangeText={onChangeText}

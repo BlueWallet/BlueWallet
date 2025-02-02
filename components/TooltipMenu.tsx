@@ -186,6 +186,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
         accessibilityHint={props.accessibilityHint}
         accessibilityRole={props.accessibilityRole}
         accessibilityLanguage={language}
+        ref={ref}
       >
         {isMenuPrimaryAction || isButton ? (
           <TouchableOpacity style={buttonStyle} disabled={disabled} onPress={onPress} {...restProps}>
