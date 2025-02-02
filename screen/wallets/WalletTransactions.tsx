@@ -29,8 +29,8 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
-import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
+import loc, { formatBalance } from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
@@ -266,18 +266,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     index,
   });
 
-  const listData: TransactionListItem[] = useMemo(() => {
+  // Split header into navigation header and list header text
+  const listData: (TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' })[] = useMemo(() => {
     const transactions = getTransactions(limit).map(tx => ({ ...tx, type: 'transaction' as const }));
-    return [{ type: 'header' } as TransactionListItem, ...transactions];
+    return [{ type: 'navHeader' }, { type: 'listHeader' }, ...transactions];
   }, [getTransactions, limit]);
 
   const hasNoTransactions = useMemo(() => getTransactions(1).length === 0, [getTransactions]);
 
   const renderItem = useCallback(
-    ({ item }: { item: TransactionListItem }) => {
-      if (item.type === 'header') {
-        return wallet ? (
-          <>
+    ({ item }: { item: TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' } }) => {
+      if ('type' in item && (item.type === 'navHeader' || item.type === 'listHeader')) {
+        if (item.type === 'navHeader') {
+          return wallet ? (
             <TransactionsNavigationHeader
               wallet={wallet}
               onWalletUnitChange={async selectedUnit => {
@@ -321,48 +322,55 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
                 }
               }}
             />
-            <View style={[styles.flex, { backgroundColor: colors.background }]}>
-              <View style={styles.listHeaderTextRow}>
-                <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+          ) : null;
+        }
+        if (item.type === 'listHeader') {
+          return (
+            <>
+              <View style={[styles.flex, { backgroundColor: colors.background }]}>
+                <View style={styles.listHeaderTextRow}>
+                  <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+                </View>
               </View>
-            </View>
-            <View style={{ backgroundColor: colors.background }}>
-              {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-                <WatchOnlyWarning
-                  handleDismiss={() => {
-                    wallet.isWatchOnlyWarningVisible = false;
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-                    saveToDisk();
-                  }}
-                />
-              )}
-            </View>
+              <View style={{ backgroundColor: colors.background }}>
+                {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+                  <WatchOnlyWarning
+                    handleDismiss={() => {
+                      wallet.isWatchOnlyWarningVisible = false;
+                      LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                      saveToDisk();
+                    }}
+                  />
+                )}
+              </View>
 
-            {hasNoTransactions && (
-              <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
-                <Text numberOfLines={0} style={styles.emptyTxs}>
-                  {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
-                </Text>
-                {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-              </ScrollView>
-            )}
-          </>
-        ) : null;
+              {hasNoTransactions && (
+                <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+                  <Text numberOfLines={0} style={styles.emptyTxs}>
+                    {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+                  </Text>
+                  {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+                </ScrollView>
+              )}
+            </>
+          );
+        }
       }
+      // Regular transaction item
       return <TransactionListItem item={item as Transaction} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
     },
     [
-      colors.background,
-      hasNoTransactions,
-      isBiometricUseCapableAndEnabled,
-      isLightning,
-      navigate,
-      navigateToViewEditCosigners,
-      onManageFundsPressed,
-      saveToDisk,
-      stylesHook.listHeaderText,
       wallet,
       walletID,
+      saveToDisk,
+      isBiometricUseCapableAndEnabled,
+      navigateToViewEditCosigners,
+      onManageFundsPressed,
+      navigate,
+      colors.background,
+      stylesHook.listHeaderText,
+      hasNoTransactions,
+      isLightning,
     ],
   );
 
@@ -470,37 +478,47 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const headerHeight = 140;
   const headerStop = useMemo(() => {
-    return hasNoTransactions ? (headerHeight / screenHeight) * 3 : headerHeight / (screenHeight / 3);
-  }, [hasNoTransactions, screenHeight]);
+    return (headerHeight / screenHeight) * 3;
+  }, [screenHeight]);
 
   const linearGradientColors = useMemo(() => {
     return wallet ? [WalletGradient.headerColorFor(wallet.type), colors.background] : [colors.background];
   }, [colors.background, wallet]);
 
-  const computedBalance = useMemo(() => {
-    if (!wallet) return '';
-    return wallet.hideBalance
-      ? '***'
-      : wallet.preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
-        ? formatBalance(wallet.getBalance(), wallet.preferredBalanceUnit, true)
-        : formatBalanceWithoutSuffix(wallet.getBalance(), wallet.preferredBalanceUnit, true);
+  const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
+  useEffect(() => {
+    if (!wallet) return;
+    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+    return () => clearInterval(interval);
   }, [wallet]);
+
+  const walletBalance = useMemo(() => {
+    if (!wallet) return '';
+    if (wallet.hideBalance) return '***';
+    if (isNaN(balance) || balance === 0) return '';
+    return formatBalance(balance, wallet.preferredBalanceUnit, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, wallet?.hideBalance, wallet?.preferredBalanceUnit, balance]);
 
   const handleScroll = useCallback(
     (event: any) => {
       const offsetY = event.nativeEvent.contentOffset.y;
-      if (offsetY > headerStop && headerVisible) {
-        setHeaderVisible(false);
-        navigation.setOptions({
-          headerTitle: wallet ? `${wallet.getLabel()} - ${computedBalance}` : '',
-        });
-      } else if (offsetY <= headerStop && !headerVisible) {
-        setHeaderVisible(true);
-        // Remove the header title when the header becomes visible
-        setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
+      const combinedHeight = 180;
+      if (offsetY < combinedHeight) {
+        if (!headerVisible) {
+          setHeaderVisible(true);
+          setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
+        }
+      } else {
+        if (headerVisible) {
+          setHeaderVisible(false);
+          navigation.setOptions({
+            headerTitle: wallet ? `${wallet.getLabel()} ${walletBalance}` : '',
+          });
+        }
       }
     },
-    [headerStop, headerVisible, navigation, wallet, computedBalance, setOptions, route],
+    [headerVisible, navigation, wallet, walletBalance, setOptions, route],
   );
 
   return (
@@ -513,7 +531,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         end={{ x: 0, y: 1 }}
         locations={[0, headerStop, headerStop, 1]} // abrupt switch at header bottom
       >
-        <FlatList<TransactionListItem>
+        <FlatList<TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' }>
           getItemLayout={getItemLayout}
           updateCellsBatchingPeriod={30}
           onEndReachedThreshold={0.3}
@@ -529,10 +547,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           contentContainerStyle={{ backgroundColor: colors.background }}
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
           maxToRenderPerBatch={15}
-          stickyHeaderIndices={[0]}
-          stickyHeaderHiddenOnScroll
+          stickyHeaderIndices={[1]}
           onScroll={handleScroll}
           scrollEventThrottle={16}
+          stickyHeaderHiddenOnScroll
         />
       </LinearGradient>
       <FContainer ref={walletActionButtonsRef}>

@@ -108,11 +108,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     ];
   }, []);
 
+  const currentBalance = wallet ? wallet.getBalance() : 0;
   const formattedBalance = useMemo(() => {
     return unit === BitcoinUnit.LOCAL_CURRENCY
-      ? formatBalance(wallet.getBalance(), unit, true)
-      : formatBalanceWithoutSuffix(wallet.getBalance(), unit, true);
-  }, [unit, wallet]);
+      ? formatBalance(currentBalance, unit, true)
+      : formatBalanceWithoutSuffix(currentBalance, unit, true);
+  }, [unit, currentBalance]);
 
   const balance = !wallet.hideBalance && formattedBalance;
 
