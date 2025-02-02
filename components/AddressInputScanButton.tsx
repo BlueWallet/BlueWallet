@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from './TooltipMenu';
@@ -9,11 +9,8 @@ import { useTheme } from './themes';
 import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import { isCameraAuthorizationStatusDeniedByUser } from '../helpers/scan-qr';
-import { openSettings } from 'react-native-permissions';
-import { Action } from './types';
 
 interface AddressInputScanButtonProps {
   isLoading: boolean;
@@ -29,7 +26,6 @@ interface RouteParams {
 export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScanned, onChangeText }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
-  const [isMenuPrimaryAction, setIsMenuPrimaryAction] = useState(false);
 
   const navigation = useExtendedNavigation();
   const params = useRoute().params as RouteParams;
@@ -42,36 +38,27 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
     },
   });
 
-  useFocusEffect(
-    useCallback(() => {
-      isCameraAuthorizationStatusDeniedByUser().then(setIsMenuPrimaryAction);
-    }, []),
-  );
-
   const toolTipOnPress = useCallback(async () => {
-    if (!isMenuPrimaryAction) {
-      await scanButtonTapped();
-      Keyboard.dismiss();
-      navigation.navigate('ScanQRCode', {
-        showFileImportButton: true,
-      });
-    }
-  }, [isMenuPrimaryAction, navigation, scanButtonTapped]);
+    await scanButtonTapped();
+    Keyboard.dismiss();
+    navigation.navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
+  }, [navigation, scanButtonTapped]);
 
   const actions = useMemo(() => {
-    const availableActions: Action | Action[][] = [
-      [
-        CommonToolTipActions.ChoosePhoto,
-        CommonToolTipActions.ImportFile,
-        {
-          ...CommonToolTipActions.PasteFromClipboard,
-          hidden: !isClipboardGetContentEnabled,
-        },
-      ],
-      [{ ...CommonToolTipActions.OpenSettings, hidden: !isMenuPrimaryAction }],
+    const availableActions = [
+      CommonToolTipActions.ScanQR,
+      CommonToolTipActions.ChoosePhoto,
+      CommonToolTipActions.ImportFile,
+      {
+        ...CommonToolTipActions.PasteFromClipboard,
+        hidden: !isClipboardGetContentEnabled,
+      },
     ];
+
     return availableActions;
-  }, [isClipboardGetContentEnabled, isMenuPrimaryAction]);
+  }, [isClipboardGetContentEnabled]);
 
   useEffect(() => {
     const data = params.onBarScanned;
@@ -85,6 +72,12 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
     async (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
+        case CommonToolTipActions.ScanQR.id:
+          scanButtonTapped();
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
+          break;
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
             let getImage: string | null = null;
@@ -144,12 +137,10 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
               presentAlert({ message: error.message });
             });
           break;
-        case CommonToolTipActions.OpenSettings.id:
-          openSettings('application');
       }
       Keyboard.dismiss();
     },
-    [onBarScanned, onChangeText],
+    [navigation, onBarScanned, onChangeText, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
@@ -161,7 +152,6 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
       onPressMenuItem={onMenuItemPressed}
       testID="BlueAddressInputScanQrButton"
       disabled={isLoading}
-      isMenuPrimaryAction={isMenuPrimaryAction}
       onPress={toolTipOnPress}
       buttonStyle={buttonStyle}
       accessibilityLabel={loc.send.details_scan}
