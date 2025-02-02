@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
@@ -98,7 +98,11 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
       <View style={styles.topButtons}>
         <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
           <Animated.View style={styles.topButtonImg}>
-            <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+            {Platform.OS === 'ios' ? (
+              <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+            ) : (
+              <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+            )}
           </Animated.View>
         </TouchableOpacity>
         <View style={styles.rightButtonsContainer}>
@@ -154,7 +158,11 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         </TouchableOpacity>
         <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
           <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+            {Platform.OS === 'ios' ? (
+              <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+            ) : (
+              <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+            )}
           </Animated.View>
         </TouchableOpacity>
       </View>
