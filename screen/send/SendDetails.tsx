@@ -872,29 +872,33 @@ const SendDetails = () => {
     const data = routeParams.onBarScanned;
     if (data) {
       if (selectedDataProcessor.current) {
-        if (
-          selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR ||
-          selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
-          selectedDataProcessor.current === CommonToolTipActions.SignPSBT
-        ) {
-          if (selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR) {
+        switch (selectedDataProcessor.current) {
+          case CommonToolTipActions.ImportTransactionQR:
             importQrTransactionOnBarScanned(data);
-          } else if (
-            selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
-            selectedDataProcessor.current === CommonToolTipActions.SignPSBT
-          ) {
+            break;
+          case CommonToolTipActions.CoSignTransaction:
+          case CommonToolTipActions.SignPSBT:
             handlePsbtSign(data);
-          } else {
-            onBarScanned(data);
-          }
-        } else {
-          console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
+            break;
+          case CommonToolTipActions.ImportTransactionMultsig:
+            _importTransactionMultisig(data);
+            break;
+          default:
+            console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
       }
     }
     setParams({ onBarScanned: undefined });
     selectedDataProcessor.current = undefined;
-  }, [handlePsbtSign, importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams, processAddressData]);
+  }, [
+    handlePsbtSign,
+    importQrTransactionOnBarScanned,
+    onBarScanned,
+    routeParams.onBarScanned,
+    setParams,
+    processAddressData,
+    _importTransactionMultisig,
+  ]);
 
   const navigateToQRCodeScanner = () => {
     navigation.navigate('ScanQRCode', {
