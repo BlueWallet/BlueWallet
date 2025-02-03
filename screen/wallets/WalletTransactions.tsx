@@ -482,7 +482,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [screenHeight]);
 
   const linearGradientColors = useMemo(() => {
-    return wallet ? [WalletGradient.headerColorFor(wallet.type), colors.background] : [colors.background];
+    return wallet ? [WalletGradient.headerColorFor(wallet.type), colors.background] : [colors.background, colors.background];
   }, [colors.background, wallet]);
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
