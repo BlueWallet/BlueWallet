@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -47,7 +47,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
-    const scrollView = useRef<ScrollView>(null);
     const { isVisible } = useKeyboard();
 
     const stylesHook = StyleSheet.create({
@@ -267,7 +266,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
-        scrollRef={scrollView}
         keyboardMode="pan"
         dismissible={false}
         footer={
@@ -302,14 +300,14 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Animated.ScrollView style={styles.explanationScrollView} ref={scrollView}>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                <Animated.View>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1}>
                     {loc.settings.encrypt_storage_explanation_description_line1}
                   </Text>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1}>
                     {loc.settings.encrypt_storage_explanation_description_line2}
                   </Text>
-                </Animated.ScrollView>
+                </Animated.View>
                 <View style={styles.feeModalFooter} />
               </Animated.View>
             )}
@@ -406,10 +404,10 @@ const styles = StyleSheet.create({
     minHeight: 280,
   },
   feeModalFooter: {
-    padding: 16,
+    margin: 34,
   },
   feeModalFooterSpacing: {
-    padding: 16,
+    margin: 34,
   },
   inputContainer: {
     marginBottom: 10,
@@ -449,8 +447,5 @@ const styles = StyleSheet.create({
   checkmark: {
     color: 'white',
     fontSize: 30,
-  },
-  explanationScrollView: {
-    maxHeight: 200,
   },
 });

@@ -64,6 +64,10 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
   const actions = useMemo(() => {
     const availableActions: Action | Action[][] = [
       [
+        {
+          ...CommonToolTipActions.ScanQR,
+          hidden: isMenuPrimaryAction,
+        },
         CommonToolTipActions.ChoosePhoto,
         CommonToolTipActions.ImportFile,
         {
@@ -88,6 +92,12 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
     async (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
+        case CommonToolTipActions.ScanQR.id:
+          scanButtonTapped();
+          navigation.navigate('ScanQRCode', {
+            showFileImportButton: true,
+          });
+          break;
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
             let getImage: string | null = null;
@@ -152,7 +162,7 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
       }
       Keyboard.dismiss();
     },
-    [onBarScanned, onChangeText],
+    [navigation, onBarScanned, onChangeText, scanButtonTapped],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
