@@ -44,12 +44,15 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
 
   useFocusEffect(
     useCallback(() => {
-      isCameraAuthorizationStatusDeniedByUser().then(setIsMenuPrimaryAction);
+      // Android permissions handles "unavailable" status differently
+      if (Platform.OS !== 'android') {
+        isCameraAuthorizationStatusDeniedByUser().then(setIsMenuPrimaryAction);
+      }
     }, []),
   );
 
   const toolTipOnPress = useCallback(async () => {
-    if (Platform.OS === 'android' || !isMenuPrimaryAction) {
+    if (!isMenuPrimaryAction) {
       await scanButtonTapped();
       Keyboard.dismiss();
       navigation.navigate('ScanQRCode', {
@@ -161,8 +164,7 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onBarScann
       onPressMenuItem={onMenuItemPressed}
       testID="BlueAddressInputScanQrButton"
       disabled={isLoading}
-      // Android permissions handles "unavailable" status differently
-      isMenuPrimaryAction={Platform.OS === 'android' ? false : isMenuPrimaryAction}
+      isMenuPrimaryAction={isMenuPrimaryAction}
       onPress={toolTipOnPress}
       buttonStyle={buttonStyle}
       accessibilityLabel={loc.send.details_scan}
