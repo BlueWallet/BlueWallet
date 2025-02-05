@@ -183,23 +183,11 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
     if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       const file = await _readPsbtFileIntoBase64(fileCopyUri);
-      return { data: file, uri: decodeURI(res.fileCopyUri) };
+      return { data: file, uri: fileCopyUri };
     }
 
     if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
-      try {
-        const uri2 = res.fileCopyUri.replace('file://', '');
-        const result = await RNQRGenerator.detect({ uri: decodeURI(uri2) });
-        if (result) {
-          return { data: result.values[0], uri: fileCopyUri };
-        }
-        presentAlert({ message: loc.send.qr_error_no_qrcode });
-        return { data: false, uri: false };
-      } catch (error) {
-        console.error(error);
-        presentAlert({ message: loc.send.qr_error_no_qrcode });
-        return { data: false, uri: false };
-      }
+      return await handleImageFile(fileCopyUri);
     }
 
     const file = await RNFS.readFile(fileCopyUri);
@@ -208,6 +196,33 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
     if (!DocumentPicker.isCancel(err)) {
       presentAlert({ message: err.message });
     }
+    return { data: false, uri: false };
+  }
+};
+
+const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
+  try {
+    const exists = await RNFS.exists(fileCopyUri);
+    if (!exists) {
+      presentAlert({ message: 'File does not exist' });
+      return { data: false, uri: false };
+    }
+    // First attempt: use original URI
+    let result = await RNQRGenerator.detect({ uri: decodeURI(fileCopyUri) });
+    if (result?.values && result.values.length > 0) {
+      return { data: result.values[0], uri: fileCopyUri };
+    }
+    // Second attempt: remove file:// prefix and try again
+    const altUri = fileCopyUri.replace(/^file:\/\//, '');
+    result = await RNQRGenerator.detect({ uri: decodeURI(altUri) });
+    if (result?.values && result.values.length > 0) {
+      return { data: result.values[0], uri: fileCopyUri };
+    }
+    presentAlert({ message: loc.send.qr_error_no_qrcode });
+    return { data: false, uri: false };
+  } catch (error: any) {
+    console.error(error);
+    presentAlert({ message: loc.send.qr_error_no_qrcode });
     return { data: false, uri: false };
   }
 };
