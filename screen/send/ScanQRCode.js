@@ -1,4 +1,4 @@
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -16,7 +16,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 let decoder = false;
 
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { setIsDrawerShouldHide } = useSettings();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const route = useRoute();
   const navigationState = navigation.getState();
   const previousRoute = navigationState.routes[navigationState.routes.length - 2];
