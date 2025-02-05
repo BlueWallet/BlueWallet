@@ -1,12 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { TouchableOpacityWrapper } from './ListItem';
 import loc from '../loc';
 
 enum ItemType {
@@ -121,33 +120,27 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       <ListItem.Swipeable
         leftWidth={80}
         rightWidth={90}
-        containerStyle={[{ backgroundColor: colors.background }, style]}
-        leftContent={leftContent}
-        rightContent={rightContent}
-        Component={TouchableOpacityWrapper}
+        containerStyle={[{ backgroundColor: colors.background }, style, isActive ? styles.transparentBackground : {}]}
+        leftContent={isActive ? null : leftContent}
+        rightContent={isActive ? null : rightContent}
         onPressOut={onPressOut}
         minSlideWidth={100}
         onPressIn={onPressIn}
-        style={isActive ? styles.activeItem : undefined}
+        style={isActive ? styles.transparentBackground : {}}
       >
-        <ListItem.Content
-          style={{
-            backgroundColor: colors.background,
-          }}
-        >
-          <View style={styles.walletCarouselItemContainer}>
-            <WalletCarouselItem
-              item={item.data}
-              handleLongPress={isDraggingDisabled ? undefined : drag}
-              onPress={onPress}
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}
-              animationsEnabled={false}
-              searchQuery={state.searchQuery}
-              isPlaceHolder={isPlaceHolder}
-              renderHighlightedText={renderHighlightedText}
-            />
-          </View>
+        <ListItem.Content>
+          <WalletCarouselItem
+            item={item.data}
+            handleLongPress={isDraggingDisabled ? undefined : drag}
+            onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            animationsEnabled={false}
+            searchQuery={state.searchQuery}
+            isPlaceHolder={isPlaceHolder}
+            renderHighlightedText={renderHighlightedText}
+            customStyle={styles.carouselItem}
+          />
         </ListItem.Content>
       </ListItem.Swipeable>
     );
@@ -170,13 +163,13 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 };
 
 const styles = StyleSheet.create({
-  walletCarouselItemContainer: {
-    width: '100%',
-  },
   leftButtonContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  carouselItem: {
+    width: '100%',
   },
   rightButtonContainer: {
     flex: 1,
@@ -184,8 +177,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'red',
   },
-  activeItem: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  transparentBackground: {
+    backgroundColor: 'transparent',
   },
 });
 
