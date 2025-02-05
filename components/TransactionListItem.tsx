@@ -46,10 +46,10 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const { language, selectedBlockExplorer } = useSettings();
     const containerStyle = useMemo(
       () => ({
-        backgroundColor: colors.background,
+        backgroundColor: 'transparent',
         borderBottomColor: colors.lightBorder,
       }),
-      [colors.background, colors.lightBorder],
+      [colors.lightBorder],
     );
 
     const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
@@ -81,23 +81,28 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       return sub || undefined;
     }, [txMemo, item.confirmations, item.memo]);
 
-    const formattedAmount = useMemo(() => {
-      return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
-    }, [item.value, itemPriceUnit]);
-
     const rowTitle = useMemo(() => {
       if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        const currentDate = new Date();
-        const now = Math.floor(currentDate.getTime() / 1000);
-        const invoiceExpiration = item.timestamp! + item.expire_time!;
-        if (invoiceExpiration > now || item.ispaid) {
-          return formattedAmount;
-        } else {
-          return loc.lnd.expired;
+        if (isNaN(Number(item.value))) {
+          item.value = 0;
         }
+        const currentDate = new Date();
+        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+        const invoiceExpiration = item.timestamp! + item.expire_time!;
+
+        if (invoiceExpiration > now) {
+          return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+        } else {
+          if (item.ispaid) {
+            return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+          } else {
+            return loc.lnd.expired;
+          }
+        }
+      } else {
+        return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
       }
-      return formattedAmount;
-    }, [item, formattedAmount]);
+    }, [item, itemPriceUnit]);
 
     const rowTitleStyle = useMemo(() => {
       let color = colors.successColor;
@@ -193,9 +198,10 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
 
     const amountWithUnit = useMemo(() => {
-      const unitSuffix = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
-      return `${formattedAmount}${unitSuffix}`;
-    }, [formattedAmount, itemPriceUnit]);
+      const amount = formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+      const unit = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
+      return `${amount}${unit}`;
+    }, [item.value, itemPriceUnit]);
 
     useEffect(() => {
       setSubtitleNumberOfLines(1);

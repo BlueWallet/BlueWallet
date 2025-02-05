@@ -458,7 +458,7 @@ const SendDetails = () => {
 
       setIsLoading(false);
     },
-    [setParams, wallet],
+    [wallet, setParams],
   );
 
   const createTransaction = async () => {
@@ -869,35 +869,30 @@ const SendDetails = () => {
     const data = routeParams.onBarScanned;
     if (data) {
       if (selectedDataProcessor.current) {
-        switch (selectedDataProcessor.current) {
-          case CommonToolTipActions.ImportTransactionQR:
+        if (
+          selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR ||
+          selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
+          selectedDataProcessor.current === CommonToolTipActions.SignPSBT
+        ) {
+          if (selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR) {
             importQrTransactionOnBarScanned(data);
-            break;
-          case CommonToolTipActions.CoSignTransaction:
-          case CommonToolTipActions.SignPSBT:
+          } else if (
+            selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
+            selectedDataProcessor.current === CommonToolTipActions.SignPSBT
+          ) {
             handlePsbtSign(data);
-            break;
-          case CommonToolTipActions.ImportTransactionMultsig:
-            _importTransactionMultisig(data);
-            break;
-          default:
-            console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
+          } else {
+            onBarScanned(data);
+          }
+        } else {
+          processAddressData(data);
         }
       } else {
         processAddressData(data);
       }
+      setParams({ onBarScanned: undefined });
     }
-    setParams({ onBarScanned: undefined });
-    selectedDataProcessor.current = undefined;
-  }, [
-    handlePsbtSign,
-    importQrTransactionOnBarScanned,
-    onBarScanned,
-    routeParams.onBarScanned,
-    setParams,
-    processAddressData,
-    _importTransactionMultisig,
-  ]);
+  }, [handlePsbtSign, importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams, processAddressData]);
 
   const navigateToQRCodeScanner = () => {
     navigation.navigate('ScanQRCode', {
