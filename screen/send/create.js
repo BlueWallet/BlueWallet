@@ -12,7 +12,7 @@ import Share from 'react-native-share';
 
 import { satoshiToBTC } from '../../blue_modules/currency';
 import { isDesktop } from '../../blue_modules/environment';
-import { BlueText } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
@@ -140,7 +140,13 @@ const SendCreate = () => {
 
   const ListHeaderComponent = (
     <View>
-      {showAnimatedQr && psbt ? <DynamicQRCode value={psbt.toHex()} /> : null}
+      {showAnimatedQr && psbt ? (
+        <>
+          <BlueSpacing20 />
+          <DynamicQRCode value={psbt.toHex()} />
+          <BlueSpacing20 />
+        </>
+      ) : null}
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
       <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable={false} value={tx} />
 
