@@ -266,7 +266,7 @@
     "details_balance_hide": "Esconder balance",
     "details_balance_show": "Mostrar balance",
     "details_copy": "Copiar",
-    "details_copy_block_explorer_link": "Copiar el enlace del explorador de bloques",
+    "details_copy_browser_link": "Copiar el enlace del explorador de bloques",
     "details_copy_note": "Copiar nota",
     "details_copy_txid": "Copiar el ID de la transacción",
     "details_from": "Origen",

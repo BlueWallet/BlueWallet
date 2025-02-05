@@ -338,7 +338,7 @@
     "details_balance_hide": "残高を隠す",
     "details_balance_show": "残高を表示",
     "details_copy": "コピー",
-    "details_copy_block_explorer_link": "ブロックエクスプローラーのリンクをコピー",
+    "details_copy_browser_link": "ブロックエクスプローラーのリンクをコピー",
     "details_copy_note": "ノートをコピー",
     "details_copy_txid": "取引IDをコピー",
     "details_from": "送り主",

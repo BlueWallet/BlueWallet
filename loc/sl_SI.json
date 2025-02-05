@@ -266,7 +266,7 @@
     "details_balance_hide": "Skrij Stanje",
     "details_balance_show": "Prikaži Stanje",
     "details_copy": "Kopiraj",
-    "details_copy_block_explorer_link": "Kopiraj povezavo razisk. blokov",
+    "details_copy_browser_link": "Kopiraj povezavo razisk. blokov",
     "details_copy_note": "Kopiraj opis",
     "details_copy_txid": "Kopiraj ID transakcije",
     "details_from": "Vhod",

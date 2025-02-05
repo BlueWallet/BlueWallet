@@ -262,7 +262,7 @@
     "details_balance_hide": "Gjem Balanse",
     "details_balance_show": "Vis Balanse",
     "details_copy": "Kopier",
-    "details_copy_block_explorer_link": "Kopier Block Explorer-lenken",
+    "details_copy_browser_link": "Kopier Block Explorer-lenken",
     "details_copy_note": "Kopier Merknad",
     "details_copy_txid": "Kopier Transaksjons-ID",
     "details_from": "Inndata",

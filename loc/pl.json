@@ -339,7 +339,7 @@
     "details_balance_hide": "Ukryj Saldo",
     "details_balance_show": "Pokaż Saldo",
     "details_copy": "Kopiuj",
-    "details_copy_block_explorer_link": "Kopiuj link do eksploratora bloków",
+    "details_copy_browser_link": "Kopiuj link do eksploratora bloków",
     "details_copy_note": "Kopiuj notatkę",
     "details_copy_txid": "Kopiuj ID transakcji",
     "details_from": "Wejście",

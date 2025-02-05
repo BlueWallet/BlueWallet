@@ -338,7 +338,7 @@
     "details_balance_hide": "隐藏余额",
     "details_balance_show": "显示余额",
     "details_copy": "复制",
-    "details_copy_block_explorer_link": "复制区块浏览器链接",
+    "details_copy_browser_link": "复制区块浏览器链接",
     "details_copy_note": "复印备注",
     "details_copy_txid": "复制 Tx ID",
     "details_from": "输入",

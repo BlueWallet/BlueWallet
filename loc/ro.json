@@ -251,7 +251,7 @@
     "details_balance_hide": "Ascunde balanța",
     "details_balance_show": "Afișează balanța",
     "details_copy": "Copiază",
-    "details_copy_block_explorer_link": "Copiază link-ul block explorer-ului.",
+    "details_copy_browser_link": "Copiază link-ul block explorer-ului.",
     "details_copy_txid": "Copiază ID-ul tranzacției",
     "details_from": "Input",
     "details_inputs": "Input-uri",

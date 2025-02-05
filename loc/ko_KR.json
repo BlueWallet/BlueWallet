@@ -281,7 +281,7 @@
     "details_balance_hide": "잔고 감추기",
     "details_balance_show": "잔고 보여주기",
     "details_copy": "복사",
-    "details_copy_block_explorer_link": "블록 익스플로러 링크 복사하기",
+    "details_copy_browser_link": "블록 익스플로러 링크 복사하기",
     "details_copy_note": "노트 복사하기",
     "details_copy_txid": "거래 아이디 복사하기",
     "details_from": "입력",

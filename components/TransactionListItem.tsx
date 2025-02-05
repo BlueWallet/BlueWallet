@@ -246,7 +246,19 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       setSubtitleNumberOfLines(0);
     }, []);
 
-    const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
+    const handleOnDetailsPress = useCallback(() => {
+      if (walletID && item && item.hash) {
+        navigate('TransactionDetails', { tx: item, hash: item.hash, walletID });
+      } else {
+        const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
+        if (lightningWallet) {
+          navigate('LNDViewInvoice', {
+            invoice: item,
+            walletID: lightningWallet.getID(),
+          });
+        }
+      }
+    }, [item, navigate, walletID, wallets]);
 
     const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
     const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
@@ -277,6 +289,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           handleCopyOpenInBlockExplorerPress();
         } else if (id === CommonToolTipActions.CopyTXID.id) {
           handleOnCopyTransactionID();
+        } else if (id === CommonToolTipActions.Details.id) {
+          handleOnDetailsPress();
         }
       },
       [
@@ -284,37 +298,48 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         handleOnCopyAmountTap,
         handleOnCopyNote,
         handleOnCopyTransactionID,
+        handleOnDetailsPress,
         handleOnExpandNote,
         handleOnViewOnBlockExplorer,
       ],
     );
     const toolTipActions = useMemo((): Action[] => {
-      const actions: (Action | Action[])[] = [];
-
-      if (rowTitle !== loc.lnd.expired) {
-        actions.push(CommonToolTipActions.CopyAmount);
-      }
-
-      if (subtitle) {
-        actions.push(CommonToolTipActions.CopyNote);
-      }
-
-      if (item.hash) {
-        actions.push(CommonToolTipActions.CopyTXID, CommonToolTipActions.CopyBlockExplorerLink, [CommonToolTipActions.OpenInBlockExplorer]);
-      }
-
-      if (subtitle && subtitleNumberOfLines === 1) {
-        actions.push([CommonToolTipActions.ExpandNote]);
-      }
+      const actions: (Action | Action[])[] = [
+        {
+          ...CommonToolTipActions.CopyAmount,
+          hidden: rowTitle === loc.lnd.expired,
+        },
+        {
+          ...CommonToolTipActions.CopyNote,
+          hidden: !subtitle,
+        },
+        {
+          ...CommonToolTipActions.CopyTXID,
+          hidden: !item.hash,
+        },
+        {
+          ...CommonToolTipActions.CopyBlockExplorerLink,
+          hidden: !item.hash,
+        },
+        [{ ...CommonToolTipActions.OpenInBlockExplorer, hidden: !item.hash }, CommonToolTipActions.Details],
+        [
+          {
+            ...CommonToolTipActions.ExpandNote,
+            hidden: subtitleNumberOfLines !== 1,
+          },
+        ],
+      ];
 
       return actions as Action[];
-    }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines]);
+    }, [rowTitle, subtitle, item.hash, subtitleNumberOfLines]);
 
     const accessibilityState = useMemo(() => {
       return {
         expanded: subtitleNumberOfLines === 0,
       };
     }, [subtitleNumberOfLines]);
+
+    const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
 
     return (
       <ToolTipMenu

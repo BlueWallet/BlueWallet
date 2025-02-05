@@ -274,7 +274,7 @@
     "details_balance_hide": "Egyenleg elrejtése",
     "details_balance_show": "Egyenleg mutatása",
     "details_copy": "Másolás",
-    "details_copy_block_explorer_link": "Blokk Böngésző Link Másolása",
+    "details_copy_browser_link": "Blokk Böngésző Link Másolása",
     "details_copy_note": "Megjegyzés Másolása",
     "details_copy_txid": "Tranzakciós ID Másolása",
     "details_from": "Bejövő utalás",

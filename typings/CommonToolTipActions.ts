@@ -51,6 +51,7 @@ const keys = {
   SortLabel: 'sortLabel',
   SortStatus: 'sortStatus',
   Delete: 'delete',
+  Details: 'details',
 } as const;
 
 const icons = {
@@ -80,6 +81,7 @@ const icons = {
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
+  Details: { iconValue: 'info.circle' },
   ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
   ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo.on.rectangle' : 'ic_menu_gallery' },
   Clipboard: { iconValue: Platform.OS === 'ios' ? 'document.on.clipboard' : 'ic_menu_file' },
@@ -114,13 +116,18 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
   },
   CopyBlockExplorerLink: {
     id: keys.CopyBlockExplorerLink,
-    text: loc.transactions.details_copy_block_explorer_link,
+    text: loc.transactions.details_copy_browser_link,
     icon: icons.Clipboard,
   },
   OpenInBlockExplorer: {
     id: keys.OpenInBlockExplorer,
     text: loc.transactions.details_view_in_browser,
     icon: icons.Link,
+  },
+  Details: {
+    id: keys.Details,
+    text: loc.send.create_details,
+    icon: icons.Details,
   },
   ExpandNote: {
     id: keys.ExpandNote,
@@ -129,7 +136,7 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
   },
   CopyAmount: {
     id: keys.CopyAmount,
-    text: loc.transactions.details_copy,
+    text: loc.transactions.copy_amount,
     icon: icons.Clipboard,
   },
   AddRecipient: {
