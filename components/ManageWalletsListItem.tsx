@@ -126,6 +126,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         rightContent={rightContent}
         Component={TouchableOpacityWrapper}
         onPressOut={onPressOut}
+        minSlideWidth={100}
         onPressIn={onPressIn}
         style={isActive ? styles.activeItem : undefined}
       >
