@@ -33,7 +33,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
-import AmountInput from '../../components/AmountInput';
+import AmountInput, { getCachedSatoshis } from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
@@ -1229,7 +1229,7 @@ const SendDetails = () => {
       <View style={{ width }} testID={'Transaction' + index}>
         <AmountInput
           isLoading={isLoading}
-          amount={item.amount ? item.amount.toString() : null}
+          amount={item.amount ? item.amount.toString() : undefined}
           onAmountUnitChange={(unit: BitcoinUnit) => {
             setAddresses(addrs => {
               const addr = addrs[index];
@@ -1243,7 +1243,7 @@ const SendDetails = () => {
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   // also accounting for cached fiat->sat conversion to avoid rounding error
-                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
+                  addr.amountSats = getCachedSatoshis(String(addr.amount)) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
                   break;
               }
 
@@ -1255,19 +1255,19 @@ const SendDetails = () => {
               return [...addrs];
             });
           }}
-          onChangeText={(text: string) => {
+          onChangeText={(text?: string) => {
             setAddresses(addrs => {
               item.amount = text;
               switch (item.unit || amountUnit) {
                 case BitcoinUnit.BTC:
-                  item.amountSats = btcToSatoshi(item.amount);
+                  item.amountSats = item.amount ? btcToSatoshi(item.amount) : 0;
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   item.amountSats = btcToSatoshi(fiatToBTC(Number(item.amount)));
                   break;
                 case BitcoinUnit.SATS:
                 default:
-                  item.amountSats = parseInt(text, 10);
+                  item.amountSats = text ? parseInt(text, 10) : 0;
                   break;
               }
               addrs[index] = item;
