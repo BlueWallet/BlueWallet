@@ -188,7 +188,6 @@
     "psbt_clipboard": "Copy to Clipboard",
     "psbt_this_is_psbt": "This is a Partially Signed Bitcoin Transaction (PSBT). Please finish signing it with your hardware wallet.",
     "psbt_tx_export": "Export to file",
-    
     "no_tx_signing_in_progress": "There is no transaction signing in progress.",
     "outdated_rate": "Rate was last updated: {date}",
     "psbt_tx_open": "Open Signed Transaction",
