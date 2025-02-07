@@ -40,9 +40,16 @@ export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;
 };
 
-export const BlueText = props => {
+export const BlueText = ({ bold = false, ...props }) => {
   const { colors } = useTheme();
-  const style = StyleSheet.compose({ color: colors.foregroundColor, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }, props.style);
+  const style = StyleSheet.compose(
+    {
+      color: colors.foregroundColor,
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      fontWeight: bold ? 'bold' : 'normal',
+    },
+    props.style,
+  );
   return <Text {...props} style={style} />;
 };
 

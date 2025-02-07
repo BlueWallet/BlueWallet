@@ -857,7 +857,6 @@ const SendDetails = () => {
       navigation.navigate('CreateTransaction', {
         fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
         feeSatoshi: psbt.getFee(),
-        wallet,
         tx: tx.toHex(),
         recipients,
         satoshiPerByte: psbt.getFeeRate(),
@@ -869,23 +868,28 @@ const SendDetails = () => {
   );
 
   useEffect(() => {
+    console.log('SendDetails - onBarScanned hook triggered');
     const data = routeParams.onBarScanned;
+    console.log('SendDetails - data:', data);
     if (data) {
       if (selectedDataProcessor.current) {
+        console.log('SendDetails - selectedDataProcessor:', selectedDataProcessor.current);
         switch (selectedDataProcessor.current) {
           case CommonToolTipActions.ImportTransactionQR:
             importQrTransactionOnBarScanned(data);
             break;
           case CommonToolTipActions.CoSignTransaction:
-          case CommonToolTipActions.SignPSBT:
             handlePsbtSign(data);
             break;
+          case CommonToolTipActions.SignPSBT:
           case CommonToolTipActions.ImportTransactionMultsig:
             _importTransactionMultisig(data);
             break;
           default:
             console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
+      } else {
+        onBarScanned(data);
       }
     }
     setParams({ onBarScanned: undefined });
@@ -987,11 +991,13 @@ const SendDetails = () => {
     } else if (id === CommonToolTipActions.AllowRBF.id) {
       onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
     } else if (id === CommonToolTipActions.ImportTransaction.id) {
+      selectedDataProcessor.current = CommonToolTipActions.ImportTransaction;
       importTransaction();
     } else if (id === CommonToolTipActions.ImportTransactionQR.id) {
       selectedDataProcessor.current = CommonToolTipActions.ImportTransactionQR;
       importQrTransaction();
     } else if (id === CommonToolTipActions.ImportTransactionMultsig.id) {
+      selectedDataProcessor.current = CommonToolTipActions.ImportTransactionMultsig;
       importTransactionMultisig();
     } else if (id === CommonToolTipActions.CoSignTransaction.id) {
       selectedDataProcessor.current = CommonToolTipActions.CoSignTransaction;
