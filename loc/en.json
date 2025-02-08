@@ -510,6 +510,8 @@
     "provide_signature": "Provide signature",
     "provide_signature_details": "Use your device and wallet where the key resides to sign this transaction",
     "provide_signature_details_bluewallet": "In BlueWallet, go to the Send screen menu and select ",
+    "provide_signature_next_steps": "Scan or Import Signed Transaction",
+    "provide_signature_next_steps_details": "Once your wallet has successfully signed the transaction, scan the provided QR code or import the accompanying file, and then review all the transaction details before broadcasting it.",
     "vault_key": "Vault Key {number}",
     "required_keys_out_of_total": "Required keys out of the total",
     "fee": "Fee: {number}",

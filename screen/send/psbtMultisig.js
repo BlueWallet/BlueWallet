@@ -16,10 +16,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
-const shortenAddress = addr => {
-  return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
-};
-
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
   const { navigate, setParams } = useExtendedNavigation();
@@ -69,19 +65,30 @@ const PsbtMultisig = () => {
     },
   });
 
-  let destination = [];
-  let totalSat = 0;
-  const targets = [];
-  for (const output of psbt.txOutputs) {
-    if (output.address && !wallet.weOwnAddress(output.address)) {
-      totalSat += output.value;
-      destination.push(output.address);
-      targets.push({ address: output.address, value: output.value });
+  // if useFilter is true, include only non-owned addresses.
+  const getDestinationData = (useFilter = true) => {
+    const addresses = [];
+    let totalSat = 0;
+    const targets = [];
+    for (const output of psbt.txOutputs) {
+      if (output.address) {
+        if (useFilter && wallet.weOwnAddress(output.address)) continue;
+        totalSat += output.value;
+        addresses.push(output.address);
+        targets.push({ address: output.address, value: output.value });
+      }
     }
-  }
-  destination = shortenAddress(destination.join(', '));
-  const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
-  const totalFiat = satoshiToLocalCurrency(totalSat);
+    return { addresses, totalSat, targets };
+  };
+
+  const filteredData = getDestinationData(true);
+  const unfilteredData = getDestinationData(false);
+
+  const targets = filteredData.targets;
+
+  // Compute totals for display from unfiltered data.
+  const displayTotalBtc = new BigNumber(unfilteredData.totalSat).dividedBy(100000000).toNumber();
+  const displayTotalFiat = satoshiToLocalCurrency(unfilteredData.totalSat);
 
   const getFee = () => {
     return wallet.calculateFeeFromPsbt(psbt);
@@ -195,11 +202,11 @@ const PsbtMultisig = () => {
     return howManySignaturesWeHave >= wallet.getM();
   };
 
-  const destinationAddress = () => {
-    // eslint-disable-next-line prefer-const
-    let destinationAddressView = [];
+  const destinationAddress = (useFilter = true) => {
+    const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
+    const destinationAddressView = [];
     const whitespace = '_';
-    const destinations = Object.entries(destination.split(','));
+    const destinations = Object.entries(addrs.join(', ').split(','));
     for (const [index, address] of destinations) {
       if (index > 1) {
         destinationAddressView.push(
@@ -213,8 +220,8 @@ const PsbtMultisig = () => {
       } else {
         const currentAddress = address;
         const firstFour = currentAddress.substring(0, 5);
-        const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
-        const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
+        const lastFour = currentAddress.substring(currentAddress.length - 5);
+        const middle = currentAddress.length > 10 ? currentAddress.slice(5, currentAddress.length - 5) : '';
         destinationAddressView.push(
           <View style={styles.destinationTextContainer} key={`${currentAddress}-${index}`}>
             <Text style={styles.textAlignCenter}>
@@ -236,17 +243,18 @@ const PsbtMultisig = () => {
   const header = (
     <View style={stylesHook.root}>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
+        <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{displayTotalBtc}</BlueText>
         <View style={styles.textBtcUnit}>
           <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
         </View>
       </View>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
+        <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{displayTotalFiat}</BlueText>
       </View>
-      <View>{destinationAddress()}</View>
+      <View>{destinationAddress(false)}</View>
     </View>
   );
+
   const footer = null;
 
   const onLayout = event => {
