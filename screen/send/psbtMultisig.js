@@ -243,13 +243,17 @@ const PsbtMultisig = () => {
   const header = (
     <View style={stylesHook.root}>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{displayTotalBtc}</BlueText>
+        <BlueText selectable style={[styles.textBtc, stylesHook.textBtc]}>
+          {displayTotalBtc}
+        </BlueText>
         <View style={styles.textBtcUnit}>
           <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
         </View>
       </View>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{displayTotalFiat}</BlueText>
+        <BlueText selectable style={[styles.textFiat, stylesHook.textFiat]}>
+          {displayTotalFiat}
+        </BlueText>
       </View>
       <View>{destinationAddress(false)}</View>
     </View>
@@ -303,10 +307,10 @@ const PsbtMultisig = () => {
           <View style={styles.feeContainer}>
             <View style={styles.bottomWrapper}>
               <View style={styles.bottomFeesWrapper}>
-                <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
+                <BlueText selectable style={[styles.feeFiatText, stylesHook.feeFiatText]}>
                   {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
                 </BlueText>
-                <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
+                <BlueText selectable>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
               </View>
             </View>
           </View>
