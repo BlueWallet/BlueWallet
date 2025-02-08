@@ -868,12 +868,10 @@ const SendDetails = () => {
   );
 
   useEffect(() => {
-    console.log('SendDetails - onBarScanned hook triggered');
     const data = routeParams.onBarScanned;
-    console.log('SendDetails - data:', data);
     if (data) {
       if (selectedDataProcessor.current) {
-        console.log('SendDetails - selectedDataProcessor:', selectedDataProcessor.current);
+        console.debug('SendDetails - selectedDataProcessor:', selectedDataProcessor.current);
         switch (selectedDataProcessor.current) {
           case CommonToolTipActions.ImportTransactionQR:
             importQrTransactionOnBarScanned(data);
@@ -882,11 +880,13 @@ const SendDetails = () => {
             handlePsbtSign(data);
             break;
           case CommonToolTipActions.SignPSBT:
+            processAddressData(data);
+            break;
           case CommonToolTipActions.ImportTransactionMultsig:
             _importTransactionMultisig(data);
             break;
           default:
-            console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
+            console.debug('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
       } else {
         onBarScanned(data);
