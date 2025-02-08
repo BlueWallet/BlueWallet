@@ -876,11 +876,9 @@ const SendDetails = () => {
           case CommonToolTipActions.ImportTransactionQR:
             importQrTransactionOnBarScanned(data);
             break;
+          case CommonToolTipActions.SignPSBT:
           case CommonToolTipActions.CoSignTransaction:
             handlePsbtSign(data);
-            break;
-          case CommonToolTipActions.SignPSBT:
-            processAddressData(data);
             break;
           case CommonToolTipActions.ImportTransactionMultsig:
             _importTransactionMultisig(data);
