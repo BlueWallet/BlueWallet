@@ -509,7 +509,7 @@
     "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
     "provide_signature_details": "Use your device and wallet where the key resides to sign this transaction",
-    "provide_signature_details_bluewallet": "In BlueWallet, go to the Send screen menu and select 'Sign Transaction'",
+    "provide_signature_details_bluewallet": "In BlueWallet, go to the Send screen menu and select ",
     "vault_key": "Vault Key {number}",
     "required_keys_out_of_total": "Required keys out of the total",
     "fee": "Fee: {number}",
