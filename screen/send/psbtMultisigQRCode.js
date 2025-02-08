@@ -195,9 +195,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   vaultKeyCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
