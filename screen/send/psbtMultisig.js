@@ -224,7 +224,7 @@ const PsbtMultisig = () => {
         const middle = currentAddress.length > 10 ? currentAddress.slice(5, currentAddress.length - 5) : '';
         destinationAddressView.push(
           <View style={styles.destinationTextContainer} key={`${currentAddress}-${index}`}>
-            <Text style={styles.textAlignCenter}>
+            <Text style={styles.textAlignCenter} selectable>
               <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
                 {firstFour}
                 <Text style={stylesHook.whitespace}>{whitespace}</Text>
