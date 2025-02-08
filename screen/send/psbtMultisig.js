@@ -204,9 +204,11 @@ const PsbtMultisig = () => {
 
   const destinationAddress = (useFilter = true) => {
     const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
+    // Only remove duplicates for unfiltered addresses.
+    const displayAddrs = useFilter ? addrs : [...new Set(addrs)];
     const destinationAddressView = [];
     const whitespace = '_';
-    const destinations = Object.entries(addrs.join(', ').split(','));
+    const destinations = Object.entries(displayAddrs);
     for (const [index, address] of destinations) {
       if (index > 1) {
         destinationAddressView.push(
@@ -359,6 +361,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     paddingHorizontal: 60,
     fontSize: 14,
+    marginVertical: 8,
     justifyContent: 'center',
   },
   textFiat: {
