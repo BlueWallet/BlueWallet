@@ -67,8 +67,8 @@ const PsbtMultisigQRCode = () => {
   useEffect(() => {
     const data = params.onBarScanned;
     if (data) {
-      onBarScanned({ data });
       navigation.setParams({ onBarScanned: undefined });
+      onBarScanned({ data });
     }
   }, [onBarScanned, params.onBarScanned, navigation]);
 
