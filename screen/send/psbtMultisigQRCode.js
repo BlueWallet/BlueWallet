@@ -2,11 +2,9 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import SafeArea from '../../components/SafeArea';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
@@ -89,52 +87,55 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeArea style={stylesHook.root}>
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-        <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <View style={[styles.tipBox, stylesHook.tipBox]}>
-            <BlueText bold>{loc.multisig.provide_signature}</BlueText>
-            <BlueSpacing20 />
-            <BlueText>{loc.multisig.provide_signature_details}</BlueText>
-            <BlueSpacing20 />
-            <BlueText>{loc.multisig.provide_signature_details_bluewallet}</BlueText>
-          </View>
-          <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
-          {!isShowOpenScanner && (
-            <>
-              <BlueSpacing20 />
-              <SquareButton
-                testID="CosignedScanOrImportFile"
-                style={[styles.exportButton, stylesHook.exportButton]}
-                onPress={openScanner}
-                ref={openScannerButton}
-                title={loc.multisig.scan_or_import_file}
-              />
-            </>
-          )}
+    <ScrollView
+      centerContent
+      testID="PsbtMultisigQRCodeScrollView"
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[styles.scrollViewContent, stylesHook.root]}
+    >
+      <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
+        <View style={[styles.tipBox, stylesHook.tipBox]}>
+          <BlueText bold>{loc.multisig.provide_signature}</BlueText>
           <BlueSpacing20 />
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <SaveFileButton
-              fileName={fileName}
-              fileContent={psbt.toBase64()}
-              beforeOnPress={saveFileButtonBeforeOnPress}
-              afterOnPress={saveFileButtonAfterOnPress}
-              style={[styles.exportButton, stylesHook.exportButton]}
-            >
-              <SquareButton title={loc.multisig.share} />
-            </SaveFileButton>
-          )}
+          <BlueText>{loc.multisig.provide_signature_details}</BlueText>
+          <BlueSpacing20 />
+          <BlueText>{loc.multisig.provide_signature_details_bluewallet}</BlueText>
         </View>
-      </ScrollView>
-    </SafeArea>
+        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+        {!isShowOpenScanner && (
+          <>
+            <BlueSpacing20 />
+            <SquareButton
+              testID="CosignedScanOrImportFile"
+              style={[styles.exportButton, stylesHook.exportButton]}
+              onPress={openScanner}
+              ref={openScannerButton}
+              title={loc.multisig.scan_or_import_file}
+            />
+          </>
+        )}
+        <BlueSpacing20 />
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <SaveFileButton
+            fileName={fileName}
+            fileContent={psbt.toBase64()}
+            beforeOnPress={saveFileButtonBeforeOnPress}
+            afterOnPress={saveFileButtonAfterOnPress}
+            style={[styles.exportButton, stylesHook.exportButton]}
+          >
+            <SquareButton title={loc.multisig.share} />
+          </SaveFileButton>
+        )}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-    flexGrow: 1,
     justifyContent: 'space-between',
   },
   modalContentShort: {
