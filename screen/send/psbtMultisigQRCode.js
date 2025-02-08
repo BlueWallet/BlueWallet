@@ -33,6 +33,18 @@ const PsbtMultisigQRCode = () => {
     },
     tipBox: {
       backgroundColor: colors.ballOutgoingExpired,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 24,
+    },
+    tipHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    tipHeaderText: {
+      marginLeft: 10,
+      flex: 1,
     },
   });
   const fileName = `${Date.now()}.psbt`;
@@ -96,7 +108,14 @@ const PsbtMultisigQRCode = () => {
     >
       <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
         <View style={[styles.tipBox, stylesHook.tipBox]}>
-          <BlueText bold>{loc.multisig.provide_signature}</BlueText>
+          <View style={stylesHook.tipHeader}>
+            <View style={styles.vaultKeyCircle}>
+              <BlueText style={styles.vaultKeyText}>1</BlueText>
+            </View>
+            <BlueText bold style={stylesHook.tipHeaderText}>
+              {loc.multisig.provide_signature}
+            </BlueText>
+          </View>
           <BlueSpacing20 />
           <BlueText>{loc.multisig.provide_signature_details}</BlueText>
           <BlueSpacing20 />
@@ -110,7 +129,14 @@ const PsbtMultisigQRCode = () => {
             <BlueSpacing20 />
             <View style={styles.divider} />
             <View style={[styles.tipBox, stylesHook.tipBox]}>
-              <BlueText bold>{loc.multisig.provide_signature_next_steps}</BlueText>
+              <View style={stylesHook.tipHeader}>
+                <View style={styles.vaultKeyCircle}>
+                  <BlueText style={styles.vaultKeyText}>2</BlueText>
+                </View>
+                <BlueText bold style={stylesHook.tipHeaderText}>
+                  {loc.multisig.provide_signature_next_steps}
+                </BlueText>
+              </View>
               <BlueSpacing20 />
               <BlueText>{loc.multisig.provide_signature_next_steps_details}</BlueText>
             </View>
@@ -171,6 +197,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
+  },
+  vaultKeyCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  vaultKeyText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
