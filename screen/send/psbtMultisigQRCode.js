@@ -40,7 +40,6 @@ const PsbtMultisigQRCode = () => {
     tipHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 10,
     },
     tipHeaderText: {
       marginLeft: 4,
@@ -104,71 +103,69 @@ const PsbtMultisigQRCode = () => {
       testID="PsbtMultisigQRCodeScrollView"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={[styles.scrollViewContent, stylesHook.root]}
+      contentContainerStyle={[styles.scrollViewContent, stylesHook.root, styles.modalContentShort, stylesHook.modalContentShort]}
     >
-      <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-        <View style={[styles.tipBox, stylesHook.tipBox]}>
-          <View style={stylesHook.tipHeader}>
-            <View style={styles.vaultKeyCircle}>
-              <BlueText style={styles.vaultKeyText}>1</BlueText>
-            </View>
-            <BlueText bold style={stylesHook.tipHeaderText}>
-              {loc.multisig.provide_signature}
-            </BlueText>
+      <View style={[styles.tipBox, stylesHook.tipBox]}>
+        <View style={stylesHook.tipHeader}>
+          <View style={styles.vaultKeyCircle}>
+            <BlueText style={styles.vaultKeyText}>1</BlueText>
           </View>
-          <BlueSpacing20 />
-          <BlueText>{loc.multisig.provide_signature_details}</BlueText>
-          <BlueSpacing20 />
-          <BlueText>
-            {loc.multisig.provide_signature_details_bluewallet} <BlueText bold>{loc.multisig.co_sign_transaction}</BlueText>
+          <BlueText bold style={stylesHook.tipHeaderText}>
+            {loc.multisig.provide_signature}
           </BlueText>
         </View>
-        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
-        {!isLoading && (
-          <>
-            <BlueSpacing20 />
-            <View style={styles.divider} />
-            <View style={[styles.tipBox, stylesHook.tipBox]}>
-              <View style={stylesHook.tipHeader}>
-                <View style={styles.vaultKeyCircle}>
-                  <BlueText style={styles.vaultKeyText}>2</BlueText>
-                </View>
-                <BlueText bold style={stylesHook.tipHeaderText}>
-                  {loc.multisig.provide_signature_next_steps}
-                </BlueText>
-              </View>
-              <BlueSpacing20 />
-              <BlueText>{loc.multisig.provide_signature_next_steps_details}</BlueText>
-            </View>
-          </>
-        )}
-        {!isShowOpenScanner && (
-          <>
-            <SquareButton
-              testID="CosignedScanOrImportFile"
-              style={[styles.exportButton, stylesHook.exportButton]}
-              onPress={openScanner}
-              ref={openScannerButton}
-              title={loc.multisig.scan_or_import_file}
-            />
-          </>
-        )}
         <BlueSpacing20 />
-
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <SaveFileButton
-            fileName={fileName}
-            fileContent={psbt.toBase64()}
-            beforeOnPress={saveFileButtonBeforeOnPress}
-            afterOnPress={saveFileButtonAfterOnPress}
-            style={[styles.exportButton, stylesHook.exportButton]}
-          >
-            <SquareButton title={loc.multisig.share} />
-          </SaveFileButton>
-        )}
+        <BlueText>{loc.multisig.provide_signature_details}</BlueText>
+        <BlueSpacing20 />
+        <BlueText>
+          {loc.multisig.provide_signature_details_bluewallet} <BlueText bold>{loc.multisig.co_sign_transaction}</BlueText>
+        </BlueText>
       </View>
+      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+      {!isLoading && (
+        <>
+          <BlueSpacing20 />
+          <View style={styles.divider} />
+          <View style={[styles.tipBox, stylesHook.tipBox]}>
+            <View style={stylesHook.tipHeader}>
+              <View style={styles.vaultKeyCircle}>
+                <BlueText style={styles.vaultKeyText}>2</BlueText>
+              </View>
+              <BlueText bold style={stylesHook.tipHeaderText}>
+                {loc.multisig.provide_signature_next_steps}
+              </BlueText>
+            </View>
+            <BlueSpacing20 />
+            <BlueText>{loc.multisig.provide_signature_next_steps_details}</BlueText>
+          </View>
+        </>
+      )}
+      {!isShowOpenScanner && (
+        <>
+          <SquareButton
+            testID="CosignedScanOrImportFile"
+            style={[styles.exportButton, stylesHook.exportButton]}
+            onPress={openScanner}
+            ref={openScannerButton}
+            title={loc.multisig.scan_or_import_file}
+          />
+        </>
+      )}
+      <BlueSpacing20 />
+
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <SaveFileButton
+          fileName={fileName}
+          fileContent={psbt.toBase64()}
+          beforeOnPress={saveFileButtonBeforeOnPress}
+          afterOnPress={saveFileButtonAfterOnPress}
+          style={[styles.exportButton, stylesHook.exportButton]}
+        >
+          <SquareButton title={loc.multisig.share} />
+        </SaveFileButton>
+      )}
     </ScrollView>
   );
 };
@@ -178,8 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   modalContentShort: {
-    marginLeft: 20,
-    marginRight: 20,
+    paddingHorizontal: 20,
   },
   divider: {
     height: 0.5,
