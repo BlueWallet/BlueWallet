@@ -131,7 +131,6 @@ const Confirm: React.FC = () => {
             memo,
             tx,
             satoshiPerByte,
-            wallet,
             feeSatoshi,
           });
         }}
@@ -149,7 +148,6 @@ const Confirm: React.FC = () => {
       memo,
       tx,
       satoshiPerByte,
-      wallet,
       feeSatoshi,
     ],
   );

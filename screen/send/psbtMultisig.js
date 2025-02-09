@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, LayoutAnimation } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -15,10 +15,6 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-
-const shortenAddress = addr => {
-  return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
-};
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
@@ -69,19 +65,32 @@ const PsbtMultisig = () => {
     },
   });
 
-  let destination = [];
-  let totalSat = 0;
-  const targets = [];
-  for (const output of psbt.txOutputs) {
-    if (output.address && !wallet.weOwnAddress(output.address)) {
-      totalSat += output.value;
-      destination.push(output.address);
-      targets.push({ address: output.address, value: output.value });
+  // if useFilter is true, include only non-owned addresses.
+  const getDestinationData = (useFilter = true) => {
+    const addresses = [];
+    let totalSat = 0;
+    const targets = [];
+    for (const output of psbt.txOutputs) {
+      if (output.address) {
+        if (useFilter && wallet.weOwnAddress(output.address)) continue;
+        totalSat += output.value;
+        addresses.push(output.address);
+        targets.push({ address: output.address, value: output.value });
+      }
     }
-  }
-  destination = shortenAddress(destination.join(', '));
-  const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
-  const totalFiat = satoshiToLocalCurrency(totalSat);
+    return { addresses, totalSat, targets };
+  };
+
+  const filteredData = getDestinationData(true);
+  const unfilteredData = getDestinationData(false);
+
+  const targets = filteredData.targets;
+
+  const [isFiltered, setIsFiltered] = useState(true);
+
+  const displayData = isFiltered ? filteredData : unfilteredData;
+  const displayTotalBtc = new BigNumber(displayData.totalSat).dividedBy(100000000).toNumber();
+  const displayTotalFiat = satoshiToLocalCurrency(displayData.totalSat);
 
   const getFee = () => {
     return wallet.calculateFeeFromPsbt(psbt);
@@ -195,11 +204,12 @@ const PsbtMultisig = () => {
     return howManySignaturesWeHave >= wallet.getM();
   };
 
-  const destinationAddress = () => {
-    // eslint-disable-next-line prefer-const
-    let destinationAddressView = [];
+  const destinationAddress = (useFilter = true) => {
+    const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
+    const displayAddrs = useFilter ? addrs : [...new Set(addrs)];
+    const destinationAddressView = [];
     const whitespace = '_';
-    const destinations = Object.entries(destination.split(','));
+    const destinations = Object.entries(displayAddrs);
     for (const [index, address] of destinations) {
       if (index > 1) {
         destinationAddressView.push(
@@ -213,11 +223,11 @@ const PsbtMultisig = () => {
       } else {
         const currentAddress = address;
         const firstFour = currentAddress.substring(0, 5);
-        const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
-        const middle = currentAddress.split(firstFour)[1].split(lastFour)[0];
+        const lastFour = currentAddress.substring(currentAddress.length - 5);
+        const middle = currentAddress.length > 10 ? currentAddress.slice(5, currentAddress.length - 5) : '';
         destinationAddressView.push(
           <View style={styles.destinationTextContainer} key={`${currentAddress}-${index}`}>
-            <Text style={styles.textAlignCenter}>
+            <Text style={styles.textAlignCenter} selectable>
               <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
                 {firstFour}
                 <Text style={stylesHook.whitespace}>{whitespace}</Text>
@@ -233,72 +243,94 @@ const PsbtMultisig = () => {
     return destinationAddressView;
   };
 
+  const handleToggleFilter = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsFiltered(prev => !prev);
+  };
+
   const header = (
     <View style={stylesHook.root}>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
+        <TouchableOpacity onPress={handleToggleFilter}>
+          <BlueText selectable style={[styles.textBtc, stylesHook.textBtc]}>
+            {displayTotalBtc}
+          </BlueText>
+        </TouchableOpacity>
         <View style={styles.textBtcUnit}>
-          <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
+          <BlueText selectable style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}>
+            {' '}
+            {BitcoinUnit.BTC}
+          </BlueText>
         </View>
       </View>
       <View style={styles.containerText}>
-        <BlueText style={[styles.textFiat, stylesHook.textFiat]}>{totalFiat}</BlueText>
+        <TouchableOpacity onPress={handleToggleFilter}>
+          <BlueText selectable style={[styles.textFiat, stylesHook.textFiat]}>
+            {displayTotalFiat}
+          </BlueText>
+        </TouchableOpacity>
       </View>
-      <View>{destinationAddress()}</View>
+      <View>{destinationAddress(isFiltered)}</View>
     </View>
   );
-  const footer = (
-    <>
-      <View style={styles.bottomWrapper}>
-        <View style={styles.bottomFeesWrapper}>
-          <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
-            {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
-          </BlueText>
-          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
-        </View>
-      </View>
-      <View style={styles.marginConfirmButton}>
-        <Button disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
-      </View>
-    </>
-  );
 
-  const onLayout = e => {
-    setFlatListHeight(e.nativeEvent.layout.height);
+  const footer = null;
+
+  const onLayout = event => {
+    setFlatListHeight(event.nativeEvent.layout.height);
   };
 
   return (
     <SafeArea style={stylesHook.root}>
-      <View style={styles.container}>
-        <View style={styles.mstopcontainer}>
-          <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
+      <View style={styles.flexColumnSpaceBetween}>
+        <View style={styles.flexOne}>
+          <View style={styles.container}>
+            <View style={styles.mstopcontainer}>
+              <View style={styles.mscontainer}>
+                <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
+              </View>
+              <View style={styles.msright}>
+                <BlueCard>
+                  <FlatList
+                    data={data}
+                    renderItem={_renderItem}
+                    keyExtractor={(_item, index) => `${index}`}
+                    ListHeaderComponent={header}
+                    ListFooterComponent={footer}
+                    onLayout={onLayout}
+                  />
+                  {isConfirmEnabled() && (
+                    <View style={styles.height80}>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        testID="ExportSignedPsbt"
+                        style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
+                        onPress={navigateToPSBTMultisigQRCode}
+                      >
+                        <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
+                          {loc.multisig.export_signed_psbt}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </BlueCard>
+              </View>
+            </View>
           </View>
-          <View style={styles.msright}>
-            <BlueCard>
-              <FlatList
-                data={data}
-                onLayout={onLayout}
-                renderItem={_renderItem}
-                keyExtractor={(_item, index) => `${index}`}
-                ListHeaderComponent={header}
-                ListFooterComponent={footer}
-              />
-              {isConfirmEnabled() && (
-                <View style={styles.height80}>
-                  <TouchableOpacity
-                    accessibilityRole="button"
-                    testID="ExportSignedPsbt"
-                    style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-                    onPress={navigateToPSBTMultisigQRCode}
-                  >
-                    <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
-                      {loc.multisig.export_signed_psbt}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </BlueCard>
+        </View>
+        <View style={styles.feeConfirmContainer}>
+          <View style={styles.feeContainer}>
+            <View style={styles.bottomWrapper}>
+              <View style={styles.bottomFeesWrapper}>
+                <BlueText selectable style={[styles.feeFiatText, stylesHook.feeFiatText]}>
+                  {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
+                </BlueText>
+                <BlueText selectable>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
+              </View>
+            </View>
+          </View>
+          <View style={styles.flexConfirm}>
+            <Button disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
           </View>
         </View>
       </View>
@@ -314,13 +346,16 @@ const styles = StyleSheet.create({
   mscontainer: {
     flex: 10,
   },
+  flexOne: {
+    flex: 1,
+  },
   msleft: {
     width: 1,
     borderStyle: 'dashed',
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 130,
+    marginTop: 160,
   },
   msright: {
     flex: 90,
@@ -328,7 +363,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'column',
-    paddingTop: 24,
     flex: 1,
   },
   containerText: {
@@ -340,6 +374,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     paddingHorizontal: 60,
     fontSize: 14,
+    marginVertical: 8,
     justifyContent: 'center',
   },
   textFiat: {
@@ -397,9 +432,24 @@ const styles = StyleSheet.create({
   textBtcUnit: { justifyContent: 'flex-end' },
   bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
   bottomWrapper: { marginTop: 16 },
-  marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
   height80: {
     height: 80,
+  },
+  flexColumnSpaceBetween: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  flexConfirm: {
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+  },
+  feeConfirmContainer: {
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+  },
+  feeContainer: {
+    marginBottom: 8,
   },
 });
 
