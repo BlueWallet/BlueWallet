@@ -406,8 +406,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     [navigation, wallet, walletBalance, setOptions, route],
   );
 
-  const hasNoTransactions = useMemo(() => getTransactions(1).length === 0, [getTransactions]);
-
   const ListHeaderComponent = useCallback(
     () =>
       wallet ? (
@@ -519,14 +517,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         stickyHeaderHiddenOnScroll
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
-          hasNoTransactions ? (
-            <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
-              <Text numberOfLines={0} style={styles.emptyTxs}>
-                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
-              </Text>
-              {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-            </ScrollView>
-          ) : null
+          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+            <Text numberOfLines={0} style={styles.emptyTxs}>
+              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+            </Text>
+            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+          </ScrollView>
         }
       />
       <FContainer ref={walletActionButtonsRef}>
