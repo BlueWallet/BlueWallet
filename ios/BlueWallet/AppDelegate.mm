@@ -12,8 +12,9 @@
 #import <Bugsnag/Bugsnag.h>
 #import "BlueWallet-Swift.h"
 #import "CustomSegmentedControlManager.h"
+#import <WatchConnectivity/WatchConnectivity.h>  // new import
 
-@interface AppDelegate() <UNUserNotificationCenterDelegate>
+@interface AppDelegate() <UNUserNotificationCenterDelegate, WCSessionDelegate>  // added WCSessionDelegate
 
 @property (nonatomic, strong) NSUserDefaults *userDefaultsGroup;
 
@@ -59,6 +60,12 @@
 
   [self setupUserDefaultsListener];
   [self registerNotificationCategories];
+
+  if ([WCSession isSupported]) {  // new WatchConnectivity activation
+    WCSession *session = [WCSession defaultSession];
+    session.delegate = self;
+    [session activateSession];
+  }
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

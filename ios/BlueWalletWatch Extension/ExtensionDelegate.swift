@@ -9,8 +9,10 @@
 import WatchKit
 import ClockKit
 import Bugsnag
+import WatchConnectivity
+import Foundation
 
-class ExtensionDelegate: NSObject, WKExtensionDelegate {
+class ExtensionDelegate: NSObject, WKExtensionDelegate, WCSessionDelegate {
   
   let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
 
@@ -20,8 +22,22 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
       Bugsnag.start()
     }
+    if WCSession.isSupported() {
+      let session = WCSession.default
+      session.delegate = self
+      session.activate()
+    }
+    _ = ConnectivityManager.shared
   }
   
+  func applicationDidBecomeActive() {
+    // ...existing code...
+  }
+  
+  func applicationWillResignActive() {
+    // ...existing code...
+  }
+
   func updatePreferredFiatCurrency() {
     guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else { return }
     updateMarketData(for: fiatUnitUserDefaults)
@@ -85,6 +101,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
       }
       updateMarketData(for: fiatUnitUserDefaults)
       backgroundTask.setTaskCompletedWithSnapshot(false)
+  }
+  
+  func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+    // Minimal implementation to satisfy protocol conformance
+    if let error = error {
+        print("WCSession activation failed with error: \(error.localizedDescription)")
+    } else {
+        print("WCSession activated with state: \(activationState.rawValue)")
+    }
   }
   
 }

@@ -17,7 +17,7 @@ struct Notifications {
 /// Ensure these match the keys used in your iOS app for sharing data.
 
 /// Handles WatchConnectivity and data synchronization between iOS and Watch apps.
-class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
+class WatchDataSource: NSObject, ObservableObject {
     // MARK: - Singleton Instance
   
   static func postDataUpdatedNotification() {
@@ -38,22 +38,16 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     private let keychain = KeychainHelper.shared
-    private let session: WCSession
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
     private override init() {
-        guard WCSession.isSupported() else {
-            print("WCSession is not supported on this device.")
-            // Initialize with a default session but mark as unsupported
-            self.session = WCSession.default
-            super.init()
-            return
-        }
-        self.session = WCSession.default
         super.init()
-        self.session.delegate = self
+        _ = ConnectivityManager.shared
+        // Subscribe to connectivity notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(handleConnectivityMessage(_:)), name: Notification.Name("ReceivedWCMessage"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleConnectivityAppContext(_:)), name: Notification.Name("ReceivedWCAppContext"), object: nil)
         loadKeychainData()
         setupBindings()
     }
@@ -62,13 +56,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     /// Starts the WatchConnectivity session.
     func startSession() {
-        // Check if keychain has existing wallets data before activating session
-        if let existingData = keychain.retrieve(service: UserDefaultsGroupKey.WatchAppBundleIdentifier.rawValue, account: UserDefaultsGroupKey.BundleIdentifier.rawValue),
-           !existingData.isEmpty {
-            session.activate()
-        } else {
-            print("Keychain is empty. Skipping WCSession activation.")
-        }
+        _ = ConnectivityManager.shared
     }
     
     /// Deactivates the WatchConnectivity session (if needed).
@@ -119,7 +107,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     private func saveWalletsToKeychain() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
-            guard self.session.isReachable || self.session.activationState == .activated else {
+            guard ConnectivityManager.shared.session.isReachable || ConnectivityManager.shared.session.activationState == .activated else {
                 print("iPhone is not reachable or session is not active. Skipping save to Keychain.")
                 return
             }
@@ -134,29 +122,6 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
                 print("Failed to save wallets to Keychain.")
             }
         }
-    }
-    
-    // MARK: - WatchConnectivity Methods
-    
-    /// Handles the activation completion of the WCSession.
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if let error = error {
-            print("WCSession activation failed with error: \(error.localizedDescription)")
-        } else {
-            print("WCSession activated with state: \(activationState.rawValue)")
-            // Request current wallets data from iOS app.
-        }
-    }
-    
-    /// Handles received messages from the iOS app.
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-        processReceivedData(message)
-    }
-    
-    /// Handles received application context updates from the iOS app.
-    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-        if applicationContext.isEmpty { return }
-        processReceivedData(applicationContext)
     }
     
     // MARK: - Data Processing
@@ -310,7 +275,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             "amount": amount,
             "description": description ?? ""
         ]
-        session.sendMessage(message, replyHandler: { reply in
+        ConnectivityManager.shared.session.sendMessage(message, replyHandler: { reply in
             timeoutTimer.invalidate()
             if let invoicePaymentRequest = reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
                 responseHandler(invoicePaymentRequest)
@@ -338,7 +303,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             "walletIndex": walletIdentifier,
             "hideBalance": hideBalance
         ]
-        session.sendMessage(message, replyHandler: { reply in
+        ConnectivityManager.shared.session.sendMessage(message, replyHandler: { reply in
             responseHandler(true)
         }, errorHandler: { error in
             print("Error toggling hide balance: \(error.localizedDescription)")
@@ -357,6 +322,19 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
 
+    // MARK: - Connectivity Handlers
+
+    @objc private func handleConnectivityMessage(_ notification: Notification) {
+        if let message = notification.object as? [String: Any] {
+            processReceivedData(message)
+        }
+    }
+    
+    @objc private func handleConnectivityAppContext(_ notification: Notification) {
+        if let appContext = notification.object as? [String: Any] {
+            processReceivedData(appContext)
+        }
+    }
 }
 
 extension WatchDataSource {
