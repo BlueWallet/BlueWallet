@@ -13,7 +13,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
@@ -46,7 +45,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
-import LinearGradient from 'react-native-linear-gradient';
 import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
@@ -72,7 +70,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { colors } = useTheme();
   const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
-  const { height: screenHeight } = useWindowDimensions();
   const [headerVisible, setHeaderVisible] = useState(true);
 
   const stylesHook = StyleSheet.create({
@@ -476,15 +473,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
-  const headerHeight = 140;
-  const headerStop = useMemo(() => {
-    return (headerHeight / screenHeight) * 3;
-  }, [screenHeight]);
-
-  const linearGradientColors = useMemo(() => {
-    return wallet ? [WalletGradient.headerColorFor(wallet.type), colors.background] : [colors.background, colors.background];
-  }, [colors.background, wallet]);
-
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
   useEffect(() => {
     if (!wallet) return;
@@ -522,37 +510,36 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   );
 
   return (
-    <View style={styles.flex}>
-      <LinearGradient
-        // Duplicate colors for abrupt transition
-        colors={[linearGradientColors[0], linearGradientColors[0], linearGradientColors[1], linearGradientColors[1]]}
-        style={styles.list}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        locations={[0, headerStop, headerStop, 1]} // abrupt switch at header bottom
-      >
-        <FlatList<TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' }>
-          getItemLayout={getItemLayout}
-          updateCellsBatchingPeriod={30}
-          onEndReachedThreshold={0.3}
-          onEndReached={loadMoreTransactions}
-          ListFooterComponent={renderListFooterComponent}
-          {...refreshProps}
-          data={listData}
-          extraData={wallet}
-          keyExtractor={_keyExtractor}
-          renderItem={renderItem}
-          initialNumToRender={10}
-          removeClippedSubviews
-          contentContainerStyle={{ backgroundColor: colors.background }}
-          contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-          maxToRenderPerBatch={15}
-          stickyHeaderIndices={[1]}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          stickyHeaderHiddenOnScroll
-        />
-      </LinearGradient>
+    <View style={[styles.flex, { backgroundColor: colors.background }]}>
+      {/* The color of the refresh indicator. Temporaary hack */}
+      <View
+        style={[
+          styles.refreshIndicatorBackground,
+          { backgroundColor: wallet ? WalletGradient.headerColorFor(wallet.type) : colors.background },
+        ]}
+      />
+
+      <FlatList<TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' }>
+        getItemLayout={getItemLayout}
+        updateCellsBatchingPeriod={30}
+        onEndReachedThreshold={0.3}
+        onEndReached={loadMoreTransactions}
+        ListFooterComponent={renderListFooterComponent}
+        {...refreshProps}
+        data={listData}
+        extraData={wallet}
+        keyExtractor={_keyExtractor}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        removeClippedSubviews
+        contentContainerStyle={{ backgroundColor: colors.background }}
+        contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+        maxToRenderPerBatch={15}
+        stickyHeaderIndices={[1]}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        stickyHeaderHiddenOnScroll
+      />
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
           <FButton
@@ -605,7 +592,13 @@ const styles = StyleSheet.create({
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
   listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
-  list: { flex: 1 },
+  refreshIndicatorBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+  },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
