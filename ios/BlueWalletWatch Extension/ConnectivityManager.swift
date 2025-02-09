@@ -2,6 +2,8 @@ import WatchConnectivity
 import Foundation
 
 class ConnectivityManager: NSObject, WCSessionDelegate {
+
+  
     static let shared = ConnectivityManager()
     let session: WCSession
 
@@ -27,14 +29,5 @@ class ConnectivityManager: NSObject, WCSessionDelegate {
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
         NotificationCenter.default.post(name: Notification.Name("ReceivedWCAppContext"), object: applicationContext)
     }
-    
-    // New methods to satisfy WCSessionDelegate protocol:
-    func sessionDidBecomeInactive(_ session: WCSession) {
-        // Minimal implementation
-    }
-    
-    func sessionDidDeactivate(_ session: WCSession) {
-        // Minimal implementation; re-activate the session if needed
-        session.activate()
-    }
+ 
 }
