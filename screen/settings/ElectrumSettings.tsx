@@ -87,8 +87,8 @@ const ElectrumSettings: React.FC = () => {
     console.log('Fetching data...');
     const preferredServer = await BlueElectrum.getPreferredServer();
     const savedHost = preferredServer?.host;
-    const savedPort = preferredServer?.tcp;
-    const savedSslPort = preferredServer?.ssl;
+    const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
+    const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
     const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
 
     console.log('Preferred server:', preferredServer);
@@ -111,15 +111,15 @@ const ElectrumSettings: React.FC = () => {
           v.host &&
           (v.tcp || v.ssl) &&
           !suggestedServers.some(s => s.host === v.host && s.tcp === v.tcp && s.ssl === v.ssl) &&
-          !hardcodedPeers.some(peer => peer.host === v.host),
+          !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
       ),
     );
 
     console.log('Filtered server history:', filteredServerHistory);
 
     setHost(savedHost || '');
-    setPort(savedPort ? Number(savedPort) : undefined);
-    setSslPort(savedSslPort ? Number(savedSslPort) : undefined);
+    setPort(savedPort);
+    setSslPort(savedSslPort);
     setServerHistory(filteredServerHistory);
 
     setConfig(await BlueElectrum.getConfig());
@@ -169,11 +169,20 @@ const ElectrumSettings: React.FC = () => {
 
       try {
         const serverHost = v?.host || host;
-        const serverPort = v?.tcp || port?.toString() || '';
-        const serverSslPort = v?.ssl || sslPort?.toString() || '';
+        const serverPort = v?.tcp ? v.tcp.toString() : port?.toString() || '';
+        const serverSslPort = v?.ssl ? v.ssl.toString() : sslPort?.toString() || '';
 
         if (serverHost && (serverPort || serverSslPort)) {
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+
+          // Clear current data for the preferred host
+          console.log('Clearing current data for the preferred host');
+          await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
+          await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
+          await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+
+          // Save the new preferred host
+          console.log('Saving new preferred host');
           await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
@@ -268,7 +277,7 @@ const ElectrumSettings: React.FC = () => {
 
   const isPreferred = useCallback(
     (value: ElectrumServerItem) => {
-      return host === value.host && ((sslPort !== undefined && value.ssl === sslPort) || (sslPort === undefined && port === value.tcp));
+      return value.host === host && ((sslPort !== undefined && value.ssl === sslPort) || (sslPort === undefined && value.tcp === port));
     },
     [host, port, sslPort],
   );
@@ -282,8 +291,7 @@ const ElectrumSettings: React.FC = () => {
   };
   const createServerAction = useCallback(
     ({ value, seenHosts, isPreferred: _unused, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
-      const hostKey = `${value.host}:${value.ssl ?? value.tcp}`;
-      if (seenHosts.has(hostKey)) return null;
+      const hostKey = `${value.host}:${value.tcp ?? ''}:${value.ssl ?? ''}`;
 
       seenHosts.add(hostKey);
       return {
@@ -299,41 +307,58 @@ const ElectrumSettings: React.FC = () => {
   );
 
   const generateToolTipActions = useCallback(() => {
-    const actions: Action[] = [];
+    const determineConnectedServer = (): string | null => {
+      const allServers = [...suggestedServers, ...Array.from(serverHistory)];
+      for (const value of allServers) {
+        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        if (isThisConnected && isPreferred(value)) return JSON.stringify(value);
+      }
+      for (const value of allServers) {
+        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        if (isThisConnected) return JSON.stringify(value);
+      }
+      return null;
+    };
+
+    const connectedServer = config?.connected ? determineConnectedServer() : null;
+
     const seenHosts = new Set<string>();
+    let preferredServerFound = false;
+    let connectedServerFound = false;
+
+    const mapServers = (servers: ElectrumServerItem[], isSuggested: boolean) => {
+      return servers
+        .map(value => {
+          const isConnectedTo = !connectedServerFound && connectedServer === JSON.stringify(value);
+          if (isConnectedTo) connectedServerFound = true;
+
+          const isPreferredServer = !preferredServerFound && isPreferred(value);
+          if (isPreferredServer) preferredServerFound = true;
+
+          return createServerAction({
+            value,
+            seenHosts,
+            isPreferred: isPreferredServer,
+            isConnectedTo,
+            isSuggested,
+          });
+        })
+        .filter((action): action is Action => action !== null);
+    };
 
     const suggestedServersAction: Action = {
       id: 'suggested_servers',
       text: loc._.suggested,
       displayInline: true,
       subtitle: loc.settings.electrum_suggested_description,
-      subactions: suggestedServers
-        .map(value =>
-          createServerAction({
-            value,
-            seenHosts,
-            isPreferred: isPreferred(value),
-            isConnectedTo: config?.host === value.host && (config.port === value.tcp || config.port === value.ssl),
-            isSuggested: true,
-          }),
-        )
-        .filter((action): action is Action => action !== null),
+      subactions: mapServers(suggestedServers, true),
     };
 
+    const actions: Action[] = [];
     actions.push(suggestedServersAction);
 
     if (serverHistory.size > 0) {
-      const serverSubactions: Action[] = Array.from(serverHistory)
-        .map(value =>
-          createServerAction({
-            value,
-            seenHosts,
-            isPreferred: isPreferred(value),
-            isConnectedTo: config?.host === value.host && (config.port === value.tcp || config.port === value.ssl),
-            isSuggested: false,
-          }),
-        )
-        .filter((action): action is Action => action !== null);
+      const serverSubactions: Action[] = mapServers(Array.from(serverHistory), false);
 
       actions.push({
         id: 'server_history',
@@ -346,11 +371,10 @@ const ElectrumSettings: React.FC = () => {
 
     const resetToDefaults = { ...CommonToolTipActions.ResetToDefault };
     resetToDefaults.hidden = !host && serverHistory.size === 0;
-
     actions.push(resetToDefaults);
 
     return actions;
-  }, [config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
+  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
@@ -472,6 +496,7 @@ const ElectrumSettings: React.FC = () => {
             editable={!isLoading}
             onBarScanned={importScan}
             keyboardType="default"
+            skipValidation
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
             onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
