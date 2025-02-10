@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   I18nManager,
   InteractionManager,
   LayoutAnimation,
@@ -42,7 +41,7 @@ import { popToTop } from '../../NavigationService';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { unsubscribe } from '../../blue_modules/notifications';
+import { isNotificationsEnabled, unsubscribe } from '../../blue_modules/notifications';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { Action } from '../../components/types';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
@@ -89,25 +88,60 @@ const WalletDetails: React.FC = () => {
   }, [wallet]);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
 
-  const navigateToOverviewAndDeleteWallet = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const externalAddresses = wallet.getAllExternalAddresses();
-      if (externalAddresses.length > 0) {
-        await unsubscribe(externalAddresses, [], []);
+  const handleWalletDeletion = useCallback(
+    async (forceDelete = false) => {
+      try {
+        const isNotificationsSettingsEnabled = await isNotificationsEnabled();
+        if (isNotificationsSettingsEnabled) {
+          const externalAddresses = wallet.getAllExternalAddresses();
+          if (externalAddresses.length > 0) {
+            await unsubscribe(externalAddresses, [], []);
+          }
+        }
+        deleteWallet(wallet);
+        saveToDisk(true);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        popToTop();
+      } catch (e: unknown) {
+        console.error(e);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        if (forceDelete) {
+          deleteWallet(wallet);
+          saveToDisk(true);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          popToTop();
+        } else {
+          presentAlert({
+            title: loc.errors.error,
+            message: loc.wallets.details_delete_wallet_error_message,
+            buttons: [
+              {
+                text: loc.wallets.details_delete_anyway,
+                onPress: () => handleWalletDeletion(true),
+                style: 'destructive',
+              },
+              {
+                text: loc.wallets.list_tryagain,
+                onPress: () => handleWalletDeletion(),
+              },
+              {
+                text: loc._.cancel,
+                onPress: () => setIsLoading(false),
+                style: 'cancel',
+              },
+            ],
+            options: { cancelable: false },
+          });
+        }
       }
-      deleteWallet(wallet);
-      saveToDisk(true);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      popToTop();
-    } catch (e: unknown) {
-      console.error(e);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (e as Error).message });
-      setIsLoading(false);
-    }
-  }, [deleteWallet, saveToDisk, wallet]);
+    },
+    [deleteWallet, saveToDisk, wallet],
+  );
+
+  const navigateToOverviewAndDeleteWallet = useCallback(() => {
+    setIsLoading(true);
+    handleWalletDeletion();
+  }, [handleWalletDeletion]);
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -137,10 +171,10 @@ const WalletDetails: React.FC = () => {
 
   const handleDeleteButtonTapped = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    Alert.alert(
-      loc.wallets.details_delete_wallet,
-      loc.wallets.details_are_you_sure,
-      [
+    presentAlert({
+      title: loc.wallets.details_delete_wallet,
+      message: loc.wallets.details_are_you_sure,
+      buttons: [
         {
           text: loc.wallets.details_yes_delete,
           onPress: async () => {
@@ -161,8 +195,8 @@ const WalletDetails: React.FC = () => {
         },
         { text: loc.wallets.details_no_cancel, onPress: () => {}, style: 'cancel' },
       ],
-      { cancelable: false },
-    );
+      options: { cancelable: false },
+    });
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
   const exportHistoryContent = useCallback(() => {
