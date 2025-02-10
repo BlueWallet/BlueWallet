@@ -422,7 +422,6 @@
     "details_export_history": "Export History to CSV",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
-    "details_no_cancel": "No, cancel",
     "details_show_xpub": "Show Wallet XPUB",
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
@@ -493,7 +492,9 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, memos",
-    "more_info": "More Info"
+    "more_info": "More Info",
+    "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
+    "details_delete_anyway": "Delete anyway"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in Bitcoin",

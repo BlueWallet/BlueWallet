@@ -16,7 +16,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import useDebounce from '../../hooks/useDebounce';
 import { TTXMetadata } from '../../class';
@@ -28,6 +28,7 @@ import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -193,7 +194,7 @@ const reducer = (state: State, action: Action): State => {
 
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
-  const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
+  const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
   const { setIsDrawerShouldHide } = useSettings();
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
   const { navigate, setOptions, goBack } = useExtendedNavigation();
@@ -242,6 +243,12 @@ const ManageWallets: React.FC = () => {
 
       walletsRef.current = deepCopyWallets(newWalletOrder);
 
+      state.tempOrder.forEach(item => {
+        if (item.type === ItemType.WalletSection && !newWalletOrder.some(wallet => wallet.getID() === item.data.getID())) {
+          handleWalletDeletion(item.data.getID());
+        }
+      });
+
       if (beforeRemoveListenerRef.current) {
         navigation.removeListener('beforeRemove', beforeRemoveListenerRef.current);
       }
@@ -251,7 +258,7 @@ const ManageWallets: React.FC = () => {
       dispatch({ type: SET_SEARCH_QUERY, payload: '' });
       dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
     }
-  }, [goBack, setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.tempOrder, navigation]);
+  }, [goBack, setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.tempOrder, navigation, handleWalletDeletion]);
 
   const hasUnsavedChanges = useMemo(() => {
     return JSON.stringify(walletsRef.current) !== JSON.stringify(state.tempOrder.map(item => item.data));
@@ -361,15 +368,20 @@ const ManageWallets: React.FC = () => {
   const presentWalletHasBalanceAlert = useCallback(async (wallet: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
+      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
-        loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
+        loc.formatString(loc.wallets.details_del_wb_q, { balance }),
         true,
-        'plain-text',
+        'numeric',
         true,
         loc.wallets.details_delete,
       );
-      if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
+      const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
+
+      if (Number(cleanedConfirmation) === wallet.getBalance()) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -381,10 +393,10 @@ const ManageWallets: React.FC = () => {
   const handleDeleteWallet = useCallback(
     async (wallet: TWallet) => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-      Alert.alert(
-        loc.wallets.details_delete_wallet,
-        loc.wallets.details_are_you_sure,
-        [
+      presentAlert({
+        title: loc.wallets.details_delete_wallet,
+        message: loc.wallets.details_are_you_sure,
+        buttons: [
           {
             text: loc.wallets.details_yes_delete,
             onPress: async () => {
@@ -395,7 +407,7 @@ const ManageWallets: React.FC = () => {
                   return;
                 }
               }
-              if (wallet.getBalance() > 0 && wallet.allowSend()) {
+              if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
                 presentWalletHasBalanceAlert(wallet);
               } else {
                 LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -404,10 +416,10 @@ const ManageWallets: React.FC = () => {
             },
             style: 'destructive',
           },
-          { text: loc.wallets.details_no_cancel, onPress: () => {}, style: 'cancel' },
+          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ],
-        { cancelable: false },
-      );
+        options: { cancelable: false },
+      });
     },
     [isBiometricUseCapableAndEnabled, presentWalletHasBalanceAlert],
   );
