@@ -310,8 +310,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // then we combine it all together
 
     const addresses2fetch = [];
+    // Store these values to avoid a race condition if fetchBalance func changes them
+    const next_free_address_index = this.next_free_address_index;
+    const next_free_change_address_index = this.next_free_change_address_index;
 
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_address_index + this.gap_limit; c++) {
       // external addresses first
       let hasUnconfirmed = false;
       this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
@@ -322,7 +325,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_change_address_index + this.gap_limit; c++) {
       // next, internal addresses
       let hasUnconfirmed = false;
       this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
@@ -389,10 +392,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // now purge all unconfirmed txs from internal hashmaps, since some may be evicted from mempool because they became invalid
     // or replaced. hashmaps are going to be re-populated anyways, since we fetched TXs for addresses with unconfirmed TXs
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_address_index + this.gap_limit; c++) {
       this._txs_by_external_index[c] = this._txs_by_external_index[c].filter(tx => !!tx.confirmations);
     }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_change_address_index + this.gap_limit; c++) {
       this._txs_by_internal_index[c] = this._txs_by_internal_index[c].filter(tx => !!tx.confirmations);
     }
     for (const pc of this._receive_payment_codes) {
@@ -404,7 +407,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, we need to put transactions in all relevant `cells` of internal hashmaps:
     // this._txs_by_internal_index, this._txs_by_external_index & this._txs_by_payment_code_index
 
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_address_index + this.gap_limit; c++) {
       for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
@@ -445,7 +448,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+    for (let c = 0; c < next_free_change_address_index + this.gap_limit; c++) {
       for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
