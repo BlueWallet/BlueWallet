@@ -109,7 +109,7 @@ const WalletDetails: React.FC = () => {
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
 
       if (Number(cleanedConfirmation) === wallet.getBalance()) {
-        await navigateToOverviewAndDeleteWallet();
+        navigateToOverviewAndDeleteWallet();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
