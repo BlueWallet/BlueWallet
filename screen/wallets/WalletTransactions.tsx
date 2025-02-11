@@ -62,8 +62,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
-  const [wallet, setWallet] = useState(() => wallets.find(w => w.getID() === walletID));
-  const [isWalletOnchainAddressAllowed, setIsWalletOnchainAddressAllowed] = useState(false);
+  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
@@ -77,12 +76,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       color: colors.foregroundColor,
     },
   });
-
-  useEffect(() => {
-    const newWallet = wallets.find(w => w.getID() === walletID);
-    setWallet(newWallet);
-    newWallet?.type === LightningCustodianWallet.type && newWallet.allowOnchainAddress().then(setIsWalletOnchainAddressAllowed);
-  }, [walletID, wallets]);
 
   useFocusEffect(
     useCallback(() => {
@@ -165,11 +158,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
 
-  useEffect(() => {
-    if (wallet && wallet.getLastTxFetch() === 0) {
-      refreshTransactions();
-    }
-  }, [wallet, refreshTransactions]);
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (wallet && wallet.getLastTxFetch() === 0) {
+          refreshTransactions();
+        }
+      });
+
+      return () => task.cancel();
+    }, [refreshTransactions, wallet]),
+  );
 
   useEffect(() => {
     if (wallet) {
@@ -375,10 +374,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
-  const balance = useMemo(() => {
-    if (!wallet) return 0;
-    return wallet.getBalance();
-  }, [wallet]);
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
   useEffect(() => {

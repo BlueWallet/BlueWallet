@@ -21,7 +21,6 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
-  paymentCode?: string;
   addRecipientParams?: {
     address: string;
     amount?: number;
@@ -78,18 +77,13 @@ export type SendDetailsStackParamList = {
     txid?: string;
   };
   SelectWallet: {
-    chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigation: any) => void;
-    availableWallets?: TWallet[];
-    noWalletExplanationText?: string;
-    onChainRequireSend?: boolean;
+    chainType: Chain;
   };
   CoinControl: {
     walletID: string;
   };
   PaymentCodeList: {
     walletID: string;
-    merge?: boolean;
   };
   ScanQRCode: ScanQRCodeParamList;
 };

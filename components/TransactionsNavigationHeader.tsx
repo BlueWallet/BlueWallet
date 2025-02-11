@@ -1,9 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
+import { TWallet } from '../class/wallets/types';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
@@ -13,45 +14,53 @@ import ToolTipMenu from './TooltipMenu';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 
 interface TransactionsNavigationHeaderProps {
-  hideBalance: boolean;
-  type: string;
-  label: string;
-  allowOnchainAddress: boolean;
-  balance: number;
+  wallet: TWallet;
   unit: BitcoinUnit;
-  preferredBalanceUnit: BitcoinUnit;
   onWalletUnitChange: (unit: BitcoinUnit) => void;
   onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
-  hideBalance,
-  type,
-  label,
-  allowOnchainAddress,
-  balance,
-  preferredBalanceUnit,
+  wallet,
   onWalletUnitChange,
   onManageFundsPressed,
   onWalletBalanceVisibilityChange,
   unit = BitcoinUnit.BTC,
 }) => {
+  const { hideBalance } = wallet;
+  const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
   const { preferredFiatCurrency } = useSettings();
 
+  const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
+    if (wallet.type === LightningCustodianWallet.type) {
+      wallet
+        .allowOnchainAddress()
+        .then((value: boolean) => setAllowOnchainAddress(value))
+        .catch(() => {
+          console.error('This LNDhub wallet does not have an onchain address API.');
+          setAllowOnchainAddress(false);
+        });
+    }
+  }, [wallet]);
+
+  useEffect(() => {
+    verifyIfWalletAllowsOnchainAddress();
+  }, [wallet, verifyIfWalletAllowsOnchainAddress]);
+
   const handleCopyPress = useCallback(() => {
-    const value = formatBalance(balance, unit);
+    const value = formatBalance(wallet.getBalance(), unit);
     if (value) {
       Clipboard.setString(value);
     }
-  }, [unit, balance]);
+  }, [unit, wallet]);
 
   const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!hideBalance);
   }, [onWalletBalanceVisibilityChange, hideBalance]);
 
   const changeWalletBalanceUnit = () => {
-    let newWalletPreferredUnit = preferredBalanceUnit;
+    let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
       newWalletPreferredUnit = BitcoinUnit.SATS;
@@ -137,9 +146,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ];
   }, [hideBalance]);
 
-  console.warn(balance);
   const imageSource = useMemo(() => {
-    switch (type) {
+    switch (wallet.type) {
       case LightningCustodianWallet.type:
         return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       case MultisigHDWallet.type:
@@ -147,22 +155,23 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       default:
         return I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
     }
-  }, [type]);
+  }, [wallet.type]);
 
   useAnimateOnChange(balance);
   useAnimateOnChange(hideBalance);
   useAnimateOnChange(unit);
+  useAnimateOnChange(wallet.getID?.());
 
   return (
     <LinearGradient
-      colors={WalletGradient.gradientsFor(type)}
+      colors={WalletGradient.gradientsFor(wallet.type)}
       style={styles.lineaderGradient}
-      {...WalletGradient.linearGradientProps(type)}
+      {...WalletGradient.linearGradientProps(wallet.type)}
     >
       <Image source={imageSource} style={styles.chainIcon} />
 
-      <Text testID="WalletLabel" numberOfLines={2} style={styles.walletLabel} selectable>
-        {label}
+      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
+        {wallet.getLabel()}
       </Text>
       <View style={styles.walletBalanceAndUnitContainer}>
         <ToolTipMenu
@@ -180,14 +189,14 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
               <View>
                 <Text
                   // @ts-ignore: // force component recreation on balance change. To fix right-to-left languages, like Farsis
-                  key={balanceFormatted}
+                  key={balance}
                   testID="WalletBalance"
                   numberOfLines={1}
                   minimumFontScale={0.5}
                   adjustsFontSizeToFit
                   style={styles.walletBalanceText}
                 >
-                  {balanceFormatted}
+                  {balance}
                 </Text>
               </View>
             )}
@@ -199,7 +208,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </Text>
         </TouchableOpacity>
       </View>
-      {type === LightningCustodianWallet.type && allowOnchainAddress && (
+      {wallet.type === LightningCustodianWallet.type && allowOnchainAddress && (
         <ToolTipMenu
           isMenuPrimaryAction
           isButton
@@ -210,7 +219,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
       )}
-      {type === MultisigHDWallet.type && (
+      {wallet.type === MultisigHDWallet.type && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
