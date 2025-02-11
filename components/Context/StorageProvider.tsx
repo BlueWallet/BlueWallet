@@ -109,7 +109,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         return false;
       }
 
-      // Force deletion: if forceDelete is true then delete and return true immediately.
       if (forceDelete) {
         deleteWallet(wallet);
         saveToDisk(true);
