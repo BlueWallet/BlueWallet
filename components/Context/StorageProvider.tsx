@@ -49,7 +49,7 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
-  handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<void>;
+  handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<boolean>;
 }
 
 export enum WalletTransactionsStatus {
@@ -101,28 +101,84 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   const handleWalletDeletion = useCallback(
-    async (walletID: string, forceDelete = false) => {
+    async (walletID: string, forceDelete = false): Promise<boolean> => {
+      console.debug(`handleWalletDeletion: invoked for walletID ${walletID}`);
       const wallet = wallets.find(w => w.getID() === walletID);
-      if (!wallet) return;
+      if (!wallet) {
+        console.warn(`handleWalletDeletion: wallet not found for ${walletID}`);
+        return false;
+      }
 
-      try {
-        const isNotificationsSettingsEnabled = await isNotificationsEnabled();
-        if (isNotificationsSettingsEnabled) {
-          const externalAddresses = wallet.getAllExternalAddresses();
-          if (externalAddresses.length > 0) {
-            await unsubscribe(externalAddresses, [], []);
-          }
-        }
+      // Force deletion: if forceDelete is true then delete and return true immediately.
+      if (forceDelete) {
         deleteWallet(wallet);
         saveToDisk(true);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        return true;
+      }
+
+      let isNotificationsSettingsEnabled = false;
+      try {
+        isNotificationsSettingsEnabled = await isNotificationsEnabled();
+      } catch (error) {
+        console.error(`handleWalletDeletion: error checking notifications for wallet ${walletID}`, error);
+        presentAlert({
+          title: loc.errors.error,
+          message: loc.wallets.details_delete_wallet_error_message,
+          buttons: [
+            {
+              text: loc.wallets.details_delete_anyway,
+              onPress: async () => await handleWalletDeletion(walletID, true),
+              style: 'destructive',
+            },
+            {
+              text: loc.wallets.list_tryagain,
+              onPress: async () => await handleWalletDeletion(walletID),
+            },
+            {
+              text: loc._.cancel,
+              onPress: () => {},
+              style: 'cancel',
+            },
+          ],
+          options: { cancelable: false },
+        });
+        return false;
+      }
+
+      try {
+        if (isNotificationsSettingsEnabled) {
+          const externalAddresses = wallet.getAllExternalAddresses();
+          if (externalAddresses.length > 0) {
+            console.debug(`handleWalletDeletion: unsubscribing addresses for wallet ${walletID}`);
+            try {
+              await unsubscribe(externalAddresses, [], []);
+              console.debug(`handleWalletDeletion: unsubscribe succeeded for wallet ${walletID}`);
+            } catch (unsubscribeError) {
+              console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, unsubscribeError);
+              presentAlert({
+                title: loc.errors.error,
+                message: loc.wallets.details_delete_wallet_error_message,
+                buttons: [{ text: loc._.ok, onPress: () => {} }],
+                options: { cancelable: false },
+              });
+              return false;
+            }
+          }
+        }
+        deleteWallet(wallet);
+        console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
+        saveToDisk(true);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        return true;
       } catch (e: unknown) {
-        console.error(e);
+        console.error(`handleWalletDeletion: encountered error for wallet ${walletID}`, e);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         if (forceDelete) {
           deleteWallet(wallet);
           saveToDisk(true);
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          return true;
         } else {
           presentAlert({
             title: loc.errors.error,
@@ -130,12 +186,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             buttons: [
               {
                 text: loc.wallets.details_delete_anyway,
-                onPress: () => handleWalletDeletion(walletID, true),
+                onPress: async () => await handleWalletDeletion(walletID, true),
                 style: 'destructive',
               },
               {
                 text: loc.wallets.list_tryagain,
-                onPress: () => handleWalletDeletion(walletID),
+                onPress: async () => await handleWalletDeletion(walletID),
               },
               {
                 text: loc._.cancel,
@@ -145,6 +201,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             ],
             options: { cancelable: false },
           });
+          return false;
         }
       }
     },
