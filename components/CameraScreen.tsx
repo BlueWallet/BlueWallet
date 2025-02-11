@@ -46,8 +46,8 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   // For real phone apps, lock your UI orientation using a library like 'react-native-orientation-locker'
   const rotateUi = true;
   const uiRotation = orientationAnim.interpolate({
-    inputRange: [1, 4],
-    outputRange: ['180deg', '-90deg'],
+    inputRange: [1, 2, 3, 4],
+    outputRange: ['180deg', '90deg', '0deg', '-90deg'],
   });
   const uiRotationStyle = rotateUi ? { transform: [{ rotate: uiRotation }] } : {};
 
@@ -96,12 +96,13 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   return (
     <View style={styles.screen}>
       <View style={styles.topButtons}>
-        <TouchableOpacity style={styles.topButton} onPress={onSetTorch}>
-          <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            {Platform.select({
-              android: <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color="#ffffff" />,
-              ios: <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color="#ffffff" />,
-            })}
+        <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
+          <Animated.View style={styles.topButtonImg}>
+            {Platform.OS === 'ios' ? (
+              <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+            ) : (
+              <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+            )}
           </Animated.View>
         </TouchableOpacity>
         <View style={styles.rightButtonsContainer}>
@@ -112,7 +113,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onImagePickerButtonPress}
             >
-              <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+              <Animated.View style={styles.topButtonImg}>
                 <Icon name="image" type="font-awesome" color="#ffffff" />
               </Animated.View>
             </TouchableOpacity>
@@ -124,7 +125,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               style={[styles.topButton, styles.spacing, uiRotationStyle]}
               onPress={onFilePickerButtonPress}
             >
-              <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+              <Animated.View style={styles.topButtonImg}>
                 <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
               </Animated.View>
             </TouchableOpacity>
@@ -145,8 +146,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           onZoom={handleZoom}
           onReadCode={handleReadCode}
           torchMode={torchMode ? 'on' : 'off'}
-          shutterPhotoSound
-          maxPhotoQualityPrioritization="quality"
           onOrientationChange={handleOrientationChange}
         />
       </View>
@@ -155,12 +154,13 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomButton} onPress={onSwitchCameraPressed}>
+        <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
           <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            {Platform.select({
-              android: <Icon name="camera" type="material" color="#ffffff" />,
-              ios: <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />,
-            })}
+            {Platform.OS === 'ios' ? (
+              <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+            ) : (
+              <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+            )}
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -171,6 +171,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 export default CameraScreen;
 
 const styles = StyleSheet.create({
+  activeTorch: {
+    backgroundColor: '#fff',
+  },
   screen: {
     height: '100%',
     backgroundColor: '#000000',

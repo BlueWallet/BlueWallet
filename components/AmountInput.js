@@ -146,7 +146,9 @@ class AmountInput extends Component {
   textInput = React.createRef();
 
   handleTextInputOnPress = () => {
-    this.textInput.current.focus();
+    if (this.textInput && this.textInput.current && typeof this.textInput.current.focus === 'function') {
+      this.textInput.current.focus();
+    }
   };
 
   handleChangeText = text => {
@@ -258,7 +260,11 @@ class AmountInput extends Component {
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
         disabled={this.props.pointerEvents === 'none'}
-        onPress={() => this.textInput.focus()}
+        onPress={() => {
+          if (this.textInput && this.textInput.current && typeof this.textInput.current.focus === 'function') {
+            this.textInput.current.focus();
+          }
+        }}
       >
         <>
           <View style={styles.root}>

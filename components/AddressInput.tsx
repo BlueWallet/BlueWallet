@@ -13,8 +13,8 @@ interface AddressInputProps {
   onChangeText: (text: string) => void;
   editable?: boolean;
   inputAccessoryViewID?: string;
-  onBlur?: () => void;
   onFocus?: () => void;
+  onBlur?: () => void;
   testID?: string;
   style?: StyleProp<ViewStyle>;
   keyboardType?:
@@ -31,6 +31,7 @@ interface AddressInputProps {
     | 'twitter'
     | 'web-search'
     | 'visible-password';
+  skipValidation?: boolean;
 }
 
 const AddressInput = ({
@@ -41,10 +42,11 @@ const AddressInput = ({
   onChangeText,
   editable = true,
   inputAccessoryViewID,
-  onBlur = () => {},
   onFocus = () => {},
+  onBlur = () => {},
   keyboardType = 'default',
   style,
+  skipValidation = false,
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -58,21 +60,26 @@ const AddressInput = ({
     },
   });
 
-  const validateAddressWithFeedback = useCallback((value: string) => {
-    const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(value);
-    const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(value);
-    const isValid = isBitcoinAddress || isLightningInvoice;
+  const validateAddressWithFeedback = useCallback(
+    (value: string) => {
+      if (skipValidation) return;
+      const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(value);
+      const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(value);
+      const isValid = isBitcoinAddress || isLightningInvoice;
 
-    triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
-    return {
-      isValid,
-      type: isBitcoinAddress ? 'bitcoin' : isLightningInvoice ? 'lightning' : 'invalid',
-    };
-  }, []);
+      triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
+      return {
+        isValid,
+        type: isBitcoinAddress ? 'bitcoin' : isLightningInvoice ? 'lightning' : 'invalid',
+      };
+    },
+    [skipValidation],
+  );
 
   const onBlurEditing = () => {
-    validateAddressWithFeedback(address);
-    onBlur();
+    if (!skipValidation) {
+      validateAddressWithFeedback(address);
+    }
     Keyboard.dismiss();
   };
 
@@ -89,11 +96,11 @@ const AddressInput = ({
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
-        onBlur={onBlurEditing}
         onFocus={onFocus}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType={keyboardType}
+        {...(skipValidation ? { onBlur } : { onBlur: onBlurEditing })}
       />
       {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>

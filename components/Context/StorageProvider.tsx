@@ -8,7 +8,7 @@ import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
-import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -49,6 +49,7 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
+  handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<void>;
 }
 
 export enum WalletTransactionsStatus {
@@ -98,6 +99,57 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
   }, []);
+
+  const handleWalletDeletion = useCallback(
+    async (walletID: string, forceDelete = false) => {
+      const wallet = wallets.find(w => w.getID() === walletID);
+      if (!wallet) return;
+
+      try {
+        const isNotificationsSettingsEnabled = await isNotificationsEnabled();
+        if (isNotificationsSettingsEnabled) {
+          const externalAddresses = wallet.getAllExternalAddresses();
+          if (externalAddresses.length > 0) {
+            await unsubscribe(externalAddresses, [], []);
+          }
+        }
+        deleteWallet(wallet);
+        saveToDisk(true);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } catch (e: unknown) {
+        console.error(e);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        if (forceDelete) {
+          deleteWallet(wallet);
+          saveToDisk(true);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        } else {
+          presentAlert({
+            title: loc.errors.error,
+            message: loc.wallets.details_delete_wallet_error_message,
+            buttons: [
+              {
+                text: loc.wallets.details_delete_anyway,
+                onPress: () => handleWalletDeletion(walletID, true),
+                style: 'destructive',
+              },
+              {
+                text: loc.wallets.list_tryagain,
+                onPress: () => handleWalletDeletion(walletID),
+              },
+              {
+                text: loc._.cancel,
+                onPress: () => {},
+                style: 'cancel',
+              },
+            ],
+            options: { cancelable: false },
+          });
+        }
+      }
+    },
+    [deleteWallet, saveToDisk, wallets],
+  );
 
   const resetWallets = useCallback(() => {
     setWallets(BlueApp.getWallets());
@@ -274,6 +326,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
+      handleWalletDeletion,
     }),
     [
       wallets,
@@ -292,6 +345,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
+      handleWalletDeletion,
     ],
   );
 
