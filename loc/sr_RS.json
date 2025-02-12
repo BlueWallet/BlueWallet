@@ -8,8 +8,5 @@
     "yes": "Da",
     "no": "Ne",
     "wallet_key": "Ključ novčanika"
-  },
-  "settings": {
-    "electrum_clear_alert_cancel": "Poništi"
   }
 }

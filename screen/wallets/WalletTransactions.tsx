@@ -14,6 +14,7 @@ import {
   StyleSheet,
   Text,
   View,
+  RefreshControl,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -268,6 +269,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [getTransactions, limit]);
 
   const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => {
       return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
     },
@@ -373,8 +375,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       };
     }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
-
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
   useEffect(() => {
@@ -488,7 +488,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   return (
     <View style={[styles.flex, { backgroundColor: colors.background }]}>
-      {/* The color of the refresh indicator. Temporaary hack */}
+      {/* The color of the refresh indicator. Temporary hack */}
       <View
         style={[
           styles.refreshIndicatorBackground,
@@ -502,7 +502,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
-        {...refreshProps}
         data={listData}
         extraData={wallet}
         keyExtractor={_keyExtractor}
@@ -523,6 +522,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             </Text>
             {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
           </ScrollView>
+        }
+        refreshControl={
+          !isDesktop && !isElectrumDisabled ? (
+            <RefreshControl refreshing={isLoading} onRefresh={refreshTransactions} tintColor={colors.msSuccessCheck} />
+          ) : undefined
         }
       />
       <FContainer ref={walletActionButtonsRef}>
