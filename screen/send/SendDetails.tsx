@@ -878,16 +878,15 @@ const SendDetails = () => {
             importQrTransactionOnBarScanned(data);
             break;
           case CommonToolTipActions.SignPSBT:
-          case CommonToolTipActions.CoSignTransaction:
             handlePsbtSign(data);
             break;
+          case CommonToolTipActions.CoSignTransaction:
           case CommonToolTipActions.ImportTransactionMultsig:
             _importTransactionMultisig(data);
             break;
           case CommonToolTipActions.ImportTransaction:
             processAddressData(data);
             break;
-
           default:
             console.debug('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
@@ -898,13 +897,13 @@ const SendDetails = () => {
     selectedDataProcessor.current = undefined;
     setParams({ onBarScanned: undefined });
   }, [
-    handlePsbtSign,
     importQrTransactionOnBarScanned,
     onBarScanned,
     routeParams.onBarScanned,
     setParams,
     processAddressData,
     _importTransactionMultisig,
+    handlePsbtSign,
   ]);
 
   const navigateToQRCodeScanner = () => {
