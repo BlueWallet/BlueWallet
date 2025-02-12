@@ -183,6 +183,7 @@ const EncryptStorage = () => {
           onValueChange: onEncryptStorageSwitch,
           value: state.storageIsEncryptedSwitchEnabled,
           disabled: state.currentLoadingSwitch !== null,
+          testID: 'EncyptedAndPasswordProtectedSwitch',
         }}
         isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
         containerStyle={[styles.row, styleHooks.root]}

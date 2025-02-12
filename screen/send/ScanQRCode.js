@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: 'rgba(0,0,0,0.01)',
     position: 'absolute',
-    top: 10,
+    top: 60,
     left: '50%',
     transform: [{ translateX: -30 }],
   },
