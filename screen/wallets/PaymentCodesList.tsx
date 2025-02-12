@@ -181,7 +181,7 @@ export default function PaymentCodesList() {
   const _navigateToSend = (pc: string) => {
     const previousRoute = state.routes[state.routes.length - 2];
 
-    if (previousRoute.name === 'SendDetailsRoot') {
+    if (previousRoute.name === ('SendDetails' as string)) {
       const popToAction = StackActions.popTo('SendDetails', {
         walletID,
         addRecipientParams: {

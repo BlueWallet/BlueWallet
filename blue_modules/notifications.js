@@ -574,6 +574,9 @@ export const isNotificationsEnabled = async () => {
     return !isDisabledByUser && !!token && !!levels.level_all;
   } catch (error) {
     console.log('Error checking notification levels:', error);
+    if (error instanceof SyntaxError) {
+      throw error;
+    }
     return false;
   }
 };

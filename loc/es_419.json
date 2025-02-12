@@ -422,7 +422,6 @@
     "details_export_history": "Exportar historial a CSV",
     "details_master_fingerprint": "Huella Digital Maestra",
     "details_multisig_type": "multifirma",
-    "details_no_cancel": "No, cancelar",
     "details_show_xpub": "Mostrar el XPUB de la Billetera",
     "details_show_addresses": "Mostrar direcciones",
     "details_title": "Billetera",
@@ -493,7 +492,9 @@
     "identity_pubkey": "Identidad Pubkey",
     "xpub_title": "XPUB de la billetera",
     "manage_wallets_search_placeholder": "Buscar billeteras, notas",
-    "more_info": "Más información"
+    "more_info": "Más información",
+    "details_delete_wallet_error_message": "Hubo un problema al confirmar si esta billetera se eliminó de las notificaciones, lo que podría deberse a un problema de red o a una mala conexión. Si continúas, es posible que aún recibas notificaciones de transacciones relacionadas con esta billetera, incluso después de que se elimine.",
+    "details_delete_anyway": "Borrar de todos modos"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",
@@ -508,6 +509,10 @@
     "default_label": "Bóveda Multifirma",
     "multisig_vault_explain": "La mejor seguridad para grandes cantidades",
     "provide_signature": "Proporcionar firma",
+    "provide_signature_details": "Usa tu dispositivo y billetera donde reside la llave para firmar esta transacción",
+    "provide_signature_details_bluewallet": "En BlueWallet, ve al menú de la pantalla Enviar y selecciona",
+    "provide_signature_next_steps": "Escanea o importa la transacción firmada",
+    "provide_signature_next_steps_details": "Una vez que tu billetera haya firmado con éxito la transacción, escanea el código QR proporcionado o importa el archivo que lo acompaña, y luego revisa todos los detalles de la transacción antes de transmitirla.",
     "vault_key": "Clave de la Bóveda {number}",
     "required_keys_out_of_total": "Llaves requeridas del total",
     "fee": "Tarifa: {number}",
@@ -669,7 +674,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
