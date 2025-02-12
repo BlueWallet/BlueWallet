@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Realm from 'realm';
+import { EventEmitter } from 'events';
 
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
@@ -15,6 +16,8 @@ import { AlertButton } from 'react-native';
 const ElectrumClient = require('electrum-client');
 const net = require('net');
 const tls = require('tls');
+
+const configEmitter = new EventEmitter();
 
 type Utxo = {
   height: number;
@@ -97,7 +100,6 @@ export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
 
 let mainClient: typeof ElectrumClient | undefined;
 let mainConnected: boolean = false;
-let wasConnectedAtLeastOnce: boolean = false;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
 let connectionAttempt: number = 0;
@@ -275,7 +277,6 @@ export async function connectMain(): Promise<void> {
       console.log('connected to ', ver);
       serverName = ver[0];
       mainConnected = true;
-      wasConnectedAtLeastOnce = true;
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
 
@@ -306,6 +307,7 @@ export async function connectMain(): Promise<void> {
         };
       }
       // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
+      configEmitter.emit('configChanged', await getConfig());
     }
   } catch (e) {
     mainConnected = false;
@@ -490,6 +492,14 @@ export const getConfig = async function () {
     port: mainClient.port,
     serverName,
     connected: mainClient.timeLastCall !== 0 && mainClient.status,
+  };
+};
+
+// Helper to subscribe to config changes
+export const subscribeToConfig = (callback: (config: any) => void): (() => void) => {
+  configEmitter.on('configChanged', callback);
+  return () => {
+    configEmitter.off('configChanged', callback);
   };
 };
 
@@ -985,34 +995,23 @@ export async function multiGetTransactionByTxid<T extends boolean>(
  * Simple waiter till `mainConnected` becomes true (which means
  * it Electrum was connected in other function), or timeout 30 sec.
  */
-export const waitTillConnected = async function (): Promise<boolean> {
-  let waitTillConnectedInterval: NodeJS.Timeout | undefined;
-  let retriesCounter = 0;
+export const waitTillConnected = async function (timeOutMs = 30000): Promise<boolean> {
   if (await isDisabled()) {
     console.warn('Electrum connections disabled by user. waitTillConnected skipping...');
     return false;
   }
-  return new Promise(function (resolve, reject) {
-    waitTillConnectedInterval = setInterval(() => {
-      if (mainConnected) {
-        clearInterval(waitTillConnectedInterval);
-        return resolve(true);
+  return new Promise<boolean>((resolve, reject) => {
+    const unsub = subscribeToConfig(cfg => {
+      if (cfg?.connected) {
+        unsub();
+        clearTimeout(timeoutId);
+        resolve(true);
       }
-
-      if (wasConnectedAtLeastOnce && mainClient.status === 1) {
-        clearInterval(waitTillConnectedInterval);
-        mainConnected = true;
-        return resolve(true);
-      }
-
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
-        // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
-        // electrum during app startup
-        clearInterval(waitTillConnectedInterval);
-        presentNetworkErrorAlert();
-        reject(new Error('Waiting for Electrum connection timeout'));
-      }
-    }, 100);
+    });
+    const timeoutId = setTimeout(() => {
+      unsub();
+      reject(new Error('Waiting for Electrum connection timeout'));
+    }, timeOutMs);
   });
 };
 
@@ -1188,8 +1187,18 @@ export const testConnection = async function (host: string, tcpPort?: number, ss
   return false;
 };
 
+export const disconnect = async (): Promise<void> => {
+  if (mainClient) {
+    mainClient.close();
+    mainConnected = false;
+    mainClient = undefined;
+    configEmitter.emit('configChanged', { connected: 0, host: '', port: 0 });
+  }
+};
+
+// Optionally, update forceDisconnect to alias disconnect
 export const forceDisconnect = (): void => {
-  mainClient?.close();
+  disconnect();
 };
 
 export const setBatchingDisabled = () => {

@@ -27,6 +27,7 @@ import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
+import useElectrum from '../../hooks/useElectrum';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -43,15 +44,17 @@ const ElectrumSettings: React.FC = () => {
   const params = useRoute<RouteProps>().params;
   const { server } = params;
   const navigation = useExtendedNavigation();
+  const { config, loading: hookLoading, refreshConfig, disconnectElectrum } = useElectrum();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
-  const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+
+  const combinedLoading = isLoading || hookLoading;
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -81,64 +84,52 @@ const ElectrumSettings: React.FC = () => {
     },
   });
 
-  const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-
   const fetchData = useCallback(async () => {
     console.log('Fetching data...');
-    const preferredServer = await BlueElectrum.getPreferredServer();
-    const savedHost = preferredServer?.host;
-    const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
-    const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
-    const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
+    try {
+      const preferredServer = await BlueElectrum.getPreferredServer();
+      const savedHost = preferredServer?.host;
+      const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
+      const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
+      const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
 
-    console.log('Preferred server:', preferredServer);
-    console.log('Server history string:', serverHistoryStr);
+      console.log('Preferred server:', preferredServer);
+      console.log('Server history string:', serverHistoryStr);
 
-    const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
+      const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
-    // Allow duplicates for same host if ssl/tcp differs. Only skip if host, ssl, and tcp are all the same:
-    const newServerHistoryArray: ElectrumServerItem[] = [];
-    for (const item of parsedServerHistory) {
-      const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
-      if (!existing) {
-        newServerHistoryArray.push(item);
+      // Allow duplicates for same host if ssl/tcp differs. Only skip if host, ssl, and tcp are all the same:
+      const newServerHistoryArray: ElectrumServerItem[] = [];
+      for (const item of parsedServerHistory) {
+        const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
+        if (!existing) {
+          newServerHistoryArray.push(item);
+        }
       }
+
+      const filteredServerHistory = new Set(
+        newServerHistoryArray.filter(
+          v =>
+            v.host &&
+            (v.tcp || v.ssl) &&
+            !suggestedServers.some(s => s.host === v.host && s.tcp === v.tcp && s.ssl === v.ssl) &&
+            !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
+        ),
+      );
+
+      console.log('Filtered server history:', filteredServerHistory);
+
+      setHost(savedHost || '');
+      setPort(savedPort);
+      setSslPort(savedSslPort);
+      setServerHistory(filteredServerHistory);
+    } finally {
+      setIsLoading(false);
     }
-
-    const filteredServerHistory = new Set(
-      newServerHistoryArray.filter(
-        v =>
-          v.host &&
-          (v.tcp || v.ssl) &&
-          !suggestedServers.some(s => s.host === v.host && s.tcp === v.tcp && s.ssl === v.ssl) &&
-          !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
-      ),
-    );
-
-    console.log('Filtered server history:', filteredServerHistory);
-
-    setHost(savedHost || '');
-    setPort(savedPort);
-    setSslPort(savedSslPort);
-    setServerHistory(filteredServerHistory);
-
-    setConfig(await BlueElectrum.getConfig());
-    configIntervalRef.current = setInterval(async () => {
-      setConfig(await BlueElectrum.getConfig());
-    }, 500);
-
-    setIsLoading(false);
-
-    return () => {
-      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
-    };
   }, []);
 
   useEffect(() => {
     fetchData();
-    return () => {
-      if (configIntervalRef.current) clearInterval(configIntervalRef.current);
-    };
   }, [fetchData]);
 
   useEffect(() => {
@@ -203,14 +194,12 @@ const ElectrumSettings: React.FC = () => {
         presentAlert({ message: loc.settings.electrum_saved });
 
         await fetchData();
-      } catch (error) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: (error as Error).message });
+        await refreshConfig(); // refresh hook config after saving
       } finally {
         setIsLoading(false);
       }
     },
-    [host, port, sslPort, fetchData, serverHistory],
+    [host, port, sslPort, fetchData, serverHistory, refreshConfig],
   );
 
   const selectServer = useCallback(
@@ -262,17 +251,23 @@ const ElectrumSettings: React.FC = () => {
               }
             });
             break;
+          case CommonToolTipActions.DisconnectElectrum.id:
+            disconnectElectrum();
+            break;
+          case CommonToolTipActions.ConnectElectrum.id:
+            BlueElectrum.connectMain();
+            break;
           default:
             try {
               selectServer(id);
-            } catch (error) {
+            } catch (err) {
               console.warn('Unknown menu item selected:', id);
             }
             break;
         }
       }
     },
-    [presentSelectServerAlert, fetchData, selectServer],
+    [presentSelectServerAlert, disconnectElectrum, fetchData, selectServer],
   );
 
   const isPreferred = useCallback(
@@ -310,11 +305,11 @@ const ElectrumSettings: React.FC = () => {
     const determineConnectedServer = (): string | null => {
       const allServers = [...suggestedServers, ...Array.from(serverHistory)];
       for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        const isThisConnected = config?.host === value.host && (config?.port === value.tcp || config?.port === value.ssl);
         if (isThisConnected && isPreferred(value)) return JSON.stringify(value);
       }
       for (const value of allServers) {
-        const isThisConnected = config?.host === value.host && (config.port === value.tcp || config.port === value.ssl);
+        const isThisConnected = config?.host === value.host && (config?.port === value.tcp || config?.port === value.ssl);
         if (isThisConnected) return JSON.stringify(value);
       }
       return null;
@@ -373,8 +368,23 @@ const ElectrumSettings: React.FC = () => {
     resetToDefaults.hidden = !host && serverHistory.size === 0;
     actions.push(resetToDefaults);
 
+    const preferredServerIsEmpty = !host || (!port && !sslPort);
+    const subtitleValue = !preferredServerIsEmpty ? `${host}:${port ?? sslPort}` : undefined;
+
+    actions.push({
+      ...CommonToolTipActions.DisconnectElectrum,
+      hidden: !config?.connected,
+      subtitle: `${config?.host ?? ''}:${config?.port ?? config?.sslPort ?? ''}`,
+    });
+
+    actions.push({
+      ...CommonToolTipActions.ConnectElectrum,
+      hidden: config?.connected,
+      subtitle: subtitleValue,
+    });
+
     return actions;
-  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
+  }, [config?.connected, config?.host, config?.port, config?.sslPort, createServerAction, host, isPreferred, port, serverHistory, sslPort]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
@@ -393,11 +403,17 @@ const ElectrumSettings: React.FC = () => {
       const features = await BlueElectrum.serverFeatures();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       presentAlert({ message: JSON.stringify(features, null, 2) });
-    } catch (error) {
+    } catch (err) {
+      console.error('Error checking server:', err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (error as Error).message });
+      presentAlert({
+        message: loc.formatString(loc.settings.electrum_unable_to_connect, {
+          server: `${host}${port ? ':' + port : ''}${sslPort ? ':' + sslPort : ''}`,
+        }),
+      });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const onBarScanned = (value: string) => {
@@ -447,9 +463,9 @@ const ElectrumSettings: React.FC = () => {
       triggerSelectionHapticFeedback();
       await BlueElectrum.setDisabled(value);
       setIsElectrumDisabled(value);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error changing Electrum connection state:', err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (error as Error).message });
     }
   };
 
@@ -465,18 +481,20 @@ const ElectrumSettings: React.FC = () => {
 
         <BlueCard>
           <View style={styles.connectWrap}>
-            <View style={[styles.container, config.connected === 1 ? stylesHook.containerConnected : stylesHook.containerDisconnected]}>
+            <View style={[styles.container, config?.connected === 1 ? stylesHook.containerConnected : stylesHook.containerDisconnected]}>
               <BlueText
-                style={[styles.textConnectionStatus, config.connected === 1 ? stylesHook.textConnected : stylesHook.textDisconnected]}
+                style={[styles.textConnectionStatus, config?.connected === 1 ? stylesHook.textConnected : stylesHook.textDisconnected]}
               >
-                {config.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
+                {config?.connected === 1 ? loc.settings.electrum_connected : loc.settings.electrum_connected_not}
               </BlueText>
             </View>
           </View>
           <BlueSpacing10 />
-          <BlueText style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
-            {config.host}:{config.port}
-          </BlueText>
+          {config?.connected === 1 && config?.host && (
+            <BlueText style={[styles.hostname, stylesHook.hostname]} onPress={checkServer} selectable>
+              {`${config.host}${config.port ? ':' + config.port : ''}`}
+            </BlueText>
+          )}
         </BlueCard>
         <BlueSpacing20 />
 
@@ -493,14 +511,14 @@ const ElectrumSettings: React.FC = () => {
             placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
             address={host}
             onChangeText={text => setHost(text.trim())}
-            editable={!isLoading}
+            editable={!combinedLoading}
             onBarScanned={importScan}
             keyboardType="default"
             skipValidation
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
             onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-            isLoading={isLoading}
+            isLoading={combinedLoading}
           />
           <BlueSpacing20 />
           <View style={styles.portWrap}>
@@ -519,7 +537,7 @@ const ElectrumSettings: React.FC = () => {
                 }}
                 numberOfLines={1}
                 style={[styles.inputText, stylesHook.inputText]}
-                editable={!isLoading}
+                editable={!combinedLoading}
                 placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
                 autoCorrect={false}
@@ -536,15 +554,15 @@ const ElectrumSettings: React.FC = () => {
               testID="SSLPortInput"
               value={sslPort !== undefined}
               onValueChange={onSSLPortChange}
-              disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}
+              disabled={host?.endsWith('.onion') || combinedLoading || host === '' || (port === undefined && sslPort === undefined)}
             />
           </View>
         </BlueCard>
         <BlueCard>
           <BlueSpacing20 />
           <Button
-            showActivityIndicator={isLoading}
-            disabled={isLoading || preferredServerIsEmpty}
+            showActivityIndicator={combinedLoading}
+            disabled={combinedLoading || preferredServerIsEmpty}
             testID="Save"
             onPress={save}
             title={loc.settings.save}
@@ -599,7 +617,7 @@ const ElectrumSettings: React.FC = () => {
           value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
-        disabled={isLoading}
+        disabled={combinedLoading}
         bottomDivider={false}
         subtitle={loc.settings.electrum_offline_description}
       />
