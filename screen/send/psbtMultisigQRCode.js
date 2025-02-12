@@ -2,13 +2,14 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import TipBox from '../../components/TipBox';
 
 const PsbtMultisigQRCode = () => {
   const navigation = useNavigation();
@@ -30,20 +31,6 @@ const PsbtMultisigQRCode = () => {
     },
     exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    tipBox: {
-      backgroundColor: colors.ballOutgoingExpired,
-      borderRadius: 12,
-      padding: 16,
-      marginBottom: 24,
-    },
-    tipHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    tipHeaderText: {
-      marginLeft: 4,
-      flex: 1,
     },
   });
   const fileName = `${Date.now()}.psbt`;
@@ -105,39 +92,22 @@ const PsbtMultisigQRCode = () => {
       contentInsetAdjustmentBehavior="automatic"
       contentContainerStyle={[styles.scrollViewContent, stylesHook.root, styles.modalContentShort, stylesHook.modalContentShort]}
     >
-      <View style={[styles.tipBox, stylesHook.tipBox]}>
-        <View style={stylesHook.tipHeader}>
-          <View style={styles.vaultKeyCircle}>
-            <BlueText style={styles.vaultKeyText}>1</BlueText>
-          </View>
-          <BlueText bold style={stylesHook.tipHeaderText}>
-            {loc.multisig.provide_signature}
-          </BlueText>
-        </View>
-        <BlueSpacing20 />
-        <BlueText>{loc.multisig.provide_signature_details}</BlueText>
-        <BlueSpacing20 />
-        <BlueText>
-          {loc.multisig.provide_signature_details_bluewallet} <BlueText bold>{loc.multisig.co_sign_transaction}</BlueText>
-        </BlueText>
-      </View>
+      <TipBox
+        number="1"
+        title={loc.multisig.provide_signature}
+        description={loc.multisig.provide_signature_details}
+        additionalDescription={`${loc.multisig.provide_signature_details_bluewallet} ${loc.multisig.co_sign_transaction}`}
+      />
       <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
       {!isLoading && (
         <>
           <BlueSpacing20 />
           <View style={styles.divider} />
-          <View style={[styles.tipBox, stylesHook.tipBox]}>
-            <View style={stylesHook.tipHeader}>
-              <View style={styles.vaultKeyCircle}>
-                <BlueText style={styles.vaultKeyText}>2</BlueText>
-              </View>
-              <BlueText bold style={stylesHook.tipHeaderText}>
-                {loc.multisig.provide_signature_next_steps}
-              </BlueText>
-            </View>
-            <BlueSpacing20 />
-            <BlueText>{loc.multisig.provide_signature_next_steps_details}</BlueText>
-          </View>
+          <TipBox
+            number="2"
+            title={loc.multisig.provide_signature_next_steps}
+            description={loc.multisig.provide_signature_next_steps_details}
+          />
         </>
       )}
       {!isShowOpenScanner && (
@@ -188,21 +158,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
-  },
-  tipBox: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-  },
-  vaultKeyCircle: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  vaultKeyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 
