@@ -6,7 +6,6 @@
     "never": "aldrig",
     "ok": "OK",
     "storage_is_encrypted": "Lageret er krypteret. Indtast adgangskode for at dekryptere",
-    "save": "save",
     "success": "Succes"
   },
   "azteco": {
@@ -60,7 +59,6 @@
   "settings": {
     "about": "Andet",
     "currency": "Valuta",
-    "electrum_clear_alert_cancel": "Annuller",
     "header": "indstillinger",
     "language": "Sprog",
     "lightning_settings": "Lightning settings",
@@ -87,7 +85,6 @@
     "details_are_you_sure": "Er du sikker?",
     "details_delete": "Slet",
     "details_export_backup": "Eksporter / backup",
-    "details_no_cancel": "Nej, annuller",
     "details_show_xpub": "Vis wallet XPUB",
     "details_yes_delete": "Ja, slet",
     "export_title": "wallet eksport",

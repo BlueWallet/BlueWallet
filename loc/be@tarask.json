@@ -12,7 +12,6 @@
     "storage_is_encrypted": "Ваша сховішча зашыфравана. Для расшыфроўкі патрабуецца пароль.",
     "yes": "Так",
     "no": "Не",
-    "save": "Захаваць",
     "seed": "Семя",
     "success": "Посьпех",
     "wallet_key": "Ключ ад кашалька"
@@ -44,7 +43,6 @@
     "create_to": "Да"
   },
   "settings": {
-    "electrum_clear_alert_cancel": "Адмяніць",
     "save": "Захаваць"
   },
   "wallets": {
