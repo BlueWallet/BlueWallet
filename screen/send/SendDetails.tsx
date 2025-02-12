@@ -896,7 +896,15 @@ const SendDetails = () => {
     }
     selectedDataProcessor.current = undefined;
     setParams({ onBarScanned: undefined });
-  }, [importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams, processAddressData, _importTransactionMultisig, handlePsbtSign]);
+  }, [
+    importQrTransactionOnBarScanned,
+    onBarScanned,
+    routeParams.onBarScanned,
+    setParams,
+    processAddressData,
+    _importTransactionMultisig,
+    handlePsbtSign,
+  ]);
 
   const navigateToQRCodeScanner = () => {
     navigation.navigate('ScanQRCode', {
