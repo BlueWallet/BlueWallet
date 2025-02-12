@@ -181,7 +181,7 @@ export default function PaymentCodesList() {
   const _navigateToSend = (pc: string) => {
     const previousRoute = state.routes[state.routes.length - 2];
 
-    if (previousRoute.name === 'SendDetails') {
+    if (previousRoute.name === ('SendDetails' as string)) {
       const popToAction = StackActions.popTo('SendDetails', {
         walletID,
         addRecipientParams: {
@@ -191,7 +191,7 @@ export default function PaymentCodesList() {
       });
       navigation.dispatch(popToAction);
     } else {
-      navigation.navigate('SendDetails', {
+      navigation.navigate('SendDetailsRoot', {
         paymentCode: pc,
         walletID,
       });
