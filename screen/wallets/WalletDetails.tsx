@@ -629,7 +629,7 @@ const WalletDetails: React.FC = () => {
               {wallet.allowXpub && wallet.allowXpub() && (
                 <>
                   <BlueSpacing20 />
-                  <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
+                  <SecondButton onPress={navigateToXPub} testID="XpubButton" title={loc.wallets.details_show_xpub} />
                 </>
               )}
               {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (

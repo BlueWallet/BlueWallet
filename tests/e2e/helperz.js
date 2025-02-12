@@ -55,9 +55,9 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
-  await sleep(200); // Wait until bounce animation finishes.
+  await sleep(500); // Wait until bounce animation finishes.
   // going to Import Wallet screen and importing mnemonic
-  await element(by.id('CreateAWallet')).tap();
+  await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
   await element(by.id('ImportWallet')).tap();
   // tapping 5 times invisible button is a backdoor:
   for (let c = 0; c < 5; c++) {
@@ -190,6 +190,27 @@ export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisi
 
   // check visibility again, this time no try-catch, if it fails it fails
   await waitFor(element(by.id(idToCheckVisible)))
+    .toBeVisible()
+    .withTimeout(3_000);
+}
+
+export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVisible) {
+  // tap
+  await element(by.text(textToTap)).tap();
+
+  // check if visible
+  try {
+    await waitFor(element(by.text(textToCheckVisible)))
+      .toBeVisible()
+      .withTimeout(3_000);
+    return; // did not throw? its visible, return
+  } catch (_) {}
+
+  // did not return so its not visible, lets tap again
+  await element(by.text(textToTap)).tap();
+
+  // check visibility again, this time no try-catch, if it fails it fails
+  await waitFor(element(by.text(textToCheckVisible)))
     .toBeVisible()
     .withTimeout(3_000);
 }
