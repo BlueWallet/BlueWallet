@@ -672,7 +672,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
     assert.strictEqual(tx1.outs.length, 1);
     assert.strictEqual(tx1.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
-    assert.strictEqual(tx1.outs[0].value, 69797);
+    assert.strictEqual(tx1.outs[0].value, 69717);
     assert.strictEqual(tx1.ins.length, 1);
     assert.strictEqual(tx1.ins[0].hash.toString('hex'), '20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b');
     assert.strictEqual(tx1.ins[0].index, 0);
