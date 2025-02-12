@@ -401,17 +401,18 @@ const ManageWallets: React.FC = () => {
             text: loc.wallets.details_yes_delete,
             onPress: async () => {
               const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
-              if (isBiometricsEnabled) {
-                if (!(await unlockWithBiometrics())) {
-                  return;
-                }
+              if (isBiometricsEnabled && !(await unlockWithBiometrics())) {
+                return;
               }
               if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
                 presentWalletHasBalanceAlert(wallet);
               } else {
                 LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                 dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
+              }
+              const deleted = await handleWalletDeletion(wallet.getID(), true);
+              if (deleted) {
+                goBack();
               }
             },
             style: 'destructive',
@@ -421,7 +422,7 @@ const ManageWallets: React.FC = () => {
         options: { cancelable: false },
       });
     },
-    [isBiometricUseCapableAndEnabled, presentWalletHasBalanceAlert],
+    [isBiometricUseCapableAndEnabled, handleWalletDeletion, presentWalletHasBalanceAlert, goBack],
   );
 
   const handleToggleHideBalance = useCallback(

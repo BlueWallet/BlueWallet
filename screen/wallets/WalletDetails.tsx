@@ -87,9 +87,9 @@ const WalletDetails: React.FC = () => {
   }, [wallet]);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
 
-  const navigateToOverviewAndDeleteWallet = useCallback(() => {
+  const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
-    handleWalletDeletion(wallet.getID());
+    await handleWalletDeletion(wallet.getID());
     popToTop();
   }, [handleWalletDeletion, wallet]);
 
