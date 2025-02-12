@@ -51,8 +51,6 @@ const keys = {
   SortLabel: 'sortLabel',
   SortStatus: 'sortStatus',
   Delete: 'delete',
-  DisconnectElectrum: 'disconnectElectrum',
-  ConnectElectrum: 'connectElectrum',
 } as const;
 
 const icons = {
@@ -96,8 +94,6 @@ const icons = {
   SortDESC: { iconValue: Platform.OS === 'ios' ? 'arrow.up.to.line' : 'ic_menu_sort_by_size' },
   SaveFile: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.down' : 'ic_menu_save' },
   Delete: { iconValue: Platform.OS === 'ios' ? 'trash' : 'ic_menu_delete' },
-  DisconnectElectrum: { iconValue: Platform.OS === 'ios' ? 'network.slash' : 'ic_menu_disconnect' },
-  ConnectElectrum: { iconValue: Platform.OS === 'ios' ? 'network' : 'ic_menu_connect' },
 } as const;
 
 export type ToolTipAction = {
@@ -374,17 +370,5 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     text: loc.wallets.details_delete,
     icon: icons.Delete,
     destructive: true,
-  },
-  DisconnectElectrum: {
-    id: keys.DisconnectElectrum,
-    icon: icons.DisconnectElectrum,
-    hidden: false,
-    text: loc.settings.electrum_disconnect,
-  },
-  ConnectElectrum: {
-    id: keys.ConnectElectrum,
-    icon: icons.ConnectElectrum,
-    hidden: false,
-    text: loc.settings.electrum_connect,
   },
 } as const;

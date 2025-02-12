@@ -236,8 +236,6 @@
     "default_info": "Default info",
     "default_title": "On Launch",
     "default_wallets": "View All Wallets",
-    "electrum_disconnect": "Disconnect",
-    "electrum_connect": "Connect",
     "electrum_connected": "Connected",
     "electrum_connected_not": "Not Connected",
     "electrum_error_connect": "Cannot connect to the provided Electrum server",

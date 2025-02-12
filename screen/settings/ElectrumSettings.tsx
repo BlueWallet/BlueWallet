@@ -251,12 +251,6 @@ const ElectrumSettings: React.FC = () => {
               }
             });
             break;
-          case CommonToolTipActions.DisconnectElectrum.id:
-            disconnectElectrum();
-            break;
-          case CommonToolTipActions.ConnectElectrum.id:
-            BlueElectrum.connectMain();
-            break;
           default:
             try {
               selectServer(id);
@@ -267,7 +261,7 @@ const ElectrumSettings: React.FC = () => {
         }
       }
     },
-    [presentSelectServerAlert, disconnectElectrum, fetchData, selectServer],
+    [presentSelectServerAlert, fetchData, selectServer],
   );
 
   const isPreferred = useCallback(
@@ -368,23 +362,8 @@ const ElectrumSettings: React.FC = () => {
     resetToDefaults.hidden = !host && serverHistory.size === 0;
     actions.push(resetToDefaults);
 
-    const preferredServerIsEmpty = !host || (!port && !sslPort);
-    const subtitleValue = !preferredServerIsEmpty ? `${host}:${port ?? sslPort}` : undefined;
-
-    actions.push({
-      ...CommonToolTipActions.DisconnectElectrum,
-      hidden: !config?.connected,
-      subtitle: `${config?.host ?? ''}:${config?.port ?? config?.sslPort ?? ''}`,
-    });
-
-    actions.push({
-      ...CommonToolTipActions.ConnectElectrum,
-      hidden: config?.connected,
-      subtitle: subtitleValue,
-    });
-
     return actions;
-  }, [config?.connected, config?.host, config?.port, config?.sslPort, createServerAction, host, isPreferred, port, serverHistory, sslPort]);
+  }, [config?.connected, config?.host, config?.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
@@ -463,6 +442,12 @@ const ElectrumSettings: React.FC = () => {
       triggerSelectionHapticFeedback();
       await BlueElectrum.setDisabled(value);
       setIsElectrumDisabled(value);
+
+      if (!value) {
+        await refreshConfig();
+      } else {
+        disconnectElectrum();
+      }
     } catch (err) {
       console.error('Error changing Electrum connection state:', err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
