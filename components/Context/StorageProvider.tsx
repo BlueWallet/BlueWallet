@@ -172,56 +172,71 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [walletsInitialized]);
 
+  // Add a refresh lock to prevent concurrent refreshes
+  const refreshingRef = useRef<boolean>(false);
+
   const refreshAllWalletTransactions = useCallback(
     async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
+      if (refreshingRef.current) {
+        console.debug('[refreshAllWalletTransactions] Refresh already in progress');
+        return;
+      }
+      console.debug('[refreshAllWalletTransactions] Starting refreshAllWalletTransactions');
+      refreshingRef.current = true;
       const TIMEOUT_DURATION = 30000;
-
       const timeoutPromise = new Promise<never>((_resolve, reject) =>
         setTimeout(() => {
-          reject(new Error('refreshAllWalletTransactions: Timeout reached'));
+          console.debug('[refreshAllWalletTransactions] Timeout reached');
+          reject(new Error('Timeout reached'));
         }, TIMEOUT_DURATION),
       );
 
-      const mainLogicPromise = new Promise<void>((resolve, reject) => {
-        InteractionManager.runAfterInteractions(async () => {
-          let noErr = true;
-          try {
-            await BlueElectrum.waitTillConnected();
-            if (showUpdateStatusIndicator) {
-              setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
-            }
-            const paymentCodesStart = Date.now();
-            await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-            const paymentCodesEnd = Date.now();
-            console.debug('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
+      try {
+        if (showUpdateStatusIndicator) {
+          console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
+          setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+        }
+        console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
+        await BlueElectrum.waitTillConnected();
+        console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
+        // Restore fetch payment codes timing measurement
+        if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
+          const codesStart = Date.now();
+          console.debug('[refreshAllWalletTransactions] Fetching sender payment codes');
+          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+          const codesEnd = Date.now();
+          console.debug('[refreshAllWalletTransactions] fetch payment codes took', (codesEnd - codesStart) / 1000, 'sec');
+        } else {
+          console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
+        }
+
+        console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
+        await Promise.race([
+          (async () => {
             const balanceStart = Date.now();
             await BlueApp.fetchWalletBalances(lastSnappedTo);
             const balanceEnd = Date.now();
-            console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
 
-            const start = Date.now();
+            const txStart = Date.now();
             await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const end = Date.now();
-            console.debug('fetch tx took', (end - start) / 1000, 'sec');
-          } catch (err) {
-            noErr = false;
-            console.error(err);
-            reject(err);
-          } finally {
-            setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
-          }
-          if (noErr) await saveToDisk();
-          resolve();
-        });
-      });
+            const txEnd = Date.now();
+            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
 
-      try {
-        await Promise.race([mainLogicPromise, timeoutPromise]);
-      } catch (err) {
-        console.error('Error in refreshAllWalletTransactions:', err);
+            console.debug('[refreshAllWalletTransactions] Saving data to disk');
+            await saveToDisk();
+          })(),
+
+          timeoutPromise,
+        ]);
+        console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
+      } catch (error) {
+        console.error('[refreshAllWalletTransactions] Error in refreshAllWalletTransactions:', error);
       } finally {
+        console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+        refreshingRef.current = false;
       }
     },
     [saveToDisk],
@@ -234,24 +249,26 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         let noErr = true;
         try {
           if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
-            console.debug('Re-fetch wallet happens too fast; NOP');
+            console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
             return;
           }
           _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
           await BlueElectrum.waitTillConnected();
           setWalletTransactionUpdateStatus(walletID);
+
           const balanceStart = Date.now();
           await BlueApp.fetchWalletBalances(index);
           const balanceEnd = Date.now();
-          console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          const start = Date.now();
+          console.debug('[fetchAndSaveWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+
+          const txStart = Date.now();
           await BlueApp.fetchWalletTransactions(index);
-          const end = Date.now();
-          console.debug('fetch tx took', (end - start) / 1000, 'sec');
+          const txEnd = Date.now();
+          console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
         } catch (err) {
           noErr = false;
-          console.error(err);
+          console.error('[fetchAndSaveWalletTransactions] Error:', err);
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
