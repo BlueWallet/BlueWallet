@@ -81,7 +81,6 @@ const SendDetails = () => {
   const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
-  const name = route.name;
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
   const frozenBalance = route.params?.frozenBalance ?? 0;
@@ -1312,11 +1311,9 @@ const SendDetails = () => {
             setIsLoading(false);
             setParams({ payjoinUrl: pjUrl });
           }}
-          onBarScanned={processAddressData}
           address={item.address}
           isLoading={isLoading}
           inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-          launchedBy={name}
           editable={isEditable}
           style={styles.addressInput}
         />

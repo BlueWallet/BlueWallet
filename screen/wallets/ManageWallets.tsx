@@ -13,22 +13,17 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import useDebounce from '../../hooks/useDebounce';
 import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import presentAlert from '../../components/Alert';
-import prompt from '../../helpers/prompt';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -199,7 +194,6 @@ const ManageWallets: React.FC = () => {
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation();
   const debouncedSearchQuery = useDebounce(state.searchQuery, 300);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -365,64 +359,14 @@ const ManageWallets: React.FC = () => {
     [bounceAnim],
   );
 
-  const presentWalletHasBalanceAlert = useCallback(async (wallet: TWallet) => {
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    try {
-      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
-      const walletBalanceConfirmation = await prompt(
-        loc.wallets.details_delete_wallet,
-        loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        true,
-        'numeric',
-        true,
-        loc.wallets.details_delete,
-      );
-      const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
-
-      if (Number(cleanedConfirmation) === wallet.getBalance()) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
-      } else {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.wallets.details_del_wb_err });
-      }
-    } catch (_) {}
-  }, []);
-
   const handleDeleteWallet = useCallback(
     async (wallet: TWallet) => {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-      presentAlert({
-        title: loc.wallets.details_delete_wallet,
-        message: loc.wallets.details_are_you_sure,
-        buttons: [
-          {
-            text: loc.wallets.details_yes_delete,
-            onPress: async () => {
-              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-              if (isBiometricsEnabled && !(await unlockWithBiometrics())) {
-                return;
-              }
-              if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
-                presentWalletHasBalanceAlert(wallet);
-              } else {
-                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
-              }
-              const deleted = await handleWalletDeletion(wallet.getID(), true);
-              if (deleted) {
-                goBack();
-              }
-            },
-            style: 'destructive',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        options: { cancelable: false },
-      });
+      const deletionSucceeded = await handleWalletDeletion(wallet.getID());
+      if (deletionSucceeded) {
+        dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
+      }
     },
-    [isBiometricUseCapableAndEnabled, handleWalletDeletion, presentWalletHasBalanceAlert, goBack],
+    [handleWalletDeletion],
   );
 
   const handleToggleHideBalance = useCallback(
