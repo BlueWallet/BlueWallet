@@ -260,19 +260,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('IUnderstandButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
-    await element(by.id('PasswordInput')).typeText('08902');
+    await element(by.id('PasswordInput')).replaceText('08902');
     await element(by.id('PasswordInput')).tapReturnKey();
-    await element(by.id('ConfirmPasswordInput')).typeText('666');
+    await element(by.id('ConfirmPasswordInput')).replaceText('666');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // now, lets put correct passwords and encrypt the storage
     await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).typeText('qqq');
+    await element(by.id('PasswordInput')).replaceText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).typeText('qqq');
+    await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work the first time
@@ -325,20 +325,20 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying new password, but will mistype
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
+    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorageWithTypo'); // retyping with typo
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // trying new password
     await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).typeText('passwordForFakeStorage'); // retyping
+    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorage'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // first time might not always work
@@ -379,7 +379,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // correct password
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
-    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // in case it didnt work first time
@@ -423,9 +423,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
-    await element(by.id('PasswordInput')).typeText('fake');
+    await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
-    await element(by.id('ConfirmPasswordInput')).typeText('fake'); // retyping
+    await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
@@ -452,14 +452,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // putting FAKE storage password. should not succeed
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
-    await element(by.id('PasswordInput')).typeText('fake');
+    await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
     await sleep(3000); // propagate
     // correct password
     await element(by.id('PasswordInput')).clearText();
-    await element(by.id('PasswordInput')).typeText('pass');
+    await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
