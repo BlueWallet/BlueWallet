@@ -37,7 +37,7 @@ export async function sup(text, timeout = 33000) {
       .withTimeout(timeout / 2);
     return true;
   } catch (_) {
-    const msg = `Assertion failed: text ${text} is not visible`;
+    const msg = `Assertion failed: text "${text}" is not visible`;
     throw new Error(msg);
   }
 }
@@ -213,4 +213,18 @@ export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVis
   await waitFor(element(by.text(textToCheckVisible)))
     .toBeVisible()
     .withTimeout(3_000);
+}
+
+export async function tapIfPresent(id) {
+  try {
+    await element(by.id(id)).tap();
+  } catch (_) {}
+  // no need to check for visibility, just silently ignore exception if such testID is not present
+}
+
+export async function tapIfTextPresent(text) {
+  try {
+    await element(by.text(text)).tap();
+  } catch (_) {}
+  // no need to check for visibility, just silently ignore exception if such testID is not present
 }
