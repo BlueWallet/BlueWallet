@@ -14,7 +14,6 @@
     "storage_is_encrypted": "L'espace de stockage est chiffré. le mot de passe est requis pour le déchiffrer.",
     "yes": "Oui",
     "no": "Non",
-    "save": "Enregistrer",
     "seed": "Graine",
     "success": "Succès",
     "wallet_key": "Clé du portefeuille",
@@ -422,7 +421,6 @@
     "details_export_history": "Exporter l'historique au format CSV",
     "details_master_fingerprint": "Empreinte maitresse",
     "details_multisig_type": "multisig",
-    "details_no_cancel": "Non, annuler",
     "details_show_xpub": "Afficher XPUB du portefeuille",
     "details_show_addresses": "Montrer les adresses",
     "details_title": "Portefeuille",
@@ -669,7 +667,7 @@
     "notification_tx_unconfirmed": "La transaction de notification n'est pas encore confirmée, veuillez patienter",
     "failed_create_notif_tx": "Échec de la création d'une transaction on-chain",
     "onchain_tx_needed": "Transaction on-chain nécessaire",
-    "notif_tx_sent" : "Transaction de notification envoyée. Veuillez attendre qu'elle soit confirmée",
+    "notif_tx_sent": "Transaction de notification envoyée. Veuillez attendre qu'elle soit confirmée",
     "notif_tx": "Transaction de notification ",
     "not_found": "Code de paiement introuvable"
   }

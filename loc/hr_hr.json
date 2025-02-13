@@ -9,7 +9,6 @@
     "storage_is_encrypted": "Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.",
     "yes": "Da",
     "no": "Ne",
-    "save": "Spremi",
     "seed": "Izvor",
     "success": "Uspjeh"
   },
@@ -68,7 +67,6 @@
   "settings": {
     "about": "Informacije",
     "currency": "Valuta",
-    "electrum_clear_alert_cancel": "Otkaži",
     "header": "Postavke",
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",
@@ -95,7 +93,6 @@
     "details_are_you_sure": "Jesi li ziher?",
     "details_delete": "Obriši",
     "details_export_backup": "Izvoz / bekap",
-    "details_no_cancel": "Ne, otiaži",
     "details_show_xpub": "Prikaži voletov XPUB",
     "details_title": "Volet",
     "wallets": "Voleti",

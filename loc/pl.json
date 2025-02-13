@@ -10,12 +10,10 @@
     "never": "Nigdy",
     "of": "{number} z {total}",
     "ok": "OK",
-    "customize": "Dostosuj",
     "enter_url": "Wprowadź URL",
     "storage_is_encrypted": "Twoje dane są zaszyfrowane. Hasło jest wymagane do ich rozszyfrowania",
     "yes": "Tak",
     "no": "Nie",
-    "save": "Zapisz",
     "seed": "Seed",
     "success": "Sukces",
     "wallet_key": "Klucz Portfela",
@@ -108,8 +106,7 @@
     "maxSatsFull": "Maksymalna kwota to {max} satoshi lub {currency}",
     "minSats": "Kwota minimalna to {min} satoshi",
     "minSatsFull": "Kwota minimalna to {min} satoshi lub {currency}",
-    "qrcode_for_the_address": "Kod QR dla adresu",
-    "bip47_explanation": "Kody płatności są uniwersalnym adresem, który unika ujawnienia adresów twojego portfela. Nie wszystkie usługi je obsługują."
+    "qrcode_for_the_address": "Kod QR dla adresu"
   },
   "send": {
     "provided_address_is_invoice": "Ten adres wygląda na fakturę Lightning. Przejdź do swojego portfela Lightning aby ją opłacić.",
@@ -255,7 +252,6 @@
     "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",
     "electrum_unable_to_connect": "Nie można się połączyć z {server}.",
     "electrum_history": "Historia",
-    "electrum_reset_to_default": "To pozwoli BlueWallet losowo wybrać serwer z sugerowanej listy i historii. Historia Twoich serwerów pozostanie niezmieniona.",
     "electrum_reset": "Ustaw wartości domyślne",
     "encrypt_decrypt": "Odszyfruj Magazyn Danych",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
@@ -403,7 +399,6 @@
     "add_wallet_name": "Nazwa",
     "add_wallet_type": "Typ",
     "add_wallet_seed_length": "Długość frazy seed",
-    "add_wallet_seed_length_message": "Wybierz długość frazy seed, której chcesz użyć dla tego portfela.",
     "add_wallet_seed_length_12": "12 słów",
     "add_wallet_seed_length_24": "24 słowa",
     "clipboard_bitcoin": "Masz w schowku adres Bitcoin. Czy chcesz go użyć do transakcji?",
@@ -423,7 +418,6 @@
     "details_export_history": "Eksportuj historię do pliku CSV",
     "details_master_fingerprint": "Główny odcisk palca",
     "details_multisig_type": "multisig",
-    "details_no_cancel": "Nie, anuluj",
     "details_show_xpub": "Pokaż XPUB portfela",
     "details_show_addresses": "Pokaż adresy",
     "details_title": "Portfel",
@@ -670,7 +664,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }
