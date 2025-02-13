@@ -394,8 +394,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // FIXME: legit broken test
-  it.skip('payment codes & manage contacts', async () => {
+  it('payment codes & manage contacts', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_manage_contacts');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');

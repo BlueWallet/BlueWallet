@@ -562,7 +562,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     await sleep(200); // Wait until bounce animation finishes.
     // going to Import Wallet screen and importing mnemonic
-    await element(by.id('CreateAWallet')).tap();
+    await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
     await element(by.id('ImportWallet')).tap();
     await element(by.id('ScanImport')).tap();
 
