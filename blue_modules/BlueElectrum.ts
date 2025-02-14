@@ -1048,13 +1048,6 @@ export const waitTillConnected = async function (timeOutMs = 15000, maxAttempts 
 };
 
 
-function calcEstimateFeeFromFeeHistorgam(numBlocks: number, histogram: any): number {
-  // Full implementation restored
-  let fee = 1;
-  // ... perform estimation logic using histogram ...
-  return fee;
-}
-
 export const estimateFees = async function (): Promise<{ fast: number; medium: number; slow: number }> {
   let histogram;
   let timeoutId;
