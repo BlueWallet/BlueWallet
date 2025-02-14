@@ -173,6 +173,8 @@ const ElectrumSettings: React.FC = () => {
         const serverSslPort = v?.ssl ? v.ssl.toString() : sslPort?.toString() || '';
 
         if (serverHost && (serverPort || serverSslPort)) {
+          const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
+          if (!testConnect) return;
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
           // Clear current data for the preferred host
@@ -197,6 +199,8 @@ const ElectrumSettings: React.FC = () => {
             await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
             setServerHistory(newServerHistory);
           }
+        } else {
+          throw new Error(loc.settings.electrum_error_connect);
         }
 
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
