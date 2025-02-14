@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import Share from 'react-native-share';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
@@ -36,17 +35,17 @@ import { HandOffActivityType } from '../../components/types';
 import SegmentedControl from '../../components/SegmentControl';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
-import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import TipBox from '../../components/TipBox';
+import useElectrum from '../../hooks/useElectrum';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
-  const { isElectrumDisabled } = useSettings();
+  const { wallets, saveToDisk, fetchAndSaveWalletTransactions } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
+  const { disabled, getMempoolTransactionsByAddress, multiGetTransactionByTxid, estimateFees, subscribeBalance } = useElectrum();
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
@@ -62,12 +61,10 @@ const ReceiveDetails = () => {
   const { goBack, setParams, setOptions } = useExtendedNavigation();
   const bottomModalRef = useRef(null);
   const { colors, closeImage } = useTheme();
-  const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
-  const fetchAddressInterval = useRef();
   const stylesHook = StyleSheet.create({
     customAmount: {
       borderColor: colors.formBorder,
@@ -115,28 +112,23 @@ const ReceiveDetails = () => {
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
         try {
-          if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+          newAddress = await wallet.getAddressAsync();
+          console.debug('Obtained wallet address (ONCHAIN):', newAddress);
+          saveToDisk();
         } catch (error) {
           console.warn('Error fetching wallet address (ONCHAIN):', error);
-        }
-        if (newAddress === undefined) {
-          console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
-        } else {
-          saveToDisk(); // caching whatever getAddressAsync() generated internally
+          console.debug('Fallback wallet address (ONCHAIN):', newAddress);
         }
       } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
-          await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
-          newAddress = wallet.getAddress();
+          newAddress = await wallet.getAddressAsync();
+          console.debug('Obtained wallet address (OFFCHAIN):', newAddress);
+          saveToDisk();
         } catch (error) {
           console.warn('Error fetching wallet address (OFFCHAIN):', error);
-        }
-        if (newAddress === undefined) {
-          console.warn('either sleep expired or getAddressAsync threw an exception');
           newAddress = wallet.getAddress();
-        } else {
-          saveToDisk(); // caching whatever getAddressAsync() generated internally
+          console.debug('Fallback wallet address (OFFCHAIN):', newAddress);
         }
       }
       setAddressBIP21Encoded(newAddress);
@@ -148,7 +140,7 @@ const ReceiveDetails = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+  }, [walletID, saveToDisk, address, setAddressBIP21Encoded, disabled]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet.allowBIP47()) {
@@ -210,82 +202,89 @@ const ReceiveDetails = () => {
 
   // re-fetching address balance periodically
   useEffect(() => {
-    console.debug('receive/details - useEffect');
+    console.debug('ReceiveDetails: Starting balance subscription');
+    const unsubscribes = [];
+    const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
+    const addressToUse = address || decoded.address;
+    if (!addressToUse || disabled) return;
 
-    const intervalId = setInterval(async () => {
-      try {
-        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
-        const addressToUse = address || decoded.address;
-        if (!addressToUse) return;
-
-        console.debug('checking address', addressToUse, 'for balance...');
-        const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
-        console.debug('...got', balance);
-
-        if (balance.unconfirmed > 0) {
-          if (initialConfirmed === 0 && initialUnconfirmed === 0) {
-            setInitialConfirmed(balance.confirmed);
-            setInitialUnconfirmed(balance.unconfirmed);
-            setIntervalMs(25000);
-            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-          }
-
-          const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
-          const tx = txs.pop();
-          if (tx) {
-            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
-            if (rez && rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
-              const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
-              const fees = await BlueElectrum.estimateFees();
-              if (satPerVbyte >= fees.fast) {
-                setEta(loc.formatString(loc.transactions.eta_10m));
-              } else if (satPerVbyte >= fees.medium) {
-                setEta(loc.formatString(loc.transactions.eta_3h));
-              } else {
-                setEta(loc.formatString(loc.transactions.eta_1d));
-              }
+    const unsubscribe = subscribeBalance(addressToUse, async balance => {
+      console.debug('Subscription callback triggered for address:', addressToUse);
+      console.debug('Subscription callback received balance:', balance);
+      if (balance.unconfirmed > 0) {
+        if (initialConfirmed === 0 && initialUnconfirmed === 0) {
+          setInitialConfirmed(balance.confirmed);
+          setInitialUnconfirmed(balance.unconfirmed);
+          triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+        }
+        const txs = await getMempoolTransactionsByAddress(addressToUse);
+        const tx = txs.pop();
+        if (tx) {
+          const rez = await multiGetTransactionByTxid([tx.tx_hash], true, 10);
+          if (rez && rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
+            const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
+            const fees = await estimateFees();
+            if (satPerVbyte >= fees.fast) {
+              setEta(loc.formatString(loc.transactions.eta_10m));
+            } else if (satPerVbyte >= fees.medium) {
+              setEta(loc.formatString(loc.transactions.eta_3h));
+            } else {
+              setEta(loc.formatString(loc.transactions.eta_1d));
             }
           }
+        }
+        setDisplayBalance(
+          loc.formatString(loc.transactions.pending_with_amount, {
+            amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+            amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
+          }),
+        );
+        setShowPendingBalance(true);
+        setShowAddress(false);
+      } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
+        // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
+        // staring at the screen)
+        const balanceToShow = balance.confirmed - initialConfirmed;
 
+        if (balanceToShow > 0) {
+          // address has actually more coins than initially, so we definitely gained something
+          setShowConfirmedBalance(true);
+          setShowPendingBalance(false);
+          setShowAddress(false);
           setDisplayBalance(
-            loc.formatString(loc.transactions.pending_with_amount, {
-              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
+            loc.formatString(loc.transactions.received_with_amount, {
+              amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+              amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
             }),
           );
-          setShowPendingBalance(true);
-          setShowAddress(false);
-        } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
-          // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
-          // staring at the screen)
-          const balanceToShow = balance.confirmed - initialConfirmed;
-
-          if (balanceToShow > 0) {
-            // address has actually more coins than initially, so we definitely gained something
-            setShowConfirmedBalance(true);
-            setShowPendingBalance(false);
-            setShowAddress(false);
-            setDisplayBalance(
-              loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
-              }),
-            );
-            fetchAndSaveWalletTransactions(walletID);
-          } else {
-            // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
-            setShowConfirmedBalance(false);
-            setShowPendingBalance(false);
-            setShowAddress(true);
-          }
+          fetchAndSaveWalletTransactions(walletID);
+        } else {
+          // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
+          setShowConfirmedBalance(false);
+          setShowPendingBalance(false);
+          setShowAddress(true);
         }
-      } catch (error) {
-        console.debug('Error checking balance:', error);
       }
-    }, intervalMs);
+    });
+    unsubscribes.push(unsubscribe);
 
-    return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+    return () => {
+      console.debug('ReceiveDetails: Unsubscribing balance subscription for address:', addressToUse);
+      unsubscribes.forEach(fn => fn());
+    };
+  }, [
+    bip21encoded,
+    address,
+    initialConfirmed,
+    initialUnconfirmed,
+    fetchAndSaveWalletTransactions,
+    walletID,
+    disabled,
+    subscribeBalance,
+    getMempoolTransactionsByAddress,
+    multiGetTransactionByTxid,
+    estimateFees,
+  ]);
 
   const renderConfirmedBalance = () => {
     return (
@@ -337,8 +336,6 @@ const ReceiveDetails = () => {
 
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-      clearInterval(fetchAddressInterval.current);
-      fetchAddressInterval.current = undefined;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

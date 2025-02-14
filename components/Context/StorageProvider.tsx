@@ -5,10 +5,10 @@ import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetada
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc from '../../loc';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
+import useElectrum from '../../hooks/useElectrum';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -61,6 +61,7 @@ export enum WalletTransactionsStatus {
 export const StorageContext = createContext<StorageContextType>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
+  const { connected } = useElectrum();
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
@@ -233,6 +234,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const refreshAllWalletTransactions = useCallback(
     async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
+      if (!connected) {
+        console.log('Electrum is not connected. Refresh aborted.');
+        return;
+      }
       if (refreshingRef.current) {
         console.debug('[refreshAllWalletTransactions] Refresh already in progress');
         return;
@@ -252,9 +257,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
-        console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
-        await BlueElectrum.waitTillConnected();
-        console.debug('[refreshAllWalletTransactions] Connected to Electrum');
+        // Removed BlueElectrum.waitTillConnected(), now relying on 'connected'
+        console.debug('[refreshAllWalletTransactions] Electrum is connected');
 
         // Restore fetch payment codes timing measurement
         if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
@@ -295,11 +299,15 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         refreshingRef.current = false;
       }
     },
-    [saveToDisk],
+    [saveToDisk, connected],
   );
 
   const fetchAndSaveWalletTransactions = useCallback(
     async (walletID: string) => {
+      if (!connected) {
+        console.log('Electrum is not connected. Fetch aborted.');
+        return;
+      }
       await InteractionManager.runAfterInteractions(async () => {
         const index = wallets.findIndex(wallet => wallet.getID() === walletID);
         let noErr = true;
@@ -310,7 +318,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           }
           _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
-          await BlueElectrum.waitTillConnected();
+          // Removed BlueElectrum.waitTillConnected(), now relying on 'connected'
+          console.debug('[fetchAndSaveWalletTransactions] Electrum is connected');
+
           setWalletTransactionUpdateStatus(walletID);
 
           const balanceStart = Date.now();
@@ -331,7 +341,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (noErr) await saveToDisk();
       });
     },
-    [saveToDisk, wallets],
+    [saveToDisk, wallets, connected],
   );
 
   const addAndSaveWallet = useCallback(

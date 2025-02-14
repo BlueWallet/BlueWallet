@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -25,8 +24,16 @@ import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { Action } from '../../components/types';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
-import { useSettings } from '../../hooks/context/useSettings';
-import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
+import {
+  suggestedServers,
+  getPreferredServer,
+  hardcodedPeers,
+  presentResetToDefaultsAlert,
+  ELECTRUM_SSL_PORT,
+  ELECTRUM_TCP_PORT,
+  ELECTRUM_HOST,
+  ELECTRUM_SERVER_HISTORY,
+} from '../../blue_modules/BlueElectrum';
 import useElectrum from '../../hooks/useElectrum';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
@@ -44,7 +51,7 @@ const ElectrumSettings: React.FC = () => {
   const params = useRoute<RouteProps>().params;
   const { server } = params;
   const navigation = useExtendedNavigation();
-  const { config, loading: hookLoading, refreshConfig, disconnectElectrum } = useElectrum();
+  const { config, loading: hookLoading, refreshConfig, disabled, disconnect, serverFeatures, setDisabled } = useElectrum();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [host, setHost] = useState<string>('');
@@ -52,7 +59,6 @@ const ElectrumSettings: React.FC = () => {
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
-  const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
 
   const combinedLoading = isLoading || hookLoading;
 
@@ -87,11 +93,11 @@ const ElectrumSettings: React.FC = () => {
   const fetchData = useCallback(async () => {
     console.log('Fetching data...');
     try {
-      const preferredServer = await BlueElectrum.getPreferredServer();
+      const preferredServer = await getPreferredServer();
       const savedHost = preferredServer?.host;
       const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
       const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
-      const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
+      const serverHistoryStr = (await DefaultPreference.get(ELECTRUM_SERVER_HISTORY)) as string;
 
       console.log('Preferred server:', preferredServer);
       console.log('Server history string:', serverHistoryStr);
@@ -168,15 +174,15 @@ const ElectrumSettings: React.FC = () => {
 
           // Clear current data for the preferred host
           console.log('Clearing current data for the preferred host');
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+          await DefaultPreference.clear(ELECTRUM_HOST);
+          await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+          await DefaultPreference.clear(ELECTRUM_SSL_PORT);
 
           // Save the new preferred host
           console.log('Saving new preferred host');
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
+          await DefaultPreference.set(ELECTRUM_HOST, serverHost);
+          await DefaultPreference.set(ELECTRUM_TCP_PORT, serverPort);
+          await DefaultPreference.set(ELECTRUM_SSL_PORT, serverSslPort);
 
           const serverExistsInHistory = Array.from(serverHistory).some(
             s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
@@ -185,7 +191,7 @@ const ElectrumSettings: React.FC = () => {
           if (!serverExistsInHistory && (serverPort || serverSslPort) && !hardcodedPeers.some(peer => peer.host === serverHost)) {
             const newServerHistory = new Set(serverHistory);
             newServerHistory.add({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) });
-            await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
+            await DefaultPreference.set(ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
             setServerHistory(newServerHistory);
           }
         }
@@ -372,14 +378,14 @@ const ElectrumSettings: React.FC = () => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: isElectrumDisabled ? null : () => HeaderRight,
+      headerRight: disabled ? null : () => HeaderRight,
     });
-  }, [HeaderRight, isElectrumDisabled, navigation]);
+  }, [HeaderRight, disabled, navigation]);
 
   const checkServer = async () => {
     setIsLoading(true);
     try {
-      const features = await BlueElectrum.serverFeatures();
+      const features = await serverFeatures();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       presentAlert({ message: JSON.stringify(features, null, 2) });
     } catch (err) {
@@ -440,13 +446,13 @@ const ElectrumSettings: React.FC = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     try {
       triggerSelectionHapticFeedback();
-      await BlueElectrum.setDisabled(value);
-      setIsElectrumDisabled(value);
+      await setDisabled(value);
+      setDisabled(value);
 
       if (!value) {
         await refreshConfig();
       } else {
-        disconnectElectrum();
+        disconnect();
       }
     } catch (err) {
       console.error('Error changing Electrum connection state:', err);
@@ -599,7 +605,7 @@ const ElectrumSettings: React.FC = () => {
         title={loc.settings.electrum_offline_mode}
         switch={{
           onValueChange: onElectrumConnectionEnabledSwitchChange,
-          value: isElectrumDisabled,
+          value: disabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
         disabled={combinedLoading}
@@ -607,7 +613,7 @@ const ElectrumSettings: React.FC = () => {
         subtitle={loc.settings.electrum_offline_description}
       />
 
-      {!isElectrumDisabled && renderElectrumSettings()}
+      {!disabled && renderElectrumSettings()}
     </ScrollView>
   );
 };

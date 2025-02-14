@@ -11,13 +11,12 @@ import {
   setEnabled as setIsDeviceQuickActionsEnabled,
 } from '../../hooks/useDeviceQuickActions';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
-import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useElectrum from '../../hooks/useElectrum';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -137,6 +136,7 @@ const defaultSettingsContext: SettingsContextType = {
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
+  const { disabled } = useElectrum();
   const [preferredFiatCurrency, setPreferredFiatCurrencyState] = useState<TFiatUnit>(FiatUnit.USD);
   const [language, setLanguage] = useState<string>('en');
   const [isHandOffUseEnabled, setIsHandOffUseEnabledState] = useState<boolean>(false);
@@ -150,9 +150,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
-
-  const { walletsInitialized } = useStorage();
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -163,9 +160,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       }
 
       const promises: Promise<void>[] = [
-        BlueElectrum.isDisabled().then(disabled => {
-          setIsElectrumDisabled(disabled);
-        }),
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
@@ -222,12 +216,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         console.error('Error initializing currency daemon or getting preferred currency:', e);
       });
   }, []);
-
-  useEffect(() => {
-    if (walletsInitialized) {
-      isElectrumDisabled ? BlueElectrum.forceDisconnect() : BlueElectrum.connectMain();
-    }
-  }, [isElectrumDisabled, walletsInitialized]);
 
   const setPreferredFiatCurrencyStorage = useCallback(async (currency: TFiatUnit): Promise<void> => {
     try {
@@ -369,8 +357,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
-      isElectrumDisabled,
-      setIsElectrumDisabled,
+      isElectrumDisabled: disabled,
+      setIsElectrumDisabled: () => {},
     }),
     [
       preferredFiatCurrency,
@@ -399,7 +387,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
-      isElectrumDisabled,
+      disabled,
     ],
   );
 
