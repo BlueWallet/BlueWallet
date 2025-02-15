@@ -227,7 +227,6 @@ const WalletsAddMultisigStep2 = () => {
     });
   };
 
-
   const viewKey = cosigner => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
       setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));

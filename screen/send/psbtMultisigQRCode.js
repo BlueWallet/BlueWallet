@@ -1,4 +1,4 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
@@ -54,7 +54,8 @@ const PsbtMultisigQRCode = () => {
         presentAlert({ message: loc.wallets.import_error });
       } else {
         // psbt base64?
-        navigation.navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
+        const popToAction = StackActions.popTo('PsbtMultisig', { receivedPSBTBase64: ret.data }, { merge: true });
+        navigation.dispatch(popToAction);
       }
     },
     [navigation],
