@@ -1621,7 +1621,7 @@ PODS:
     - React-logger (= 0.76.7)
     - React-perflogger (= 0.76.7)
     - React-utils (= 0.76.7)
-  - ReactNativeCameraKit (14.1.0):
+  - ReactNativeCameraKit (14.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1702,7 +1702,7 @@ PODS:
     - Yoga
   - RNLocalize (3.4.1):
     - React-Core
-  - RNPermissions (5.2.4):
+  - RNPermissions (5.2.5):
     - React-Core
   - RNQrGenerator (1.4.3):
     - React
@@ -2294,7 +2294,7 @@ SPEC CHECKSUMS:
   React-utils: 0342746d2cf989cf5e0d1b84c98cfa152edbdf3f
   ReactCodegen: e1c019dc68733dd2c5d3b263b4a6dc72002c0045
   ReactCommon: 81e0744ee33adfd6d586141b927024f488bc49ea
-  ReactNativeCameraKit: e72b838dac4ea2da19b7eb5d00b23125072790fd
+  ReactNativeCameraKit: 72cc60b69ae192fe55a3e3f294ed46833308bb22
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: c91d753ede6dc21862c4922cd13f98f7cfde578e
   RNCClipboard: ee059e6006b137e369caed5eb852b4aad9f5d886
@@ -2306,7 +2306,7 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
   RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
-  RNPermissions: 257cd3630c304d59877aeb36f885c21543adde41
+  RNPermissions: a19629bb6d6fdb521540f39262e356ae30d6cc4e
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
