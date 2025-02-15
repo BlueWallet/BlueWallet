@@ -472,8 +472,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // FIXME: legit broken test
-  it.skip('can import 2of2 multisig using individual cosigners (1 signer, 1 xpub)', async () => {
+  it('can import 2of2 multisig using individual cosigners (1 signer, 1 xpub)', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('can import 2of2 multisig using individual cosigners (1 signer, 1 xpub)');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
@@ -551,8 +550,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // FIXME: legit broken test
-  it.skip('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
+  it('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t6');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t6'), 'as it previously passed on Travis');

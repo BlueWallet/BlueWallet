@@ -234,18 +234,24 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const getXpubCacheForMnemonics = (seed, passphrase) => {
-    const path = getPath();
-    return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
-  };
+  const getXpubCacheForMnemonics = useCallback(
+    (seed, passphrase) => {
+      const path = getPath();
+      return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
+    },
+    [getPath, setXpubCacheForMnemonics],
+  );
 
-  const setXpubCacheForMnemonics = (seed, passphrase) => {
-    const path = getPath();
-    const w = new MultisigHDWallet();
-    w.setDerivationPath(path);
-    staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-    return staticCache[seed + path + passphrase];
-  };
+  const setXpubCacheForMnemonics = useCallback(
+    (seed, passphrase) => {
+      const path = getPath();
+      const w = new MultisigHDWallet();
+      w.setDerivationPath(path);
+      staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+      return staticCache[seed + path + passphrase];
+    },
+    [getPath],
+  );
 
   const getFpCacheForMnemonics = (seed, passphrase) => {
     return staticCache[seed + (passphrase ?? '')] || setFpCacheForMnemonics(seed, passphrase);
@@ -327,14 +333,16 @@ const WalletsAddMultisigStep2 = () => {
           retData = retData.pop();
           ret.data = JSON.stringify(retData);
         }
-      } catch (_) {}
+      } catch (e) {
+        console.debug('JSON parsing failed for ret.data:', e);
+      }
 
       if (ret.data.toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       } else if (isValidMnemonicSeed(ret.data)) {
         setImportText(ret.data);
         setTimeout(async () => {
-          await provideMnemonicsModalRef.current.present().then(() => {});
+          await provideMnemonicsModalRef.current.present();
         }, 100);
       } else {
         if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
@@ -344,7 +352,10 @@ const WalletsAddMultisigStep2 = () => {
           return tryUsingXpub(ret.data);
         }
         let cosigner = new MultisigCosigner(ret.data);
-        if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
+        if (!cosigner.isValid()) {
+          return presentAlert({ message: loc.multisig.invalid_cosigner });
+        }
+
         if (cosigner.howManyCosignersWeHave() > 1) {
           // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
           // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
@@ -376,15 +387,16 @@ const WalletsAddMultisigStep2 = () => {
           }
         }
 
-        console.warn('running! before');
-        console.warn(cosigner);
         for (const existingCosigner of cosigners) {
-          if (existingCosigner[0] === cosigner.getXpub()) return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
+          let existingXpub = existingCosigner[0];
+          if (!MultisigHDWallet.isXpubValid(existingXpub)) {
+            // derive the xpub from mnemonic-based cosigner
+            existingXpub = getXpubCacheForMnemonics(existingCosigner[0], existingCosigner[3]);
+          }
+          if (existingXpub === cosigner.getXpub()) {
+            return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
+          }
         }
-
-        console.warn('running! after');
-        console.warn(cosigner);
-
         // now, validating that cosigner is in correct format:
 
         let correctFormat = false;
@@ -409,17 +421,16 @@ const WalletsAddMultisigStep2 = () => {
             console.error('Unexpected format:', format);
             throw new Error('This should never happen');
         }
-
-        if (!correctFormat) return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
-
+        if (!correctFormat) {
+          return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
+        }
         const cosignersCopy = [...cosigners];
         cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setCosigners(cosignersCopy);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [cosigners, format, getXpubCacheForMnemonics, tryUsingXpub],
   );
 
   const scanOrOpenFile = async () => {
@@ -428,7 +439,9 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const utilizeMnemonicPhrase = useCallback(async () => {
-    await provideMnemonicsModalRef.current.dismiss();
+    try {
+      await provideMnemonicsModalRef.current.dismiss();
+    } catch {}
     setIsLoading(true);
 
     if (MultisigHDWallet.isXpubValid(importText)) {
@@ -769,7 +782,7 @@ const WalletsAddMultisigStep2 = () => {
     <View style={[styles.root, stylesHook.root]}>
       {renderHelp()}
       <View style={styles.wrapBox}>
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} extraData={cosigners} />
       </View>
       {renderMnemonicsModal()}
 
