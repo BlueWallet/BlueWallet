@@ -177,6 +177,17 @@ const WalletsAddMultisigStep2 = () => {
     navigation.getParent()?.goBack();
   };
 
+  const setXpubCacheForMnemonics = useCallback(
+    (seed, passphrase) => {
+      const path = getPath();
+      const w = new MultisigHDWallet();
+      w.setDerivationPath(path);
+      staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+      return staticCache[seed + path + passphrase];
+    },
+    [getPath],
+  );
+
   const generateNewKey = () => {
     const w = new HDSegwitBech32Wallet();
     w.generate().then(() => {
@@ -240,17 +251,6 @@ const WalletsAddMultisigStep2 = () => {
       return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
     },
     [getPath, setXpubCacheForMnemonics],
-  );
-
-  const setXpubCacheForMnemonics = useCallback(
-    (seed, passphrase) => {
-      const path = getPath();
-      const w = new MultisigHDWallet();
-      w.setDerivationPath(path);
-      staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-      return staticCache[seed + path + passphrase];
-    },
-    [getPath],
   );
 
   const getFpCacheForMnemonics = (seed, passphrase) => {
