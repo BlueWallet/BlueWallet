@@ -11,6 +11,7 @@ import {
   sup,
   tapAndTapAgainIfElementIsNotVisible,
   tapIfPresent,
+  tapIfTextPresent,
   yo,
 } from './helperz';
 import { element } from 'detox';
@@ -526,11 +527,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // when xpub - it automatically closes the modal, so no need to tap the button
 
     await element(by.id('CreateButton')).tap();
+    await sup('OK');
+    await tapIfTextPresent('OK');
     await yo('Multisig Vault');
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await yo('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
-    await element(by.text('Yes, I have.')).tap();
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
@@ -605,9 +607,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
+    await sleep(1_000); // propagate
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -641,7 +643,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await element(by.id('ProvideSignature')).tap();
     await element(by.id('PsbtMultisigQRCodeScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await element(by.id('CosignedScanOrImportFile')).tap();
+    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
 
     const urSignedByPassportAndKeystone = [
       'UR:CRYPTO-PSBT/105-2/LPCSINAOCFAXOLCYSBLUFDHSHKADTEHKAXOTJOJKIDJYZMADAEKIAOAEAEAEADSGMHIEQDIAFLKPVABAJEHLLNVLRKKPCPDAHYNSOTTSOYBTIMMUCYAASSMDAMDAMKAEAEAEAEAEZMZMZMZMAOGDSRAEAEAEAEAEAECMAEBBKBOTLPWFGMRNINIMPFYNWLGEBAVTVLSWTYPAGEGUWFVLAEAEAEAEAEAECPAECXHEJTWTTTWEPDFMMDSNYKDPRYZMRLBARSPAAYLETDCLGDJKIHBNTYFXCHNNWTRHFEAEAEAEAEAEADAEWDAOAEAEAEAEADADSTENIYASISYLVDVLGWCXRPBWVYVSDALOTLCESKTTFEJTWDTBPTECMOMNLNDABSDTADAEAEAEAEADAEAELAAOGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOONMOAOAEAEAEAEAECMAEBBMNAMRTRKDYGUHDURWSVOLGDRRLESMEDLOLGWLYNTAOFLDYFYAOCXDYYTJOMYYAUELEDYKIYLADUROYFNURDRGLFTCYKEKEFEIAOYGSTNCPIDGYZOEEDAAOCXHGCAENYKHNJLGOHEJOGMRLBNTDWYGWJOPFPYFMKKTISROXGMIMGYURAYCXLEUOZSADCLAOJPBGWSASPTIATTPMLECMPRIHSTMDJYLOYKTKRTHHTLSTFZKPOYWKBKROASBGBAVDAEAEAEAEADADDNGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOCPAOAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAFLDYFYAOCXISRERKHDRDGAPMATEHJLFL',
