@@ -98,8 +98,12 @@ interface WalletCarouselItemProps {
   isSelectedWallet?: boolean;
   customStyle?: ViewStyle;
   horizontal?: boolean;
+  isPlaceHolder?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  animationsEnabled?: boolean;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
 }
 
 const iStyles = StyleSheet.create({
@@ -161,21 +165,6 @@ const iStyles = StyleSheet.create({
   },
 });
 
-interface WalletCarouselItemProps {
-  item: TWallet;
-  onPress: (item: TWallet) => void;
-  handleLongPress?: () => void;
-  isSelectedWallet?: boolean;
-  customStyle?: ViewStyle;
-  horizontal?: boolean;
-  isPlaceHolder?: boolean;
-  searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
-  animationsEnabled?: boolean;
-  onPressIn?: () => void;
-  onPressOut?: () => void;
-}
-
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
   ({
     item,
@@ -203,7 +192,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         Animated.spring(scaleValue, {
           toValue: 0.95,
           useNativeDriver: true,
-          friction: 3,
           tension: 100,
         }).start();
       }
@@ -215,7 +203,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         Animated.spring(scaleValue, {
           toValue: 1.0,
           useNativeDriver: true,
-          friction: 3,
           tension: 100,
         }).start();
       }
@@ -362,6 +349,10 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     renderHighlightedText,
     isFlatList = true,
   } = props;
+
+  const { width } = useWindowDimensions();
+  const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
       item ? (
@@ -380,31 +371,25 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const flatListRef = useRef<FlatList<any>>(null);
 
-  useImperativeHandle(ref, (): any => {
-    return {
-      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-      scrollToIndex: (params: {
-        animated?: boolean | null | undefined;
-        index: number;
-        viewOffset?: number | undefined;
-        viewPosition?: number | undefined;
-      }) => flatListRef.current?.scrollToIndex(params),
-      scrollToItem: (params: {
-        animated?: boolean | null | undefined;
-        item: any;
-        viewOffset?: number | undefined;
-        viewPosition?: number | undefined;
-      }) => flatListRef.current?.scrollToItem(params),
-      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
-      recordInteraction: () => flatListRef.current?.recordInteraction(),
-      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
-    };
+  useImperativeHandle(ref, () => {
+    if (flatListRef.current) {
+      return Object.assign(flatListRef.current, {
+        scrollToEnd: (params?: { animated?: boolean | null }) => flatListRef.current?.scrollToEnd(params),
+        scrollToIndex: (params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }) =>
+          flatListRef.current?.scrollToIndex(params),
+        scrollToItem: (params: { animated?: boolean | null; item: TWallet; viewPosition?: number }) =>
+          flatListRef.current?.scrollToItem(params),
+        scrollToOffset: (params: { animated?: boolean | null; offset: number }) => flatListRef.current?.scrollToOffset(params),
+        recordInteraction: () => flatListRef.current?.recordInteraction(),
+        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+        getNativeScrollRef: () => flatListRef.current!.getNativeScrollRef() as View,
+      });
+    }
+    return {} as FlatListRefType;
   }, []);
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
-    console.debug('onScrollToIndexFailed');
-    console.debug(error);
+    console.debug('onScrollToIndexFailed', error);
     flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
     setTimeout(() => {
       if (data.length !== 0 && flatListRef.current !== null) {
@@ -413,16 +398,16 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     }, 100);
   };
 
-  const { width } = useWindowDimensions();
   const sliderHeight = 195;
-  const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+
+  const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
 
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
       extraData={data}
-      keyExtractor={(_, index) => index.toString()}
+      keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={horizontal}
       disableIntervalMomentum={horizontal}
