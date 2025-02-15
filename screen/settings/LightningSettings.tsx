@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, I18nManager, Linking, ScrollView, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
@@ -15,24 +15,9 @@ import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import AddressInput from '../../components/AddressInput';
 
 const styles = StyleSheet.create({
-  uri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  uriText: {
-    flex: 1,
-    color: '#81868e',
-    marginHorizontal: 8,
-    minHeight: 36,
-    height: 36,
-  },
   buttonStyle: {
     backgroundColor: 'transparent',
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -46,14 +31,7 @@ const LightningSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
-  const { navigate, setParams } = useExtendedNavigation();
-  const styleHook = StyleSheet.create({
-    uri: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-  });
+  const { setParams } = useExtendedNavigation();
 
   useEffect(() => {
     const fetchURI = async () => {
@@ -123,12 +101,6 @@ const LightningSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
-  const importScan = () => {
-    navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-  };
-
   useEffect(() => {
     const data = params?.onBarScanned;
     if (data) {
@@ -158,25 +130,15 @@ const LightningSettings: React.FC = () => {
       />
 
       <BlueCard>
-        <View style={[styles.uri, styleHook.uri]}>
-          <TextInput
-            value={URI}
-            placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
-            onChangeText={setLndhubURI}
-            numberOfLines={1}
-            style={styles.uriText}
-            placeholderTextColor="#81868e"
-            editable={!isLoading}
-            textContentType="URL"
-            autoCapitalize="none"
-            autoCorrect={false}
-            underlineColorAndroid="transparent"
-            testID="URIInput"
-          />
-        </View>
-        <BlueSpacing20 />
-        <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
-        <BlueSpacing20 />
+        <AddressInput
+          isLoading={isLoading}
+          address={URI}
+          placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
+          onChangeText={setLndhubURI}
+          testID="URIInput"
+          editable={!isLoading}
+        />
+        <BlueSpacing40 />
         {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </ScrollView>
