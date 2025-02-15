@@ -55,14 +55,6 @@ export const AddressInputScanButton = ({
     return availableActions;
   }, [isClipboardGetContentEnabled]);
 
-  // useEffect(() => {
-  //   const data = params.onBarScanned;
-  //   if (data) {
-  //     onBarScanned({ data });
-  //     navigation.setParams({ onBarScanned: undefined });
-  //   }
-  // });
-
   const onMenuItemPressed = useCallback(
     async (action: string) => {
       switch (action) {
