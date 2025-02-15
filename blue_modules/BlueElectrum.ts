@@ -253,19 +253,6 @@ export async function connectMain(): Promise<void> {
 
   console.log('Using peer:', JSON.stringify(usingPeer));
 
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  try {
-    if (usingPeer.host.endsWith('onion')) {
-      const randomPeer = getCurrentPeer();
-      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
-      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp ?? '');
-      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl ?? '');
-    }
-  } catch (e) {
-    // Must be running on Android
-    console.log(e);
-  }
-
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
