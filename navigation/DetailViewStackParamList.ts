@@ -13,6 +13,7 @@ export type ScanQRCodeParamList = {
   showFileImportButton?: boolean;
   backdoorVisible?: boolean;
   animatedQRCodeData?: Record<string, any>;
+  merge?: boolean | undefined;
 };
 
 export type DetailViewStackParamList = {
