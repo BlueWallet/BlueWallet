@@ -177,6 +177,26 @@ const WalletsAddMultisigStep2 = () => {
     navigation.getParent()?.goBack();
   };
 
+  const getPath = useCallback(() => {
+    let path = '';
+    switch (format) {
+      case MultisigHDWallet.FORMAT_P2WSH:
+        path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
+        break;
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+        path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
+        break;
+      case MultisigHDWallet.FORMAT_P2SH:
+        path = MultisigHDWallet.PATH_LEGACY;
+        break;
+      default:
+        console.error('Unexpected format:', format);
+        throw new Error('This should never happen');
+    }
+    return path;
+  }, [format]);
+
   const setXpubCacheForMnemonics = useCallback(
     (seed, passphrase) => {
       const path = getPath();
@@ -207,25 +227,6 @@ const WalletsAddMultisigStep2 = () => {
     });
   };
 
-  const getPath = useCallback(() => {
-    let path = '';
-    switch (format) {
-      case MultisigHDWallet.FORMAT_P2WSH:
-        path = MultisigHDWallet.PATH_NATIVE_SEGWIT;
-        break;
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-        path = MultisigHDWallet.PATH_WRAPPED_SEGWIT;
-        break;
-      case MultisigHDWallet.FORMAT_P2SH:
-        path = MultisigHDWallet.PATH_LEGACY;
-        break;
-      default:
-        console.error('Unexpected format:', format);
-        throw new Error('This should never happen');
-    }
-    return path;
-  }, [format]);
 
   const viewKey = cosigner => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
