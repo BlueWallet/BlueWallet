@@ -28,6 +28,7 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
 import { isAirplaneModeSync } from 'react-native-device-info';
+import TipBox from '../../components/TipBox';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -502,6 +503,12 @@ const ElectrumSettings: React.FC = () => {
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
             isLoading={isLoading}
           />
+          {host.endsWith('.onion') && (
+            <>
+              <BlueSpacing20 />
+              <TipBox description={loc.settings.tor_address_explanation} />
+            </>
+          )}
           <BlueSpacing20 />
           <View style={styles.portWrap}>
             <View style={[styles.inputWrap, stylesHook.inputWrap]}>

@@ -3,7 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, I18nManager, Linking, ScrollView, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
@@ -16,6 +16,7 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
+import TipBox from '../../components/TipBox';
 
 const styles = StyleSheet.create({
   buttonStyle: {
@@ -138,6 +139,12 @@ const LightningSettings: React.FC = () => {
           testID="URIInput"
           editable={!isLoading}
         />
+        {URI?.endsWith('.onion') && (
+          <>
+            <BlueSpacing20 />
+            <TipBox description={loc.settings.tor_address_explanation} />
+          </>
+        )}
         <BlueSpacing40 />
         {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>

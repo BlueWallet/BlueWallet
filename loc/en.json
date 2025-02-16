@@ -247,6 +247,7 @@
     "electrum_offline_description": "When enabled, your Bitcoin wallets will not attempt to fetch balances or transactions.",
     "electrum_port": "Port, usually {example}",
     "use_ssl": "Use SSL",
+    "tor_address_explanation": "Make sure Orbot is installed and running on your device. This is required to connect to the Tor network for enhanced privacy and security.",
     "electrum_saved": "Your changes have been saved successfully. Restarting BlueWallet may be required for the changes to take effect.",
     "set_electrum_server_as_default": "Set {server} as the default Electrum server?",
     "set_lndhub_as_default": "Set {url} as the default LNDhub server?",
