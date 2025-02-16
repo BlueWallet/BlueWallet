@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';

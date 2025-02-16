@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import React, { lazy, Suspense } from 'react';
 import { useStorage } from '../hooks/context/useStorage';
 import DevMenu from '../components/DevMenu';

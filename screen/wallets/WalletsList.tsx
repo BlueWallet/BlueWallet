@@ -168,16 +168,16 @@ const WalletsList: React.FC = () => {
     }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
   );
 
-  const walletsLength = wallets.length;
   useEffect(() => {
     // new wallet added
-    if (wallets.length > walletsCount.current) {
-      InteractionManager.runAfterInteractions(() => {
-        walletsCarousel.current.scrollToIndex({ index: walletsLength - 1, animated: true });
-      });
+    if (!isLargeScreen) {
+      if (wallets.length > walletsCount.current) {
+        walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current], viewPosition: 0.3 });
+      }
+
+      walletsCount.current = wallets.length;
     }
-    walletsCount.current = wallets.length;
-  }, [walletsLength, wallets]);
+  }, [isLargeScreen, wallets]);
 
   const onBarScanned = useCallback(
     (value: any) => {
@@ -194,7 +194,6 @@ const WalletsList: React.FC = () => {
   useEffect(() => {
     const data = route.params?.onBarScanned;
     if (data) {
-      console.warn('WalletsList onBarScanned', data);
       onBarScanned(data);
       navigation.setParams({ onBarScanned: undefined });
     }

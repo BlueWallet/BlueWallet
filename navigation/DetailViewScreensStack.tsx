@@ -65,12 +65,14 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
+  const isLargeScreen = useIsLargeScreen();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -81,12 +83,12 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () => (
       <>
-        <AddWalletButton onPress={navigateToAddWallet} />
+        {!isLargeScreen && <AddWalletButton onPress={navigateToAddWallet} />}
         <View style={styles.width24} />
         <SettingsButton />
       </>
     ),
-    [navigateToAddWallet],
+    [isLargeScreen, navigateToAddWallet],
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
