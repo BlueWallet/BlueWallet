@@ -72,7 +72,7 @@ const DetailViewStackScreensStack = () => {
   const navigation = useExtendedNavigation();
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
