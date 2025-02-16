@@ -193,9 +193,8 @@ const WalletsList: React.FC = () => {
     const data = route.params?.onBarScanned;
     if (data) {
       onBarScanned(data);
-      navigation.setParams({ onBarScanned: undefined });
     }
-  }, [navigation, onBarScanned, route.params?.onBarScanned]);
+  }, [onBarScanned, route.params?.onBarScanned]);
 
   useEffect(() => {
     refreshTransactions(false, true);
@@ -361,6 +360,7 @@ const WalletsList: React.FC = () => {
   const onScanButtonPressed = useCallback(() => {
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
+      merge: undefined,
     });
   }, [navigation]);
 
@@ -399,6 +399,7 @@ const WalletsList: React.FC = () => {
         case 2:
           navigation.navigate('ScanQRCode', {
             showFileImportButton: true,
+            merge: undefined,
           });
           break;
         case 3:
