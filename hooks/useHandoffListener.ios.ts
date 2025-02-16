@@ -23,20 +23,25 @@ const useHandoffListener = () => {
 
   const handleUserActivity = useCallback(
     (data: UserActivityData) => {
+      if (!data || !data.activityType) {
+        console.debug(`Invalid handoff data received: ${data ? JSON.stringify(data) : 'No data provided'}`);
+        return;
+      }
       const { activityType, userInfo } = data;
+      const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
-        if (activityType === HandOffActivityType.ReceiveOnchain) {
+        if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
           navigate('ReceiveDetailsRoot', {
             screen: 'ReceiveDetails',
-            params: { address: userInfo.address },
+            params: { address: modifiedUserInfo.address, type: activityType },
           });
-        } else if (activityType === HandOffActivityType.Xpub) {
+        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
           navigate('WalletXpubRoot', {
             screen: 'WalletXpub',
-            params: { xpub: userInfo.xpub },
+            params: { xpub: modifiedUserInfo.xpub, type: activityType },
           });
         } else {
-          console.debug(`Unhandled activity type: ${activityType}`);
+          console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }
       } catch (error) {
         console.error('Error handling user activity:', error);
@@ -52,7 +57,7 @@ const useHandoffListener = () => {
 
     EventEmitter.getMostRecentUserActivity?.()
       .then(handleUserActivity)
-      .catch(() => console.debug('No userActivity object sent'));
+      .catch(() => console.debug('No valid user activity object received'));
 
     return () => {
       activitySubscription?.remove();
