@@ -4,7 +4,7 @@ import React from 'react';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
+import { ReceiveCustomAmountComponent, ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +17,16 @@ const ReceiveDetailsStackRoot = () => {
         name="ReceiveDetails"
         component={ReceiveDetailsComponent}
         options={navigationStyle({ headerBackVisible: false, title: loc.receive.header, statusBarStyle: 'light' })(theme)}
+      />
+      <Stack.Screen
+        name="ReceiveCustomAmount"
+        component={ReceiveCustomAmountComponent}
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: [0.5],
+          headerShown: false,
+          
+        }}
       />
     </Stack.Navigator>
   );
