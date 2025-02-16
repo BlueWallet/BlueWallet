@@ -81,13 +81,16 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const RightBarButtons = useMemo(
-    () => (
-      <>
-        {!isLargeScreen && <AddWalletButton onPress={navigateToAddWallet} />}
-        <View style={styles.width24} />
+    () =>
+      isLargeScreen ? (
         <SettingsButton />
-      </>
-    ),
+      ) : (
+        <>
+          <AddWalletButton onPress={navigateToAddWallet} />
+          <View style={styles.width24} />
+          <SettingsButton />
+        </>
+      ),
     [isLargeScreen, navigateToAddWallet],
   );
 
