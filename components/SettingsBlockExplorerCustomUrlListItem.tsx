@@ -26,7 +26,7 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
 
   const onChangeText = (url: string) => {
     if (url && !/^https?:\/\//i.test(url)) {
-      onCustomUrlChange(`http://${url}`);
+      onCustomUrlChange(`https://${url}`);
     } else {
       onCustomUrlChange(url);
     }
