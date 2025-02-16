@@ -268,7 +268,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
         scrollRef={scrollView}
-        keyboardMode="pan"
         dismissible={false}
         footer={
           !isSuccess ? (

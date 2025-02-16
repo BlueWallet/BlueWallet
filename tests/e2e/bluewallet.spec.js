@@ -601,6 +601,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('ItemSigned'))).toBeNotVisible(); // not a single green checkmark
 
     await element(by.id('ProvideSignature')).tap();
+    await element(by.id('PsbtMultisigQRCodeScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('CosignedScanOrImportFile')).tap();
 
     const ursSignedByPassport = [
@@ -624,6 +625,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
 
     await element(by.id('ProvideSignature')).tap();
+    await element(by.id('PsbtMultisigQRCodeScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('CosignedScanOrImportFile')).tap();
 
     const urSignedByPassportAndKeystone = [

@@ -154,27 +154,42 @@
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
-  NSDictionary *userActivityData = @{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo};
+  // Validate userActivity and its type
+  if (!userActivity || !userActivity.activityType) {
+    NSLog(@"[Handoff] Invalid or missing userActivity");
+    return NO;
+  }
+  
+  NSDictionary *userActivityData = @{@"activityType": userActivity.activityType ?: @"",
+                                     @"userInfo": userActivity.userInfo ?: @{}};
+  
+  // Save activity data to userDefaults for potential later use
   [self.userDefaultsGroup setValue:userActivityData forKey:@"onUserActivityOpen"];
   
-  // Check if the activity type matches the allowed types
+  // Check if the activity type matches one of the allowed types
   if ([userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.receiveonchain"] ||
       [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.xpub"] ||
       [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.blockexplorer"]) {
     
-    [EventEmitter.sharedInstance sendUserActivity:userActivityData];
+    if ([EventEmitter.sharedInstance respondsToSelector:@selector(sendUserActivity:)]) {
+      [EventEmitter.sharedInstance sendUserActivity:userActivityData];
+    } else {
+      NSLog(@"[Handoff] EventEmitter does not implement sendUserActivity:");
+    }
     return YES;
   }
   
-  if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
+  // Forward web browsing activities to LinkingManager
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
     return [RCTLinkingManager application:application
                      continueUserActivity:userActivity
                        restorationHandler:restorationHandler];
   }
   
-  // If activity type does not match any of the specified types, do nothing
+  NSLog(@"[Handoff] Unhandled user activity type: %@", userActivity.activityType);
   return NO;
 }
+
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   return [RCTLinkingManager application:app openURL:url options:options];
 }

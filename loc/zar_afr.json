@@ -13,7 +13,6 @@
     "storage_is_encrypted": "Jou geheue spasie is nou ge-enkripteer. ‘n Wagwoord word benodig om toegang te verkry. ",
     "yes": "Ja",
     "no": "Nee",
-    "save": "Berg",
     "seed": "Saad",
     "success": "Sukses",
     "wallet_key": "Beursie sleutel",
@@ -138,7 +137,6 @@
   "settings": {
     "about": "info",
     "currency": "Geldeenheid",
-    "electrum_clear_alert_cancel": "Kanselleer",
     "header": "instellings",
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",
@@ -168,7 +166,6 @@
     "details_are_you_sure": "Is jy seker?",
     "details_delete": "Vernietig",
     "details_export_backup": "voer uit / kopieer",
-    "details_no_cancel": "Nee, kanseleerl",
     "details_show_xpub": "Wys beursie XPUB",
     "details_title": "Beursiet",
     "wallets": "beursies",

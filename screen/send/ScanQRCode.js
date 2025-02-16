@@ -25,7 +25,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   openSettingsContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',

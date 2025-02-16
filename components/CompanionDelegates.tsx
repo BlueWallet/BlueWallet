@@ -175,40 +175,45 @@ const CompanionDelegates = () => {
 
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
-      const { url } = event;
-
-      if (url) {
-        const decodedUrl = decodeURIComponent(url);
-        const fileName = decodedUrl.split('/').pop()?.toLowerCase();
-
-        if (fileName && /\.(jpe?g|png)$/i.test(fileName)) {
+      try {
+        if (!event.url) return;
+        let decodedUrl: string;
+        try {
+          decodedUrl = decodeURIComponent(event.url);
+        } catch (e) {
+          console.error('Failed to decode URL, using original', e);
+          decodedUrl = event.url;
+        }
+        const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
+        if (/\.(jpe?g|png)$/i.test(fileName)) {
+          let qrResult;
           try {
-            if (!decodedUrl) {
-              throw new Error(loc.send.qr_error_no_qrcode);
+            qrResult = await RNQRGenerator.detect({ uri: decodedUrl });
+          } catch (e) {
+            console.error('QR detection first attempt failed:', e);
+          }
+          if (!qrResult || !qrResult.values || qrResult.values.length === 0) {
+            const altUrl = decodedUrl.replace(/^file:\/\//, '');
+            try {
+              qrResult = await RNQRGenerator.detect({ uri: altUrl });
+            } catch (e) {
+              console.error('QR detection second attempt failed:', e);
             }
-            const values = await RNQRGenerator.detect({
-              uri: decodedUrl,
-            });
-
-            if (values && values.values.length > 0) {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              DeeplinkSchemaMatch.navigationRouteFor(
-                { url: values.values[0] },
-                (value: [string, any]) => navigationRef.navigate(...value),
-                {
-                  wallets,
-                  addWallet,
-                  saveToDisk,
-                  setSharedCosigner,
-                },
-              );
-            } else {
-              throw new Error(loc.send.qr_error_no_qrcode);
-            }
-          } catch (error) {
-            console.error('Error detecting QR code:', error);
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            presentAlert({ message: loc.send.qr_error_no_qrcode });
+          }
+          if (qrResult?.values?.length) {
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+            DeeplinkSchemaMatch.navigationRouteFor(
+              { url: qrResult.values[0] },
+              (value: [string, any]) => navigationRef.navigate(...value),
+              {
+                wallets,
+                addWallet,
+                saveToDisk,
+                setSharedCosigner,
+              },
+            );
+          } else {
+            throw new Error(loc.send.qr_error_no_qrcode);
           }
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
@@ -218,10 +223,15 @@ const CompanionDelegates = () => {
             setSharedCosigner,
           });
         }
+      } catch (err: any) {
+        console.error('Error in handleOpenURL:', err);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
       }
     },
     [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
+
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);

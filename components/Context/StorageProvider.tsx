@@ -1,14 +1,15 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { InteractionManager } from 'react-native';
+import { InteractionManager, LayoutAnimation } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
-import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -49,6 +50,8 @@ interface StorageContextType {
   cachedPassword: typeof BlueApp.cachedPassword;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
+  handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<boolean>;
+  confirmWalletDeletion: (wallet: any, onConfirmed: () => void) => void;
 }
 
 export enum WalletTransactionsStatus {
@@ -99,6 +102,120 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     setWallets([...BlueApp.getWallets()]);
   }, []);
 
+  const handleWalletDeletion = useCallback(
+    async (walletID: string, forceDelete = false): Promise<boolean> => {
+      console.debug(`handleWalletDeletion: invoked for walletID ${walletID}`);
+      const wallet = wallets.find(w => w.getID() === walletID);
+      if (!wallet) {
+        console.warn(`handleWalletDeletion: wallet not found for ${walletID}`);
+        return false;
+      }
+
+      if (forceDelete) {
+        deleteWallet(wallet);
+        await saveToDisk(true);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        return true;
+      }
+
+      let isNotificationsSettingsEnabled = false;
+      try {
+        isNotificationsSettingsEnabled = await isNotificationsEnabled();
+      } catch (error) {
+        console.error(`handleWalletDeletion: error checking notifications for wallet ${walletID}`, error);
+        return await new Promise<boolean>(resolve => {
+          presentAlert({
+            title: loc.errors.error,
+            message: loc.wallets.details_delete_wallet_error_message,
+            buttons: [
+              {
+                text: loc.wallets.details_delete_anyway,
+                onPress: async () => {
+                  const result = await handleWalletDeletion(walletID, true);
+                  resolve(result);
+                },
+                style: 'destructive',
+              },
+              {
+                text: loc.wallets.list_tryagain,
+                onPress: async () => {
+                  const result = await handleWalletDeletion(walletID);
+                  resolve(result);
+                },
+              },
+              {
+                text: loc._.cancel,
+                onPress: () => resolve(false),
+                style: 'cancel',
+              },
+            ],
+            options: { cancelable: false },
+          });
+        });
+      }
+
+      try {
+        if (isNotificationsSettingsEnabled) {
+          const externalAddresses = wallet.getAllExternalAddresses();
+          if (externalAddresses.length > 0) {
+            console.debug(`handleWalletDeletion: unsubscribing addresses for wallet ${walletID}`);
+            try {
+              await unsubscribe(externalAddresses, [], []);
+              console.debug(`handleWalletDeletion: unsubscribe succeeded for wallet ${walletID}`);
+            } catch (unsubscribeError) {
+              console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, unsubscribeError);
+              presentAlert({
+                title: loc.errors.error,
+                message: loc.wallets.details_delete_wallet_error_message,
+                buttons: [{ text: loc._.ok, onPress: () => {} }],
+                options: { cancelable: false },
+              });
+              return false;
+            }
+          }
+        }
+        deleteWallet(wallet);
+        console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
+        await saveToDisk(true);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        return true;
+      } catch (e: unknown) {
+        console.error(`handleWalletDeletion: encountered error for wallet ${walletID}`, e);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        return await new Promise<boolean>(resolve => {
+          presentAlert({
+            title: loc.errors.error,
+            message: loc.wallets.details_delete_wallet_error_message,
+            buttons: [
+              {
+                text: loc.wallets.details_delete_anyway,
+                onPress: async () => {
+                  const result = await handleWalletDeletion(walletID, true);
+                  resolve(result);
+                },
+                style: 'destructive',
+              },
+              {
+                text: loc.wallets.list_tryagain,
+                onPress: async () => {
+                  const result = await handleWalletDeletion(walletID);
+                  resolve(result);
+                },
+              },
+              {
+                text: loc._.cancel,
+                onPress: () => resolve(false),
+                style: 'cancel',
+              },
+            ],
+            options: { cancelable: false },
+          });
+        });
+      }
+    },
+    [deleteWallet, saveToDisk, wallets],
+  );
+
   const resetWallets = useCallback(() => {
     setWallets(BlueApp.getWallets());
   }, []);
@@ -120,56 +237,71 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [walletsInitialized]);
 
+  // Add a refresh lock to prevent concurrent refreshes
+  const refreshingRef = useRef<boolean>(false);
+
   const refreshAllWalletTransactions = useCallback(
     async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
+      if (refreshingRef.current) {
+        console.debug('[refreshAllWalletTransactions] Refresh already in progress');
+        return;
+      }
+      console.debug('[refreshAllWalletTransactions] Starting refreshAllWalletTransactions');
+      refreshingRef.current = true;
       const TIMEOUT_DURATION = 30000;
-
       const timeoutPromise = new Promise<never>((_resolve, reject) =>
         setTimeout(() => {
-          reject(new Error('refreshAllWalletTransactions: Timeout reached'));
+          console.debug('[refreshAllWalletTransactions] Timeout reached');
+          reject(new Error('Timeout reached'));
         }, TIMEOUT_DURATION),
       );
 
-      const mainLogicPromise = new Promise<void>((resolve, reject) => {
-        InteractionManager.runAfterInteractions(async () => {
-          let noErr = true;
-          try {
-            await BlueElectrum.waitTillConnected();
-            if (showUpdateStatusIndicator) {
-              setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
-            }
-            const paymentCodesStart = Date.now();
-            await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-            const paymentCodesEnd = Date.now();
-            console.debug('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
+      try {
+        if (showUpdateStatusIndicator) {
+          console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
+          setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+        }
+        console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
+        await BlueElectrum.waitTillConnected();
+        console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
+        // Restore fetch payment codes timing measurement
+        if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
+          const codesStart = Date.now();
+          console.debug('[refreshAllWalletTransactions] Fetching sender payment codes');
+          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+          const codesEnd = Date.now();
+          console.debug('[refreshAllWalletTransactions] fetch payment codes took', (codesEnd - codesStart) / 1000, 'sec');
+        } else {
+          console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
+        }
+
+        console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
+        await Promise.race([
+          (async () => {
             const balanceStart = Date.now();
             await BlueApp.fetchWalletBalances(lastSnappedTo);
             const balanceEnd = Date.now();
-            console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
 
-            const start = Date.now();
+            const txStart = Date.now();
             await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const end = Date.now();
-            console.debug('fetch tx took', (end - start) / 1000, 'sec');
-          } catch (err) {
-            noErr = false;
-            console.error(err);
-            reject(err);
-          } finally {
-            setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
-          }
-          if (noErr) await saveToDisk();
-          resolve();
-        });
-      });
+            const txEnd = Date.now();
+            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
 
-      try {
-        await Promise.race([mainLogicPromise, timeoutPromise]);
-      } catch (err) {
-        console.error('Error in refreshAllWalletTransactions:', err);
+            console.debug('[refreshAllWalletTransactions] Saving data to disk');
+            await saveToDisk();
+          })(),
+
+          timeoutPromise,
+        ]);
+        console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
+      } catch (error) {
+        console.error('[refreshAllWalletTransactions] Error in refreshAllWalletTransactions:', error);
       } finally {
+        console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+        refreshingRef.current = false;
       }
     },
     [saveToDisk],
@@ -182,24 +314,26 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         let noErr = true;
         try {
           if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
-            console.debug('Re-fetch wallet happens too fast; NOP');
+            console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
             return;
           }
           _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
           await BlueElectrum.waitTillConnected();
           setWalletTransactionUpdateStatus(walletID);
+
           const balanceStart = Date.now();
           await BlueApp.fetchWalletBalances(index);
           const balanceEnd = Date.now();
-          console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          const start = Date.now();
+          console.debug('[fetchAndSaveWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+
+          const txStart = Date.now();
           await BlueApp.fetchWalletTransactions(index);
-          const end = Date.now();
-          console.debug('fetch tx took', (end - start) / 1000, 'sec');
+          const txEnd = Date.now();
+          console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
         } catch (err) {
           noErr = false;
-          console.error(err);
+          console.error('[fetchAndSaveWalletTransactions] Error:', err);
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
@@ -239,6 +373,36 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [wallets, addWallet, saveToDisk],
   );
 
+  function confirmWalletDeletion(wallet: any, onConfirmed: () => void) {
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    try {
+      const balance = formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, true);
+      presentAlert({
+        title: loc.wallets.details_delete_wallet,
+        message: loc.formatString(loc.wallets.details_del_wb_q, { balance }),
+        buttons: [
+          {
+            text: loc.wallets.details_delete,
+            onPress: () => {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              onConfirmed();
+            },
+            style: 'destructive',
+          },
+          {
+            text: loc._.cancel,
+            onPress: () => {},
+            style: 'cancel',
+          },
+        ],
+        options: { cancelable: false },
+      });
+    } catch (error) {
+      // Handle error silently if needed
+    }
+  }
+
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
@@ -274,6 +438,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       isPasswordInUse: BlueApp.isPasswordInUse,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
+      handleWalletDeletion,
+      confirmWalletDeletion,
     }),
     [
       wallets,
@@ -292,6 +458,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
+      handleWalletDeletion,
     ],
   );
 

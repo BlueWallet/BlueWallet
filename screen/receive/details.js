@@ -38,6 +38,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import TipBox from '../../components/TipBox';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -87,9 +88,6 @@ const ReceiveDetails = () => {
     },
     modalButton: {
       backgroundColor: colors.modalButton,
-    },
-    tip: {
-      backgroundColor: colors.ballOutgoingExpired,
     },
   });
 
@@ -472,9 +470,7 @@ const ReceiveDetails = () => {
           {!qrValue && <Text>{loc.bip47.not_found}</Text>}
           {qrValue && (
             <>
-              <View style={[styles.tip, stylesHook.tip]}>
-                <Text style={{ color: colors.foregroundColor }}>{loc.receive.bip47_explanation}</Text>
-              </View>
+              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
               <QRCodeComponent value={qrValue} />
               <CopyTextToClipboard text={qrValue} truncated={false} />
             </>

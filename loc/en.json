@@ -14,7 +14,7 @@
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",
     "yes": "Yes",
     "no": "No",
-    "save": "Save",
+    "save": "Save...",
     "seed": "Seed",
     "success": "Success",
     "wallet_key": "Wallet key",
@@ -422,7 +422,6 @@
     "details_export_history": "Export History to CSV",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
-    "details_no_cancel": "No, cancel",
     "details_show_xpub": "Show Wallet XPUB",
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
@@ -493,7 +492,9 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, memos",
-    "more_info": "More Info"
+    "more_info": "More Info",
+    "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
+    "details_delete_anyway": "Delete anyway"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in Bitcoin",
@@ -508,6 +509,10 @@
     "default_label": "Multisig Vault",
     "multisig_vault_explain": "Best security for large amounts",
     "provide_signature": "Provide signature",
+    "provide_signature_details": "Use your device and wallet where the key resides to sign this transaction",
+    "provide_signature_details_bluewallet": "In BlueWallet, go to the Send screen menu and select ",
+    "provide_signature_next_steps": "Scan or Import Signed Transaction",
+    "provide_signature_next_steps_details": "Once your wallet has successfully signed the transaction, scan the provided QR code or import the accompanying file, and then review all the transaction details before broadcasting it.",
     "vault_key": "Vault Key {number}",
     "required_keys_out_of_total": "Required keys out of the total",
     "fee": "Fee: {number}",

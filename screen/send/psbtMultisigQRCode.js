@@ -2,15 +2,14 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-
 import { BlueSpacing20 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import SafeArea from '../../components/SafeArea';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import TipBox from '../../components/TipBox';
 
 const PsbtMultisigQRCode = () => {
   const navigation = useNavigation();
@@ -64,8 +63,8 @@ const PsbtMultisigQRCode = () => {
   useEffect(() => {
     const data = params.onBarScanned;
     if (data) {
-      onBarScanned({ data });
       navigation.setParams({ onBarScanned: undefined });
+      onBarScanned({ data });
     }
   }, [onBarScanned, params.onBarScanned, navigation]);
 
@@ -86,50 +85,72 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeArea style={stylesHook.root}>
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-        <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
-          {!isShowOpenScanner && (
-            <>
-              <BlueSpacing20 />
-              <SquareButton
-                testID="CosignedScanOrImportFile"
-                style={[styles.exportButton, stylesHook.exportButton]}
-                onPress={openScanner}
-                ref={openScannerButton}
-                title={loc.multisig.scan_or_import_file}
-              />
-            </>
-          )}
+    <ScrollView
+      centerContent
+      testID="PsbtMultisigQRCodeScrollView"
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[styles.scrollViewContent, stylesHook.root, styles.modalContentShort, stylesHook.modalContentShort]}
+    >
+      <TipBox
+        number="1"
+        title={loc.multisig.provide_signature}
+        description={loc.multisig.provide_signature_details}
+        additionalDescription={`${loc.multisig.provide_signature_details_bluewallet} ${loc.multisig.co_sign_transaction}`}
+      />
+      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+      {!isLoading && (
+        <>
           <BlueSpacing20 />
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <SaveFileButton
-              fileName={fileName}
-              fileContent={psbt.toBase64()}
-              beforeOnPress={saveFileButtonBeforeOnPress}
-              afterOnPress={saveFileButtonAfterOnPress}
-              style={[styles.exportButton, stylesHook.exportButton]}
-            >
-              <SquareButton title={loc.multisig.share} />
-            </SaveFileButton>
-          )}
-        </View>
-      </ScrollView>
-    </SafeArea>
+          <View style={styles.divider} />
+          <TipBox
+            number="2"
+            title={loc.multisig.provide_signature_next_steps}
+            description={loc.multisig.provide_signature_next_steps_details}
+          />
+        </>
+      )}
+      {!isShowOpenScanner && (
+        <>
+          <SquareButton
+            testID="CosignedScanOrImportFile"
+            style={[styles.exportButton, stylesHook.exportButton]}
+            onPress={openScanner}
+            ref={openScannerButton}
+            title={loc.multisig.scan_or_import_file}
+          />
+        </>
+      )}
+      <BlueSpacing20 />
+
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <SaveFileButton
+          fileName={fileName}
+          fileContent={psbt.toBase64()}
+          beforeOnPress={saveFileButtonBeforeOnPress}
+          afterOnPress={saveFileButtonAfterOnPress}
+          style={[styles.exportButton, stylesHook.exportButton]}
+        >
+          <SquareButton title={loc.multisig.share} />
+        </SaveFileButton>
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   scrollViewContent: {
-    flexGrow: 1,
     justifyContent: 'space-between',
   },
   modalContentShort: {
-    marginLeft: 20,
-    marginRight: 20,
+    paddingHorizontal: 20,
+  },
+  divider: {
+    height: 0.5,
+    backgroundColor: '#d2d2d2',
+    marginVertical: 20,
   },
   exportButton: {
     height: 48,
