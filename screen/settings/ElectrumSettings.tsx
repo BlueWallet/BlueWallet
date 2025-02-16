@@ -27,6 +27,7 @@ import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
+import { isAirplaneModeSync } from 'react-native-device-info';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -582,6 +583,19 @@ const ElectrumSettings: React.FC = () => {
     );
   };
 
+  const offlineModeTipBox = useMemo(
+    () =>
+      isElectrumDisabled
+        ? !isAirplaneModeSync()
+          ? {
+              title: loc.settings.electrum_offline_mode_tipbox_title,
+              description: loc.settings.electrum_offline_mode_tipbox_description,
+            }
+          : undefined
+        : undefined,
+    [isElectrumDisabled],
+  );
+
   return (
     <ScrollView
       keyboardShouldPersistTaps="always"
@@ -598,9 +612,9 @@ const ElectrumSettings: React.FC = () => {
           value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
-        disabled={isLoading}
         bottomDivider={false}
         subtitle={loc.settings.electrum_offline_description}
+        tipBox={offlineModeTipBox}
       />
 
       {!isElectrumDisabled && renderElectrumSettings()}

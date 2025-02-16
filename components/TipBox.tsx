@@ -3,7 +3,7 @@ import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from './themes';
 import { BlueText } from '../BlueComponents';
 
-interface TipBoxProps {
+export interface TipBoxProps {
   number?: string;
   title?: string;
   description?: string;

@@ -242,6 +242,8 @@
     "lndhub_uri": "E.g., {example}",
     "electrum_host": "E.g., {example}",
     "electrum_offline_mode": "Offline Mode",
+    "electrum_offline_mode_tipbox_title": "Increase security",
+    "electrum_offline_mode_tipbox_description": "For added security, it's recommended to turn on Airplane mode in your device's system settings. This will block all network activity, even at the device level.",
     "electrum_offline_description": "When enabled, your Bitcoin wallets will not attempt to fetch balances or transactions.",
     "electrum_port": "Port, usually {example}",
     "use_ssl": "Use SSL",

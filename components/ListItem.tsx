@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
-import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
+import { Avatar, ListItem as RNElementsListItem, Button, Divider } from '@rneui/themed';
+import TipBox, { TipBoxProps } from './TipBox';
 
 import { useTheme } from './themes';
 
@@ -31,6 +32,7 @@ interface ListItemProps {
   subtitleProps?: object;
   swipeableLeftContent?: React.ReactNode;
   swipeableRightContent?: React.ReactNode;
+  tipBox?: TipBoxProps;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {
@@ -84,6 +86,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     checkmark,
     swipeableLeftContent,
     swipeableRightContent,
+    tipBox,
   }: ListItemProps) => {
     const { colors } = useTheme();
     const stylesHook = StyleSheet.create({
@@ -111,6 +114,36 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     const memoizedSwitchProps = useMemo(() => {
       return switchProps ? { ...switchProps } : undefined;
     }, [switchProps]);
+
+    const renderRightContent = () => (
+      <View style={styles.rightContainer}>
+        {rightTitle && (
+          <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
+            {rightTitle}
+          </RNElementsListItem.Title>
+        )}
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <>
+            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
+            {rightIcon && <Avatar icon={rightIcon} />}
+            {switchProps && (
+              <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+            )}
+            {checkmark && (
+              <RNElementsListItem.CheckBox
+                iconRight
+                containerStyle={stylesHook.containerStyle}
+                iconType="octaicon"
+                checkedIcon="check"
+                checked
+              />
+            )}
+          </>
+        )}
+      </View>
+    );
 
     const renderContent = () => (
       <>
@@ -140,36 +173,11 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             </RNElementsListItem.Subtitle>
           )}
         </RNElementsListItem.Content>
-
-        {rightTitle && (
-          <View style={styles.margin8}>
-            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
-              {rightTitle}
-            </RNElementsListItem.Title>
-          </View>
-        )}
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <>
-            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
-            {rightIcon && <Avatar icon={rightIcon} />}
-            {switchProps && (
-              <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
-            )}
-            {checkmark && (
-              <RNElementsListItem.CheckBox
-                iconRight
-                containerStyle={stylesHook.containerStyle}
-                iconType="octaicon"
-                checkedIcon="check"
-                checked
-              />
-            )}
-          </>
-        )}
+        {renderRightContent()}
       </>
     );
+
+    const content = <>{renderContent()}</>;
 
     if (swipeable && !Component) {
       console.warn('Component prop is required when swipeable is true.');
@@ -190,22 +198,32 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
         accessible={switchProps === undefined}
       >
-        {renderContent()}
+        {content}
       </RNElementsListItem.Swipeable>
     ) : (
-      <RNElementsListItem
-        containerStyle={containerStyle ?? stylesHook.containerStyle}
-        Component={Component}
-        bottomDivider={bottomDivider}
-        topDivider={topDivider}
-        testID={testID}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        disabled={disabled}
-        accessible={switchProps === undefined}
-      >
-        {renderContent()}
-      </RNElementsListItem>
+      <>
+        <RNElementsListItem
+          containerStyle={containerStyle ?? stylesHook.containerStyle}
+          Component={Component}
+          bottomDivider={!tipBox && bottomDivider}
+          topDivider={topDivider}
+          testID={testID}
+          onPress={onPress}
+          onLongPress={onLongPress}
+          disabled={disabled}
+          accessible={switchProps === undefined}
+        >
+          {content}
+        </RNElementsListItem>
+        <>
+          {tipBox && (
+            <View style={styles.tipboxPadding}>
+              <TipBox {...tipBox} />
+            </View>
+          )}
+          {bottomDivider ? <Divider /> : null}
+        </>
+      </>
     );
   },
 );
@@ -217,11 +235,16 @@ const styles = StyleSheet.create({
     minHeight: '100%',
     backgroundColor: 'red',
   },
-  margin8: {
-    margin: 8,
-  },
   margin16: {
     marginLeft: 16,
   },
+  tipboxPadding: {
+    padding: 16,
+  },
   width16: { width: 16 },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
 });
