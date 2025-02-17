@@ -5,7 +5,7 @@ import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import loc from '../loc';
-import { navigationRef } from '../NavigationService';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 type AddWalletButtonProps = {
   onPress?: (event: GestureResponderEvent) => void;
@@ -23,21 +23,25 @@ const styles = StyleSheet.create({
 
 const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const { colors } = useTheme();
+  const navigation = useExtendedNavigation();
   const stylesHook = StyleSheet.create({
     ball: {
       backgroundColor: colors.buttonBackgroundColor,
     },
   });
 
-  const onPressMenuItem = useCallback((action: string) => {
-    switch (action) {
-      case CommonToolTipActions.ImportWallet.id:
-        navigationRef.current?.navigate('AddWalletRoot', { screen: 'ImportWallet' });
-        break;
-      default:
-        break;
-    }
-  }, []);
+  const onPressMenuItem = useCallback(
+    (action: string) => {
+      switch (action) {
+        case CommonToolTipActions.ImportWallet.id:
+          navigation.navigate('AddWalletRoot', { screen: 'ImportWallet' });
+          break;
+        default:
+          break;
+      }
+    },
+    [navigation],
+  );
 
   const actions = useMemo(() => [CommonToolTipActions.ImportWallet], []);
 

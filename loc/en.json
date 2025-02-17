@@ -182,6 +182,7 @@
     "input_total": "Total:",
     "permission_camera_message": "We need your permission to use your camera.",
     "psbt_sign": "Sign a transaction",
+    "invalid_psbt": "Invalid PSBT provided.",
     "open_settings": "Open Settings",
     "permission_storage_denied_message": "BlueWallet is unable to save this file. Please open your device settings and enable Storage Permission.",
     "permission_storage_title": "Storage Access Permission",

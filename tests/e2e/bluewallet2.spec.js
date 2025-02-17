@@ -1,7 +1,18 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { extractTextFromElementById, getSwitchValue, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
+import {
+  extractTextFromElementById,
+  getSwitchValue,
+  hashIt,
+  helperImportWallet,
+  sleep,
+  sup,
+  tapAndTapAgainIfElementIsNotVisible,
+  tapAndTapAgainIfTextIsNotVisible,
+  tapIfTextPresent,
+  yo,
+} from './helperz';
 
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
@@ -434,9 +445,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await element(by.text('Contacts')).tap();
+    await tapAndTapAgainIfTextIsNotVisible('Contacts', 'Add Contact');
 
-    await expect(element(by.text('Add Contact'))).toBeVisible();
     await expect(element(by.id('ContactListItem0'))).not.toBeVisible();
     await element(by.text('Add Contact')).tap();
     await element(by.type('android.widget.EditText')).replaceText('13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
@@ -475,10 +485,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await yo('SendButton');
 
-    await element(by.id('SendButton')).tap();
+    await tapAndTapAgainIfElementIsNotVisible('SendButton', 'HeaderMenuButton');
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Insert Contact')).tap();
-    await element(by.id('ContactListItem0')).tap();
+    await tapAndTapAgainIfElementIsNotVisible('ContactListItem0', 'BitcoinAmountInput');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
 
     await element(by.id('HeaderMenuButton')).tap();
@@ -529,6 +539,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // rename test
     await element(by.id('WalletNameInput')).replaceText('testname');
+    await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
     await device.pressBack();
     await sup('testname');
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
@@ -536,6 +547,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // rename back
     await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)');
+    await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
     await device.pressBack();
     await sup('Imported HD SegWit (BIP84 Bech32 Native)');
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
@@ -543,15 +555,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // wallet export
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('WalletExport')).tap();
+    await tapAndTapAgainIfElementIsNotVisible('WalletExport', 'WalletExportScroll');
     await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
     await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
     await device.pressBack();
 
     // XPUB
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('XPub')).tap();
-    await expect(element(by.id('CopyTextToClipboard'))).toBeVisible();
+    await tapAndTapAgainIfElementIsNotVisible('XpubButton', 'CopyTextToClipboard');
     await device.pressBack();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
@@ -616,7 +627,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('0.00069909')).atIndex(0).tap();
     await element(by.text('Details')).tap();
     await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('test1');
+    await element(by.type('android.widget.EditText')).replaceText('test1');
     await element(by.type('android.widget.EditText')).tapReturnKey();
 
     // Terminate and reopen the app to confirm the note is persisted
@@ -650,9 +661,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1\n');
+    await element(by.type('android.widget.EditText')).replaceText('1');
+    await element(by.type('android.widget.EditText')).tapReturnKey();
     await element(by.text('OK')).tap();
-    if (process.env.TRAVIS) await sleep(5000);
+    await tapIfTextPresent('OK'); // in case it didnt work first time
+    await sleep(3000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();
 

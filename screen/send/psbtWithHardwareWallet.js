@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useIsFocused, useRoute } from '@react-navigation/native';
+import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -85,7 +85,8 @@ const PsbtWithHardwareWallet = () => {
         if (launchedBy) {
           // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
           // most likely for LN channel opening
-          navigation.navigate({ name: launchedBy, params: { psbt }, merge: true });
+          const popToAction = StackActions.popTo(launchedBy, { psbt }, true);
+          navigation.dispatch(popToAction);
           // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
           // (passed by reference)
         }
@@ -225,7 +226,7 @@ const PsbtWithHardwareWallet = () => {
   useEffect(() => {
     const data = route.params.onBarScanned;
     if (data) {
-      onBarScanned(data);
+      onBarScanned({ data });
       navigation.setParams({ onBarScanned: undefined });
     }
   }, [navigation, onBarScanned, route.params.onBarScanned]);

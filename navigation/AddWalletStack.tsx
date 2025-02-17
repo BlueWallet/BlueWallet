@@ -58,6 +58,7 @@ export type AddWalletStackParamList = {
     n: number;
     walletLabel: string;
     format: string;
+    onBarScanned?: string;
   };
   WalletsAddMultisigHelp: undefined;
   ScanQRCode: ScanQRCodeParamList;
@@ -139,7 +140,7 @@ const AddWalletStack = () => {
             backgroundColor: '#0070FF',
           },
           headerTintColor: '#FFFFFF',
-          headerBackTitleVisible: false,
+          headerBackTitle: undefined,
           statusBarStyle: 'light',
           headerShadowVisible: false,
         })(theme)}

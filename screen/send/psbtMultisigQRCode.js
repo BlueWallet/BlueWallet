@@ -1,4 +1,4 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
@@ -48,16 +48,17 @@ const PsbtMultisigQRCode = () => {
       if (!ret.data) ret = { data: ret };
       if (ret.data.toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1) {
+        presentAlert({ message: loc.wallets.import_error });
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
-        presentAlert({ message: loc.wallets.import_error });
       } else {
         // psbt base64?
-        navigation.navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
+        const popToAction = StackActions.popTo('PsbtMultisig', { psbtBase64, receivedPSBTBase64: ret.data, ...params }, true);
+        navigation.dispatch(popToAction);
       }
     },
-    [navigation],
+    [navigation, psbtBase64, params],
   );
 
   useEffect(() => {

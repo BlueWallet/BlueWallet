@@ -1297,7 +1297,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-image-picker (7.2.2):
+  - react-native-image-picker (7.2.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1324,7 +1324,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.14.1):
+  - react-native-safe-area-context (5.2.0):
     - React-Core
   - react-native-screen-capture (0.2.3):
     - React
@@ -1621,7 +1621,7 @@ PODS:
     - React-logger (= 0.76.7)
     - React-perflogger (= 0.76.7)
     - React-utils (= 0.76.7)
-  - ReactNativeCameraKit (14.1.0):
+  - ReactNativeCameraKit (14.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1656,7 +1656,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.22.1):
+  - RNGestureHandler (2.23.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1702,7 +1702,7 @@ PODS:
     - Yoga
   - RNLocalize (3.4.1):
     - React-Core
-  - RNPermissions (5.2.4):
+  - RNPermissions (5.2.5):
     - React-Core
   - RNQrGenerator (1.4.3):
     - React
@@ -1819,7 +1819,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.35.0):
+  - RNScreens (4.6.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2258,11 +2258,11 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
-  react-native-image-picker: 19a8d8471a239890675726f88f9c18dd213656d5
+  react-native-image-picker: 130fad649d07e4eec8faaed361d3bba570e1e5ff
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
   react-native-menu: 74230a5879e0ca697e98ee7c3087297dc774bf06
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
-  react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
+  react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
@@ -2294,7 +2294,7 @@ SPEC CHECKSUMS:
   React-utils: 0342746d2cf989cf5e0d1b84c98cfa152edbdf3f
   ReactCodegen: e1c019dc68733dd2c5d3b263b4a6dc72002c0045
   ReactCommon: 81e0744ee33adfd6d586141b927024f488bc49ea
-  ReactNativeCameraKit: e72b838dac4ea2da19b7eb5d00b23125072790fd
+  ReactNativeCameraKit: 72cc60b69ae192fe55a3e3f294ed46833308bb22
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: c91d753ede6dc21862c4922cd13f98f7cfde578e
   RNCClipboard: ee059e6006b137e369caed5eb852b4aad9f5d886
@@ -2302,17 +2302,17 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: 801c18d0525e86580900e7b5f562dca0c8c05021
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: e597c3cf95ce53819280c34d008d63bfbb05ddeb
+  RNGestureHandler: 79e731e77dbec11fb5508e646d13897f1ee45912
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 4df48b5186ca2b6a99f5ead69ad587154e084a32
   RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
-  RNPermissions: 257cd3630c304d59877aeb36f885c21543adde41
+  RNPermissions: a19629bb6d6fdb521540f39262e356ae30d6cc4e
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: 66cf0f600a26d2b5e74c6e0b1c77c1ab1f62fc05
-  RNScreens: 35bb8e81aeccf111baa0ea01a54231390dbbcfd9
+  RNScreens: b05d3b8e716e68d9e2f1364d440d23de5b6885f1
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
   RNSVG: 86fecdfc637614ba9def63f7f3f2e7795e018356
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
