@@ -2,6 +2,7 @@ import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { LegacyWallet } from './legacy-wallet';
 import loc from '../../loc';
+import { timeoutFetch } from '../../util/fetch';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
@@ -99,7 +100,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/create', {
+      const response = await timeoutFetch(this.baseURI + '/create', {
         method: 'POST',
         body: JSON.stringify({ partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' }),
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -129,7 +130,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/payinvoice', {
+      const response = await timeoutFetch(this.baseURI + '/payinvoice', {
         method: 'POST',
         body: JSON.stringify({ invoice, amount: freeAmount }),
         headers: {
@@ -167,7 +168,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/getuserinvoices' + limitString, {
+      const response = await timeoutFetch(this.baseURI + '/getuserinvoices' + limitString, {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -238,7 +239,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/addinvoice', {
+      const response = await timeoutFetch(this.baseURI + '/addinvoice', {
         method: 'POST',
         body: JSON.stringify({ amt: amt + '', memo }),
         headers: {
@@ -287,7 +288,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/auth?type=auth', {
+      const response = await timeoutFetch(this.baseURI + '/auth?type=auth', {
         method: 'POST',
         body: JSON.stringify({ login, password }),
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -343,7 +344,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/auth?type=refresh_token', {
+      const response = await timeoutFetch(this.baseURI + '/auth?type=refresh_token', {
         method: 'POST',
         body: JSON.stringify({ refresh_token: this.refresh_token }),
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -377,7 +378,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/getbtc', {
+      const response = await timeoutFetch(this.baseURI + '/getbtc', {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -467,7 +468,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/getpending', {
+      const response = await timeoutFetch(this.baseURI + '/getpending', {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -504,7 +505,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/gettxs' + queryRes, {
+      const response = await timeoutFetch(this.baseURI + '/gettxs' + queryRes, {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -545,7 +546,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/balance', {
+      const response = await timeoutFetch(this.baseURI + '/balance', {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -642,7 +643,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/getinfo', {
+      const response = await timeoutFetch(this.baseURI + '/getinfo', {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -676,7 +677,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(normalizedAddress.toString(), {
+      const response = await timeoutFetch(normalizedAddress.toString(), {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -731,7 +732,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(this.baseURI + '/decodeinvoice?invoice=' + invoice, {
+      const response = await timeoutFetch(this.baseURI + '/decodeinvoice?invoice=' + invoice, {
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',

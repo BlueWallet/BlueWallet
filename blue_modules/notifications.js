@@ -6,6 +6,7 @@ import { checkNotifications, requestNotifications, RESULTS } from 'react-native-
 import PushNotification from 'react-native-push-notification';
 import loc from '../loc';
 import { groundControlUri } from './constants';
+import { timeoutFetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
@@ -149,7 +150,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
     let response;
     try {
       console.debug('majorTomToGroundControl: Sending request to:', `${baseURI}/majorTomToGroundControl`);
-      response = await fetch(`${baseURI}/majorTomToGroundControl`, {
+      response = await timeoutFetch(`${baseURI}/majorTomToGroundControl`, {
         method: 'POST',
         headers: _getHeaders(),
         body: requestBody,
@@ -212,7 +213,7 @@ export const setLevels = async levelAll => {
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
   try {
-    const response = await fetch(`${baseURI}/setTokenConfiguration`, {
+    const response = await timeoutFetch(`${baseURI}/setTokenConfiguration`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -276,7 +277,7 @@ const postTokenConfig = async () => {
     const appVersion = getSystemName() + ' ' + getSystemVersion() + ';' + getApplicationName() + ' ' + getVersion();
     console.debug('postTokenConfig: Posting configuration', { lang, appVersion });
 
-    await fetch(`${baseURI}/setTokenConfiguration`, {
+    await timeoutFetch(`${baseURI}/setTokenConfiguration`, {
       method: 'POST',
       headers: _getHeaders(),
       body: JSON.stringify({
@@ -398,7 +399,7 @@ const _sleep = async ms => {
 export const isGroundControlUriValid = async uri => {
   let response;
   try {
-    response = await Promise.race([fetch(`${uri}/ping`, { headers: _getHeaders() }), _sleep(2000)]);
+    response = await Promise.race([timeoutFetch(`${uri}/ping`, { headers: _getHeaders() }), _sleep(2000)]);
   } catch (_) {}
 
   if (!response) return false;
@@ -433,7 +434,7 @@ const getLevels = async () => {
   let response;
   try {
     response = await Promise.race([
-      fetch(`${baseURI}/getTokenConfiguration`, {
+      timeoutFetch(`${baseURI}/getTokenConfiguration`, {
         method: 'POST',
         headers: _getHeaders(),
         body: JSON.stringify({
@@ -478,7 +479,7 @@ export const unsubscribe = async (addresses, hashes, txids) => {
   });
 
   try {
-    const response = await fetch(`${baseURI}/unsubscribe`, {
+    const response = await timeoutFetch(`${baseURI}/unsubscribe`, {
       method: 'POST',
       headers: _getHeaders(),
       body,

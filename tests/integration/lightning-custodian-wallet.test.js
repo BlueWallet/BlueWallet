@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { LightningCustodianWallet } from '../../class';
+import { timeoutFetch } from '../../util/fetch';
 
 jest.setTimeout(200 * 1000);
 const baseUri = 'https://lndhub-staging.herokuapp.com';
@@ -164,7 +165,7 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    const response = await fetch('https://api.opennode.co/v1/charges', {
+    const response = await timeoutFetch('https://api.opennode.co/v1/charges', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -218,7 +219,7 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    const response = await fetch('https://api.strike.acinq.co/api/v1/charges', {
+    const response = await timeoutFetch('https://api.strike.acinq.co/api/v1/charges', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -289,7 +290,7 @@ describe.skip('LightningCustodianWallet', () => {
       return;
     }
 
-    const response = await fetch(`https://api-bitrefill.com/v1/lnurl_pay/${process.env.BITREFILL}/callback?amount=1000`, {
+    const response = await timeoutFetch(`https://api-bitrefill.com/v1/lnurl_pay/${process.env.BITREFILL}/callback?amount=1000`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -460,7 +461,7 @@ describe.skip('LightningCustodianWallet', () => {
 
     // fetching invoice from tippin.me :
 
-    const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {
+    const response = await timeoutFetch('https://tippin.me/lndreq/newinvoice.php', {
       method: 'POST',
       headers: {
         Origin: 'https://tippin.me',
@@ -568,7 +569,7 @@ describe.skip('LightningCustodianWallet', () => {
 
     // fetching invoice from tippin.me :
 
-    const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {
+    const response = await timeoutFetch('https://tippin.me/lndreq/newinvoice.php', {
       method: 'POST',
       headers: {
         Origin: 'https://tippin.me',
