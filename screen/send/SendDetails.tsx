@@ -81,7 +81,6 @@ const SendDetails = () => {
   const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
-  const name = route.name;
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
   const frozenBalance = route.params?.frozenBalance ?? 0;
@@ -400,66 +399,69 @@ const SendDetails = () => {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
 
-  const processAddressData = (data: string | { data?: any }) => {
-    assert(wallet, 'Internal error: wallet not set');
-    if (typeof data !== 'string') {
-      data = String(data.data);
-    }
-    const currentIndex = scrollIndex.current;
-    setIsLoading(true);
-    if (!data.replace) {
-      // user probably scanned PSBT and got an object instead of string..?
+  const processAddressData = useCallback(
+    (data: string | { data?: any }) => {
+      assert(wallet, 'Internal error: wallet not set');
+      if (typeof data !== 'string') {
+        data = String(data.data);
+      }
+      const currentIndex = scrollIndex.current;
+      setIsLoading(true);
+      if (!data.replace) {
+        // user probably scanned PSBT and got an object instead of string..?
+        setIsLoading(false);
+        return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
+      }
+
+      const cl = new ContactList();
+
+      const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
+      if (wallet.isAddressValid(dataWithoutSchema) || cl.isPaymentCodeValid(dataWithoutSchema)) {
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].address = dataWithoutSchema;
+          return [...addrs];
+        });
+        setIsLoading(false);
+        setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
+        return;
+      }
+
+      let address = '';
+      let options: TOptions;
+      try {
+        if (!data.toLowerCase().startsWith('bitcoin:')) data = `bitcoin:${data}`;
+        const decoded = DeeplinkSchemaMatch.bip21decode(data);
+        address = decoded.address;
+        options = decoded.options;
+      } catch (error) {
+        data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
+        const decoded = DeeplinkSchemaMatch.bip21decode(data);
+        decoded.options.amount = 0;
+        address = decoded.address;
+        options = decoded.options;
+      }
+
+      console.log('options', options);
+      if (wallet.isAddressValid(address)) {
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].address = address;
+          addrs[scrollIndex.current].amount = options?.amount ?? 0;
+          addrs[scrollIndex.current].amountSats = new BigNumber(options?.amount ?? 0).multipliedBy(100000000).toNumber();
+          return [...addrs];
+        });
+        setAddresses(addrs => {
+          addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
+          return [...addrs];
+        });
+        setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
+        // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
+        setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
+      }
+
       setIsLoading(false);
-      return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
-    }
-
-    const cl = new ContactList();
-
-    const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
-    if (wallet.isAddressValid(dataWithoutSchema) || cl.isPaymentCodeValid(dataWithoutSchema)) {
-      setAddresses(addrs => {
-        addrs[scrollIndex.current].address = dataWithoutSchema;
-        return [...addrs];
-      });
-      setIsLoading(false);
-      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
-      return;
-    }
-
-    let address = '';
-    let options: TOptions;
-    try {
-      if (!data.toLowerCase().startsWith('bitcoin:')) data = `bitcoin:${data}`;
-      const decoded = DeeplinkSchemaMatch.bip21decode(data);
-      address = decoded.address;
-      options = decoded.options;
-    } catch (error) {
-      data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
-      const decoded = DeeplinkSchemaMatch.bip21decode(data);
-      decoded.options.amount = 0;
-      address = decoded.address;
-      options = decoded.options;
-    }
-
-    console.log('options', options);
-    if (wallet.isAddressValid(address)) {
-      setAddresses(addrs => {
-        addrs[scrollIndex.current].address = address;
-        addrs[scrollIndex.current].amount = options?.amount ?? 0;
-        addrs[scrollIndex.current].amountSats = new BigNumber(options?.amount ?? 0).multipliedBy(100000000).toNumber();
-        return [...addrs];
-      });
-      setAddresses(addrs => {
-        addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
-        return [...addrs];
-      });
-      setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
-      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
-    }
-
-    setIsLoading(false);
-  };
+    },
+    [setParams, wallet],
+  );
 
   const createTransaction = async () => {
     assert(wallet, 'Internal error: wallet is not set');
@@ -688,6 +690,7 @@ const SendDetails = () => {
           walletID: wallet.getID(),
           psbt,
         });
+
         setIsLoading(false);
       }
     },
@@ -854,7 +857,6 @@ const SendDetails = () => {
       navigation.navigate('CreateTransaction', {
         fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
         feeSatoshi: psbt.getFee(),
-        wallet,
         tx: tx.toHex(),
         recipients,
         satoshiPerByte: psbt.getFeeRate(),
@@ -869,28 +871,39 @@ const SendDetails = () => {
     const data = routeParams.onBarScanned;
     if (data) {
       if (selectedDataProcessor.current) {
-        if (
-          selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR ||
-          selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
-          selectedDataProcessor.current === CommonToolTipActions.SignPSBT
-        ) {
-          if (selectedDataProcessor.current === CommonToolTipActions.ImportTransactionQR) {
+        console.debug('SendDetails - selectedDataProcessor:', selectedDataProcessor.current);
+        switch (selectedDataProcessor.current) {
+          case CommonToolTipActions.ImportTransactionQR:
             importQrTransactionOnBarScanned(data);
-          } else if (
-            selectedDataProcessor.current === CommonToolTipActions.CoSignTransaction ||
-            selectedDataProcessor.current === CommonToolTipActions.SignPSBT
-          ) {
+            break;
+          case CommonToolTipActions.SignPSBT:
             handlePsbtSign(data);
-          } else {
-            onBarScanned(data);
-          }
-        } else {
-          console.log('Unknown selectedDataProcessor:', selectedDataProcessor.current);
+            break;
+          case CommonToolTipActions.CoSignTransaction:
+          case CommonToolTipActions.ImportTransactionMultsig:
+            _importTransactionMultisig(data);
+            break;
+          case CommonToolTipActions.ImportTransaction:
+            processAddressData(data);
+            break;
+          default:
+            console.debug('Unknown selectedDataProcessor:', selectedDataProcessor.current);
         }
+      } else {
+        processAddressData(data);
       }
-      setParams({ onBarScanned: undefined });
     }
-  }, [handlePsbtSign, importQrTransactionOnBarScanned, onBarScanned, routeParams.onBarScanned, setParams]);
+    selectedDataProcessor.current = undefined;
+    setParams({ onBarScanned: undefined });
+  }, [
+    importQrTransactionOnBarScanned,
+    onBarScanned,
+    routeParams.onBarScanned,
+    setParams,
+    processAddressData,
+    _importTransactionMultisig,
+    handlePsbtSign,
+  ]);
 
   const navigateToQRCodeScanner = () => {
     navigation.navigate('ScanQRCode', {
@@ -979,11 +992,13 @@ const SendDetails = () => {
     } else if (id === CommonToolTipActions.AllowRBF.id) {
       onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
     } else if (id === CommonToolTipActions.ImportTransaction.id) {
+      selectedDataProcessor.current = CommonToolTipActions.ImportTransaction;
       importTransaction();
     } else if (id === CommonToolTipActions.ImportTransactionQR.id) {
       selectedDataProcessor.current = CommonToolTipActions.ImportTransactionQR;
       importQrTransaction();
     } else if (id === CommonToolTipActions.ImportTransactionMultsig.id) {
+      selectedDataProcessor.current = CommonToolTipActions.ImportTransactionMultsig;
       importTransactionMultisig();
     } else if (id === CommonToolTipActions.CoSignTransaction.id) {
       selectedDataProcessor.current = CommonToolTipActions.CoSignTransaction;
@@ -1296,11 +1311,9 @@ const SendDetails = () => {
             setIsLoading(false);
             setParams({ payjoinUrl: pjUrl });
           }}
-          onBarScanned={processAddressData}
           address={item.address}
           isLoading={isLoading}
           inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-          launchedBy={name}
           editable={isEditable}
           style={styles.addressInput}
         />

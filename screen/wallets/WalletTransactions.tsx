@@ -14,6 +14,7 @@ import {
   StyleSheet,
   Text,
   View,
+  RefreshControl,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -28,7 +29,7 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc from '../../loc';
+import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -45,6 +46,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
+import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -53,7 +55,7 @@ const buttonFontSize =
 
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
-
+type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
@@ -73,9 +75,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const stylesHook = StyleSheet.create({
     listHeaderText: {
       color: colors.foregroundColor,
-    },
-    list: {
-      backgroundColor: colors.background,
     },
   });
 
@@ -112,15 +111,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [navigation, onBarCodeRead, route.params]);
 
-  const getTransactions = useCallback(
-    (lmt = Infinity): Transaction[] => {
-      if (!wallet) return [];
-      const txs = wallet.getTransactions();
-      txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
-      return txs.slice(0, lmt);
-    },
-    [wallet],
-  );
+  const sortedTransactions = useMemo(() => {
+    if (!wallet) return [];
+    const txs = wallet.getTransactions();
+    txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
+    return txs;
+  }, [wallet]);
+
+  const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
 
   const loadMoreTransactions = useCallback(() => {
     if (getTransactions(Infinity).length > limit) {
@@ -179,33 +177,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [wallet, setSelectedWalletID, walletID]);
 
-  const isLightning = (): boolean => wallet?.chain === Chain.OFFCHAIN || false;
-
+  const isLightning = useCallback((): boolean => wallet?.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
     return wallet && wallet.getTransactions().length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
-  };
-
-  const renderListHeaderComponent = () => {
-    const style: any = {};
-    if (!isDesktop) {
-      // we need this button for testing
-      style.opacity = 0;
-      style.height = 1;
-      style.width = 1;
-    } else if (isLoading) {
-      style.opacity = 0.5;
-    } else {
-      style.opacity = 1.0;
-    }
-
-    return (
-      <View style={styles.flex}>
-        <View style={styles.listHeaderTextRow}>
-          <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-        </View>
-      </View>
-    );
   };
 
   const navigateToSendScreen = () => {
@@ -217,64 +192,70 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     });
   };
 
-  const onWalletSelect = async (selectedWallet: TWallet) => {
-    assert(wallet?.type === LightningCustodianWallet.type, `internal error, wallet is not ${LightningCustodianWallet.type}`);
-    navigate('WalletTransactions', {
-      walletType: wallet?.type,
-      walletID,
-      key: `WalletTransactions-${walletID}`,
-    }); // navigating back to ln wallet screen
+  const onWalletSelect = useCallback(
+    async (selectedWallet: TWallet) => {
+      assert(wallet?.type === LightningCustodianWallet.type, `internal error, wallet is not ${LightningCustodianWallet.type}`);
+      navigate('WalletTransactions', {
+        walletType: wallet?.type,
+        walletID,
+        key: `WalletTransactions-${walletID}`,
+      }); // navigating back to ln wallet screen
 
-    // getting refill address, either cached or from the server:
-    let toAddress;
-    if (wallet?.refill_addressess.length > 0) {
-      toAddress = wallet.refill_addressess[0];
-    } else {
-      try {
-        await wallet?.fetchBtcAddress();
-        toAddress = wallet?.refill_addressess[0];
-      } catch (Err) {
-        return presentAlert({ message: (Err as Error).message, type: AlertType.Toast });
+      // getting refill address, either cached or from the server:
+      let toAddress;
+      if (wallet?.refill_addressess.length > 0) {
+        toAddress = wallet.refill_addressess[0];
+      } else {
+        try {
+          await wallet?.fetchBtcAddress();
+          toAddress = wallet?.refill_addressess[0];
+        } catch (Err) {
+          return presentAlert({ message: (Err as Error).message, type: AlertType.Toast });
+        }
       }
-    }
 
-    // navigating to pay screen where user can pay to refill address:
-    navigate('SendDetailsRoot', {
-      screen: 'SendDetails',
-      params: {
-        memo: loc.lnd.refill_lnd_balance,
-        address: toAddress,
-        walletID: selectedWallet.getID(),
-      },
-    });
-  };
+      // navigating to pay screen where user can pay to refill address:
+      navigate('SendDetailsRoot', {
+        screen: 'SendDetails',
+        params: {
+          memo: loc.lnd.refill_lnd_balance,
+          address: toAddress,
+          walletID: selectedWallet.getID(),
+        },
+      });
+    },
+    [navigate, wallet, walletID],
+  );
 
-  const navigateToViewEditCosigners = () => {
+  const navigateToViewEditCosigners = useCallback(() => {
     navigate('ViewEditMultisigCosignersRoot', {
       screen: 'ViewEditMultisigCosigners',
       params: {
         walletID,
       },
     });
-  };
+  }, [navigate, walletID]);
 
-  const onManageFundsPressed = (id?: string) => {
-    if (id === actionKeys.Refill) {
-      const availableWallets = wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend());
-      if (availableWallets.length === 0) {
-        presentAlert({ message: loc.lnd.refill_create });
-      } else {
-        selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
+  const onManageFundsPressed = useCallback(
+    (id?: string) => {
+      if (id === actionKeys.Refill) {
+        const availableWallets = wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend());
+        if (availableWallets.length === 0) {
+          presentAlert({ message: loc.lnd.refill_create });
+        } else {
+          selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
+        }
+      } else if (id === actionKeys.RefillWithExternalWallet) {
+        navigate('ReceiveDetailsRoot', {
+          screen: 'ReceiveDetails',
+          params: {
+            walletID,
+          },
+        });
       }
-    } else if (id === actionKeys.RefillWithExternalWallet) {
-      navigate('ReceiveDetailsRoot', {
-        screen: 'ReceiveDetails',
-        params: {
-          walletID,
-        },
-      });
-    }
-  };
+    },
+    [name, navigate, onWalletSelect, walletID, wallets],
+  );
 
   const getItemLayout = (_: any, index: number) => ({
     length: 64,
@@ -282,8 +263,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     index,
   });
 
-  const renderItem = (item: { item: Transaction }) => (
-    <TransactionListItem item={item.item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />
+  const listData: Transaction[] = useMemo(() => {
+    const transactions = getTransactions(limit);
+    return transactions;
+  }, [getTransactions, limit]);
+
+  const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
+    ({ item }: { item: Transaction }) => {
+      return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
+    },
+    [wallet, walletID],
   );
 
   const choosePhoto = () => {
@@ -386,92 +376,159 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
+  const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
+  useEffect(() => {
+    if (!wallet) return;
+    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+    return () => clearInterval(interval);
+  }, [wallet]);
 
-  return (
-    <View style={styles.flex}>
-      {wallet && (
-        <TransactionsNavigationHeader
-          wallet={wallet}
-          onWalletUnitChange={async selectedUnit => {
-            wallet.preferredBalanceUnit = selectedUnit;
-            await saveToDisk();
-          }}
-          unit={wallet.preferredBalanceUnit}
-          onWalletBalanceVisibilityChange={async isShouldBeVisible => {
-            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-            if (wallet?.hideBalance && isBiometricsEnabled) {
-              const unlocked = await unlockWithBiometrics();
-              if (!unlocked) throw new Error('Biometrics failed');
-            }
-            wallet!.hideBalance = isShouldBeVisible;
-            await saveToDisk();
-          }}
-          onManageFundsPressed={id => {
-            if (wallet?.type === MultisigHDWallet.type) {
-              navigateToViewEditCosigners();
-            } else if (wallet?.type === LightningCustodianWallet.type) {
-              if (wallet.getUserHasSavedExport()) {
-                if (!id) return;
-                onManageFundsPressed(id);
-              } else {
-                presentWalletExportReminder()
-                  .then(async () => {
-                    if (!id) return;
-                    wallet!.setUserHasSavedExport(true);
-                    await saveToDisk();
-                    onManageFundsPressed(id);
-                  })
-                  .catch(() => {
-                    navigate('WalletExportRoot', {
-                      screen: 'WalletExport',
-                      params: {
-                        walletID,
-                      },
-                    });
-                  });
+  const walletBalance = useMemo(() => {
+    if (!wallet) return '';
+    if (wallet.hideBalance) return '';
+    if (isNaN(balance) || balance === 0) return '';
+    return formatBalance(balance, wallet.preferredBalanceUnit, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, wallet?.hideBalance, wallet?.preferredBalanceUnit, balance]);
+
+  const handleScroll = useCallback(
+    (event: any) => {
+      const offsetY = event.nativeEvent.contentOffset.y;
+      const combinedHeight = 180;
+      if (offsetY < combinedHeight) {
+        setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
+      } else {
+        navigation.setOptions({
+          headerTitle: wallet ? `${wallet.getLabel()} ${walletBalance}` : '',
+        });
+      }
+    },
+    [navigation, wallet, walletBalance, setOptions, route],
+  );
+
+  const ListHeaderComponent = useCallback(
+    () =>
+      wallet ? (
+        <>
+          <TransactionsNavigationHeader
+            wallet={wallet}
+            onWalletUnitChange={async selectedUnit => {
+              wallet.preferredBalanceUnit = selectedUnit;
+              await saveToDisk();
+            }}
+            unit={wallet.preferredBalanceUnit}
+            onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+              if (wallet.hideBalance && isBiometricsEnabled) {
+                const unlocked = await unlockWithBiometrics();
+                if (!unlocked) throw new Error('Biometrics failed');
               }
-            }
-          }}
-        />
-      )}
-      <View style={[styles.list, stylesHook.list]}>
-        {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-          <WatchOnlyWarning
-            handleDismiss={() => {
-              wallet.isWatchOnlyWarningVisible = false;
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-              saveToDisk();
+              wallet.hideBalance = isShouldBeVisible;
+              await saveToDisk();
+            }}
+            onManageFundsPressed={id => {
+              if (wallet.type === MultisigHDWallet.type) {
+                navigateToViewEditCosigners();
+              } else if (wallet.type === LightningCustodianWallet.type) {
+                if (wallet.getUserHasSavedExport()) {
+                  if (!id) return;
+                  onManageFundsPressed(id);
+                } else {
+                  presentWalletExportReminder()
+                    .then(async () => {
+                      if (!id) return;
+                      wallet.setUserHasSavedExport(true);
+                      await saveToDisk();
+                      onManageFundsPressed(id);
+                    })
+                    .catch(() => {
+                      navigate('WalletExportRoot', {
+                        screen: 'WalletExport',
+                        params: {
+                          walletID,
+                        },
+                      });
+                    });
+                }
+              }
             }}
           />
-        )}
-        <FlatList
-          getItemLayout={getItemLayout}
-          updateCellsBatchingPeriod={30}
-          ListHeaderComponent={renderListHeaderComponent}
-          onEndReachedThreshold={0.3}
-          onEndReached={loadMoreTransactions}
-          ListFooterComponent={renderListFooterComponent}
-          ListEmptyComponent={
-            <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
-              <Text numberOfLines={0} style={styles.emptyTxs}>
-                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
-              </Text>
-              {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-            </ScrollView>
-          }
-          {...refreshProps}
-          data={getTransactions(limit)}
-          extraData={wallet}
-          keyExtractor={_keyExtractor}
-          renderItem={renderItem}
-          initialNumToRender={10}
-          removeClippedSubviews
-          contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-          maxToRenderPerBatch={15}
-          windowSize={25}
-        />
-      </View>
+          <>
+            <View style={[styles.flex, { backgroundColor: colors.background }]}>
+              <View style={styles.listHeaderTextRow}>
+                <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+              </View>
+            </View>
+            <View style={{ backgroundColor: colors.background }}>
+              {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+                <WatchOnlyWarning
+                  handleDismiss={() => {
+                    wallet.isWatchOnlyWarningVisible = false;
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                    saveToDisk();
+                  }}
+                />
+              )}
+            </View>
+          </>
+        </>
+      ) : undefined,
+    [
+      wallet,
+      colors.background,
+      stylesHook.listHeaderText,
+      saveToDisk,
+      isBiometricUseCapableAndEnabled,
+      navigateToViewEditCosigners,
+      onManageFundsPressed,
+      navigate,
+      walletID,
+    ],
+  );
+
+  return (
+    <View style={[styles.flex, { backgroundColor: colors.background }]}>
+      {/* The color of the refresh indicator. Temporary hack */}
+      <View
+        style={[
+          styles.refreshIndicatorBackground,
+          { backgroundColor: wallet ? WalletGradient.headerColorFor(wallet.type) : colors.background },
+        ]}
+      />
+
+      <FlatList<Transaction>
+        getItemLayout={getItemLayout}
+        updateCellsBatchingPeriod={30}
+        onEndReachedThreshold={0.3}
+        onEndReached={loadMoreTransactions}
+        ListFooterComponent={renderListFooterComponent}
+        data={listData}
+        extraData={wallet}
+        keyExtractor={_keyExtractor}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        removeClippedSubviews
+        contentContainerStyle={{ backgroundColor: colors.background }}
+        contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+        maxToRenderPerBatch={15}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        stickyHeaderHiddenOnScroll
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={
+          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+            <Text numberOfLines={0} style={styles.emptyTxs}>
+              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+            </Text>
+            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+          </ScrollView>
+        }
+        refreshControl={
+          !isDesktop && !isElectrumDisabled ? (
+            <RefreshControl refreshing={isLoading} onRefresh={refreshTransactions} tintColor={colors.msSuccessCheck} />
+          ) : undefined
+        }
+      />
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
           <FButton
@@ -520,11 +577,17 @@ export default WalletTransactions;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 40 },
+  scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
   listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
-  list: { flex: 1 },
+  refreshIndicatorBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+  },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },

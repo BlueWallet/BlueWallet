@@ -23,8 +23,8 @@ import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { navigate } from '../../NavigationService';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -34,6 +34,7 @@ const BROADCAST_RESULT = Object.freeze({
 });
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'Broadcast'>;
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Broadcast'>;
 
 const Broadcast: React.FC = () => {
   const { params } = useRoute<RouteProps>();
@@ -42,7 +43,7 @@ const Broadcast: React.FC = () => {
   const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
-  const { setParams } = useExtendedNavigation();
+  const { setParams, navigate } = useExtendedNavigation<NavigationProps>();
 
   const stylesHooks = StyleSheet.create({
     input: {
@@ -104,7 +105,9 @@ const Broadcast: React.FC = () => {
   };
 
   const handleQRScan = () => {
-    navigate('ScanQRCode');
+    navigate('ScanQRCode', {
+      showFileImportButton: true,
+    });
   };
 
   let status;

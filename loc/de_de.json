@@ -14,7 +14,7 @@
     "storage_is_encrypted": "Zum Entschlüsseln des Speichers das Passwort eingeben.",
     "yes": "Ja",
     "no": "Nein",
-    "save": "Speichern",
+    "save": "Speichern...",
     "seed": "Seed",
     "success": "Erfolg",
     "wallet_key": "Wallet Schlüssel",
@@ -422,7 +422,6 @@
     "details_export_history": "Verlauf als CSV exportieren",
     "details_master_fingerprint": "Fingerabdruckkennung",
     "details_multisig_type": "Mehrfachsignatur",
-    "details_no_cancel": "Nein, abbrechnen",
     "details_show_xpub": "Wallet xPub zeigen",
     "details_show_addresses": "Adressen anzeigen",
     "details_title": "Wallet",
@@ -493,7 +492,9 @@
     "identity_pubkey": "Pubkey-Identität",
     "xpub_title": "Wallet xPub",
     "manage_wallets_search_placeholder": "Suche in Wallets, Notizen",
-    "more_info": "Mehr Infos"
+    "more_info": "Mehr Infos",
+    "details_delete_wallet_error_message": "Bei der Bestätigung, ob diese Wallet aus den Benachrichtigungen entfernt wurde, trat ein Fehler auf – möglicherweise wegen Netzwerkproblemen oder schlechter Verbindung. Falls du fortfährst, erhältst du möglicherweise weiterhin Benachrichtigungen für Transaktionen dieser Wallet, auch nachdem sie gelöscht wurde.",
+    "details_delete_anyway": "Trotzdem löschen"
   },
   "total_balance_view": {
     "display_in_bitcoin": "In bitcoin anzeigen",
@@ -669,7 +670,7 @@
     "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
     "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
     "onchain_tx_needed": "On-Chain Transaktion benötigt.",
-    "notif_tx_sent" : "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx_sent": "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
     "notif_tx": "Benachrichtigungstransaktion",
     "not_found": "Zahlungscode nicht gefunden"
   }

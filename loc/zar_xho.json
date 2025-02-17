@@ -12,7 +12,6 @@
     "storage_is_encrypted": "Indawo yakho yokugcina inoguqulelo oluntsonkothileyo. Igama lokugqitha liyafuneka ukuyisusa ngokuntsonkotha.",
     "yes": "Ewe",
     "no": "Hayi",
-    "save": "Gcina",
     "seed": "Imbewu",
     "success": "Imphumelelo",
     "wallet_key": "Isitshixo sesipaji",
@@ -79,7 +78,6 @@
   "settings": {
     "about": "Malunga",
     "currency": "Lwemali",
-    "electrum_clear_alert_cancel": "Rhoxisa",
     "header": "Izicwangciso",
     "language": "Ulwimi",
     "lightning_settings": "Izixhobo zokukhanyisa",
@@ -109,7 +107,6 @@
     "details_are_you_sure": "Ingaba uqinisekile?",
     "details_delete": "Cima",
     "details_export_backup": "Ukuthumela ngaphandle / yokugcina",
-    "details_no_cancel": "Hayi, rhoxisa",
     "details_show_xpub": "Bonise ingxowa XPUB",
     "details_title": "Ingxowa",
     "wallets": "Ingxowa",

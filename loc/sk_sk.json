@@ -11,7 +11,6 @@
     "storage_is_encrypted": "Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu.",
     "yes": "Áno",
     "no": "Nie",
-    "save": "Uložiť",
     "seed": "Semienko",
     "success": "Správne",
     "wallet_key": "Peňaženkový kľúč"
@@ -123,7 +122,6 @@
     "electrum_saved": "Vaše zmeny boli úspešne uložené. Aby sa zmeny prejavili, môže byť potrebný reštart.",
     "electrum_settings_server": "Electrum server",
     "electrum_status": "Stav",
-    "electrum_clear_alert_cancel": "Zrušiť",
     "encrypt_decrypt": "Dešifrovať úložisko",
     "encrypt_decrypt_q": "Naozaj chcete dešifrovať úložisko? Peňaženky budú prístupné bez hesla.",
     "encrypt_enc_and_pass": "Zašifrované a chránené heslom",
@@ -187,7 +185,6 @@
     "details_delete_wallet": "Zmazať peňaženku",
     "details_export_backup": "Exportovať / zálohovať",
     "details_master_fingerprint": "Hlavný odtlačok prsta",
-    "details_no_cancel": "Nie, zrušiť",
     "details_show_xpub": "Ukázať XPUB",
     "details_title": "Peňaženka",
     "wallets": "peňaženky",

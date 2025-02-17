@@ -138,31 +138,40 @@ async function _getRealm() {
 }
 
 export const getPreferredServer = async (): Promise<ElectrumServerItem | undefined> => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
-  const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
-  const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
+    const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
+    const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-  console.log('Getting preferred server:', { host, tcpPort, sslPort });
+    console.log('Getting preferred server:', { host, tcpPort, sslPort });
 
-  if (!host) {
-    console.warn('Preferred server host is undefined');
-    return;
+    if (!host) {
+      console.warn('Preferred server host is undefined');
+      return;
+    }
+
+    return {
+      host,
+      tcp: tcpPort ? Number(tcpPort) : undefined,
+      ssl: sslPort ? Number(sslPort) : undefined,
+    };
+  } catch (error) {
+    console.error('Error in getPreferredServer:', error);
+    return undefined;
   }
-
-  return {
-    host,
-    tcp: tcpPort ? Number(tcpPort) : undefined,
-    ssl: sslPort ? Number(sslPort) : undefined,
-  };
 };
 
 export const removePreferredServer = async () => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  console.log('Removing preferred server');
-  await DefaultPreference.clear(ELECTRUM_HOST);
-  await DefaultPreference.clear(ELECTRUM_TCP_PORT);
-  await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    console.log('Removing preferred server');
+    await DefaultPreference.clear(ELECTRUM_HOST);
+    await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+    await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+  } catch (error) {
+    console.error('Error in removePreferredServer:', error);
+  }
 };
 
 export async function isDisabled(): Promise<boolean> {
@@ -204,26 +213,31 @@ function getNextPeer() {
 }
 
 async function getSavedPeer(): Promise<Peer | null> {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
-  const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
-  const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
+    const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
+    const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-  console.log('Getting saved peer:', { host, tcpPort, sslPort });
+    console.log('Getting saved peer:', { host, tcpPort, sslPort });
 
-  if (!host) {
+    if (!host) {
+      return null;
+    }
+
+    if (sslPort) {
+      return { host, ssl: Number(sslPort) };
+    }
+
+    if (tcpPort) {
+      return { host, tcp: Number(tcpPort) };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in getSavedPeer:', error);
     return null;
   }
-
-  if (sslPort) {
-    return { host, ssl: Number(sslPort) };
-  }
-
-  if (tcpPort) {
-    return { host, tcp: Number(tcpPort) };
-  }
-
-  return null;
 }
 
 export async function connectMain(): Promise<void> {
@@ -239,19 +253,6 @@ export async function connectMain(): Promise<void> {
 
   console.log('Using peer:', JSON.stringify(usingPeer));
 
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  try {
-    if (usingPeer.host.endsWith('onion')) {
-      const randomPeer = getCurrentPeer();
-      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
-      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp ?? '');
-      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl ?? '');
-    }
-  } catch (e) {
-    // Must be running on Android
-    console.log(e);
-  }
-
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
@@ -262,7 +263,8 @@ export async function connectMain(): Promise<void> {
         // most likely got a timeout from electrum ping. lets reconnect
         // but only if we were previously connected (mainConnected), otherwise theres other
         // code which does connection retries
-        mainClient.close();
+        mainClient?.close();
+        mainClient = undefined;
         mainConnected = false;
         // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
         // errors triggered
@@ -310,12 +312,15 @@ export async function connectMain(): Promise<void> {
   } catch (e) {
     mainConnected = false;
     console.log('bad connection:', JSON.stringify(usingPeer), e);
+    mainClient?.close();
+    mainClient = undefined;
   }
 
   if (!mainConnected) {
     console.log('retry');
     connectionAttempt = connectionAttempt + 1;
-    mainClient.close && mainClient.close();
+    mainClient?.close();
+    mainClient = undefined;
     if (connectionAttempt >= 5) {
       presentNetworkErrorAlert(usingPeer);
     } else {
@@ -407,7 +412,8 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
         text: loc.wallets.list_tryagain,
         onPress: () => {
           connectionAttempt = 0;
-          mainClient.close() && mainClient.close();
+          mainClient?.close();
+          mainClient = undefined;
           setTimeout(connectMain, 500);
         },
         style: 'default',
@@ -418,7 +424,8 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
           presentResetToDefaultsAlert().then(result => {
             if (result) {
               connectionAttempt = 0;
-              mainClient.close() && mainClient.close();
+              mainClient?.close();
+              mainClient = undefined;
               setTimeout(connectMain, 500);
             }
           });
@@ -429,7 +436,8 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
         text: loc._.cancel,
         onPress: () => {
           connectionAttempt = 0;
-          mainClient.close() && mainClient.close();
+          mainClient?.close();
+          mainClient = undefined;
         },
         style: 'cancel',
       },
@@ -474,13 +482,18 @@ async function getRandomDynamicPeer(): Promise<Peer> {
 }
 
 export const getBalanceByAddress = async function (address: string): Promise<{ confirmed: number; unconfirmed: number }> {
-  if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
-  const hash = bitcoin.crypto.sha256(script);
-  const reversedHash = Buffer.from(hash).reverse();
-  const balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-  balance.addr = address;
-  return balance;
+  try {
+    if (!mainClient) throw new Error('Electrum client is not connected');
+    const script = bitcoin.address.toOutputScript(address);
+    const hash = bitcoin.crypto.sha256(script);
+    const reversedHash = Buffer.from(hash).reverse();
+    const balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
+    balance.addr = address;
+    return balance;
+  } catch (error) {
+    console.error('Error in getBalanceByAddress:', error);
+    throw error;
+  }
 };
 
 export const getConfig = async function () {
@@ -958,25 +971,29 @@ export async function multiGetTransactionByTxid<T extends boolean>(
   }
 
   // saving cache:
-  realm.write(() => {
-    for (const txid of Object.keys(ret)) {
-      const tx = ret[txid];
-      // dont cache immature txs, but only for 'verbose', since its fully decoded tx jsons. non-verbose are just plain
-      // strings txhex
-      if (verbose && typeof tx !== 'string' && (!tx?.confirmations || tx.confirmations < 7)) {
-        continue;
-      }
+  try {
+    realm.write(() => {
+      for (const txid of Object.keys(ret)) {
+        const tx = ret[txid];
+        // dont cache immature txs, but only for 'verbose', since its fully decoded tx jsons. non-verbose are just plain
+        // strings txhex
+        if (verbose && typeof tx !== 'string' && (!tx?.confirmations || tx.confirmations < 7)) {
+          continue;
+        }
 
-      realm.create(
-        'Cache',
-        {
-          cache_key: txid + cacheKeySuffix,
-          cache_value: JSON.stringify(ret[txid]),
-        },
-        Realm.UpdateMode.Modified,
-      );
-    }
-  });
+        realm.create(
+          'Cache',
+          {
+            cache_key: txid + cacheKeySuffix,
+            cache_value: JSON.stringify(ret[txid]),
+          },
+          Realm.UpdateMode.Modified,
+        );
+      }
+    });
+  } catch (writeError) {
+    console.error('Failed to write transaction cache:', writeError);
+  }
 
   return ret;
 }
