@@ -7,6 +7,8 @@ import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
+import UnlockWith from '../screen/UnlockWith';
 
 const Drawer = createDrawerNavigator();
 
@@ -17,14 +19,15 @@ const DrawerListContent = (props: any) => {
 const DrawerRoot = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const { isDrawerShouldHide } = useSettings();
+  const { walletsInitialized } = useStorage();
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
       drawerPosition: I18nManager.isRTL ? 'right' : 'left',
-      drawerStyle: { width: isLargeScreen && !isDrawerShouldHide ? 320 : '0%' },
-      drawerType: isLargeScreen ? 'permanent' : 'back',
+      drawerStyle: { width: isLargeScreen && !isDrawerShouldHide && walletsInitialized ? 320 : '0%' },
+      drawerType: isLargeScreen && walletsInitialized ? 'permanent' : 'back',
     }),
-    [isDrawerShouldHide, isLargeScreen],
+    [isDrawerShouldHide, isLargeScreen, walletsInitialized],
   );
 
   useLayoutEffect(() => {
@@ -33,6 +36,13 @@ const DrawerRoot = () => {
 
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
+      {!walletsInitialized && (
+        <Drawer.Screen
+          name="UnlockWithScreen"
+          component={UnlockWith}
+          options={{ gestureHandlerProps: { enabled: false }, headerShown: false }}
+        />
+      )}
       <Drawer.Screen
         name="DetailViewStackScreensStack"
         component={DetailViewStackScreensStack}
