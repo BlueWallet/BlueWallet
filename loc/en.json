@@ -53,7 +53,7 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Invoice expired.",
-    "errorServerUnreachable": "Unable to connect to the server. Please check your internet connection or try again.",
+    "errorServerUnreachable": "Unable to connect to the {server}. Please check your internet connection or try again.",
     "expired": "Expired",
     "expiresIn": "Expires in {time} minutes",
     "payButton": "Pay",

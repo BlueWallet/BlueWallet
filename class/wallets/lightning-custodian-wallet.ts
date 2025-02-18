@@ -109,7 +109,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       clearTimeout(id);
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -122,7 +124,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       this.secret = 'lndhub://' + json.login + ':' + json.password;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -144,7 +148,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -153,7 +159,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       this.last_paid_invoice_result = json;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -181,7 +189,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -213,7 +223,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       return this.user_invoices_raw;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -253,7 +265,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -266,7 +280,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       return json.pay_req;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -298,7 +314,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -314,7 +332,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       this._refresh_token_created_ts = +new Date();
       this._access_token_created_ts = +new Date();
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -354,7 +374,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -370,7 +392,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       this._refresh_token_created_ts = +new Date();
       this._access_token_created_ts = +new Date();
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -391,7 +415,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -404,7 +430,9 @@ export class LightningCustodianWallet extends LegacyWallet {
         this.refill_addressess.push(arr.address);
       }
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -481,7 +509,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -490,7 +520,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       this.pending_transactions_raw = json;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -518,7 +550,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -532,7 +566,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       this._lastTxFetch = +new Date();
       this.transactions_raw = json;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -559,7 +595,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -577,7 +615,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       this.balance = json.BTC.AvailableBalance;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -656,7 +696,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -667,7 +709,9 @@ export class LightningCustodianWallet extends LegacyWallet {
         throw new Error('API unexpected response: ' + JSON.stringify(json));
       }
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
@@ -689,7 +733,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(response.statusText);
       }
 
       if (json.code && json.code !== 1) {
@@ -698,7 +742,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       return true;
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error((err as Error).message);
     }
   }
 
@@ -745,7 +789,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       const json = await response.json();
       if (!json) {
-        throw new Error(loc.lnd.errorServerUnreachable);
+        throw new Error(
+          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+        );
       }
 
       if (json.error) {
@@ -758,7 +804,9 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       return (this.decoded_invoice_raw = json);
     } catch (err) {
-      throw new Error(loc.lnd.errorServerUnreachable);
+      throw new Error(
+        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
+      );
     }
   }
 
