@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';

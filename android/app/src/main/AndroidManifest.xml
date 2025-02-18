@@ -19,10 +19,10 @@
     <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
     <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
     <uses-permission android:name="android.permission.ACTION_CREATE_DOCUMENT" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.ACTION_SCREEN_OFF"/>
     <uses-permission android:name="android.permission.ACTION_SCREEN_ON"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MainApplication"

@@ -22,10 +22,13 @@ const PleaseBackupLNDHub = () => {
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { isPrivacyBlurEnabled } = useSettings();
 
-  const handleBackButton = useCallback(() => {
-    navigation.getParent().pop();
-    return true;
+  const dismiss = useCallback(() => {
+    navigation.getParent().goBack();
   }, [navigation]);
+  const handleBackButton = useCallback(() => {
+    dismiss();
+    return true;
+  }, [dismiss]);
   const styles = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -49,8 +52,6 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton, isPrivacyBlurEnabled]);
 
-  const pop = () => navigation.getParent().pop();
-
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
@@ -66,7 +67,7 @@ const PleaseBackupLNDHub = () => {
         <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
         <CopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
-        <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
+        <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
     </SafeArea>
   );

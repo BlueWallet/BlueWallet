@@ -1,8 +1,7 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { InteractionManager, LayoutAnimation, StyleSheet, View, ViewStyle } from 'react-native';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
@@ -12,6 +11,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -58,10 +58,6 @@ interface SelectWalletAction {
 
 type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction | NavigateAction;
 
-interface DrawerListProps {
-  navigation: NavigationProp<ParamListBase>;
-}
-
 const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
     case WalletActionType.SetWallets: {
@@ -78,11 +74,13 @@ const walletReducer = (state: WalletState, action: WalletAction): WalletState =>
   }
 };
 
-const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
+const DrawerList: React.FC = memo(() => {
   const initialState: WalletState = {
     wallets: [],
     isFocused: false,
   };
+
+  const navigation = useExtendedNavigation();
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
   const walletsCarousel = useRef(null);
@@ -118,8 +116,6 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
             params: { walletID, walletType },
           });
         });
-      } else {
-        navigation.navigate('AddWalletRoot');
       }
     },
     [navigation],

@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -43,11 +43,10 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const shakeAnimation = useRef(new Animated.Value(0)).current;
-    const explanationOpacity = useRef(new Animated.Value(1)).current; // New animated value for opacity
+    const explanationOpacity = useRef(new Animated.Value(1)).current;
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
-    const scrollView = useRef<ScrollView>(null);
     const { isVisible } = useKeyboard();
 
     const stylesHook = StyleSheet.create({
@@ -103,42 +102,43 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalType]);
 
-    const handleShakeAnimation = () => {
+    const performShake = (shakeAnimRef: Animated.Value) => {
       Animated.sequence([
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 10,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: -10,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 5,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: -5,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(shakeAnimation, {
+        Animated.timing(shakeAnimRef, {
           toValue: 0,
           duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ]).start(() => {
-        confirmPasswordInputRef.current?.focus();
-        confirmPasswordInputRef.current?.setNativeProps({ selection: { start: 0, end: confirmPassword.length } });
-      });
+      ]).start();
+    };
+
+    const handleShakeAnimation = () => {
+      performShake(shakeAnimation);
     };
 
     const handleSuccessAnimation = () => {
@@ -180,6 +180,17 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       });
     };
 
+    const handleConfirmationFailure = () => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      if (!isSuccess) handleShakeAnimation();
+      onConfirmationFailure();
+    };
+
+    const handleConfirmSuccess = () => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      handleSuccessAnimation();
+    };
+
     const handleSubmit = async () => {
       Keyboard.dismiss();
       setIsLoading(true);
@@ -189,37 +200,13 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
           if (password === confirmPassword && password) {
             success = await onConfirmationSuccess(password);
-            if (success) {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              handleSuccessAnimation();
-            } else {
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              onConfirmationFailure();
-              if (!isSuccess) {
-                // Prevent shake animation if success is detected
-                handleShakeAnimation();
-              }
-            }
+            success ? handleConfirmSuccess() : handleConfirmationFailure();
           } else {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            if (!isSuccess) {
-              // Prevent shake animation if success is detected
-              handleShakeAnimation();
-            }
+            handleConfirmationFailure();
           }
         } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           success = await onConfirmationSuccess(password);
-          if (success) {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-            handleSuccessAnimation();
-          } else {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            if (!isSuccess) {
-              // Prevent shake animation if success is detected
-              handleShakeAnimation();
-            }
-            onConfirmationFailure();
-          }
+          success ? handleConfirmSuccess() : handleConfirmationFailure();
         }
       } finally {
         setIsLoading(false); // Ensure loading state is reset
@@ -258,17 +245,18 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       onConfirmationFailure();
     };
 
+    const opacity = isVisible ? 0 : 1;
     return (
       <BottomModal
         ref={modalRef}
-        onDismiss={onModalDismiss}
+        onClose={onModalDismiss}
         grabber={false}
         showCloseButton={!isSuccess}
         onCloseModalPressed={handleCancel}
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
-        scrollRef={scrollView}
         dismissible={false}
+        sizes={Platform.OS === 'ios' ? ['auto'] : [420, 'auto']}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
@@ -281,16 +269,19 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             ) : (
-              <Animated.View style={[{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }, styles.feeModalFooter]}>
-                {!isVisible && (
-                  <SecondButton
-                    title={isLoading ? '' : loc._.ok}
-                    onPress={handleSubmit}
-                    testID="OKButton"
-                    loading={isLoading}
-                    disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
-                  />
-                )}
+              <Animated.View
+                style={[
+                  { opacity: isVisible ? opacity : fadeOutAnimation, transform: [{ scale: scaleAnimation }] },
+                  styles.feeModalFooterSpacing,
+                ]}
+              >
+                <SecondButton
+                  title={isLoading ? '' : loc._.ok}
+                  onPress={handleSubmit}
+                  testID="OKButton"
+                  loading={isLoading}
+                  disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
+                />
               </Animated.View>
             )
           ) : null
@@ -301,14 +292,14 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Animated.ScrollView style={styles.explanationScrollView} ref={scrollView}>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                <Animated.View>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line1}
                   </Text>
-                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                     {loc.settings.encrypt_storage_explanation_description_line2}
                   </Text>
-                </Animated.ScrollView>
+                </Animated.View>
                 <View style={styles.feeModalFooter} />
               </Animated.View>
             )}
@@ -397,29 +388,30 @@ export default PromptPasswordConfirmationModal;
 const styles = StyleSheet.create({
   modalContent: {
     padding: 22,
-    width: '100%', // Ensure modal content takes full width
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   minHeight: {
-    minHeight: 280,
+    minHeight: 420,
   },
   feeModalFooter: {
     padding: 16,
   },
   feeModalFooterSpacing: {
-    padding: 16,
+    padding: 24,
+    marginVertical: 24,
   },
   inputContainer: {
     marginBottom: 10,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   input: {
     borderRadius: 4,
     padding: 8,
     marginVertical: 8,
     fontSize: 16,
-    width: '100%', // Ensure full width
+    width: '100%',
   },
   textLabel: {
     fontSize: 20,
@@ -435,7 +427,8 @@ const styles = StyleSheet.create({
   successContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 100,
+    margin: 24,
+    marginBottom: 48,
   },
   circle: {
     width: 60,
@@ -448,8 +441,5 @@ const styles = StyleSheet.create({
   checkmark: {
     color: 'white',
     fontSize: 30,
-  },
-  explanationScrollView: {
-    maxHeight: 200,
   },
 });
