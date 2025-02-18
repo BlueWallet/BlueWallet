@@ -351,10 +351,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         return;
       }
       const emptyWalletLabel = new LegacyWallet().getLabel();
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
       w.setUserHasSavedExport(true);
       addWallet(w);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       await saveToDisk();
       A(A.ENUM.CREATED_WALLET);
       presentAlert({

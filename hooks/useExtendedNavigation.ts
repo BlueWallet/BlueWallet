@@ -22,8 +22,25 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
 
-  const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = useCallback(
-    (screenOrOptions: any, params?: any, options?: { merge?: boolean }) => {
+  const enhancedNavigate = useCallback(
+    (
+      ...args:
+        | [string]
+        | [string, object | undefined]
+        | [string, object | undefined, { merge?: boolean }]
+        | [{ name: string; params?: object; path?: string; merge?: boolean }]
+    ) => {
+      let screenOrOptions: any;
+      let params: any;
+      let options: { merge?: boolean } | undefined;
+
+      if (typeof args[0] === 'string') {
+        screenOrOptions = args[0];
+        params = args[1];
+        options = args[2];
+      } else {
+        screenOrOptions = args[0];
+      }
       let screenName: string;
       if (typeof screenOrOptions === 'string') {
         screenName = screenOrOptions;

@@ -82,6 +82,7 @@ export const BlueFormMultiInput = props => {
       multiline
       underlineColorAndroid="transparent"
       numberOfLines={4}
+      editable={!props.editable}
       style={{
         paddingHorizontal: 8,
         paddingVertical: 16,

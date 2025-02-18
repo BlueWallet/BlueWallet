@@ -13,11 +13,14 @@ import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 interface AddressInputScanButtonProps {
   isLoading: boolean;
-  scanButtonTapped: () => void;
   onChangeText: (text: string) => void;
 }
 
-export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onChangeText }: AddressInputScanButtonProps) => {
+export const AddressInputScanButton = ({
+  isLoading,
+
+  onChangeText,
+}: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
 
@@ -32,12 +35,11 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onChangeTe
   });
 
   const toolTipOnPress = useCallback(async () => {
-    await scanButtonTapped();
     Keyboard.dismiss();
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
     });
-  }, [navigation, scanButtonTapped]);
+  }, [navigation]);
 
   const actions = useMemo(() => {
     const availableActions = [
@@ -57,7 +59,6 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onChangeTe
     async (action: string) => {
       switch (action) {
         case CommonToolTipActions.ScanQR.id:
-          scanButtonTapped();
           navigation.navigate('ScanQRCode', {
             showFileImportButton: true,
           });
@@ -124,7 +125,7 @@ export const AddressInputScanButton = ({ isLoading, scanButtonTapped, onChangeTe
       }
       Keyboard.dismiss();
     },
-    [navigation, onChangeText, scanButtonTapped],
+    [navigation, onChangeText],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);

@@ -10,7 +10,7 @@ import { RouteProp } from '@react-navigation/native';
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }): NativeStackNavigationOptions => {
-  const { isLoading, walletID, walletType } = route.params;
+  const { isLoading = false, walletID, walletType } = route.params;
 
   const onPress = () => {
     navigationRef.navigate('WalletDetails', {
@@ -34,7 +34,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     },
     headerShadowVisible: false,
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: true,
+    headerBackTitle: undefined,
     headerRight: () => RightButton,
   };
 };

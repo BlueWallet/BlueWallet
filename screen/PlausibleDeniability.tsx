@@ -11,6 +11,7 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
 } from '../components/PromptPasswordConfirmationModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { StackActions } from '@react-navigation/native';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -46,13 +47,13 @@ function reducer(state: State, action: Action): State {
 const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
     dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
-    promptRef.current?.present();
+    await promptRef.current?.present();
   };
 
   const handleConfirmationSuccess = async (password: string) => {
@@ -73,8 +74,9 @@ const PlausibleDeniability: React.FC = () => {
       dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
 
       success = true;
-      setTimeout(() => {
-        navigate('WalletsList');
+      setTimeout(async () => {
+        const popToTop = StackActions.popToTop();
+        navigation.dispatch(popToTop);
       }, 3000);
     } catch {
       success = false;

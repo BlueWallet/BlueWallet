@@ -1,3 +1,4 @@
+import './gesture-handler';
 import './shim.js';
 
 import React, { useEffect } from 'react';
