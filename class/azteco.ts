@@ -1,5 +1,5 @@
 import URL from 'url';
-import { timeoutFetch } from '../util/fetch';
+import { fetch } from '../util/fetch';
 
 export default class Azteco {
   /**
@@ -15,7 +15,7 @@ export default class Azteco {
     const url = `${baseURI}blue_despatch.php?CODE_1=${voucher[0]}&CODE_2=${voucher[1]}&CODE_3=${voucher[2]}&CODE_4=${voucher[3]}&ADDRESS=${address}`;
 
     try {
-      const response = await timeoutFetch(url, {
+      const response = await fetch(url, {
         method: 'GET',
       });
       return response && response.status === 200;

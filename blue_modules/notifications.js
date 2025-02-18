@@ -6,7 +6,7 @@ import { checkNotifications, requestNotifications, RESULTS } from 'react-native-
 import PushNotification from 'react-native-push-notification';
 import loc from '../loc';
 import { groundControlUri } from './constants';
-import { timeoutFetch } from '../util/fetch';
+import { fetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
@@ -150,7 +150,7 @@ export const majorTomToGroundControl = async (addresses, hashes, txids) => {
     let response;
     try {
       console.debug('majorTomToGroundControl: Sending request to:', `${baseURI}/majorTomToGroundControl`);
-      response = await timeoutFetch(`${baseURI}/majorTomToGroundControl`, {
+      response = await fetch(`${baseURI}/majorTomToGroundControl`, {
         method: 'POST',
         headers: _getHeaders(),
         body: requestBody,
@@ -213,7 +213,7 @@ export const setLevels = async levelAll => {
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
   try {
-    const response = await timeoutFetch(`${baseURI}/setTokenConfiguration`, {
+    const response = await fetch(`${baseURI}/setTokenConfiguration`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -277,7 +277,7 @@ const postTokenConfig = async () => {
     const appVersion = getSystemName() + ' ' + getSystemVersion() + ';' + getApplicationName() + ' ' + getVersion();
     console.debug('postTokenConfig: Posting configuration', { lang, appVersion });
 
-    await timeoutFetch(`${baseURI}/setTokenConfiguration`, {
+    await fetch(`${baseURI}/setTokenConfiguration`, {
       method: 'POST',
       headers: _getHeaders(),
       body: JSON.stringify({
@@ -386,10 +386,6 @@ export const configureNotifications = async onProcessNotifications => {
   });
 };
 
-const _sleep = async ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 /**
  * Validates whether the provided GroundControl URI is valid by pinging it.
  *
@@ -397,15 +393,13 @@ const _sleep = async ms => {
  * @returns {Promise<boolean>} TRUE if valid, FALSE otherwise
  */
 export const isGroundControlUriValid = async uri => {
-  let response;
   try {
-    response = await Promise.race([timeoutFetch(`${uri}/ping`, { headers: _getHeaders() }), _sleep(2000)]);
-  } catch (_) {}
-
-  if (!response) return false;
-
-  const json = await response.json();
-  return !!json.description;
+    const response = await fetch(`${uri}/ping`, { headers: _getHeaders() });
+    const json = await response.json();
+    return !!json.description;
+  } catch (_) {
+    return false;
+  }
 };
 
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
@@ -431,24 +425,21 @@ const getLevels = async () => {
   const pushToken = await getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
-  let response;
   try {
-    response = await Promise.race([
-      timeoutFetch(`${baseURI}/getTokenConfiguration`, {
-        method: 'POST',
-        headers: _getHeaders(),
-        body: JSON.stringify({
-          token: pushToken.token,
-          os: pushToken.os,
-        }),
+    const response = await fetch(`${baseURI}/getTokenConfiguration`, {
+      method: 'POST',
+      headers: _getHeaders(),
+      body: JSON.stringify({
+        token: pushToken.token,
+        os: pushToken.os,
       }),
-      _sleep(3000),
-    ]);
-  } catch (_) {}
+    });
 
-  if (!response) return {};
-
-  return await response.json();
+    if (!response) return {};
+    return await response.json();
+  } catch (_) {
+    return {};
+  }
 };
 
 /**
@@ -479,7 +470,7 @@ export const unsubscribe = async (addresses, hashes, txids) => {
   });
 
   try {
-    const response = await timeoutFetch(`${baseURI}/unsubscribe`, {
+    const response = await fetch(`${baseURI}/unsubscribe`, {
       method: 'POST',
       headers: _getHeaders(),
       body,
