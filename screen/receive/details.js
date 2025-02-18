@@ -1,17 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  BackHandler,
-  Image,
-  InteractionManager,
-  LayoutAnimation,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -92,7 +81,7 @@ const ReceiveDetails = () => {
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, setOptions } = useExtendedNavigation();
   const bottomModalRef = useRef(null);
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -212,32 +201,12 @@ const ReceiveDetails = () => {
     [onPressMenuItem, toolTipActions],
   );
 
-  const handleClose = useCallback(() => {
-    goBack();
-  }, [goBack]);
-
-  const HeaderLeft = useMemo(
-    () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.close}
-        style={styles.button}
-        onPress={handleClose}
-        testID="NavigationCloseButton"
-      >
-        <Image source={closeImage} />
-      </TouchableOpacity>
-    ),
-    [closeImage, handleClose],
-  );
-
   useEffect(() => {
     wallet?.allowBIP47() &&
       setOptions({
-        headerLeft: () => HeaderLeft,
         headerRight: () => HeaderRight,
       });
-  }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
+  }, [HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
   // re-fetching address balance periodically
   useEffect(() => {
