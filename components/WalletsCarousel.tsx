@@ -370,24 +370,27 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   );
 
   const flatListRef = useRef<FlatList<any>>(null);
-
-  useImperativeHandle(ref, () => {
-    if (flatListRef.current) {
-      return Object.assign(flatListRef.current, {
-        scrollToEnd: (params?: { animated?: boolean | null }) => flatListRef.current?.scrollToEnd(params),
-        scrollToIndex: (params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }) =>
-          flatListRef.current?.scrollToIndex(params),
-        scrollToItem: (params: { animated?: boolean | null; item: TWallet; viewPosition?: number }) =>
-          flatListRef.current?.scrollToItem(params),
-        scrollToOffset: (params: { animated?: boolean | null; offset: number }) => flatListRef.current?.scrollToOffset(params),
-        recordInteraction: () => flatListRef.current?.recordInteraction(),
-        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-        getNativeScrollRef: () => flatListRef.current!.getNativeScrollRef() as View,
-      });
-    }
-    return {} as FlatListRefType;
+  useImperativeHandle(ref, (): any => {
+    return {
+      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
+      scrollToIndex: (params: {
+        animated?: boolean | null | undefined;
+        index: number;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToIndex(params),
+      scrollToItem: (params: {
+        animated?: boolean | null | undefined;
+        item: any;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToItem(params),
+      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
+      recordInteraction: () => flatListRef.current?.recordInteraction(),
+      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+    };
   }, []);
-
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
     console.debug('onScrollToIndexFailed', error);
     flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
