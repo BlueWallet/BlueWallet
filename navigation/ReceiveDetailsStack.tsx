@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
@@ -16,7 +16,12 @@ const ReceiveDetailsStackRoot = () => {
       <Stack.Screen
         name="ReceiveDetails"
         component={ReceiveDetailsComponent}
-        options={navigationStyle({ headerBackVisible: false, title: loc.receive.header, statusBarStyle: 'light' })(theme)}
+        options={navigationStyle({
+          headerBackVisible: false,
+          closeButtonPosition: CloseButtonPosition.Left,
+          title: loc.receive.header,
+          statusBarStyle: 'light',
+        })(theme)}
       />
     </Stack.Navigator>
   );
