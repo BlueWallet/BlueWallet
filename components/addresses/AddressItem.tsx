@@ -40,9 +40,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       borderBottomColor: colors.lightBorder,
       backgroundColor: colors.elevated,
     },
-    list: {
-      color: colors.buttonTextColor,
-    },
+
     index: {
       color: colors.alternativeTextColor,
     },
@@ -156,19 +154,22 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       isButton
     >
       <ListItem key={item.key} containerStyle={stylesHook.container}>
-        <ListItem.Content style={stylesHook.list}>
-          <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
-            <Text style={[styles.index, stylesHook.index]}>
-              {item.index + 1} <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
-            </Text>
-          </ListItem.Title>
-          <View style={styles.subtitle}>
-            <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
+        <ListItem.Content>
+          <View style={styles.row}>
+            <View style={styles.leftSection}>
+              <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
+            </View>
+            <View style={styles.middleSection}>
+              <Text style={[stylesHook.address, styles.address]} numberOfLines={1} ellipsizeMode="middle">
+                {item.address}
+              </Text>
+              <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
+            </View>
           </View>
         </ListItem.Content>
-        <View>
+        <View style={styles.rightContainer}>
           <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
-          <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
+          <Text style={[stylesHook.balance, styles.balance]}>
             {loc.addresses.transactions}: {item.transactions ?? 0}
           </Text>
         </View>
@@ -180,19 +181,27 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
 const styles = StyleSheet.create({
   address: {
     fontWeight: 'bold',
-    marginHorizontal: 30,
+    marginHorizontal: 4,
   },
   index: {
     fontSize: 15,
   },
   balance: {
-    marginTop: 8,
+    marginTop: 4,
   },
-  subtitle: {
-    flex: 1,
+  row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    alignItems: 'center',
+  },
+  leftSection: {
+    marginRight: 8,
+  },
+  middleSection: {
+    flex: 1,
+  },
+  rightContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
 });
 
