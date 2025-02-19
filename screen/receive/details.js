@@ -42,6 +42,37 @@ import TipBox from '../../components/TipBox';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
+const TabContent = React.memo(
+  ({ currentTab, bip21encoded, wallet, address, showAddress, isCustom, handleShareButtonPressed, renderReceiveDetails }) => {
+    const qrValue = useMemo(
+      () => (currentTab === segmentControlValues[0] ? bip21encoded : wallet?.getBIP47PaymentCode()),
+      [currentTab, bip21encoded, wallet],
+    );
+
+    if (currentTab === segmentControlValues[0]) {
+      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
+    } else {
+      return (
+        <View style={styles.container}>
+          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
+          {qrValue && (
+            <>
+              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
+              <QRCodeComponent value={qrValue} />
+              <CopyTextToClipboard text={qrValue} truncated={false} />
+            </>
+          )}
+        </View>
+      );
+    }
+  },
+);
+
+const MemoizedHandoffComponent = React.memo(
+  ({ address }) => <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />,
+  (prevProps, nextProps) => prevProps.address === nextProps.address,
+);
+
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
@@ -459,25 +490,37 @@ const ReceiveDetails = () => {
     }
   };
 
-  const renderTabContent = () => {
-    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
+  const [isLoading, setIsLoading] = useState(false);
 
-    if (currentTab === segmentControlValues[0]) {
-      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
-    } else {
-      return (
-        <View style={styles.container}>
-          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
-          {qrValue && (
-            <>
-              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
-              <QRCodeComponent value={qrValue} />
-              <CopyTextToClipboard text={qrValue} truncated={false} />
-            </>
-          )}
-        </View>
-      );
+  const handleTabChange = useCallback(index => {
+    setIsLoading(true);
+    // Use requestAnimationFrame to prevent UI blocking (better than InteractionManager)
+    requestAnimationFrame(() => {
+      setCurrentTab(segmentControlValues[index]);
+      // Add a small delay to allow the UI to update (sadly needed hack)
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+    });
+  }, []);
+
+  const renderTabContent = () => {
+    if (isLoading) {
+      return <BlueLoading />;
     }
+
+    return (
+      <TabContent
+        currentTab={currentTab}
+        bip21encoded={bip21encoded}
+        wallet={wallet}
+        address={address}
+        showAddress={showAddress}
+        isCustom={isCustom}
+        handleShareButtonPressed={handleShareButtonPressed}
+        renderReceiveDetails={renderReceiveDetails}
+      />
+    );
   };
 
   return (
@@ -492,16 +535,12 @@ const ReceiveDetails = () => {
             <SegmentedControl
               values={segmentControlValues}
               selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-              onChange={index => {
-                setCurrentTab(segmentControlValues[index]);
-              }}
+              onChange={handleTabChange}
             />
           </View>
         )}
         {showAddress && renderTabContent()}
-        {address !== undefined && showAddress && (
-          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
-        )}
+        {address !== undefined && showAddress && <MemoizedHandoffComponent address={address} />}
         {showConfirmedBalance ? renderConfirmedBalance() : null}
         {showPendingBalance ? renderPendingBalance() : null}
         {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
