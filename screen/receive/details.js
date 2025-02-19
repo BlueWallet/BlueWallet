@@ -344,7 +344,7 @@ const ReceiveDetails = () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
-          } else if (!wallet && address) {
+          } else if (!wallet && address && currentTab === segmentControlValues[0]) {
             setAddressBIP21Encoded(address);
           }
         } catch (error) {
@@ -354,7 +354,8 @@ const ReceiveDetails = () => {
       return () => {
         task.cancel();
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
   );
 
   const showCustomAmountModal = () => {
