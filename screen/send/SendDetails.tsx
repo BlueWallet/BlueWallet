@@ -169,6 +169,7 @@ const SendDetails = () => {
         setParams({ payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC });
       } catch (error) {
         console.log(error);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
     } else if (routeParams.address) {
@@ -213,6 +214,7 @@ const SendDetails = () => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
     if (suitable.length === 0) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
       navigation.goBack();
       return;
@@ -408,6 +410,7 @@ const SendDetails = () => {
       if (!data.replace) {
         // user probably scanned PSBT and got an object instead of string..?
         setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
       }
 
@@ -749,9 +752,11 @@ const SendDetails = () => {
         return;
       }
 
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
@@ -801,6 +806,7 @@ const SendDetails = () => {
           });
         }
       } catch (error: any) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
       }
       setIsLoading(false);
