@@ -158,8 +158,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       <ListItem key={item.key} containerStyle={stylesHook.container}>
         <ListItem.Content style={stylesHook.list}>
           <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
-            <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}
-            <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
+            <Text style={[styles.index, stylesHook.index]}>
+              {item.index + 1} <Text style={[stylesHook.address, styles.address]}>{item.address}</Text>
+            </Text>
           </ListItem.Title>
           <View style={styles.subtitle}>
             <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
@@ -168,7 +169,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         <View>
           <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
           <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
-            {loc.addresses.transactions}: {item.transactions}
+            {loc.addresses.transactions}: {item.transactions ?? 0}
           </Text>
         </View>
       </ListItem>
@@ -179,14 +180,13 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
 const styles = StyleSheet.create({
   address: {
     fontWeight: 'bold',
-    marginHorizontal: 40,
+    marginHorizontal: 30,
   },
   index: {
     fontSize: 15,
   },
   balance: {
     marginTop: 8,
-    marginLeft: 14,
   },
   subtitle: {
     flex: 1,
