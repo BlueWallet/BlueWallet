@@ -137,6 +137,8 @@
     "details_add_rec_rem_all": "Remove All Recipients",
     "details_recipients_title": "Recipients",
     "details_recipient_title": "Recipient #{number} of #{total}",
+    "please_complete_recipient_title": "Incomplete Recipient",
+    "please_complete_recipient_details": "Please complete the details of recipient #{number} before adding a new recipient.",
     "details_address": "Address",
     "details_address_field_is_not_valid": "The address is not valid.",
     "details_adv_fee_bump": "Allow Fee Bump",

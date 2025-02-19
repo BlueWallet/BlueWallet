@@ -921,11 +921,22 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = () => {
+    // Check if any recipient is incomplete (missing address or amount)
+    const incompleteIndex = addresses.findIndex(item => !item.address || !item.amount);
+    if (incompleteIndex !== -1) {
+      scrollIndex.current = incompleteIndex;
+      scrollView.current?.scrollToIndex({ index: incompleteIndex, animated: true });
+      presentAlert({
+        title: loc.send.please_complete_recipient_title,
+        message: loc.formatString(loc.send.please_complete_recipient_details, { number: incompleteIndex + 1 }),
+      });
+      return;
+    }
+    // Add new recipient as usual if all recipients are complete
     setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
-
     // Wait for the state to update before scrolling
     setTimeout(() => {
-      scrollIndex.current = addresses.length; // New index is at the end of the list
+      scrollIndex.current = addresses.length; // New index at the end
       scrollView.current?.scrollToIndex({
         index: scrollIndex.current,
         animated: true,
