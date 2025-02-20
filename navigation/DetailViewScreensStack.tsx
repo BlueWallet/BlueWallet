@@ -375,6 +375,7 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,
+          autoHideHomeIndicator: true,
           presentation: 'fullScreenModal',
           headerShadowVisible: false,
         })(theme)}
