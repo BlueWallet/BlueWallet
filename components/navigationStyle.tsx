@@ -59,7 +59,6 @@ const navigationStyle = (
   {
     closeButtonPosition,
     onCloseButtonPressed,
-    headerBackVisible = Platform.OS === 'ios' || !closeButtonPosition,
     ...opts
   }: NativeStackNavigationOptions & {
     closeButtonPosition?: CloseButtonPosition;
@@ -103,19 +102,24 @@ const navigationStyle = (
           </TouchableOpacity>
         );
       }
-
-      let options: NativeStackNavigationOptions = {
+      const baseHeaderStyle = {
         headerShadowVisible: false,
         headerTitleStyle: {
-          fontWeight: '600',
+          fontWeight: '600' as const,
           color: theme.colors.foregroundColor,
         },
-        headerBackVisible,
-        headerBackTitle: undefined,
-        headerBackButtonDisplayMode: 'minimal',
         headerTintColor: theme.colors.foregroundColor,
+        headerBackButtonDisplayMode: 'minimal',
+      };
+      const isLeftCloseButtonAndroid = closeButton === CloseButtonPosition.Left && Platform.OS === 'android';
+
+      const leftCloseButtonStyle = isLeftCloseButtonAndroid ? { headerBackImageSource: theme.closeImage } : { headerLeft };
+
+      let options: NativeStackNavigationOptions = {
+        ...baseHeaderStyle,
+        ...leftCloseButtonStyle,
+        headerBackButtonDisplayMode: 'minimal',
         headerRight,
-        headerLeft,
         ...opts,
       };
 

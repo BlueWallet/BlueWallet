@@ -458,7 +458,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       refreshAllWalletTransactions,
       resetWallets,
       walletTransactionUpdateStatus,
-      setWalletTransactionUpdateStatus,
       handleWalletDeletion,
     ],
   );
