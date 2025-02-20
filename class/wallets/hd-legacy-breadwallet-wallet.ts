@@ -3,8 +3,7 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 import { Psbt } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput } from 'coinselect';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import BlueElectrum, { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';

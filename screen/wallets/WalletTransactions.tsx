@@ -17,7 +17,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';

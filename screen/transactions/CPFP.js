@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, ScrollView, StyleSheet, TextInput, Touchabl
 import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import { Text } from '@rneui/themed';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';

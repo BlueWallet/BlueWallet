@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Alert, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum, {
+  ELECTRUM_HOST,
+  ELECTRUM_SERVER_HISTORY,
+  ELECTRUM_SSL_PORT,
+  ELECTRUM_TCP_PORT,
+  hardcodedPeers,
+  suggestedServers,
+} from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -26,7 +33,6 @@ import { Action } from '../../components/types';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
-import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -89,7 +95,7 @@ const ElectrumSettings: React.FC = () => {
     const savedHost = preferredServer?.host;
     const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
     const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
-    const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
+    const serverHistoryStr = (await DefaultPreference.get(ELECTRUM_SERVER_HISTORY)) as string;
 
     console.log('Preferred server:', preferredServer);
     console.log('Server history string:', serverHistoryStr);
@@ -179,15 +185,15 @@ const ElectrumSettings: React.FC = () => {
 
           // Clear current data for the preferred host
           console.log('Clearing current data for the preferred host');
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-          await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
+          await DefaultPreference.clear(ELECTRUM_HOST);
+          await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+          await DefaultPreference.clear(ELECTRUM_SSL_PORT);
 
           // Save the new preferred host
           console.log('Saving new preferred host');
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
-          await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
+          await DefaultPreference.set(ELECTRUM_HOST, serverHost);
+          await DefaultPreference.set(ELECTRUM_TCP_PORT, serverPort);
+          await DefaultPreference.set(ELECTRUM_SSL_PORT, serverSslPort);
 
           const serverExistsInHistory = Array.from(serverHistory).some(
             s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
@@ -196,7 +202,7 @@ const ElectrumSettings: React.FC = () => {
           if (!serverExistsInHistory && (serverPort || serverSslPort) && !hardcodedPeers.some(peer => peer.host === serverHost)) {
             const newServerHistory = new Set(serverHistory);
             newServerHistory.add({ host: serverHost, tcp: Number(serverPort), ssl: Number(serverSslPort) });
-            await DefaultPreference.set(BlueElectrum.ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
+            await DefaultPreference.set(ELECTRUM_SERVER_HISTORY, JSON.stringify(Array.from(newServerHistory)));
             setServerHistory(newServerHistory);
           }
         } else {
@@ -258,7 +264,7 @@ const ElectrumSettings: React.FC = () => {
       } else {
         switch (id) {
           case CommonToolTipActions.ResetToDefault.id:
-            presentResetToDefaultsAlert().then(reset => {
+            BlueElectrum.presentResetToDefaultsAlert().then((reset: boolean) => {
               if (reset) {
                 triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
                 presentAlert({ message: loc.settings.electrum_saved });

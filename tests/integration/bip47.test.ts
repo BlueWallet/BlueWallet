@@ -4,7 +4,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
 

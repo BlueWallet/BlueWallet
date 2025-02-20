@@ -1,7 +1,7 @@
 import assert from 'assert';
 import fs from 'fs';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,

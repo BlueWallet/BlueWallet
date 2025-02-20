@@ -11,8 +11,7 @@ import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import BlueElectrum, { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';

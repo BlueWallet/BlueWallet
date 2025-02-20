@@ -1,9 +1,8 @@
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-
-import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import BlueElectrum from '../blue_modules/BlueElectrum';
 
 /**
  * Represents transaction of a BIP84 wallet.

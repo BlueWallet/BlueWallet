@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';

@@ -5,7 +5,7 @@ import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget }
 import coinSelectSplit from 'coinselect/split';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
@@ -256,7 +256,7 @@ export class LegacyWallet extends AbstractWallet {
     > = {};
     for (const history of Object.values(histories)) {
       for (const tx of history) {
-        txs[tx.tx_hash] = tx;
+        txs[tx.tx_hash] = { ...tx, address: addresses2fetch[0] };
       }
     }
 
