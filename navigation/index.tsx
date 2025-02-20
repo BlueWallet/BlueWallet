@@ -7,7 +7,7 @@ import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
-const DrawerRoot = lazy(() => import('./DrawerRoot'));
+const BottomTabs = lazy(() => import('./BottomTabs'));
 
 export const NavigationDefaultOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -38,7 +38,7 @@ const MainRoot = () => {
       return <UnlockRoot />;
     } else {
       // Conditional rendering based on the environment
-      const Component = isHandset ? DetailViewScreensStack : DrawerRoot;
+      const Component = isHandset ? DetailViewScreensStack : BottomTabs;
       return (
         <Suspense fallback={<LazyLoadingIndicator />}>
           <Component />
