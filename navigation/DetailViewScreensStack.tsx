@@ -324,11 +324,7 @@ const DetailViewStackScreensStack = () => {
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
-      <DetailViewStack.Screen
-        name="AddWalletRoot"
-        component={AddWalletStack}
-        options={navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, ...NavigationDefaultOptions })(theme)}
-      />
+      <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
@@ -379,6 +375,7 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerShown: false,
           statusBarHidden: true,
+          autoHideHomeIndicator: true,
           presentation: 'fullScreenModal',
           headerShadowVisible: false,
         })(theme)}
