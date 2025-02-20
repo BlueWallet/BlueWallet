@@ -1,7 +1,6 @@
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { LegacyWallet } from './legacy-wallet';
-import loc from '../../loc';
 import { fetch } from '../../util/fetch';
 
 export class LightningCustodianWallet extends LegacyWallet {
@@ -97,72 +96,48 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async createAccount(isTest: boolean = false) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/create', {
-        method: 'POST',
-        body: JSON.stringify({ partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + (json.message ? json.message : json.error) + ' (code ' + json.code + ')');
-      }
-
-      if (!json.login || !json.password) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      this.secret = 'lndhub://' + json.login + ':' + json.password;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const response = await fetch(this.baseURI + '/create', {
+      method: 'POST',
+      body: JSON.stringify({ partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' }),
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+    });
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + (json.message ? json.message : json.error) + ' (code ' + json.code + ')');
+    }
+
+    if (!json.login || !json.password) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    this.secret = 'lndhub://' + json.login + ':' + json.password;
   }
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/payinvoice', {
-        method: 'POST',
-        body: JSON.stringify({ invoice, amount: freeAmount }),
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/payinvoice', {
+      method: 'POST',
+      body: JSON.stringify({ invoice, amount: freeAmount }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      this.last_paid_invoice_result = json;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    this.last_paid_invoice_result = json;
   }
 
   /**
@@ -173,60 +148,47 @@ export class LightningCustodianWallet extends LegacyWallet {
   async getUserInvoices(limit: number | false = false) {
     let limitString = '';
     if (limit) limitString = '?limit=' + parseInt(limit as unknown as string, 10);
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/getuserinvoices' + limitString, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/getuserinvoices' + limitString, {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
+    }
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
 
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
+    if (limit) {
+      // need to merge existing invoices with the ones that arrived
+      // but the ones received later should overwrite older ones
 
-      if (limit) {
-        // need to merge existing invoices with the ones that arrived
-        // but the ones received later should overwrite older ones
+      for (const oldInvoice of this.user_invoices_raw) {
+        // iterate all OLD invoices
+        let found = false;
+        for (const newInvoice of json) {
+          // iterate all NEW invoices
+          if (newInvoice.payment_request === oldInvoice.payment_request) found = true;
+        }
 
-        for (const oldInvoice of this.user_invoices_raw) {
-          // iterate all OLD invoices
-          let found = false;
-          for (const newInvoice of json) {
-            // iterate all NEW invoices
-            if (newInvoice.payment_request === oldInvoice.payment_request) found = true;
-          }
-
-          if (!found) {
-            // if old invoice is not found in NEW array, we simply add it:
-            json.push(oldInvoice);
-          }
+        if (!found) {
+          // if old invoice is not found in NEW array, we simply add it:
+          json.push(oldInvoice);
         }
       }
-
-      this.user_invoices_raw = json.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
-        return a.timestamp - b.timestamp;
-      });
-
-      return this.user_invoices_raw;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
     }
+
+    this.user_invoices_raw = json.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
+      return a.timestamp - b.timestamp;
+    });
+
+    return this.user_invoices_raw;
   }
 
   /**
@@ -248,42 +210,29 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async addInvoice(amt: number, memo: string) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/addinvoice', {
-        method: 'POST',
-        body: JSON.stringify({ amt: amt + '', memo }),
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
-
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!json.r_hash || !json.pay_req) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      return json.pay_req;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const response = await fetch(this.baseURI + '/addinvoice', {
+      method: 'POST',
+      body: JSON.stringify({ amt: amt + '', memo }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.r_hash || !json.pay_req) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    return json.pay_req;
   }
 
   /**
@@ -301,41 +250,29 @@ export class LightningCustodianWallet extends LegacyWallet {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
     }
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/auth?type=auth', {
-        method: 'POST',
-        body: JSON.stringify({ login, password }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/auth?type=auth', {
+      method: 'POST',
+      body: JSON.stringify({ login, password }),
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!json.access_token || !json.refresh_token) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      this.refresh_token = json.refresh_token;
-      this.access_token = json.access_token;
-      this._refresh_token_created_ts = +new Date();
-      this._access_token_created_ts = +new Date();
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.access_token || !json.refresh_token) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    this.refresh_token = json.refresh_token;
+    this.access_token = json.access_token;
+    this._refresh_token_created_ts = +new Date();
+    this._access_token_created_ts = +new Date();
   }
 
   async checkLogin() {
@@ -361,78 +298,54 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async refreshAcessToken() {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/auth?type=refresh_token', {
-        method: 'POST',
-        body: JSON.stringify({ refresh_token: this.refresh_token }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/auth?type=refresh_token', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: this.refresh_token }),
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!json.access_token || !json.refresh_token) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      this.refresh_token = json.refresh_token;
-      this.access_token = json.access_token;
-      this._refresh_token_created_ts = +new Date();
-      this._access_token_created_ts = +new Date();
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.access_token || !json.refresh_token) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    this.refresh_token = json.refresh_token;
+    this.access_token = json.access_token;
+    this._refresh_token_created_ts = +new Date();
+    this._access_token_created_ts = +new Date();
   }
 
   async fetchBtcAddress() {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/getbtc', {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/getbtc', {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
+    }
 
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
 
-      this.refill_addressess = [];
+    this.refill_addressess = [];
 
-      for (const arr of json) {
-        this.refill_addressess.push(arr.address);
-      }
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    for (const arr of json) {
+      this.refill_addressess.push(arr.address);
     }
   }
 
@@ -493,37 +406,25 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async fetchPendingTransactions() {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/getpending', {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/getpending', {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      this.pending_transactions_raw = json;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    this.pending_transactions_raw = json;
   }
 
   async fetchTransactions() {
@@ -534,42 +435,30 @@ export class LightningCustodianWallet extends LegacyWallet {
     queryRes += '?limit=' + limit;
     queryRes += '&offset=' + offset;
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/gettxs' + queryRes, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/gettxs' + queryRes, {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!Array.isArray(json)) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      this._lastTxFetch = +new Date();
-      this.transactions_raw = json;
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!Array.isArray(json)) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    this._lastTxFetch = +new Date();
+    this.transactions_raw = json;
   }
 
   getBalance() {
@@ -579,46 +468,34 @@ export class LightningCustodianWallet extends LegacyWallet {
   async fetchBalance(noRetry?: boolean): Promise<void> {
     await this.checkLogin();
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/balance', {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/balance', {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        if (json.code * 1 === 1 && !noRetry) {
-          await this.authorize();
-          return this.fetchBalance(true);
-        }
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!json.BTC || typeof json.BTC.AvailableBalance === 'undefined') {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      this.balance = json.BTC.AvailableBalance;
-      this._lastBalanceFetch = +new Date();
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      if (json.code * 1 === 1 && !noRetry) {
+        await this.authorize();
+        return this.fetchBalance(true);
+      }
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.BTC || typeof json.BTC.AvailableBalance === 'undefined') {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    this.balance = json.BTC.AvailableBalance;
+    this._lastBalanceFetch = +new Date();
   }
 
   /**
@@ -680,70 +557,50 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async fetchInfo() {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/getinfo', {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/getinfo', {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
+    }
 
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
 
-      if (!json.identity_pubkey) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    if (!json.identity_pubkey) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
     }
   }
 
   static async isValidNodeAddress(address: string): Promise<boolean> {
     const normalizedAddress = new URL('/getinfo', address.replace(/([^:]\/)\/+/g, '$1'));
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(normalizedAddress.toString(), {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(normalizedAddress.toString(), {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(response.statusText);
-      }
-
-      if (json.code && json.code !== 1) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      return true;
-    } catch (err) {
-      throw new Error((err as Error).message);
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.code && json.code !== 1) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    return true;
   }
 
   allowReceive() {
@@ -773,41 +630,29 @@ export class LightningCustodianWallet extends LegacyWallet {
   async decodeInvoiceRemote(invoice: string) {
     await this.checkLogin();
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 10000);
-    try {
-      const response = await fetch(this.baseURI + '/decodeinvoice?invoice=' + invoice, {
-        method: 'GET',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer' + ' ' + this.access_token,
-        },
-        signal: controller.signal,
-      });
-      clearTimeout(id);
+    const response = await fetch(this.baseURI + '/decodeinvoice?invoice=' + invoice, {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
 
-      const json = await response.json();
-      if (!json) {
-        throw new Error(
-          this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-        );
-      }
-
-      if (json.error) {
-        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-      }
-
-      if (!json.payment_hash) {
-        throw new Error('API unexpected response: ' + JSON.stringify(json));
-      }
-
-      return (this.decoded_invoice_raw = json);
-    } catch (err) {
-      throw new Error(
-        this.baseURI ? loc.formatString(loc.lnd.errorServerUnreachable, { server: this.baseURI }) : loc.lnd.errorServerUnreachable,
-      );
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
     }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.payment_hash) {
+      throw new Error('API unexpected response: ' + JSON.stringify(json));
+    }
+
+    return (this.decoded_invoice_raw = json);
   }
 
   weOwnTransaction(txid: string) {
