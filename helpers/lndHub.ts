@@ -3,13 +3,13 @@ import DefaultPreference from 'react-native-default-preference';
 import { BlueApp } from '../class';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
-// Function to get the value from DefaultPreference first, then fallback to AsyncStorage
+// Function to get the value from DefaultPreference first, then fallback to AsyncStorage 
 // as DefaultPreference uses truly native storage.
 // If found in AsyncStorage, migrate it to DefaultPreference and remove it from AsyncStorage.
 export const getLNDHub = async (): Promise<string | undefined> => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    let value = (await DefaultPreference.get(BlueApp.LNDHUB)) as string | null;
+    let value = await DefaultPreference.get(BlueApp.LNDHUB) as string | null;
 
     // If not found, check AsyncStorage and migrate it to DefaultPreference
     if (!value) {
