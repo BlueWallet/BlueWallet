@@ -120,16 +120,18 @@ class BlueElectrum {
   private txhashHeightCache: Record<string, number> = {};
   private _realm: Realm | undefined;
 
+  private constructor() {
+    console.log('[BlueElectrum] Instance initialized');
+  }
+
   public static getInstance(): BlueElectrum {
     if (!BlueElectrum.instance) {
       BlueElectrum.instance = new BlueElectrum();
     }
+    console.log('[BlueElectrum] Returning instance:', BlueElectrum.instance);
     return BlueElectrum.instance;
   }
 
-  // ******************************************************************
-  // private helper functions
-  // ******************************************************************
   private async _getRealm() {
     if (this._realm) return this._realm;
 
@@ -192,7 +194,7 @@ class BlueElectrum {
       const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
       const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-      console.log('Getting saved peer:', { host, tcpPort, sslPort });
+      console.log('[BlueElectrum] Getting saved peer:', { host, tcpPort, sslPort });
 
       if (!host) {
         return null;
@@ -208,7 +210,7 @@ class BlueElectrum {
 
       return null;
     } catch (error) {
-      console.error('Error in getSavedPeer:', error);
+      console.error('[BlueElectrum] Error in getSavedPeer:', error);
       return null;
     }
   }
@@ -216,7 +218,7 @@ class BlueElectrum {
   private async presentNetworkErrorAlert(usingPeer?: Peer) {
     if (await this.isDisabled()) {
       console.log(
-        'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
+        '[BlueElectrum] Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
       );
       return;
     }
@@ -301,10 +303,6 @@ class BlueElectrum {
     return ret;
   }
 
-  // ******************************************************************
-  // Public API methods
-  // ******************************************************************
-
   public async getPreferredServer(): Promise<ElectrumServerItem | undefined> {
     try {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -312,10 +310,10 @@ class BlueElectrum {
       const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
       const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-      console.log('Getting preferred server:', { host, tcpPort, sslPort });
+      console.log('[BlueElectrum] Getting preferred server:', { host, tcpPort, sslPort });
 
       if (!host) {
-        console.warn('Preferred server host is undefined');
+        console.warn('[BlueElectrum] Preferred server host is undefined');
         return;
       }
 
@@ -325,7 +323,7 @@ class BlueElectrum {
         ssl: sslPort ? Number(sslPort) : undefined,
       };
     } catch (error) {
-      console.error('Error in getPreferredServer:', error);
+      console.error('[BlueElectrum] Error in getPreferredServer:', error);
       return undefined;
     }
   }
@@ -333,12 +331,12 @@ class BlueElectrum {
   public async removePreferredServer() {
     try {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      console.log('Removing preferred server');
+      console.log('[BlueElectrum] Removing preferred server');
       await DefaultPreference.clear(ELECTRUM_HOST);
       await DefaultPreference.clear(ELECTRUM_TCP_PORT);
       await DefaultPreference.clear(ELECTRUM_SSL_PORT);
     } catch (error) {
-      console.error('Error in removePreferredServer:', error);
+      console.error('[BlueElectrum] Error in removePreferredServer:', error);
     }
   }
 
@@ -347,14 +345,14 @@ class BlueElectrum {
     try {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       const savedValue = await DefaultPreference.get(ELECTRUM_CONNECTION_DISABLED);
-      console.log('Getting Electrum connection disabled state:', savedValue);
+      console.log('[BlueElectrum] Getting Electrum connection disabled state:', savedValue);
       if (savedValue === null) {
         result = false;
       } else {
         result = savedValue;
       }
     } catch (error) {
-      console.error('Error getting Electrum connection disabled state:', error);
+      console.error('[BlueElectrum] Error getting Electrum connection disabled state:', error);
       result = false;
     }
     return !!result;
@@ -362,13 +360,13 @@ class BlueElectrum {
 
   public async setDisabled(disabled = true) {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    console.log('Setting Electrum connection disabled state to:', disabled);
+    console.log('[BlueElectrum] Setting Electrum connection disabled state to:', disabled);
     return DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
   }
 
   public async connectMain(): Promise<void> {
     if (await this.isDisabled()) {
-      console.log('Electrum connection disabled by user. Skipping connectMain call');
+      console.log('[BlueElectrum] Electrum connection disabled by user. Skipping connectMain call');
       return;
     }
     let usingPeer = this.getNextPeer();
@@ -377,14 +375,14 @@ class BlueElectrum {
       usingPeer = savedPeer;
     }
 
-    console.log('Using peer:', JSON.stringify(usingPeer));
+    console.log('[BlueElectrum] Using peer:', JSON.stringify(usingPeer));
 
     try {
-      console.log('begin connection:', JSON.stringify(usingPeer));
+      console.log('[BlueElectrum] begin connection:', JSON.stringify(usingPeer));
       this.mainClient = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
 
       this.mainClient.onError = (e: { message: string }) => {
-        console.log('electrum mainClient.onError():', e.message);
+        console.log('[BlueElectrum] electrum mainClient.onError():', e.message);
         if (this.mainConnected) {
           // most likely got a timeout from electrum ping. lets reconnect
           // but only if we were previously connected (mainConnected), otherwise theres other
@@ -394,13 +392,13 @@ class BlueElectrum {
           this.mainConnected = false;
           // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
           // errors triggered
-          console.log('reconnecting after socket error');
+          console.log('[BlueElectrum] reconnecting after socket error');
           setTimeout(() => this.connectMain(), usingPeer.host.endsWith('.onion') ? 4000 : 500);
         }
       };
       const ver = await this.mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
       if (ver && ver[0]) {
-        console.log('connected to ', ver);
+        console.log('[BlueElectrum] connected to ', ver);
         this.serverName = ver[0];
         this.mainConnected = true;
         this.wasConnectedAtLeastOnce = true;
@@ -437,20 +435,20 @@ class BlueElectrum {
       }
     } catch (e) {
       this.mainConnected = false;
-      console.log('bad connection:', JSON.stringify(usingPeer), e);
+      console.log('[BlueElectrum] bad connection:', JSON.stringify(usingPeer), e);
       this.mainClient?.close();
       this.mainClient = undefined;
     }
 
     if (!this.mainConnected) {
-      console.log('retry');
+      console.log('[BlueElectrum] retry');
       this.connectionAttempt = this.connectionAttempt + 1;
       this.mainClient?.close();
       this.mainClient = undefined;
       if (this.connectionAttempt >= 5) {
         this.presentNetworkErrorAlert(usingPeer);
       } else {
-        console.log('reconnection attempt #', this.connectionAttempt);
+        console.log('[BlueElectrum] reconnection attempt #', this.connectionAttempt);
         await new Promise(resolve => setTimeout(resolve, 500)); // sleep
         return this.connectMain();
       }
@@ -528,7 +526,7 @@ class BlueElectrum {
       balance.addr = address;
       return balance;
     } catch (error) {
-      console.error('Error in getBalanceByAddress:', error);
+      console.error('[BlueElectrum] Error in getBalanceByAddress:', error);
       throw error;
     }
   }
@@ -770,7 +768,7 @@ class BlueElectrum {
       }
 
       for (const bal of balances) {
-        if (bal.error) console.warn('multiGetBalanceByAddress():', bal.error);
+        if (bal.error) console.warn('[BlueElectrum] multiGetBalanceByAddress():', bal.error);
         ret.balance += +bal.result.confirmed;
         ret.unconfirmed_balance += +bal.result.unconfirmed;
         ret.addresses[scripthash2addr[bal.param]] = bal.result;
@@ -855,7 +853,7 @@ class BlueElectrum {
       }
 
       for (const history of results) {
-        if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
+        if (history.error) console.warn('[BlueElectrum] multiGetHistoryByAddress():', history.error);
         ret[scripthash2addr[history.param]] = history.result || [];
         for (const result of history.result || []) {
           if (result.tx_hash) this.txhashHeightCache[result.tx_hash] = result.height; // cache tx height
@@ -892,7 +890,7 @@ class BlueElectrum {
         try {
           ret[txid] = JSON.parse(jsonString.cache_value as string);
         } catch (error) {
-          console.log(error, 'cache failed to parse', jsonString.cache_value);
+          console.log('[BlueElectrum] cache failed to parse', jsonString.cache_value);
         }
       }
 
@@ -942,7 +940,7 @@ class BlueElectrum {
                 tx = this.txhexToElectrumTransaction(tx);
                 results.push({ result: tx, param: txid });
               } catch (err) {
-                console.log(err);
+                console.log('[BlueElectrum]', err);
               }
             }
           } else {
@@ -958,7 +956,7 @@ class BlueElectrum {
                 }
                 results.push({ result: tx, param: txid });
               } catch (err) {
-                console.log(err);
+                console.log('[BlueElectrum]', err);
               }
             }
           }
