@@ -41,7 +41,15 @@ RCT_EXPORT_MODULE();
 
 - (void)sendUserActivity:(NSDictionary *)userInfo
 {
-  [self sendEventWithName:@"onUserActivityOpen" body:userInfo];
+  if (![userInfo isKindOfClass:[NSDictionary class]]) {
+    NSLog(@"[EventEmitter] Invalid user activity data: %@", userInfo);
+    return;
+  }
+  @try {
+    [self sendEventWithName:@"onUserActivityOpen" body:userInfo];
+  } @catch (NSException *exception) {
+    NSLog(@"[EventEmitter] Exception while sending event: %@", exception);
+  }
 }
 
 RCT_EXPORT_METHOD(getMostRecentUserActivity:(RCTPromiseResolveBlock)resolve

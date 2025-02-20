@@ -7,7 +7,12 @@ import { requestCameraAuthorization } from '../helpers/scan-qr';
 import { useCallback, useMemo } from 'react';
 
 // List of screens that require biometrics
-const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
+const requiresBiometrics = [
+  'WalletExportRoot',
+  'WalletXpubRoot',
+  'ViewEditMultisigCosignersRoot',
+  'ExportMultisigCoordinationSetupRoot',
+];
 
 // List of screens that require wallet export to be saved
 const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
@@ -17,8 +22,25 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
 
-  const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = useCallback(
-    (screenOrOptions: any, params?: any, options?: { merge?: boolean }) => {
+  const enhancedNavigate = useCallback(
+    (
+      ...args:
+        | [string]
+        | [string, object | undefined]
+        | [string, object | undefined, { merge?: boolean }]
+        | [{ name: string; params?: object; path?: string; merge?: boolean }]
+    ) => {
+      let screenOrOptions: any;
+      let params: any;
+      let options: { merge?: boolean } | undefined;
+
+      if (typeof args[0] === 'string') {
+        screenOrOptions = args[0];
+        params = args[1];
+        options = args[2];
+      } else {
+        screenOrOptions = args[0];
+      }
       let screenName: string;
       if (typeof screenOrOptions === 'string') {
         screenName = screenOrOptions;
@@ -44,6 +66,13 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
       };
 
       (async () => {
+        // NEW: If the current (active) screen is 'ScanQRCode', bypass all checks.
+        const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+        if (currentRouteName === 'ScanQRCode') {
+          proceedWithNavigation();
+          return;
+        }
+
         if (isRequiresBiometrics) {
           const isBiometricsEnabled = await isBiometricUseEnabled();
           if (isBiometricsEnabled) {
@@ -53,8 +82,8 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               return;
             } else {
               console.error('Biometric authentication failed');
-              // Decide if navigation should proceed or not after failed authentication
-              return; // Prevent proceeding with the original navigation if bio fails
+              // Do not proceed if authentication fails.
+              return;
             }
           }
         }
@@ -78,18 +107,17 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               await saveToDisk();
               proceedWithNavigation();
             } catch (error) {
-              if (error) {
-                originalNavigation.navigate('WalletExportRoot', {
-                  screen: 'WalletExport',
-                  params: { walletID },
-                });
-              }
+              // If there was an error (or the user cancelled), navigate to the wallet export screen.
+              originalNavigation.navigate('WalletExportRoot', {
+                screen: 'WalletExport',
+                params: { walletID },
+              });
             }
-
-            return; // Prevent proceeding with the original navigation if the reminder is shown
+            return; // Do not proceed with the original navigation if reminder was shown.
           }
         }
 
+        // If the target screen is ScanQRCode, request camera authorization.
         if (screenName === 'ScanQRCode') {
           await requestCameraAuthorization();
         }

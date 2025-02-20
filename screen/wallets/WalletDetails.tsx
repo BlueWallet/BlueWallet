@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   I18nManager,
   InteractionManager,
   LayoutAnimation,
@@ -38,18 +37,17 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { popToTop } from '../../NavigationService';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp, usePreventRemove } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { unsubscribe } from '../../blue_modules/notifications';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { Action } from '../../components/types';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { popToTop } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
+  const { saveToDisk, wallets, setSelectedWalletID, txMetadata, handleWalletDeletion } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -68,7 +66,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate, addListener } = useExtendedNavigation();
+  const { setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
@@ -91,23 +89,13 @@ const WalletDetails: React.FC = () => {
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
-
-    try {
-      const externalAddresses = wallet.getAllExternalAddresses();
-      if (externalAddresses.length > 0) {
-        await unsubscribe(externalAddresses, [], []);
-      }
-      deleteWallet(wallet);
-      saveToDisk(true);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    const deletionSucceeded = await handleWalletDeletion(wallet.getID());
+    if (deletionSucceeded) {
       popToTop();
-    } catch (e: unknown) {
-      console.error(e);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: (e as Error).message });
+    } else {
       setIsLoading(false);
     }
-  }, [deleteWallet, saveToDisk, wallet]);
+  }, [handleWalletDeletion, wallet]);
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -125,7 +113,7 @@ const WalletDetails: React.FC = () => {
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
 
       if (Number(cleanedConfirmation) === wallet.getBalance()) {
-        await navigateToOverviewAndDeleteWallet();
+        navigateToOverviewAndDeleteWallet();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -137,18 +125,18 @@ const WalletDetails: React.FC = () => {
 
   const handleDeleteButtonTapped = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-    Alert.alert(
-      loc.wallets.details_delete_wallet,
-      loc.wallets.details_are_you_sure,
-      [
+    presentAlert({
+      title: loc.wallets.details_delete_wallet,
+      message: loc.wallets.details_are_you_sure,
+      buttons: [
         {
           text: loc.wallets.details_yes_delete,
           onPress: async () => {
             const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
             if (isBiometricsEnabled) {
               if (!(await unlockWithBiometrics())) {
-                return;
+                setIsLoading(false);
+                return false;
               }
             }
             if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
@@ -159,10 +147,17 @@ const WalletDetails: React.FC = () => {
           },
           style: 'destructive',
         },
-        { text: loc.wallets.details_no_cancel, onPress: () => {}, style: 'cancel' },
+        {
+          text: loc._.cancel,
+          onPress: () => {
+            setIsLoading(false);
+            return false;
+          },
+          style: 'cancel',
+        },
       ],
-      { cancelable: false },
-    );
+      options: { cancelable: false },
+    });
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
   const exportHistoryContent = useCallback(() => {
@@ -287,12 +282,6 @@ const WalletDetails: React.FC = () => {
   });
 
   useEffect(() => {
-    setOptions({
-      headerBackTitleVisible: true,
-    });
-  }, [setOptions]);
-
-  useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWalletID(walletID);
     }
@@ -413,13 +402,9 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet, walletName, saveToDisk]);
 
-  useEffect(() => {
-    const subscribe = addListener('beforeRemove', () => {
-      walletNameTextInputOnBlur();
-    });
-
-    return subscribe;
-  }, [addListener, walletName, walletNameTextInputOnBlur]);
+  usePreventRemove(false, () => {
+    walletNameTextInputOnBlur();
+  });
 
   const onViewMasterFingerPrintPress = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -655,7 +640,7 @@ const WalletDetails: React.FC = () => {
               {wallet.allowXpub && wallet.allowXpub() && (
                 <>
                   <BlueSpacing20 />
-                  <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
+                  <SecondButton onPress={navigateToXPub} testID="XpubButton" title={loc.wallets.details_show_xpub} />
                 </>
               )}
               {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (

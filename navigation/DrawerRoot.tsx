@@ -33,11 +33,7 @@ const DrawerRoot = () => {
 
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
-      <Drawer.Screen
-        name="DetailViewStackScreensStack"
-        component={DetailViewStackScreensStack}
-        options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
-      />
+      <Drawer.Screen name="DetailViewStackScreensStack" component={DetailViewStackScreensStack} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );
 };

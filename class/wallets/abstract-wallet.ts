@@ -1,5 +1,6 @@
 import b58 from 'bs58check';
 import createHash from 'create-hash';
+import wif from 'wif';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -211,6 +212,17 @@ export class AbstractWallet {
 
   setSecret(newSecret: string): this {
     const origSecret = newSecret;
+
+    // is it minikey https://en.bitcoin.it/wiki/Mini_private_key_format
+    // Starts with S, is 22 length or larger, is base58
+    if (newSecret.startsWith('S') && newSecret.length >= 22 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(newSecret)) {
+      // minikey + ? hashed with SHA256 starts with 0x00 byte
+      if (createHash('sha256').update(`${newSecret}?`).digest('hex').startsWith('00')) {
+        // it is a valid minikey
+        newSecret = wif.encode(0x80, createHash('sha256').update(newSecret).digest(), false);
+      }
+    }
+
     this.secret = newSecret.trim().replace('bitcoin:', '').replace('BITCOIN:', '');
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();

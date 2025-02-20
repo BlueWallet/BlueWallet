@@ -1,17 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  BackHandler,
-  Image,
-  InteractionManager,
-  LayoutAnimation,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -38,6 +27,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import TipBox from '../../components/TipBox';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -60,7 +50,7 @@ const ReceiveDetails = () => {
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, setOptions } = useExtendedNavigation();
   const bottomModalRef = useRef(null);
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -87,9 +77,6 @@ const ReceiveDetails = () => {
     },
     modalButton: {
       backgroundColor: colors.modalButton,
-    },
-    tip: {
-      backgroundColor: colors.ballOutgoingExpired,
     },
   });
 
@@ -183,32 +170,12 @@ const ReceiveDetails = () => {
     [onPressMenuItem, toolTipActions],
   );
 
-  const handleClose = useCallback(() => {
-    goBack();
-  }, [goBack]);
-
-  const HeaderLeft = useMemo(
-    () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.close}
-        style={styles.button}
-        onPress={handleClose}
-        testID="NavigationCloseButton"
-      >
-        <Image source={closeImage} />
-      </TouchableOpacity>
-    ),
-    [closeImage, handleClose],
-  );
-
   useEffect(() => {
     wallet?.allowBIP47() &&
       setOptions({
-        headerLeft: () => HeaderLeft,
         headerRight: () => HeaderRight,
       });
-  }, [HeaderLeft, HeaderRight, colors.foregroundColor, setOptions, wallet]);
+  }, [HeaderRight, colors.foregroundColor, setOptions, wallet]);
 
   // re-fetching address balance periodically
   useEffect(() => {
@@ -472,9 +439,7 @@ const ReceiveDetails = () => {
           {!qrValue && <Text>{loc.bip47.not_found}</Text>}
           {qrValue && (
             <>
-              <View style={[styles.tip, stylesHook.tip]}>
-                <Text style={{ color: colors.foregroundColor }}>{loc.receive.bip47_explanation}</Text>
-              </View>
+              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
               <QRCodeComponent value={qrValue} />
               <CopyTextToClipboard text={qrValue} truncated={false} />
             </>

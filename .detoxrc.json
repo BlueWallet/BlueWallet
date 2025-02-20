@@ -47,6 +47,24 @@
       "device": "emulator",
       "app": "android.debug"
     },
+    "android.debug.device": {
+      "device": {
+        "device": {
+          "adbName": ".*"
+        },
+        "type": "android.attached"
+      },
+      "app": "android.debug"
+    },
+    "android.release.device": {
+      "device": {
+        "device": {
+          "adbName": ".*"
+        },
+        "type": "android.attached"
+      },
+      "app": "android.release"
+    },
     "android.release": {
       "device": "emulator",
       "app": "android.release"

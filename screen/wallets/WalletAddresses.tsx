@@ -139,6 +139,25 @@ const WalletAddresses: React.FC = () => {
     },
   });
 
+  const getAddresses = useMemo(() => {
+    if (!walletInstance) return [];
+    const newAddresses: Address[] = [];
+    // @ts-ignore: idk what to do
+    for (let index = 0; index <= (walletInstance?.next_free_change_address_index ?? 0); index++) {
+      newAddresses.push(getAddress(walletInstance, index, true));
+    }
+    // @ts-ignore: idk what to do
+    for (let index = 0; index < (walletInstance?.next_free_address_index ?? 0) + (walletInstance?.gap_limit ?? 0); index++) {
+      newAddresses.push(getAddress(walletInstance, index, false));
+    }
+    return newAddresses;
+  }, [walletInstance]);
+
+  useEffect(() => {
+    dispatch({ type: SET_ADDRESSES, payload: getAddresses });
+    dispatch({ type: SET_SHOW_ADDRESSES, payload: true });
+  }, [getAddresses]);
+
   const filteredAddresses = useMemo(
     () => addresses.filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab)).sort(sortByAddressIndex),
     [addresses, currentTab],
@@ -158,35 +177,19 @@ const WalletAddresses: React.FC = () => {
     });
   }, [setOptions]);
 
-  const getAddresses = useCallback(() => {
-    const newAddresses: Address[] = [];
-    // @ts-ignore: idk what to do
-    for (let index = 0; index <= (walletInstance?.next_free_change_address_index ?? 0); index++) {
-      const address = getAddress(walletInstance, index, true);
-      newAddresses.push(address);
-    }
-
-    // @ts-ignore: idk what to do
-    for (let index = 0; index < (walletInstance?.next_free_address_index ?? 0) + (walletInstance?.gap_limit ?? 0); index++) {
-      const address = getAddress(walletInstance, index, false);
-      newAddresses.push(address);
-    }
-    dispatch({ type: SET_ADDRESSES, payload: newAddresses });
-    dispatch({ type: SET_SHOW_ADDRESSES, payload: true });
-  }, [walletInstance]);
-
   useFocusEffect(
     useCallback(() => {
       if (!isDesktop) disallowScreenshot(true);
-      getAddresses();
       return () => {
         if (!isDesktop) disallowScreenshot(false);
       };
-    }, [getAddresses]),
+    }, []),
   );
 
   const data =
     search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;
+
+  const keyExtractor = useCallback((item: Address) => item.key, []);
 
   const renderRow = useCallback(
     ({ item }: { item: Address }) => {
@@ -206,31 +209,32 @@ const WalletAddresses: React.FC = () => {
   }
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
-      <FlatList
-        contentContainerStyle={stylesHook.root}
-        ref={addressList}
-        data={data}
-        extraData={data}
-        initialNumToRender={20}
-        renderItem={renderRow}
-        ListEmptyComponent={search.length > 0 ? null : <ActivityIndicator />}
-        centerContent={!showAddresses}
-        contentInsetAdjustmentBehavior="automatic"
-        ListHeaderComponent={
-          <SegmentedControl
-            values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
-            selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
-            onChange={index => {
-              const tabKey = Object.keys(TABS)[index] as TabKey;
-              dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
-            }}
-
-            // style={{ marginVertical: 10 }}
-          />
-        }
-      />
-    </View>
+    <FlatList
+      contentContainerStyle={stylesHook.root}
+      ref={addressList}
+      data={data}
+      extraData={data}
+      style={styles.root}
+      keyExtractor={keyExtractor}
+      initialNumToRender={20}
+      renderItem={renderRow}
+      ListEmptyComponent={search.length > 0 ? null : <ActivityIndicator />}
+      centerContent={!showAddresses}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets
+      ListHeaderComponent={
+        <SegmentedControl
+          values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
+          selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
+          onChange={index => {
+            const tabKey = Object.keys(TABS)[index] as TabKey;
+            dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+          }}
+        />
+      }
+    />
   );
 };
 

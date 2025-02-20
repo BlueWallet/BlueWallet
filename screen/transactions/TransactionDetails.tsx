@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, usePreventRemove, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import dayjs from 'dayjs';
@@ -60,7 +60,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Tran
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionDetails'>;
 
 const TransactionDetails = () => {
-  const { addListener, navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
   const { hash, walletID } = useRoute<RouteProps>().params;
   const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useStorage();
   const { selectedBlockExplorer } = useSettings();
@@ -97,13 +97,9 @@ const TransactionDetails = () => {
     }
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
-  useEffect(() => {
-    const unsubscribe = addListener('beforeRemove', () => {
-      saveTransactionDetails();
-    });
-
-    return unsubscribe;
-  }, [addListener, saveTransactionDetails]);
+  usePreventRemove(false, () => {
+    saveTransactionDetails();
+  });
 
   useFocusEffect(
     useCallback(() => {

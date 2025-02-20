@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import {
@@ -17,7 +17,6 @@ import {
   View,
 } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
-
 import debounce from '../../blue_modules/debounce';
 import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import { TWallet, Utxo } from '../../class/wallets/types';
@@ -35,6 +34,8 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { useKeyboard } from '../../hooks/useKeyboard';
+import TipBox from '../../components/TipBox';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -314,6 +315,7 @@ const CoinControl: React.FC = () => {
   const [output, setOutput] = useState<Utxo | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
+  const { isVisible } = useKeyboard();
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
@@ -344,6 +346,10 @@ const CoinControl: React.FC = () => {
   const stylesHook = StyleSheet.create({
     tip: {
       backgroundColor: colors.ballOutgoingExpired,
+      borderRadius: 12,
+      padding: 16,
+      marginVertical: 24,
+      marginHorizontal: 16,
     },
   });
 
@@ -361,25 +367,15 @@ const CoinControl: React.FC = () => {
       text = loc.formatString(loc.cc.selected_summ, { value });
     }
 
-    return (
-      <View style={[styles.tip, stylesHook.tip]}>
-        <Text style={{ color: colors.foregroundColor }}>{text}</Text>
-      </View>
-    );
+    return <TipBox description={text} containerStyle={stylesHook.tip} />;
   };
 
   const handleChoose = (item: Utxo) => setOutput(item);
 
   const handleUseCoin = async (u: Utxo[]) => {
     setOutput(undefined);
-    // @ts-ignore navigation WTF
-    navigation.navigate('SendDetailsRoot', {
-      screen: 'SendDetails',
-      params: {
-        utxos: u,
-      },
-      merge: true,
-    });
+    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, true);
+    navigation.dispatch(popToAction);
   };
 
   const handleMassFreeze = () => {
@@ -524,15 +520,17 @@ const CoinControl: React.FC = () => {
         contentContainerStyle={styles.modalMinHeight}
         footer={
           <View style={mStyles.buttonContainer}>
-            <Button
-              testID="UseCoin"
-              title={loc.cc.use_coin}
-              onPress={async () => {
-                if (!output) throw new Error('output is not set');
-                await bottomModalRef.current?.dismiss();
-                handleUseCoin([output]);
-              }}
-            />
+            {!isVisible && (
+              <Button
+                testID="UseCoin"
+                title={loc.cc.use_coin}
+                onPress={async () => {
+                  if (!output) throw new Error('output is not set');
+                  await bottomModalRef.current?.dismiss();
+                  handleUseCoin([output]);
+                }}
+              />
+            )}
           </View>
         }
       >
@@ -582,12 +580,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-  },
-  tip: {
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 24,
   },
   sendIcon: {
     transform: [{ rotate: '225deg' }],

@@ -1,6 +1,6 @@
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
-import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import loc from '../loc';
 import { Theme } from './themes';
@@ -59,7 +59,6 @@ const navigationStyle = (
   {
     closeButtonPosition,
     onCloseButtonPressed,
-    headerBackVisible = true,
     ...opts
   }: NativeStackNavigationOptions & {
     closeButtonPosition?: CloseButtonPosition;
@@ -77,11 +76,6 @@ const navigationStyle = (
 
       let headerRight;
       let headerLeft;
-
-      if (!headerBackVisible) {
-        headerLeft = () => <></>;
-        opts.headerLeft = headerLeft;
-      }
 
       if (closeButton === CloseButtonPosition.Right) {
         headerRight = () => (
@@ -108,17 +102,24 @@ const navigationStyle = (
           </TouchableOpacity>
         );
       }
-
-      let options: NativeStackNavigationOptions = {
+      const baseHeaderStyle = {
         headerShadowVisible: false,
         headerTitleStyle: {
-          fontWeight: '600',
+          fontWeight: '600' as const,
           color: theme.colors.foregroundColor,
         },
-        headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
+        headerBackButtonDisplayMode: 'minimal',
+      };
+      const isLeftCloseButtonAndroid = closeButton === CloseButtonPosition.Left && Platform.OS === 'android';
+
+      const leftCloseButtonStyle = isLeftCloseButtonAndroid ? { headerBackImageSource: theme.closeImage } : { headerLeft };
+
+      let options: NativeStackNavigationOptions = {
+        ...baseHeaderStyle,
+        ...leftCloseButtonStyle,
+        headerBackButtonDisplayMode: 'minimal',
         headerRight,
-        headerLeft,
         ...opts,
       };
 

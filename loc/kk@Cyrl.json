@@ -9,7 +9,6 @@
     "ok": "ОК",
     "yes": "Иә",
     "no": "Жоқ",
-    "save": "Сақтау",
     "close": "Жабу"
   },
   "entropy": {
@@ -54,7 +53,6 @@
   },
   "settings": {
     "about_license": "MIT License",
-    "electrum_clear_alert_cancel": "Бас тарту",
     "header": "Баптаулар",
     "save": "Сақтау"
   },
@@ -65,7 +63,6 @@
   "wallets": {
     "add_create": "Жасау",
     "details_address": "Адрес",
-    "details_no_cancel": "Жоқ, бас тарту",
     "import_do_import": "Еңгізу",
     "import_search_accounts": "Шот іздеу",
     "import_title": "Енгізу",

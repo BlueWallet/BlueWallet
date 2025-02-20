@@ -13,8 +13,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
+  RefreshControl,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -46,7 +46,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
-import LinearGradient from 'react-native-linear-gradient';
 import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
@@ -72,8 +71,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { colors } = useTheme();
   const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
-  const { height: screenHeight } = useWindowDimensions();
-  const [headerVisible, setHeaderVisible] = useState(true);
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -266,112 +263,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     index,
   });
 
-  // Split header into navigation header and list header text
-  const listData: (TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' })[] = useMemo(() => {
-    const transactions = getTransactions(limit).map(tx => ({ ...tx, type: 'transaction' as const }));
-    return [{ type: 'navHeader' }, { type: 'listHeader' }, ...transactions];
+  const listData: Transaction[] = useMemo(() => {
+    const transactions = getTransactions(limit);
+    return transactions;
   }, [getTransactions, limit]);
 
-  const hasNoTransactions = useMemo(() => getTransactions(1).length === 0, [getTransactions]);
-
   const renderItem = useCallback(
-    ({ item }: { item: TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' } }) => {
-      if ('type' in item && (item.type === 'navHeader' || item.type === 'listHeader')) {
-        if (item.type === 'navHeader') {
-          return wallet ? (
-            <TransactionsNavigationHeader
-              wallet={wallet}
-              onWalletUnitChange={async selectedUnit => {
-                wallet.preferredBalanceUnit = selectedUnit;
-                await saveToDisk();
-              }}
-              unit={wallet.preferredBalanceUnit}
-              onWalletBalanceVisibilityChange={async isShouldBeVisible => {
-                const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-                if (wallet?.hideBalance && isBiometricsEnabled) {
-                  const unlocked = await unlockWithBiometrics();
-                  if (!unlocked) throw new Error('Biometrics failed');
-                }
-                wallet!.hideBalance = isShouldBeVisible;
-                await saveToDisk();
-              }}
-              onManageFundsPressed={id => {
-                if (wallet?.type === MultisigHDWallet.type) {
-                  navigateToViewEditCosigners();
-                } else if (wallet?.type === LightningCustodianWallet.type) {
-                  if (wallet.getUserHasSavedExport()) {
-                    if (!id) return;
-                    onManageFundsPressed(id);
-                  } else {
-                    presentWalletExportReminder()
-                      .then(async () => {
-                        if (!id) return;
-                        wallet!.setUserHasSavedExport(true);
-                        await saveToDisk();
-                        onManageFundsPressed(id);
-                      })
-                      .catch(() => {
-                        navigate('WalletExportRoot', {
-                          screen: 'WalletExport',
-                          params: {
-                            walletID,
-                          },
-                        });
-                      });
-                  }
-                }
-              }}
-            />
-          ) : null;
-        }
-        if (item.type === 'listHeader') {
-          return (
-            <>
-              <View style={[styles.flex, { backgroundColor: colors.background }]}>
-                <View style={styles.listHeaderTextRow}>
-                  <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-                </View>
-              </View>
-              <View style={{ backgroundColor: colors.background }}>
-                {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-                  <WatchOnlyWarning
-                    handleDismiss={() => {
-                      wallet.isWatchOnlyWarningVisible = false;
-                      LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-                      saveToDisk();
-                    }}
-                  />
-                )}
-              </View>
-
-              {hasNoTransactions && (
-                <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
-                  <Text numberOfLines={0} style={styles.emptyTxs}>
-                    {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
-                  </Text>
-                  {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-                </ScrollView>
-              )}
-            </>
-          );
-        }
-      }
-      // Regular transaction item
-      return <TransactionListItem item={item as Transaction} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
+    // eslint-disable-next-line react/no-unused-prop-types
+    ({ item }: { item: Transaction }) => {
+      return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
     },
-    [
-      wallet,
-      walletID,
-      saveToDisk,
-      isBiometricUseCapableAndEnabled,
-      navigateToViewEditCosigners,
-      onManageFundsPressed,
-      navigate,
-      colors.background,
-      stylesHook.listHeaderText,
-      hasNoTransactions,
-      isLightning,
-    ],
+    [wallet, walletID],
   );
 
   const choosePhoto = () => {
@@ -474,17 +376,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
   );
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
-
-  const headerHeight = 140;
-  const headerStop = useMemo(() => {
-    return (headerHeight / screenHeight) * 3;
-  }, [screenHeight]);
-
-  const linearGradientColors = useMemo(() => {
-    return wallet ? [WalletGradient.headerColorFor(wallet.type), colors.background] : [colors.background, colors.background];
-  }, [colors.background, wallet]);
-
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
   useEffect(() => {
     if (!wallet) return;
@@ -505,54 +396,139 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       const offsetY = event.nativeEvent.contentOffset.y;
       const combinedHeight = 180;
       if (offsetY < combinedHeight) {
-        if (!headerVisible) {
-          setHeaderVisible(true);
-          setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
-        }
+        setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
       } else {
-        if (headerVisible) {
-          setHeaderVisible(false);
-          navigation.setOptions({
-            headerTitle: wallet ? `${wallet.getLabel()} ${walletBalance}` : '',
-          });
-        }
+        navigation.setOptions({
+          headerTitle: wallet ? `${wallet.getLabel()} ${walletBalance}` : '',
+        });
       }
     },
-    [headerVisible, navigation, wallet, walletBalance, setOptions, route],
+    [navigation, wallet, walletBalance, setOptions, route],
+  );
+
+  const ListHeaderComponent = useCallback(
+    () =>
+      wallet ? (
+        <>
+          <TransactionsNavigationHeader
+            wallet={wallet}
+            onWalletUnitChange={async selectedUnit => {
+              wallet.preferredBalanceUnit = selectedUnit;
+              await saveToDisk();
+            }}
+            unit={wallet.preferredBalanceUnit}
+            onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+              if (wallet.hideBalance && isBiometricsEnabled) {
+                const unlocked = await unlockWithBiometrics();
+                if (!unlocked) throw new Error('Biometrics failed');
+              }
+              wallet.hideBalance = isShouldBeVisible;
+              await saveToDisk();
+            }}
+            onManageFundsPressed={id => {
+              if (wallet.type === MultisigHDWallet.type) {
+                navigateToViewEditCosigners();
+              } else if (wallet.type === LightningCustodianWallet.type) {
+                if (wallet.getUserHasSavedExport()) {
+                  if (!id) return;
+                  onManageFundsPressed(id);
+                } else {
+                  presentWalletExportReminder()
+                    .then(async () => {
+                      if (!id) return;
+                      wallet.setUserHasSavedExport(true);
+                      await saveToDisk();
+                      onManageFundsPressed(id);
+                    })
+                    .catch(() => {
+                      navigate('WalletExportRoot', {
+                        screen: 'WalletExport',
+                        params: {
+                          walletID,
+                        },
+                      });
+                    });
+                }
+              }
+            }}
+          />
+          <>
+            <View style={[styles.flex, { backgroundColor: colors.background }]}>
+              <View style={styles.listHeaderTextRow}>
+                <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+              </View>
+            </View>
+            <View style={{ backgroundColor: colors.background }}>
+              {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+                <WatchOnlyWarning
+                  handleDismiss={() => {
+                    wallet.isWatchOnlyWarningVisible = false;
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                    saveToDisk();
+                  }}
+                />
+              )}
+            </View>
+          </>
+        </>
+      ) : undefined,
+    [
+      wallet,
+      colors.background,
+      stylesHook.listHeaderText,
+      saveToDisk,
+      isBiometricUseCapableAndEnabled,
+      navigateToViewEditCosigners,
+      onManageFundsPressed,
+      navigate,
+      walletID,
+    ],
   );
 
   return (
-    <View style={styles.flex}>
-      <LinearGradient
-        // Duplicate colors for abrupt transition
-        colors={[linearGradientColors[0], linearGradientColors[0], linearGradientColors[1], linearGradientColors[1]]}
-        style={styles.list}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        locations={[0, headerStop, headerStop, 1]} // abrupt switch at header bottom
-      >
-        <FlatList<TransactionListItem | { type: 'navHeader' } | { type: 'listHeader' }>
-          getItemLayout={getItemLayout}
-          updateCellsBatchingPeriod={30}
-          onEndReachedThreshold={0.3}
-          onEndReached={loadMoreTransactions}
-          ListFooterComponent={renderListFooterComponent}
-          {...refreshProps}
-          data={listData}
-          extraData={wallet}
-          keyExtractor={_keyExtractor}
-          renderItem={renderItem}
-          initialNumToRender={10}
-          removeClippedSubviews
-          contentContainerStyle={{ backgroundColor: colors.background }}
-          contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-          maxToRenderPerBatch={15}
-          stickyHeaderIndices={[1]}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          stickyHeaderHiddenOnScroll
-        />
-      </LinearGradient>
+    <View style={[styles.flex, { backgroundColor: colors.background }]}>
+      {/* The color of the refresh indicator. Temporary hack */}
+      <View
+        style={[
+          styles.refreshIndicatorBackground,
+          { backgroundColor: wallet ? WalletGradient.headerColorFor(wallet.type) : colors.background },
+        ]}
+      />
+
+      <FlatList<Transaction>
+        getItemLayout={getItemLayout}
+        updateCellsBatchingPeriod={30}
+        onEndReachedThreshold={0.3}
+        onEndReached={loadMoreTransactions}
+        ListFooterComponent={renderListFooterComponent}
+        data={listData}
+        extraData={wallet}
+        keyExtractor={_keyExtractor}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        removeClippedSubviews
+        contentContainerStyle={{ backgroundColor: colors.background }}
+        contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+        maxToRenderPerBatch={15}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        stickyHeaderHiddenOnScroll
+        ListHeaderComponent={ListHeaderComponent}
+        ListEmptyComponent={
+          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+            <Text numberOfLines={0} style={styles.emptyTxs}>
+              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+            </Text>
+            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+          </ScrollView>
+        }
+        refreshControl={
+          !isDesktop && !isElectrumDisabled ? (
+            <RefreshControl refreshing={isLoading} onRefresh={refreshTransactions} tintColor={colors.msSuccessCheck} />
+          ) : undefined
+        }
+      />
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
           <FButton
@@ -605,7 +581,13 @@ const styles = StyleSheet.create({
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
   listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
-  list: { flex: 1 },
+  refreshIndicatorBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+  },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
