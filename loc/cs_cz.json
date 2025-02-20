@@ -338,7 +338,7 @@
     "details_balance_hide": "Skrýt zůstatek",
     "details_balance_show": "Zobrazit zůstatek",
     "details_copy": "Zkopírovat",
-    "details_copy_browser_link": "Zkopírovat odkaz na průzkumník bloků",
+    "details_copy_block_explorer_link": "Zkopírovat odkaz na průzkumník bloků",
     "details_copy_note": "Zkopírovat poznámku",
     "details_copy_txid": "Zkopírovat ID transakce",
     "details_from": "Vstup",

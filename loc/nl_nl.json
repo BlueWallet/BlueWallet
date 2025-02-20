@@ -266,7 +266,7 @@
     "details_balance_hide": "Verberg saldo",
     "details_balance_show": "Toon saldo",
     "details_copy": "Kopiëren",
-    "details_copy_browser_link": "Kopieer blok explorer Link",
+    "details_copy_block_explorer_link": "Kopieer blok explorer Link",
     "details_copy_note": "Kopieer Note",
     "details_copy_txid": "Kopieer Transactie ID",
     "details_from": "Invoer",

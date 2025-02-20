@@ -275,7 +275,7 @@
     "details_balance_hide": "إخفاء الرصيد",
     "details_balance_show": "عرض الرصيد",
     "details_copy": "نسخ",
-    "details_copy_browser_link": "نسخ رابط متصفح الكتل",
+    "details_copy_block_explorer_link": "نسخ رابط متصفح الكتل",
     "details_copy_note": "نسخ الملاحظة",
     "details_copy_txid": "نسخ معرّف المعاملة",
     "details_from": "من",

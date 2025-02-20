@@ -267,7 +267,7 @@
     "details_balance_hide": "Giấu số dư",
     "details_balance_show": "Hiển thị số dư ",
     "details_copy": "Sao chép",
-    "details_copy_browser_link": "Sao chép liên kết Block Explorer",
+    "details_copy_block_explorer_link": "Sao chép liên kết Block Explorer",
     "details_copy_note": "Sao chép ghi chú",
     "details_copy_txid": "Sao chép ID giao dịch",
     "details_from": "Đầu vào",

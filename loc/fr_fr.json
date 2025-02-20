@@ -339,7 +339,7 @@
     "details_balance_hide": "Cacher le solde",
     "details_balance_show": "Montrer le solde",
     "details_copy": "Copier",
-    "details_copy_browser_link": "Copier le lien Block Explorer",
+    "details_copy_block_explorer_link": "Copier le lien Block Explorer",
     "details_copy_note": "Copier la note",
     "details_copy_txid": "Copier l'ID de transaction",
     "details_from": "De",

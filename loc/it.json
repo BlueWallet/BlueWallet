@@ -272,7 +272,7 @@
     "details_balance_hide": "Nascondi il saldo",
     "details_balance_show": "Mostra il saldo",
     "details_copy": "Copia",
-    "details_copy_browser_link": "Copia link del Block Explorer",
+    "details_copy_block_explorer_link": "Copia link del Block Explorer",
     "details_copy_note": "Copia Nota",
     "details_copy_txid": "Copia ID di transazione",
     "details_from": "Da",

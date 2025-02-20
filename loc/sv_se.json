@@ -273,7 +273,7 @@
     "details_balance_hide": "Göm saldo",
     "details_balance_show": "Visa saldo",
     "details_copy": "Kopiera",
-    "details_copy_browser_link": "Kopiera Block Explorer Länk",
+    "details_copy_block_explorer_link": "Kopiera Block Explorer Länk",
     "details_copy_note": "Kopiera anteckning",
     "details_copy_txid": "Kopiera Transaktions ID",
     "details_from": "Input",

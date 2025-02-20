@@ -327,7 +327,7 @@
     "details_balance_hide": "Скрыть баланс",
     "details_balance_show": "Показать баланс",
     "details_copy": "Копировать",
-    "details_copy_browser_link": "Копировать ссылку на обозреватель блоков",
+    "details_copy_block_explorer_link": "Копировать ссылку на обозреватель блоков",
     "details_copy_note": "Копировать заметку",
     "details_copy_txid": "Копировать ID транзакции",
     "details_from": "От",

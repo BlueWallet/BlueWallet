@@ -339,7 +339,7 @@
     "details_balance_hide": "Guthaben verbergen",
     "details_balance_show": "Guthaben zeigen",
     "details_copy": "Kopieren",
-    "details_copy_browser_link": "Block-Explorer Link kopieren",
+    "details_copy_block_explorer_link": "Block-Explorer Link kopieren",
     "details_copy_note": "Beschreibung kopieren",
     "details_copy_txid": "Transaktions-ID kopieren",
     "details_from": "Eingang",

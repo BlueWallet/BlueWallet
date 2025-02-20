@@ -292,7 +292,7 @@
     "details_balance_hide": "Piilota Saldo",
     "details_balance_show": "Näytä Saldo",
     "details_copy": "Kopioi",
-    "details_copy_browser_link": "Kopioi linkki lohkoketjuselaimeen",
+    "details_copy_block_explorer_link": "Kopioi linkki lohkoketjuselaimeen",
     "details_copy_note": "Kopioi muistiinpanot",
     "details_copy_txid": "Kopioi tapahtumatunnus",
     "details_from": "Syöte",
