@@ -20,15 +20,12 @@ export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
   memo?: string;
 };
 
-
 const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
   const result = {
     inputs: [],
     outputs: [],
     fee: 0,
   };
-
-  
 
 
   return result;
@@ -393,7 +390,7 @@ export class LegacyWallet extends AbstractWallet {
   } {
     let algo = coinSelect;
 
-    if (coinfyFactor > 0) {
+    if (coinfyLambda > 0) {
       algo = coinSelectCoinfy;
     }
 
