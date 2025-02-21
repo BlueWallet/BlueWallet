@@ -16,7 +16,12 @@ bitcoin.initEccLib(ecc);
 
 const coinfyLambda = 0.5;
 
-const coinSelectCoinfy = (utxos: CoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
+export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
+  memo?: string;
+};
+
+
+const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
   const result = {
     inputs: [],
     outputs: [],
