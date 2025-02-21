@@ -17,7 +17,8 @@ bitcoin.initEccLib(ecc);
 const coinfyLambda = 0.5;
 
 export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
-  memo?: string;
+  
+  memo? : string ;
 };
 
 
@@ -28,7 +29,13 @@ const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTa
     fee: 0,
   };
 
-  
+  // KYC status
+  const dirty = utxos.filter(utxo => utxo.memo?.includes('dirty'));
+  const clean = utxos.filter(utxo => utxo.memo?.includes('clean'));
+  const none = utxos.filter(utxo => utxo.memo?.includes('none'));
+
+
+
 
 
   return result;
