@@ -1,4 +1,4 @@
-# BlueWallet - A Bitcoin & Lightning Wallet
+# ConfWallet - A Bitcoin & Lightning Wallet
 
 [![GitHub tag](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/BlueWallet/BlueWallet/master/package.json&query=$.version&label=Version)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
@@ -86,7 +86,7 @@ npx pod-install
 npm start
 ```
 
-Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/target BlueWallet. Click Run.
+Open ios/CoinfyWallet.xcworkspace. Once the project loads, select the scheme/target BlueWallet. Click Run.
 
 ## TESTS
 
