@@ -75,14 +75,14 @@ interface IFee {
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
-export function UTXOKYCWarning({ onCancel, onContinue }: { onCancel: () => void; onContinue: () => void }) {
+export function UTXOKYCWarning({ onCancel, onContinue, warning }: { onCancel: () => void; onContinue: () => void; warning: string }) {
   return (
     <View style={styles2.card}>
       <View style={styles2.content}>
         <View style={styles2.iconContainer}>
           {/* <AlertCircle color="red" size={24} /> */}
           <Text style={styles2.warningText}>
-            This operation mixes UTXOs with and without KYC.
+            {warning}
           </Text>
         </View>
         <Text style={styles2.questionText}>
@@ -1514,7 +1514,16 @@ const SendDetails = () => {
         </TouchableOpacity>
 
         {warning && (
-          <UTXOKYCWarning onCancel={() => setWarning(null)} onContinue={() => setWarning(null)} />
+          <UTXOKYCWarning onCancel={() => setAddresses(addrs => {
+            addrs[scrollIndex.current].amount = '0';
+            addrs[scrollIndex.current].amountSats = 0;
+            return [...addrs];
+          })}
+          onContinue={() => {
+            setWarning(null);
+          }}
+          warning={warning}
+          />
         )}
         {renderCreateButton()}
         <SelectFeeModal
