@@ -17,23 +17,60 @@ bitcoin.initEccLib(ecc);
 const coinfyLambda = 0.5;
 
 export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
-  
-  memo? : string ;
+  memo?: string;
 };
 
-const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
-  // const result = {
-  //   inputs: [],
-  //   outputs: [],
-  //   fee: 0,
-  // };
+const coinSelectCoinfy = (
+  utxos: ExtendedCoinSelectUtxo[],
+  targets: CoinSelectTarget[],
+  feeRate: number
+) => {
+  // Filter UTXOs in a case-insensitive manner based on their status in "memo"
+  const dirty = utxos.filter((utxo) =>
+    utxo.memo?.toLowerCase().includes("dirty")
+  );
+  const clean = utxos.filter((utxo) =>
+    utxo.memo?.toLowerCase().includes("clean")
+  );
+  const none = utxos.filter((utxo) =>
+    utxo.memo?.toLowerCase().includes("none")
+  );
 
-  // KYC status
-  const dirty = utxos.filter(utxo => utxo.memo?.includes('dirty'));
-  const clean = utxos.filter(utxo => utxo.memo?.includes('clean'));
-  const none = utxos.filter(utxo => utxo.memo?.includes('none'));
+  // Scenario 1: Use only safe UTXOs: 'clean' and 'none'
+  const safeUTXOs = [...clean, ...none];
+  const cleanResult = coinSelect(safeUTXOs, targets, feeRate);
+  if (cleanResult.inputs && cleanResult.outputs) {
+    // The transaction can be composed using safe UTXOs – the ideal solution.
+    return cleanResult;
+  }
 
-  return coinSelect([...clean, ...none], targets, feeRate);
+  // Scenario 2: Use only "dirty" UTXOs
+  const dirtyResult = coinSelect([...dirty], targets, feeRate);
+  if (dirtyResult.inputs && dirtyResult.outputs) {
+    // Calculate the total value required for the targets
+    const totalTargetValue = targets.reduce(
+      (sum, target) => sum + (target.value ?? 0),
+      0
+    );
+    // Sum of the values of the safe UTXOs
+    const safeValue = safeUTXOs.reduce((sum, utxo) => sum + utxo.value, 0);
+    // Also consider the fee that would be applied if only safe UTXOs were used
+    const safeFee = coinSelect(safeUTXOs, targets, feeRate).fee;
+    // Determine how much additional value is needed so that the transaction can be composed with safe UTXOs only
+    const missingValue = totalTargetValue + safeFee - safeValue;
+    
+    return {
+      ...dirtyResult,
+      warn: `To avoid using "dirty" UTXOs, add at least ${missingValue > 0 ? missingValue : 0} satoshis.`,
+    };
+  }
+
+  // Scenario 3: If neither isolated scenario worked, use all UTXOs (mixed)
+  const fullResult = coinSelect(utxos, targets, feeRate);
+  return {
+    ...fullResult,
+    warn: "Result with mixed UTXOs",
+  };
 };
 
 /**
