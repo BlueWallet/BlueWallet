@@ -41,35 +41,41 @@ const coinSelectCoinfy = (
   const cleanResult = coinSelect(safeUTXOs, targets, feeRate);
   if (cleanResult.inputs && cleanResult.outputs) {
     // The transaction can be composed using safe UTXOs – the ideal solution.
+    console.log('cleanResult', cleanResult);
     return cleanResult;
   }
 
   // Scenario 2: Use only "dirty" UTXOs
-  const dirtyResult = coinSelect([...dirty], targets, feeRate);
+  const dirtyResult = coinSelect(dirty, targets, feeRate);
   if (dirtyResult.inputs && dirtyResult.outputs) {
-    // Calculate the total value required for the targets
-    const totalTargetValue = targets.reduce(
-      (sum, target) => sum + (target.value ?? 0),
-      0
-    );
-    // Sum of the values of the safe UTXOs
-    const safeValue = safeUTXOs.reduce((sum, utxo) => sum + utxo.value, 0);
-    // Also consider the fee that would be applied if only safe UTXOs were used
-    const safeFee = coinSelect(safeUTXOs, targets, feeRate).fee;
-    // Determine how much additional value is needed so that the transaction can be composed with safe UTXOs only
-    const missingValue = totalTargetValue + safeFee - safeValue;
-    
-    return {
-      ...dirtyResult,
-      warn: `To avoid using "dirty" UTXOs, add at least ${missingValue > 0 ? missingValue : 0} satoshis.`,
-    };
+    console.log('dirtyResult', dirtyResult);
+    return dirtyResult;
   }
 
+  // Calculate the total value required for the targets
+  const totalTargetValue = targets.reduce(
+    (sum, target) => sum + (target.value ?? 0),
+    0
+  );
+  // Sum of the values of the safe UTXOs
+  const safeValue = safeUTXOs.reduce((sum, utxo) => sum + utxo.value, 0);
+  // Also consider the fee that would be applied if only safe UTXOs were used
+  const safeFee = cleanResult.fee;
+  // Determine how much additional value is needed so that the transaction can be composed with safe UTXOs only
+  const missingValue = totalTargetValue + safeFee - safeValue;
+  
   // Scenario 3: If neither isolated scenario worked, use all UTXOs (mixed)
   const fullResult = coinSelect(utxos, targets, feeRate);
+  console.log('fullResult', {
+    fullResult,
+    missingValue,
+    safeValue,
+    safeFee,
+    totalTargetValue,
+  });
   return {
     ...fullResult,
-    warn: "Result with mixed UTXOs",
+    warn: `To avoid using "dirty" UTXOs, add at least ${missingValue > 0 ? missingValue : 0} satoshis.`,
   };
 };
 
@@ -429,6 +435,7 @@ export class LegacyWallet extends AbstractWallet {
     inputs: CoinSelectReturnInput[];
     outputs: CoinSelectOutput[];
     fee: number;
+    warn?: string;
   } {
     let algo = coinSelect;
 
