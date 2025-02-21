@@ -328,8 +328,9 @@ const SendDetails = () => {
 
       let flag = false;
       while (true) {
+        const mapMemo = (u: any) => ({ ...u, memo: txMetadata[u.txid].memo });
         try {
-          const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
+          const { fee } = wallet.coinselect(lutxo.map(mapMemo), targets, opt.fee);
 
           // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = fee;

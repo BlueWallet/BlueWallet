@@ -21,7 +21,6 @@ export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
   memo? : string ;
 };
 
-
 const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
   const result = {
     inputs: [],
@@ -29,6 +28,7 @@ const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTa
     fee: 0,
   };
 
+<<<<<<< HEAD
   // KYC status
   const dirty = utxos.filter(utxo => utxo.memo?.includes('dirty'));
   const clean = utxos.filter(utxo => utxo.memo?.includes('clean'));
@@ -37,6 +37,8 @@ const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTa
 
 
 
+=======
+>>>>>>> 937acf89be01a11758f6bc3cd5ba0b8082710fc8
 
   return result;
 };
@@ -400,7 +402,7 @@ export class LegacyWallet extends AbstractWallet {
   } {
     let algo = coinSelect;
 
-    if (coinfyFactor > 0) {
+    if (coinfyLambda > 0) {
       algo = coinSelectCoinfy;
     }
 
