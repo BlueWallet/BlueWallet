@@ -11,7 +11,7 @@ export const BlueDefaultTheme = {
     borderWidth: 0.5,
     brandingColor: '#ffffff',
     customHeader: '#ffffff',
-    foregroundColor: '#046A38',
+    foregroundColor: '#000000',
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
     buttonBackgroundColor: 'rgba(4, 106, 56, 0.7)',
     buttonTextColor: '#000000',

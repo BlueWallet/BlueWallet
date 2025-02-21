@@ -75,6 +75,88 @@ interface IFee {
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
+export function UTXOKYCWarning({ onCancel, onContinue }: { onCancel: () => void; onContinue: () => void }) {
+  return (
+    <View style={styles2.card}>
+      <View style={styles2.content}>
+        <View style={styles2.iconContainer}>
+          {/* <AlertCircle color="red" size={24} /> */}
+          <Text style={styles2.warningText}>
+            This operation mixes UTXOs with and without KYC.
+          </Text>
+        </View>
+        <Text style={styles2.questionText}>
+          Would you like to continue with this operation?
+        </Text>
+        <View style={styles2.buttonContainer}>
+          <TouchableOpacity style={styles2.cancelButton} onPress={onCancel}>
+            <Text style={styles2.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles2.continueButton} onPress={onContinue}>
+            <Text style={styles2.buttonText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles2 = StyleSheet.create({
+  card: {
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "white",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    margin: 20,
+  },
+  content: {
+    alignItems: "center",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  warningText: {
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "black",
+  },
+  questionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "black",
+    textAlign: "center",
+    marginVertical: 10,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 10,
+  },
+  cancelButton: {
+    backgroundColor: "green",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  continueButton: {
+    backgroundColor: "gray",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+});
+
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -97,6 +179,7 @@ const SendDetails = () => {
   const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([
@@ -270,6 +353,10 @@ const SendDetails = () => {
       .catch(e => console.log('fetchUtxo error', e));
   }, [wallet]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    setWarning(null);
+  }, [addresses]);
+
   // recalc fees in effect so we don't block render
   useEffect(() => {
     if (!wallet) return; // wait for it
@@ -327,10 +414,14 @@ const SendDetails = () => {
       });
 
       let flag = false;
+      const mapMemo = (u: any) => ({ ...u, memo: txMetadata[u.txid].memo });
       while (true) {
-        const mapMemo = (u: any) => ({ ...u, memo: txMetadata[u.txid].memo });
         try {
-          const { fee } = wallet.coinselect(lutxo.map(mapMemo), targets, opt.fee);
+          const { fee, warn } = wallet.coinselect(lutxo.map(mapMemo), targets, opt.fee);
+          console.log({ optFee: opt.fee, warn });
+          if (!!warn) {
+            setWarning(warn);
+          }
 
           // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = fee;
@@ -1421,6 +1512,10 @@ const SendDetails = () => {
             </View>
           )}
         </TouchableOpacity>
+
+        {warning && (
+          <UTXOKYCWarning onCancel={() => setWarning(null)} onContinue={() => setWarning(null)} />
+        )}
         {renderCreateButton()}
         <SelectFeeModal
           ref={feeModalRef}

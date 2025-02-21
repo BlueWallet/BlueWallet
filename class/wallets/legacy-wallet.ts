@@ -64,9 +64,10 @@ const coinSelectCoinfy = (
   
   // Scenario 3: If neither isolated scenario worked, use all UTXOs (mixed)
   const fullResult = coinSelect(utxos, targets, feeRate);
+  console.log('fullResult', fullResult, `To avoid using "dirty" UTXOs, add at least ${missingValue ?? 0} satoshis.`);
   return {
     ...fullResult,
-    warn: `To avoid using "dirty" UTXOs, add at least ${missingValue > 0 ? missingValue : 0} satoshis.`,
+    warn: `To avoid using "dirty" UTXOs, add at least ${missingValue ?? 0} satoshis.`,
   };
 };
 
@@ -428,25 +429,28 @@ export class LegacyWallet extends AbstractWallet {
     fee: number;
     warn?: string;
   } {
-    let algo = coinSelect;
+    let result: {
+      inputs: CoinSelectReturnInput[];
+      outputs: CoinSelectOutput[];
+      fee: number;
+      warn?: string;
+    } = { inputs: [], outputs: [], fee: 0 };
 
     if (coinfyLambda > 0) {
-      algo = coinSelectCoinfy;
-    }
-
+      result = coinSelectCoinfy(utxos, targets as CoinSelectTarget[], feeRate);
     // if targets has output without a value, we want send MAX to it
-    if (targets.some(i => !('value' in i))) {
-      algo = coinSelectSplit;
+    } else if (targets.some(i => !('value' in i))) {
+      result = coinSelectSplit(utxos, targets as CoinSelectTarget[], feeRate);
+    } else {
+      result = coinSelect(utxos, targets as CoinSelectTarget[], feeRate);
     }
-
-    const { inputs, outputs, fee } = algo(utxos, targets as CoinSelectTarget[], feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
-    if (!inputs || !outputs) {
+    if (!result.inputs || !result.outputs) {
       throw new Error('Not enough balance. Try sending smaller amount or decrease the fee.');
     }
 
-    return { inputs, outputs, fee };
+    return result;
   }
 
   /**
