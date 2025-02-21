@@ -22,25 +22,18 @@ export type ExtendedCoinSelectUtxo = CoinSelectUtxo & {
 };
 
 const coinSelectCoinfy = (utxos: ExtendedCoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
-  const result = {
-    inputs: [],
-    outputs: [],
-    fee: 0,
-  };
+  // const result = {
+  //   inputs: [],
+  //   outputs: [],
+  //   fee: 0,
+  // };
 
-<<<<<<< HEAD
   // KYC status
   const dirty = utxos.filter(utxo => utxo.memo?.includes('dirty'));
   const clean = utxos.filter(utxo => utxo.memo?.includes('clean'));
   const none = utxos.filter(utxo => utxo.memo?.includes('none'));
 
-
-
-
-=======
->>>>>>> 937acf89be01a11758f6bc3cd5ba0b8082710fc8
-
-  return result;
+  return coinSelect([...clean, ...none], targets, feeRate);
 };
 
 /**
