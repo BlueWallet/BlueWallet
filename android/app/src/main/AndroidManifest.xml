@@ -16,12 +16,6 @@
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
-    <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
-    <uses-permission android:name="android.permission.ACTION_CREATE_DOCUMENT" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.ACTION_SCREEN_OFF"/>
-    <uses-permission android:name="android.permission.ACTION_SCREEN_ON"/>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
@@ -58,7 +52,15 @@
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
-
+<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.provider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+</provider>
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
         <receiver
