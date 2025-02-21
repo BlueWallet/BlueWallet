@@ -33,7 +33,7 @@ const coinSelectCoinfy = (
     utxo.memo?.toLowerCase().includes("clean")
   );
   const none = utxos.filter((utxo) =>
-    utxo.memo?.toLowerCase().includes("none")
+    !utxo.memo || utxo.memo?.toLowerCase().includes("none")
   );
 
   // Scenario 1: Use only safe UTXOs: 'clean' and 'none'
@@ -41,14 +41,12 @@ const coinSelectCoinfy = (
   const cleanResult = coinSelect(safeUTXOs, targets, feeRate);
   if (cleanResult.inputs && cleanResult.outputs) {
     // The transaction can be composed using safe UTXOs – the ideal solution.
-    console.log('cleanResult', cleanResult);
     return cleanResult;
   }
 
   // Scenario 2: Use only "dirty" UTXOs
   const dirtyResult = coinSelect(dirty, targets, feeRate);
   if (dirtyResult.inputs && dirtyResult.outputs) {
-    console.log('dirtyResult', dirtyResult);
     return dirtyResult;
   }
 
@@ -66,13 +64,6 @@ const coinSelectCoinfy = (
   
   // Scenario 3: If neither isolated scenario worked, use all UTXOs (mixed)
   const fullResult = coinSelect(utxos, targets, feeRate);
-  console.log('fullResult', {
-    fullResult,
-    missingValue,
-    safeValue,
-    safeFee,
-    totalTargetValue,
-  });
   return {
     ...fullResult,
     warn: `To avoid using "dirty" UTXOs, add at least ${missingValue > 0 ? missingValue : 0} satoshis.`,

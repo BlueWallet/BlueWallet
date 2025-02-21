@@ -15,8 +15,8 @@ import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet: string[] = ['#007AFF', '#0040FF'];
-  static hdSegwitBech32Wallet: string[] = ['#6CD9FC', '#44BEE5'];
-  static segwitBech32Wallet: string[] = ['#6CD9FC', '#44BEE5'];
+  static hdSegwitBech32Wallet: string[] = ['#046A38', '#046A38be'];
+  static segwitBech32Wallet: string[] = ['#046A38', '#046A38be'];
   static watchOnlyWallet: string[] = ['#474646', '#282828'];
   static legacyWallet: string[] = ['#37E8C0', '#15BE98'];
   static hdLegacyP2PKHWallet: string[] = ['#FD7478', '#E73B40'];
