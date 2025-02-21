@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import bitcoinMessage from 'bitcoinjs-message';
-import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget, CoinSelectUtxo } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
@@ -13,6 +13,21 @@ import { AbstractWallet } from './abstract-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
+
+const coinfyLambda = 0.5;
+
+const coinSelectCoinfy = (utxos: CoinSelectUtxo[], targets: CoinSelectTarget[], feeRate: number) => {  
+  const result = {
+    inputs: [],
+    outputs: [],
+    fee: 0,
+  };
+
+  
+
+
+  return result;
+};
 
 /**
  *  Has private key and single address like "1ABCD....."
@@ -347,6 +362,8 @@ export class LegacyWallet extends AbstractWallet {
     return hd.getTransactions.apply(this);
   }
 
+
+
   /**
    * Broadcast txhex. Can throw an exception if failed
    *
@@ -370,6 +387,11 @@ export class LegacyWallet extends AbstractWallet {
     fee: number;
   } {
     let algo = coinSelect;
+
+    if (coinfyFactor > 0) {
+      algo = coinSelectCoinfy;
+    }
+
     // if targets has output without a value, we want send MAX to it
     if (targets.some(i => !('value' in i))) {
       algo = coinSelectSplit;
