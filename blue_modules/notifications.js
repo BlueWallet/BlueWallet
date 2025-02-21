@@ -6,6 +6,7 @@ import { checkNotifications, requestNotifications, RESULTS } from 'react-native-
 import PushNotification from 'react-native-push-notification';
 import loc from '../loc';
 import { groundControlUri } from './constants';
+import { fetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
@@ -385,10 +386,6 @@ export const configureNotifications = async onProcessNotifications => {
   });
 };
 
-const _sleep = async ms => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 /**
  * Validates whether the provided GroundControl URI is valid by pinging it.
  *
@@ -396,15 +393,13 @@ const _sleep = async ms => {
  * @returns {Promise<boolean>} TRUE if valid, FALSE otherwise
  */
 export const isGroundControlUriValid = async uri => {
-  let response;
   try {
-    response = await Promise.race([fetch(`${uri}/ping`, { headers: _getHeaders() }), _sleep(2000)]);
-  } catch (_) {}
-
-  if (!response) return false;
-
-  const json = await response.json();
-  return !!json.description;
+    const response = await fetch(`${uri}/ping`, { headers: _getHeaders() });
+    const json = await response.json();
+    return !!json.description;
+  } catch (_) {
+    return false;
+  }
 };
 
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
@@ -430,24 +425,21 @@ const getLevels = async () => {
   const pushToken = await getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return;
 
-  let response;
   try {
-    response = await Promise.race([
-      fetch(`${baseURI}/getTokenConfiguration`, {
-        method: 'POST',
-        headers: _getHeaders(),
-        body: JSON.stringify({
-          token: pushToken.token,
-          os: pushToken.os,
-        }),
+    const response = await fetch(`${baseURI}/getTokenConfiguration`, {
+      method: 'POST',
+      headers: _getHeaders(),
+      body: JSON.stringify({
+        token: pushToken.token,
+        os: pushToken.os,
       }),
-      _sleep(3000),
-    ]);
-  } catch (_) {}
+    });
 
-  if (!response) return {};
-
-  return await response.json();
+    if (!response) return {};
+    return await response.json();
+  } catch (_) {
+    return {};
+  }
 };
 
 /**

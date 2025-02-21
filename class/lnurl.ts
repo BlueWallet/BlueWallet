@@ -6,6 +6,7 @@ import CryptoJS from 'crypto-js';
 // @ts-ignore theres no types for secp256k1
 import secp256k1 from 'secp256k1';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
+import { fetch } from '../util/fetch';
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 

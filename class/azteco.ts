@@ -1,4 +1,5 @@
 import URL from 'url';
+import { fetch } from '../util/fetch';
 
 export default class Azteco {
   /**
