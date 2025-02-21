@@ -1,6 +1,7 @@
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { LegacyWallet } from './legacy-wallet';
+import { fetch } from '../../util/fetch';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
