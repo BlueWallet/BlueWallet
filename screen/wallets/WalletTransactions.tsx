@@ -142,6 +142,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       if (oldBalance !== wallet.getBalance()) smthChanged = true;
       const oldTxLen = wallet.getTransactions().length;
       await wallet.fetchTransactions();
+      // Set a "last fetch" timestamp to mark that initial fetch is done.
+      if (wallet.getLastTxFetch() === 0) {
+        wallet.setLastTxFetch(Date.now());
+      }
       if ('fetchPendingTransactions' in wallet) {
         await wallet.fetchPendingTransactions();
       }
