@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFocusEffect, useNavigation, usePreventRemove } from '@react-navigation/native';
+import { useFocusEffect, usePreventRemove } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -194,7 +194,6 @@ const ManageWallets: React.FC = () => {
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useNavigation();
   const debouncedSearchQuery = useDebounce(state.searchQuery, 300);
   const bounceAnim = useBounceAnimation(state.searchQuery);
   const stylesHook = {
@@ -230,14 +229,10 @@ const ManageWallets: React.FC = () => {
 
   usePreventRemove(hasUnsavedChanges, async () => {
     await new Promise<void>(resolve => {
-      Alert.alert(
-        loc._.discard_changes,
-        loc._.discard_changes_explain,
-        [
-          { text: loc._.cancel, style: 'cancel', onPress: () => resolve() },
-          { text: loc._.ok, style: 'default', onPress: () => resolve() },
-        ]
-      );
+      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+        { text: loc._.cancel, style: 'cancel', onPress: () => resolve() },
+        { text: loc._.ok, style: 'default', onPress: () => resolve() },
+      ]);
     });
   });
 

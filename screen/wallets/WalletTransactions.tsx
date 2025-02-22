@@ -47,7 +47,6 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
-import useDebounce from '../../hooks/useDebounce';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -72,6 +71,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { colors } = useTheme();
   const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
+  const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet?._lastTxFetch || 0);
+  const [fetchFailures, setFetchFailures] = useState(0);
+  const MAX_FAILURES = 3;
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -130,6 +132,18 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const refreshTransactions = useCallback(async () => {
     console.debug('refreshTransactions, ', wallet?.getLabel());
     if (!wallet || isElectrumDisabled || isLoading) return;
+
+    const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
+    if (lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
+      return; // Prevent refreshing if last fetch was too recent
+    }
+
+    if (fetchFailures >= MAX_FAILURES) {
+      console.warn('Max fetch failures reached, stopping retries');
+      presentAlert({ message: 'Failed to fetch transactions after multiple attempts', type: AlertType.Toast });
+      return;
+    }
+
     setIsLoading(true);
     let smthChanged = false;
     try {
@@ -142,10 +156,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       if (oldBalance !== wallet.getBalance()) smthChanged = true;
       const oldTxLen = wallet.getTransactions().length;
       await wallet.fetchTransactions();
-      // Set a "last fetch" timestamp to mark that initial fetch is done.
-      if (wallet.getLastTxFetch() === 0) {
-        wallet.setLastTxFetch(Date.now());
-      }
       if ('fetchPendingTransactions' in wallet) {
         await wallet.fetchPendingTransactions();
       }
@@ -153,8 +163,21 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         await wallet.fetchUserInvoices();
       }
       if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+
+      // Success - reset failure counter and update timestamps
+      setFetchFailures(0);
+      const newTimestamp = Date.now();
+      setLastFetchTimestamp(newTimestamp);
+      wallet._lastTxFetch = newTimestamp;
     } catch (err) {
-      presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+      setFetchFailures(prev => {
+        const newFailures = prev + 1;
+        // Only show error on last attempt
+        if (newFailures >= MAX_FAILURES) {
+          presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+        }
+        return newFailures;
+      });
     } finally {
       if (smthChanged) {
         await saveToDisk();
@@ -162,15 +185,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       }
       setIsLoading(false);
     }
-  }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
-
-  const debouncedRefresh = useDebounce(refreshTransactions, 500);
+  }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures]);
 
   useEffect(() => {
-    if (wallet && wallet.getLastTxFetch() === 0 && !isLoading) {
-      debouncedRefresh();
+    if (wallet && lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled) {
+      refreshTransactions().catch(console.error);
     }
-  }, [wallet, isLoading, debouncedRefresh]);
+  }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
 
   useEffect(() => {
     if (wallet) {
@@ -374,7 +395,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [refreshTransactions, setReloadTransactionsMenuActionFunction]),
+    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
   );
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
