@@ -51,6 +51,7 @@ const keys = {
   SortLabel: 'sortLabel',
   SortStatus: 'sortStatus',
   Delete: 'delete',
+  Details: 'details',
 } as const;
 
 const icons = {
@@ -94,6 +95,7 @@ const icons = {
   SortDESC: { iconValue: Platform.OS === 'ios' ? 'arrow.up.to.line' : 'ic_menu_sort_by_size' },
   SaveFile: { iconValue: Platform.OS === 'ios' ? 'square.and.arrow.down' : 'ic_menu_save' },
   Delete: { iconValue: Platform.OS === 'ios' ? 'trash' : 'ic_menu_delete' },
+  Details: { iconValue: Platform.OS === 'ios' ? 'info.circle' : 'ic_menu_info_details' },
 } as const;
 
 export type ToolTipAction = {
@@ -370,5 +372,10 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     text: loc.wallets.details_delete,
     icon: icons.Delete,
     destructive: true,
+  },
+  Details: {
+    id: keys.Details,
+    text: loc.send.create_details,
+    icon: icons.Details,
   },
 } as const;
