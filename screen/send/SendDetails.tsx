@@ -12,6 +12,7 @@ import {
   I18nManager,
   Keyboard,
   LayoutAnimation,
+  Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -155,6 +156,29 @@ const styles2 = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalCloseButton: {
+    backgroundColor: "gray",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
 });
 
 const SendDetails = () => {
@@ -180,6 +204,7 @@ const SendDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const [warning, setWarning] = useState<string | null>(null);
+  const [privModalVisible, setPrivModalVisible] = useState(false);
   const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([
@@ -418,7 +443,6 @@ const SendDetails = () => {
       while (true) {
         try {
           const { fee, warn } = wallet.coinselect(lutxo.map(mapMemo), targets, opt.fee);
-          console.log({ optFee: opt.fee, warn });
           if (!!warn) {
             setWarning(warn);
           }
@@ -1424,6 +1448,41 @@ const SendDetails = () => {
             </BlueText>
           </TouchableOpacity>
         )}
+
+        <TouchableOpacity
+          accessibilityRole="button"
+          disabled={isLoading}
+          style={styles.fee}
+        >
+          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{ " " }</Text>
+
+          {networkTransactionFeesIsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={[styles.feeRow, stylesHook.feeRow]}>
+              <TouchableOpacity onPress={() => setPrivModalVisible(true)}>
+            <Text style={stylesHook.feeValue}>Priv</Text>
+          </TouchableOpacity>
+            </View>
+          )}
+        </TouchableOpacity>
+
+
+        <Modal
+        animationType="slide"
+        transparent={true}
+        visible={privModalVisible}
+        onRequestClose={() => setPrivModalVisible(false)}
+      >
+        <View style={styles2.modalContainer}>
+          <View style={styles2.modalContent}>
+            <Text style={styles2.modalText}>Transaction Fee Details</Text>
+            <TouchableOpacity style={styles2.modalCloseButton} onPress={() => setPrivModalVisible(false)}>
+              <Text style={styles2.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
         <AddressInput
           onChangeText={text => {

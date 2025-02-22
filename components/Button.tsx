@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     fontSize: 16,
     fontWeight: '600',
+    color: "#FFFFFF",
   },
 });
 

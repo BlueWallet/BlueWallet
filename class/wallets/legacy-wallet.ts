@@ -64,7 +64,6 @@ const coinSelectCoinfy = (
   
   // Scenario 3: If neither isolated scenario worked, use all UTXOs (mixed)
   const fullResult = coinSelect(utxos, targets, feeRate);
-  console.log('fullResult', fullResult, `To avoid using "dirty" UTXOs, add at least ${missingValue ?? 0} satoshis.`);
   return {
     ...fullResult,
     warn: `To avoid using "dirty" UTXOs, add at least ${missingValue ?? 0} satoshis.`,
