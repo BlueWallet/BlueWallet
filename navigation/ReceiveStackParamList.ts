@@ -1,4 +1,19 @@
+import { BitcoinUnit } from '../models/bitcoinUnits';
+
 export type ReceiveStackParamList = {
-  ReceiveDetails: { address: string; customLabel?: string; customAmount?: number; customUnit?: string; bip21encoded?: string };
-  ReceiveCustomAmount: { address: string };
+  ReceiveDetails: {
+    walletID?: string;
+    address?: string;
+    customLabel?: string;
+    customAmount?: number;
+    customUnit?: BitcoinUnit;
+    bip21encoded?: string;
+  };
+  ReceiveCustomAmount: {
+    address: string;
+    customLabel?: string;
+    customAmount?: number;
+    customUnit?: BitcoinUnit;
+    walletID: string;
+  };
 };

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { CommonActions, RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { View, TextInput, StyleSheet, Platform, ScrollView } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
-import { BlueSpacing20 } from '../../BlueComponents';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc from '../../loc';
@@ -11,20 +10,35 @@ import { useTheme } from '../../components/themes';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ReceiveStackParamList } from '../../navigation/ReceiveStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { address } from 'bitcoinjs-lib';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
-type NavigationProps = NativeStackNavigationProp<ReceiveStackParamList, 'ReceiveDetails'>;
-type RouteProps = RouteProp<ReceiveStackParamList, 'ReceiveDetails'>;
+type NavigationProps = NativeStackNavigationProp<ReceiveStackParamList, 'ReceiveCustomAmount'>;
+type RouteProps = RouteProp<ReceiveStackParamList, 'ReceiveCustomAmount'>;
+
+interface LocalState {
+  customLabel: string;
+  customAmount: string | number;
+  customUnit: BitcoinUnit;
+}
 
 const ReceiveCustomAmount = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const { colors } = useTheme();
-  // Local state for custom amount settings
-  const [tempCustomLabel, setTempCustomLabel] = useState<string | undefined>();
-  const [tempCustomAmount, setTempCustomAmount] = useState<number | undefined>();
-  const [tempCustomUnit, setTempCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
+
+  // Store initial values from route params
+  const initialLabel = route.params.customLabel || '';
+  const initialAmount = route.params.customAmount ? route.params.customAmount.toString() : '';
+
+  const [state, setState] = useState<LocalState>({
+    customLabel: initialLabel,
+    customAmount: initialAmount,
+    customUnit: route.params.customUnit || BitcoinUnit.BTC,
+  });
+
+  const handleUpdateState = (updates: Partial<LocalState>) => {
+    setState(current => ({ ...current, ...updates }));
+  };
 
   const handleReset = () => {
     navigation.popTo('ReceiveDetails', {
@@ -32,68 +46,88 @@ const ReceiveCustomAmount = () => {
       customLabel: undefined,
       customAmount: undefined,
       customUnit: undefined,
-      bip21encoded: undefined,
+      walletID: route.params.walletID,
     });
   };
 
   const handleSave = () => {
-    // Conversion similar to previous logic
-    let amount = tempCustomAmount;
-    switch (tempCustomUnit) {
-      case BitcoinUnit.BTC:
-        break;
-      case BitcoinUnit.SATS:
-        amount = satoshiToBTC(Number(tempCustomAmount));
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        amount = fiatToBTC(Number(tempCustomAmount));
-        break;
+    let btcAmount: number | undefined;
+    const numericAmount = Number(state.customAmount);
+    if (!isNaN(numericAmount) && numericAmount > 0) {
+      switch (state.customUnit) {
+        case BitcoinUnit.BTC:
+          btcAmount = numericAmount;
+          break;
+        case BitcoinUnit.SATS:
+          btcAmount = parseFloat(satoshiToBTC(numericAmount));
+          break;
+        case BitcoinUnit.LOCAL_CURRENCY:
+          btcAmount = parseFloat(fiatToBTC(numericAmount));
+          break;
+      }
     }
-    // For example, assume we pass back custom amount data to ReceiveDetails via navigation params.
-    // Also, update the bip21encoded address via DeeplinkSchemaMatch as needed. (Assumes route.params.address exists.)
-    const newBip21encoded = DeeplinkSchemaMatch.bip21encode(route.params.address, { amount, label: tempCustomLabel });
-    const popToAction = StackActions.popTo('ReceiveDetails', {
-      customLabel: tempCustomLabel,
-      customAmount: tempCustomAmount,
-      customUnit: tempCustomUnit,
-      bip21encoded: newBip21encoded,
+
+    const bip21Options: { amount?: string; label?: string } = {};
+    if (btcAmount && btcAmount > 0) {
+      bip21Options.amount = btcAmount.toString();
+    }
+    if (state.customLabel) {
+      bip21Options.label = state.customLabel;
+    }
+
+    const bip21encoded = DeeplinkSchemaMatch.bip21encode(route.params.address, bip21Options);
+
+    navigation.popTo('ReceiveDetails', {
+      address: route.params.address,
+      customLabel: state.customLabel,
+      customAmount: numericAmount,
+      customUnit: state.customUnit,
+      bip21encoded,
+      walletID: route.params.walletID,
     });
-    navigation.dispatch(popToAction);
   };
 
+  // Disable create button if both inputs are empty or if both match the initial values
+  const isCreateDisabled =
+    (!state.customLabel.trim() && !state.customAmount.toString().trim()) ||
+    (state.customLabel === initialLabel && state.customAmount.toString() === initialAmount);
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.elevated }]}>
-      <AmountInput
-        unit={tempCustomUnit}
-        amount={tempCustomAmount}
-        onChangeText={setTempCustomAmount}
-        onAmountUnitChange={setTempCustomUnit}
-      />
-      <View style={[styles.inputContainer, { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder }]}>
-        <TextInput
-          onChangeText={setTempCustomLabel}
-          placeholderTextColor="#81868e"
-          placeholder={loc.receive.details_label}
-          value={tempCustomLabel}
-          style={{ color: colors.foregroundColor }}
+    <View style={[styles.outerContainer, { backgroundColor: colors.elevated }]}>
+      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always" keyboardDismissMode="none">
+        <AmountInput
+          unit={state.customUnit}
+          amount={state.customAmount ? Number(state.customAmount) : undefined}
+          onChangeText={(value: string | number) => handleUpdateState({ customAmount: value })}
+          onAmountUnitChange={(unit: BitcoinUnit) => handleUpdateState({ customUnit: unit })}
         />
-      </View>
-      <BlueSpacing20 />
-      <View style={styles.buttonContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder }]}>
+          <TextInput
+            onChangeText={(text: string) => handleUpdateState({ customLabel: text })}
+            placeholderTextColor="#81868e"
+            placeholder={loc.receive.details_label}
+            value={state.customLabel}
+            style={{ color: colors.foregroundColor }}
+          />
+        </View>
+      </ScrollView>
+      <View style={styles.fixedButtonContainer}>
         <Button title={loc.receive.reset} onPress={handleReset} />
         <View style={styles.buttonSpacing} />
-        <Button title={loc.receive.details_create} onPress={handleSave} />
+        <Button title={loc.receive.details_create} onPress={handleSave} disabled={isCreateDisabled} />
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
-    padding: 22,
-    justifyContent: 'center',
-    alignContent: 'center',
+  },
+  contentContainer: {
+    paddingHorizontal: 22,
+    paddingTop: 22,
+    paddingBottom: 120,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -105,10 +139,15 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
   },
-  buttonContainer: {
+  fixedButtonContainer: {
+    position: 'absolute',
+    bottom: Platform.select({ ios: 44, android: 22 }),
+    left: 22,
+    right: 22,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   buttonSpacing: {
     width: 16,

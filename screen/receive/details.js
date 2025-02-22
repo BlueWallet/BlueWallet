@@ -1,20 +1,12 @@
 import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  BackHandler,
-  InteractionManager,
-  LayoutAnimation,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -36,6 +28,47 @@ import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modu
 import TipBox from '../../components/TipBox';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
+
+const createBip21Options = (amount, unit, label) => {
+  const options = {};
+  if (amount && amount > 0) {
+    let btcAmount;
+    switch (unit) {
+      case BitcoinUnit.BTC:
+        btcAmount = amount;
+        break;
+      case BitcoinUnit.SATS:
+        btcAmount = satoshiToBTC(Number(amount));
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        btcAmount = fiatToBTC(Number(amount));
+        break;
+      default:
+        btcAmount = amount;
+    }
+    if (btcAmount > 0) {
+      options.amount = btcAmount.toString();
+    }
+  }
+  if (label) {
+    options.label = label;
+  }
+  return options;
+};
+
+const getDisplayAmount = (amount, unit) => {
+  if (!amount || !unit || amount <= 0) return null;
+  switch (unit) {
+    case BitcoinUnit.BTC:
+      return `${amount} BTC`;
+    case BitcoinUnit.SATS:
+      return `${satoshiToBTC(amount)} BTC`;
+    case BitcoinUnit.LOCAL_CURRENCY:
+      return `${fiatToBTC(amount)} BTC`;
+    default:
+      return `${amount} ${unit}`;
+  }
+};
 
 const ReceiveDetails = () => {
   const { walletID, address, customLabel, customUnit, customAmount } = useRoute().params;
@@ -68,16 +101,21 @@ const ReceiveDetails = () => {
     },
   });
 
-  const isCustom = customAmount !== undefined;
-
   const setAddressBIP21Encoded = useCallback(
     addr => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      // If no custom values are provided, use the plain address
+      let newBip21encoded;
+      if (!customLabel && !customAmount) {
+        newBip21encoded = addr;
+      } else {
+        const options = createBip21Options(customAmount, customUnit, customLabel);
+        newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr, options);
+      }
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
     },
-    [setParams],
+    [setParams, customAmount, customLabel, customUnit],
   );
 
   const obtainWalletAddress = useCallback(async () => {
@@ -213,7 +251,6 @@ const ReceiveDetails = () => {
             }),
           );
           setShowPendingBalance(true);
-          setShowAddress(false);
         } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
           // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
           // staring at the screen)
@@ -249,12 +286,10 @@ const ReceiveDetails = () => {
   const renderConfirmedBalance = () => {
     return (
       <View style={styles.scrollBody}>
-        {isCustom && (
-          <>
-            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-              {customLabel}
-            </BlueText>
-          </>
+        {customLabel?.length > 0 && (
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+            {customLabel}
+          </BlueText>
         )}
         <SuccessView />
         <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
@@ -267,12 +302,10 @@ const ReceiveDetails = () => {
   const renderPendingBalance = () => {
     return (
       <View style={styles.scrollBody}>
-        {isCustom && (
-          <>
-            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-              {customLabel}
-            </BlueText>
-          </>
+        {customLabel?.length > 0 && (
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+            {customLabel}
+          </BlueText>
         )}
         <TransactionPendingIconBig />
         <BlueSpacing40 />
@@ -306,23 +339,21 @@ const ReceiveDetails = () => {
     return (
       <>
         <View style={styles.scrollBody}>
-          {isCustom && (
+          {customAmount > 0 && (
             <>
-              {getDisplayAmount() && (
-                <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
-                  {getDisplayAmount()}
-                </BlueText>
-              )}
-              {customLabel?.length > 0 && (
-                <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                  {customLabel}
-                </BlueText>
-              )}
+              <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
+                {getDisplayAmount(customAmount, customUnit)}
+              </BlueText>
+              <BlueSpacing20 />
             </>
           )}
-
-          <QRCodeComponent value={bip21encoded} />
-          <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
+          {customLabel?.length > 0 && (
+            <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          )}
+          <QRCodeComponent value={bip21encoded || address} />
+          <CopyTextToClipboard text={bip21encoded || address} />
         </View>
       </>
     );
@@ -353,25 +384,6 @@ const ReceiveDetails = () => {
     );
   };
 
-  /**
-   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
-   */
-  const getDisplayAmount = () => {
-    if (Number(customAmount) > 0) {
-      switch (customUnit) {
-        case BitcoinUnit.BTC:
-          return customAmount + ' BTC';
-        case BitcoinUnit.SATS:
-          return satoshiToBTC(customAmount) + ' BTC';
-        case BitcoinUnit.LOCAL_CURRENCY:
-          return fiatToBTC(customAmount) + ' BTC';
-      }
-      return customAmount + ' ' + customUnit;
-    } else {
-      return null;
-    }
-  };
-
   const renderTabContent = () => {
     const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
 
@@ -393,13 +405,6 @@ const ReceiveDetails = () => {
     }
   };
 
-  useEffect(() => {
-    if (isCustom) {
-      const newBip21 = DeeplinkSchemaMatch.bip21encode(address, { amount: customAmount, label: customLabel });
-      setBip21encoded(newBip21);
-    }
-  }, [isCustom, customAmount, customLabel, customUnit, address]);
-
   return (
     <>
       <ScrollView
@@ -419,7 +424,7 @@ const ReceiveDetails = () => {
           </View>
         )}
         {showAddress && renderTabContent()}
-        {address !== undefined && showAddress && (
+        {showAddress && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
         )}
         {showConfirmedBalance ? renderConfirmedBalance() : null}
@@ -432,7 +437,7 @@ const ReceiveDetails = () => {
                 style={styles.link}
                 testID="SetCustomAmountButton"
                 title={loc.receive.details_setAmount}
-                onPress={() => navigation.navigate('ReceiveCustomAmount', { address })}
+                onPress={() => navigation.navigate('ReceiveCustomAmount', { address, customLabel, customAmount, customUnit, walletID })}
               />
             )}
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
