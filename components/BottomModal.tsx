@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
-import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
+import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
 import { Keyboard, Image, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
@@ -14,7 +14,7 @@ interface BottomModalProps extends TrueSheetProps {
   footer?: ReactElement | ComponentType<any> | null;
   footerDefaultMargins?: boolean | number;
   onPresent?: () => void;
-  onSizeChange?: (size: SizeInfo) => void;
+  onSizeChange?: (event: SizeChangeEvent) => void;
   showCloseButton?: boolean;
   shareContent?: BottomModalShareContent;
   shareButtonOnPress?: (event: GestureResponderEvent) => void;

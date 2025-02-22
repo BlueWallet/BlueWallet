@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { LightningCustodianWallet } from '../../class';
+import { fetch } from '../../util/fetch';
 
 jest.setTimeout(200 * 1000);
 const baseUri = 'https://lndhub-staging.herokuapp.com';

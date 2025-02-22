@@ -12,18 +12,18 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, usePreventRemove } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import useDebounce from '../../hooks/useDebounce';
 import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
+import useDebounce from '../../hooks/useDebounce';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -194,10 +194,8 @@ const ManageWallets: React.FC = () => {
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useNavigation();
   const debouncedSearchQuery = useDebounce(state.searchQuery, 300);
   const bounceAnim = useBounceAnimation(state.searchQuery);
-  const beforeRemoveListenerRef = useRef<(() => void) | null>(null);
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -225,6 +223,19 @@ const ManageWallets: React.FC = () => {
     }
   }, [debouncedSearchQuery, state.order]);
 
+  const hasUnsavedChanges = useMemo(() => {
+    return JSON.stringify(walletsRef.current) !== JSON.stringify(state.tempOrder.map(item => item.data));
+  }, [state.tempOrder]);
+
+  usePreventRemove(hasUnsavedChanges, async () => {
+    await new Promise<void>(resolve => {
+      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+        { text: loc._.cancel, style: 'cancel', onPress: () => resolve() },
+        { text: loc._.ok, style: 'default', onPress: () => resolve() },
+      ]);
+    });
+  });
+
   const handleClose = useCallback(() => {
     if (state.searchQuery.length === 0 && !state.isSearchFocused) {
       const newWalletOrder = state.tempOrder
@@ -243,20 +254,12 @@ const ManageWallets: React.FC = () => {
         }
       });
 
-      if (beforeRemoveListenerRef.current) {
-        navigation.removeListener('beforeRemove', beforeRemoveListenerRef.current);
-      }
-
       goBack();
     } else {
       dispatch({ type: SET_SEARCH_QUERY, payload: '' });
       dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
     }
-  }, [goBack, setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.tempOrder, navigation, handleWalletDeletion]);
-
-  const hasUnsavedChanges = useMemo(() => {
-    return JSON.stringify(walletsRef.current) !== JSON.stringify(state.tempOrder.map(item => item.data));
-  }, [state.tempOrder]);
+  }, [goBack, setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.tempOrder, handleWalletDeletion]);
 
   const HeaderLeftButton = useMemo(
     () => (
@@ -298,44 +301,11 @@ const ManageWallets: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       setIsDrawerShouldHide(true);
-      const beforeRemoveListener = (e: { preventDefault: () => void; data: { action: any } }) => {
-        if (!hasUnsavedChanges) {
-          return;
-        }
-
-        e.preventDefault();
-
-        Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-          { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-          {
-            text: loc._.ok,
-            style: 'default',
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]);
-      };
-
-      // @ts-ignore: fix later
-      beforeRemoveListenerRef.current = beforeRemoveListener;
-
-      navigation.addListener('beforeRemove', beforeRemoveListener);
-
       return () => {
-        if (beforeRemoveListenerRef.current) {
-          navigation.removeListener('beforeRemove', beforeRemoveListenerRef.current);
-        }
         setIsDrawerShouldHide(false);
       };
-    }, [hasUnsavedChanges, navigation, setIsDrawerShouldHide]),
+    }, [setIsDrawerShouldHide]),
   );
-
-  // Ensure the listener is re-added every time there are unsaved changes
-  useEffect(() => {
-    if (beforeRemoveListenerRef.current) {
-      navigation.removeListener('beforeRemove', beforeRemoveListenerRef.current);
-      navigation.addListener('beforeRemove', beforeRemoveListenerRef.current);
-    }
-  }, [hasUnsavedChanges, navigation]);
 
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
