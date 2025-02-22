@@ -164,7 +164,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   useEffect(() => {
     if (wallet && wallet.getLastTxFetch() === 0 && !isLoading) {
-      debouncedRefresh().finally(() => setIsLoading(false));
+      debouncedRefresh();
     }
   }, [wallet, isLoading, debouncedRefresh]);
 
