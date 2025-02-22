@@ -139,9 +139,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
 
     if (fetchFailures >= MAX_FAILURES) {
-      console.warn('Max fetch failures reached, stopping retries');
-      presentAlert({ message: 'Failed to fetch transactions after multiple attempts', type: AlertType.Toast });
-      return;
+      return; // Silently stop retrying
     }
 
     setIsLoading(true);
@@ -172,8 +170,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     } catch (err) {
       setFetchFailures(prev => {
         const newFailures = prev + 1;
-        // Only show error on last attempt
-        if (newFailures >= MAX_FAILURES) {
+        // Only show error on final attempt
+        if (newFailures === MAX_FAILURES) {
           presentAlert({ message: (err as Error).message, type: AlertType.Toast });
         }
         return newFailures;
