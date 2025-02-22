@@ -85,7 +85,7 @@
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#0fefdd1aca07fcc3c204f6f1511f9fc0a2c59111",
     "@ngraveio/bc-ur": "1.1.13",
     "@noble/secp256k1": "1.6.3",
-    "@react-native-async-storage/async-storage": "2.1.0",
+    "@react-native-async-storage/async-storage": "2.1.1",
     "@react-native-clipboard/clipboard": "1.16.1",
     "@react-native-community/cli": "15.0.1",
     "@react-native-community/cli-platform-android": "15.0.1",
