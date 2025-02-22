@@ -1,9 +1,8 @@
-import { Alert, Linking, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import Share from 'react-native-share';
-import { request, PERMISSIONS } from 'react-native-permissions';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
@@ -37,7 +36,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
 
 /**
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
- * or perhabs messaging app). Provided filename should be just a file name, NOT a path
+ * or perhaps messaging app). Provided filename should be just a file name, NOT a path
  */
 
 export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
@@ -48,36 +47,21 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       await RNFS.writeFile(filePath, contents);
       await _shareOpen(filePath, showShareDialog);
     } else if (Platform.OS === 'android') {
-      const isAndroidVersion33OrAbove = Platform.Version >= 33;
-      const permissionType = isAndroidVersion33OrAbove ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
-
-      const result = await request(permissionType);
-      if (result === 'granted') {
-        const filePath = `${RNFS.ExternalDirectoryPath}/${sanitizedFileName}`;
-        try {
-          await RNFS.writeFile(filePath, contents);
-          if (showShareDialog) {
-            await _shareOpen(filePath);
-          } else {
-            presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
-          }
-        } catch (e: any) {
-          presentAlert({ message: e.message });
+      const filePath = `${RNFS.DownloadDirectoryPath}/${sanitizedFileName}`;
+      try {
+        await RNFS.writeFile(filePath, contents);
+        if (showShareDialog) {
+          await _shareOpen(filePath);
+        } else {
+          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
         }
-      } else {
-        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-          {
-            text: loc.send.open_settings,
-            onPress: () => {
-              Linking.openSettings();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ]);
+      } catch (e: any) {
+        console.error(e);
+        presentAlert({ message: e.message });
       }
     }
   } catch (error: any) {
+    console.error(error);
     presentAlert({ message: error.message });
   }
 };
@@ -114,7 +98,7 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
   } else {
     // file was a text file, having base64 psbt in there. so we basically have double base64encoded string
     // thats why we are returning string that was decoded once;
-    // most likely produced by Coldcard
+    // most likely produced by ColdCard
     return stringData;
   }
 };
