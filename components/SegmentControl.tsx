@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { requireNativeComponent, View, StyleSheet, NativeSyntheticEvent } from 'react-native';
 
 interface SegmentedControlProps {
@@ -21,9 +21,18 @@ interface NativeSegmentedControlProps {
 const NativeSegmentedControl = requireNativeComponent<NativeSegmentedControlProps>('CustomSegmentedControl');
 
 const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange }) => {
-  const handleChange = (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
-    onChange(event.nativeEvent.selectedIndex);
-  };
+  const handleChange = useMemo(
+    () => (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
+      if (event?.nativeEvent?.selectedIndex !== undefined) {
+        onChange(event.nativeEvent.selectedIndex);
+      }
+    },
+    [onChange],
+  );
+
+  if (!Array.isArray(values) || values.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
