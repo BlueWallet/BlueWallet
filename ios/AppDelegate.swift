@@ -4,7 +4,6 @@ import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
-import Bugsnag
 
 @main
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
