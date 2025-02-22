@@ -129,65 +129,72 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [getTransactions, limit, pageSize]);
 
-  const refreshTransactions = useCallback(async () => {
-    console.debug('refreshTransactions, ', wallet?.getLabel());
-    if (!wallet || isElectrumDisabled || isLoading) return;
+  const refreshTransactions = useCallback(
+    async (isManualRefresh = false) => {
+      console.debug('refreshTransactions, ', wallet?.getLabel());
+      if (!wallet || isElectrumDisabled || isLoading) return;
 
-    const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
-    if (lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
-      return; // Prevent refreshing if last fetch was too recent
-    }
-
-    if (fetchFailures >= MAX_FAILURES) {
-      return; // Silently stop retrying
-    }
-
-    setIsLoading(true);
-    let smthChanged = false;
-    try {
-      await BlueElectrum.waitTillConnected();
-      if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet) {
-        await wallet.fetchBIP47SenderPaymentCodes();
+      const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
+      if (!isManualRefresh && lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
+        return; // Prevent auto-refreshing if last fetch was too recent
       }
-      const oldBalance = wallet.getBalance();
-      await wallet.fetchBalance();
-      if (oldBalance !== wallet.getBalance()) smthChanged = true;
-      const oldTxLen = wallet.getTransactions().length;
-      await wallet.fetchTransactions();
-      if ('fetchPendingTransactions' in wallet) {
-        await wallet.fetchPendingTransactions();
-      }
-      if ('fetchUserInvoices' in wallet) {
-        await wallet.fetchUserInvoices();
-      }
-      if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
 
-      // Success - reset failure counter and update timestamps
-      setFetchFailures(0);
-      const newTimestamp = Date.now();
-      setLastFetchTimestamp(newTimestamp);
-      wallet._lastTxFetch = newTimestamp;
-    } catch (err) {
-      setFetchFailures(prev => {
-        const newFailures = prev + 1;
-        // Only show error on final attempt
-        if (newFailures === MAX_FAILURES) {
-          presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+      if (fetchFailures >= MAX_FAILURES && !isManualRefresh) {
+        return; // Silently stop auto-retrying, but allow manual refresh
+      }
+
+      // Only show loading indicator on manual refresh or after first successful fetch
+      if (isManualRefresh || lastFetchTimestamp !== 0) {
+        setIsLoading(true);
+      }
+
+      let smthChanged = false;
+      try {
+        await BlueElectrum.waitTillConnected();
+        if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet) {
+          await wallet.fetchBIP47SenderPaymentCodes();
         }
-        return newFailures;
-      });
-    } finally {
-      if (smthChanged) {
-        await saveToDisk();
-        setLimit(prev => prev + pageSize);
+        const oldBalance = wallet.getBalance();
+        await wallet.fetchBalance();
+        if (oldBalance !== wallet.getBalance()) smthChanged = true;
+        const oldTxLen = wallet.getTransactions().length;
+        await wallet.fetchTransactions();
+        if ('fetchPendingTransactions' in wallet) {
+          await wallet.fetchPendingTransactions();
+        }
+        if ('fetchUserInvoices' in wallet) {
+          await wallet.fetchUserInvoices();
+        }
+        if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+
+        // Success - reset failure counter and update timestamps
+        setFetchFailures(0);
+        const newTimestamp = Date.now();
+        setLastFetchTimestamp(newTimestamp);
+        wallet._lastTxFetch = newTimestamp;
+      } catch (err) {
+        setFetchFailures(prev => {
+          const newFailures = prev + 1;
+          // Only show error on final attempt for automatic refresh
+          if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
+            presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+          }
+          return newFailures;
+        });
+      } finally {
+        if (smthChanged) {
+          await saveToDisk();
+          setLimit(prev => prev + pageSize);
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }
-  }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures]);
+    },
+    [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
+  );
 
   useEffect(() => {
     if (wallet && lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled) {
-      refreshTransactions().catch(console.error);
+      refreshTransactions(false).catch(console.error);
     }
   }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
 
@@ -545,7 +552,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         }
         refreshControl={
           !isDesktop && !isElectrumDisabled ? (
-            <RefreshControl refreshing={isLoading} onRefresh={refreshTransactions} tintColor={colors.msSuccessCheck} />
+            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} tintColor={colors.msSuccessCheck} />
           ) : undefined
         }
       />
