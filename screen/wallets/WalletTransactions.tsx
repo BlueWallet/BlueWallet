@@ -47,6 +47,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import useDebounce from '../../hooks/useDebounce';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -159,17 +160,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     }
   }, [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet && wallet.getLastTxFetch() === 0) {
-          refreshTransactions();
-        }
-      });
-
-      return () => task.cancel();
-    }, [refreshTransactions, wallet]),
-  );
+  useEffect(() => {
+    if (wallet && wallet.getLastTxFetch() === 0 && !isLoading) {
+      const debouncedRefresh = useDebounce(refreshTransactions, 500);
+      debouncedRefresh();
+    }
+  }, [wallet, isLoading, refreshTransactions]);
 
   useEffect(() => {
     if (wallet) {

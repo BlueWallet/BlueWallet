@@ -17,13 +17,13 @@ import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import useDebounce from '../../hooks/useDebounce';
 import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
+import useDebounce from '../../hooks/useDebounce';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
