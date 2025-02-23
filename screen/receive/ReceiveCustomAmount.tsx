@@ -106,6 +106,7 @@ const ReceiveCustomAmount = () => {
             onChangeText={(text: string) => handleUpdateState({ customLabel: text })}
             placeholderTextColor="#81868e"
             placeholder={loc.receive.details_label}
+            testID="CustomAmountDescription"
             value={state.customLabel}
             style={[
               styles.input,
@@ -119,7 +120,7 @@ const ReceiveCustomAmount = () => {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Button title={loc.receive.reset} onPress={handleReset} />
+        <Button title={loc.receive.reset} onPress={handleReset} testID="CustomAmountResetButton" />
         <View style={styles.buttonSpacing} />
         <Button title={loc.receive.details_create} onPress={handleSave} disabled={isCreateDisabled} testID="CustomAmountSaveButton" />
       </View>
