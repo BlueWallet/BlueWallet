@@ -26,7 +26,7 @@ const ReceiveDetailsStackRoot = () => {
         component={ReceiveCustomAmountComponent}
         options={{
           presentation: 'formSheet',
-          sheetAllowedDetents: [0.32],
+          sheetAllowedDetents: 'fitToContents',
           headerShown: false,
           sheetGrabberVisible: true,
         }}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, Platform, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
@@ -93,25 +93,32 @@ const ReceiveCustomAmount = () => {
     (state.customLabel === initialLabel && state.customAmount.toString() === initialAmount);
 
   return (
-    <View style={[styles.outerContainer, { backgroundColor: colors.elevated }]}>
-      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always" keyboardDismissMode="none">
-        <AmountInput
-          unit={state.customUnit}
-          amount={state.customAmount ? Number(state.customAmount) : undefined}
-          onChangeText={(value: string | number) => handleUpdateState({ customAmount: value })}
-          onAmountUnitChange={(unit: BitcoinUnit) => handleUpdateState({ customUnit: unit })}
-        />
-        <View style={[styles.inputContainer, { backgroundColor: colors.inputBackgroundColor, borderColor: colors.formBorder }]}>
+    <View style={{ backgroundColor: colors.elevated }}>
+      <View>
+        <View style={styles.contentContainer}>
+          <AmountInput
+            unit={state.customUnit}
+            amount={state.customAmount ? Number(state.customAmount) : undefined}
+            onChangeText={(value: string | number) => handleUpdateState({ customAmount: value })}
+            onAmountUnitChange={(unit: BitcoinUnit) => handleUpdateState({ customUnit: unit })}
+          />
           <TextInput
             onChangeText={(text: string) => handleUpdateState({ customLabel: text })}
             placeholderTextColor="#81868e"
             placeholder={loc.receive.details_label}
             value={state.customLabel}
-            style={{ color: colors.foregroundColor }}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackgroundColor,
+                borderColor: colors.formBorder,
+                color: colors.foregroundColor,
+              },
+            ]}
           />
         </View>
-      </ScrollView>
-      <View style={styles.fixedButtonContainer}>
+      </View>
+      <View style={styles.buttonContainer}>
         <Button title={loc.receive.reset} onPress={handleReset} />
         <View style={styles.buttonSpacing} />
         <Button title={loc.receive.details_create} onPress={handleSave} disabled={isCreateDisabled} />
@@ -121,15 +128,10 @@ const ReceiveCustomAmount = () => {
 };
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    flex: 1,
-  },
   contentContainer: {
-    paddingHorizontal: 22,
-    paddingTop: 22,
-    paddingBottom: 120,
+    padding: 22,
   },
-  inputContainer: {
+  input: {
     flexDirection: 'row',
     borderWidth: 1,
     borderBottomWidth: 0.5,
@@ -139,15 +141,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
   },
-  fixedButtonContainer: {
-    position: 'absolute',
-    bottom: Platform.select({ ios: 44, android: 22 }),
-    left: 22,
-    right: 22,
+  buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'transparent',
+    padding: 22,
+    paddingBottom: Platform.select({ ios: 44, android: 22 }),
   },
   buttonSpacing: {
     width: 16,

@@ -211,8 +211,11 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
-        const addressToUse = address || decoded.address;
+        let addressToUse = address;
+        if (!addressToUse && bip21encoded) {
+          addressToUse = bip21encoded.startsWith('bitcoin:') ? DeeplinkSchemaMatch.bip21decode(bip21encoded).address : bip21encoded;
+        }
+
         if (!addressToUse) return;
 
         console.debug('checking address', addressToUse, 'for balance...');
