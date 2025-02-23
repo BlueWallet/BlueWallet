@@ -121,7 +121,7 @@ const ReceiveCustomAmount = () => {
       <View style={styles.buttonContainer}>
         <Button title={loc.receive.reset} onPress={handleReset} />
         <View style={styles.buttonSpacing} />
-        <Button title={loc.receive.details_create} onPress={handleSave} disabled={isCreateDisabled} />
+        <Button title={loc.receive.details_create} onPress={handleSave} disabled={isCreateDisabled} testID="CustomAmountSaveButton" />
       </View>
     </View>
   );
