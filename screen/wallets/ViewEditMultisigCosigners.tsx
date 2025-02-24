@@ -56,7 +56,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
-  const openScannerButtonRef = useRef(null);
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -562,7 +561,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
             {!isLoading && (
               <>
                 <AddressInputScanButton
-                  ref={openScannerButtonRef}
                   beforePress={async () => {
                     await provideMnemonicsModalRef.current?.dismiss();
                   }}
