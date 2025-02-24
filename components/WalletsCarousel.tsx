@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import {
   Animated,
   FlatList,
@@ -187,8 +187,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { isLargeScreen } = useIsLargeScreen();
 
-    // Memoize springConfig for stable dependency
-    const springConfig = React.useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
+    const springConfig = useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
     const animateScale = useCallback(
       (toValue: number, callback?: () => void) => {
         Animated.spring(scaleValue, { toValue, ...springConfig }).start(callback);
