@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, forwardRef } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import ToolTipMenu, { ToolTipMenuRef } from './TooltipMenu';
+import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
@@ -20,7 +20,7 @@ interface AddressInputScanButtonProps {
   beforePress?: () => Promise<void> | void;
 }
 
-export const AddressInputScanButton = forwardRef<ToolTipMenuRef, AddressInputScanButtonProps>(
+export const AddressInputScanButton = forwardRef<any, AddressInputScanButtonProps>(
   ({ isLoading, onChangeText, type = 'default', testID = 'BlueAddressInputScanQrButton', beforePress }, ref) => {
     const { colors } = useTheme();
     const { isClipboardGetContentEnabled } = useSettings();
@@ -47,7 +47,6 @@ export const AddressInputScanButton = forwardRef<ToolTipMenuRef, AddressInputSca
 
     const actions = useMemo(() => {
       const availableActions = [
-        CommonToolTipActions.ScanQR,
         CommonToolTipActions.ChoosePhoto,
         CommonToolTipActions.ImportFile,
         {

@@ -37,7 +37,7 @@ import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import ToolTipMenu, { ToolTipMenuRef } from '../../components/TooltipMenu';
+import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
@@ -56,7 +56,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
-  const openScannerButtonRef = useRef<ToolTipMenuRef>(null);
+  const openScannerButtonRef = useRef(null);
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));

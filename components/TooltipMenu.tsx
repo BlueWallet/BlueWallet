@@ -5,13 +5,7 @@ import { ContextMenuView, RenderItem, OnPressMenuItemEventObject, IconConfig, Me
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
-export type ToolTipMenuRef = {
-  // Add any methods you want to expose via ref
-  showMenu?: () => void;
-  hideMenu?: () => void;
-};
-
-const ToolTipMenu = forwardRef<ToolTipMenuRef, ToolTipMenuProps>((props, _ref) => {
+const ToolTipMenu = forwardRef<any, ToolTipMenuProps>((props, ref) => {
   const {
     title = '',
     isMenuPrimaryAction = false,
