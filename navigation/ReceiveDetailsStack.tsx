@@ -3,7 +3,7 @@ import React from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
+import { ReceiveCustomAmountComponent, ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +20,16 @@ const ReceiveDetailsStackRoot = () => {
           title: loc.receive.header,
           statusBarStyle: 'light',
         })(theme)}
+      />
+      <Stack.Screen
+        name="ReceiveCustomAmount"
+        component={ReceiveCustomAmountComponent}
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          headerShown: false,
+          sheetGrabberVisible: true,
+        }}
       />
     </Stack.Navigator>
   );

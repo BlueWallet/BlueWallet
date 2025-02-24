@@ -1,6 +1,6 @@
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -8,8 +8,6 @@ import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import AmountInput from '../../components/AmountInput';
-import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -31,25 +29,59 @@ import TipBox from '../../components/TipBox';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
+const createBip21Options = (amount, unit, label) => {
+  const options = {};
+  if (amount && amount > 0) {
+    let btcAmount;
+    switch (unit) {
+      case BitcoinUnit.BTC:
+        btcAmount = amount;
+        break;
+      case BitcoinUnit.SATS:
+        btcAmount = satoshiToBTC(Number(amount));
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        btcAmount = fiatToBTC(Number(amount));
+        break;
+      default:
+        btcAmount = amount;
+    }
+    if (btcAmount > 0) {
+      options.amount = btcAmount.toString();
+    }
+  }
+  if (label) {
+    options.label = label;
+  }
+  return options;
+};
+
+const getDisplayAmount = (amount, unit) => {
+  if (!amount || !unit || amount <= 0) return null;
+  switch (unit) {
+    case BitcoinUnit.BTC:
+      return `${amount} BTC`;
+    case BitcoinUnit.SATS:
+      return `${satoshiToBTC(amount)} BTC`;
+    case BitcoinUnit.LOCAL_CURRENCY:
+      return `${fiatToBTC(amount)} BTC`;
+    default:
+      return `${amount} ${unit}`;
+  }
+};
+
 const ReceiveDetails = () => {
-  const { walletID, address } = useRoute().params;
+  const { walletID, address, customLabel, customUnit, customAmount } = useRoute().params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [customLabel, setCustomLabel] = useState('');
-  const [customAmount, setCustomAmount] = useState('');
-  const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState('');
-  const [isCustom, setIsCustom] = useState(false);
-  const [tempCustomLabel, setTempCustomLabel] = useState('');
-  const [tempCustomAmount, setTempCustomAmount] = useState('');
-  const [tempCustomUnit, setTempCustomUnit] = useState(BitcoinUnit.BTC);
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, setOptions } = useExtendedNavigation();
-  const bottomModalRef = useRef(null);
+  const navigation = useNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
@@ -58,14 +90,6 @@ const ReceiveDetails = () => {
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
   const stylesHook = StyleSheet.create({
-    customAmount: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    customAmountText: {
-      color: colors.foregroundColor,
-    },
     root: {
       backgroundColor: colors.elevated,
     },
@@ -75,19 +99,23 @@ const ReceiveDetails = () => {
     label: {
       color: colors.foregroundColor,
     },
-    modalButton: {
-      backgroundColor: colors.modalButton,
-    },
   });
 
   const setAddressBIP21Encoded = useCallback(
     addr => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      // If no custom values are provided, use the plain address
+      let newBip21encoded;
+      if (!customLabel && !customAmount) {
+        newBip21encoded = addr;
+      } else {
+        const options = createBip21Options(customAmount, customUnit, customLabel);
+        newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr, options);
+      }
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
     },
-    [setParams],
+    [setParams, customAmount, customLabel, customUnit],
   );
 
   const obtainWalletAddress = useCallback(async () => {
@@ -183,8 +211,11 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
-        const addressToUse = address || decoded.address;
+        let addressToUse = address;
+        if (!addressToUse && bip21encoded) {
+          addressToUse = bip21encoded.startsWith('bitcoin:') ? DeeplinkSchemaMatch.bip21decode(bip21encoded).address : bip21encoded;
+        }
+
         if (!addressToUse) return;
 
         console.debug('checking address', addressToUse, 'for balance...');
@@ -223,7 +254,6 @@ const ReceiveDetails = () => {
             }),
           );
           setShowPendingBalance(true);
-          setShowAddress(false);
         } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
           // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
           // staring at the screen)
@@ -259,12 +289,10 @@ const ReceiveDetails = () => {
   const renderConfirmedBalance = () => {
     return (
       <View style={styles.scrollBody}>
-        {isCustom && (
-          <>
-            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-              {customLabel}
-            </BlueText>
-          </>
+        {customLabel?.length > 0 && (
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+            {customLabel}
+          </BlueText>
         )}
         <SuccessView />
         <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
@@ -277,12 +305,10 @@ const ReceiveDetails = () => {
   const renderPendingBalance = () => {
     return (
       <View style={styles.scrollBody}>
-        {isCustom && (
-          <>
-            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-              {customLabel}
-            </BlueText>
-          </>
+        {customLabel?.length > 0 && (
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+            {customLabel}
+          </BlueText>
         )}
         <TransactionPendingIconBig />
         <BlueSpacing40 />
@@ -316,23 +342,21 @@ const ReceiveDetails = () => {
     return (
       <>
         <View style={styles.scrollBody}>
-          {isCustom && (
+          {customAmount > 0 && (
             <>
-              {getDisplayAmount() && (
-                <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
-                  {getDisplayAmount()}
-                </BlueText>
-              )}
-              {customLabel?.length > 0 && (
-                <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                  {customLabel}
-                </BlueText>
-              )}
+              <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
+                {getDisplayAmount(customAmount, customUnit)}
+              </BlueText>
+              <BlueSpacing20 />
             </>
           )}
-
-          <QRCodeComponent value={bip21encoded} />
-          <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
+          {customLabel?.length > 0 && (
+            <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          )}
+          <QRCodeComponent value={bip21encoded || address} />
+          <CopyTextToClipboard text={bip21encoded || address} />
         </View>
       </>
     );
@@ -357,75 +381,10 @@ const ReceiveDetails = () => {
     }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
 
-  const showCustomAmountModal = () => {
-    setTempCustomLabel(customLabel);
-    setTempCustomAmount(customAmount);
-    setTempCustomUnit(customUnit);
-    bottomModalRef.current.present();
-  };
-
-  const createCustomAmountAddress = () => {
-    bottomModalRef.current.dismiss();
-    setIsCustom(true);
-    let amount = tempCustomAmount;
-    switch (tempCustomUnit) {
-      case BitcoinUnit.BTC:
-        // nop
-        break;
-      case BitcoinUnit.SATS:
-        amount = satoshiToBTC(tempCustomAmount);
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
-        } else {
-          amount = fiatToBTC(tempCustomAmount);
-        }
-        break;
-    }
-    setCustomLabel(tempCustomLabel);
-    setCustomAmount(tempCustomAmount);
-    setCustomUnit(tempCustomUnit);
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: tempCustomLabel }));
-    setShowAddress(true);
-  };
-
-  const resetCustomAmount = () => {
-    setTempCustomLabel('');
-    setTempCustomAmount('');
-    setTempCustomUnit(wallet.getPreferredBalanceUnit());
-    setCustomLabel();
-    setCustomAmount();
-    setCustomUnit(wallet.getPreferredBalanceUnit());
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
-    setShowAddress(true);
-    bottomModalRef.current.dismiss();
-  };
-
   const handleShareButtonPressed = () => {
     Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
       console.debug('Error sharing:', error),
     );
-  };
-
-  /**
-   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
-   */
-  const getDisplayAmount = () => {
-    if (Number(customAmount) > 0) {
-      switch (customUnit) {
-        case BitcoinUnit.BTC:
-          return customAmount + ' BTC';
-        case BitcoinUnit.SATS:
-          return satoshiToBTC(customAmount) + ' BTC';
-        case BitcoinUnit.LOCAL_CURRENCY:
-          return fiatToBTC(customAmount) + ' BTC';
-      }
-      return customAmount + ' ' + customUnit;
-    } else {
-      return null;
-    }
   };
 
   const renderTabContent = () => {
@@ -468,7 +427,7 @@ const ReceiveDetails = () => {
           </View>
         )}
         {showAddress && renderTabContent()}
-        {address !== undefined && showAddress && (
+        {showAddress && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
         )}
         {showConfirmedBalance ? renderConfirmedBalance() : null}
@@ -481,78 +440,18 @@ const ReceiveDetails = () => {
                 style={styles.link}
                 testID="SetCustomAmountButton"
                 title={loc.receive.details_setAmount}
-                onPress={showCustomAmountModal}
+                onPress={() => navigation.navigate('ReceiveCustomAmount', { address, customLabel, customAmount, customUnit, walletID })}
               />
             )}
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
       </ScrollView>
-      <BottomModal
-        ref={bottomModalRef}
-        contentContainerStyle={styles.modalContainerJustify}
-        backgroundColor={colors.modal}
-        footer={
-          <View style={styles.modalButtonContainer}>
-            <Button
-              testID="CustomAmountResetButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.reset}
-              onPress={resetCustomAmount}
-            />
-            <View style={styles.modalButtonSpacing} />
-            <Button
-              testID="CustomAmountSaveButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.details_create}
-              onPress={createCustomAmountAddress}
-            />
-          </View>
-        }
-      >
-        <AmountInput
-          unit={tempCustomUnit}
-          amount={tempCustomAmount || ''}
-          onChangeText={setTempCustomAmount}
-          onAmountUnitChange={setTempCustomUnit}
-        />
-        <View style={[styles.customAmount, stylesHook.customAmount]}>
-          <TextInput
-            onChangeText={setTempCustomLabel}
-            placeholderTextColor="#81868e"
-            placeholder={loc.receive.details_label}
-            value={tempCustomLabel || ''}
-            numberOfLines={1}
-            style={[styles.customAmountText, stylesHook.customAmountText]}
-            testID="CustomAmountDescription"
-          />
-        </View>
-        <BlueSpacing20 />
-
-        <BlueSpacing20 />
-      </BottomModal>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainerJustify: {
-    alignContent: 'center',
-    padding: 22,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  customAmount: {
-    flexDirection: 'row',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
   root: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -586,27 +485,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     paddingBottom: 24,
-  },
-  modalButton: {
-    paddingVertical: 14,
-    borderRadius: 50,
-    fontWeight: '700',
-    flex: 0.5,
-    alignItems: 'center',
-  },
-  modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 34,
-  },
-  modalButtonSpacing: {
-    width: 16,
-  },
-  customAmountText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
   },
   container: {
     flex: 1,
