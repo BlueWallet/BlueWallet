@@ -52,6 +52,11 @@ const ElectrumSettings: React.FC = () => {
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+  const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
+    host: '',
+    tcp: '',
+    ssl: '',
+  });
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -126,6 +131,12 @@ const ElectrumSettings: React.FC = () => {
     configIntervalRef.current = setInterval(async () => {
       setConfig(await BlueElectrum.getConfig());
     }, 500);
+
+    setSavedServer({
+      host: savedHost || '',
+      tcp: savedPort ? savedPort.toString() : '',
+      ssl: savedSslPort ? savedSslPort.toString() : '',
+    });
 
     setIsLoading(false);
 
@@ -454,6 +465,11 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const preferredServerIsEmpty = !host || (!port && !sslPort);
+  const saveDisabled: boolean =
+    preferredServerIsEmpty ||
+    (host === savedServer.host &&
+      ((savedServer.tcp !== '' && port?.toString() === savedServer.tcp) ||
+        (savedServer.ssl !== '' && sslPort?.toString() === savedServer.ssl)));
 
   const renderElectrumSettings = () => {
     return (
@@ -541,13 +557,7 @@ const ElectrumSettings: React.FC = () => {
         </BlueCard>
         <BlueCard>
           <BlueSpacing20 />
-          <Button
-            showActivityIndicator={isLoading}
-            disabled={isLoading || preferredServerIsEmpty}
-            testID="Save"
-            onPress={save}
-            title={loc.settings.save}
-          />
+          <Button disabled={saveDisabled} testID="Save" onPress={save} title={loc.settings.save} />
         </BlueCard>
 
         {Platform.select({
@@ -597,6 +607,7 @@ const ElectrumSettings: React.FC = () => {
           onValueChange: onElectrumConnectionEnabledSwitchChange,
           value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
+          disabled: isLoading,
         }}
         disabled={isLoading}
         bottomDivider={false}
