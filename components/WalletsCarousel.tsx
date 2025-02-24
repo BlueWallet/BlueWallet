@@ -187,32 +187,32 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { isLargeScreen } = useIsLargeScreen();
 
+    // Memoize springConfig for stable dependency
+    const springConfig = React.useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
+    const animateScale = useCallback(
+      (toValue: number, callback?: () => void) => {
+        Animated.spring(scaleValue, { toValue, ...springConfig }).start(callback);
+      },
+      [scaleValue, springConfig],
+    );
+
     const onPressedIn = useCallback(() => {
       if (animationsEnabled) {
-        Animated.spring(scaleValue, {
-          toValue: 0.95,
-          useNativeDriver: true,
-          tension: 100,
-        }).start();
+        animateScale(0.95);
       }
       if (onPressIn) onPressIn();
-    }, [scaleValue, animationsEnabled, onPressIn]);
+    }, [animateScale, animationsEnabled, onPressIn]);
 
     const onPressedOut = useCallback(() => {
       if (animationsEnabled) {
-        Animated.spring(scaleValue, {
-          toValue: 1.0,
-          useNativeDriver: true,
-          tension: 100,
-        }).start();
+        animateScale(1.0);
       }
       if (onPressOut) onPressOut();
-    }, [scaleValue, animationsEnabled, onPressOut]);
+    }, [animateScale, animationsEnabled, onPressOut]);
 
     const handlePress = useCallback(() => {
-      onPressedOut();
       onPress(item);
-    }, [item, onPress, onPressedOut]);
+    }, [item, onPress]);
 
     const opacity = isSelectedWallet === false ? 0.5 : 1.0;
     let image;
@@ -254,6 +254,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             if (handleLongPress) handleLongPress();
           }}
           onPress={handlePress}
+          delayHoverIn={0}
+          delayHoverOut={0}
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
@@ -421,6 +423,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
       scrollEnabled={scrollEnabled}
+      keyboardShouldPersistTaps="handled"
       ListHeaderComponent={ListHeaderComponent}
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
