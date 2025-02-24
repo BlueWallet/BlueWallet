@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 
@@ -20,11 +19,9 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { scanQrHelper } from '../../helpers/scan-qr.ts';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -33,17 +30,12 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-type RouteProps = RouteProp<DetailViewStackParamList, 'Broadcast'>;
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Broadcast'>;
-
 const Broadcast: React.FC = () => {
-  const { params } = useRoute<RouteProps>();
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
-  const { setParams, navigate } = useExtendedNavigation<NavigationProps>();
 
   const stylesHooks = StyleSheet.create({
     input: {
@@ -65,14 +57,6 @@ const Broadcast: React.FC = () => {
       return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
   }, []);
-
-  useEffect(() => {
-    const scannedData = params?.onBarScanned;
-    if (scannedData) {
-      handleScannedData(scannedData);
-      setParams({ onBarScanned: undefined });
-    }
-  }, [handleScannedData, params?.onBarScanned, setParams]);
 
   const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
 
@@ -104,10 +88,11 @@ const Broadcast: React.FC = () => {
     }
   };
 
-  const handleQRScan = () => {
-    navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
+  const handleQRScan = async () => {
+    const scannedData = await scanQrHelper();
+    if (scannedData) {
+      handleScannedData(scannedData);
+    }
   };
 
   let status;
