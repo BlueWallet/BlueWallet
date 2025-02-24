@@ -7,24 +7,18 @@ import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import { BlueApp } from '../class';
 import { HandOffComponentProps } from './types';
 
-const HandOffComponent: React.FC<HandOffComponentProps> = React.memo(
-  props => {
-    const { isHandOffUseEnabled } = useSettings();
+const HandOffComponent: React.FC<HandOffComponentProps> = props => {
+  const { isHandOffUseEnabled } = useSettings();
+  if (!props || !props.type || !props.userInfo || Object.keys(props.userInfo).length === 0) {
+    console.debug('HandOffComponent: Missing required type or userInfo data');
+    return null;
+  }
+  const userInfo = JSON.stringify(props.userInfo);
+  console.debug(`HandOffComponent is rendering. Type: ${props.type}, UserInfo: ${userInfo}...`);
+  return isHandOffUseEnabled ? <Handoff {...props} /> : null;
+};
 
-    if (!props || !props.type || !props.userInfo || Object.keys(props.userInfo).length === 0) {
-      return null;
-    }
-
-    return isHandOffUseEnabled ? <Handoff {...props} /> : null;
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.type === nextProps.type &&
-      JSON.stringify(prevProps.userInfo) === JSON.stringify(nextProps.userInfo) &&
-      prevProps.title === nextProps.title
-    );
-  },
-);
+const MemoizedHandOffComponent = React.memo(HandOffComponent);
 
 export const setIsHandOffUseEnabled = async (value: boolean) => {
   try {
@@ -50,4 +44,4 @@ export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
   }
 };
 
-export default HandOffComponent;
+export default MemoizedHandOffComponent;

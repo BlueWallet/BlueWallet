@@ -1,7 +1,7 @@
 import createHash from 'create-hash';
 import { element } from 'detox';
 
-export async function yo(id, timeout = 33000) {
+export async function waitForId(id, timeout = 33000) {
   try {
     await waitFor(element(by.id(id)))
       .toBeVisible()
@@ -21,7 +21,7 @@ export async function yo(id, timeout = 33000) {
   }
 }
 
-export async function sup(text, timeout = 33000) {
+export async function waitForText(text, timeout = 33000) {
   try {
     await waitFor(element(by.text(text)))
       .toBeVisible()
@@ -52,7 +52,7 @@ export async function getSwitchValue(switchId) {
 }
 
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
-  await yo('WalletsList');
+  await waitForId('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   await sleep(500); // Wait until bounce animation finishes.
@@ -70,7 +70,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await element(by.id('SpeedDoImport')).tap();
 
   // waiting for import result
-  await sup('OK', 3 * 61000);
+  await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
 
   // lets go inside wallet
@@ -93,7 +93,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await element(by.id('HeaderMenuButton')).tap();
   await element(by.text('Delete')).tap();
-  await sup('Yes, delete');
+  await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {
     await element(by.type('android.widget.EditText')).typeText(remainingBalanceSat);
@@ -105,8 +105,8 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
 /*
 
 module.exports.helperImportWallet = helperImportWallet;
-module.exports.yo = yo;
-module.exports.sup = sup;
+module.exports.waitForId = waitForId;
+module.exports.waitForText = waitForText;
 module.exports.sleep = sleep;
 module.exports.hashIt = hashIt;
 module.exports.helperDeleteWallet = helperDeleteWallet;
@@ -158,7 +158,7 @@ export async function helperCreateWallet(walletName) {
   await sleep(200); // Wait until bounce animation finishes.
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'WalletNameInput');
   await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
-  await yo('ActivateBitcoinButton');
+  await waitForId('ActivateBitcoinButton');
   await element(by.id('ActivateBitcoinButton')).tap();
   await element(by.id('ActivateBitcoinButton')).tap();
   // why tf we need 2 taps for it to work..? mystery
@@ -166,7 +166,7 @@ export async function helperCreateWallet(walletName) {
 
   await element(by.id('PleaseBackupScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
 
-  await yo('PleasebackupOk');
+  await waitForId('PleasebackupOk');
   await element(by.id('PleasebackupOk')).tap();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
