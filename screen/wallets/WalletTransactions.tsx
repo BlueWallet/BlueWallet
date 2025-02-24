@@ -14,6 +14,7 @@ import {
   Text,
   View,
   Animated,
+  RefreshControl,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -303,6 +304,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [getTransactions, limit]);
 
   const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => {
       return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
     },
@@ -440,11 +442,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     [navigation, wallet, walletBalance, setOptions, route],
   );
 
-  const refreshProps = useMemo(
-    () => (!isDesktop && !isElectrumDisabled ? { onRefresh: refreshTransactions, refreshing: isLoading } : {}),
-    [isElectrumDisabled, isLoading, refreshTransactions],
-  );
-
   // Extracted named callbacks
   const handleWalletUnitChange = useCallback(
     async (selectedUnit: any) => {
@@ -478,11 +475,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           <TransactionsNavigationHeader
             wallet={wallet}
             onWalletUnitChange={handleWalletUnitChange}
-            unit={wallet?.preferredBalanceUnit}
+            unit={wallet.preferredBalanceUnit}
             onWalletBalanceVisibilityChange={handleWalletBalanceVisibilityChange}
             onManageFundsPressed={onManageFundsPressed}
           />
-        ) : undefined}
+        ) : null}
         <View style={[styles.flex, { backgroundColor: colors.background }]}>
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
@@ -518,14 +515,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true, listener: handleScroll })}
         scrollEventThrottle={16}
         ListEmptyComponent={
-          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+          <ScrollView
+            style={[styles.flex, { backgroundColor: colors.background }]}
+            contentContainerStyle={styles.scrollViewContent}
+            centerContent
+          >
             <Text numberOfLines={0} style={styles.emptyTxs}>
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
             {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
           </ScrollView>
         }
-        {...refreshProps}
+        refreshControl={
+          !isElectrumDisabled && !isDesktop ? (
+            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} progressViewOffset={HEADER_HEIGHT} />
+          ) : undefined
+        }
       />
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
@@ -576,7 +581,7 @@ export default WalletTransactions;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
+  scrollViewContent: { paddingHorizontal: 16, paddingTop: HEADER_HEIGHT },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
   listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
@@ -589,7 +594,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: HEADER_HEIGHT,
+    minHeight: HEADER_HEIGHT,
     zIndex: 1,
   },
 });
