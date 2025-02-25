@@ -11,7 +11,8 @@ const requestCameraAuthorization = () => {
   return request(Platform.OS === 'android' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
 };
 
-const scanQrHelper = (): Promise<string> => {
+const scanQrHelper = async (): Promise<string> => {
+  await requestCameraAuthorization();
   return new Promise(resolve => {
     if (navigationRef.isReady()) {
       navigationRef.current?.navigate('ScanQRCode', {
