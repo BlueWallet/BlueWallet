@@ -136,6 +136,9 @@
     "details_add_recc_rem_all_alert_description": "¿Estás seguro de que quieres eliminar todos los destinatarios?",
     "details_add_rec_rem_all": "Eliminar todos los destinatarios",
     "details_recipients_title": "Destinatarios",
+    "details_recipient_title": "Destinatario #{number} de #{total}",
+    "please_complete_recipient_title": "Destinatario incompleto",
+    "please_complete_recipient_details": "Completa los detalles del destinatario #{number} antes de agregar un nuevo destinatario.",
     "details_address": "Dirección",
     "details_address_field_is_not_valid": "La dirección no es válida.",
     "details_adv_fee_bump": "Permitir aumento de tarifas",
@@ -182,6 +185,7 @@
     "input_total": "Total:",
     "permission_camera_message": "Necesitamos tu permiso para usar tu cámara",
     "psbt_sign": "Firmar una transacción",
+    "invalid_psbt": "PSBT proporcionado no válido.",
     "open_settings": "Abrir configuraciones",
     "permission_storage_denied_message": "BlueWallet no puede guardar este archivo. Por favor, abre la configuración de tu dispositivo y activa el permiso de almacenamiento.",
     "permission_storage_title": "Permiso de acceso de almacenamiento",
@@ -674,7 +678,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
