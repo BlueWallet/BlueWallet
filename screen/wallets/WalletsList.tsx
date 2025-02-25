@@ -122,27 +122,32 @@ const WalletsList: React.FC = () => {
     },
   });
 
-  /**
-   * Forcefully fetches TXs and balance for ALL wallets.
-   * Triggered manually by user on pull-to-refresh.
-   */
-  const refreshTransactions = useCallback(
-    async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-      if (isElectrumDisabled) {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        return;
-      }
+  const refreshWallets = useCallback(
+    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+      if (isElectrumDisabled) return;
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+      try {
+        await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
+      } catch (error) {
+        console.error(error);
+      } finally {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
+      }
     },
     [isElectrumDisabled, refreshAllWalletTransactions],
   );
 
+  /**
+   * Forcefully fetches TXs and balance for ALL wallets.
+   * Triggered manually by user on pull-to-refresh.
+   */
+  const refreshTransactions = useCallback(() => {
+    refreshWallets(undefined, true, false);
+  }, [refreshWallets]);
+
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');
-    refreshTransactions(true, false);
+    refreshTransactions();
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
@@ -200,7 +205,7 @@ const WalletsList: React.FC = () => {
   }, [navigation, onBarScanned, route.params?.onBarScanned]);
 
   useEffect(() => {
-    refreshTransactions(false, true);
+    refreshTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -219,10 +224,6 @@ const WalletsList: React.FC = () => {
     [navigation],
   );
 
-  const setIsLoading = useCallback((value: boolean) => {
-    dispatch({ type: ActionTypes.SET_LOADING, payload: value });
-  }, []);
-
   const onSnapToItem = useCallback(
     (e: { nativeEvent: { contentOffset: any } }) => {
       if (!isFocused) return;
@@ -233,12 +234,12 @@ const WalletsList: React.FC = () => {
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+          refreshWallets(index, false, false);
         }
         currentWalletIndex.current = index;
       }
     },
-    [isFocused, refreshAllWalletTransactions, setIsLoading, wallets, width],
+    [isFocused, refreshWallets, wallets, width],
   );
 
   const renderListHeaderComponent = useCallback(() => {

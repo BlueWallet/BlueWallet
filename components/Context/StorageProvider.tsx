@@ -246,8 +246,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         console.debug('[refreshAllWalletTransactions] Refresh already in progress');
         return;
       }
-      console.debug('[refreshAllWalletTransactions] Starting refreshAllWalletTransactions');
       refreshingRef.current = true;
+
+      await new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => resolve()));
+
       const TIMEOUT_DURATION = 30000;
       const timeoutPromise = new Promise<never>((_resolve, reject) =>
         setTimeout(() => {
@@ -292,12 +294,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();
           })(),
-
           timeoutPromise,
         ]);
         console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
       } catch (error) {
-        console.error('[refreshAllWalletTransactions] Error in refreshAllWalletTransactions:', error);
+        console.error('[refreshAllWalletTransactions] Error:', error);
       } finally {
         console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
