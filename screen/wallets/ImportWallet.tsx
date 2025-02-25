@@ -3,7 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
 import { disallowScreenshot } from 'react-native-screen-capture';
-import { BlueButtonLink, BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
+import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import {
   DoneAndDismissKeyboardInputAccessory,
@@ -19,6 +19,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { isDesktop } from '../../blue_modules/environment';
+import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -109,12 +110,6 @@ const ImportWallet = () => {
     [importMnemonic],
   );
 
-  const importScan = useCallback(async () => {
-    navigation.navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-  }, [navigation]);
-
   useEffect(() => {
     const data = route.params?.onBarScanned;
     if (data) {
@@ -199,7 +194,7 @@ const ImportWallet = () => {
         <>
           <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
           <BlueSpacing20 />
-          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
+          <AddressInputScanButton type="link" onChangeText={setImportText} testID="ScanImport" />
         </>
       </View>
     </>

@@ -10,16 +10,22 @@ import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { isDesktop } from '../blue_modules/environment';
 
 interface AddressInputScanButtonProps {
-  isLoading: boolean;
+  isLoading?: boolean;
   onChangeText: (text: string) => void;
+  type?: 'default' | 'link';
+  testID?: string;
+  beforePress?: () => Promise<void> | void;
 }
 
 export const AddressInputScanButton = ({
   isLoading,
-
   onChangeText,
+  type = 'default',
+  testID = 'BlueAddressInputScanQrButton',
+  beforePress,
 }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
@@ -35,15 +41,17 @@ export const AddressInputScanButton = ({
   });
 
   const toolTipOnPress = useCallback(async () => {
+    if (beforePress) {
+      await beforePress();
+    }
     Keyboard.dismiss();
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
     });
-  }, [navigation]);
+  }, [navigation, beforePress]);
 
   const actions = useMemo(() => {
     const availableActions = [
-      CommonToolTipActions.ScanQR,
       CommonToolTipActions.ChoosePhoto,
       CommonToolTipActions.ImportFile,
       {
@@ -135,20 +143,29 @@ export const AddressInputScanButton = ({
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
-      testID="BlueAddressInputScanQrButton"
+      testID={testID}
       disabled={isLoading}
       onPress={toolTipOnPress}
-      buttonStyle={buttonStyle}
+      isMenuPrimaryAction={isDesktop}
+      buttonStyle={type === 'default' ? buttonStyle : undefined}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
     >
-      <Image source={require('../img/scan-white.png')} accessible={false} />
-      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-        {loc.send.details_scan}
-      </Text>
+      {type === 'default' ? (
+        <>
+          <Image source={require('../img/scan-white.png')} accessible={false} />
+          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+            {loc.send.details_scan}
+          </Text>
+        </>
+      ) : (
+        <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
+      )}
     </ToolTipMenu>
   );
 };
+
+AddressInputScanButton.displayName = 'AddressInputScanButton';
 
 const styles = StyleSheet.create({
   scan: {
@@ -163,5 +180,9 @@ const styles = StyleSheet.create({
   },
   scanText: {
     marginLeft: 4,
+  },
+  linkText: {
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
