@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
+import { DevSettings, Alert, Platform, AlertButton, DeviceEventEmitter } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -164,19 +164,9 @@ const DevMenu: React.FC = () => {
         });
       });
 
-      DevSettings.addMenuItem('Force Large Screen Interface', () => {
-        setLargeScreenValue('LargeScreen');
-        Alert.alert('Large Screen Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Force Handheld Interface', () => {
-        setLargeScreenValue('Handheld');
-        Alert.alert('Handheld Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Reset Screen Interface', () => {
-        setLargeScreenValue(undefined);
-        Alert.alert('Screen Interface reset to default.');
+      // New menu item to toggle BlueElectrumStatusOverlay visibility
+      DevSettings.addMenuItem('Toggle Blue Electrum Overlay', () => {
+        DeviceEventEmitter.emit('toggleBlueOverlay');
       });
     }
   }, [wallets, addWallet, setLargeScreenValue]);

@@ -9,6 +9,7 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import BlueElectrumStatusOverlay from './components/BlueElectrumStatusOverlay';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -22,6 +23,7 @@ const App = () => {
           <StorageProvider>
             <SettingsProvider>
               <MasterView />
+              {__DEV__ && <BlueElectrumStatusOverlay />}
             </SettingsProvider>
           </StorageProvider>
         </LargeScreenProvider>

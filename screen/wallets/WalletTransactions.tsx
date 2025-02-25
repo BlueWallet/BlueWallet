@@ -284,24 +284,36 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     [name, navigate, onWalletSelect, walletID, wallets],
   );
 
-  const getItemLayout = (_: any, index: number) => ({
-    length: 64,
-    offset: 64 * index,
-    index,
-  });
-
-  const listData: Transaction[] = useMemo(() => {
-    const transactions = getTransactions(limit);
-    return transactions;
-  }, [getTransactions, limit]);
+  const listConfig = useMemo(
+    () => ({
+      initialNumToRender: 10,
+      maxToRenderPerBatch: 10,
+      windowSize: 10,
+      removeClippedSubviews: true,
+      updateCellsBatchingPeriod: 50,
+      onEndReachedThreshold: 0.5,
+      onEndReached: loadMoreTransactions,
+      getItemLayout: (_data: any, index: number) => ({
+        length: 74, // Fixed height for transaction items
+        offset: 74 * index,
+        index,
+      }),
+    }),
+    [],
+  );
 
   const renderItem = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => {
       return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
     },
-    [wallet, walletID],
+    [wallet?.preferredBalanceUnit, walletID],
   );
+
+  const listData = useMemo(() => {
+    const transactions = getTransactions(limit);
+    console.debug('[listData]', transactions.length, 'transactions to show');
+    return transactions;
+  }, [getTransactions, limit]);
 
   const choosePhoto = () => {
     fs.showImagePickerAndReadImage()
@@ -317,7 +329,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       });
   };
 
-  const _keyExtractor = (_item: any, index: number) => index.toString();
+  const _keyExtractor = useCallback((item: Transaction) => item.txid, []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });
@@ -524,20 +536,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       />
 
       <FlatList<Transaction>
-        getItemLayout={getItemLayout}
-        updateCellsBatchingPeriod={30}
-        onEndReachedThreshold={0.3}
-        onEndReached={loadMoreTransactions}
-        ListFooterComponent={renderListFooterComponent}
+        {...listConfig}
         data={listData}
-        extraData={wallet}
-        keyExtractor={_keyExtractor}
+        extraData={[wallet?.preferredBalanceUnit, walletID, wallet?.getTransactions()]}
         renderItem={renderItem}
-        initialNumToRender={10}
-        removeClippedSubviews
+        keyExtractor={_keyExtractor}
+        ListFooterComponent={renderListFooterComponent}
         contentContainerStyle={{ backgroundColor: colors.background }}
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-        maxToRenderPerBatch={15}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         stickyHeaderHiddenOnScroll

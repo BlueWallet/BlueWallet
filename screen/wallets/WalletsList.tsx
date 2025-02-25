@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, View } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
-import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -93,15 +92,13 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Wall
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
-  const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
+  const [state] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
-  const currentWalletIndex = useRef<number>(0);
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
-  const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
-  const { width } = useWindowDimensions();
+  const { wallets, getTransactions, getBalance, setSelectedWalletID } = useStorage();
+  const { isTotalBalanceEnabled } = useSettings();
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
@@ -122,29 +119,6 @@ const WalletsList: React.FC = () => {
     },
   });
 
-  /**
-   * Forcefully fetches TXs and balance for ALL wallets.
-   * Triggered manually by user on pull-to-refresh.
-   */
-  const refreshTransactions = useCallback(
-    async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-      if (isElectrumDisabled) {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        return;
-      }
-      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
-    },
-    [isElectrumDisabled, refreshAllWalletTransactions],
-  );
-
-  const onRefresh = useCallback(() => {
-    console.debug('WalletsList onRefresh');
-    refreshTransactions(true, false);
-    // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
-  }, [refreshTransactions]);
 
   const verifyBalance = useCallback(() => {
     if (getBalance() !== 0) {
@@ -157,7 +131,7 @@ const WalletsList: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => onRefresh);
+        setReloadTransactionsMenuActionFunction(() => {});
         verifyBalance();
         setSelectedWalletID(undefined);
       });
@@ -165,7 +139,7 @@ const WalletsList: React.FC = () => {
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
+    }, [setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
   );
 
   useEffect(() => {
@@ -199,11 +173,6 @@ const WalletsList: React.FC = () => {
     }
   }, [navigation, onBarScanned, route.params?.onBarScanned]);
 
-  useEffect(() => {
-    refreshTransactions(false, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleClick = useCallback(
     (item?: TWallet) => {
       if (item?.getID) {
@@ -217,28 +186,6 @@ const WalletsList: React.FC = () => {
       }
     },
     [navigation],
-  );
-
-  const setIsLoading = useCallback((value: boolean) => {
-    dispatch({ type: ActionTypes.SET_LOADING, payload: value });
-  }, []);
-
-  const onSnapToItem = useCallback(
-    (e: { nativeEvent: { contentOffset: any } }) => {
-      if (!isFocused) return;
-
-      const contentOffset = e.nativeEvent.contentOffset;
-      const index = Math.ceil(contentOffset.x / width);
-
-      if (currentWalletIndex.current !== index) {
-        console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
-        if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
-        }
-        currentWalletIndex.current = index;
-      }
-    },
-    [isFocused, refreshAllWalletTransactions, setIsLoading, wallets, width],
   );
 
   const renderListHeaderComponent = useCallback(() => {
@@ -272,7 +219,6 @@ const WalletsList: React.FC = () => {
           extraData={[wallets]}
           onPress={handleClick}
           handleLongPress={handleLongPress}
-          onMomentumScrollEnd={onSnapToItem}
           ref={walletsCarousel}
           onNewWalletPress={handleClick}
           testID="WalletsList"
@@ -281,7 +227,7 @@ const WalletsList: React.FC = () => {
         />
       </>
     );
-  }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
+  }, [handleClick, handleLongPress, isFocused, wallets]);
 
   const renderSectionItem = useCallback(
     (item: { section: any; item: ExtendedTransaction }) => {
@@ -412,8 +358,6 @@ const WalletsList: React.FC = () => {
     });
   }, [onBarScanned, navigation, pasteFromClipboard]);
 
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
-
   const sections: SectionData[] = [
     { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
     { key: WalletsListSections.TRANSACTIONS, data: dataSource },
@@ -426,11 +370,11 @@ const WalletsList: React.FC = () => {
           removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
-          {...refreshProps}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}
           initialNumToRender={20}
+          extraData={[wallets, dataSource]}
           contentInset={styles.scrollContent}
           renderSectionFooter={renderSectionFooter}
           sections={sections}

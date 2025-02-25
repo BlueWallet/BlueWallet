@@ -1,8 +1,8 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { InteractionManager, LayoutAnimation } from 'react-native';
+import { InteractionManager, LayoutAnimation, AppState } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
-import type { TWallet } from '../../class/wallets/types';
+import type { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -10,11 +10,20 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { getLatestBlockInfo } from '../../services/blockchair-api';
+
+const { getLatestBlock, waitTillConnected } = BlueElectrum;
 
 const BlueApp = BlueAppClass.getInstance();
 
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
+
+interface WalletUpdate {
+  label: string;
+  newTxs?: number;
+  confirmedTxs?: number;
+}
 
 interface StorageContextType {
   wallets: TWallet[];
@@ -52,6 +61,7 @@ interface StorageContextType {
   setItem: typeof BlueApp.setItem;
   handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<boolean>;
   confirmWalletDeletion: (wallet: any, onConfirmed: () => void) => void;
+  walletUpdates: WalletUpdate[];
 }
 
 export enum WalletTransactionsStatus {
@@ -62,7 +72,7 @@ export enum WalletTransactionsStatus {
 // @ts-ignore default value does not match the type
 export const StorageContext = createContext<StorageContextType>(undefined);
 
-export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
+export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
@@ -73,6 +83,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
+  const [walletUpdates, setWalletUpdates] = useState<WalletUpdate[]>([]);
+
+  const lastKnownBlockRef = useRef<number | undefined>(undefined);
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -265,6 +278,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         await BlueElectrum.waitTillConnected();
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
+        // Track txs before update
+        const oldTxCounts = new Map(wallets.map(w => [w.getID(), w.getTransactions().length]));
+        const oldConfirmedCounts = new Map(
+          wallets.map(w => [w.getID(), w.getTransactions().filter((tx: Transaction) => tx.confirmations > 0).length]),
+        );
+
         // Restore fetch payment codes timing measurement
         if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
           const codesStart = Date.now();
@@ -295,6 +314,26 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
           timeoutPromise,
         ]);
+
+        // Compare and record changes
+        const updates: WalletUpdate[] = [];
+        for (const wallet of wallets) {
+          const id = wallet.getID();
+          const oldTxCount = oldTxCounts.get(id) || 0;
+          const newTxCount = wallet.getTransactions().length;
+          const oldConfirmedCount = oldConfirmedCounts.get(id) || 0;
+          const newConfirmedCount = wallet.getTransactions().filter((tx: Transaction) => tx.confirmations > 0).length;
+
+          if (newTxCount > oldTxCount || newConfirmedCount > oldConfirmedCount) {
+            updates.push({
+              label: wallet.getLabel(),
+              newTxs: newTxCount > oldTxCount ? newTxCount - oldTxCount : undefined,
+              confirmedTxs: newConfirmedCount > oldConfirmedCount ? newConfirmedCount - oldConfirmedCount : undefined,
+            });
+          }
+        }
+        setWalletUpdates(updates);
+
         console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
       } catch (error) {
         console.error('[refreshAllWalletTransactions] Error in refreshAllWalletTransactions:', error);
@@ -304,7 +343,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         refreshingRef.current = false;
       }
     },
-    [saveToDisk],
+    [saveToDisk, wallets],
   );
 
   const fetchAndSaveWalletTransactions = useCallback(
@@ -403,6 +442,87 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }
 
+  // On cold start, check the latest block and refresh if needed
+  useEffect(() => {
+    (async () => {
+      await waitTillConnected();
+      const latest = getLatestBlock();
+      if (latest.height && (!lastKnownBlockRef.current || latest.height > lastKnownBlockRef.current)) {
+        console.debug('[StorageProvider] Cold open: detected new block', latest);
+        lastKnownBlockRef.current = latest.height;
+        refreshAllWalletTransactions();
+      } else {
+        console.debug('[StorageProvider] Cold open: no new block detected.');
+      }
+    })();
+  }, [refreshAllWalletTransactions]);
+
+  // When app resumes from background, check block height and refresh if needed
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        console.debug('[StorageProvider] App resumed from background.');
+        await waitTillConnected();
+        const latest = getLatestBlock();
+        if (latest.height && (!lastKnownBlockRef.current || latest.height > lastKnownBlockRef.current)) {
+          console.debug('[StorageProvider] New block detected on resume:', latest);
+          lastKnownBlockRef.current = latest.height;
+          refreshAllWalletTransactions();
+        } else {
+          console.debug('[StorageProvider] No block update upon app resume.');
+        }
+      }
+    };
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
+  }, [refreshAllWalletTransactions]);
+
+  // Subscribe to new block events to auto-refresh wallet transactions
+  useEffect(() => {
+    const onBlock = (header: any) => {
+      console.debug('[StorageProvider] New block received', header);
+      if (header.height && (!lastKnownBlockRef.current || header.height > lastKnownBlockRef.current)) {
+        lastKnownBlockRef.current = header.height;
+        refreshAllWalletTransactions();
+      }
+    };
+    BlueElectrum.electrumEventEmitter.addListener('block', onBlock);
+    return () => {
+      BlueElectrum.electrumEventEmitter.removeListener('block', onBlock);
+    };
+  }, [refreshAllWalletTransactions]);
+
+  // Track last processed block height from Blockchair
+  const lastProcessedBlockRef = useRef<number>(0);
+
+  // Handle new blocks from Blockchair
+  useEffect(() => {
+    const checkBlockchair = async () => {
+      try {
+        const blockInfo = await getLatestBlockInfo();
+        if (blockInfo && blockInfo.height > lastProcessedBlockRef.current) {
+          console.debug('[StorageProvider] New block from Blockchair:', blockInfo);
+          lastProcessedBlockRef.current = blockInfo.height;
+          await refreshAllWalletTransactions();
+
+          // Emit block event for other components
+          BlueElectrum.electrumEventEmitter.emit('block', blockInfo);
+        }
+      } catch (error) {
+        console.error('[StorageProvider] Blockchair API error:', error);
+      }
+    };
+
+    // Initial check
+    checkBlockchair();
+
+    const pollInterval = setInterval(checkBlockchair, 120000);
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [refreshAllWalletTransactions]);
+
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
@@ -440,6 +560,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletTransactionUpdateStatus,
       handleWalletDeletion,
       confirmWalletDeletion,
+      walletUpdates,
     }),
     [
       wallets,
@@ -458,6 +579,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       handleWalletDeletion,
+      walletUpdates,
     ],
   );
 

@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Realm from 'realm';
+import { EventEmitter } from 'events';
 
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
@@ -75,6 +76,20 @@ type Peer = {
   tcp?: number;
 };
 
+interface BlockData {
+  height: number;
+  time: number;
+  timestamp?: number;
+  confirmations?: number;
+  address?: string;
+  balance?: number;
+  unconfirmed?: number;
+}
+
+interface ElectrumEvents {
+  block: (data: BlockData) => void;
+}
+
 export const ELECTRUM_HOST = 'electrum_host';
 export const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
 export const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
@@ -102,7 +117,7 @@ let serverName: string | false = false;
 let disableBatching: boolean = false;
 let connectionAttempt: number = 0;
 let currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
-let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
+let latestBlock: { height: number | undefined; time: number | undefined } = { height: undefined, time: undefined };
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
 
@@ -192,145 +207,6 @@ export async function isDisabled(): Promise<boolean> {
   return !!result;
 }
 
-export async function setDisabled(disabled = true) {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  console.log('Setting Electrum connection disabled state to:', disabled);
-  return DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
-}
-
-function getCurrentPeer() {
-  return hardcodedPeers[currentPeerIndex];
-}
-
-/**
- * Returns NEXT hardcoded electrum server (increments index after use)
- */
-function getNextPeer() {
-  const peer = getCurrentPeer();
-  currentPeerIndex++;
-  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
-  return peer;
-}
-
-async function getSavedPeer(): Promise<Peer | null> {
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
-    const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
-    const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
-
-    console.log('Getting saved peer:', { host, tcpPort, sslPort });
-
-    if (!host) {
-      return null;
-    }
-
-    if (sslPort) {
-      return { host, ssl: Number(sslPort) };
-    }
-
-    if (tcpPort) {
-      return { host, tcp: Number(tcpPort) };
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error in getSavedPeer:', error);
-    return null;
-  }
-}
-
-export async function connectMain(): Promise<void> {
-  if (await isDisabled()) {
-    console.log('Electrum connection disabled by user. Skipping connectMain call');
-    return;
-  }
-  let usingPeer = getNextPeer();
-  const savedPeer = await getSavedPeer();
-  if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
-    usingPeer = savedPeer;
-  }
-
-  console.log('Using peer:', JSON.stringify(usingPeer));
-
-  try {
-    console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
-
-    mainClient.onError = function (e: { message: string }) {
-      console.log('electrum mainClient.onError():', e.message);
-      if (mainConnected) {
-        // most likely got a timeout from electrum ping. lets reconnect
-        // but only if we were previously connected (mainConnected), otherwise theres other
-        // code which does connection retries
-        mainClient?.close();
-        mainClient = undefined;
-        mainConnected = false;
-        // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
-        // errors triggered
-        console.log('reconnecting after socket error');
-        setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
-      }
-    };
-    const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
-    if (ver && ver[0]) {
-      console.log('connected to ', ver);
-      serverName = ver[0];
-      mainConnected = true;
-      wasConnectedAtLeastOnce = true;
-      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
-        disableBatching = true;
-
-        // exeptions for versions:
-        const [electrumImplementation, electrumVersion] = ver[0].split(' ');
-        switch (electrumImplementation) {
-          case 'electrs':
-            if (semVerToInt(electrumVersion) >= semVerToInt('0.9.0')) {
-              disableBatching = false;
-            }
-            break;
-          case 'electrs-esplora':
-            // its a different one, and it does NOT support batching
-            // nop
-            break;
-          case 'Fulcrum':
-            if (semVerToInt(electrumVersion) >= semVerToInt('1.9.0')) {
-              disableBatching = false;
-            }
-            break;
-        }
-      }
-      const header = await mainClient.blockchainHeaders_subscribe();
-      if (header && header.height) {
-        latestBlock = {
-          height: header.height,
-          time: Math.floor(+new Date() / 1000),
-        };
-      }
-      // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
-    }
-  } catch (e) {
-    mainConnected = false;
-    console.log('bad connection:', JSON.stringify(usingPeer), e);
-    mainClient?.close();
-    mainClient = undefined;
-  }
-
-  if (!mainConnected) {
-    console.log('retry');
-    connectionAttempt = connectionAttempt + 1;
-    mainClient?.close();
-    mainClient = undefined;
-    if (connectionAttempt >= 5) {
-      presentNetworkErrorAlert(usingPeer);
-    } else {
-      console.log('reconnection attempt #', connectionAttempt);
-      await new Promise(resolve => setTimeout(resolve, 500)); // sleep
-      return connectMain();
-    }
-  }
-}
-
 export async function presentResetToDefaultsAlert(): Promise<boolean> {
   const hasPreferredServer = await getPreferredServer();
   const serverHistoryStr = await DefaultPreference.get(ELECTRUM_SERVER_HISTORY);
@@ -391,6 +267,297 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
     });
   });
 }
+
+export async function setDisabled(disabled = true) {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  console.log('Setting Electrum connection disabled state to:', disabled);
+  return DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+}
+
+function getCurrentPeer() {
+  return hardcodedPeers[currentPeerIndex];
+}
+
+/**
+ * Returns NEXT hardcoded electrum server (increments index after use)
+ */
+function getNextPeer() {
+  const peer = getCurrentPeer();
+  currentPeerIndex++;
+  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
+  return peer;
+}
+
+async function getSavedPeer(): Promise<Peer | null> {
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const host = (await DefaultPreference.get(ELECTRUM_HOST)) as string;
+    const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
+    const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
+
+    console.log('Getting saved peer:', { host, tcpPort, sslPort });
+
+    if (!host) {
+      return null;
+    }
+
+    if (sslPort) {
+      return { host, ssl: Number(sslPort) };
+    }
+
+    if (tcpPort) {
+      return { host, tcp: Number(tcpPort) };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in getSavedPeer:', error);
+    return null;
+  }
+}
+
+interface SubscriptionManager {
+  walletAddresses: Set<string>;
+  isSubscribed: boolean;
+  lastUpdate: number;
+  pendingUpdates: Map<string, BlockData>;
+}
+
+const subscriptionManager: SubscriptionManager = {
+  walletAddresses: new Set(),
+  isSubscribed: false,
+  lastUpdate: 0,
+  pendingUpdates: new Map(),
+};
+
+
+async function handleNewBlock(block: BlockData) {
+  try {
+    latestBlock = block;
+    subscriptionManager.lastUpdate = Date.now();
+
+    // Check all tracked addresses for updates
+    if (subscriptionManager.walletAddresses.size > 0) {
+      const addresses = Array.from(subscriptionManager.walletAddresses);
+      const updates = await multiGetBalanceByAddress(addresses);
+
+      // Process updates in chunks to avoid UI blocking
+      const chunks = splitIntoChunks(Object.entries(updates.addresses), 10);
+      for (const chunk of chunks) {
+        await new Promise(resolve => setTimeout(resolve, 50)); // Small delay between chunks
+        for (const [address, balance] of chunk) {
+          const lastKnown = subscriptionManager.pendingUpdates.get(address);
+          if (!lastKnown || lastKnown.height < block.height) {
+            subscriptionManager.pendingUpdates.set(address, block);
+            electrumEventEmitter.emit('block', {
+              ...block,
+              address,
+              balance: balance.confirmed,
+              unconfirmed: balance.unconfirmed,
+            });
+          }
+        }
+      }
+    }
+
+    // Clean up old pending updates
+    const MAX_PENDING_AGE = 3600000; // 1 hour
+    for (const [address, update] of subscriptionManager.pendingUpdates) {
+      if (Date.now() - update.timestamp! > MAX_PENDING_AGE) {
+        subscriptionManager.pendingUpdates.delete(address);
+      }
+    }
+  } catch (error) {
+    console.error('[BlueElectrum] Error handling new block:', error);
+  }
+}
+
+function handleSubscriptionError() {
+  subscriptionManager.isSubscribed = false;
+
+  // Progressive retry with backoff
+  const retryCount = subscriptionRetryTimeout ? RETRY_DELAYS.indexOf(getRetryDelay()) + 1 : 0;
+  const delay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)];
+
+  if (subscriptionRetryTimeout) {
+    clearTimeout(subscriptionRetryTimeout);
+  }
+
+  subscriptionRetryTimeout = setTimeout(() => {
+    console.debug('[BlueElectrum] Retrying subscription...');
+    subscribeToNewBlocks();
+  }, delay);
+}
+
+export async function subscribeToNewBlocks() {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+
+  const setupSubscription = async () => {
+    try {
+      // Initial subscription
+      const header = await mainClient.blockchainHeaders_subscribe();
+      if (header?.height) {
+        const newBlock: BlockData = {
+          height: header.height,
+          time: header.timestamp || header.time || Math.floor(Date.now() / 1000),
+        };
+        await handleNewBlock(newBlock);
+      }
+
+      // Setup ongoing subscription with error handling
+      mainClient.subscribe.on('blockchain.headers.subscribe', async (header: any) => {
+        if (!header?.height) return;
+
+        const newBlock: BlockData = {
+          height: header.height,
+          time: header.timestamp || header.time || Math.floor(Date.now() / 1000),
+        };
+        await handleNewBlock(newBlock);
+      });
+
+      subscriptionManager.isSubscribed = true;
+      console.debug('[BlueElectrum] Successfully subscribed to new blocks');
+
+      // Clear any existing retry timeout
+      if (subscriptionRetryTimeout) {
+        clearTimeout(subscriptionRetryTimeout);
+        subscriptionRetryTimeout = null;
+      }
+    } catch (error) {
+      console.error('[BlueElectrum] Subscription error:', error);
+      handleSubscriptionError();
+    }
+  };
+
+  await setupSubscription();
+}
+
+// Function to get current retry delay
+function getRetryDelay(): number {
+  return subscriptionRetryTimeout
+    ? RETRY_DELAYS[Math.min(RETRY_DELAYS.indexOf(getRetryDelay()) + 1, RETRY_DELAYS.length - 1)]
+    : RETRY_DELAYS[0];
+}
+
+
+
+
+let subscriptionRetryTimeout: NodeJS.Timeout | null = null;
+const RETRY_DELAYS = [1000, 2000, 5000, 10000, 30000]; // Progressive retry delays
+
+// Moving subscribeToAddress and unsubscribeFromAddress before they are used
+export function subscribeToAddress(address: string) {
+  subscriptionManager.walletAddresses.add(address);
+}
+
+export function unsubscribeFromAddress(address: string) {
+  subscriptionManager.walletAddresses.delete(address);
+  subscriptionManager.pendingUpdates.delete(address);
+}
+
+export async function connectMain(): Promise<void> {
+  // Clear cache on cold start
+  clearCachedData();
+
+  if (await isDisabled()) {
+    console.log('Electrum connection disabled by user. Skipping connectMain call');
+    return;
+  }
+  let usingPeer = getNextPeer();
+  const savedPeer = await getSavedPeer();
+  if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
+    usingPeer = savedPeer;
+  }
+
+  try {
+    // Initialize mainClient before setting onError
+    mainClient = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
+
+    mainClient.onError = function (e: { message: string }) {
+      console.log('electrum mainClient.onError():', e.message);
+      if (mainConnected) {
+        mainClient?.close();
+        mainClient = undefined;
+        mainConnected = false;
+        console.log('reconnecting after socket error');
+        setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
+      }
+    };
+    const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
+    if (ver && ver[0]) {
+      console.log('connected to ', ver);
+      serverName = ver[0];
+      mainConnected = true;
+      wasConnectedAtLeastOnce = true;
+      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
+        disableBatching = true;
+
+        // exeptions for versions:
+        const [electrumImplementation, electrumVersion] = ver[0].split(' ');
+        switch (electrumImplementation) {
+          case 'electrs':
+            if (semVerToInt(electrumVersion) >= semVerToInt('0.9.0')) {
+              disableBatching = false;
+            }
+            break;
+          case 'electrs-esplora':
+            // its a different one, and it does NOT support batching
+            // nop
+            break;
+          case 'Fulcrum':
+            if (semVerToInt(electrumVersion) >= semVerToInt('1.9.0')) {
+              disableBatching = false;
+            }
+            break;
+        }
+      }
+      const header = await mainClient.blockchainHeaders_subscribe();
+      if (header && header.height) {
+        latestBlock = {
+          height: header.height,
+          time: Math.floor(+new Date() / 1000),
+        };
+      }
+    }
+  } catch (e) {
+    mainConnected = false;
+    console.log('bad connection:', JSON.stringify(usingPeer), e);
+    mainClient?.close();
+    mainClient = undefined;
+  }
+
+  if (mainConnected) {
+    try {
+      await subscribeToNewBlocks();
+      if (subscriptionManager.walletAddresses.size > 0) {
+        const addresses = Array.from(subscriptionManager.walletAddresses);
+        await Promise.all(addresses.map(addr => subscribeToAddress(addr)));
+      }
+    } catch (error) {
+      console.warn('[BlueElectrum] Failed to setup subscriptions:', error);
+    }
+  }
+
+  if (!mainConnected) {
+    console.log('retry');
+    connectionAttempt = connectionAttempt + 1;
+    mainClient?.close();
+    mainClient = undefined;
+    if (connectionAttempt >= 5) {
+      presentNetworkErrorAlert(usingPeer);
+    } else {
+      console.log('reconnection attempt #', connectionAttempt);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return connectMain();
+    }
+  }
+}
+
+export const clearCachedData = () => {
+  // Only clear block height cache, nothing else
+  lastKnownBlockHeight = undefined;
+  latestBlock = { height: undefined, time: undefined };
+};
 
 const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
   if (await isDisabled()) {
@@ -1155,7 +1322,7 @@ export const broadcastV2 = async function (hex: string): Promise<string> {
 };
 
 export const estimateCurrentBlockheight = function (): number {
-  if (latestBlock.height) {
+  if (latestBlock.height && latestBlock.time !== undefined) {
     const timeDiff = Math.floor(+new Date() / 1000) - latestBlock.time;
     const extraBlocks = Math.floor(timeDiff / (9.93 * 60));
     return latestBlock.height + extraBlocks;
@@ -1167,7 +1334,7 @@ export const estimateCurrentBlockheight = function (): number {
 };
 
 export const calculateBlockTime = function (height: number): number {
-  if (latestBlock.height) {
+  if (latestBlock.height && latestBlock.time !== undefined) {
     return Math.floor(latestBlock.time + (height - latestBlock.height) * 9.93 * 60);
   }
 
@@ -1236,3 +1403,51 @@ const semVerToInt = function (semver: string): number {
 
   return ret;
 };
+
+class TypedEventEmitter extends EventEmitter {
+  emit<K extends keyof ElectrumEvents>(event: K, data: Parameters<ElectrumEvents[K]>[0]): boolean {
+    if (event === 'block') {
+      const blockData = data as BlockData;
+      return super.emit(event, blockData);
+    }
+    return super.emit(event, data);
+  }
+
+  on<K extends keyof ElectrumEvents>(event: K, listener: ElectrumEvents[K]): this {
+    return super.on(event as string, listener);
+  }
+
+  once<K extends keyof ElectrumEvents>(event: K, listener: ElectrumEvents[K]): this {
+    return super.once(event as string, listener);
+  }
+
+  addListener<K extends keyof ElectrumEvents>(event: K, listener: ElectrumEvents[K]): this {
+    return super.addListener(event as string, listener);
+  }
+
+  removeListener<K extends keyof ElectrumEvents>(event: K, listener: ElectrumEvents[K]): this {
+    return super.removeListener(event as string, listener);
+  }
+}
+
+export const electrumEventEmitter = new TypedEventEmitter();
+
+/**
+ * Returns the latest known block data
+ */
+export const getLatestBlock = (): BlockData => {
+  return {
+    height: latestBlock.height ?? 0,
+    time: latestBlock.time ?? Math.floor(Date.now() / 1000),
+  };
+};
+
+
+// Add heartbeat monitoring
+setInterval(() => {
+  const STALE_THRESHOLD = 300000; // 5 minutes
+  if (subscriptionManager.isSubscribed && Date.now() - subscriptionManager.lastUpdate > STALE_THRESHOLD) {
+    console.warn('[BlueElectrum] Subscription appears stale, reconnecting...');
+    handleSubscriptionError();
+  }
+}, 60000);

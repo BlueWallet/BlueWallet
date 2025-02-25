@@ -26,6 +26,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
   decoded_invoice_raw?: any;
+  private updateIntervalId: NodeJS.Timeout | null = null;
 
   constructor() {
     super();
@@ -665,6 +666,36 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   authenticate(lnurl: any) {
     return lnurl.authenticate(this.secret);
+  }
+
+  /**
+   * Starts polling for wallet updates via fetch calls.
+   * This is independent of Electrum and uses the wallet's API.
+   */
+  subscribeToUpdates(pollIntervalMs: number = 60000): void {
+    if (this.updateIntervalId) return; // already subscribed
+
+    this.updateIntervalId = setInterval(async () => {
+      try {
+        // Example: update balance and transactions from the API
+        await this.fetchBalance();
+        await this.fetchTransactions();
+        // Optionally, you can add any notification or event emitter trigger here.
+        console.debug('[LightningCustodianWallet] Wallet data updated via polling.');
+      } catch (err) {
+        console.error('[LightningCustodianWallet] Update polling error:', err);
+      }
+    }, pollIntervalMs);
+  }
+
+  /**
+   * Stops polling for wallet updates.
+   */
+  unsubscribeFromUpdates(): void {
+    if (this.updateIntervalId) {
+      clearInterval(this.updateIntervalId);
+      this.updateIntervalId = null;
+    }
   }
 }
 

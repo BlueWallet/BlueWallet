@@ -1,6 +1,7 @@
 import b58 from 'bs58check';
 import createHash from 'create-hash';
 import wif from 'wif';
+import { subscribeToAddress, unsubscribeFromAddress } from '../../blue_modules/BlueElectrum';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -521,5 +522,15 @@ export class AbstractWallet {
     hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
 
     return parseInt(hexValue, 16);
+  }
+
+  async subscribe() {
+    const addresses = this.getAllExternalAddresses();
+    await Promise.all(addresses.map(addr => subscribeToAddress(addr)));
+  }
+
+  async unsubscribe() {
+    const addresses = this.getAllExternalAddresses();
+    addresses.forEach(addr => unsubscribeFromAddress(addr));
   }
 }
