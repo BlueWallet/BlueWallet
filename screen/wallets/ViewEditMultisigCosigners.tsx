@@ -18,15 +18,7 @@ import {
 import { Badge, Icon } from '@rneui/themed';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import {
-  BlueButtonLink,
-  BlueCard,
-  BlueFormMultiInput,
-  BlueLoading,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueCard, BlueFormMultiInput, BlueLoading, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
@@ -52,6 +44,7 @@ import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEd
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import SafeArea from '../../components/SafeArea';
 import { TWallet } from '../../class/wallets/types';
+import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 
 type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
@@ -62,8 +55,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
-  const openScannerButtonRef = useRef();
+  const { dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -516,11 +508,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     });
   };
 
-  const scanOrOpenFile = async () => {
-    await provideMnemonicsModalRef.current?.dismiss();
-    navigate('ScanQRCode', { showFileImportButton: true });
-  };
-
   useEffect(() => {
     const scannedData = route.params.onBarScanned;
     if (scannedData) {
@@ -573,11 +560,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
             {!isLoading && (
               <>
-                <BlueButtonLink
-                  ref={openScannerButtonRef}
-                  disabled={isLoading}
-                  onPress={scanOrOpenFile}
-                  title={loc.wallets.import_scan_qr}
+                <AddressInputScanButton
+                  beforePress={async () => {
+                    await provideMnemonicsModalRef.current?.dismiss();
+                  }}
+                  isLoading={isLoading}
+                  type="link"
+                  onChangeText={setImportText}
                 />
                 <BlueSpacing20 />
               </>
