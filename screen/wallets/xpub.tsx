@@ -8,13 +8,12 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import { disallowScreenshot } from 'react-native-screen-capture';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -39,7 +38,7 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+      if (isPrivacyBlurEnabled) enableScreenProtect();
       // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;
@@ -58,7 +57,7 @@ const WalletXpub: React.FC = () => {
       });
       lastWalletIdRef.current = walletID;
       return () => {
-        if (!isDesktop) disallowScreenshot(false);
+        disableScreenProtect();
         task.cancel();
       };
     }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation]),
