@@ -185,7 +185,11 @@ const ElectrumSettings: React.FC = () => {
 
         if (serverHost && (serverPort || serverSslPort)) {
           const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
-          if (!testConnect) return;
+          if (!testConnect) {
+            return presentAlert({
+              message: serverHost.endsWith('.onion') ? loc.settings.electrum_error_connect_tor : loc.settings.electrum_error_connect,
+            });
+          }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
           // Clear current data for the preferred host

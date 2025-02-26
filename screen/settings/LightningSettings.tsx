@@ -80,10 +80,11 @@ const LightningSettings: React.FC = () => {
   };
   const save = useCallback(async () => {
     setIsLoading(true);
+    let normalizedURI;
     try {
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       if (URI) {
-        const normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
+        normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
         await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
 
         await setLNDHub(normalizedURI);
@@ -95,7 +96,9 @@ const LightningSettings: React.FC = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
+      presentAlert({
+        message: normalizedURI?.endsWith('.onion') ? loc.settings.lightning_error_lndhub_uri_tor : loc.settings.lightning_error_lndhub_uri,
+      });
       console.log(error);
     }
     setIsLoading(false);
