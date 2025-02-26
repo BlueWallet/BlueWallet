@@ -1347,6 +1347,8 @@ PODS:
     - React-Core
   - react-native-safe-area-context (5.2.0):
     - React-Core
+  - react-native-screen-capture (0.2.3):
+    - React
   - react-native-secure-key-store (2.0.10):
     - React-Core
   - react-native-tcp-socket (6.2.0):
@@ -1838,7 +1840,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.9.0):
+  - RNScreens (4.9.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1963,6 +1965,7 @@ DEPENDENCIES:
   - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-screen-capture (from `../node_modules/react-native-screen-capture`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
@@ -2123,6 +2126,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-screen-capture:
+    :path: "../node_modules/react-native-screen-capture"
   react-native-secure-key-store:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
@@ -2283,6 +2288,7 @@ SPEC CHECKSUMS:
   react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
+  react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
   react-native-true-sheet: 15f8d1bfbf2aceca472b9ba585b4116041d20f34
@@ -2331,7 +2337,7 @@ SPEC CHECKSUMS:
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: 66cf0f600a26d2b5e74c6e0b1c77c1ab1f62fc05
-  RNScreens: ee069f569efb54804334321c916643f8cc9debaf
+  RNScreens: b3975354ddafe0fb00112a9054898ccf0d92c78e
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
   RNSVG: a07e14363aa208062c6483bad24a438d5986d490
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
