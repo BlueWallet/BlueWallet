@@ -17,7 +17,7 @@ import { Icon } from '@rneui/themed';
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -44,6 +44,7 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
+import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 
 const staticCache = {};
 
@@ -65,7 +66,6 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const openScannerButton = useRef();
   const { isPrivacyBlurEnabled } = useSettings();
   const data = useRef(new Array(n));
   const { isVisible } = useKeyboard();
@@ -433,11 +433,6 @@ const WalletsAddMultisigStep2 = () => {
     [cosigners, format, getXpubCacheForMnemonics, tryUsingXpub],
   );
 
-  const scanOrOpenFile = async () => {
-    await provideMnemonicsModalRef.current.dismiss();
-    navigation.navigate('ScanQRCode', { showFileImportButton: true });
-  };
-
   const utilizeMnemonicPhrase = useCallback(async () => {
     try {
       await provideMnemonicsModalRef.current.dismiss();
@@ -659,12 +654,15 @@ const WalletsAddMultisigStep2 = () => {
                   onPress={utilizeMnemonicPhrase}
                 />
                 <View style={styles.height16} />
-                <BlueButtonLink
+
+                <AddressInputScanButton
+                  beforePress={async () => {
+                    await provideMnemonicsModalRef.current.dismiss();
+                  }}
+                  onBarScanned={onBarScanned}
                   testID="ScanOrOpenFile"
-                  ref={openScannerButton}
+                  type="link"
                   disabled={isLoading}
-                  onPress={scanOrOpenFile}
-                  title={loc.wallets.import_scan_qr}
                 />
               </>
             )}

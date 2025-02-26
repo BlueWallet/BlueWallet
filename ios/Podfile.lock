@@ -1652,7 +1652,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.5.1):
     - React-Core
-  - RNDeviceInfo (14.0.2):
+  - RNDeviceInfo (14.0.4):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -1819,7 +1819,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.7.0):
+  - RNScreens (4.9.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1862,7 +1862,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.11.1):
+  - RNSVG (15.11.2):
     - React-Core
   - RNVectorIcons (10.2.0):
     - DoubleConversion
@@ -2300,7 +2300,7 @@ SPEC CHECKSUMS:
   RNCClipboard: ee059e6006b137e369caed5eb852b4aad9f5d886
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
-  RNDeviceInfo: 801c18d0525e86580900e7b5f562dca0c8c05021
+  RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 79e731e77dbec11fb5508e646d13897f1ee45912
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
@@ -2312,9 +2312,9 @@ SPEC CHECKSUMS:
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: 66cf0f600a26d2b5e74c6e0b1c77c1ab1f62fc05
-  RNScreens: 9a7346d6ce564a948e9d61cf9ec10950093e34df
+  RNScreens: ee069f569efb54804334321c916643f8cc9debaf
   RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
-  RNSVG: 86fecdfc637614ba9def63f7f3f2e7795e018356
+  RNSVG: a07e14363aa208062c6483bad24a438d5986d490
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
