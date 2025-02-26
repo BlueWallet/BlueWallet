@@ -7,12 +7,11 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -102,7 +101,6 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(() => {
-        if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
         if (wallet) {
           setTimeout(async () => {
             try {
@@ -128,10 +126,20 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
       return () => {
         task.cancel();
-        if (!isDesktop) disallowScreenshot(false);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isPrivacyBlurEnabled) {
+        enableScreenProtect();
+      }
+      return () => {
+        disableScreenProtect();
+      };
+    }, [isPrivacyBlurEnabled]),
   );
 
   useFocusEffect(

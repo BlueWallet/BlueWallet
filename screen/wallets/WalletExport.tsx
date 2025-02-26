@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
-import { ActivityIndicator, InteractionManager, LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { disallowScreenshot } from 'react-native-screen-capture';
-
+import { LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
@@ -15,7 +14,6 @@ import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
@@ -57,9 +55,8 @@ const DoNotDisclose: React.FC = () => {
 };
 
 const WalletExport: React.FC = () => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
-  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
@@ -85,28 +82,20 @@ const WalletExport: React.FC = () => {
   }, [wallet]);
 
   useEffect(() => {
-    if (!isLoading && previousAppState === 'active' && currentAppState !== 'active') {
+    if (previousAppState === 'active' && currentAppState !== 'active') {
       const timer = setTimeout(() => navigation.goBack(), 500);
       return () => clearTimeout(timer);
     }
-  }, [currentAppState, previousAppState, navigation, isLoading]);
+  }, [currentAppState, previousAppState, navigation]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
-      const task = InteractionManager.runAfterInteractions(async () => {
-        if (!wallet.getUserHasSavedExport()) {
-          wallet.setUserHasSavedExport(true);
-          saveToDisk();
-        }
-        setIsLoading(false);
-      });
-      return () => {
-        if (!isDesktop) disallowScreenshot(false);
-        task.cancel();
-      };
-    }, [isPrivacyBlurEnabled, wallet, saveToDisk]),
-  );
+  useEffect(() => {
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
+    return () => {
+      disableScreenProtect();
+    };
+  }, [isPrivacyBlurEnabled]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
@@ -128,21 +117,12 @@ const WalletExport: React.FC = () => {
         contentContainerStyle={styles.scrollViewContent}
         onLayout={onLayout}
         testID="WalletExportScroll"
-        centerContent={isLoading}
       >
         {children}
       </ScrollView>
     ),
-    [isLoading, onLayout, stylesHook.root],
+    [onLayout, stylesHook.root],
   );
-
-  if (isLoading) {
-    return (
-      <Scroll>
-        <ActivityIndicator />
-      </Scroll>
-    );
-  }
 
   // for SLIP39
   if (secrets.length !== 1) {
@@ -177,7 +157,6 @@ const WalletExport: React.FC = () => {
       contentContainerStyle={styles.scrollViewContent}
       onLayout={onLayout}
       testID="WalletExportScroll"
-      centerContent={isLoading}
     >
       {wallet.type !== WatchOnlyWallet.type && <DoNotDisclose />}
 

@@ -297,10 +297,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: Transaction }) => {
-      return <TransactionListItem item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />;
-    },
-    [wallet, walletID],
+    ({ item }: { item: Transaction }) => (
+      <TransactionListItem key={item.hash} item={item} itemPriceUnit={wallet?.preferredBalanceUnit} walletID={walletID} />
+    ),
+    [wallet?.preferredBalanceUnit, walletID],
   );
 
   const choosePhoto = () => {
@@ -317,7 +317,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       });
   };
 
-  const _keyExtractor = (_item: any, index: number) => index.toString();
+  const _keyExtractor = useCallback((_item: any, index: number) => index.toString(), []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });
@@ -398,6 +398,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       });
       return () => {
         task.cancel();
+        console.debug('Next screen is focused, clearing reloadTransactionsMenuActionFunction');
         setReloadTransactionsMenuActionFunction(() => {});
       };
     }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
@@ -525,7 +526,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
       <FlatList<Transaction>
         getItemLayout={getItemLayout}
-        updateCellsBatchingPeriod={30}
+        updateCellsBatchingPeriod={50}
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
@@ -537,7 +538,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         removeClippedSubviews
         contentContainerStyle={{ backgroundColor: colors.background }}
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-        maxToRenderPerBatch={15}
+        maxToRenderPerBatch={10}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         stickyHeaderHiddenOnScroll
@@ -555,6 +556,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} tintColor={colors.msSuccessCheck} />
           ) : undefined
         }
+        windowSize={15}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+        }}
       />
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
