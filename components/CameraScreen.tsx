@@ -3,9 +3,9 @@ import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-na
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
-import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import { isDesktop } from '../blue_modules/environment';
+import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 
 interface CameraScreenProps {
   onCancelButtonPress: () => void;
