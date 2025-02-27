@@ -5,6 +5,7 @@ import loc from '../loc';
 import { Icon } from '@rneui/base';
 import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
+import { isDesktop } from '../blue_modules/environment';
 
 interface CameraScreenProps {
   onCancelButtonPress: () => void;
@@ -96,15 +97,17 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   return (
     <View style={styles.screen}>
       <View style={styles.topButtons}>
-        <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
-          <Animated.View style={styles.topButtonImg}>
-            {Platform.OS === 'ios' ? (
-              <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
-            ) : (
-              <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
-            )}
-          </Animated.View>
-        </TouchableOpacity>
+        {!isDesktop && (
+          <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
+            <Animated.View style={styles.topButtonImg}>
+              {Platform.OS === 'ios' ? (
+                <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+              ) : (
+                <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+              )}
+            </Animated.View>
+          </TouchableOpacity>
+        )}
         <View style={styles.rightButtonsContainer}>
           {showImagePickerButton && (
             <TouchableOpacity
@@ -154,15 +157,17 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
-          <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            {Platform.OS === 'ios' ? (
-              <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
-            ) : (
-              <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
-            )}
-          </Animated.View>
-        </TouchableOpacity>
+        {!isDesktop && (
+          <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
+            <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+              {Platform.OS === 'ios' ? (
+                <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+              ) : (
+                <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+              )}
+            </Animated.View>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
