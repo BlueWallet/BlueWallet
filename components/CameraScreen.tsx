@@ -96,8 +96,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topButtons}>
-        {!isDesktop && (
+      {/* Render top buttons only if not desktop as they would not be relevant */}
+      {!isDesktop && (
+        <View style={styles.topButtons}>
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
               {Platform.OS === 'ios' ? (
@@ -107,57 +108,82 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
               )}
             </Animated.View>
           </TouchableOpacity>
-        )}
-        <View style={styles.rightButtonsContainer}>
-          {showImagePickerButton && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={loc._.pick_image}
-              style={[styles.topButton, styles.spacing, uiRotationStyle]}
-              onPress={onImagePickerButtonPress}
-            >
-              <Animated.View style={styles.topButtonImg}>
-                <Icon name="image" type="font-awesome" color="#ffffff" />
-              </Animated.View>
-            </TouchableOpacity>
-          )}
-          {showFilePickerButton && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={loc._.pick_file}
-              style={[styles.topButton, styles.spacing, uiRotationStyle]}
-              onPress={onFilePickerButtonPress}
-            >
-              <Animated.View style={styles.topButtonImg}>
-                <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
-              </Animated.View>
-            </TouchableOpacity>
-          )}
+          <View style={styles.rightButtonsContainer}>
+            {showImagePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_image}
+                style={[styles.topButton, styles.spacing, uiRotationStyle]}
+                onPress={onImagePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+            {showFilePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_file}
+                style={[styles.topButton, styles.spacing, uiRotationStyle]}
+                onPress={onFilePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
-
+      )}
       <View style={styles.cameraContainer}>
         <Camera
           ref={cameraRef}
           style={styles.cameraPreview}
           cameraType={cameraType}
-          resetFocusWhenMotionDetected
-          zoom={zoom}
-          maxZoom={10}
           scanBarcode
           resizeMode="cover"
-          onZoom={handleZoom}
           onReadCode={handleReadCode}
           torchMode={torchMode ? 'on' : 'off'}
+          resetFocusWhenMotionDetected
+          zoom={zoom}
+          onZoom={handleZoom}
+          maxZoom={10}
           onOrientationChange={handleOrientationChange}
         />
       </View>
-
       <View style={styles.bottomButtons}>
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
-        {!isDesktop && (
+        {isDesktop ? (
+          <View style={styles.rightButtonsContainer}>
+            {showImagePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_image}
+                style={[styles.bottomButton, styles.spacing, uiRotationStyle]}
+                onPress={onImagePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+            {showFilePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_file}
+                style={[styles.bottomButton, styles.spacing, uiRotationStyle]}
+                onPress={onFilePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
           <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
             <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
               {Platform.OS === 'ios' ? (
