@@ -1,5 +1,13 @@
 import { hashIt, helperDeleteWallet, helperImportWallet, sleep, waitForId } from './helperz';
 
+// if loglevel is set to `error`, this kind of logging will still get through
+console.warn = console.log = (...args) => {
+  let output = '';
+  args.map(arg => (output += String(arg)));
+
+  process.stdout.write(output + '\n');
+};
+
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
   await device.launchApp({ delete: true });
