@@ -245,7 +245,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
-          memo: loc.lnd.refill_lnd_balance,
+          transactionMemo: loc.lnd.refill_lnd_balance,
           address: toAddress,
           walletID: selectedWallet.getID(),
         },
