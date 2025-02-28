@@ -136,6 +136,7 @@ const SendDetails = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
+
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
@@ -172,19 +173,19 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
     } else if (routeParams.address) {
-      const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
-      // @ts-ignore: needs fix
-      setAddresses(value => {
-        if (currentAddress && currentAddress.address && routeParams.address) {
-          currentAddress.address = routeParams.address;
-          value[scrollIndex.current] = currentAddress;
-          value[scrollIndex.current].unit = unit;
-          return [...value];
-        } else {
-          return [...value, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
-        }
+      // screen was called with `address` parameter, so we just prefill it
+      setAddresses(prevAddresses => {
+        const updatedAddresses = [...prevAddresses];
+        updatedAddresses[0] = {
+          ...updatedAddresses[0],
+          address: routeParams.address,
+          amount: 0,
+          amountSats: 0,
+        } as IPaymentDestinations;
+        return updatedAddresses;
       });
     } else if (routeParams.addRecipientParams) {
+      // used to add a recipient, mainly from contacts aka paymentcodes screen
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
       const { address, amount } = routeParams.addRecipientParams;
 
