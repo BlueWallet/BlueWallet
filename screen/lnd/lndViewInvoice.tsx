@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteProp, useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import { BackHandler, I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
@@ -55,16 +55,20 @@ const LNDViewInvoice = () => {
     },
   });
 
+  const handleBackButton = useCallback(() => {
+    goBack();
+    return true;
+  }, [goBack]);
+
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      backHandler.remove();
       clearInterval(fetchInvoiceInterval.current);
       fetchInvoiceInterval.current = undefined;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleBackButton]);
 
   useEffect(() => {
     setOptions(
@@ -154,11 +158,6 @@ const LNDViewInvoice = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleBackButton = () => {
-    goBack();
-    return true;
-  };
 
   const navigateToPreImageScreen = () => {
     navigate('LNDViewAdditionalInvoicePreImage', {

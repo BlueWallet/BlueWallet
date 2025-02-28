@@ -293,21 +293,20 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
-  const handleBackButton = () => {
+  const handleBackButton = useCallback(() => {
     goBack();
     return true;
-  };
+  }, [goBack]);
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      backHandler.remove();
       clearInterval(fetchTxInterval.current);
       fetchTxInterval.current = undefined;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleBackButton]);
 
   const initialButtonsState = async () => {
     try {

@@ -40,14 +40,16 @@ const PleaseBackup: React.FC = () => {
   }, [navigation]);
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
     if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      backHandler.remove();
       if (!isDesktop) disallowScreenshot(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleBackButton]);
 
   return (
     <ScrollView
