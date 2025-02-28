@@ -16,10 +16,9 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
-import { keepAwake, disallowScreenshot } from 'react-native-screen-capture';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -39,7 +38,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
-  const { isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const task = useRef<TImport | null>(null);
   const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState<boolean>(true);
@@ -115,7 +114,6 @@ const ImportWalletDiscovery: React.FC = () => {
       }
     };
 
-    if (!isDesktop) keepAwake(true);
     task.current = startImport(importText, askPassphrase, searchAccounts, isElectrumDisabled, onProgress, onWallet, onPassword);
 
     task.current.promise
@@ -134,22 +132,24 @@ const ImportWalletDiscovery: React.FC = () => {
       .finally(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setLoading(false);
-        if (!isDesktop) keepAwake(false);
       });
 
     return () => {
-      if (!isDesktop) keepAwake(false);
       task.current?.stop();
     };
   }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts]);
 
+  useEffect(() => {
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
+    return () => {
+      disableScreenProtect();
+    };
+  }, [isPrivacyBlurEnabled]);
+
   const handleCustomDerivation = () => {
     task.current?.stop();
-    if (!isDesktop) {
-      keepAwake(false);
-      disallowScreenshot(false);
-    }
-
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 

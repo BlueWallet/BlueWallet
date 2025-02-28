@@ -1322,12 +1322,31 @@ PODS:
     - React-Core
   - react-native-menu (1.2.1):
     - React
+  - react-native-prevent-screenshot-ios-android (1.1.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (5.2.0):
     - React-Core
-  - react-native-screen-capture (0.2.3):
-    - React
   - react-native-secure-key-store (2.0.10):
     - React-Core
   - react-native-tcp-socket (6.2.0):
@@ -1941,9 +1960,9 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
+  - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-screen-capture (from `../node_modules/react-native-screen-capture`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
@@ -2098,12 +2117,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ios-context-menu"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
+  react-native-prevent-screenshot-ios-android:
+    :path: "../node_modules/react-native-prevent-screenshot-ios-android"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-screen-capture:
-    :path: "../node_modules/react-native-screen-capture"
   react-native-secure-key-store:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
@@ -2261,9 +2280,9 @@ SPEC CHECKSUMS:
   react-native-image-picker: 130fad649d07e4eec8faaed361d3bba570e1e5ff
   react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
+  react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
-  react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
   react-native-true-sheet: 15f8d1bfbf2aceca472b9ba585b4116041d20f34
