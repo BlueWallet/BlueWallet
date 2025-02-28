@@ -14,6 +14,7 @@
     "storage_is_encrypted": "你的储存资料已经被加密， 请输入密码解密。",
     "yes": "是",
     "no": "不",
+    "save": "保存…",
     "seed": "种子",
     "success": "成功",
     "wallet_key": "钱包密钥",
@@ -491,7 +492,9 @@
     "identity_pubkey": "身份公钥",
     "xpub_title": "钱包公钥",
     "manage_wallets_search_placeholder": "搜索钱包、备忘录",
-    "more_info": "更多信息"
+    "more_info": "更多信息",
+    "details_delete_wallet_error_message": "此钱包在确认是否从通知中删除时出现了问题，这可能是由于网络问题或连接不畅造成的。如果您继续使用，即使钱包已删除，您可能仍会收到与之相关的交易通知。",
+    "details_delete_anyway": "继续删除"
   },
   "total_balance_view": {
     "display_in_bitcoin": "以比特币单位显示",
@@ -506,6 +509,10 @@
     "default_label": "多重签名保管库",
     "multisig_vault_explain": "大金额需要的最佳安全性",
     "provide_signature": "提供签名",
+    "provide_signature_details": "使用您的设备和存放密钥的钱包来签署此交易",
+    "provide_signature_details_bluewallet": "在 BlueWallet 中，前往发送菜单并选择 ",
+    "provide_signature_next_steps": "扫描或导入已签署的交易",
+    "provide_signature_next_steps_details": "在钱包成功签署交易之后，请扫描提供的二维码或导入随附的文件，然后在广播之前查看所有交易详情。",
     "vault_key": "保管库密钥 {number}",
     "required_keys_out_of_total": "总数中所需的密钥",
     "fee": "费用：{number}",
