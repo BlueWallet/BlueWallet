@@ -29,6 +29,15 @@ export type SendDetailsParams = {
   };
 };
 
+export type TNavigation = {
+  pop: () => void;
+  navigate: () => void;
+};
+
+export type TNavigationWrapper = {
+  navigation: TNavigation;
+};
+
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
   Confirm: {
@@ -79,7 +88,7 @@ export type SendDetailsStackParamList = {
   };
   SelectWallet: {
     chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigation: any) => void;
+    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
     availableWallets?: TWallet[];
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
