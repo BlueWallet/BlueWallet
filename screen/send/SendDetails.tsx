@@ -288,38 +288,38 @@ const SendDetails = () => {
 
     const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
+    let targets = [];
+    for (const transaction of addresses) {
+      if (transaction.amount === BitcoinUnit.MAX) {
+        // single output with MAX
+        targets = [{ address: transaction.address }];
+        break;
+      }
+      const value = transaction.amountSats;
+      if (Number(value) > 0) {
+        targets.push({ address: transaction.address, value });
+      } else if (transaction.amount) {
+        if (btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+        }
+      }
+    }
+
+    // if targets is empty, insert dust
+    if (targets.length === 0) {
+      targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+    }
+
+    // replace wrong addresses with dump
+    targets = targets.map(t => {
+      if (!wallet.isAddressValid(t.address)) {
+        return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+      } else {
+        return t;
+      }
+    });
+
     for (const opt of options) {
-      let targets = [];
-      for (const transaction of addresses) {
-        if (transaction.amount === BitcoinUnit.MAX) {
-          // single output with MAX
-          targets = [{ address: transaction.address }];
-          break;
-        }
-        const value = transaction.amountSats;
-        if (Number(value) > 0) {
-          targets.push({ address: transaction.address, value });
-        } else if (transaction.amount) {
-          if (btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
-          }
-        }
-      }
-
-      // if targets is empty, insert dust
-      if (targets.length === 0) {
-        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
-      }
-
-      // replace wrong addresses with dump
-      targets = targets.map(t => {
-        if (!wallet.isAddressValid(t.address)) {
-          return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
-        } else {
-          return t;
-        }
-      });
-
       let flag = false;
       while (true) {
         try {
