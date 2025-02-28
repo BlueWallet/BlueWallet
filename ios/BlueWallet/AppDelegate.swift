@@ -134,7 +134,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
   
   // MARK: - Handoff and URL Handling
   
-  func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+  override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
     // Validate userActivity and its type
     guard let activityType = userActivity.activityType else {
       print("[Handoff] Invalid or missing userActivity")
@@ -154,7 +154,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
        activityType == "io.bluewallet.bluewallet.xpub" ||
        activityType == "io.bluewallet.bluewallet.blockexplorer" {
       
-      if let eventEmitter = EventEmitter.shared, eventEmitter.responds(to: #selector(EventEmitter.sendUserActivity(_:))) {
+      if let eventEmitter = EventEmitter.shared, eventEmitter().responds(to: #selector(EventEmitter.sendUserActivity(_:))) {
         eventEmitter.sendUserActivity(userActivityData)
       } else {
         print("[Handoff] EventEmitter does not implement sendUserActivity:")
@@ -175,7 +175,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     return RCTLinkingManager.application(app, open: url, options: options)
   }
   
-  func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
+  override func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
     return false
   }
   
@@ -183,7 +183,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     userDefaultsGroup.removeObject(forKey: "onUserActivityOpen")
   }
   
-  func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+  override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
     RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
   }
   
@@ -224,11 +224,11 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     completionHandler()
   }
   
-  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+  override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     RNCPushNotificationIOS.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
   }
   
-  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+  override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
     RNCPushNotificationIOS.didFailToRegisterForRemoteNotifications(withError: error)
   }
   
@@ -313,21 +313,21 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
   }
   
   @objc func openSettings(_ keyCommand: UIKeyCommand) {
-    MenuElementsEmitter.shared.openSettings()
+    MenuElementsEmitter.shared().openSettings()
   }
   
   @objc func addWalletAction(_ keyCommand: UIKeyCommand) {
-    MenuElementsEmitter.shared.addWalletMenuAction()
+    MenuElementsEmitter.shared().addWalletMenuAction()
     print("Add Wallet action performed")
   }
   
   @objc func importWalletAction(_ keyCommand: UIKeyCommand) {
-    MenuElementsEmitter.shared.importWalletMenuAction()
+    MenuElementsEmitter.shared().importWalletMenuAction()
     print("Import Wallet action performed")
   }
   
   @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
-    MenuElementsEmitter.shared.reloadTransactionsMenuAction()
+    MenuElementsEmitter.shared().reloadTransactionsMenuAction()
     print("Reload Transactions action performed")
   }
   
@@ -370,7 +370,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
       alert.addAction(okAction)
       
       DispatchQueue.main.async {
-        self.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        self.window.rootViewController?.present(alert, animated: true, completion: nil)
       }
     }
   }
