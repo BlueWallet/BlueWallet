@@ -74,7 +74,7 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
 
 android {
     androidResources {
-        noCompress += ["bundle"]\n
+        noCompress += ["bundle"]
     }
 
     ndkVersion rootProject.ext.ndkVersion
