@@ -179,7 +179,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     return false
   }
   
-  func applicationWillTerminate(_ application: UIApplication) {
+  override func applicationWillTerminate(_ application: UIApplication) {
     userDefaultsGroup.removeObject(forKey: "onUserActivityOpen")
   }
   
