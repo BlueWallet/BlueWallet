@@ -1,8 +1,8 @@
 const useMenuElements = () => {
-  const setReloadTransactionsMenuActionFunction = (_: () => void) => {};
-
   return {
-    setReloadTransactionsMenuActionFunction,
+    setReloadTransactionsMenuActionFunction: (_func: any) => {},
+    clearReloadTransactionsMenuAction: () => {},
+    isMenuElementsSupported: true,
   };
 };
 

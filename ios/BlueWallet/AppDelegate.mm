@@ -254,22 +254,51 @@
 }
 
 - (void)openSettings:(UIKeyCommand *)keyCommand {
-  [MenuElementsEmitter.shared openSettings];
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter openSettings];
+        });
+    } else {
+        NSLog(@"MenuElementsEmitter not available");
+    }
 }
 
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
-    [MenuElementsEmitter.shared addWalletMenuAction];
-    NSLog(@"Add Wallet action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter addWalletMenuAction];
+        });
+    } else {
+        NSLog(@"MenuElementsEmitter not available");
+    }
 }
 
 - (void)importWalletAction:(UIKeyCommand *)keyCommand {
-    [MenuElementsEmitter.shared importWalletMenuAction];
-    NSLog(@"Import Wallet action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter importWalletMenuAction];
+        });
+    } else {
+        NSLog(@"MenuElementsEmitter not available");
+    }
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
-  [MenuElementsEmitter.shared reloadTransactionsMenuAction];
-    NSLog(@"Reload Transactions action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter reloadTransactionsMenuAction];
+        });
+    } else {
+        NSLog(@"MenuElementsEmitter not available");
+    }
 }
 
 - (void)showHelp:(id)sender {

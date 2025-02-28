@@ -3,7 +3,15 @@ import React
 
 @objc(MenuElementsEmitter)
 class MenuElementsEmitter: RCTEventEmitter {
-    static let sharedInstance = MenuElementsEmitter()
+    private static var _sharedInstance: MenuElementsEmitter?
+    
+    private var hasListeners = false
+    
+    override init() {
+        super.init()
+        MenuElementsEmitter._sharedInstance = self
+        NSLog("[MenuElements] Swift: Initialized MenuElementsEmitter instance")
+    }
     
     override class func requiresMainQueueSetup() -> Bool {
         return true
@@ -13,23 +21,55 @@ class MenuElementsEmitter: RCTEventEmitter {
         return ["openSettings", "addWalletMenuAction", "importWalletMenuAction", "reloadTransactionsMenuAction"]
     }
     
-    @objc static func shared() -> MenuElementsEmitter {
-        return sharedInstance
+    @objc static func shared() -> MenuElementsEmitter? {
+        return _sharedInstance
+    }
+    
+    override func startObserving() {
+        hasListeners = true
+        NSLog("[MenuElements] Swift: Started observing events")
+    }
+    
+    override func stopObserving() {
+        hasListeners = false
+        NSLog("[MenuElements] Swift: Stopped observing events")
+    }
+    
+    private func safelyEmitEvent(withName name: String) {
+        if hasListeners && self.bridge != nil {
+            NSLog("[MenuElements] Swift: Emitting event: %@", name)
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.sendEvent(withName: name, body: nil)
+            }
+        } else {
+            NSLog("[MenuElements] Swift: Cannot emit %@ event. %@", name, !hasListeners ? "No listeners" : "Bridge not ready")
+        }
     }
     
     @objc func openSettings() {
-        sendEvent(withName: "openSettings", body: nil)
+        NSLog("[MenuElements] Swift: openSettings called")
+        safelyEmitEvent(withName: "openSettings")
     }
     
     @objc func addWalletMenuAction() {
-        sendEvent(withName: "addWalletMenuAction", body: nil)
+        NSLog("[MenuElements] Swift: addWalletMenuAction called")
+        safelyEmitEvent(withName: "addWalletMenuAction")
     }
     
     @objc func importWalletMenuAction() {
-        sendEvent(withName: "importWalletMenuAction", body: nil)
+        NSLog("[MenuElements] Swift: importWalletMenuAction called")
+        safelyEmitEvent(withName: "importWalletMenuAction")
     }
     
     @objc func reloadTransactionsMenuAction() {
-        sendEvent(withName: "reloadTransactionsMenuAction", body: nil)
+        NSLog("[MenuElements] Swift: reloadTransactionsMenuAction called")
+        safelyEmitEvent(withName: "reloadTransactionsMenuAction")
+    }
+    
+    override func invalidate() {
+        NSLog("[MenuElements] Swift: Module invalidated")
+        MenuElementsEmitter._sharedInstance = nil
+        super.invalidate()
     }
 }
