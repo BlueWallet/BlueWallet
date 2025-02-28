@@ -12,7 +12,16 @@ import {
   tapAndTapAgainIfTextIsNotVisible,
   tapIfTextPresent,
   waitForId,
+  countElements,
 } from './helperz';
+
+// if loglevel is set to `error`, this kind of logging will still get through
+console.warn = console.log = (...args) => {
+  let output = '';
+  args.map(arg => (output += String(arg)));
+
+  process.stdout.write(output + '\n');
+};
 
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
@@ -27,7 +36,7 @@ beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
   await device.launchApp({ delete: true });
 
-  console.log('before all - importing bip48...');
+  console.log('before all - importing bip84...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
   console.log('...imported!');
   await device.pressBack();
@@ -710,5 +719,55 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(tx2.ins[0].index, 0);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t24');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t24'), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    await device.launchApp({ newInstance: true });
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await element(by.id('WalletDetails')).tap();
+
+    // tapping backdoor button to purge txs and balance:
+    for (let c = 0; c <= 10; c++) {
+      await element(by.id('PurgeBackdoorButton')).tap();
+      await sleep(500);
+    }
+
+    await waitForText('OK');
+    await tapIfTextPresent('OK');
+
+    if (device.getPlatform() === 'ios') {
+      console.warn('rest of the test is Android only, skipped');
+      return;
+    }
+
+    await device.pressBack();
+
+    // asserting there are no transactions and balance is 0:
+
+    await expect(element(by.id('WalletBalance'))).toHaveText('0');
+    await waitForId('TransactionsListEmpty');
+    assert.strictEqual(await countElements('TransactionListItem'), 0);
+
+    await element(by.id('TransactionsListView')).swipe('down', 'slow'); // pul-to-refresh
+
+    // asserting balance and txs loaded:
+    await waitForText('0.00105526'); // the wait inside allows network request to propagate
+    await waitFor(element(by.id('TransactionsListEmpty')))
+      .not.toBeVisible()
+      .withTimeout(25_000);
+    await expect(element(by.id('WalletBalance'))).toHaveText('0.00105526');
+    await expect(element(by.id('TransactionsListEmpty'))).not.toBeVisible();
+
+    assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
   });
 });
