@@ -362,6 +362,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           containerStyle={combinedStyle}
+          testID="TransactionListItem"
         />
       </ToolTipMenu>
     );

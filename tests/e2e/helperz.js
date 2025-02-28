@@ -228,3 +228,16 @@ export async function tapIfTextPresent(text) {
   } catch (_) {}
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
+
+export async function countElements(testId) {
+  let count = 0;
+  while (true) {
+    try {
+      await expect(element(by.id(testId)).atIndex(count)).toExist();
+      count++;
+    } catch (_) {
+      break;
+    }
+  }
+  return count;
+}

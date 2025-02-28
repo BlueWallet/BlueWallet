@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+// @ts-ignore: no declaration file yet
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
-import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
+import { isDesktop } from '../blue_modules/environment';
+// @ts-ignore: no declaration file yet
+import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 
 interface CameraScreenProps {
   onCancelButtonPress: () => void;
@@ -95,74 +98,104 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 
   return (
     <View style={styles.screen}>
-      <View style={styles.topButtons}>
-        <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
-          <Animated.View style={styles.topButtonImg}>
-            {Platform.OS === 'ios' ? (
-              <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
-            ) : (
-              <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+      {/* Render top buttons only if not desktop as they would not be relevant */}
+      {!isDesktop && (
+        <View style={styles.topButtons}>
+          <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
+            <Animated.View style={styles.topButtonImg}>
+              {Platform.OS === 'ios' ? (
+                <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+              ) : (
+                <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+              )}
+            </Animated.View>
+          </TouchableOpacity>
+          <View style={styles.rightButtonsContainer}>
+            {showImagePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_image}
+                style={[styles.topButton, styles.spacing, uiRotationStyle]}
+                onPress={onImagePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
             )}
-          </Animated.View>
-        </TouchableOpacity>
-        <View style={styles.rightButtonsContainer}>
-          {showImagePickerButton && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={loc._.pick_image}
-              style={[styles.topButton, styles.spacing, uiRotationStyle]}
-              onPress={onImagePickerButtonPress}
-            >
-              <Animated.View style={styles.topButtonImg}>
-                <Icon name="image" type="font-awesome" color="#ffffff" />
-              </Animated.View>
-            </TouchableOpacity>
-          )}
-          {showFilePickerButton && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={loc._.pick_file}
-              style={[styles.topButton, styles.spacing, uiRotationStyle]}
-              onPress={onFilePickerButtonPress}
-            >
-              <Animated.View style={styles.topButtonImg}>
-                <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
-              </Animated.View>
-            </TouchableOpacity>
-          )}
+            {showFilePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_file}
+                style={[styles.topButton, styles.spacing, uiRotationStyle]}
+                onPress={onFilePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      </View>
-
+      )}
       <View style={styles.cameraContainer}>
         <Camera
           ref={cameraRef}
           style={styles.cameraPreview}
           cameraType={cameraType}
-          resetFocusWhenMotionDetected
-          zoom={zoom}
-          maxZoom={10}
           scanBarcode
           resizeMode="cover"
-          onZoom={handleZoom}
           onReadCode={handleReadCode}
           torchMode={torchMode ? 'on' : 'off'}
+          resetFocusWhenMotionDetected
+          zoom={zoom}
+          onZoom={handleZoom}
+          maxZoom={10}
           onOrientationChange={handleOrientationChange}
         />
       </View>
-
       <View style={styles.bottomButtons}>
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
-          <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-            {Platform.OS === 'ios' ? (
-              <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
-            ) : (
-              <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+        {isDesktop ? (
+          <View style={styles.rightButtonsContainer}>
+            {showImagePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_image}
+                style={[styles.bottomButton, styles.spacing, uiRotationStyle]}
+                onPress={onImagePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
             )}
-          </Animated.View>
-        </TouchableOpacity>
+            {showFilePickerButton && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc._.pick_file}
+                style={[styles.bottomButton, styles.spacing, uiRotationStyle]}
+                onPress={onFilePickerButtonPress}
+              >
+                <Animated.View style={styles.topButtonImg}>
+                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
+            <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
+              {Platform.OS === 'ios' ? (
+                <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+              ) : (
+                <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+              )}
+            </Animated.View>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

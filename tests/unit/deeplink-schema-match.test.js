@@ -1,12 +1,22 @@
 import assert from 'assert';
 
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { HDSegwitBech32Wallet, LightningCustodianWallet } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
     connectMain: jest.fn(),
   };
 });
+
+// helper function that promisifies function with a callback:
+const asyncNavigationRouteFor = async function (event) {
+  return new Promise(function (resolve) {
+    DeeplinkSchemaMatch.navigationRouteFor(event, navValue => {
+      resolve(navValue);
+    });
+  });
+};
 
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   it('hasSchema', () => {
@@ -324,14 +334,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
       },
     ];
 
-    const asyncNavigationRouteFor = async function (event) {
-      return new Promise(function (resolve) {
-        DeeplinkSchemaMatch.navigationRouteFor(event, navValue => {
-          resolve(navValue);
-        });
-      });
-    };
-
     for (const event of events) {
       const navValue = await asyncNavigationRouteFor(event.argument);
       assert.deepStrictEqual(navValue, event.expected);
@@ -492,5 +494,69 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
 
     assert.strictEqual(DeeplinkSchemaMatch.hasNeededJsonKeysForMultiSigSharing(isNotAllowed1), false);
     assert.strictEqual(DeeplinkSchemaMatch.hasNeededJsonKeysForMultiSigSharing(isNotAllowed2), false);
+  });
+
+  it('onWalletSelect should work', async () => {
+    const response = await asyncNavigationRouteFor({
+      url: 'bitcoin:BC1QR7P8NSYPZEJY4KP7CJS0HL5T9X0VF3AYF6UQPC?amount=0.00185579&lightning=LNBC1855790N1PNUPWSFPP5P5RVQJA067PV6NJQ3EFKLP78TN6MHUK842ZFGDCTXRDSGNTY765QDZ62PSKJEPQW3HJQSNPD36XJCEQFPHKUETEVFSKGEM9WGSRYVPJXSSZSNMJV3JHYGZFGSAZQARFVD4K2AR5V95KCMMJ9YCQZPUXQZ6GSP53E4EX9YTD2MGDN2C2CFA0J0SM3E7PVLPJ208H5LMYPNJMGZ7RLGS9QXPQYSGQ6GQMEQXJKKF2DHXJK8XQ4WGLM5NTE3RKEXGYQC6HYGFKS9SHHA6HL9X4339MXHNNQFSH7TS62PU8T9RSWTK6HQ4LV4GW3DPD25DQ8UQQYC909N',
+    });
+    assert.ok(response[1].onWalletSelect);
+
+    let popWasCalled = false;
+    let navigateWasCalled = false;
+    let popWasCalled2 = false;
+    let navigateWasCalled2 = false;
+    const lw = new LightningCustodianWallet();
+    const bw = new HDSegwitBech32Wallet();
+
+    // navigation for a case when user selected LN wallet when was given a choice
+    const navigationMock = {
+      pop: () => {
+        popWasCalled = true;
+        // console.log('pop called');
+      },
+      navigate: (...args) => {
+        navigateWasCalled = true;
+        assert.deepStrictEqual(args, [
+          'ScanLndInvoiceRoot',
+          {
+            params: {
+              uri: 'lightning:LNBC1855790N1PNUPWSFPP5P5RVQJA067PV6NJQ3EFKLP78TN6MHUK842ZFGDCTXRDSGNTY765QDZ62PSKJEPQW3HJQSNPD36XJCEQFPHKUETEVFSKGEM9WGSRYVPJXSSZSNMJV3JHYGZFGSAZQARFVD4K2AR5V95KCMMJ9YCQZPUXQZ6GSP53E4EX9YTD2MGDN2C2CFA0J0SM3E7PVLPJ208H5LMYPNJMGZ7RLGS9QXPQYSGQ6GQMEQXJKKF2DHXJK8XQ4WGLM5NTE3RKEXGYQC6HYGFKS9SHHA6HL9X4339MXHNNQFSH7TS62PU8T9RSWTK6HQ4LV4GW3DPD25DQ8UQQYC909N',
+              walletID: 'bfcacb7288cf43c6c02a1154c432ec155b813798fa4e87cd2c1e5531d6363f71',
+            },
+            screen: 'ScanLndInvoice',
+          },
+        ]);
+      },
+    };
+
+    // navigation for a case when user selected ONCHAIN wallet when was given a choice
+    const navigationMock2 = {
+      pop: () => {
+        popWasCalled2 = true;
+      },
+      navigate: (...args) => {
+        navigateWasCalled2 = true;
+        assert.deepStrictEqual(args, [
+          'SendDetailsRoot',
+          {
+            params: {
+              uri: 'bitcoin:BC1QR7P8NSYPZEJY4KP7CJS0HL5T9X0VF3AYF6UQPC?amount=0.00185579&',
+              walletID: 'a1c50c266e229bb66aca0221d5b6a116720004c97437a0a6e279cfea027d0c87',
+            },
+            screen: 'SendDetails',
+          },
+        ]);
+      },
+    };
+
+    response[1].onWalletSelect(lw, { navigation: navigationMock });
+    response[1].onWalletSelect(bw, { navigation: navigationMock2 });
+
+    assert.ok(popWasCalled);
+    assert.ok(navigateWasCalled);
+
+    assert.ok(popWasCalled2);
+    assert.ok(navigateWasCalled2);
   });
 });

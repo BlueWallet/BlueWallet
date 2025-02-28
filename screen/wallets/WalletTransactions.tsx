@@ -125,7 +125,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     const txs = wallet.getTransactions();
     txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
     return txs;
-  }, [wallet]);
+    // we use `wallet.getLastTxFetch()` to tell if txs list changed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, wallet?.getLastTxFetch()]);
 
   const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
 
@@ -177,7 +179,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         setFetchFailures(0);
         const newTimestamp = Date.now();
         setLastFetchTimestamp(newTimestamp);
-        wallet._lastTxFetch = newTimestamp;
       } catch (err) {
         setFetchFailures(prev => {
           const newFailures = prev + 1;
@@ -297,11 +298,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     offset: 64 * index,
     index,
   });
-
-  const listData: Transaction[] = useMemo(() => {
-    const transactions = getTransactions(limit);
-    return transactions;
-  }, [getTransactions, limit]);
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
@@ -503,13 +499,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
-        data={listData}
+        data={getTransactions(limit)}
         extraData={wallet}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}
         contentInset={{ top: HEADER_HEIGHT }}
         removeClippedSubviews
+        testID="TransactionsListView"
         contentContainerStyle={{ backgroundColor: colors.background }}
         maxToRenderPerBatch={15}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true, listener: handleScroll })}
