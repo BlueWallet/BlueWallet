@@ -9,60 +9,133 @@ Hook for managing iPadOS and macOS menu actions with keyboard shortcuts.
 Uses MenuElementsEmitter for event handling.
 */
 
+type MenuEventHandler = () => void;
+
 const { MenuElementsEmitter } = NativeModules;
-const eventEmitter =
-  (Platform.OS === 'ios' || Platform.OS === 'macos') && MenuElementsEmitter ? new NativeEventEmitter(MenuElementsEmitter) : null;
+let eventEmitter: NativeEventEmitter | null = null;
+
+let globalReloadTransactionsFunction: MenuEventHandler | null = null;
+
+// Only create the emitter if the module exists and we're on iOS/macOS
+try {
+  if ((Platform.OS === 'ios' || Platform.OS === 'macos') && MenuElementsEmitter) {
+    eventEmitter = new NativeEventEmitter(MenuElementsEmitter);
+  }
+} catch (error) {
+  eventEmitter = null;
+}
+
+// Empty function that does nothing - used as default
+const noop = () => {};
 
 const useMenuElements = () => {
   const { walletsInitialized } = useStorage();
-  const reloadTransactionsMenuActionRef = useRef<() => void>(() => {});
+  const reloadTransactionsMenuActionRef = useRef<MenuEventHandler>(noop);
+  // Track if listeners have been set up
+  const listenersInitialized = useRef<boolean>(false);
+  const listenersRef = useRef<any[]>([]);
 
-  const setReloadTransactionsMenuActionFunction = useCallback((newFunction: () => void) => {
-    console.debug('Setting reloadTransactionsMenuActionFunction.');
-    reloadTransactionsMenuActionRef.current = newFunction;
+  const setReloadTransactionsMenuActionFunction = useCallback((handler: MenuEventHandler) => {
+    if (typeof handler !== 'function') {
+      return;
+    }
+
+    reloadTransactionsMenuActionRef.current = handler;
+    globalReloadTransactionsFunction = handler;
+  }, []);
+
+  const clearReloadTransactionsMenuAction = useCallback(() => {
+    reloadTransactionsMenuActionRef.current = noop;
   }, []);
 
   const dispatchNavigate = useCallback((routeName: string, screen?: string) => {
-    NavigationService.dispatch(CommonActions.navigate({ name: routeName, params: screen ? { screen } : undefined }));
+    try {
+      NavigationService.dispatch(CommonActions.navigate({ name: routeName, params: screen ? { screen } : undefined }));
+    } catch (error) {
+      // Navigation failed silently
+    }
   }, []);
 
   const eventActions = useMemo(
     () => ({
-      openSettings: () => dispatchNavigate('Settings'),
-      addWallet: () => dispatchNavigate('AddWalletRoot'),
-      importWallet: () => dispatchNavigate('AddWalletRoot', 'ImportWallet'),
+      openSettings: () => {
+        dispatchNavigate('Settings');
+      },
+      addWallet: () => {
+        dispatchNavigate('AddWalletRoot');
+      },
+      importWallet: () => {
+        dispatchNavigate('AddWalletRoot', 'ImportWallet');
+      },
       reloadTransactions: () => {
-        console.debug('Calling reloadTransactionsMenuActionFunction');
-        reloadTransactionsMenuActionRef.current?.();
+        try {
+          const handler = reloadTransactionsMenuActionRef.current || globalReloadTransactionsFunction || noop;
+          handler();
+        } catch (error) {
+          // Execution failed silently
+        }
       },
     }),
     [dispatchNavigate],
   );
 
   useEffect(() => {
-    if (!walletsInitialized || !eventEmitter) return;
+    // Skip if emitter doesn't exist or wallets aren't initialized yet
+    if (!eventEmitter || !walletsInitialized) {
+      return;
+    }
 
-    console.debug('Setting up menu event listeners');
+    if (listenersInitialized.current) {
+      return;
+    }
 
-    // Add permanent listeners only once
-    eventEmitter.removeAllListeners('openSettings');
-    eventEmitter.removeAllListeners('addWalletMenuAction');
-    eventEmitter.removeAllListeners('importWalletMenuAction');
+    try {
+      if (listenersRef.current.length > 0) {
+        listenersRef.current.forEach(listener => listener?.remove?.());
+        listenersRef.current = [];
+      }
 
-    eventEmitter.addListener('openSettings', eventActions.openSettings);
-    eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet);
-    eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet);
+      eventEmitter.removeAllListeners('openSettings');
+      eventEmitter.removeAllListeners('addWalletMenuAction');
+      eventEmitter.removeAllListeners('importWalletMenuAction');
+      eventEmitter.removeAllListeners('reloadTransactionsMenuAction');
+    } catch (error) {
+      // Error cleanup silently ignored
+    }
 
-    const reloadTransactionsListener = eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions);
+    try {
+      const listeners = [
+        eventEmitter.addListener('openSettings', eventActions.openSettings),
+        eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
+        eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
+        eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
+      ];
+
+      listenersRef.current = listeners;
+      listenersInitialized.current = true;
+    } catch (error) {
+      // Listener setup failed silently
+    }
 
     return () => {
-      console.debug('Removing reloadTransactionsMenuAction listener');
-      reloadTransactionsListener.remove();
+      try {
+        listenersRef.current.forEach(listener => {
+          if (listener && typeof listener.remove === 'function') {
+            listener.remove();
+          }
+        });
+        listenersRef.current = [];
+        listenersInitialized.current = false;
+      } catch (error) {
+        // Cleanup error silently ignored
+      }
     };
   }, [walletsInitialized, eventActions]);
 
   return {
     setReloadTransactionsMenuActionFunction,
+    clearReloadTransactionsMenuAction,
+    isMenuElementsSupported: !!eventEmitter,
   };
 };
 
