@@ -130,14 +130,6 @@ const SendDetails = () => {
   }, [customFee, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
-    console.log('send/details - useEffect');
-    if (wallet) {
-      setHeaderRightOptions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
-
-  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
@@ -209,6 +201,7 @@ const SendDetails = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+
   useEffect(() => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
@@ -1158,11 +1151,18 @@ const SendDetails = () => {
     [headerRightOnPress, isLoading, headerRightActions],
   );
 
-  const setHeaderRightOptions = () => {
+  const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
       headerRight: HeaderRight,
     });
-  };
+  }, [HeaderRight, navigation]);
+
+  useEffect(() => {
+    console.log('send/details - useEffect');
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;
