@@ -1,10 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+// @ts-ignore: no declaration file yet
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
 import { Icon } from '@rneui/base';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import { isDesktop } from '../blue_modules/environment';
+// @ts-ignore: no declaration file yet
 import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit/dist/CameraProps';
 
 interface CameraScreenProps {
