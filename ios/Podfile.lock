@@ -1318,8 +1318,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-ios-context-menu (1.15.3):
-    - React-Core
   - react-native-menu (1.2.1):
     - React
   - react-native-randombytes (3.6.1):
@@ -1939,7 +1937,6 @@ DEPENDENCIES:
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
-  - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2094,8 +2091,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
-  react-native-ios-context-menu:
-    :path: "../node_modules/react-native-ios-context-menu"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
   react-native-randombytes:
@@ -2259,7 +2254,6 @@ SPEC CHECKSUMS:
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
   react-native-image-picker: 130fad649d07e4eec8faaed361d3bba570e1e5ff
-  react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
