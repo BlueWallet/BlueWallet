@@ -418,6 +418,7 @@ lane :build_app_lane do
         export_method: "app-store",
         include_bitcode: false,
         configuration: "Release",
+        destination: "generic/platform=iOS",
         skip_profile_detection: false,
         include_symbols: true,
         export_team_id: ENV["ITC_TEAM_ID"],
