@@ -575,7 +575,7 @@ export default WalletTransactions;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  scrollViewContent: { paddingHorizontal: 16 },
+  scrollViewContent: { paddingHorizontal: 16, marginTop: HEADER_HEIGHT },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { padding: 16, flexDirection: 'row' },
   listHeaderText: { fontWeight: 'bold', fontSize: 24 },
