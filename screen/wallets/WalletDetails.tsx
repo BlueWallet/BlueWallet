@@ -305,11 +305,8 @@ const WalletDetails: React.FC = () => {
     });
   };
   const navigateToViewEditCosigners = () => {
-    navigate('ViewEditMultisigCosignersRoot', {
-      screen: 'ViewEditMultisigCosigners',
-      params: {
-        walletID,
-      },
+    navigate('ViewEditMultisigCosigners', {
+      walletID,
     });
   };
   const navigateToXPub = () =>
