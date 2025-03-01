@@ -437,7 +437,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   }, [wallet, wallet?.hideBalance, wallet?.preferredBalanceUnit, balance]);
 
   const handleScroll = useCallback(
-    (event: any) => {      
+    (event: any) => {
       const offsetY = event.nativeEvent.contentOffset.y;
       const combinedHeight = 180;
       if (offsetY < combinedHeight) {
