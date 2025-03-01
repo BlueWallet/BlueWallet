@@ -10,7 +10,7 @@ import { useCallback, useMemo } from 'react';
 const requiresBiometrics = [
   'WalletExportRoot',
   'WalletXpubRoot',
-  'ViewEditMultisigCosignersRoot',
+  'ViewEditMultisigCosigners',
   'ExportMultisigCoordinationSetupRoot',
 ];
 

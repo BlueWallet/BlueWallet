@@ -35,7 +35,6 @@ import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
 import SendDetailsStack from './SendDetailsStack';
 import SignVerifyStackRoot from './SignVerifyStack';
-import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import SettingsButton from '../components/icons/SettingsButton';
@@ -66,6 +65,7 @@ import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -342,8 +342,8 @@ const DetailViewStackScreensStack = () => {
       />
 
       <DetailViewStack.Screen
-        name="ViewEditMultisigCosignersRoot"
-        component={ViewEditMultisigCosignersStackRoot}
+        name="ViewEditMultisigCosigners"
+        component={ViewEditMultisigCosignersComponent}
         options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
         initialParams={{ walletID: undefined, cosigners: undefined }}
       />
