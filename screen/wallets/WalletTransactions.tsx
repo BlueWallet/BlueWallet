@@ -501,11 +501,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}
-        contentInset={{ top: HEADER_HEIGHT }}
-        contentOffset={{ y: -HEADER_HEIGHT, x: 0 }}
         removeClippedSubviews
         testID="TransactionsListView"
-        contentContainerStyle={{ backgroundColor: colors.background }}
+        contentContainerStyle={{ backgroundColor: colors.background, marginTop: HEADER_HEIGHT }}
         maxToRenderPerBatch={15}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true, listener: handleScroll })}
         scrollEventThrottle={16}
