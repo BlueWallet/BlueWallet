@@ -593,4 +593,25 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+
+  desc "Run UI tests for BlueWallet on Simulator"
+  lane :ui_tests do
+    # Build a simulator version of the app for UI tests
+    build_app(
+      workspace: "BlueWallet.xcworkspace",
+      scheme: "BlueWalletUITests",
+      configuration: "Debug",
+      destination: "generic/platform=iOS Simulator",
+      clean: true,
+      skip_archive: true,
+      skip_package_ipa: true
+    )
+    # Run the UI tests on the simulator
+    scan(
+      workspace: "BlueWallet.xcworkspace",
+      scheme: "BlueWalletUITests",
+      device: "iPhone 14",
+      skip_build: true
+    )
+  end
 end

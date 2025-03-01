@@ -1,0 +1,80 @@
+name: iOS UI Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  ui_tests:
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure Correct Branch
+        if: github.ref != 'refs/heads/master'
+        run: |
+          if [ -n "${GITHUB_HEAD_REF}" ]; then
+            git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
+            git checkout ${GITHUB_HEAD_REF}
+          else
+            git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
+            git checkout ${GITHUB_REF##*/}
+          fi
+          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Get Latest Commit Details
+        id: get_latest_commit_details
+        run: |
+          if [ "$(git rev-parse --abbrev-ref HEAD)" == "HEAD" ]; then
+            CURRENT_BRANCH=$(git show-ref --head -s HEAD | xargs -I {} git branch --contains {} | grep -v "detached" | head -n 1 | sed 's/^[* ]*//')
+          else
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          fi
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
+          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+
+      - name: Print Commit Details
+        run: |
+          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
+          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 16.2.0
+
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+
+      - name: Install Bundler Dependencies
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Install Node Modules
+        run: npm install --omit=dev --yes
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Run UI Tests on Simulator
+        run: bundle exec fastlane ios ui_tests
