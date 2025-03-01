@@ -27,11 +27,6 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         super.onEnabled(context)
         val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         val widgetCount = sharedPref.getInt(WIDGET_COUNT_KEY, 0)
-        if (widgetCount >= 1) {
-            Toast.makeText(context, "Only one widget instance is allowed.", Toast.LENGTH_SHORT).show()
-            Log.e(TAG, "Attempted to add multiple widget instances.")
-            return
-        }
         sharedPref.edit().putInt(WIDGET_COUNT_KEY, widgetCount + 1).apply()
         Log.d(TAG, "onEnabled called")
         WidgetUpdateWorker.scheduleWork(context)
