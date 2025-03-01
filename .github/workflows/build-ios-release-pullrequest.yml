@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+1name: Build Release and Upload to TestFlight (iOS)
 
 on:
   push:
@@ -84,7 +84,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 16.0
+          xcode-version: 16.2
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
