@@ -192,6 +192,20 @@ end
 # ===========================
 
 platform :ios do
+  # Helper methods
+  def ensure_env_vars(vars)
+    vars.each do |var|
+      UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
+    end
+  end
+  
+  def log_success(message)
+    UI.success("✅ #{message}")
+  end
+  
+  def log_error(message)
+    UI.error("❌ #{message}")
+  end
 
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
