@@ -109,7 +109,7 @@ jobs:
           xcrun simctl list runtimes
           
           # Try to download the latest iOS 16.x simulator if not present
-          if ! xcrun simctl list runtimes | grep -q "iOS 16"; then
+          if (! xcrun simctl list runtimes | grep -q "iOS 16"); then
             echo "Installing iOS 16.4 simulator..."
             sudo xcode-select -s /Applications/Xcode.app
             xcodebuild -downloadPlatform iOS
@@ -272,7 +272,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v4
         with:
-          name: BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa
+          name: BlueWallet_IPA
           path: ./
 
       - name: Create App Store Connect API Key JSON

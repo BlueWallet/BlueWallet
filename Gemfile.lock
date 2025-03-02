@@ -173,6 +173,9 @@ GEM
       xcpretty-travis-formatter (>= 0.0.3, < 2.0.0)
     fastlane-plugin-browserstack (0.3.3)
       rest-client (~> 2.0, >= 2.0.2)
+    fastlane-plugin-bugsnag (2.3.1)
+      git
+      xml-simple
     fastlane-plugin-bugsnag_sourcemaps_upload (0.2.0)
     fastlane-sirp (1.0.0)
       sysrandom (~> 1.0)
@@ -180,6 +183,11 @@ GEM
     fourflusher (2.3.1)
     fuzzy_match (2.0.4)
     gh_inspector (1.1.3)
+    git (3.0.0)
+      activesupport (>= 5.0)
+      addressable (~> 2.8)
+      process_executer (~> 1.3)
+      rchardet (~> 1.9)
     google-apis-androidpublisher_v3 (0.54.0)
       google-apis-core (>= 0.11.0, < 2.a)
     google-apis-core (0.11.3)
@@ -248,8 +256,10 @@ GEM
     optparse (0.6.0)
     os (1.1.4)
     plist (3.7.2)
+    process_executer (1.3.0)
     public_suffix (4.0.7)
     rake (13.2.1)
+    rchardet (1.9.0)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -302,6 +312,8 @@ GEM
       rouge (~> 3.28.0)
     xcpretty-travis-formatter (1.0.1)
       xcpretty (~> 0.2, >= 0.0.7)
+    xml-simple (1.1.9)
+      rexml
 
 PLATFORMS
   ruby
@@ -312,7 +324,9 @@ DEPENDENCIES
   concurrent-ruby (< 1.3.4)
   fastlane (~> 2.226.0)
   fastlane-plugin-browserstack
+  fastlane-plugin-bugsnag
   fastlane-plugin-bugsnag_sourcemaps_upload
+  jwt
   rubyzip (= 2.4.1)
   xcodeproj (< 1.26.0)
 
