@@ -15,6 +15,7 @@ import {
   View,
   Animated,
   RefreshControl,
+  LayoutChangeEvent,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -54,7 +55,6 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
-const HEADER_HEIGHT = 190;
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
@@ -75,9 +75,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const [fetchFailures, setFetchFailures] = useState(0);
   const MAX_FAILURES = 3;
   const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(0);
+
   const headerTranslate = scrollY.interpolate({
-    inputRange: [0, HEADER_HEIGHT],
-    outputRange: [0, -HEADER_HEIGHT],
+    inputRange: [0, headerHeight],
+    outputRange: [0, -headerHeight],
     extrapolate: 'clamp',
   });
 
@@ -423,8 +425,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const handleScroll = useCallback(
     (event: any) => {
       const offsetY = event.nativeEvent.contentOffset.y;
-      const combinedHeight = 180;
-      if (offsetY < combinedHeight) {
+      // Use the measured header height to determine when to show/hide the header title
+      const threshold = headerHeight * 0.75;
+      if (offsetY < threshold) {
         setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
       } else {
         navigation.setOptions({
@@ -432,7 +435,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         });
       }
     },
-    [navigation, wallet, walletBalance, setOptions, route],
+    [navigation, wallet, walletBalance, setOptions, route, headerHeight],
   );
 
   // Extracted named callbacks
@@ -461,9 +464,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     [wallet, saveToDisk, isBiometricUseCapableAndEnabled],
   );
 
-  return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.stickyHeader, { transform: [{ translateY: headerTranslate }] }]}>
+  const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    setHeaderHeight(height);
+  }, []);
+
+  const stickyHeader = useMemo(() => {
+    return (
+      <Animated.View style={[styles.stickyHeader, { transform: [{ translateY: headerTranslate }] }]} onLayout={handleHeaderLayout}>
         {wallet ? (
           <TransactionsNavigationHeader
             wallet={wallet}
@@ -473,27 +481,39 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             onManageFundsPressed={onManageFundsPressed}
           />
         ) : null}
-        <View style={[styles.flex, { backgroundColor: colors.background }]}>
-          <View style={styles.listHeaderTextRow}>
-            <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          </View>
-          <View style={{ backgroundColor: colors.background }}>
-            {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-              <WatchOnlyWarning
-                handleDismiss={() => {
-                  wallet.isWatchOnlyWarningVisible = false;
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-                  saveToDisk();
-                }}
-              />
-            )}
-          </View>
-        </View>
       </Animated.View>
+    );
+  }, [handleWalletBalanceVisibilityChange, handleWalletUnitChange, headerTranslate, onManageFundsPressed, wallet, handleHeaderLayout]);
+
+  const renderHeader = useCallback(() => {
+    return (
+      <View style={{ backgroundColor: colors.background }}>
+        <View style={styles.listHeaderTextRow}>
+          <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+        </View>
+        <View style={{ backgroundColor: colors.background }}>
+          {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+            <WatchOnlyWarning
+              handleDismiss={() => {
+                wallet.isWatchOnlyWarningVisible = false;
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                saveToDisk();
+              }}
+            />
+          )}
+        </View>
+      </View>
+    );
+  }, [colors.background, stylesHook.listHeaderText, wallet, saveToDisk]);
+
+  return (
+    <View style={styles.container}>
+      {stickyHeader}
       <Animated.FlatList<Transaction>
         getItemLayout={getItemLayout}
         updateCellsBatchingPeriod={30}
         onEndReachedThreshold={0.3}
+        ListHeaderComponent={renderHeader}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
         data={getTransactions(limit)}
@@ -503,14 +523,16 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         initialNumToRender={10}
         removeClippedSubviews
         testID="TransactionsListView"
-        contentContainerStyle={{ backgroundColor: colors.background, marginTop: HEADER_HEIGHT }}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        contentContainerStyle={{ backgroundColor: colors.background, marginTop: headerHeight }}
         maxToRenderPerBatch={15}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true, listener: handleScroll })}
         scrollEventThrottle={16}
         ListEmptyComponent={
           <ScrollView
             style={[styles.flex, { backgroundColor: colors.background }]}
-            contentContainerStyle={styles.scrollViewContent}
+            contentContainerStyle={[styles.scrollViewContent, { marginTop: headerHeight }]}
             centerContent
             testID="TransactionsListEmpty"
           >
@@ -522,7 +544,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         }
         refreshControl={
           !isElectrumDisabled && !isDesktop ? (
-            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} progressViewOffset={HEADER_HEIGHT} />
+            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} progressViewOffset={headerHeight} />
           ) : undefined
         }
       />
@@ -575,7 +597,7 @@ export default WalletTransactions;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  scrollViewContent: { paddingHorizontal: 16, marginTop: HEADER_HEIGHT },
+  scrollViewContent: { paddingHorizontal: 16 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { padding: 16, flexDirection: 'row' },
   listHeaderText: { fontWeight: 'bold', fontSize: 24 },
@@ -588,7 +610,6 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    minHeight: HEADER_HEIGHT,
     zIndex: 1,
   },
 });
