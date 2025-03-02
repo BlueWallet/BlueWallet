@@ -369,12 +369,10 @@ const WalletDetails: React.FC = () => {
     if (wallet.type === HDSegwitBech32Wallet.type) {
       wallet._txs_by_external_index = {};
       wallet._txs_by_internal_index = {};
+      presentAlert({ message: msg });
+
       wallet._balances_by_external_index = {};
       wallet._balances_by_internal_index = {};
-      wallet._utxo = [];
-      if ('transactions' in wallet) {
-        wallet.transactions = [];
-      }
       wallet._lastTxFetch = 0;
       wallet._lastBalanceFetch = 0;
     }
@@ -385,30 +383,17 @@ const WalletDetails: React.FC = () => {
       wallet._hdWalletInstance._txs_by_external_index = {};
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._txs_by_internal_index = {};
+
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._balances_by_external_index = {};
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._balances_by_internal_index = {};
       // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._utxo = [];
-      // @ts-expect-error: Need to fix later
-      if ('transactions' in wallet._hdWalletInstance) {
-        // @ts-expect-error: Need to fix later
-        wallet._hdWalletInstance.transactions = [];
-      }
-      // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._lastTxFetch = 0;
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._lastBalanceFetch = 0;
+      presentAlert({ message: msg });
     }
-
-    // Save changes to disk
-    await saveToDisk();
-    presentAlert({ message: msg });
-    
-    // Force refresh on UI
-    setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
-    setTimeout(() => setHideTransactionsInWalletsList(hideTransactionsInWalletsList), 500);
   };
 
   const walletNameTextInputOnBlur = useCallback(async () => {
