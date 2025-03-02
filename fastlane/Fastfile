@@ -509,13 +509,17 @@ end
       if ios_versions.any?
         latest_version = ios_versions.first.to_s
         UI.success("Found iOS simulator version: #{latest_version}")
-        return latest_version
+        latest_version # Implicit return - last expression is returned
+      else
+        # Default to a reasonable iOS version if none found
+        UI.important("No iOS simulator versions found. Using default version.")
+        "17.6" # Implicit return
       end
+    else
+      # Default to a reasonable iOS version if no iOS runtimes
+      UI.important("No iOS simulator runtimes found. Using default version.")
+      "17.6" # Implicit return
     end
-    
-    # Default to a reasonable iOS version if none found
-    UI.important("No iOS simulator runtimes found. Using default version.")
-    return "16.4"
   end
 
 end
