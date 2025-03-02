@@ -402,7 +402,7 @@ lane :upload_bugsnag_sourcemaps do
 end
 
   desc "Build the iOS app"
-lane :build_app_lane do
+  lane :build_app_lane do
   Dir.chdir(project_root) do
     UI.message("Building the application from: #{Dir.pwd}")
 
