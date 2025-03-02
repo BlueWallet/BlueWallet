@@ -9,14 +9,12 @@ import {
   InteractionManager,
   LayoutAnimation,
   PixelRatio,
-  ScrollView,
   StyleSheet,
   Text,
   View,
   Animated,
   RefreshControl,
   LayoutChangeEvent,
-  Platform,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -531,17 +529,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true, listener: handleScroll })}
         scrollEventThrottle={16}
         ListEmptyComponent={
-          <ScrollView
-            style={[styles.flex, { backgroundColor: colors.background }]}
-            contentContainerStyle={[styles.scrollViewContent, Platform.OS === 'android' ? { marginTop: headerHeight } : {}]}
-            centerContent
-            testID="TransactionsListEmpty"
-          >
+          <View style={[styles.flex, { backgroundColor: colors.background }]} testID="TransactionsListEmpty">
             <Text numberOfLines={0} style={styles.emptyTxs}>
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
             {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-          </ScrollView>
+          </View>
         }
         refreshControl={
           !isElectrumDisabled && !isDesktop ? (
@@ -598,7 +591,6 @@ export default WalletTransactions;
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  scrollViewContent: { paddingHorizontal: 16 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { padding: 16, flexDirection: 'row' },
   listHeaderText: { fontWeight: 'bold', fontSize: 24 },
