@@ -238,26 +238,52 @@ platform :ios do
 
   desc "Synchronize certificates and provisioning profiles"
   lane :setup_provisioning_profiles do
+    required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
     UI.message("Setting up provisioning profiles...")
-
-    platform = "ios"
-
+    
+    max_retries = 3
+    
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "appstore",
-        clone_branch_directly: true, # Skip if the branch already exists
-        platform: platform,
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
-      )
+      retries = 0
+      success = false
+      
+      while !success && retries < max_retries
+        begin
+          UI.message("Fetching provisioning profile for #{app_identifier} (attempt #{retries + 1}/#{max_retries})...")
+          match(
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            git_url: ENV["GIT_URL"],
+            type: "appstore",
+            clone_branch_directly: true,
+            platform: "ios",
+            app_identifier: app_identifier,
+            team_id: ENV["ITC_TEAM_ID"],
+            team_name: ENV["ITC_TEAM_NAME"],
+            readonly: true,
+            keychain_name: "temp_keychain",
+            keychain_password: ENV["KEYCHAIN_PASSWORD"]
+          )
+          success = true
+          log_success("Successfully fetched provisioning profile for #{app_identifier}")
+        rescue => e
+          retries += 1
+          if retries < max_retries
+            wait_time = 10 * retries # Exponential backoff
+            log_error("Failed to fetch provisioning profile for #{app_identifier}: #{e.message}")
+            UI.message("Retrying in #{wait_time} seconds...")
+            sleep(wait_time)
+          else
+            log_error("Failed to fetch provisioning profile for #{app_identifier} after #{max_retries} attempts: #{e.message}")
+            raise e
+          end
+        end
+      end
     end
+    
+    log_success("All provisioning profiles set up")
   end
 
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
