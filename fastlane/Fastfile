@@ -13,6 +13,62 @@ default_platform(:android)
 project_root = File.expand_path("..", __dir__)
 
 # ===========================
+#       Helper Methods
+# ===========================
+
+desc "Update Apple Worldwide Developer Relations certificate"
+lane :update_wwdr_certificate do
+  UI.message("Updating Apple WWDR certificate...")
+  
+  sh("curl -sL https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -o /tmp/AppleWWDRCA.cer")
+  sh("security import /tmp/AppleWWDRCA.cer -k /Library/Keychains/System.keychain -T /usr/bin/codesign")
+  
+  UI.message("Apple WWDR certificate updated successfully")
+rescue => e
+  UI.important("Failed to update WWDR certificate: #{e.message}")
+  UI.important("This is not critical, continuing with the process...")
+end
+
+desc "Setup App Store Connect API Key"
+lane :setup_app_store_connect_api_key do
+  UI.message("Setting up App Store Connect API Key...")
+  
+  # Check if the key file exists
+  api_key_path = ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "./appstore_api_key.p8"
+  api_key_content = ENV['APP_STORE_CONNECT_API_KEY_CONTENT']
+  
+  if api_key_content && !File.exist?(api_key_path)
+    UI.message("Creating API key file from content...")
+    File.write(api_key_path, api_key_content)
+  end
+  
+  unless File.exist?(api_key_path)
+    UI.user_error!("App Store Connect API key not found at path: #{api_key_path}")
+  end
+  
+  # Read required environment variables
+  key_id = ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']
+  issuer_id = ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']
+  
+  if key_id.nil? || issuer_id.nil?
+    UI.user_error!("Missing required environment variables: APP_STORE_CONNECT_API_KEY_KEY_ID or APP_STORE_CONNECT_API_KEY_ISSUER_ID")
+  end
+  
+  # Create JSON file required by Fastlane
+  api_key_json = {
+    "key_id" => key_id,
+    "issuer_id" => issuer_id,
+    "key" => api_key_path,
+    "duration" => 1200, # 20 minutes
+    "in_house" => false
+  }.to_json
+  
+  File.write("./appstore_api_key.json", api_key_json)
+  
+  UI.success("App Store Connect API Key setup complete")
+end
+
+# ===========================
 #       Android Lanes
 # ===========================
 
@@ -27,6 +83,7 @@ platform :android do
       UI.message("Creating keystore from HEX...")
       File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
 
+      # Using shell command here as there's no direct Fastlane action for xxd conversion
       sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
         UI.user_error!("Error reverting hex to keystore") unless status.success?
       end
@@ -42,14 +99,15 @@ platform :android do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
  
-      # Extract versionName from build.gradle
-      version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+      # Extract versionName from build.gradle using Ruby file operations instead of grep
+      build_gradle_path = "android/app/build.gradle"
+      build_gradle_contents = File.read(build_gradle_path)
+      version_match = build_gradle_contents.match(/versionName\s+"([^"]+)"/)
+      version_name = version_match ? version_match[1] : nil
       UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
  
       # Update versionCode in build.gradle
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
-      build_gradle_path = "android/app/build.gradle"
-      build_gradle_contents = File.read(build_gradle_path)
       new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
       File.write(build_gradle_path, new_build_gradle_contents)
  
@@ -67,9 +125,16 @@ platform :android do
       unsigned_apk_path = "android/app/build/outputs/apk/release/app-release-unsigned.apk"
       signed_apk_path = "android/app/build/outputs/apk/release/#{signed_apk_name}"
  
-      # Build APK
+      # Build APK using Fastlane's gradle action instead of shell
       UI.message("Building APK...")
-      sh("cd android && ./gradlew assembleRelease --no-daemon")
+      gradle(
+        task: "assembleRelease",
+        project_dir: "android",
+        properties: {
+          "android.optional.compilation": "PREFER_KOTLIN_WORKER",
+        },
+        flags: "--no-daemon"
+      )
       UI.message("APK build completed.")
  
       # Rename APK
@@ -82,7 +147,7 @@ platform :android do
         next
       end
  
-      # Sign APK
+      # Sign APK - no direct Fastlane action for this specific task
       UI.message("Signing APK with apksigner...")
       apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
       UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
@@ -95,11 +160,12 @@ end
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
     Dir.chdir(project_root) do
-      # Determine APK path
+      # Determine APK path using Fastlane's find_files instead of shell find command
       apk_path = ENV['APK_PATH']
       if apk_path.nil? || apk_path.empty?
         UI.message("No APK path provided, searching for APK...")
-        apk_path = `find ./ -name "*.apk"`.strip
+        apk_files = Dir.glob("./**/*.apk")
+        apk_path = apk_files.first
         UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
       end
 
@@ -151,7 +217,8 @@ end
           repo_owner, repo_name = repo.split('/')
 
           UI.message("Fetching existing comments for PR ##{pr_number}...")
-
+          
+          # No direct Fastlane alternative for GitHub API calls
           comments_json = `gh api -X GET /repos/#{repo_owner}/#{repo_name}/issues/#{pr_number}/comments`
           comments = JSON.parse(comments_json)
 
@@ -175,6 +242,7 @@ end
       if pr_number
         begin
           escaped_comment = comment.gsub("'", "'\\''")
+          # No direct Fastlane alternative for GitHub CLI operations
           sh("GH_TOKEN=#{ENV['GH_TOKEN']} gh pr comment #{pr_number} --body '#{escaped_comment}'")
           UI.success("Posted new comment to PR ##{pr_number}")
         rescue => e
@@ -231,7 +299,12 @@ platform :ios do
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
 
-    csv_path = "../../devices.txt" # Update this with the actual path to your file
+    # Allow specifying a custom path but use a default if not provided
+    csv_path = ENV['DEVICES_FILE'] || File.join(project_root, "devices.txt")
+    
+    unless File.exist?(csv_path)
+      UI.user_error!("Devices file not found at path: #{csv_path}")
+    end
 
     # Register devices using the devices_file parameter
     register_devices(
@@ -252,7 +325,7 @@ platform :ios do
     end
 
     UI.message("Development provisioning profiles updated.")
-  end  
+  end
 
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
@@ -292,12 +365,12 @@ platform :ios do
           team_name: ENV["ITC_TEAM_NAME"],
           readonly: true,
           keychain_name: "temp_keychain",
-          keychain_password: ENV["KEYCHAIN_PASSWORD"]
+          keychain_password: ENV["KEYCHAIN_PASSWORD"],
         )
         log_success("Successfully fetched provisioning profile for #{app_identifier}")
       end
     end
-    
+
     log_success("All provisioning profiles set up")
   end
 
@@ -360,7 +433,6 @@ platform :ios do
       xcodeproj: "ios/BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
-  
     UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
   end
 
@@ -370,13 +442,11 @@ platform :ios do
     cocoapods(podfile: "ios/Podfile")
   end
 
-
   desc "Upload IPA to TestFlight"
   lane :upload_to_testflight_lane do
 
   branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
   last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
-
 
   changelog = <<~CHANGELOG
     Build Information:
@@ -394,14 +464,12 @@ platform :ios do
   CHANGELOG
 
   ipa_path = ENV['IPA_OUTPUT_PATH']
-  
   if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
     UI.user_error!("IPA file not found at path: #{ipa_path}")
   end
 
   UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
   UI.message("Changelog:\n#{changelog}")
-
 
   upload_to_testflight(
     api_key_path: "./appstore_api_key.json",
@@ -412,7 +480,6 @@ platform :ios do
 
   UI.success("Successfully uploaded IPA to TestFlight!")
 end
-
 desc "Upload iOS source maps to Bugsnag"
 lane :upload_bugsnag_sourcemaps do
   bugsnag_api_key = ENV['BUGSNAG_API_KEY']
@@ -424,10 +491,23 @@ lane :upload_bugsnag_sourcemaps do
   UI.user_error!("PROJECT_VERSION environment variable is missing") if version.nil?
   UI.user_error!("NEW_BUILD_NUMBER environment variable is missing") if build_number.nil?
 
-  ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
+  # Check multiple possible locations for source maps
+  source_map_paths = [
+    "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map",
+    "./ios/main.jsbundle.map",
+    "./ios/assets/main.jsbundle.map"
+  ]
+  
+  ios_sourcemap = nil
+  source_map_paths.each do |path|
+    if File.exist?(path)
+      ios_sourcemap = path
+      break
+    end
+  end
 
-  if File.exist?(ios_sourcemap)
-    UI.message("Uploading iOS source map to Bugsnag...")
+  if ios_sourcemap
+    UI.message("Uploading iOS source map from #{ios_sourcemap} to Bugsnag...")
     bugsnag_sourcemaps_upload(
       api_key: bugsnag_api_key,
       source_map: ios_sourcemap,
@@ -438,125 +518,13 @@ lane :upload_bugsnag_sourcemaps do
     )
     UI.success("iOS source map uploaded successfully.")
   else
-    UI.error("iOS source map not found at #{ios_sourcemap}")
+    UI.error("iOS source map not found. Checked paths: #{source_map_paths.join(', ')}")
   end
 end
 
-  desc "Build the iOS app"
-  lane :build_app_lane do
-    Dir.chdir(project_root) do
-      UI.message("Building the application from: #{Dir.pwd}")
-
-      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-      export_options_path = File.join(project_root, "ios", "export_options.plist")
-
-      clear_derived_data_lane
-      
-      # Determine which iOS version to use
-      ios_version = determine_ios_version
-
-      UI.message("Using iOS version: #{ios_version}")
-      UI.message("Using export options from: #{export_options_path}")
-      
-      # Define the IPA output path before building
-      ipa_directory = File.join(project_root, "ios", "build")
-      ipa_name = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-      ipa_path = File.join(ipa_directory, ipa_name)
-      
-      begin
-        build_ios_app(
-          scheme: "BlueWallet",
-          workspace: workspace_path,
-          export_method: "app-store",
-          export_options: export_options_path,
-          output_directory: ipa_directory,
-          output_name: ipa_name,
-          buildlog_path: File.join(project_root, "ios", "build_logs"),
-        )
-      rescue => e
-        UI.user_error!("build_ios_app failed: #{e.message}")
-      end
-
-      # Check for IPA path from both our defined path and fastlane's context
-      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH] || ipa_path
-      
-      # Ensure the directory exists
-      FileUtils.mkdir_p(File.dirname(ipa_path)) unless Dir.exist?(File.dirname(ipa_path))
-      
-      if ipa_path && File.exist?(ipa_path)
-        UI.message("IPA successfully found at: #{ipa_path}")
-      else
-        # Try to find any IPA file as fallback
-        Dir.chdir(project_root) do
-          fallback_ipa = Dir.glob("**/*.ipa").first
-          if fallback_ipa
-            ipa_path = File.join(project_root, fallback_ipa)
-            UI.message("Found fallback IPA at: #{ipa_path}")
-          else
-            UI.user_error!("No IPA file found after build")
-          end
-        end
-      end
-      
-      # Set both environment variable and GitHub Actions output
-      ENV['IPA_OUTPUT_PATH'] = ipa_path
-      # Set both standard output format and the newer GITHUB_OUTPUT format
-      sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
-      sh("echo ::set-output name=ipa_output_path::#{ipa_path}")
-      
-      # Also write path to a file that can be read by subsequent steps
-      ipa_path_file = "#{ipa_directory}/ipa_path.txt"
-      File.write(ipa_path_file, ipa_path)
-      UI.success("Saved IPA path to: #{ipa_path_file}")
-    end
-  end
-
-  desc "Delete temporary keychain"
-  lane :delete_temp_keychain do
-    UI.message("Deleting temporary keychain...")
-    
-    delete_keychain(
-      name: "temp_keychain"
-    ) if File.exist?(File.expand_path("~/Library/Keychains/temp_keychain-db"))
-    
-    UI.message("Temporary keychain deleted successfully.")
-  end
-
-  # Helper method to determine which iOS version to use
-  private_lane :determine_ios_version do
-    # Get available iOS simulator runtimes
-    runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false) rescue ""
-    
-    if runtimes_output.include?("iOS")
-      # Extract available iOS versions
-      ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
-                                   .flatten
-                                   .map { |v| Gem::Version.new(v) }
-                                   .sort
-                                   .reverse
-      
-      if ios_versions.any?
-        latest_version = ios_versions.first.to_s
-        UI.success("Found iOS simulator version: #{latest_version}")
-        latest_version # Implicit return - last expression is returned
-      else
-        # Default to a reasonable iOS version if none found
-        UI.important("No iOS simulator versions found. Using default version.")
-        "17.6" # Implicit return
-      end
-    else
-      # Default to a reasonable iOS version if no iOS runtimes
-      UI.important("No iOS simulator runtimes found. Using default version.")
-      "17.6" # Implicit return
-    end
-  end
-
-end
 # ===========================
 #       Global Lanes
 # ===========================
-
-
 
 desc "Deploy to TestFlight"
 lane :deploy do |options|
@@ -597,107 +565,215 @@ lane :deploy do |options|
   File.write(already_built_flag, Time.now.to_s)
 end
 
-desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
+desc "Interactively update 'What's New' section in App Store Connect"
 lane :update_release_notes do |options|
   require 'spaceship'
-
-  UI.message("Logging in to App Store Connect...")
-  Spaceship::ConnectAPI.login
-
+  
+  UI.message("📝 Interactive Release Notes Update 📝")
+  UI.message("This will update the 'What's New' section for the next version in App Store Connect.")
+  UI.message("=================================================================")
+  
+  # Get release notes from user input
+  UI.message("\nPlease enter your release notes (press Enter twice when finished):")
+  UI.message("Markdown format is supported. Keep it concise and clear.\n")
+  
+  release_notes_lines = []
+  while (line = STDIN.gets) do
+    break if line.strip.empty? && !release_notes_lines.empty?
+    release_notes_lines << line
+  end
+  
+  release_notes_text = release_notes_lines.join("").strip
+  
+  if release_notes_text.empty?
+    UI.user_error!("No release notes entered. Operation cancelled.")
+  end
+  
+  # Show preview with proper formatting
+  UI.header("Preview of Release Notes:")
+  UI.message(release_notes_text)
+  UI.message("\n")
+  
+  # Connect to App Store Connect
+  UI.message("Connecting to App Store Connect...")
+  
+  begin
+    Spaceship::ConnectAPI.login
+    UI.success("✅ Successfully connected to App Store Connect")
+  rescue => e
+    UI.user_error!("❌ Failed to connect to App Store Connect: #{e.message}")
+  end
+  
   app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
-
   UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
-
-  # Retry logic for fetching or creating the edit version
-  retries = 5
+  
+  # Find or create editable version
+  UI.message("Looking for a version in 'Prepare for Submission' state...")
+  
+  retries = 3
+  prepare_version = nil
+  
   begin
     prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
     
     if prepare_version.nil?
-      UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
-      latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
-      new_version_number = (latest_version.version_string.to_f + 0.1).to_s
-      prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
-      UI.message("Created new version: #{new_version_number}")
+      UI.important("No version found in 'Prepare for Submission' state.")
+      
+      if UI.confirm("Do you want to create a new version?")
+        UI.message("Finding the latest version...")
+        latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+        
+        # Calculate next version number - handle both semver formats
+        version_parts = latest_version.version_string.split('.')
+        if version_parts.length >= 3
+          # Semantic versioning - increment patch version
+          version_parts[-1] = (version_parts[-1].to_i + 1).to_s
+          new_version_number = version_parts.join('.')
+        else
+          # Simple versioning - increment by 0.1
+          new_version_number = (latest_version.version_string.to_f + 0.1).round(1).to_s
+        end
+        
+        # Allow user to customize version number
+        custom_version = UI.input("Enter version number (default: #{new_version_number}):")
+        new_version_number = custom_version unless custom_version.strip.empty?
+        
+        UI.message("Creating new version #{new_version_number}...")
+        prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
+        UI.success("✅ Created new version: #{new_version_number}")
+      else
+        UI.user_error!("Operation cancelled. No version to update.")
+      end
     else
-      UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
+      UI.success("✅ Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
     end
   rescue => e
     retries -= 1
     if retries > 0
-      delay = 20
-      UI.message("Cannot find edit app info... Retrying after #{delay} seconds (remaining: #{retries})")
-      sleep(delay)
+      UI.error("Error: #{e.message}. Retrying... (#{retries} attempts left)")
+      sleep(5)
       retry
     else
-      UI.user_error!("Failed to fetch or create the app version: #{e.message}")
+      UI.user_error!("❌ Failed to access or create app version: #{e.message}")
     end
   end
-
-  # Extract existing metadata
+  
+  # Extract available localizations
+  UI.message("Fetching available localizations...")
   localized_metadata = prepare_version.get_app_store_version_localizations
-
-  # Get enabled locales
   enabled_locales = localized_metadata.map(&:locale)
-
-  # Define release notes
-  release_notes_text = options[:release_notes]
-  if release_notes_text.nil? || release_notes_text.strip.empty?
-    release_notes_path = "../release-notes.txt"
-    unless File.exist?(release_notes_path)
-      UI.error("Release notes file does not exist at path: #{release_notes_path}")
-      UI.user_error!("No release notes provided and no file found. Failing the lane.")
+  
+  UI.message("Found #{enabled_locales.count} enabled locales.")
+  
+  # Ask which locales to update
+  selected_locales = []
+  
+  if UI.confirm("Do you want to update all available localizations with the same text? (No to select specific ones)")
+    selected_locales = enabled_locales
+  else
+    UI.message("Available locales:")
+    
+    # Display locales in a formatted way
+    locale_display = {}
+    enabled_locales.each_with_index do |locale, index|
+      locale_name = case locale
+                    when 'en-US' then 'English (US) - Primary'
+                    when 'ar-SA' then 'Arabic'
+                    when 'zh-Hans' then 'Chinese (Simplified)'
+                    when 'hr' then 'Croatian'
+                    when 'da' then 'Danish'
+                    when 'nl-NL' then 'Dutch'
+                    when 'fi' then 'Finnish'
+                    when 'fr-FR' then 'French'
+                    when 'de-DE' then 'German'
+                    when 'el' then 'Greek'
+                    when 'he' then 'Hebrew'
+                    when 'hu' then 'Hungarian'
+                    when 'it' then 'Italian'
+                    when 'ja' then 'Japanese'
+                    when 'ms' then 'Malay'
+                    when 'nb' then 'Norwegian'
+                    when 'pl' then 'Polish'
+                    when 'pt-BR' then 'Portuguese (Brazil)'
+                    when 'pt-PT' then 'Portuguese (Portugal)'
+                    when 'ro' then 'Romanian'
+                    when 'ru' then 'Russian'
+                    when 'es-MX' then 'Spanish (Mexico)'
+                    when 'es-ES' then 'Spanish (Spain)'
+                    when 'sv' then 'Swedish'
+                    when 'th' then 'Thai'
+                    else locale
+                    end
+      
+      locale_display[locale] = "#{index + 1}. #{locale_name} (#{locale})"
+      UI.message(locale_display[locale])
     end
-    release_notes_text = File.read(release_notes_path)
-  end
-
-  # Define localized release notes
-  localized_release_notes = {
-    'en-US' => release_notes_text, # English (U.S.) - Primary
-    'ar-SA' => release_notes_text, # Arabic
-    'zh-Hans' => release_notes_text, # Chinese (Simplified)
-    'hr' => release_notes_text, # Croatian
-    'da' => release_notes_text, # Danish
-    'nl-NL' => release_notes_text, # Dutch
-    'fi' => release_notes_text, # Finnish
-    'fr-FR' => release_notes_text, # French
-    'de-DE' => release_notes_text, # German
-    'el' => release_notes_text, # Greek
-    'he' => release_notes_text, # Hebrew
-    'hu' => release_notes_text, # Hungarian
-    'it' => release_notes_text, # Italian
-    'ja' => release_notes_text, # Japanese
-    'ms' => release_notes_text, # Malay
-    'nb' => release_notes_text, # Norwegian
-    'pl' => release_notes_text, # Polish
-    'pt-BR' => release_notes_text, # Portuguese (Brazil)
-    'pt-PT' => release_notes_text, # Portuguese (Portugal)
-    'ro' => release_notes_text, # Romanian
-    'ru' => release_notes_text, # Russian
-    'es-MX' => release_notes_text, # Spanish (Mexico)
-    'es-ES' => release_notes_text, # Spanish (Spain)
-    'sv' => release_notes_text, # Swedish
-    'th' => release_notes_text, # Thai
-  }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
-
-  # Review release notes updates
-  UI.message("Review the following release notes updates:")
-  localized_release_notes.each do |locale, notes|
-    UI.message("Locale: #{locale} - Notes: #{notes}")
-  end
-
-  unless options[:force_yes]
-    confirm = UI.confirm("Do you want to proceed with these release notes updates?")
-    UI.user_error!("User aborted the lane.") unless confirm
-  end
-
-  # Update release notes in App Store Connect
-  localized_release_notes.each do |locale, notes|
-    app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
-    if app_store_version_localization
-      app_store_version_localization.update(attributes: { "whats_new" => notes })
+    
+    UI.message("\nEnter the numbers of locales to update (comma-separated, e.g. '1,3,5'), or press Enter for all:")
+    locale_input = STDIN.gets.strip
+    
+    if locale_input.empty?
+      selected_locales = enabled_locales
     else
-      UI.error("No localization found for locale #{locale}")
+      selected_indices = locale_input.split(',').map(&:strip).map(&:to_i)
+      selected_indices.each do |idx|
+        if idx > 0 && idx <= enabled_locales.length
+          selected_locales << enabled_locales[idx - 1]
+        end
+      end
+      
+      # Ensure at least primary locale (en-US) is selected
+      if selected_locales.empty? || !selected_locales.include?('en-US')
+        if enabled_locales.include?('en-US')
+          selected_locales << 'en-US'
+          UI.important("Adding English (US) as it's required.")
+        end
+      end
     end
   end
+  
+  # Final confirmation with selected locales
+  UI.important("You are about to update release notes for version #{prepare_version.version_string}")
+  UI.important("Selected locales: #{selected_locales.count > 5 ? "All #{selected_locales.count} locales" : selected_locales.join(', ')}")
+  UI.important("Release notes:\n#{release_notes_text}")
+  
+  unless UI.confirm("Do you want to proceed with these updates?")
+    UI.user_error!("Operation cancelled by user.")
+  end
+  
+  # Update release notes
+  UI.message("Updating release notes...")
+  
+  update_count = 0
+  selected_locales.each do |locale|
+    app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
+    
+    if app_store_version_localization
+      begin
+        app_store_version_localization.update(attributes: { "whats_new" => release_notes_text })
+        update_count += 1
+        UI.success("✅ Updated #{locale}")
+      rescue => e
+        UI.error("❌ Failed to update #{locale}: #{e.message}")
+      end
+    else
+      UI.error("❌ No localization found for locale #{locale}")
+    end
+  end
+  
+  # Final result
+  if update_count == selected_locales.count
+    UI.success("✅ Successfully updated release notes for all selected locales.")
+  elsif update_count > 0
+    UI.important("⚠️ Updated release notes for #{update_count} out of #{selected_locales.count} selected locales.")
+  else
+    UI.error("❌ Failed to update release notes for any locale.")
+  end
+  
+  # Save release notes to file for future reference
+  timestamp = Time.now.strftime("%Y%m%d_%H%M%S")
+  release_notes_file = "release_notes_#{prepare_version.version_string}_#{timestamp}.txt"
+  File.write(release_notes_file, release_notes_text)
+  UI.success("📝 Saved release notes to #{release_notes_file}")
+end
 end
