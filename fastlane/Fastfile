@@ -192,8 +192,7 @@ end
 # ===========================
 
 platform :ios do
-  # ==== Helper Methods ====
-  
+  # Add helper methods for error handling and retries
   def ensure_env_vars(vars)
     vars.each do |var|
       UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
@@ -207,82 +206,71 @@ platform :ios do
   def log_error(message)
     UI.error("❌ #{message}")
   end
+  
+  # Method to safely call actions with retry logic
+  def with_retry(max_attempts = 3, action_name = "")
+    attempts = 0
+    begin
+      attempts += 1
+      yield
+    rescue => e
+      if attempts < max_attempts
+        wait_time = 10 * attempts
+        log_error("Attempt #{attempts}/#{max_attempts} for #{action_name} failed: #{e.message}")
+        UI.message("Retrying in #{wait_time} seconds...")
+        sleep(wait_time)
+        retry
+      else
+        log_error("#{action_name} failed after #{max_attempts} attempts: #{e.message}")
+        raise e
+      end
+    end
+  end
 
-  # ==== Device Management ====
-
-  desc "Register new devices from a file and update provisioning profiles"
+  desc "Register new devices from a file"
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
-    
-    csv_path = "../../devices.txt" # Update with actual path
-    
-    unless File.exist?(csv_path)
-      UI.user_error!("Devices file not found at: #{csv_path}")
-    end
 
-    register_devices(devices_file: csv_path)
-    log_success("Devices registered successfully")
+    csv_path = "../../devices.txt" # Update this with the actual path to your file
 
-    update_provisioning_profiles_for_new_devices
-  end
-  
-  desc "Update provisioning profiles for all app identifiers after adding new devices"
-  private_lane :update_provisioning_profiles_for_new_devices do
-    UI.message("Updating provisioning profiles for new devices...")
-    
+    # Register devices using the devices_file parameter
+    register_devices(
+      devices_file: csv_path
+    )
+
+    UI.message("Devices registered successfully.")
+
+    # Update provisioning profiles for all app identifiers
     app_identifiers.each do |app_identifier|
       match(
         type: "development", 
         app_identifier: app_identifier,
-        readonly: false,
+        readonly: false, # Regenerate provisioning profile if needed
         force_for_new_devices: true,
         clone_branch_directly: true
       )
     end
-    
-    log_success("Development provisioning profiles updated")
-  end
 
-  # ==== Keychain Management ====
+    UI.message("Development provisioning profiles updated.")
+  end  
 
-  desc "Create a temporary keychain for CI builds"
+  desc "Create a temporary keychain"
   lane :create_temp_keychain do
-    ensure_env_vars(["KEYCHAIN_PASSWORD"])
-    UI.message("Creating temporary keychain...")
-    
-    begin
-      create_keychain(
-        name: "temp_keychain",
-        password: ENV["KEYCHAIN_PASSWORD"],
-        default_keychain: true,
-        unlock: true,
-        timeout: 3600,
-        lock_when_sleeps: true
-      )
-      
-      log_success("Temporary keychain created")
-    rescue => e
-      log_error("Failed to create temporary keychain: #{e.message}")
-      raise e
-    end
-  end
-  
-  desc "Delete temporary keychain when done with the build"
-  lane :delete_temp_keychain do
-    UI.message("Deleting temporary keychain...")
-    
-    begin
-      delete_keychain(name: "temp_keychain")
-      log_success("Temporary keychain deleted")
-    rescue => e
-      log_error("Failed to delete temporary keychain: #{e.message}")
-      # Don't raise error here, as this is cleanup code
-    end
+    UI.message("Creating a temporary keychain...")
+
+    create_keychain(
+      name: "temp_keychain",
+      password: ENV["KEYCHAIN_PASSWORD"],
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    UI.message("Temporary keychain created successfully.")
   end
 
-  # ==== Provisioning Profile Management ====
-  
-  desc "Setup provisioning profiles for all app identifiers"
+  desc "Synchronize certificates and provisioning profiles"
   lane :setup_provisioning_profiles do
     required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
     ensure_env_vars(required_vars)
@@ -291,7 +279,8 @@ platform :ios do
     
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
-      begin
+      with_retry(3, "Fetching provisioning profile for #{app_identifier}") do
+        UI.message("Fetching provisioning profile for #{app_identifier}...")
         match(
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
@@ -305,109 +294,162 @@ platform :ios do
           keychain_name: "temp_keychain",
           keychain_password: ENV["KEYCHAIN_PASSWORD"]
         )
-      rescue => e
-        log_error("Failed to fetch provisioning profile for #{app_identifier}: #{e.message}")
-        raise e
+        log_success("Successfully fetched provisioning profile for #{app_identifier}")
       end
     end
     
     log_success("All provisioning profiles set up")
   end
 
-  # ==== Catalyst Support Lanes ====
-  
-  desc "Setup provisioning profiles for Mac Catalyst"
-  lane :setup_catalyst_provisioning do
-    UI.message("Setting up Mac Catalyst provisioning profiles...")
-    
-    # First development profiles
-    fetch_catalyst_profiles(type: "development")
-    
-    # Then App Store profiles
-    fetch_catalyst_profiles(type: "appstore")
-    
-    log_success("Mac Catalyst provisioning profiles set up")
+  desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_dev_profiles_catalyst do
+    match(
+      type: "development",
+      platform: "catalyst",
+      app_identifier: app_identifiers,
+      readonly: true,
+      clone_branch_directly: true
+    )
   end
-  
-  private_lane :fetch_catalyst_profiles do |options|
-    type = options[:type]
-    readonly = options[:readonly] || true
-    force_for_new_devices = options[:force_for_new_devices] || false
-    
+
+  desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_appstore_profiles_catalyst do
+    match(
+      type: "appstore",
+      platform: "catalyst",
+      app_identifier: app_identifiers,
+      readonly: true,
+      clone_branch_directly: true
+    )
+  end
+
+  desc "Setup provisioning profiles for Mac Catalyst"
+  lane :setup_catalyst_provisioning_profiles do
     app_identifiers.each do |app_identifier|
       match(
-        type: type,
+        type: "development",
         platform: "catalyst",
         app_identifier: app_identifier,
-        readonly: readonly,
-        force_for_new_devices: force_for_new_devices,
+        readonly: false,
+        force_for_new_devices: true,
+        clone_branch_directly: true
+      )
+
+      match(
+        type: "appstore",
+        platform: "catalyst",
+        app_identifier: app_identifier,
+        readonly: false,
         clone_branch_directly: true
       )
     end
   end
 
-  # ==== Build Preparation ====
-  
   desc "Clear derived data"
   lane :clear_derived_data_lane do
     UI.message("Clearing derived data...")
-    
-    begin
-      clear_derived_data
-      log_success("Derived data cleared")
-    rescue => e
-      log_error("Failed to clear derived data: #{e.message}")
-      # Continue despite error
-    end
+    clear_derived_data
   end
 
   desc "Increment build number"
   lane :increment_build_number_lane do
-    ensure_env_vars(["NEW_BUILD_NUMBER"])
-    UI.message("Incrementing build number to #{ENV['NEW_BUILD_NUMBER']}...")
+    UI.message("Incrementing build number to current timestamp...")
     
-    begin
-      increment_build_number(
-        xcodeproj: "ios/BlueWallet.xcodeproj", 
-        build_number: ENV["NEW_BUILD_NUMBER"]
-      )
-      
-      log_success("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
-    rescue => e
-      log_error("Failed to increment build number: #{e.message}")
-      raise e
-    end
+    # Set the new build number
+    increment_build_number(
+      xcodeproj: "ios/BlueWallet.xcodeproj", 
+      build_number: ENV["NEW_BUILD_NUMBER"]
+    )
+  
+    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
   end
 
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    
-    begin
-      cocoapods(podfile: "ios/Podfile")
-      log_success("CocoaPods dependencies installed")
-    rescue => e
-      log_error("Failed to install CocoaPods dependencies: #{e.message}")
-      raise e
-    end
+    cocoapods(podfile: "ios/Podfile")
   end
 
-  # ==== Build and Upload ====
+
+  desc "Upload IPA to TestFlight"
+  lane :upload_to_testflight_lane do
+
+  branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+  last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+
+
+  changelog = <<~CHANGELOG
+    Build Information:
+  CHANGELOG
+
+  # Include the branch name only if it is not 'master'
+  if branch_name != 'master'
+    changelog += <<~CHANGELOG
+      - Branch: #{branch_name}
+    CHANGELOG
+  end
+
+  changelog += <<~CHANGELOG
+    - Commit: #{last_commit_message}
+  CHANGELOG
+
+  ipa_path = ENV['IPA_OUTPUT_PATH']
   
-  desc "Build the iOS app for distribution"
+  if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+    UI.user_error!("IPA file not found at path: #{ipa_path}")
+  end
+
+  UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
+  UI.message("Changelog:\n#{changelog}")
+
+
+  upload_to_testflight(
+    api_key_path: "./appstore_api_key.json",
+    ipa: ipa_path,
+    skip_waiting_for_build_processing: true,
+    changelog: changelog
+  )
+
+  UI.success("Successfully uploaded IPA to TestFlight!")
+end
+
+desc "Upload iOS source maps to Bugsnag"
+lane :upload_bugsnag_sourcemaps do
+  bugsnag_api_key = ENV['BUGSNAG_API_KEY']
+  bugsnag_release_stage = ENV['BUGSNAG_RELEASE_STAGE'] || "production"
+  version = ENV['PROJECT_VERSION']
+  build_number = ENV['NEW_BUILD_NUMBER']
+
+  UI.user_error!("BUGSNAG_API_KEY environment variable is missing") if bugsnag_api_key.nil?
+  UI.user_error!("PROJECT_VERSION environment variable is missing") if version.nil?
+  UI.user_error!("NEW_BUILD_NUMBER environment variable is missing") if build_number.nil?
+
+  ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
+
+  if File.exist?(ios_sourcemap)
+    UI.message("Uploading iOS source map to Bugsnag...")
+    bugsnag_sourcemaps_upload(
+      api_key: bugsnag_api_key,
+      source_map: ios_sourcemap,
+      minified_file: "./ios/main.jsbundle",
+      code_bundle_id: "#{version}-#{build_number}",
+      release_stage: bugsnag_release_stage,
+      app_version: version
+    )
+    UI.success("iOS source map uploaded successfully.")
+  else
+    UI.error("iOS source map not found at #{ios_sourcemap}")
+  end
+end
+
+  desc "Build the iOS app"
   lane :build_app_lane do
-    UI.message("Building the application...")
-    
+  Dir.chdir(project_root) do
+    UI.message("Building the application from: #{Dir.pwd}")
+
     workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
     export_options_path = File.join(project_root, "ios", "export_options.plist")
-    output_name = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
-    output_dir = File.join(project_root, "ios", "build")
-    logs_dir = File.join(project_root, "ios", "build_logs")
-    
-    # Ensure the build logs directory exists
-    FileUtils.mkdir_p(logs_dir) unless Dir.exist?(logs_dir)
-    
-    # Clear derived data before building
+
     clear_derived_data_lane
     
     begin
@@ -421,142 +463,29 @@ platform :ios do
         include_symbols: true,
         export_team_id: ENV["ITC_TEAM_ID"],
         export_options: export_options_path,
-        output_directory: output_dir,
-        output_name: output_name,
-        buildlog_path: logs_dir,
+        output_directory: File.join(project_root, "ios", "build"),
+        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        buildlog_path: File.join(project_root, "ios", "build_logs"),
         silent: false,
         clean: true
       )
-      
-      # Set environment variables for the IPA path
-      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
-      
-      if ipa_path && File.exist?(ipa_path)
-        ENV['IPA_OUTPUT_PATH'] = ipa_path
-        sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
-        log_success("IPA built successfully at: #{ipa_path}")
-      else
-        UI.user_error!("IPA not found after build_ios_app")
-      end
     rescue => e
-      log_error("Failed to build app: #{e.message}")
-      raise e
+      UI.user_error!("build_ios_app failed: #{e.message}")
     end
-  end
 
-  desc "Upload IPA to TestFlight"
-  lane :upload_to_testflight_lane do
-    required_vars = ["IPA_OUTPUT_PATH"]
-    ensure_env_vars(required_vars)
-    
-    branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
-    commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
-    
-    changelog = <<~CHANGELOG
-      Build Information:
-    CHANGELOG
-    
-    # Include branch name only if not master
-    if branch_name != 'master'
-      changelog += <<~CHANGELOG
-        - Branch: #{branch_name}
-      CHANGELOG
-    end
-    
-    changelog += <<~CHANGELOG
-      - Commit: #{commit_message}
-    CHANGELOG
-    
-    ipa_path = ENV['IPA_OUTPUT_PATH']
-    
-    if !File.exist?(ipa_path)
-      UI.user_error!("IPA file not found at path: #{ipa_path}")
-    end
-    
-    UI.message("Uploading IPA to TestFlight from path: #{ipa_path}")
-    UI.message("Changelog:\n#{changelog}")
-    
-    begin
-      upload_to_testflight(
-        api_key_path: "./appstore_api_key.json",
-        ipa: ipa_path,
-        skip_waiting_for_build_processing: true,
-        changelog: changelog
-      )
-      
-      log_success("Successfully uploaded IPA to TestFlight!")
-    rescue => e
-      log_error("Failed to upload to TestFlight: #{e.message}")
-      raise e
-    end
-  end
+    # Use File.join to construct paths without extra slashes
+    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
 
-  # ==== Bugsnag Integration ====
-  
-  desc "Upload iOS source maps to Bugsnag"
-  lane :upload_bugsnag_sourcemaps do
-    required_vars = ["BUGSNAG_API_KEY", "PROJECT_VERSION", "NEW_BUILD_NUMBER"]
-    ensure_env_vars(required_vars)
-    
-    bugsnag_api_key = ENV['BUGSNAG_API_KEY']
-    bugsnag_release_stage = ENV['BUGSNAG_RELEASE_STAGE'] || "production"
-    version = ENV['PROJECT_VERSION']
-    build_number = ENV['NEW_BUILD_NUMBER']
-    
-    ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
-    
-    if File.exist?(ios_sourcemap)
-      UI.message("Uploading iOS source map to Bugsnag...")
-      
-      begin
-        bugsnag_sourcemaps_upload(
-          api_key: bugsnag_api_key,
-          source_map: ios_sourcemap,
-          minified_file: "./ios/main.jsbundle",
-          code_bundle_id: "#{version}-#{build_number}",
-          release_stage: bugsnag_release_stage,
-          app_version: version
-        )
-        
-        log_success("iOS source map uploaded successfully")
-      rescue => e
-        log_error("Failed to upload sourcemaps to Bugsnag: #{e.message}")
-        # Continue despite error, don't fail the build
-      end
+    if ipa_path && File.exist?(ipa_path)
+      UI.message("IPA successfully found at: #{ipa_path}")
+      ENV['IPA_OUTPUT_PATH'] = ipa_path
+      sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
     else
-      log_error("iOS source map not found at #{ios_sourcemap}")
+      UI.user_error!("IPA not found after build_ios_app.")
     end
-  end
-
-  # ==== Complete Deployment Workflow ====
-  
-  desc "Complete iOS deployment workflow"
-  lane :deploy_ios do |options|
-    UI.message("Starting iOS deployment process...")
-    
-    # Setup everything
-    create_temp_keychain
-    setup_provisioning_profiles
-    clear_derived_data_lane
-    increment_build_number_lane
-    
-    # Install pods if needed
-    unless File.directory?("ios/Pods")
-      install_pods
-    end
-    
-    # Build and upload
-    build_app_lane
-    upload_to_testflight_lane
-    upload_bugsnag_sourcemaps
-    
-    # Cleanup
-    delete_temp_keychain
-    
-    log_success("iOS deployment completed successfully!")
   end
 end
-
+end
 # ===========================
 #       Global Lanes
 # ===========================

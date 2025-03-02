@@ -36,9 +36,6 @@ git_basic_authorization(ENV["GIT_ACCESS_TOKEN"])
 # Storage mode (git by default)
 storage_mode("git")
 
-# Always retry on network failures
-retry_on_exception(true)
-
 # Optional: The Git branch that is used for match
 # Default is 'master'
 # branch("main")
