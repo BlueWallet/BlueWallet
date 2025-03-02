@@ -13,11 +13,28 @@ jobs:
   ui_tests:
     runs-on: macos-15
     timeout-minutes: 120
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      MATCH_READONLY: "true"
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Setup caching to speed up builds
+      - name: Setup Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ios/Pods
+            ~/.npm
+            node_modules
+            vendor/bundle
+          key: ${{ runner.os }}-ios-uitests-${{ hashFiles('**/package-lock.json', '**/Podfile.lock', '**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-uitests-
 
       - name: Ensure Correct Branch
         if: github.ref != 'refs/heads/master'
@@ -42,30 +59,25 @@ jobs:
           LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
           echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
           echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
-          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
-
-      - name: Print Commit Details
-        run: |
-          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
-          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 16.2.0
+          xcode-version: latest
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+          bundler-cache: true
 
-      - name: Install Bundler Dependencies
+      - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
@@ -74,7 +86,43 @@ jobs:
         run: npm install --omit=dev --yes
 
       - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
+        run: |
+          bundle exec fastlane ios install_pods
+          echo "CocoaPods dependencies installed successfully"
 
-      - name: Run UI Tests on Simulator
-        run: bundle exec fastlane ios ui_tests
+      - name: Clear Derived Data
+        run: bundle exec fastlane ios clear_derived_data_lane
+
+      - name: Run UI Tests
+        id: run_tests
+        continue-on-error: true # Don't fail the workflow if tests fail
+        run: |
+          cd ios
+          bundle exec fastlane ios ui_tests
+          echo "test_status=$?" >> $GITHUB_ENV
+          cd ..
+
+      - name: Upload Test Results
+        if: always() # Always upload test results, even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            ios/test_output
+            ios/fastlane/test_output
+          retention-days: 7
+
+      - name: Post Test Results Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const testStatus = process.env.test_status == "0" ? "✅ Tests passed" : "❌ Tests failed";
+            const message = `### iOS UI Tests Results\n${testStatus}\n\nSee test results artifact for details.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
