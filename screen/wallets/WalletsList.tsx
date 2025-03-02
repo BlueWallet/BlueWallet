@@ -159,15 +159,26 @@ const WalletsList: React.FC = () => {
     }
   }, [getBalance]);
 
+  // Optimize menu element usage to prevent excessive re-renders
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
+      
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(onRefresh);
-        verifyBalance();
-        setSelectedWalletID(undefined);
+        if (isActive) {
+          // Only set the reload function once when focused
+          setReloadTransactionsMenuActionFunction(() => {
+            if (isActive) {
+              return onRefresh;
+            }
+          });
+          verifyBalance();
+          setSelectedWalletID(undefined);
+        }
       });
 
       return () => {
+        isActive = false;
         task.cancel();
         clearReloadTransactionsMenuAction();
       };

@@ -389,10 +389,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
+      
+      // Delay registering the function slightly to give UI time to render
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
+        if (isActive) {
+          // Wrap refresh function to prevent calls after component unmounts
+          setReloadTransactionsMenuActionFunction(() => {
+            if (isActive) {
+              return () => refreshTransactions(true);
+            }
+          });
+        }
       });
+      
       return () => {
+        isActive = false;
         task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
