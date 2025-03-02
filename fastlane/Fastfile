@@ -511,6 +511,17 @@ end
     end
   end
 
+  desc "Delete temporary keychain"
+  lane :delete_temp_keychain do
+    UI.message("Deleting temporary keychain...")
+    
+    delete_keychain(
+      name: "temp_keychain"
+    ) if File.exist?(File.expand_path("~/Library/Keychains/temp_keychain-db"))
+    
+    UI.message("Temporary keychain deleted successfully.")
+  end
+
   # Helper method to determine which iOS version to use
   private_lane :determine_ios_version do
     # Get available iOS simulator runtimes
