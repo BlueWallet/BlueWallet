@@ -405,7 +405,7 @@ const WalletDetails: React.FC = () => {
     // Save changes to disk
     await saveToDisk();
     presentAlert({ message: msg });
-    
+
     // Force refresh on UI
     setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
     setTimeout(() => setHideTransactionsInWalletsList(hideTransactionsInWalletsList), 500);
