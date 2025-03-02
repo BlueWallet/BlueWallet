@@ -182,6 +182,25 @@ jobs:
         id: build_app
         run: |
           bundle exec fastlane ios build_app_lane
+          
+          # Ensure IPA path is set for subsequent steps
+          if [ -f "./ios/build/ipa_path.txt" ]; then
+            IPA_PATH=$(cat ./ios/build/ipa_path.txt)
+            echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
+            echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
+            echo "Found IPA at: $IPA_PATH"
+          else
+            echo "Warning: ipa_path.txt not found, trying to locate IPA file manually..."
+            IPA_PATH=$(find ./ios -name "*.ipa" | head -n 1)
+            if [ -n "$IPA_PATH" ]; then
+              echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
+              echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
+              echo "Found IPA at: $IPA_PATH"
+            else
+              echo "Error: No IPA file found"
+              exit 1
+            fi
+          fi
 
       - name: Upload Bugsnag Sourcemaps
         if: success()
@@ -200,11 +219,24 @@ jobs:
           path: ./ios/build_logs/
           retention-days: 7
 
+      - name: Verify IPA File Before Upload
+        run: |
+          echo "Checking IPA file at: $IPA_OUTPUT_PATH"
+          if [ -f "$IPA_OUTPUT_PATH" ]; then
+            echo "✅ IPA file exists"
+            ls -la "$IPA_OUTPUT_PATH"
+          else
+            echo "❌ IPA file not found at: $IPA_OUTPUT_PATH"
+            echo "Current directory contents:"
+            find ./ios -name "*.ipa"
+            exit 1
+          fi
+          
       - name: Upload IPA as Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
+          name: BlueWallet_IPA
           path: ${{ env.IPA_OUTPUT_PATH }}
           retention-days: 7
 

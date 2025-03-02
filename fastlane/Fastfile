@@ -458,30 +458,56 @@ end
       UI.message("Using iOS version: #{ios_version}")
       UI.message("Using export options from: #{export_options_path}")
       
+      # Define the IPA output path before building
+      ipa_directory = File.join(project_root, "ios", "build")
+      ipa_name = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+      ipa_path = File.join(ipa_directory, ipa_name)
+      
       begin
         build_ios_app(
           scheme: "BlueWallet",
           workspace: workspace_path,
           export_method: "app-store",
           export_options: export_options_path,
-          output_directory: File.join(project_root, "ios", "build"),
-          output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+          output_directory: ipa_directory,
+          output_name: ipa_name,
           buildlog_path: File.join(project_root, "ios", "build_logs"),
         )
       rescue => e
         UI.user_error!("build_ios_app failed: #{e.message}")
       end
 
-      # Use File.join to construct paths without extra slashes
-      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
-
+      # Check for IPA path from both our defined path and fastlane's context
+      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH] || ipa_path
+      
+      # Ensure the directory exists
+      FileUtils.mkdir_p(File.dirname(ipa_path)) unless Dir.exist?(File.dirname(ipa_path))
+      
       if ipa_path && File.exist?(ipa_path)
         UI.message("IPA successfully found at: #{ipa_path}")
-        ENV['IPA_OUTPUT_PATH'] = ipa_path
-        sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") # Export for GitHub Actions
       else
-        UI.user_error!("IPA not found after build_ios_app.")
+        # Try to find any IPA file as fallback
+        Dir.chdir(project_root) do
+          fallback_ipa = Dir.glob("**/*.ipa").first
+          if fallback_ipa
+            ipa_path = File.join(project_root, fallback_ipa)
+            UI.message("Found fallback IPA at: #{ipa_path}")
+          else
+            UI.user_error!("No IPA file found after build")
+          end
+        end
       end
+      
+      # Set both environment variable and GitHub Actions output
+      ENV['IPA_OUTPUT_PATH'] = ipa_path
+      # Set both standard output format and the newer GITHUB_OUTPUT format
+      sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
+      sh("echo ::set-output name=ipa_output_path::#{ipa_path}")
+      
+      # Also write path to a file that can be read by subsequent steps
+      ipa_path_file = "#{ipa_directory}/ipa_path.txt"
+      File.write(ipa_path_file, ipa_path)
+      UI.success("Saved IPA path to: #{ipa_path_file}")
     end
   end
 
