@@ -103,6 +103,21 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Install iOS Simulator Runtime
+        run: |
+          echo "Available iOS simulator runtimes:"
+          xcrun simctl list runtimes
+          
+          # Try to download the latest iOS 16.x simulator if not present
+          if ! xcrun simctl list runtimes | grep -q "iOS 16"; then
+            echo "Installing iOS 16.4 simulator..."
+            sudo xcode-select -s /Applications/Xcode.app
+            xcodebuild -downloadPlatform iOS
+          fi
+          
+          echo "Available iOS simulator runtimes after install:"
+          xcrun simctl list runtimes
+
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:

@@ -444,47 +444,80 @@ end
 
   desc "Build the iOS app"
   lane :build_app_lane do
-  Dir.chdir(project_root) do
-    UI.message("Building the application from: #{Dir.pwd}")
+    Dir.chdir(project_root) do
+      UI.message("Building the application from: #{Dir.pwd}")
 
-    workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-    export_options_path = File.join(project_root, "ios", "export_options.plist")
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      export_options_path = File.join(project_root, "ios", "export_options.plist")
 
-    clear_derived_data_lane
-    
-    begin
-      build_ios_app(
-        scheme: "BlueWallet",
-        workspace: workspace_path,
-        export_method: "app-store",
-        include_bitcode: false,
-        configuration: "Release",
-        skip_profile_detection: false,
-        include_symbols: true,
-        export_team_id: ENV["ITC_TEAM_ID"],
-        export_options: export_options_path,
-        output_directory: File.join(project_root, "ios", "build"),
-        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-        buildlog_path: File.join(project_root, "ios", "build_logs"),
-        silent: false,
-        clean: true
-      )
-    rescue => e
-      UI.user_error!("build_ios_app failed: #{e.message}")
-    end
+      clear_derived_data_lane
+      
+      # Determine which iOS version to use
+      ios_version = determine_ios_version
 
-    # Use File.join to construct paths without extra slashes
-    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+      UI.message("Using iOS version: #{ios_version}")
+      
+      begin
+        build_ios_app(
+          scheme: "BlueWallet",
+          workspace: workspace_path,
+          export_method: "app-store",
+          include_bitcode: false,
+          configuration: "Release",
+          skip_profile_detection: false,
+          include_symbols: true,
+          export_team_id: ENV["ITC_TEAM_ID"],
+          export_options: export_options_path,
+          output_directory: File.join(project_root, "ios", "build"),
+          output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          silent: false,
+          clean: true,
+          destination: "generic/platform=iOS",
+          xcargs: "SKIP_INSTALL=NO"
+        )
+      rescue => e
+        UI.user_error!("build_ios_app failed: #{e.message}")
+      end
 
-    if ipa_path && File.exist?(ipa_path)
-      UI.message("IPA successfully found at: #{ipa_path}")
-      ENV['IPA_OUTPUT_PATH'] = ipa_path
-      sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
-    else
-      UI.user_error!("IPA not found after build_ios_app.")
+      # Use File.join to construct paths without extra slashes
+      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+
+      if ipa_path && File.exist?(ipa_path)
+        UI.message("IPA successfully found at: #{ipa_path}")
+        ENV['IPA_OUTPUT_PATH'] = ipa_path
+        sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") # Export for GitHub Actions
+      else
+        UI.user_error!("IPA not found after build_ios_app.")
+      end
     end
   end
-end
+
+  # Helper method to determine which iOS version to use
+  private_lane :determine_ios_version do
+    # Get available iOS simulator runtimes
+    runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false) rescue ""
+    
+    if runtimes_output.include?("iOS")
+      # Extract available iOS versions
+      ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
+                                   .flatten
+                                   .map { |v| Gem::Version.new(v) }
+                                   .sort
+                                   .reverse
+      
+      if ios_versions.any?
+        latest_version = ios_versions.first.to_s
+        UI.success("Found iOS simulator version: #{latest_version}")
+        return latest_version
+      end
+    end
+    
+    # Default to a reasonable iOS version if none found
+    UI.important("No iOS simulator runtimes found. Using default version.")
+    return "16.4"
+  end
+
 end
 # ===========================
 #       Global Lanes
