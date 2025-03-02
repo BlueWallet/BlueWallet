@@ -456,25 +456,17 @@ end
       ios_version = determine_ios_version
 
       UI.message("Using iOS version: #{ios_version}")
+      UI.message("Using export options from: #{export_options_path}")
       
       begin
         build_ios_app(
           scheme: "BlueWallet",
           workspace: workspace_path,
           export_method: "app-store",
-          include_bitcode: false,
-          configuration: "Release",
-          skip_profile_detection: false,
-          include_symbols: true,
-          export_team_id: ENV["ITC_TEAM_ID"],
           export_options: export_options_path,
           output_directory: File.join(project_root, "ios", "build"),
           output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
           buildlog_path: File.join(project_root, "ios", "build_logs"),
-          silent: false,
-          clean: true,
-          destination: "generic/platform=iOS",
-          xcargs: "SKIP_INSTALL=NO"
         )
       rescue => e
         UI.user_error!("build_ios_app failed: #{e.message}")
