@@ -16,6 +16,7 @@ import {
   Animated,
   RefreshControl,
   LayoutChangeEvent,
+  Platform,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -532,7 +533,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         ListEmptyComponent={
           <ScrollView
             style={[styles.flex, { backgroundColor: colors.background }]}
-            contentContainerStyle={[styles.scrollViewContent, { marginTop: headerHeight }]}
+            contentContainerStyle={[styles.scrollViewContent, Platform.OS === 'android' ? { marginTop: headerHeight } : {}]}
             centerContent
             testID="TransactionsListEmpty"
           >
