@@ -256,11 +256,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   );
 
   const navigateToViewEditCosigners = useCallback(() => {
-    navigate('ViewEditMultisigCosignersRoot', {
-      screen: 'ViewEditMultisigCosigners',
-      params: {
-        walletID,
-      },
+    navigate('ViewEditMultisigCosigners', {
+      walletID,
     });
   }, [navigate, walletID]);
 
