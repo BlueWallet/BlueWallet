@@ -1,4 +1,4 @@
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, useIsFocused } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -81,6 +81,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     extrapolate: 'clamp',
   });
   const flatListRef = useRef<Animated.FlatList>(null);
+  const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
