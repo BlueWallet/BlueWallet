@@ -22,12 +22,28 @@ jobs:
       branch_name: ${{ steps.get_latest_commit_details.outputs.branch_name }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
+      # Set Match to read-only for builds, only write new profiles manually
+      MATCH_READONLY: "true"
 
     steps:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Ensures the full Git history is available
+      
+      # Setup caching to speed up builds
+      - name: Setup Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            ios/Pods
+            ~/.npm
+            node_modules
+            vendor/bundle
+          key: ${{ runner.os }}-ios-${{ hashFiles('**/package-lock.json', '**/Podfile.lock', '**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-
 
       - name: Clear All Caches
         if: github.ref == 'refs/heads/master'
@@ -81,6 +97,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -90,6 +107,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+          bundler-cache: true # This caches gems installed via bundler
 
       - name: Install Dependencies with Bundler
         run: |
@@ -102,6 +120,7 @@ jobs:
       - name: Install CocoaPods Dependencies
         run: |
           bundle exec fastlane ios install_pods
+          echo "CocoaPods dependencies installed successfully"
 
       - name: Generate Build Number Based on Timestamp
         id: generate_build_number
@@ -147,8 +166,7 @@ jobs:
       - name: Build App
         id: build_app
         run: |
-          bundle exec fastlane ios build_app_lane --verbose
-          echo "ipa_output_path=$IPA_OUTPUT_PATH" >> $GITHUB_OUTPUT # Set the IPA output path for future jobs
+          bundle exec fastlane ios build_app_lane
 
       - name: Upload Bugsnag Sourcemaps
         if: success()
@@ -156,8 +174,8 @@ jobs:
         env:
           BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}
           BUGSNAG_RELEASE_STAGE: production
-          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-          NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
       - name: Upload Build Logs
         if: always()
@@ -165,13 +183,19 @@ jobs:
         with:
           name: build_logs
           path: ./ios/build_logs/
+          retention-days: 7
 
       - name: Upload IPA as Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_${{env.PROJECT_VERSION}}_${{env.NEW_BUILD_NUMBER}}.ipa
-          path: ${{ env.IPA_OUTPUT_PATH }}  # Directly from Fastfile `IPA_OUTPUT_PATH`
+          path: ${{ env.IPA_OUTPUT_PATH }}
+          retention-days: 7
+
+      - name: Delete Temporary Keychain
+        if: always()
+        run: bundle exec fastlane ios delete_temp_keychain
 
   testflight-upload:
     needs: build
@@ -191,6 +215,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -205,13 +230,6 @@ jobs:
 
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
-  
-      - name: Verify IPA File Download
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Files in current directory:"
-          ls -la ./
 
       - name: Set IPA Path Environment Variable
         run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
@@ -219,19 +237,23 @@ jobs:
       - name: Verify IPA Path Before Upload
         run: |
           if [ ! -f "$IPA_OUTPUT_PATH" ]; then
-            echo "IPA file not found at path: $IPA_OUTPUT_PATH"
+            echo "❌ IPA file not found at path: $IPA_OUTPUT_PATH"
+            ls -la $(pwd)
             exit 1
+          else
+            echo "✅ Found IPA at: $IPA_OUTPUT_PATH"
           fi
 
       - name: Print Environment Variables for Debugging
         run: |
           echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
           echo "BRANCH_NAME: $BRANCH_NAME"
+          echo "PROJECT_VERSION: $PROJECT_VERSION"
+          echo "NEW_BUILD_NUMBER: $NEW_BUILD_NUMBER"
+          echo "IPA_OUTPUT_PATH: $IPA_OUTPUT_PATH"
 
       - name: Upload to TestFlight
-        run: |
-          ls -la $IPA_OUTPUT_PATH
-          bundle exec fastlane ios upload_to_testflight_lane
+        run: bundle exec fastlane ios upload_to_testflight_lane
         env:
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -242,18 +264,19 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          IPA_OUTPUT_PATH: ${{ env.IPA_OUTPUT_PATH }}
 
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
         uses: actions/github-script@v6
         env:
           BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
           LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
         with:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
+            const version = process.env.PROJECT_VERSION;
+            const message = `✅ Build ${version} (${buildNumber}) has been uploaded to TestFlight and will be available for testing soon.`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
