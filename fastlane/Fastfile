@@ -330,33 +330,58 @@ platform :ios do
     
     UI.message("Setting up Mac Catalyst provisioning profiles...")
     
-    app_identifiers.each do |app_identifier|
-      with_retry(3, "Mac Catalyst provisioning profile for #{app_identifier}") do
-        match(
-          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-          git_url: ENV["GIT_URL"],
-          type: "development",
-          platform: "catalyst",
-          app_identifier: app_identifier,
-          team_id: ENV["ITC_TEAM_ID"],
-          team_name: ENV["ITC_TEAM_NAME"],
-          readonly: true,
-          keychain_name: "temp_keychain",
-          keychain_password: ENV["KEYCHAIN_PASSWORD"]
-        )
-        
+    # Only attempt to fetch profiles for the main app identifier for Catalyst
+    # This avoids errors with watch app identifiers that don't have Catalyst profiles
+    main_app_id = "io.bluewallet.bluewallet"
+    
+    with_retry(3, "Mac Catalyst provisioning profile for #{main_app_id}") do
+      # Development profile for main app
+      match(
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        git_url: ENV["GIT_URL"],
+        type: "development",
+        platform: "catalyst",
+        app_identifier: main_app_id,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
+        clone_branch_directly: true
+      )
+      
+      # App Store profile for main app
+      match(
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        git_url: ENV["GIT_URL"],
+        type: "appstore",
+        platform: "catalyst",
+        app_identifier: main_app_id,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
+        clone_branch_directly: true
+      )
+      
+      # Optional: Try to fetch MarketWidget Catalyst profile if it exists
+      begin
         match(
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           type: "appstore",
           platform: "catalyst",
-          app_identifier: app_identifier,
+          app_identifier: "io.bluewallet.bluewallet.MarketWidget",
           team_id: ENV["ITC_TEAM_ID"],
           team_name: ENV["ITC_TEAM_NAME"],
           readonly: true,
           keychain_name: "temp_keychain",
-          keychain_password: ENV["KEYCHAIN_PASSWORD"]
+          keychain_password: ENV["KEYCHAIN_PASSWORD"],
+          clone_branch_directly: true
         )
+      rescue => e
+        UI.important("Market Widget profile not found for Catalyst, continuing anyway: #{e.message}")
       end
     end
     
@@ -729,6 +754,52 @@ end
     end
   end
 
+  desc "Update Apple Worldwide Developer Relations Certificate"
+  lane :update_wwdr_certificate do
+    UI.message("Updating Apple WWDR certificate...")
+    
+    # First, we'll check if the expired certificate exists and remove it if found
+    begin
+      sh("security find-certificate -c 'Apple Worldwide Developer Relations Certification Authority' -a -Z | grep SHA-1 | awk '{ print $NF }' | xargs -I % security delete-certificate -Z %")
+      UI.message("Removed expired WWDR certificate")
+    rescue
+      UI.message("No expired WWDR certificate found to remove")
+    end
+    
+    # Download and install current WWDR certificate
+    sh("curl -sL https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -o /tmp/AppleWWDRCA.cer")
+    sh("security add-certificates /tmp/AppleWWDRCA.cer")
+    
+    # Also download and install the current G3 WWDR certificate
+    sh("curl -sL https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o /tmp/AppleWWDRCAG3.cer")
+    sh("security add-certificates /tmp/AppleWWDRCAG3.cer")
+    
+    log_success("WWDR certificates successfully updated")
+  end
+  
+  desc "Setup App Store Connect API Key"
+  lane :setup_app_store_connect_api_key do
+    UI.message("Setting up App Store Connect API Key...")
+    
+    # Create JSON file from environment variables if it doesn't exist
+    unless File.exist?("./appstore_api_key.json")
+      if ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
+        File.write("./appstore_api_key.json", ENV["APP_STORE_CONNECT_API_KEY_CONTENT"])
+        UI.message("Created App Store Connect API Key JSON file from environment variables")
+      else
+        UI.user_error!("No APP_STORE_CONNECT_API_KEY_CONTENT environment variable provided")
+      end
+    end
+    
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_filepath: "./appstore_api_key.json",
+      in_house: false
+    )
+    
+    log_success("App Store Connect API Key set up")
+  end
 end
 # ===========================
 #       Global Lanes
