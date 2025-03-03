@@ -7,11 +7,10 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();
@@ -44,10 +43,12 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      if (!isDesktop) disallowScreenshot(false);
+      disableScreenProtect();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [handleBackButton, isPrivacyBlurEnabled]);
