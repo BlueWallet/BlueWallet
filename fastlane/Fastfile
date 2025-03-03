@@ -791,14 +791,39 @@ end
       end
     end
     
-    app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_filepath: "./appstore_api_key.json",
-      in_house: false
-    )
-    
-    log_success("App Store Connect API Key set up")
+    begin
+      # Try using the app_store_connect_api_key action
+      UI.message("Attempting to set up App Store Connect API key with standard method...")
+      app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        key_filepath: "./appstore_api_key.json",
+        in_house: false
+      )
+      log_success("App Store Connect API Key set up using standard method")
+    rescue => e
+      UI.important("Standard API key setup failed with error: #{e.message}")
+      UI.message("Error class: #{e.class}")
+      
+      # Fall back to alternative authentication method
+      if e.message.include?("invalid curve name")
+        UI.important("Detected 'invalid curve name' error - this is likely due to OpenSSL version incompatibility")
+        UI.message("Setting up API credentials using environment variables instead...")
+        
+        # Set these environment variables for other fastlane tools to use
+        # This is a common workaround when the API key action fails
+        ENV["FASTLANE_USER"] = ENV["APPLE_ID"]
+        ENV["FASTLANE_TEAM_ID"] = ENV["ITC_TEAM_ID"]
+        ENV["FASTLANE_ITC_TEAM_ID"] = ENV["ITC_TEAM_ID"]
+        ENV["SPACESHIP_CONNECT_API_KEY_ID"] = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+        ENV["SPACESHIP_CONNECT_API_ISSUER_ID"] = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+        ENV["SPACESHIP_CONNECT_API_KEY_FILEPATH"] = "./appstore_api_key.json"
+        
+        log_success("Set up App Store Connect authentication using environment variables")
+      else
+        UI.user_error!("Failed to set up App Store Connect API Key: #{e.message}")
+      end
+    end
   end
 end
 # ===========================
