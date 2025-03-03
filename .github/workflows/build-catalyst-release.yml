@@ -178,21 +178,17 @@ jobs:
           # Then appstore certificates
           bundle exec fastlane run match type:appstore platform:catalyst readonly:true app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget" team_id:"$ITC_TEAM_ID" git_basic_authorization:"$GIT_ACCESS_TOKEN" git_url:"$GIT_URL" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD" || echo "Could not fetch appstore certificates, will try to create"
           
-          # If readonly fetch failed, try creating new profiles
+          # Set up Mac Catalyst profiles using the fastlane lane
           bundle exec fastlane ios setup_catalyst_provisioning_profiles
           
-          # List available provisioning profiles for debugging
+          # List profiles for debugging
           echo "Listing installed provisioning profiles:"
           ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "No profiles directory found"
-          
-          # Check keychain for certificates
-          echo "Listing certificates in temp_keychain:"
-          security find-certificate -a temp_keychain || echo "Could not list certificates"
 
       - name: Build Mac Catalyst App
         id: build_app
         run: |
-          # First ensure export_options_catalyst.plist has the correct team ID
+          # First ensure export_options_catalyst.plist has the correct team ID if not already set
           sed -i '' "s/TEMPLATE_TEAM_ID/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
           cat ./ios/export_options_catalyst.plist
           

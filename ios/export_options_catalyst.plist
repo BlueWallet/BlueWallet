@@ -25,9 +25,9 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>io.bluewallet.bluewallet</key>
-        <string>match AppStore io.bluewallet.bluewallet</string>
+        <string>match AppStore io.bluewallet.bluewallet catalyst</string>
         <key>io.bluewallet.bluewallet.MarketWidget</key>
-        <string>match AppStore io.bluewallet.bluewallet.MarketWidget</string>
+        <string>match AppStore io.bluewallet.bluewallet.MarketWidget catalyst</string>
     </dict>
     <key>distributionManifest</key>
     <dict>
@@ -36,5 +36,7 @@
     </dict>
     <key>thinning</key>
     <string>&lt;none&gt;</string>
+    <key>macOSVersion</key>
+    <string>12.0</string>
 </dict>
 </plist>
