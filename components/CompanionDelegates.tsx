@@ -22,7 +22,6 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from './Alert';
-import useMenuElements from '../hooks/useMenuElements';
 import useWidgetCommunication from '../hooks/useWidgetCommunication';
 import useWatchConnectivity from '../hooks/useWatchConnectivity';
 import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
@@ -40,7 +39,6 @@ const CompanionDelegates = () => {
 
   useWatchConnectivity();
   useWidgetCommunication();
-  useMenuElements();
   useDeviceQuickActions();
   useHandoffListener();
 

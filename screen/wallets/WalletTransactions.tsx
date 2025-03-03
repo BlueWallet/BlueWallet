@@ -47,6 +47,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import { MenuActionType } from '../../hooks/useMenuElements.common';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -58,7 +59,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
-  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
+  const { setActionHandler, clearActionHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
@@ -390,13 +391,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
+        setActionHandler(MenuActionType.RELOAD_TRANSACTIONS, () => refreshTransactions(true));
       });
       return () => {
         task.cancel();
-        setReloadTransactionsMenuActionFunction(() => {});
+        clearActionHandler(MenuActionType.RELOAD_TRANSACTIONS);
       };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+    }, [setActionHandler, refreshTransactions, clearActionHandler]),
   );
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);

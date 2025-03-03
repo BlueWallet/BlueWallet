@@ -23,6 +23,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
+import { MenuActionType } from '../../hooks/useMenuElements.common';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -98,7 +99,7 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const { setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction } = useMenuElements();
+  const { setActionHandler, clearActionHandler } = useMenuElements();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
@@ -162,16 +163,16 @@ const WalletsList: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(onRefresh);
+        setActionHandler(MenuActionType.RELOAD_TRANSACTIONS, onRefresh);
         verifyBalance();
         setSelectedWalletID(undefined);
       });
 
       return () => {
         task.cancel();
-        clearReloadTransactionsMenuAction();
+        clearActionHandler(MenuActionType.RELOAD_TRANSACTIONS);
       };
-    }, [onRefresh, setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction, verifyBalance, setSelectedWalletID]),
+    }, [onRefresh, setActionHandler, clearActionHandler, verifyBalance, setSelectedWalletID]),
   );
 
   useEffect(() => {
