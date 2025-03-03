@@ -14,6 +14,8 @@ jobs:
   build:
     runs-on: macos-15
     timeout-minutes: 180
+    # Only run this job if it's a push to master, has macOS label, or manual dispatch
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'macOS') || github.event_name == 'workflow_dispatch'
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
@@ -247,10 +249,9 @@ jobs:
         if: always()
         run: bundle exec fastlane ios delete_temp_keychain
 
-  notarize-catalyst:
+  notarize-macos:
     needs: build
     runs-on: macos-15
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'catalyst')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
@@ -339,6 +340,169 @@ jobs:
             const buildNumber = process.env.BUILD_NUMBER;
             const version = process.env.PROJECT_VERSION;
             const message = `✅ Mac Catalyst build ${version} (${buildNumber}) has been successfully built and notarized. You can download the macOS installer package from the artifacts.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
+
+  testflight-upload-macos:
+    needs: [build, notarize-macos]
+    runs-on: macos-15
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install Dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Download Notarized PKG from Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: BlueWallet_MacCatalyst_Notarized
+          path: ./catalyst-build/
+
+      - name: Install Prerequisites for PKG Processing
+        run: |
+          # Install xcbeautify for better xcodebuild output formatting
+          brew install xcbeautify
+          
+          # Ensure the necessary directories exist
+          mkdir -p ./catalyst-build/extracted
+          mkdir -p ./catalyst-build/archive
+
+      - name: Extract App from PKG
+        run: |
+          # Find the PKG file
+          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
+          echo "Found PKG at: $PKG_PATH"
+          
+          # Create a temporary directory for extraction
+          TEMP_DIR="./catalyst-build/extracted"
+          
+          # Extract the PKG content
+          pkgutil --expand "$PKG_PATH" "$TEMP_DIR"
+          
+          # Find and extract the payload
+          PAYLOAD_PATH=$(find "$TEMP_DIR" -name "Payload" | head -n 1)
+          if [ -n "$PAYLOAD_PATH" ]; then
+            echo "Found payload at: $PAYLOAD_PATH"
+            tar -xf "$PAYLOAD_PATH" -C "$TEMP_DIR"
+          else
+            # Alternative approach if payload not found directly
+            find "$TEMP_DIR" -name "*.pkg" -exec pkgutil --expand-full {} "$TEMP_DIR/expanded" \;
+          fi
+          
+          # Find the extracted .app folder
+          APP_PATH=$(find "$TEMP_DIR" -name "*.app" -type d | head -n 1)
+          
+          if [ -n "$APP_PATH" ]; then
+            echo "Found extracted app at: $APP_PATH"
+            echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          else
+            echo "Failed to find extracted .app package"
+            find "$TEMP_DIR" -type f -name "*.app" || echo "No .app files found"
+            exit 1
+          fi
+
+      - name: Create IPA for TestFlight
+        run: |
+          # Create a temporary directory structure for the IPA
+          TEMP_DIR="./catalyst-build/archive"
+          mkdir -p "$TEMP_DIR/Payload"
+          
+          # Copy the app to the Payload directory
+          cp -R "$APP_PATH" "$TEMP_DIR/Payload/"
+          
+          # Create the IPA file
+          cd "$TEMP_DIR"
+          zip -r "../BlueWallet_Catalyst.ipa" Payload
+          cd -
+          
+          # Set the IPA path for later steps
+          IPA_PATH="./catalyst-build/BlueWallet_Catalyst.ipa"
+          echo "IPA_PATH=$IPA_PATH" >> $GITHUB_ENV
+          
+          if [ -f "$IPA_PATH" ]; then
+            echo "Successfully created IPA at: $IPA_PATH"
+          else
+            echo "Failed to create IPA file"
+            exit 1
+          fi
+
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+
+      - name: Verify IPA Path Before Upload
+        run: |
+          if [ ! -f "$IPA_PATH" ]; then
+            echo "❌ IPA file not found at path: $IPA_PATH"
+            ls -la ./catalyst-build/
+            exit 1
+          else
+            echo "✅ Found IPA at: $IPA_PATH"
+          fi
+
+      - name: Upload to TestFlight
+        run: |
+          echo "Uploading Mac Catalyst build to TestFlight..."
+          
+          # Generate changelog
+          branch_name="${{ env.BRANCH_NAME }}"
+          commit_message="${{ env.LATEST_COMMIT_MESSAGE }}"
+          version="${{ env.PROJECT_VERSION }}"
+          build_number="${{ env.NEW_BUILD_NUMBER }}"
+          
+          changelog="Build Information:\n"
+          
+          # Include the branch name only if it is not 'master'
+          if [ "$branch_name" != "master" ]; then
+            changelog+="- Branch: $branch_name\n"
+          fi
+          
+          changelog+="- Commit: $commit_message\n"
+          changelog+="- Mac Catalyst Build"
+          
+          # Use fastlane to upload to TestFlight
+          bundle exec fastlane run upload_to_testflight \
+            api_key_path:"./appstore_api_key.json" \
+            ipa:"$IPA_PATH" \
+            skip_waiting_for_build_processing:true \
+            changelog:"$changelog"
+        env:
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+
+      - name: Post PR Comment
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const version = process.env.PROJECT_VERSION;
+            const message = `✅ Mac Catalyst build ${version} (${buildNumber}) has been successfully uploaded to TestFlight and will be available for testing soon.`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
