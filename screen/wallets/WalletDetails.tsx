@@ -37,7 +37,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useFocusEffect, useRoute, RouteProp, usePreventRemove } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp, usePreventRemove, CommonActions } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
@@ -66,7 +66,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate } = useExtendedNavigation();
+  const { setOptions, navigate, dispatch } = useExtendedNavigation();
   const { colors } = useTheme();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
@@ -305,13 +305,11 @@ const WalletDetails: React.FC = () => {
     });
   };
   const navigateToViewEditCosigners = () => {
-    navigate('ViewEditMultisigCosignersRoot', {
-      screen: 'ViewEditMultisigCosigners',
-      params: {
-        walletID,
-      },
+    navigate('ViewEditMultisigCosigners', {
+      walletID,
     });
   };
+
   const navigateToXPub = () =>
     navigate('WalletXpubRoot', {
       screen: 'WalletXpub',
@@ -395,6 +393,28 @@ const WalletDetails: React.FC = () => {
       wallet._hdWalletInstance._lastTxFetch = 0;
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._lastBalanceFetch = 0;
+      // Find the WalletTransactions screen in the navigation state and reset just that screen.
+      // It can be multiple WalletTransactions screen.
+      dispatch(state => {
+        // Find the route that contains 'WalletTransactions' in the navigation stack
+        const routes = state.routes.map(route => {
+          if (route.name === 'WalletTransactions' && (route.params as { walletID: string })?.walletID === walletID) {
+            // Reset this specific route with the same params to force a refresh
+            return {
+              ...route,
+              key: `WalletTransactions-${walletID}-${Date.now()}`, // Force new key to ensure fresh mount
+            };
+          }
+          return route;
+        });
+
+        return CommonActions.reset({
+          ...state,
+          routes,
+          index: state.index,
+        });
+      });
+
       presentAlert({ message: msg });
     }
   };
