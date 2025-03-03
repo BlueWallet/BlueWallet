@@ -41,7 +41,7 @@ import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { disallowScreenshot } from 'react-native-screen-capture';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -191,7 +191,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
       if (hasLoaded.current) return;
       setIsLoading(true);
-      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+      if (isPrivacyBlurEnabled) enableScreenProtect();
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {
@@ -207,7 +207,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setIsLoading(false);
       });
       return () => {
-        if (!isDesktop) disallowScreenshot(false);
+        disableScreenProtect();
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps

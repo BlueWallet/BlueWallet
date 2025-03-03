@@ -1297,7 +1297,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-image-picker (7.2.3):
+  - react-native-image-picker (8.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1318,10 +1318,29 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-ios-context-menu (1.15.3):
-    - React-Core
   - react-native-menu (1.2.1):
     - React
+  - react-native-prevent-screenshot-ios-android (1.1.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (5.2.0):
@@ -1841,7 +1860,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (11.1.0):
+  - RNShare (12.0.9):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1939,8 +1958,8 @@ DEPENDENCIES:
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
-  - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
+  - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-screen-capture (from `../node_modules/react-native-screen-capture`)
@@ -2094,10 +2113,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
-  react-native-ios-context-menu:
-    :path: "../node_modules/react-native-ios-context-menu"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
+  react-native-prevent-screenshot-ios-android:
+    :path: "../node_modules/react-native-prevent-screenshot-ios-android"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -2258,9 +2277,9 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
-  react-native-image-picker: 130fad649d07e4eec8faaed361d3bba570e1e5ff
-  react-native-ios-context-menu: 986da6dcba70094bcc2a8049f68410fe7d25aff1
+  react-native-image-picker: 86f8954a0b8c0f85d56fa1d85ae87936ae74e615
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
+  react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
@@ -2313,7 +2332,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: 66cf0f600a26d2b5e74c6e0b1c77c1ab1f62fc05
   RNScreens: b3975354ddafe0fb00112a9054898ccf0d92c78e
-  RNShare: 6204e6a1987ba3e7c47071ef703e5449a0e3548a
+  RNShare: 381ed02f6c0dc42b8c24bb5a1e5df0ee5fd91354
   RNSVG: a07e14363aa208062c6483bad24a438d5986d490
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
@@ -2323,4 +2342,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: eb430c3fd96af23d4962c4c041798d65efc6843e
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.3

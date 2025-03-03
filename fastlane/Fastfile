@@ -192,6 +192,40 @@ end
 # ===========================
 
 platform :ios do
+  # Add helper methods for error handling and retries
+  def ensure_env_vars(vars)
+    vars.each do |var|
+      UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
+    end
+  end
+  
+  def log_success(message)
+    UI.success("✅ #{message}")
+  end
+  
+  def log_error(message)
+    UI.error("❌ #{message}")
+  end
+  
+  # Method to safely call actions with retry logic
+  def with_retry(max_attempts = 3, action_name = "")
+    attempts = 0
+    begin
+      attempts += 1
+      yield
+    rescue => e
+      if attempts < max_attempts
+        wait_time = 10 * attempts
+        log_error("Attempt #{attempts}/#{max_attempts} for #{action_name} failed: #{e.message}")
+        UI.message("Retrying in #{wait_time} seconds...")
+        sleep(wait_time)
+        retry
+      else
+        log_error("#{action_name} failed after #{max_attempts} attempts: #{e.message}")
+        raise e
+      end
+    end
+  end
 
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
@@ -238,26 +272,33 @@ platform :ios do
 
   desc "Synchronize certificates and provisioning profiles"
   lane :setup_provisioning_profiles do
+    required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
     UI.message("Setting up provisioning profiles...")
-
-    platform = "ios"
-
+    
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "appstore",
-        clone_branch_directly: true, # Skip if the branch already exists
-        platform: platform,
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
-      )
+      with_retry(3, "Fetching provisioning profile for #{app_identifier}") do
+        UI.message("Fetching provisioning profile for #{app_identifier}...")
+        match(
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          type: "appstore",
+          clone_branch_directly: true,
+          platform: "ios",
+          app_identifier: app_identifier,
+          team_id: ENV["ITC_TEAM_ID"],
+          team_name: ENV["ITC_TEAM_NAME"],
+          readonly: true,
+          keychain_name: "temp_keychain",
+          keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        )
+        log_success("Successfully fetched provisioning profile for #{app_identifier}")
+      end
     end
+    
+    log_success("All provisioning profiles set up")
   end
 
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
@@ -402,48 +443,114 @@ lane :upload_bugsnag_sourcemaps do
 end
 
   desc "Build the iOS app"
-lane :build_app_lane do
-  Dir.chdir(project_root) do
-    UI.message("Building the application from: #{Dir.pwd}")
+  lane :build_app_lane do
+    Dir.chdir(project_root) do
+      UI.message("Building the application from: #{Dir.pwd}")
 
-    workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-    export_options_path = File.join(project_root, "ios", "export_options.plist")
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      export_options_path = File.join(project_root, "ios", "export_options.plist")
 
-    clear_derived_data_lane
-    
-    begin
-      build_ios_app(
-        scheme: "BlueWallet",
-        workspace: workspace_path,
-        export_method: "app-store",
-        include_bitcode: false,
-        configuration: "Release",
-        skip_profile_detection: false,
-        include_symbols: true,
-        export_team_id: ENV["ITC_TEAM_ID"],
-        export_options: export_options_path,
-        output_directory: File.join(project_root, "ios", "build"),
-        output_name: "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa",
-        buildlog_path: File.join(project_root, "ios", "build_logs"),
-        silent: false,
-        clean: true
-      )
-    rescue => e
-      UI.user_error!("build_ios_app failed: #{e.message}")
-    end
+      clear_derived_data_lane
+      
+      # Determine which iOS version to use
+      ios_version = determine_ios_version
 
-    # Use File.join to construct paths without extra slashes
-    ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH]
+      UI.message("Using iOS version: #{ios_version}")
+      UI.message("Using export options from: #{export_options_path}")
+      
+      # Define the IPA output path before building
+      ipa_directory = File.join(project_root, "ios", "build")
+      ipa_name = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
+      ipa_path = File.join(ipa_directory, ipa_name)
+      
+      begin
+        build_ios_app(
+          scheme: "BlueWallet",
+          workspace: workspace_path,
+          export_method: "app-store",
+          export_options: export_options_path,
+          output_directory: ipa_directory,
+          output_name: ipa_name,
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+        )
+      rescue => e
+        UI.user_error!("build_ios_app failed: #{e.message}")
+      end
 
-    if ipa_path && File.exist?(ipa_path)
-      UI.message("IPA successfully found at: #{ipa_path}")
+      # Check for IPA path from both our defined path and fastlane's context
+      ipa_path = lane_context[SharedValues::IPA_OUTPUT_PATH] || ipa_path
+      
+      # Ensure the directory exists
+      FileUtils.mkdir_p(File.dirname(ipa_path)) unless Dir.exist?(File.dirname(ipa_path))
+      
+      if ipa_path && File.exist?(ipa_path)
+        UI.message("IPA successfully found at: #{ipa_path}")
+      else
+        # Try to find any IPA file as fallback
+        Dir.chdir(project_root) do
+          fallback_ipa = Dir.glob("**/*.ipa").first
+          if fallback_ipa
+            ipa_path = File.join(project_root, fallback_ipa)
+            UI.message("Found fallback IPA at: #{ipa_path}")
+          else
+            UI.user_error!("No IPA file found after build")
+          end
+        end
+      end
+      
+      # Set both environment variable and GitHub Actions output
       ENV['IPA_OUTPUT_PATH'] = ipa_path
-      sh("echo 'IPA_OUTPUT_PATH=#{ipa_path}' >> $GITHUB_ENV") # Export for GitHub Actions
-    else
-      UI.user_error!("IPA not found after build_ios_app.")
+      # Set both standard output format and the newer GITHUB_OUTPUT format
+      sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
+      sh("echo ::set-output name=ipa_output_path::#{ipa_path}")
+      
+      # Also write path to a file that can be read by subsequent steps
+      ipa_path_file = "#{ipa_directory}/ipa_path.txt"
+      File.write(ipa_path_file, ipa_path)
+      UI.success("Saved IPA path to: #{ipa_path_file}")
     end
   end
-end
+
+  desc "Delete temporary keychain"
+  lane :delete_temp_keychain do
+    UI.message("Deleting temporary keychain...")
+    
+    delete_keychain(
+      name: "temp_keychain"
+    ) if File.exist?(File.expand_path("~/Library/Keychains/temp_keychain-db"))
+    
+    UI.message("Temporary keychain deleted successfully.")
+  end
+
+  # Helper method to determine which iOS version to use
+  private_lane :determine_ios_version do
+    # Get available iOS simulator runtimes
+    runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false) rescue ""
+    
+    if runtimes_output.include?("iOS")
+      # Extract available iOS versions
+      ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
+                                   .flatten
+                                   .map { |v| Gem::Version.new(v) }
+                                   .sort
+                                   .reverse
+      
+      if ios_versions.any?
+        latest_version = ios_versions.first.to_s
+        UI.success("Found iOS simulator version: #{latest_version}")
+        latest_version # Implicit return - last expression is returned
+      else
+        # Default to a reasonable iOS version if none found
+        UI.important("No iOS simulator versions found. Using default version.")
+        "17.6" # Implicit return
+      end
+    else
+      # Default to a reasonable iOS version if no iOS runtimes
+      UI.important("No iOS simulator runtimes found. Using default version.")
+      "17.6" # Implicit return
+    end
+  end
+
 end
 # ===========================
 #       Global Lanes

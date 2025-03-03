@@ -260,7 +260,7 @@ const WalletsList: React.FC = () => {
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
       <View style={styles.transaction}>
-        <TransactionListItem item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+        <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
       </View>
     ),
     [],
@@ -358,9 +358,9 @@ const WalletsList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanImage, wallets.length]);
 
-  const sectionListKeyExtractor = (item: any, index: any) => {
+  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
     return `${item}${index}}`;
-  };
+  }, []);
 
   const onScanButtonPressed = useCallback(() => {
     navigation.navigate('ScanQRCode', {
@@ -421,6 +421,15 @@ const WalletsList: React.FC = () => {
     { key: WalletsListSections.TRANSACTIONS, data: dataSource },
   ];
 
+  const getItemLayout = useCallback(
+    (data: any, index: number) => ({
+      length: 80, // Approximate height of each item
+      offset: 80 * index,
+      index,
+    }),
+    [],
+  );
+
   return (
     <View style={styles.root}>
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
@@ -439,6 +448,7 @@ const WalletsList: React.FC = () => {
           windowSize={21}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
+          getItemLayout={getItemLayout}
         />
         {renderScanButton()}
       </View>
