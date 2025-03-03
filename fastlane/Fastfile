@@ -330,58 +330,52 @@ platform :ios do
     
     UI.message("Setting up Mac Catalyst provisioning profiles...")
     
-    # Only attempt to fetch profiles for the main app identifier for Catalyst
-    # This avoids errors with watch app identifiers that don't have Catalyst profiles
-    main_app_id = "io.bluewallet.bluewallet"
+    # Only attempt to fetch profiles for the main app identifier and MarketWidget for Catalyst
+    catalyst_app_ids = ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.MarketWidget"]
     
-    with_retry(3, "Mac Catalyst provisioning profile for #{main_app_id}") do
-      # Development profile for main app
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "development",
-        platform: "catalyst",
-        app_identifier: main_app_id,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"],
-        clone_branch_directly: true
-      )
-      
-      # App Store profile for main app
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "appstore",
-        platform: "catalyst",
-        app_identifier: main_app_id,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"],
-        clone_branch_directly: true
-      )
-      
-      # Optional: Try to fetch MarketWidget Catalyst profile if it exists
-      begin
-        match(
-          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-          git_url: ENV["GIT_URL"],
-          type: "appstore",
-          platform: "catalyst",
-          app_identifier: "io.bluewallet.bluewallet.MarketWidget",
-          team_id: ENV["ITC_TEAM_ID"],
-          team_name: ENV["ITC_TEAM_NAME"],
-          readonly: true,
-          keychain_name: "temp_keychain",
-          keychain_password: ENV["KEYCHAIN_PASSWORD"],
-          clone_branch_directly: true
-        )
-      rescue => e
-        UI.important("Market Widget profile not found for Catalyst, continuing anyway: #{e.message}")
+    with_retry(3, "Mac Catalyst provisioning profile setup") do
+      catalyst_app_ids.each do |app_id|
+        begin
+          UI.message("Fetching Mac Catalyst provisioning profile for #{app_id}...")
+          
+          # First try to fetch existing profiles
+          match(
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            git_url: ENV["GIT_URL"],
+            type: "appstore",
+            platform: "catalyst",
+            app_identifier: app_id,
+            team_id: ENV["ITC_TEAM_ID"],
+            team_name: ENV["ITC_TEAM_NAME"],
+            readonly: true,
+            keychain_name: "temp_keychain",
+            keychain_password: ENV["KEYCHAIN_PASSWORD"],
+            clone_branch_directly: true
+          )
+          
+          log_success("Successfully fetched provisioning profile for #{app_id} (Catalyst)")
+        rescue => e
+          UI.important("Could not fetch readonly profile for #{app_id} (Catalyst): #{e.message}")
+          UI.message("Attempting to create new profile with readonly=false...")
+          
+          # If fetching fails, try to create a new profile
+          match(
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            git_url: ENV["GIT_URL"],
+            type: "appstore",
+            platform: "catalyst",
+            app_identifier: app_id,
+            team_id: ENV["ITC_TEAM_ID"],
+            team_name: ENV["ITC_TEAM_NAME"],
+            readonly: false,  # Allow creating new profiles
+            keychain_name: "temp_keychain",
+            keychain_password: ENV["KEYCHAIN_PASSWORD"],
+            clone_branch_directly: true,
+            force_for_new_devices: true
+          )
+          
+          log_success("Created new provisioning profile for #{app_id} (Catalyst)")
+        end
       end
     end
     
@@ -396,52 +390,11 @@ platform :ios do
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       export_options_path = File.join(project_root, "ios", "export_options_catalyst.plist")
       
-      # Create the export options file if it doesn't exist
-      unless File.exist?(export_options_path)
-        UI.message("Creating export options file for Mac Catalyst...")
-        export_options_content = <<~PLIST
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-          <key>method</key>
-          <string>app-store</string>
-          <key>teamID</key>
-          <string>#{ENV["ITC_TEAM_ID"]}</string>
-          <key>destination</key>
-          <string>export</string>
-          <key>distributionBundleIdentifier</key>
-          <string>io.bluewallet.bluewallet</string>
-          <key>uploadSymbols</key>
-          <true/>
-          <key>uploadBitcode</key>
-          <false/>
-          <key>compileBitcode</key>
-          <false/>
-          <key>signingStyle</key>
-          <string>manual</string>
-          <key>iCloudContainerEnvironment</key>
-          <string>Production</string>
-          <key>signingCertificate</key>
-          <string>Apple Distribution</string>
-          <key>provisioningProfiles</key>
-          <dict>
-            <key>io.bluewallet.bluewallet</key>
-            <string>match AppStore io.bluewallet.bluewallet</string>
-          </dict>
-          <key>distributionManifest</key>
-          <dict>
-            <key>appURL</key>
-            <string>https://bluewallet.io/download</string>
-          </dict>
-          <key>thinning</key>
-          <string>&lt;none&gt;</string>
-        </dict>
-        </plist>
-        PLIST
-        
-        File.write(export_options_path, export_options_content)
-      end
+      # Update export options plist with the current team ID
+      UI.message("Updating export options file with team ID: #{ENV['ITC_TEAM_ID']}")
+      export_options_content = File.read(export_options_path)
+      export_options_content.gsub!(/TEMPLATE_TEAM_ID/, ENV["ITC_TEAM_ID"])
+      File.write(export_options_path, export_options_content)
 
       clear_derived_data_lane
       
@@ -455,6 +408,7 @@ platform :ios do
       
       begin
         UI.message("Building Mac Catalyst app...")
+        # Build the app first
         gym(
           scheme: "BlueWallet",
           workspace: workspace_path,
@@ -463,32 +417,35 @@ platform :ios do
           export_method: "app-store",
           export_options: export_options_path,
           output_directory: pkg_directory,
-          output_name: pkg_name,
+          output_name: "BlueWallet",
           buildlog_path: File.join(project_root, "ios", "build_logs"),
           include_symbols: true,
           include_bitcode: false,
           export_xcargs: "-allowProvisioningUpdates",
-          skip_package_pkg: false,
-          skip_package_dependencies_resolution: false,
           catalyst_platform: "macos",
+          skip_package_pkg: true
         )
+        
+        # Create PKG separately
+        UI.message("Creating PKG installer...")
+        app_path = File.join(pkg_directory, "BlueWallet.app")
+        if File.directory?(app_path)
+          sh("productbuild --component \"#{app_path}\" /Applications \"#{pkg_path}\"")
+          UI.success("PKG created at: #{pkg_path}")
+        else
+          UI.user_error!("App not found at expected path: #{app_path}")
+        end
       rescue => e
         UI.user_error!("Failed to build Mac Catalyst app: #{e.message}")
       end
       
-      # Find the pkg file
-      pkg_files = Dir.glob("#{pkg_directory}/*.pkg")
-      pkg_path = pkg_files.first if pkg_files.any?
-      
-      if pkg_path && File.exist?(pkg_path)
+      # Set pkg path for later steps
+      if File.exist?(pkg_path)
         UI.message("Mac Catalyst PKG successfully built at: #{pkg_path}")
-        # Save pkg path for later steps
         FileUtils.mkdir_p(File.dirname("#{pkg_directory}/pkg_path.txt"))
         File.write("#{pkg_directory}/pkg_path.txt", pkg_path)
         ENV['PKG_OUTPUT_PATH'] = pkg_path
-        # Set GitHub Actions output if running in GitHub Actions
         sh("echo 'pkg_output_path=#{pkg_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
-        sh("echo ::set-output name=pkg_output_path::#{pkg_path}")
       else
         UI.user_error!("No PKG file found after build")
       end

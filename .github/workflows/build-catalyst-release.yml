@@ -169,11 +169,34 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          echo "Setting up Mac Catalyst provisioning profiles with team ID: $ITC_TEAM_ID"
+          
+          # First fetch or generate the necessary certificates
+          # Try developer certificates first
+          bundle exec fastlane run match type:developer platform:catalyst readonly:true app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget" team_id:"$ITC_TEAM_ID" git_basic_authorization:"$GIT_ACCESS_TOKEN" git_url:"$GIT_URL" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD" || echo "Could not fetch developer certificates, will try to create"
+          
+          # Then appstore certificates
+          bundle exec fastlane run match type:appstore platform:catalyst readonly:true app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget" team_id:"$ITC_TEAM_ID" git_basic_authorization:"$GIT_ACCESS_TOKEN" git_url:"$GIT_URL" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD" || echo "Could not fetch appstore certificates, will try to create"
+          
+          # If readonly fetch failed, try creating new profiles
           bundle exec fastlane ios setup_catalyst_provisioning_profiles
+          
+          # List available provisioning profiles for debugging
+          echo "Listing installed provisioning profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "No profiles directory found"
+          
+          # Check keychain for certificates
+          echo "Listing certificates in temp_keychain:"
+          security find-certificate -a temp_keychain || echo "Could not list certificates"
 
       - name: Build Mac Catalyst App
         id: build_app
         run: |
+          # First ensure export_options_catalyst.plist has the correct team ID
+          sed -i '' "s/TEMPLATE_TEAM_ID/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
+          cat ./ios/export_options_catalyst.plist
+          
+          # Now build the app
           bundle exec fastlane ios build_catalyst_app
           
           # Ensure PKG path is set for subsequent steps

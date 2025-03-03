@@ -5,7 +5,7 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>TEMPLATE_TEAM_ID</string>
+    <string>A7W54YZ4WU</string>
     <key>destination</key>
     <string>export</string>
     <key>distributionBundleIdentifier</key>
@@ -26,6 +26,8 @@
     <dict>
         <key>io.bluewallet.bluewallet</key>
         <string>match AppStore io.bluewallet.bluewallet</string>
+        <key>io.bluewallet.bluewallet.MarketWidget</key>
+        <string>match AppStore io.bluewallet.bluewallet.MarketWidget</string>
     </dict>
     <key>distributionManifest</key>
     <dict>
