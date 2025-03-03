@@ -190,10 +190,10 @@ jobs:
         id: build_app
         run: |
           # First ensure export_options_catalyst.plist has the correct team ID if not already set
-          sed -i '' "s/TEMPLATE_TEAM_ID/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
+          sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
           cat ./ios/export_options_catalyst.plist
           
-          # Now build the app
+          # Now build the app using our new lane
           bundle exec fastlane ios build_catalyst_app
           
           # Ensure PKG path is set for subsequent steps
