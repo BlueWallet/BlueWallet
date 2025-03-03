@@ -98,7 +98,7 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
+  const { setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction } = useMenuElements();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
@@ -162,16 +162,16 @@ const WalletsList: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => onRefresh);
+        setReloadTransactionsMenuActionFunction(onRefresh);
         verifyBalance();
         setSelectedWalletID(undefined);
       });
+
       return () => {
         task.cancel();
-        console.debug('Next screen is focused, clearing reloadTransactionsMenuActionFunction');
-        setReloadTransactionsMenuActionFunction(() => {});
+        clearReloadTransactionsMenuAction();
       };
-    }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
+    }, [onRefresh, setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction, verifyBalance, setSelectedWalletID]),
   );
 
   useEffect(() => {

@@ -149,6 +149,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       title={item.address}
       actions={menuActions}
       onPressMenuItem={onToolTipPress}
+      // Revisit once RNMenu has renderPreview prop
       renderPreview={renderPreview}
       onPress={navigateToReceive}
       isButton

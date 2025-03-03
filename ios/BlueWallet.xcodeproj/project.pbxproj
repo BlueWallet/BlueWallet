@@ -45,6 +45,8 @@
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		849047CA2702A32A008EE567 /* Handoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849047C92702A32A008EE567 /* Handoff.swift */; };
 		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
+		B409AB042D71DFAA00BA06F8 /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */; };
+		B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */; };
 		B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E32225841EC00428FCC /* Interface.storyboard */; };
 		B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B40D4E3D225841ED00428FCC /* BlueWalletWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -156,14 +158,13 @@
 		B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
 		B4B3EC222D69FF6C00327F3D /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */; };
 		B4B3EC252D69FF8700327F3D /* EventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC232D69FF8700327F3D /* EventEmitter.swift */; };
-		B4B3EC262D69FF8700327F3D /* MenuElementsEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC242D69FF8700327F3D /* MenuElementsEmitter.swift */; };
 		B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */; };
 		B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */; };
 		B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */; };
 		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -335,6 +336,8 @@
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
+		B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MenuElementsEmitter.m; path = MenuElementsEmitter/MenuElementsEmitter.m; sourceTree = SOURCE_ROOT; };
+		B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuElementsEmitter.swift; path = MenuElementsEmitter/MenuElementsEmitter.swift; sourceTree = SOURCE_ROOT; };
 		B40D4E30225841EC00428FCC /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B40D4E33225841EC00428FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		B40D4E35225841ED00428FCC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -396,7 +399,6 @@
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
 		B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
 		B4B3EC232D69FF8700327F3D /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
-		B4B3EC242D69FF8700327F3D /* MenuElementsEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuElementsEmitter.swift; sourceTree = "<group>"; };
 		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
 		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
 		B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceMode.swift; sourceTree = "<group>"; };
@@ -426,7 +428,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -673,6 +675,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B409AB072D71E07C00BA06F8 /* MenuElementsEmitter */ = {
+			isa = PBXGroup;
+			children = (
+				B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */,
+				B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */,
+			);
+			path = MenuElementsEmitter;
+			sourceTree = "<group>";
+		};
 		B40D4E31225841EC00428FCC /* BlueWalletWatch */ = {
 			isa = PBXGroup;
 			children = (
@@ -803,9 +814,9 @@
 		B45010A12C1504E900619044 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B409AB072D71E07C00BA06F8 /* MenuElementsEmitter */,
 				B44305BD2D6A04B9004675CC /* SegmentedControl */,
 				B4B3EC232D69FF8700327F3D /* EventEmitter.swift */,
-				B4B3EC242D69FF8700327F3D /* MenuElementsEmitter.swift */,
 				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
 			);
 			path = Components;
@@ -1231,12 +1242,13 @@
 				B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
+				B409AB042D71DFAA00BA06F8 /* MenuElementsEmitter.m in Sources */,
 				B48630E52CCEE8B800A8425C /* PriceView.swift in Sources */,
 				B48630E72CCEE91900A8425C /* PriceWidgetProvider.swift in Sources */,
 				B4B3EC252D69FF8700327F3D /* EventEmitter.swift in Sources */,
-				B4B3EC262D69FF8700327F3D /* MenuElementsEmitter.swift in Sources */,
 				B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */,
 				B48630ED2CCEEEB000A8425C /* WalletAppShortcuts.swift in Sources */,
+				B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
@@ -1443,7 +1455,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1506,7 +1518,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1565,14 +1577,14 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
@@ -1608,14 +1620,14 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/lib/swift",
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
@@ -1652,7 +1664,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1708,7 +1720,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -1895,7 +1907,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1948,7 +1960,7 @@
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -2000,7 +2012,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -2049,7 +2061,7 @@
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703138999;
+				CURRENT_PROJECT_VERSION = 1703157999;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";

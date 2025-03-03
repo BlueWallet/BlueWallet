@@ -130,14 +130,6 @@ const SendDetails = () => {
   }, [customFee, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
-    console.log('send/details - useEffect');
-    if (wallet) {
-      setHeaderRightOptions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
-
-  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
@@ -209,6 +201,7 @@ const SendDetails = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+
   useEffect(() => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
@@ -295,38 +288,38 @@ const SendDetails = () => {
 
     const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
+    let targets = [];
+    for (const transaction of addresses) {
+      if (transaction.amount === BitcoinUnit.MAX) {
+        // single output with MAX
+        targets = [{ address: transaction.address }];
+        break;
+      }
+      const value = transaction.amountSats;
+      if (Number(value) > 0) {
+        targets.push({ address: transaction.address, value });
+      } else if (transaction.amount) {
+        if (btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+        }
+      }
+    }
+
+    // if targets is empty, insert dust
+    if (targets.length === 0) {
+      targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+    }
+
+    // replace wrong addresses with dump
+    targets = targets.map(t => {
+      if (!wallet.isAddressValid(t.address)) {
+        return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+      } else {
+        return t;
+      }
+    });
+
     for (const opt of options) {
-      let targets = [];
-      for (const transaction of addresses) {
-        if (transaction.amount === BitcoinUnit.MAX) {
-          // single output with MAX
-          targets = [{ address: transaction.address }];
-          break;
-        }
-        const value = transaction.amountSats;
-        if (Number(value) > 0) {
-          targets.push({ address: transaction.address, value });
-        } else if (transaction.amount) {
-          if (btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
-          }
-        }
-      }
-
-      // if targets is empty, insert dust
-      if (targets.length === 0) {
-        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
-      }
-
-      // replace wrong addresses with dump
-      targets = targets.map(t => {
-        if (!wallet.isAddressValid(t.address)) {
-          return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
-        } else {
-          return t;
-        }
-      });
-
       let flag = false;
       while (true) {
         try {
@@ -1158,11 +1151,18 @@ const SendDetails = () => {
     [headerRightOnPress, isLoading, headerRightActions],
   );
 
-  const setHeaderRightOptions = () => {
+  const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
       headerRight: HeaderRight,
     });
-  };
+  }, [HeaderRight, navigation]);
+
+  useEffect(() => {
+    console.log('send/details - useEffect');
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;

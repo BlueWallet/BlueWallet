@@ -367,12 +367,17 @@ const WalletDetails: React.FC = () => {
   const purgeTransactions = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
-    const msg = 'Transactions purged. Pls go to main screen and back to rerender screen';
+    const msg = 'Transactions & balances purged. Pls go to main screen and back to rerender screen';
 
     if (wallet.type === HDSegwitBech32Wallet.type) {
       wallet._txs_by_external_index = {};
       wallet._txs_by_internal_index = {};
       presentAlert({ message: msg });
+
+      wallet._balances_by_external_index = {};
+      wallet._balances_by_internal_index = {};
+      wallet._lastTxFetch = 0;
+      wallet._lastBalanceFetch = 0;
     }
 
     // @ts-expect-error: Need to fix later
@@ -381,6 +386,15 @@ const WalletDetails: React.FC = () => {
       wallet._hdWalletInstance._txs_by_external_index = {};
       // @ts-expect-error: Need to fix later
       wallet._hdWalletInstance._txs_by_internal_index = {};
+
+      // @ts-expect-error: Need to fix later
+      wallet._hdWalletInstance._balances_by_external_index = {};
+      // @ts-expect-error: Need to fix later
+      wallet._hdWalletInstance._balances_by_internal_index = {};
+      // @ts-expect-error: Need to fix later
+      wallet._hdWalletInstance._lastTxFetch = 0;
+      // @ts-expect-error: Need to fix later
+      wallet._hdWalletInstance._lastBalanceFetch = 0;
       presentAlert({ message: msg });
     }
   };
@@ -528,7 +542,7 @@ const WalletDetails: React.FC = () => {
               </View>
             </>
             <>
-              <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]}>
+              <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
                 {loc.transactions.transactions_count.toLowerCase()}
               </Text>
               <BlueText>{wallet.getTransactions().length}</BlueText>
