@@ -9,10 +9,6 @@ gem "fastlane", "~> 2.226.0"
 gem 'xcodeproj', '< 1.26.0'
 gem 'concurrent-ruby', '< 1.3.4'
 
-# Add fastlane plugins
-gem "fastlane-plugin-browserstack"
-gem "fastlane-plugin-bugsnag"
-
 # Required for App Store Connect API
 gem "jwt"
 
