@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import {
@@ -18,8 +17,8 @@ import loc from '../../loc';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { isDesktop } from '../../blue_modules/environment';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -156,9 +155,11 @@ const ImportWallet = () => {
   );
 
   useEffect(() => {
-    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
     return () => {
-      if (!isDesktop) disallowScreenshot(false);
+      disableScreenProtect();
     };
   }, [isPrivacyBlurEnabled]);
 
