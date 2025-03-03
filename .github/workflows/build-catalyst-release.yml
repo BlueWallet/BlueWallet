@@ -276,24 +276,35 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: BlueWallet_MacCatalyst
-          path: ./
+          path: ./catalyst-build/
 
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
-      - name: Set PKG Path Environment Variable
+      - name: Find PKG and Set Path
         run: |
-          PKG_PATH=$(find ./ -name "*.pkg" | head -n 1)
-          echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
+          # Find PKG file in the downloaded artifact directory
+          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
+          
+          if [ -n "$PKG_PATH" ]; then
+            echo "Found PKG at: $PKG_PATH"
+            echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
+          else
+            echo "❌ No PKG file found in the artifacts directory"
+            find ./catalyst-build -type f | sort
+            exit 1
+          fi
 
       - name: Verify PKG Path Before Upload
         run: |
-          if [ ! -f "$PKG_OUTPUT_PATH" ]; then
-            echo "❌ PKG file not found at path: $PKG_OUTPUT_PATH"
-            ls -la $(pwd)
-            exit 1
+          echo "Checking PKG file at: $PKG_OUTPUT_PATH"
+          if [ -f "$PKG_OUTPUT_PATH" ]; then
+            echo "✅ PKG file exists"
+            ls -la "$PKG_OUTPUT_PATH"
           else
-            echo "✅ Found PKG at: $PKG_OUTPUT_PATH"
+            echo "❌ PKG file not found at path: $PKG_OUTPUT_PATH"
+            find ./ -name "*.pkg" || echo "No PKG files found"
+            exit 1
           fi
 
       - name: Print Environment Variables for Debugging
@@ -319,6 +330,23 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
+      - name: Find Notarized PKG Path
+        run: |
+          # First check if the notarized PKG path was set
+          if [ -n "$PKG_OUTPUT_PATH_NOTARIZED" ] && [ -f "$PKG_OUTPUT_PATH_NOTARIZED" ]; then
+            echo "Using notarized PKG at: $PKG_OUTPUT_PATH_NOTARIZED"
+          else
+            # Try to find notarized PKG file
+            NOTARIZED_PKG_PATH=$(find . -name "*_notarized.pkg" | head -n 1)
+            
+            if [ -n "$NOTARIZED_PKG_PATH" ] && [ -f "$NOTARIZED_PKG_PATH" ]; then
+              echo "Found notarized PKG at: $NOTARIZED_PKG_PATH"
+              echo "PKG_OUTPUT_PATH_NOTARIZED=$NOTARIZED_PKG_PATH" >> $GITHUB_ENV
+            else
+              echo "No notarized PKG found, using original PKG: $PKG_OUTPUT_PATH"
+            fi
+          fi
+
       - name: Upload Notarized PKG
         if: success()
         uses: actions/upload-artifact@v4
@@ -326,26 +354,6 @@ jobs:
           name: BlueWallet_MacCatalyst_Notarized
           path: ${{ env.PKG_OUTPUT_PATH_NOTARIZED || env.PKG_OUTPUT_PATH }}
           retention-days: 7
-
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const version = process.env.PROJECT_VERSION;
-            const message = `✅ Mac Catalyst build ${version} (${buildNumber}) has been successfully built and notarized. You can download the macOS installer package from the artifacts.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
 
   testflight-upload-macos:
     needs: [build, notarize-macos]
@@ -377,6 +385,23 @@ jobs:
         with:
           name: BlueWallet_MacCatalyst_Notarized
           path: ./catalyst-build/
+
+      - name: Find PKG and Show Contents
+        run: |
+          # List downloaded artifacts
+          echo "Downloaded artifacts:"
+          find ./catalyst-build -type f | sort
+          
+          # Find PKG file in the downloaded artifact directory
+          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
+          
+          if [ -n "$PKG_PATH" ]; then
+            echo "Found PKG at: $PKG_PATH"
+            echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
+          else
+            echo "❌ No PKG file found in the artifacts directory"
+            exit 1
+          fi
 
       - name: Install Prerequisites for PKG Processing
         run: |

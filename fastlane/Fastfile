@@ -448,9 +448,22 @@ platform :ios do
 
   desc "Notarize the Mac Catalyst PKG"
   lane :notarize_catalyst do
+    # Try to find PKG file with more robust approach
     pkg_path = ENV['PKG_OUTPUT_PATH']
+    
+    # If the path is invalid or file doesn't exist, try to find it
     if !pkg_path || !File.exist?(pkg_path)
-      UI.user_error!("PKG file not found at path: #{pkg_path}")
+      UI.important("PKG not found at specified path: #{pkg_path}. Attempting to find PKG file...")
+      
+      # Try to find any PKG file in the current directory and subdirectories
+      pkg_paths = Dir.glob("./**/*.pkg")
+      if pkg_paths.any?
+        pkg_path = pkg_paths.first
+        UI.success("Found PKG at: #{pkg_path}")
+        ENV['PKG_OUTPUT_PATH'] = pkg_path
+      else
+        UI.user_error!("No PKG files found in the current directory or subdirectories")
+      end
     end
     
     UI.message("Notarizing Mac Catalyst PKG: #{pkg_path}")
