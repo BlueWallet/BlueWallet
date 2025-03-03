@@ -1345,6 +1345,8 @@ PODS:
     - React-Core
   - react-native-safe-area-context (5.2.0):
     - React-Core
+  - react-native-screen-capture (0.2.3):
+    - React
   - react-native-secure-key-store (2.0.10):
     - React-Core
   - react-native-tcp-socket (6.2.0):
@@ -1960,6 +1962,7 @@ DEPENDENCIES:
   - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-screen-capture (from `../node_modules/react-native-screen-capture`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
@@ -2118,6 +2121,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-screen-capture:
+    :path: "../node_modules/react-native-screen-capture"
   react-native-secure-key-store:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
@@ -2277,6 +2282,7 @@ SPEC CHECKSUMS:
   react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
+  react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
   react-native-true-sheet: 15f8d1bfbf2aceca472b9ba585b4116041d20f34
