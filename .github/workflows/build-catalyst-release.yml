@@ -14,7 +14,6 @@ jobs:
   build:
     runs-on: macos-15
     timeout-minutes: 180
-    # Only run this job if it's a push to master, has macOS label, or manual dispatch
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'macOS') || github.event_name == 'workflow_dispatch'
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -30,7 +29,7 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensures the full Git history is available
+          fetch-depth: 0
       
       - name: Setup Caching
         uses: actions/cache@v3
