@@ -390,12 +390,6 @@ platform :ios do
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       export_options_path = File.join(project_root, "ios", "export_options_catalyst.plist")
       
-      # Update export options plist with the current team ID
-      UI.message("Updating export options file with team ID: #{ENV['ITC_TEAM_ID']}")
-      export_options_content = File.read(export_options_path)
-      export_options_content.gsub!(/TEMPLATE_TEAM_ID/, ENV["ITC_TEAM_ID"])
-      File.write(export_options_path, export_options_content)
-
       clear_derived_data_lane
       
       # Define the output paths
