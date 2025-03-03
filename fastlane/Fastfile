@@ -325,23 +325,201 @@ platform :ios do
 
   desc "Setup provisioning profiles for Mac Catalyst"
   lane :setup_catalyst_provisioning_profiles do
+    required_vars = ["GIT_ACCESS_TOKEN", "GIT_URL", "ITC_TEAM_ID", "ITC_TEAM_NAME", "KEYCHAIN_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
+    UI.message("Setting up Mac Catalyst provisioning profiles...")
+    
     app_identifiers.each do |app_identifier|
-      match(
-        type: "development",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        force_for_new_devices: true,
-        clone_branch_directly: true
-      )
+      with_retry(3, "Mac Catalyst provisioning profile for #{app_identifier}") do
+        match(
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          type: "development",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          team_id: ENV["ITC_TEAM_ID"],
+          team_name: ENV["ITC_TEAM_NAME"],
+          readonly: true,
+          keychain_name: "temp_keychain",
+          keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        )
+        
+        match(
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          type: "appstore",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          team_id: ENV["ITC_TEAM_ID"],
+          team_name: ENV["ITC_TEAM_NAME"],
+          readonly: true,
+          keychain_name: "temp_keychain",
+          keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        )
+      end
+    end
+    
+    log_success("Mac Catalyst provisioning profiles set up successfully")
+  end
 
-      match(
-        type: "appstore",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        clone_branch_directly: true
+  desc "Build the Mac Catalyst app"
+  lane :build_catalyst_app do
+    Dir.chdir(project_root) do
+      UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
+
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      export_options_path = File.join(project_root, "ios", "export_options_catalyst.plist")
+      
+      # Create the export options file if it doesn't exist
+      unless File.exist?(export_options_path)
+        UI.message("Creating export options file for Mac Catalyst...")
+        export_options_content = <<~PLIST
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>teamID</key>
+          <string>#{ENV["ITC_TEAM_ID"]}</string>
+          <key>destination</key>
+          <string>export</string>
+          <key>distributionBundleIdentifier</key>
+          <string>io.bluewallet.bluewallet</string>
+          <key>uploadSymbols</key>
+          <true/>
+          <key>uploadBitcode</key>
+          <false/>
+          <key>compileBitcode</key>
+          <false/>
+          <key>signingStyle</key>
+          <string>manual</string>
+          <key>iCloudContainerEnvironment</key>
+          <string>Production</string>
+          <key>signingCertificate</key>
+          <string>Apple Distribution</string>
+          <key>provisioningProfiles</key>
+          <dict>
+            <key>io.bluewallet.bluewallet</key>
+            <string>match AppStore io.bluewallet.bluewallet</string>
+          </dict>
+          <key>distributionManifest</key>
+          <dict>
+            <key>appURL</key>
+            <string>https://bluewallet.io/download</string>
+          </dict>
+          <key>thinning</key>
+          <string>&lt;none&gt;</string>
+        </dict>
+        </plist>
+        PLIST
+        
+        File.write(export_options_path, export_options_content)
+      end
+
+      clear_derived_data_lane
+      
+      # Define the output paths
+      pkg_directory = File.join(project_root, "ios", "build")
+      pkg_name = "BlueWallet_MacCatalyst_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.pkg"
+      pkg_path = File.join(pkg_directory, pkg_name)
+      
+      # Create the output directory if it doesn't exist
+      FileUtils.mkdir_p(pkg_directory)
+      
+      begin
+        UI.message("Building Mac Catalyst app...")
+        gym(
+          scheme: "BlueWallet",
+          workspace: workspace_path,
+          configuration: "Release",
+          destination: "platform=macOS,variant=Mac Catalyst",
+          export_method: "app-store",
+          export_options: export_options_path,
+          output_directory: pkg_directory,
+          output_name: pkg_name,
+          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          include_symbols: true,
+          include_bitcode: false,
+          export_xcargs: "-allowProvisioningUpdates",
+          skip_package_pkg: false,
+          skip_package_dependencies_resolution: false,
+          catalyst_platform: "macos",
+        )
+      rescue => e
+        UI.user_error!("Failed to build Mac Catalyst app: #{e.message}")
+      end
+      
+      # Find the pkg file
+      pkg_files = Dir.glob("#{pkg_directory}/*.pkg")
+      pkg_path = pkg_files.first if pkg_files.any?
+      
+      if pkg_path && File.exist?(pkg_path)
+        UI.message("Mac Catalyst PKG successfully built at: #{pkg_path}")
+        # Save pkg path for later steps
+        FileUtils.mkdir_p(File.dirname("#{pkg_directory}/pkg_path.txt"))
+        File.write("#{pkg_directory}/pkg_path.txt", pkg_path)
+        ENV['PKG_OUTPUT_PATH'] = pkg_path
+        # Set GitHub Actions output if running in GitHub Actions
+        sh("echo 'pkg_output_path=#{pkg_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
+        sh("echo ::set-output name=pkg_output_path::#{pkg_path}")
+      else
+        UI.user_error!("No PKG file found after build")
+      end
+    end
+  end
+
+  desc "Notarize the Mac Catalyst PKG"
+  lane :notarize_catalyst do
+    pkg_path = ENV['PKG_OUTPUT_PATH']
+    if !pkg_path || !File.exist?(pkg_path)
+      UI.user_error!("PKG file not found at path: #{pkg_path}")
+    end
+    
+    UI.message("Notarizing Mac Catalyst PKG: #{pkg_path}")
+    
+    notarize_pkg = sh(
+      "xcrun notarytool submit \"#{pkg_path}\" " +
+      "--apple-id \"#{ENV['APPLE_ID']}\" " +
+      "--password \"#{ENV['APPLE_ID_PASSWORD']}\" " +
+      "--team-id \"#{ENV['ITC_TEAM_ID']}\" " +
+      "--wait"
+    )
+    
+    # Extract the submission ID if available in the response
+    submission_id = notarize_pkg.match(/id: ([a-f0-9-]+)/)&.captures&.first
+    
+    if submission_id
+      UI.message("Notarization submission ID: #{submission_id}")
+      
+      # Check notarization status
+      notarize_info = sh(
+        "xcrun notarytool info #{submission_id} " +
+        "--apple-id \"#{ENV['APPLE_ID']}\" " +
+        "--password \"#{ENV['APPLE_ID_PASSWORD']}\" " +
+        "--team-id \"#{ENV['ITC_TEAM_ID']}\""
       )
+      
+      if notarize_info.include?("status: Accepted")
+        UI.success("Notarization successful!")
+        
+        # Staple the notarization ticket to the package
+        UI.message("Stapling notarization ticket to package...")
+        sh("xcrun stapler staple \"#{pkg_path}\"")
+        
+        # Create a new path for the notarized PKG
+        notarized_pkg_path = pkg_path.gsub(".pkg", "_notarized.pkg")
+        FileUtils.cp(pkg_path, notarized_pkg_path)
+        
+        # Set environment variable for the notarized PKG path
+        ENV['PKG_OUTPUT_PATH_NOTARIZED'] = notarized_pkg_path
+        UI.success("Notarized PKG available at: #{notarized_pkg_path}")
+      else
+        UI.user_error!("Notarization failed: #{notarize_info}")
+      end
+    else
+      UI.user_error!("Failed to extract notarization submission ID")
     end
   end
 
@@ -700,4 +878,43 @@ lane :update_release_notes do |options|
       UI.error("No localization found for locale #{locale}")
     end
   end
+end
+
+desc "Deploy Mac Catalyst build"
+lane :deploy_catalyst do |options|
+  UI.message("Starting Mac Catalyst deployment process...")
+
+  # Update WWDR Certificate
+  update_wwdr_certificate
+
+  # Setup App Store Connect API Key
+  setup_app_store_connect_api_key
+
+  # Setup Mac Catalyst Provisioning Profiles
+  setup_catalyst_provisioning_profiles
+
+  # Clear Derived Data
+  clear_derived_data_lane
+
+  # Increment Build Number
+  increment_build_number_lane
+
+  # Install CocoaPods if not already installed
+  unless File.directory?("Pods")
+    install_pods
+  end
+
+  # Build the Mac Catalyst App
+  build_catalyst_app
+
+  # Notarize the Mac Catalyst PKG
+  notarize_catalyst
+
+  # Clean up and delete the temporary keychain
+  delete_keychain(name: "temp_keychain")
+
+  # Mark deployment as completed for the current commit
+  last_commit = last_git_commit
+  already_built_flag = ".already_built_catalyst_#{last_commit[:sha]}"
+  File.write(already_built_flag, Time.now.to_s)
 end
