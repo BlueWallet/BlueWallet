@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute, usePreventRemove, CommonActions } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, usePreventRemove, StackActions } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -18,7 +18,15 @@ import {
 import { Badge, Icon } from '@rneui/themed';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueCard, BlueFormMultiInput, BlueLoading, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import {
+  BlueCard,
+  BlueFormMultiInput,
+  BlueLoading,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueSpacing40,
+  BlueTextCentered,
+} from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
@@ -40,14 +48,14 @@ import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
-import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import SafeArea from '../../components/SafeArea';
 import { TWallet } from '../../class/wallets/types';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
-type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
+type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
+type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
@@ -169,9 +177,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
       setIsSaveButtonDisabled(true);
       setWalletsWithNewOrder(newWallets);
       setTimeout(() => {
-        dispatch(
-          CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
-        );
+        const popTo = StackActions.popTo('WalletTransactions', {
+          walletID,
+          walletType: wallet.type,
+        });
+        dispatch(popTo);
       }, 500);
     }, 100);
   };
@@ -560,6 +570,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
             {!isLoading && (
               <>
+                <BlueSpacing40 />
                 <AddressInputScanButton
                   beforePress={async () => {
                     await provideMnemonicsModalRef.current?.dismiss();
@@ -568,7 +579,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   type="link"
                   onChangeText={setImportText}
                 />
-                <BlueSpacing20 />
+                <BlueSpacing40 />
               </>
             )}
           </>

@@ -758,7 +758,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
-    await element(by.id('TransactionsListView')).swipe('down', 'slow'); // pul-to-refresh
+    await element(by.id('TransactionsListView')).swipe('down', 'slow', 0.5, 0.3); // pul-to-refresh
 
     // asserting balance and txs loaded:
     await waitForText('0.00105526'); // the wait inside allows network request to propagate

@@ -5,16 +5,15 @@ import {
   Alert,
   Dimensions,
   findNodeHandle,
-  FlatList,
   I18nManager,
   InteractionManager,
   LayoutAnimation,
   PixelRatio,
-  ScrollView,
   StyleSheet,
   Text,
   View,
-  RefreshControl,
+  Animated,
+  LayoutChangeEvent,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -38,7 +37,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import getWalletTransactionsOptions from '../../navigation/helpers/getWalletTransactionsOptions';
-import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useMenuElements from '../../hooks/useMenuElements';
@@ -46,7 +44,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
-import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -56,6 +53,7 @@ const buttonFontSize =
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
+
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
@@ -74,6 +72,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet?._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
   const MAX_FAILURES = 3;
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  const headerTranslate = scrollY.interpolate({
+    inputRange: [0, headerHeight],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -256,11 +262,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   );
 
   const navigateToViewEditCosigners = useCallback(() => {
-    navigate('ViewEditMultisigCosignersRoot', {
-      screen: 'ViewEditMultisigCosigners',
-      params: {
-        walletID,
-      },
+    navigate('ViewEditMultisigCosigners', {
+      walletID,
     });
   }, [navigate, walletID]);
 
@@ -280,9 +283,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             walletID,
           },
         });
+      } else if (wallet?.type === MultisigHDWallet.type) {
+        navigateToViewEditCosigners();
       }
     },
-    [name, navigate, onWalletSelect, walletID, wallets],
+    [name, navigate, navigateToViewEditCosigners, onWalletSelect, wallet?.type, walletID, wallets],
   );
 
   const getItemLayout = (_: any, index: number) => ({
@@ -397,7 +402,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         console.debug('Next screen is focused, clearing reloadTransactionsMenuActionFunction');
         setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
   );
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);
@@ -418,8 +424,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const handleScroll = useCallback(
     (event: any) => {
       const offsetY = event.nativeEvent.contentOffset.y;
-      const combinedHeight = 180;
-      if (offsetY < combinedHeight) {
+      // Use the measured header height to determine when to show/hide the header title
+      const threshold = headerHeight * 0.75;
+      if (offsetY < threshold) {
         setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
       } else {
         navigation.setOptions({
@@ -427,104 +434,82 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         });
       }
     },
-    [navigation, wallet, walletBalance, setOptions, route],
+    [navigation, wallet, walletBalance, setOptions, route, headerHeight],
   );
 
-  const ListHeaderComponent = useCallback(
-    () =>
-      wallet ? (
-        <>
-          <TransactionsNavigationHeader
-            wallet={wallet}
-            onWalletUnitChange={async selectedUnit => {
-              wallet.preferredBalanceUnit = selectedUnit;
-              await saveToDisk();
-            }}
-            unit={wallet.preferredBalanceUnit}
-            onWalletBalanceVisibilityChange={async isShouldBeVisible => {
-              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-              if (wallet.hideBalance && isBiometricsEnabled) {
-                const unlocked = await unlockWithBiometrics();
-                if (!unlocked) throw new Error('Biometrics failed');
-              }
-              wallet.hideBalance = isShouldBeVisible;
-              await saveToDisk();
-            }}
-            onManageFundsPressed={id => {
-              if (wallet.type === MultisigHDWallet.type) {
-                navigateToViewEditCosigners();
-              } else if (wallet.type === LightningCustodianWallet.type) {
-                if (wallet.getUserHasSavedExport()) {
-                  if (!id) return;
-                  onManageFundsPressed(id);
-                } else {
-                  presentWalletExportReminder()
-                    .then(async () => {
-                      if (!id) return;
-                      wallet.setUserHasSavedExport(true);
-                      await saveToDisk();
-                      onManageFundsPressed(id);
-                    })
-                    .catch(() => {
-                      navigate('WalletExportRoot', {
-                        screen: 'WalletExport',
-                        params: {
-                          walletID,
-                        },
-                      });
-                    });
-                }
-              }
-            }}
-          />
-          <>
-            <View style={[styles.flex, { backgroundColor: colors.background }]}>
-              <View style={styles.listHeaderTextRow}>
-                <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-              </View>
-            </View>
-            <View style={{ backgroundColor: colors.background }}>
-              {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-                <WatchOnlyWarning
-                  handleDismiss={() => {
-                    wallet.isWatchOnlyWarningVisible = false;
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-                    saveToDisk();
-                  }}
-                />
-              )}
-            </View>
-          </>
-        </>
-      ) : undefined,
-    [
-      wallet,
-      colors.background,
-      stylesHook.listHeaderText,
-      saveToDisk,
-      isBiometricUseCapableAndEnabled,
-      navigateToViewEditCosigners,
-      onManageFundsPressed,
-      navigate,
-      walletID,
-    ],
+  // Extracted named callbacks
+  const handleWalletUnitChange = useCallback(
+    async (selectedUnit: any) => {
+      if (wallet) {
+        wallet.preferredBalanceUnit = selectedUnit;
+        await saveToDisk();
+      }
+    },
+    [wallet, saveToDisk],
   );
+
+  const handleWalletBalanceVisibilityChange = useCallback(
+    async (isShouldBeVisible: boolean) => {
+      if (wallet) {
+        const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+        if (wallet.hideBalance && isBiometricsEnabled) {
+          const unlocked = await unlockWithBiometrics();
+          if (!unlocked) throw new Error('Biometrics failed');
+        }
+        wallet.hideBalance = isShouldBeVisible;
+        await saveToDisk();
+      }
+    },
+    [wallet, saveToDisk, isBiometricUseCapableAndEnabled],
+  );
+
+  const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    setHeaderHeight(height);
+  }, []);
+
+  const refreshProps =
+    !isDesktop && !isElectrumDisabled ? { onRefresh: refreshTransactions, progressViewOffset: headerHeight, refreshing: isLoading } : {};
+
+  const renderHeader = useCallback(() => {
+    return (
+      <View style={{ backgroundColor: colors.background }}>
+        <View style={styles.listHeaderTextRow}>
+          <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+        </View>
+        <View style={{ backgroundColor: colors.background }}>
+          {wallet?.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+            <WatchOnlyWarning
+              handleDismiss={() => {
+                wallet.isWatchOnlyWarningVisible = false;
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+                saveToDisk();
+              }}
+            />
+          )}
+        </View>
+      </View>
+    );
+  }, [colors.background, stylesHook.listHeaderText, wallet, saveToDisk]);
 
   return (
-    <View style={[styles.flex, { backgroundColor: colors.background }]}>
-      {/* The color of the refresh indicator. Temporary hack */}
-      <View
-        style={[
-          styles.refreshIndicatorBackground,
-          { backgroundColor: wallet ? WalletGradient.headerColorFor(wallet.type) : colors.background },
-        ]}
-        testID="TransactionsListView"
-      />
-
-      <FlatList<Transaction>
+    <Animated.View style={styles.container}>
+      <Animated.View style={[styles.stickyHeader, { transform: [{ translateY: headerTranslate }] }]} onLayout={handleHeaderLayout}>
+        {wallet ? (
+          <TransactionsNavigationHeader
+            wallet={wallet}
+            onWalletUnitChange={handleWalletUnitChange}
+            unit={wallet.preferredBalanceUnit}
+            onWalletBalanceVisibilityChange={handleWalletBalanceVisibilityChange}
+            onManageFundsPressed={onManageFundsPressed}
+          />
+        ) : null}
+      </Animated.View>
+      <Animated.FlatList<Transaction>
         getItemLayout={getItemLayout}
         updateCellsBatchingPeriod={50}
         onEndReachedThreshold={0.3}
+        ListHeaderComponent={renderHeader}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
         data={getTransactions(limit)}
@@ -532,26 +517,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}
+        style={{ marginTop: headerHeight }}
         removeClippedSubviews
         contentContainerStyle={{ backgroundColor: colors.background }}
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         maxToRenderPerBatch={10}
+        testID="TransactionsListView"
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        stickyHeaderHiddenOnScroll
-        ListHeaderComponent={ListHeaderComponent}
+        {...refreshProps}
         ListEmptyComponent={
-          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
-            <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
+          <View style={[styles.flex, { backgroundColor: colors.background }]} testID="TransactionsListEmpty">
+            <Text numberOfLines={0} style={styles.emptyTxs}>
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
             {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-          </ScrollView>
-        }
-        refreshControl={
-          !isDesktop && !isElectrumDisabled ? (
-            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} tintColor={colors.msSuccessCheck} />
-          ) : undefined
+          </View>
         }
         windowSize={15}
         maintainVisibleContentPosition={{
@@ -598,27 +579,27 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
         />
       ) : null}
-    </View>
+    </Animated.View>
   );
 };
 
 export default WalletTransactions;
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
   flex: { flex: 1 },
-  scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
-  listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
-  listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
-  refreshIndicatorBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 140,
-  },
+  listHeaderTextRow: { padding: 16, flexDirection: 'row' },
+  listHeaderText: { fontWeight: 'bold', fontSize: 24 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
   receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }] },
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
 });
