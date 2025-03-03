@@ -468,22 +468,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     setHeaderHeight(height);
   }, []);
 
-  const stickyHeader = useMemo(() => {
-    return (
-      <Animated.View style={[styles.stickyHeader, { transform: [{ translateY: headerTranslate }] }]} onLayout={handleHeaderLayout}>
-        {wallet ? (
-          <TransactionsNavigationHeader
-            wallet={wallet}
-            onWalletUnitChange={handleWalletUnitChange}
-            unit={wallet.preferredBalanceUnit}
-            onWalletBalanceVisibilityChange={handleWalletBalanceVisibilityChange}
-            onManageFundsPressed={onManageFundsPressed}
-          />
-        ) : null}
-      </Animated.View>
-    );
-  }, [handleWalletBalanceVisibilityChange, handleWalletUnitChange, headerTranslate, onManageFundsPressed, wallet, handleHeaderLayout]);
-
   const renderHeader = useCallback(() => {
     return (
       <View style={{ backgroundColor: colors.background }}>
@@ -507,7 +491,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {stickyHeader}
+      <Animated.View style={[styles.stickyHeader, { transform: [{ translateY: headerTranslate }] }]} onLayout={handleHeaderLayout}>
+        {wallet ? (
+          <TransactionsNavigationHeader
+            wallet={wallet}
+            onWalletUnitChange={handleWalletUnitChange}
+            unit={wallet.preferredBalanceUnit}
+            onWalletBalanceVisibilityChange={handleWalletBalanceVisibilityChange}
+            onManageFundsPressed={onManageFundsPressed}
+          />
+        ) : null}
+      </Animated.View>
       <Animated.FlatList<Transaction>
         getItemLayout={getItemLayout}
         updateCellsBatchingPeriod={30}
