@@ -79,7 +79,7 @@ export type DetailViewStackParamList = {
   ReleaseNotes: undefined;
   ToolsScreen: undefined;
   SettingsPrivacy: undefined;
-  ViewEditMultisigCosigners: { walletID: string; cosigners: string[]; onBarScanned?: string };
+  ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
   WalletXpubRoot: undefined;
   SignVerifyRoot: {
     screen: 'SignVerify';
