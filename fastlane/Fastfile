@@ -741,6 +741,50 @@ end
     end
   end
 
+  desc "Update WWDR Certificate"
+  lane :update_wwdr_certificate do
+    UI.message("Updating WWDR Certificate...")
+    sh("curl -sf -o AppleWWDRCA.cer https://developer.apple.com/certificationauthority/AppleWWDRCA.cer || curl -sf -o AppleWWDRCA.cer https://www.apple.com/certificateauthority/AppleWWDRCA.cer")
+    sh("curl -sf -o AppleWWDRCAG2.cer https://developer.apple.com/certificationauthority/AppleWWDRCAG2.cer || curl -sf -o AppleWWDRCAG2.cer https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer")
+    sh("curl -sf -o AppleWWDRCAG3.cer https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer || curl -sf -o AppleWWDRCAG3.cer https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer")
+    sh("security import AppleWWDRCA.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("security import AppleWWDRCAG2.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("security import AppleWWDRCAG3.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("rm AppleWWDRCA.cer AppleWWDRCAG2.cer AppleWWDRCAG3.cer")
+  end
+
+  desc "Setup App Store Connect API Key"
+  lane :setup_app_store_connect_api_key do
+    UI.message("Setting up App Store Connect API Key...")
+    
+    # Check for required environment variables
+    required_vars = ["APP_STORE_CONNECT_API_KEY_KEY_ID", "APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+    required_vars.each do |var|
+      UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
+    end
+    
+    # Create API key JSON content
+    key_id = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
+    issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+    key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
+    
+    if key_content.nil? || key_content.empty?
+      # Look for the key content in a file
+      api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+      if File.exist?(api_key_path)
+        UI.message("Using App Store Connect API key from file: #{api_key_path}")
+      else
+        UI.user_error!("No API key content provided and no key file found at #{api_key_path}")
+      end
+    else
+      # Create the key file from the environment variable content
+      File.write("./appstore_api_key.json", key_content)
+    end
+    
+    # Log success
+    UI.success("✅ App Store Connect API Key setup completed")
+  end
+
 end
 # ===========================
 #       Global Lanes
