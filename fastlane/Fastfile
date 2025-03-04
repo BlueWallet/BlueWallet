@@ -518,6 +518,7 @@ end
       
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       export_options_path = File.join(project_root, "ios", "export_options_catalyst.plist")
+      project_path = File.join(project_root, "ios", "BlueWallet.xcodeproj")
       
       # Prepare output directory
       build_dir = File.join(project_root, "ios", "build")
@@ -586,44 +587,57 @@ end
           UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
         end
         
-        # Simplify export by using build_ios_app which handles the export process better
-        UI.message("Exporting Mac Catalyst app using fastlane build_ios_app...")
+        # Now export the archive using xcodebuild directly
+        UI.message("Exporting archive directly with xcodebuild...")
         
         # The output IPA path
         ipa_path = "#{build_dir}/BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
         
-        # Use build_ios_app with the existing archive
-        build_ios_app(
-          archive_path: "#{build_dir}/BlueWallet.xcarchive",
-          export_method: "app-store",
-          export_options: export_options_path,
-          skip_build_archive: true,
-          skip_package_ipa: false,
-          include_symbols: true,
-          output_directory: build_dir,
-          output_name: "BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
-        )
+        # Use xcodebuild -exportArchive instead of build_ios_app
+        export_output = []
+        export_cmd = [
+          "xcodebuild", 
+          "-exportArchive", 
+          "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
+          "-exportPath", build_dir,
+          "-exportOptionsPlist", export_options_path
+        ]
         
-        # Find the IPA file from lane_context
-        found_ipa = lane_context[SharedValues::IPA_OUTPUT_PATH]
+        UI.message("Running export command: #{export_cmd.join(' ')}")
         
-        if found_ipa.nil? || !File.exist?(found_ipa)
-          UI.message("IPA not found in lane context, searching manually...")
-          found_ipa = Dir.glob("#{build_dir}/*.ipa").first
+        export_status = 0
+        Open3.popen2e(export_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
+          stdout_stderr.each do |line|
+            export_output << line
+            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
+          end
+          export_status = wait_thread.value.exitstatus
         end
+        
+        if export_status != 0
+          UI.error("Export failed. Printing the last 50 lines of output:")
+          export_output.last(50).each { |line| UI.error(line) }
+          UI.user_error!("Failed to export Mac Catalyst app. See output above.")
+        end
+        
+        # Find the exported IPA file (the name will depend on the bundle ID)
+        found_ipa = Dir.glob("#{build_dir}/*.ipa").first
         
         if found_ipa.nil?
           UI.user_error!("No IPA file found after export")
         else
           UI.success("Successfully exported IPA at: #{found_ipa}")
           
+          # Rename to our standardized name
+          FileUtils.mv(found_ipa, ipa_path)
+          
           # Store the IPA path for future steps
-          ENV['PKG_OUTPUT_PATH'] = found_ipa # Reusing the same env var for simplicity
-          File.write("#{build_dir}/pkg_path.txt", found_ipa)
+          ENV['PKG_OUTPUT_PATH'] = ipa_path # Reusing the same env var for simplicity
+          File.write("#{build_dir}/pkg_path.txt", ipa_path)
           
           # Also create a GitHub Actions output if running in that environment
           if ENV['GITHUB_OUTPUT']
-            sh("echo 'pkg_output_path=#{found_ipa}' >> $GITHUB_OUTPUT")
+            sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
           end
         end
       end
