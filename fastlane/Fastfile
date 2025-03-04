@@ -786,22 +786,57 @@ end
       UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
     end
     
-    # Create API key JSON content
-    key_id = ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"]
-    issuer_id = ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
-    key_content = ENV["APP_STORE_CONNECT_API_KEY_CONTENT"]
+    # Get path to API key file
+    api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
     
-    if key_content.nil? || key_content.empty?
-      # Look for the key content in a file
-      api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
-      if File.exist?(api_key_path)
-        UI.message("Using App Store Connect API key from file: #{api_key_path}")
-      else
-        UI.user_error!("No API key content provided and no key file found at #{api_key_path}")
+    if !File.exist?(api_key_path)
+      UI.user_error!("API key file not found at #{api_key_path}")
+    end
+    
+    # Set up the API key using app_store_connect_api_key action
+    UI.message("Using API key file: #{api_key_path}")
+    
+    begin
+      api_key = app_store_connect_api_key(
+        key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+        issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        key_filepath: api_key_path,
+        duration: 1200, # 20 minutes
+        in_house: false
+      )
+      
+      UI.message("API key loaded successfully with ID: #{ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']}")
+    rescue => e
+      UI.error("Failed to load API key: #{e.message}")
+      
+      # Try to debug the key file format
+      UI.message("Attempting to determine API key format...")
+      begin
+        key_content = File.read(api_key_path).strip
+        if key_content.start_with?('{') && key_content.end_with?('}')
+          UI.message("API key appears to be in JSON format")
+        elsif key_content.include?("-----BEGIN PRIVATE KEY-----")
+          UI.message("API key appears to be in p8/PEM format")
+        else
+          UI.message("API key format unknown, first 20 chars: #{key_content[0..20]}")
+        end
+        
+        # Try Apple's specific format for API key JSON
+        if key_content.start_with?('{')
+          UI.message("Attempting to extract key from JSON...")
+          # Create a clean p8 file as fallback
+          json_data = JSON.parse(key_content)
+          if json_data.key?("key") && json_data["key"].include?("PRIVATE KEY")
+            File.write("./extracted_api_key.p8", json_data["key"])
+            ENV["APP_STORE_CONNECT_API_KEY_PATH"] = "./extracted_api_key.p8"
+            UI.message("Extracted p8 key from JSON to ./extracted_api_key.p8")
+          end
+        end
+      rescue => e
+        UI.error("Error examining key file: #{e.message}")
       end
-    else
-      # Create the key file from the environment variable content
-      File.write("./appstore_api_key.json", key_content)
+      
+      raise e
     end
     
     # Log success
