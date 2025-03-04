@@ -326,11 +326,30 @@ platform :ios do
   desc "Setup provisioning profiles for Mac Catalyst"
   lane :setup_catalyst_provisioning_profiles do
     # Check for required environment variables
-    required_vars = ["APPLE_ID", "APPLE_ID_PASSWORD", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"]
+    required_vars = ["APPLE_ID", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"]
     ensure_env_vars(required_vars)
     
-    # Get the password from APPLE_ID_PASSWORD if FASTLANE_PASSWORD is not set
-    password = ENV["FASTLANE_PASSWORD"] || ENV["APPLE_ID_PASSWORD"]
+    # Log environment variables for debugging (hiding sensitive info)
+    UI.message("Environment variables check:")
+    UI.message("APPLE_ID: #{ENV['APPLE_ID'] ? '✓' : '✗'}")
+    UI.message("MATCH_PASSWORD: #{ENV['MATCH_PASSWORD'] ? '✓' : '✗'}")
+    UI.message("GIT_ACCESS_TOKEN: #{ENV['GIT_ACCESS_TOKEN'] ? '✓' : '✗'}")
+    
+    # Check for password in multiple environment variables
+    password = nil
+    ['FASTLANE_PASSWORD', 'APPLE_ID_PASSWORD', 'APPLE_PASSWORD', 'APP_SPECIFIC_PASSWORD'].each do |var|
+      if ENV[var] && !ENV[var].empty?
+        password = ENV[var]
+        UI.message("Using password from #{var}")
+        break
+      end
+    end
+    
+    # Fail if we couldn't find a password
+    UI.user_error!("Could not find any Apple ID password. Please set APPLE_ID_PASSWORD environment variable.") if password.nil?
+    
+    # Force password into FASTLANE_PASSWORD for match
+    ENV['FASTLANE_PASSWORD'] = password
     
     app_identifiers.each do |app_identifier|
       # Development profiles with proper authentication
@@ -341,12 +360,14 @@ platform :ios do
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
-          password: password, # Pass password directly
+          # Explicitly pass password - don't rely on environment variables
+          password: password,
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
           force_for_new_devices: true,
-          clone_branch_directly: true
+          clone_branch_directly: true,
+          verbose: true
         )
       end
 
@@ -358,11 +379,13 @@ platform :ios do
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
-          password: password, # Pass password directly
+          # Explicitly pass password - don't rely on environment variables
+          password: password,
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
-          clone_branch_directly: true
+          clone_branch_directly: true,
+          verbose: true
         )
       end
     end

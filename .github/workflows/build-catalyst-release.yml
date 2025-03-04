@@ -173,20 +173,25 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          echo "Setting up Mac Catalyst provisioning profiles with team ID: $ITC_TEAM_ID"
+          echo "Setting up Mac Catalyst provisioning profiles..."
           
-          # Debug: verify environment variables are set (print first character only for security)
-          echo "APPLE_ID first character: ${APPLE_ID:0:1}*****"
-          echo "APPLE_ID_PASSWORD is set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
-          echo "FASTLANE_PASSWORD is set: $(if [ -n "$FASTLANE_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
-          echo "MATCH_PASSWORD is set: $(if [ -n "$MATCH_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
+          # Print debug info about variables (safely without exposing values)
+          echo "Environment variables check:"
+          echo "APPLE_ID set: $(if [ -n "$APPLE_ID" ]; then echo true; else echo false; fi)"
+          echo "APPLE_ID_PASSWORD set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo true; else echo false; fi)"
+          echo "FASTLANE_PASSWORD set: $(if [ -n "$FASTLANE_PASSWORD" ]; then echo true; else echo false; fi)"
+          echo "MATCH_PASSWORD set: $(if [ -n "$MATCH_PASSWORD" ]; then echo true; else echo false; fi)"
           
-          # Explicitly export both password variables to ensure they're available
-          export FASTLANE_PASSWORD="${APPLE_ID_PASSWORD}"
-          export FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD="${APPLE_ID_PASSWORD}"
+          # Write password to fastlane-password.txt for debugging (content hidden)
+          if [ -n "$APPLE_ID_PASSWORD" ]; then
+            echo "APPLE_ID_PASSWORD exists with length: ${#APPLE_ID_PASSWORD}"
+            echo "First character: ${APPLE_ID_PASSWORD:0:1}*****"
+          else
+            echo "APPLE_ID_PASSWORD is not set or empty!"
+          fi
           
-          # Run the setup lane with debug output
-          bundle exec fastlane ios setup_catalyst_provisioning_profiles --verbose
+          # Run fastlane with secrets passed directly
+          bundle exec fastlane ios setup_catalyst_provisioning_profiles
 
       - name: Build Mac Catalyst App
         id: build_app
