@@ -164,6 +164,7 @@ jobs:
       - name: Setup Mac Catalyst Provisioning Profiles
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -174,11 +175,18 @@ jobs:
         run: |
           echo "Setting up Mac Catalyst provisioning profiles with team ID: $ITC_TEAM_ID"
           
-          # Explicitly set FASTLANE_PASSWORD for match commands
-          export FASTLANE_PASSWORD="${APPLE_ID_PASSWORD}"
+          # Debug: verify environment variables are set (print first character only for security)
+          echo "APPLE_ID first character: ${APPLE_ID:0:1}*****"
+          echo "APPLE_ID_PASSWORD is set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
+          echo "FASTLANE_PASSWORD is set: $(if [ -n "$FASTLANE_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
+          echo "MATCH_PASSWORD is set: $(if [ -n "$MATCH_PASSWORD" ]; then echo 'yes'; else echo 'no'; fi)"
           
-          # Run the setup lane with all required authentication parameters
-          bundle exec fastlane ios setup_catalyst_provisioning_profiles
+          # Explicitly export both password variables to ensure they're available
+          export FASTLANE_PASSWORD="${APPLE_ID_PASSWORD}"
+          export FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD="${APPLE_ID_PASSWORD}"
+          
+          # Run the setup lane with debug output
+          bundle exec fastlane ios setup_catalyst_provisioning_profiles --verbose
 
       - name: Build Mac Catalyst App
         id: build_app

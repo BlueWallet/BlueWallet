@@ -325,17 +325,23 @@ platform :ios do
 
   desc "Setup provisioning profiles for Mac Catalyst"
   lane :setup_catalyst_provisioning_profiles do
-    # Ensure required environment variables are present
-    ensure_env_vars(["APPLE_ID", "FASTLANE_PASSWORD", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"])
+    # Check for required environment variables
+    required_vars = ["APPLE_ID", "APPLE_ID_PASSWORD", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
+    # Get the password from APPLE_ID_PASSWORD if FASTLANE_PASSWORD is not set
+    password = ENV["FASTLANE_PASSWORD"] || ENV["APPLE_ID_PASSWORD"]
     
     app_identifiers.each do |app_identifier|
       # Development profiles with proper authentication
       with_retry(3, "Fetching development profile for #{app_identifier}") do
+        UI.message("Fetching development profile for #{app_identifier} (Catalyst)")
         match(
           type: "development",
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
+          password: password, # Pass password directly
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
@@ -346,11 +352,13 @@ platform :ios do
 
       # App Store profiles with proper authentication
       with_retry(3, "Fetching appstore profile for #{app_identifier}") do
+        UI.message("Fetching appstore profile for #{app_identifier} (Catalyst)")
         match(
           type: "appstore",
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
+          password: password, # Pass password directly
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
