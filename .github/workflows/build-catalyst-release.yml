@@ -176,13 +176,31 @@ jobs:
         run: |
           echo "Setting up Mac Catalyst provisioning profiles from match repository..."
           
-          # Use match to retrieve profiles directly - similar to iOS workflow
+          # Only request Catalyst profiles for app identifiers that have them
+          # From the error, we can see that only the main app and MarketWidget have Catalyst profiles
+          
+          # Retrieve main app profile first
           bundle exec fastlane run match \
             git_basic_authorization:"$GIT_ACCESS_TOKEN" \
             git_url:"$GIT_URL" \
             type:"appstore" \
             platform:"catalyst" \
-            app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.watch,io.bluewallet.bluewallet.watch.extension,io.bluewallet.bluewallet.Stickers,io.bluewallet.bluewallet.MarketWidget" \
+            app_identifier:"io.bluewallet.bluewallet" \
+            team_id:"$ITC_TEAM_ID" \
+            team_name:"$ITC_TEAM_NAME" \
+            readonly:"true" \
+            keychain_name:"temp_keychain" \
+            keychain_password:"$KEYCHAIN_PASSWORD" \
+            username:"$APPLE_ID" \
+            verbose:"true"
+            
+          # Then retrieve MarketWidget profile
+          bundle exec fastlane run match \
+            git_basic_authorization:"$GIT_ACCESS_TOKEN" \
+            git_url:"$GIT_URL" \
+            type:"appstore" \
+            platform:"catalyst" \
+            app_identifier:"io.bluewallet.bluewallet.MarketWidget" \
             team_id:"$ITC_TEAM_ID" \
             team_name:"$ITC_TEAM_NAME" \
             readonly:"true" \
