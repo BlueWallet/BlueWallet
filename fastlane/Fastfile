@@ -325,23 +325,38 @@ platform :ios do
 
   desc "Setup provisioning profiles for Mac Catalyst"
   lane :setup_catalyst_provisioning_profiles do
+    # Ensure required environment variables are present
+    ensure_env_vars(["APPLE_ID", "FASTLANE_PASSWORD", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"])
+    
     app_identifiers.each do |app_identifier|
-      match(
-        type: "development",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        force_for_new_devices: true,
-        clone_branch_directly: true
-      )
+      # Development profiles with proper authentication
+      with_retry(3, "Fetching development profile for #{app_identifier}") do
+        match(
+          type: "development",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          username: ENV["APPLE_ID"],
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          readonly: false,
+          force_for_new_devices: true,
+          clone_branch_directly: true
+        )
+      end
 
-      match(
-        type: "appstore",
-        platform: "catalyst",
-        app_identifier: app_identifier,
-        readonly: false,
-        clone_branch_directly: true
-      )
+      # App Store profiles with proper authentication
+      with_retry(3, "Fetching appstore profile for #{app_identifier}") do
+        match(
+          type: "appstore",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          username: ENV["APPLE_ID"],
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          readonly: false,
+          clone_branch_directly: true
+        )
+      end
     end
   end
 
