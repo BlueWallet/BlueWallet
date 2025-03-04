@@ -1,7 +1,7 @@
-import { RouteProp, StackActions, useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
@@ -12,7 +12,6 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
@@ -57,7 +56,6 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { setIsDrawerShouldHide } = useSettings();
   const navigation = useExtendedNavigation();
   const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
@@ -95,16 +93,6 @@ const ScanQRCode = () => {
   const HashIt = function (s: string): string {
     return createHash('sha256').update(s).digest().toString('hex');
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsDrawerShouldHide(true);
-
-      return () => {
-        setIsDrawerShouldHide(false);
-      };
-    }, [setIsDrawerShouldHide]),
-  );
 
   const _onReadUniformResourceV2 = (part: string) => {
     if (!decoder) decoder = new BlueURDecoder();
