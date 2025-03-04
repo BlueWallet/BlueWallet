@@ -222,12 +222,21 @@ jobs:
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          # Add environment variable to skip Bugsnag for Catalyst
+          SKIP_BUGSNAG_CATALYST: 'YES'
         run: |
           # First ensure export_options_catalyst.plist has the correct team ID if not already set
           sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
           cat ./ios/export_options_catalyst.plist
           
-          # Now build the app
+          # Verify project file integrity
+          echo "Verifying Xcode project file integrity..."
+          plutil -lint "./ios/BlueWallet.xcodeproj/project.pbxproj" || {
+            echo "❌ Project file appears to be corrupt!"
+            exit 1
+          }
+          
+          # Now build the app - we've removed the disable/enable Bugsnag steps
           bundle exec fastlane ios build_catalyst_app
 
           # Ensure PKG path is set for subsequent steps
