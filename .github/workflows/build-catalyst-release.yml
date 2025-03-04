@@ -276,7 +276,7 @@ jobs:
   testflight-upload-macos:
     needs: [build]
     runs-on: macos-15
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight-macos')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
