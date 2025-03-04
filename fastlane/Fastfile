@@ -329,64 +329,189 @@ platform :ios do
     required_vars = ["APPLE_ID", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"]
     ensure_env_vars(required_vars)
     
-    # Log environment variables for debugging (hiding sensitive info)
-    UI.message("Environment variables check:")
-    UI.message("APPLE_ID: #{ENV['APPLE_ID'] ? '✓' : '✗'}")
-    UI.message("MATCH_PASSWORD: #{ENV['MATCH_PASSWORD'] ? '✓' : '✗'}")
-    UI.message("GIT_ACCESS_TOKEN: #{ENV['GIT_ACCESS_TOKEN'] ? '✓' : '✗'}")
-    
-    # Check for password in multiple environment variables
-    password = nil
-    ['FASTLANE_PASSWORD', 'APPLE_ID_PASSWORD', 'APPLE_PASSWORD', 'APP_SPECIFIC_PASSWORD'].each do |var|
-      if ENV[var] && !ENV[var].empty?
-        password = ENV[var]
-        UI.message("Using password from #{var}")
-        break
+    # Debug environment variables to a file for inspection
+    debug_file = "/tmp/fastlane_debug.txt"
+    File.open(debug_file, 'w') do |f|
+      f.puts "Environment variables check (#{Time.now}):"
+      f.puts "APPLE_ID: #{ENV['APPLE_ID'] ? 'SET' : 'NOT SET'}"
+      f.puts "MATCH_PASSWORD: #{ENV['MATCH_PASSWORD'] ? 'SET' : 'NOT SET'}"
+      f.puts "GIT_ACCESS_TOKEN: #{ENV['GIT_ACCESS_TOKEN'] ? 'SET' : 'NOT SET'}"
+      f.puts "FASTLANE_PASSWORD: #{ENV['FASTLANE_PASSWORD'] ? 'SET' : 'NOT SET'}"
+      f.puts "APPLE_ID_PASSWORD: #{ENV['APPLE_ID_PASSWORD'] ? 'SET' : 'NOT SET'}"
+      f.puts "Environment variable list:"
+      ENV.each do |k, v| 
+        if !k.include?('SECRET') && !k.include?('KEY') && !k.include?('TOKEN') && !k.include?('PASS')
+          f.puts "#{k}: #{v}"
+        else
+          f.puts "#{k}: [REDACTED]"
+        end
       end
     end
     
-    # Fail if we couldn't find a password
-    UI.user_error!("Could not find any Apple ID password. Please set APPLE_ID_PASSWORD environment variable.") if password.nil?
+    UI.message("Debug info written to #{debug_file}")
     
-    # Force password into FASTLANE_PASSWORD for match
+    # Direct authentication approach - use password from secrets or prompt if in interactive mode
+    password = ENV['APPLE_ID_PASSWORD'] || ENV['FASTLANE_PASSWORD']
+    
+    # When using CI, we need to ensure we have a password
+    if password.nil? || password.empty?
+      if !UI.interactive?
+        UI.error("No password found in any environment variables and running in non-interactive mode.")
+        UI.error("Please ensure APPLE_ID_PASSWORD or FASTLANE_PASSWORD is set.")
+        UI.user_error!("Authentication failed: Missing required password.")
+      else
+        # In interactive mode, match will prompt for password
+        password = UI.password("Please enter your Apple ID Password: ")
+      end
+    end
+    
+    # Force password into environment variables that fastlane and match might check
     ENV['FASTLANE_PASSWORD'] = password
+    ENV['FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'] = password
+    ENV['MATCH_PASSWORD'] = ENV['MATCH_PASSWORD'] # Ensure match password is preserved
+    
+    # Log successful authentication setup (without revealing password)
+    UI.success("Authentication credentials prepared for app-store connect")
     
     app_identifiers.each do |app_identifier|
-      # Development profiles with proper authentication
+      # Development profiles with explicit authentication parameters
       with_retry(3, "Fetching development profile for #{app_identifier}") do
         UI.message("Fetching development profile for #{app_identifier} (Catalyst)")
+        
+        # Use match with all credentials explicitly provided
         match(
           type: "development",
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
-          # Explicitly pass password - don't rely on environment variables
+          password: password,
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          readonly: true,  # Start with readonly to test authentication
+          force_for_new_devices: false,
+          clone_branch_directly: true,
+          verbose: true
+        )
+      end
+    end
+    
+    # If we got here, authentication is working - now fetch for real
+    UI.success("Authentication successful! Now fetching provisioning profiles...")
+    
+    app_identifiers.each do |app_identifier|
+      # Now with read/write and proper force settings
+      with_retry(3, "Setting up provisioning profile for #{app_identifier}") do
+        # Development profiles
+        match(
+          type: "development",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          username: ENV["APPLE_ID"],
           password: password,
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
           force_for_new_devices: true,
           clone_branch_directly: true,
-          verbose: true
         )
-      end
-
-      # App Store profiles with proper authentication
-      with_retry(3, "Fetching appstore profile for #{app_identifier}") do
-        UI.message("Fetching appstore profile for #{app_identifier} (Catalyst)")
+        
+        # App Store profiles
         match(
           type: "appstore",
           platform: "catalyst",
           app_identifier: app_identifier,
           username: ENV["APPLE_ID"],
-          # Explicitly pass password - don't rely on environment variables
           password: password,
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
           readonly: false,
           clone_branch_directly: true,
-          verbose: true
         )
+      end
+    end
+  end
+
+  desc "Setup provisioning profiles for Mac Catalyst CI/CD (no development profiles)"
+  lane :setup_catalyst_provisioning_ci do
+    # Check for required environment variables
+    required_vars = ["APPLE_ID", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
+    # Debug environment variables to a file for inspection
+    debug_file = "/tmp/fastlane_debug.txt"
+    File.open(debug_file, 'w') do |f|
+      f.puts "Environment variables check (#{Time.now}):"
+      f.puts "APPLE_ID: #{ENV['APPLE_ID'] ? 'SET' : 'NOT SET'}"
+      f.puts "MATCH_PASSWORD: #{ENV['MATCH_PASSWORD'] ? 'SET' : 'NOT SET'}"
+      f.puts "GIT_ACCESS_TOKEN: #{ENV['GIT_ACCESS_TOKEN'] ? 'SET' : 'NOT SET'}"
+      f.puts "FASTLANE_PASSWORD: #{ENV['FASTLANE_PASSWORD'] ? 'SET' : 'NOT SET'}"
+      f.puts "APPLE_ID_PASSWORD: #{ENV['APPLE_ID_PASSWORD'] ? 'SET' : 'NOT SET'}"
+    end
+    
+    UI.message("Debug info written to #{debug_file}")
+    
+    # Direct authentication approach - use password from secrets or prompt if in interactive mode
+    password = ENV['APPLE_ID_PASSWORD'] || ENV['FASTLANE_PASSWORD']
+    
+    # When using CI, we need to ensure we have a password
+    if password.nil? || password.empty?
+      if !UI.interactive?
+        UI.error("No password found in any environment variables and running in non-interactive mode.")
+        UI.error("Please ensure APPLE_ID_PASSWORD or FASTLANE_PASSWORD is set.")
+        UI.user_error!("Authentication failed: Missing required password.")
+      else
+        # In interactive mode, match will prompt for password
+        password = UI.password("Please enter your Apple ID Password: ")
+      end
+    end
+    
+    # Force password into environment variables that fastlane and match might check
+    ENV['FASTLANE_PASSWORD'] = password
+    ENV['FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'] = password
+    ENV['MATCH_PASSWORD'] = ENV['MATCH_PASSWORD'] # Ensure match password is preserved
+    
+    # Log successful authentication setup (without revealing password)
+    UI.success("Authentication credentials prepared for app-store connect")
+    
+    # Test authentication first with readonly
+    app_identifiers.each do |app_identifier|
+      with_retry(3, "Testing authentication for App Store profile - #{app_identifier}") do
+        UI.message("Verifying connection to App Store for #{app_identifier} (Catalyst)")
+        
+        # Use match with all credentials explicitly provided - read only first to test
+        match(
+          type: "appstore",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          username: ENV["APPLE_ID"],
+          password: password,
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          readonly: true,
+          clone_branch_directly: true,
+        )
+      end
+    end
+    
+    # If we got here, authentication is working - now fetch for real
+    UI.success("Authentication successful! Now retrieving App Store profiles...")
+    
+    app_identifiers.each do |app_identifier|
+      with_retry(3, "Fetching App Store profile for #{app_identifier}") do
+        # Only App Store profiles - no development profiles
+        match(
+          type: "appstore",
+          platform: "catalyst",
+          app_identifier: app_identifier,
+          username: ENV["APPLE_ID"],
+          password: password,
+          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_url: ENV["GIT_URL"],
+          readonly: false, # Need write access to update if needed
+          clone_branch_directly: true,
+        )
+        
+        UI.success("Successfully retrieved App Store profile for #{app_identifier}")
       end
     end
   end
