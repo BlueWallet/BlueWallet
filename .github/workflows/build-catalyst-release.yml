@@ -163,6 +163,8 @@ jobs:
 
       - name: Setup Mac Catalyst Provisioning Profiles
         env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
@@ -172,19 +174,11 @@ jobs:
         run: |
           echo "Setting up Mac Catalyst provisioning profiles with team ID: $ITC_TEAM_ID"
           
-          # First fetch or generate the necessary certificates
-          # Try developer certificates first
-          bundle exec fastlane run match type:developer platform:catalyst readonly:true app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget" team_id:"$ITC_TEAM_ID" git_basic_authorization:"$GIT_ACCESS_TOKEN" git_url:"$GIT_URL" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD" || echo "Could not fetch developer certificates, will try to create"
+          # Explicitly set FASTLANE_PASSWORD for match commands
+          export FASTLANE_PASSWORD="${APPLE_ID_PASSWORD}"
           
-          # Then appstore certificates
-          bundle exec fastlane run match type:appstore platform:catalyst readonly:true app_identifier:"io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget" team_id:"$ITC_TEAM_ID" git_basic_authorization:"$GIT_ACCESS_TOKEN" git_url:"$GIT_URL" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD" || echo "Could not fetch appstore certificates, will try to create"
-          
-          # Set up Mac Catalyst profiles using the fastlane lane
+          # Run the setup lane with all required authentication parameters
           bundle exec fastlane ios setup_catalyst_provisioning_profiles
-          
-          # List profiles for debugging
-          echo "Listing installed provisioning profiles:"
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || echo "No profiles directory found"
 
       - name: Build Mac Catalyst App
         id: build_app
