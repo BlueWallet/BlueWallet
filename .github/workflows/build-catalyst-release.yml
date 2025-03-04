@@ -214,9 +214,9 @@ jobs:
         id: build_app
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_PASSWORD }} # Note: Changed to use APPLE_PASSWORD
+          FASTLANE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}

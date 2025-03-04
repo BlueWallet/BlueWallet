@@ -530,6 +530,12 @@ end
       # Set environment variables that will disable Bugsnag for Catalyst
       ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
       
+      # Ensure Apple ID environment variables are properly set for authentication
+      UI.message("Setting up authentication environment variables...")
+      ENV['FASTLANE_USER'] = ENV['APPLE_ID']
+      ENV['FASTLANE_PASSWORD'] = ENV['APPLE_ID_PASSWORD']
+      ENV['FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'] = ENV['APPLE_ID_PASSWORD']
+      
       # Verify project file is valid before building
       UI.message("Verifying project file integrity...")
       verify_cmd = "plutil -lint \"#{File.join(project_root, 'ios', 'BlueWallet.xcodeproj', 'project.pbxproj')}\""
@@ -540,6 +546,10 @@ end
       end
       
       begin
+        # Create keychain login entry for Apple ID
+        UI.message("Setting up Apple ID credentials for export...")
+        sh("xcrun altool --store-credentials-in-keychain-item 'AC_PASSWORD' -u #{ENV['APPLE_ID']} -p #{ENV['APPLE_ID_PASSWORD']} || true")
+        
         # Build for Mac Catalyst
         UI.message("Building Mac Catalyst app...")
         
@@ -547,6 +557,7 @@ end
         xcodebuild_output = []
         status = 0
         
+        # Include authentication-related environment variables in the build command
         archive_cmd = [
           "xcodebuild",
           "-workspace", workspace_path,
@@ -555,6 +566,7 @@ end
           "-destination", "'platform=macOS,variant=Mac Catalyst'",
           "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
           "SKIP_BUGSNAG_CATALYST=YES",
+          "DEVELOPMENT_TEAM=#{ENV['ITC_TEAM_ID']}",
           "archive"
         ]
         
@@ -574,58 +586,44 @@ end
           UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
         end
         
-        # Now properly export the archive using xcodebuild
-        UI.message("Exporting archive with proper provisioning profile...")
+        # Simplify export by using build_ios_app which handles the export process better
+        UI.message("Exporting Mac Catalyst app using fastlane build_ios_app...")
         
         # The output IPA path
         ipa_path = "#{build_dir}/BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
         
-        # Export the archive to IPA using xcodebuild exportArchive
-        export_cmd = [
-          "xcodebuild",
-          "-exportArchive",
-          "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
-          "-exportPath", build_dir,
-          "-exportOptionsPlist", export_options_path
-        ]
+        # Use build_ios_app with the existing archive
+        build_ios_app(
+          archive_path: "#{build_dir}/BlueWallet.xcarchive",
+          export_method: "app-store",
+          export_options: export_options_path,
+          skip_build_archive: true,
+          skip_package_ipa: false,
+          include_symbols: true,
+          output_directory: build_dir,
+          output_name: "BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
+        )
         
-        UI.message("Running export command: #{export_cmd.join(' ')}")
+        # Find the IPA file from lane_context
+        found_ipa = lane_context[SharedValues::IPA_OUTPUT_PATH]
         
-        export_output = []
-        export_status = 0
-        
-        Open3.popen2e(export_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
-          stdout_stderr.each do |line|
-            export_output << line
-            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
-          end
-          export_status = wait_thread.value.exitstatus
+        if found_ipa.nil? || !File.exist?(found_ipa)
+          UI.message("IPA not found in lane context, searching manually...")
+          found_ipa = Dir.glob("#{build_dir}/*.ipa").first
         end
-        
-        if export_status != 0
-          UI.error("Export failed. Printing the last 50 lines of output:")
-          export_output.last(50).each { |line| UI.error(line) }
-          UI.user_error!("Failed to export Mac Catalyst app. See output above.")
-        end
-        
-        # Find the IPA file (the name will be based on the bundle ID)
-        found_ipa = Dir.glob("#{build_dir}/*.ipa").first
         
         if found_ipa.nil?
           UI.user_error!("No IPA file found after export")
         else
           UI.success("Successfully exported IPA at: #{found_ipa}")
           
-          # Rename to our standardized name
-          FileUtils.mv(found_ipa, ipa_path)
-          
           # Store the IPA path for future steps
-          ENV['PKG_OUTPUT_PATH'] = ipa_path # Reusing the same env var for simplicity
-          File.write("#{build_dir}/pkg_path.txt", ipa_path)
+          ENV['PKG_OUTPUT_PATH'] = found_ipa # Reusing the same env var for simplicity
+          File.write("#{build_dir}/pkg_path.txt", found_ipa)
           
           # Also create a GitHub Actions output if running in that environment
           if ENV['GITHUB_OUTPUT']
-            sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
+            sh("echo 'pkg_output_path=#{found_ipa}' >> $GITHUB_OUTPUT")
           end
         end
       end
