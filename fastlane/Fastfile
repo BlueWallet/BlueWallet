@@ -467,7 +467,7 @@ end
         build_ios_app(
           scheme: "BlueWallet",
           workspace: workspace_path,
-          export_method: "app-store",
+          export_method: "app-store-connect",
           export_options: export_options_path,
           output_directory: ipa_directory,
           output_name: ipa_name,
