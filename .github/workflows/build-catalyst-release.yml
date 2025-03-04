@@ -161,22 +161,6 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
-      - name: Prepare Apple ID Password
-        run: |
-          if [ -z "$APPLE_ID_PASSWORD" ]; then
-            echo "::error::APPLE_ID_PASSWORD is not set in GitHub repository secrets"
-            exit 1
-          fi
-          # Create a secure password file (this doesn't expose the password in logs)
-          echo "$APPLE_ID_PASSWORD" > ~/.fastlane_password
-          chmod 600 ~/.fastlane_password
-          echo "Created password file at ~/.fastlane_password"
-          
-          # Set environment variables for later steps
-          echo "FASTLANE_PASSWORD_FILE=~/.fastlane_password" >> $GITHUB_ENV
-        env:
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
       - name: Setup Mac Catalyst Provisioning Profiles
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -213,7 +197,7 @@ jobs:
       - name: Setup Mac Catalyst App Store Provisioning
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }} 
           FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -225,16 +209,10 @@ jobs:
         run: |
           echo "Setting up Mac Catalyst App Store provisioning profiles..."
           
-          # Print debug information about variables (safely without exposing values)
           echo "Environment variables check:"
           echo "APPLE_ID set: $(if [ -n "$APPLE_ID" ]; then echo true; else echo false; fi)"
           echo "APPLE_ID_PASSWORD set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo true; else echo false; fi)"
           echo "MATCH_PASSWORD set: $(if [ -n "$MATCH_PASSWORD" ]; then echo true; else echo false; fi)"
-          
-          # Pass password directly to fastlane from file to avoid command line exposure
-          if [ -f ~/.fastlane_password]; then
-            export FASTLANE_PASSWORD="$(cat ~/.fastlane_password)"
-          fi
           
           # Run fastlane CI-specific command (no development profiles)
           bundle exec fastlane ios setup_catalyst_provisioning_ci || {
@@ -245,6 +223,16 @@ jobs:
 
       - name: Build Mac Catalyst App
         id: build_app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
         run: |
           # First ensure export_options_catalyst.plist has the correct team ID if not already set
           sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
