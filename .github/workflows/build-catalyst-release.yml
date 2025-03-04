@@ -152,12 +152,47 @@ jobs:
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
+      - name: Convert API Key JSON to p8 file
+        run: |
+          echo "Extracting p8 key from JSON file..."
+          python3 -c '
+          import json, base64, os
+          with open("./appstore_api_key.json", "r") as f:
+            api_key_data = json.load(f)
+          
+          if "key" in api_key_data and api_key_data["key"].startswith("-----BEGIN PRIVATE KEY-----"):
+            # Already in p8 format
+            with open("./appstore_api_key.p8", "w") as f:
+              f.write(api_key_data["key"])
+          else:
+            # Need to extract and decode
+            with open("./appstore_api_key.p8", "w") as f:
+              if "key" in api_key_data and api_key_data["key"]:
+                f.write(api_key_data["key"])
+              elif "private_key" in api_key_data and api_key_data["private_key"]:
+                f.write(api_key_data["private_key"])
+              else:
+                print("Error: Could not find key or private_key in JSON")
+                exit(1)
+          
+          print("Successfully created p8 key file: appstore_api_key.p8")
+          '
+          
+          # Verify the file was created successfully
+          if [ -f "./appstore_api_key.p8" ]; then
+            echo "✅ App Store Connect API key p8 created"
+            chmod 600 ./appstore_api_key.p8
+          else
+            echo "❌ Failed to create App Store Connect API key p8 file"
+            exit 1
+          fi
+
       - name: Setup App Store Connect API Key
         run: bundle exec fastlane ios setup_app_store_connect_api_key
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.p8"
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
@@ -222,6 +257,9 @@ jobs:
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.p8"
           # Add environment variable to skip Bugsnag for Catalyst
           SKIP_BUGSNAG_CATALYST: 'YES'
         run: |

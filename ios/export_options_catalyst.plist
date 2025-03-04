@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store</string>
+    <string>app-store-connect</string>
     <key>teamID</key>
     <string>A7W54YZ4WU</string>
     <key>destination</key>
@@ -31,5 +31,9 @@
     <true/>
     <key>distributionBundleIdentifier</key>
     <string>io.bluewallet.bluewallet</string>
+    <key>manageAppVersionAndBuildNumber</key>
+    <false/>
+    <key>stripSwiftSymbols</key>
+    <true/>
 </dict>
 </plist>

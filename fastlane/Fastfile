@@ -531,12 +531,6 @@ end
       # Set environment variables that will disable Bugsnag for Catalyst
       ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
       
-      # Ensure Apple ID environment variables are properly set for authentication
-      UI.message("Setting up authentication environment variables...")
-      ENV['FASTLANE_USER'] = ENV['APPLE_ID']
-      ENV['FASTLANE_PASSWORD'] = ENV['APPLE_ID_PASSWORD']
-      ENV['FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD'] = ENV['APPLE_ID_PASSWORD']
-      
       # Verify project file is valid before building
       UI.message("Verifying project file integrity...")
       verify_cmd = "plutil -lint \"#{File.join(project_root, 'ios', 'BlueWallet.xcodeproj', 'project.pbxproj')}\""
@@ -547,9 +541,31 @@ end
       end
       
       begin
-        # Create keychain login entry for Apple ID
-        UI.message("Setting up Apple ID credentials for export...")
-        sh("xcrun altool --store-credentials-in-keychain-item 'AC_PASSWORD' -u #{ENV['APPLE_ID']} -p #{ENV['APPLE_ID_PASSWORD']} || true")
+        # Make sure App Store Connect API Key is properly setup before building
+        UI.message("Setting up App Store Connect API key for export...")
+        api_key_info = lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
+        
+        # If the API key isn't already set up in lane context, set it up now
+        if api_key_info.nil?
+          # Check for API key JSON file
+          api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+          
+          if File.exist?(api_key_path)
+            UI.message("Using App Store Connect API key from: #{api_key_path}")
+            
+            # Set up API key using the app_store_connect_api_key action
+            api_key_info = app_store_connect_api_key(
+              key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+              issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+              key_filepath: api_key_path,
+              duration: 1200, # 20 minutes
+              in_house: false
+            )
+          else
+            UI.error("No API key file found at #{api_key_path}")
+            UI.user_error!("App Store Connect API key not found. This is required for Mac Catalyst builds.")
+          end
+        end
         
         # Build for Mac Catalyst
         UI.message("Building Mac Catalyst app...")
@@ -587,24 +603,31 @@ end
           UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
         end
         
-        # Now export the archive using xcodebuild directly
-        UI.message("Exporting archive directly with xcodebuild...")
+        # Now export the archive using API key authentication
+        UI.message("Exporting archive with App Store Connect API key authentication...")
         
         # The output IPA path
         ipa_path = "#{build_dir}/BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
         
-        # Use xcodebuild -exportArchive instead of build_ios_app
-        export_output = []
+        # Add API key info to the export options plist
+        temp_export_options_path = "#{build_dir}/temp_export_options.plist"
+        FileUtils.cp(export_options_path, temp_export_options_path)
+        
+        # Generate export command with API key arguments
         export_cmd = [
           "xcodebuild", 
           "-exportArchive", 
           "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
           "-exportPath", build_dir,
-          "-exportOptionsPlist", export_options_path
+          "-exportOptionsPlist", temp_export_options_path,
+          "-authenticationKeyIssuerID", ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+          "-authenticationKeyID", ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+          "-authenticationKeyPath", ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "./appstore_api_key.p8"
         ]
         
         UI.message("Running export command: #{export_cmd.join(' ')}")
         
+        export_output = []
         export_status = 0
         Open3.popen2e(export_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
           stdout_stderr.each do |line|
@@ -640,6 +663,9 @@ end
             sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
           end
         end
+      ensure
+        # Clean up temporary files
+        FileUtils.rm_f("#{build_dir}/temp_export_options.plist") if File.exist?("#{build_dir}/temp_export_options.plist")
       end
     end
   end
