@@ -150,16 +150,24 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
-
-      - name: Verify API Key File
         run: |
-          if [ -f "./appstore_api_key.json" ]; then
-            echo "✅ App Store Connect API key file created"
-            # Make file readable only by current user
-            chmod 600 ./appstore_api_key.json
+          # Create API key in an absolute path to avoid directory issues
+          WORKSPACE_DIR="$(pwd)"
+          API_KEY_PATH="${WORKSPACE_DIR}/appstore_api_key.json"
+          
+          echo "Creating API key at: ${API_KEY_PATH}"
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > "${API_KEY_PATH}"
+          
+          # Make sure we set this for future steps
+          echo "API_KEY_PATH=${API_KEY_PATH}" >> $GITHUB_ENV
+          
+          # Verify file was created
+          if [ -f "${API_KEY_PATH}" ]; then
+            echo "✅ API key file created successfully at ${API_KEY_PATH}"
+            echo "File size: $(stat -f%z ${API_KEY_PATH}) bytes"
+            chmod 600 "${API_KEY_PATH}"
           else
-            echo "❌ Failed to create App Store Connect API key file"
+            echo "❌ Failed to create API key file at ${API_KEY_PATH}"
             exit 1
           fi
 
@@ -168,7 +176,7 @@ jobs:
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
+          APP_STORE_CONNECT_API_KEY_PATH: "${{ env.API_KEY_PATH }}"
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
@@ -235,7 +243,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
+          APP_STORE_CONNECT_API_KEY_PATH: "${{ env.API_KEY_PATH }}"
           # Add environment variable to skip Bugsnag for Catalyst
           SKIP_BUGSNAG_CATALYST: 'YES'
         run: |
@@ -320,7 +328,26 @@ jobs:
           path: ./catalyst-build/
 
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        run: |
+          # Create API key in an absolute path to avoid directory issues
+          WORKSPACE_DIR="$(pwd)"
+          API_KEY_PATH="${WORKSPACE_DIR}/appstore_api_key.json"
+          
+          echo "Creating API key at: ${API_KEY_PATH}"
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > "${API_KEY_PATH}"
+          
+          # Make sure we set this for future steps
+          echo "API_KEY_PATH=${API_KEY_PATH}" >> $GITHUB_ENV
+          
+          # Verify file was created
+          if [ -f "${API_KEY_PATH}" ]; then
+            echo "✅ API key file created successfully at ${API_KEY_PATH}"
+            echo "File size: $(stat -f%z ${API_KEY_PATH}) bytes"
+            chmod 600 "${API_KEY_PATH}"
+          else
+            echo "❌ Failed to create API key file at ${API_KEY_PATH}"
+            exit 1
+          fi
 
       - name: Find IPA and Set Path
         run: |
