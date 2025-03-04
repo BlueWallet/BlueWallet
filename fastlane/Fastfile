@@ -526,44 +526,41 @@ end
       # Generate output names based on version
       version_string = ENV['PROJECT_VERSION'] || "1.0"
       build_number = ENV['NEW_BUILD_NUMBER'] || "1"
-      app_name = "BlueWallet_#{version_string}_#{build_number}_catalyst"
+      
+      # Verify project file is valid before building
+      UI.message("Verifying project file integrity...")
+      verify_cmd = "plutil -lint \"#{File.join(project_root, 'ios', 'BlueWallet.xcodeproj', 'project.pbxproj')}\""
+      verify_status = system(verify_cmd)
+      unless verify_status
+        UI.error("Project file appears to be corrupted. Please restore it from version control.")
+        UI.user_error!("Invalid project file")
+      end
+      
+      # Set environment variables that will disable Bugsnag for Catalyst
+      ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
       
       begin
         # Build for Mac Catalyst
-        UI.message("Building Mac Catalyst app with export options from: #{export_options_path}")
+        UI.message("Building Mac Catalyst app...")
         
+        # First, create archive
         xcodebuild_output = []
         status = 0
         
-        # Set environment variables that will disable Bugsnag for Catalyst instead of modifying the project file
-        ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
-        
-        # Verify project file is valid before building
-        UI.message("Verifying project file integrity...")
-        verify_cmd = "plutil -lint \"#{File.join(project_root, 'ios', 'BlueWallet.xcodeproj', 'project.pbxproj')}\""
-        verify_status = system(verify_cmd)
-        unless verify_status
-          UI.error("Project file appears to be corrupted. Please restore it from version control.")
-          UI.user_error!("Invalid project file")
-        end
-        
-        # Use xcodebuild directly for more control
-        cmd = [
+        archive_cmd = [
           "xcodebuild",
           "-workspace", workspace_path,
           "-scheme", "BlueWallet",
           "-configuration", "Release",
-          "-derivedDataPath", "#{build_dir}/DerivedData",
           "-destination", "'platform=macOS,variant=Mac Catalyst'",
           "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
-          "SKIP_BUGSNAG_CATALYST=YES", # Pass the environment variable to the build
+          "SKIP_BUGSNAG_CATALYST=YES",
           "archive"
         ]
         
-        UI.message("Running command: #{cmd.join(' ')}")
+        UI.message("Running archive command: #{archive_cmd.join(' ')}")
         
-        # Build the archive
-        Open3.popen2e(cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
+        Open3.popen2e(archive_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
           stdout_stderr.each do |line|
             xcodebuild_output << line
             puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
@@ -577,50 +574,48 @@ end
           UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
         end
         
-        # Export the archive to PKG
-        export_cmd = [
-          "xcodebuild",
-          "-exportArchive",
-          "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
-          "-exportPath", build_dir,
-          "-exportOptionsPlist", export_options_path
-        ]
+        # Extract the app directly from the archive instead of exporting
+        UI.message("Extracting app from archive...")
         
-        UI.message("Running export command: #{export_cmd.join(' ')}")
+        app_path = Dir.glob("#{build_dir}/BlueWallet.xcarchive/Products/Applications/*.app").first
         
-        export_output = []
-        export_status = 0
-        
-        Open3.popen2e(export_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
-          stdout_stderr.each do |line|
-            export_output << line
-            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
-          end
-          export_status = wait_thread.value.exitstatus
-        end
-        
-        if export_status != 0
-          UI.error("Export failed. Printing the last 50 lines of output:")
-          export_output.last(50).each { |line| UI.error(line) }
-          UI.user_error!("Failed to export Mac Catalyst app. See output above.")
-        end
-        
-        # Find the PKG file
-        pkg_path = Dir.glob("#{build_dir}/**/*.pkg").first
-        
-        if pkg_path.nil?
-          UI.user_error!("No PKG file found after export")
+        if app_path.nil?
+          UI.error("Failed to find app in archive")
+          exit 1
         else
-          UI.success("Successfully built PKG at: #{pkg_path}")
+          UI.success("Found app in archive: #{app_path}")
+        end
+        
+        # Create IPA directly from the app
+        ipa_path = "#{build_dir}/BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
+        
+        # Create Payload directory and copy app
+        payload_dir = "#{build_dir}/Payload"
+        FileUtils.mkdir_p(payload_dir)
+        FileUtils.cp_r(app_path, payload_dir)
+        
+        # Create IPA directly by zipping Payload folder
+        UI.message("Creating IPA...")
+        Dir.chdir(build_dir) do
+          sh("zip -r #{File.basename(ipa_path)} Payload")
+        end
+        
+        # Cleanup Payload directory
+        FileUtils.rm_rf(payload_dir)
+        
+        if File.exist?(ipa_path)
+          UI.success("Successfully created IPA at: #{ipa_path}")
           
-          # Store the PKG path for future steps
-          ENV['PKG_OUTPUT_PATH'] = pkg_path
-          File.write("#{build_dir}/pkg_path.txt", pkg_path)
+          # Store the IPA path for future steps
+          ENV['PKG_OUTPUT_PATH'] = ipa_path # Reusing the same env var for simplicity
+          File.write("#{build_dir}/pkg_path.txt", ipa_path)
           
           # Also create a GitHub Actions output if running in that environment
           if ENV['GITHUB_OUTPUT']
-            sh("echo 'pkg_output_path=#{pkg_path}' >> $GITHUB_OUTPUT")
+            sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
           end
+        else
+          UI.user_error!("Failed to create IPA")
         end
       end
     end
