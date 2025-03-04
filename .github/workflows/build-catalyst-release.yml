@@ -161,114 +161,78 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
-      - name: Setup Mac Catalyst Provisioning Profiles
+      - name: Setup Mac Catalyst Provisioning
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}N }}
           GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}AM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}E }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}SWORD }}
+          MATCH_READONLY: "true"y mode
         run: |
-          echo "Setting up Mac Catalyst provisioning profiles..."
+          echo "Fetching Mac Catalyst provisioning profiles from match repository..."match repository..."
           
-          # Print debug information about variables (safely without exposing values)
-          echo "Environment variables check:"
-          echo "APPLE_ID set: $(if [ -n "$APPLE_ID" ]; then echo true; else echo false; fi)"
-          echo "APPLE_ID_PASSWORD set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo true; else echo false; fi)"
-          echo "MATCH_PASSWORD set: $(if [ -n "$MATCH_PASSWORD" ]; then echo true; else echo false; fi)"
-          
-          # Pass password directly to fastlane from file to avoid command line exposure
-          if [ -f ~/.fastlane_password ]; then
-            export FASTLANE_PASSWORD="$(cat ~/.fastlane_password)"
-          fi
-          
-          # Run fastlane command
-          bundle exec fastlane ios setup_catalyst_provisioning_profiles || {
-            echo "Fastlane command failed, checking debug file..."
-            cat /tmp/fastlane_debug.txt || echo "Debug file not found"
-            exit 1
-          }
+          # Run the simplified lane that just fetches existing profiles in readonly mode
+          bundle exec fastlane ios fetch_catalyst_profiles_ci
+          E_ID" ]; then echo true; else echo false; fi)"
+          # Verify the profiles were retrievedthen echo true; else echo false; fi)"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ | grep -i catalyst || echo "No catalyst profiles found" "MATCH_READONLY set: $MATCH_READONLY"
 
-      - name: Setup Mac Catalyst App Store Provisioning
+      - name: Build Mac Catalyst AppFetch app store profiles only (this will run the match action in readonly mode)
+        id: build_appappstore app_identifier:io.bluewallet.bluewallet,io.bluewallet.bluewallet.MarketWidget platform:catalyst readonly:true git_url:"$GIT_URL" git_basic_authorization:"$GIT_ACCESS_TOKEN" username:"$APPLE_ID" keychain_name:temp_keychain keychain_password:"$KEYCHAIN_PASSWORD"
         env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }} 
+          APPLE_ID: ${{ secrets.APPLE_ID }}rify the profiles were retrieved
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}ioning\ Profiles/ | grep -i catalyst || echo "No catalyst profiles found"
           FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}me: Build Mac Catalyst App
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          GIT_URL: ${{ secrets.GIT_URL }} }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          echo "Setting up Mac Catalyst App Store provisioning profiles..."
-          
-          echo "Environment variables check:"
-          echo "APPLE_ID set: $(if [ -n "$APPLE_ID" ]; then echo true; else echo false; fi)"
-          echo "APPLE_ID_PASSWORD set: $(if [ -n "$APPLE_ID_PASSWORD" ]; then echo true; else echo false; fi)"
-          echo "MATCH_PASSWORD set: $(if [ -n "$MATCH_PASSWORD" ]; then echo true; else echo false; fi)"
-          
-          # Run fastlane CI-specific command (no development profiles)
-          bundle exec fastlane ios setup_catalyst_provisioning_ci || {
-            echo "Fastlane command failed, checking debug file..."
-            cat /tmp/fastlane_debug.txt || echo "Debug file not found"
-            exit 1
-          }
-
-      - name: Build Mac Catalyst App
-        id: build_app
-        env:
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-        run: |
-          # First ensure export_options_catalyst.plist has the correct team ID if not already set
+        run: | ${{ secrets.APPLE_ID_PASSWORD }}
+          # First ensure export_options_catalyst.plist has the correct team ID if not already setMATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
           cat ./ios/export_options_catalyst.plist
           
-          # Now build the app using our new lane
-          bundle exec fastlane ios build_catalyst_app
+          # Export the password to be available for build process
+          export FASTLANE_PASSWORD="$APPLE_ID_PASSWORD"
+           First ensure export_options_catalyst.plist has the correct team ID if not already set
+          # Now build the app using our lane          sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist
+          FASTLANE_PASSWORD="$APPLE_ID_PASSWORD" bundle exec fastlane ios build_catalyst_appatalyst.plist
           
-          # Ensure PKG path is set for subsequent steps
-          if [ -f "./ios/build/pkg_path.txt" ]; then
+          # Ensure PKG path is set for subsequent stepsExport the password to be available for build process
+          if [ -f "./ios/build/pkg_path.txt" ]; thenID_PASSWORD"
             PKG_PATH=$(cat ./ios/build/pkg_path.txt)
             echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
-            echo "pkg_output_path=$PKG_PATH" >> $GITHUB_OUTPUT
+            echo "pkg_output_path=$PKG_PATH" >> $GITHUB_OUTPUT_app
             echo "Found PKG at: $PKG_PATH"
           else
-            echo "Warning: pkg_path.txt not found, trying to locate PKG file manually..."
-            PKG_PATH=$(find ./ios -name "*.pkg" | head -n 1)
-            if [ -n "$PKG_PATH" ]; then
-              echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
+            echo "Warning: pkg_path.txt not found, trying to locate PKG file manually..."xt" ]; then
+            PKG_PATH=$(find ./ios -name "*.pkg" | head -n 1)xt)
+            if [ -n "$PKG_PATH" ]; thenUB_ENV
+              echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENVho "pkg_output_path=$PKG_PATH" >> $GITHUB_OUTPUT
               echo "pkg_output_path=$PKG_PATH" >> $GITHUB_OUTPUT
               echo "Found PKG at: $PKG_PATH"
-            else
-              echo "Error: No PKG file found"
+            else, trying to locate PKG file manually..."
+              echo "Error: No PKG file found"  PKG_PATH=$(find ./ios -name "*.pkg" | head -n 1)
               exit 1
-            fi
-          fi
+            fiUB_ENV
+          fi    echo "pkg_output_path=$PKG_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload Build Logs
-        if: always()
+        if: always()    echo "Error: No PKG file found"
         uses: actions/upload-artifact@v4
         with:
           name: catalyst_build_logs
           path: ./ios/build_logs/
           retention-days: 7
 
-      - name: Verify PKG File Before Upload
+      - name: Verify PKG File Before Uploadactions/upload-artifact@v4
         run: |
           echo "Checking PKG file at: $PKG_OUTPUT_PATH"
           if [ -f "$PKG_OUTPUT_PATH" ]; then
@@ -276,306 +240,306 @@ jobs:
             ls -la "$PKG_OUTPUT_PATH"
           else
             echo "❌ PKG file not found at: $PKG_OUTPUT_PATH"
-            echo "Current directory contents:"
-            find ./ios -name "*.pkg"
-            exit 1
-          fi
-          
-      - name: Upload PKG as Artifact
-        if: success()
+            echo "Current directory contents:"TPUT_PATH"
+            find ./ios -name "*.pkg"PKG_OUTPUT_PATH" ]; then
+            exit 1ho "✅ PKG file exists"
+          fils -la "$PKG_OUTPUT_PATH"
+                    else
+      - name: Upload PKG as Artifactt found at: $PKG_OUTPUT_PATH"
+        if: success()rrent directory contents:"
         uses: actions/upload-artifact@v4
-        with:
+        with:xit 1
           name: BlueWallet_MacCatalyst
           path: ${{ env.PKG_OUTPUT_PATH }}
-          retention-days: 7
-
+          retention-days: 7 Artifact
+        if: success()
       - name: Delete Temporary Keychain
         if: always()
         run: bundle exec fastlane ios delete_temp_keychain
 
   notarize-macos:
     needs: build
-    runs-on: macos-15
+    runs-on: macos-15Delete Temporary Keychain
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}emp_keychain
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}uild
+      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}n: macos-15
     steps:
-      - name: Checkout Project
-        uses: actions/checkout@v4
-
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Checkout Projectecrets.APPLE_ID }}
+        uses: actions/checkout@v4outputs.new_build_number }}
+_VERSION: ${{ needs.build.outputs.project_version }}
+      - name: Set Up Ruby.build.outputs.latest_commit_message }}
+        uses: ruby/setup-ruby@v1.branch_name }}
         with:
-          ruby-version: 3.1.6
+          ruby-version: 3.1.6      - name: Checkout Project
           bundler-cache: true
 
       - name: Install Dependencies with Bundler
-        run: |
+        run: |        uses: ruby/setup-ruby@v1
           bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
-
+          bundle install --jobs 4 --retry 3 --quietersion: 3.1.6
+he: true
       - name: Download PKG from Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4 Bundler
         with:
           name: BlueWallet_MacCatalyst
           path: ./catalyst-build/
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+      - name: Create App Store Connect API Key JSONme: Download PKG from Artifact
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json-artifact@v4
 
-      - name: Find PKG and Set Path
-        run: |
+      - name: Find PKG and Set Path          name: BlueWallet_MacCatalyst
+        run: |t-build/
           # Find PKG file in the downloaded artifact directory
-          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
-          
+          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1) Create App Store Connect API Key JSON
+          s.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
           if [ -n "$PKG_PATH" ]; then
-            echo "Found PKG at: $PKG_PATH"
+            echo "Found PKG at: $PKG_PATH"      - name: Find PKG and Set Path
             echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
-          else
-            echo "❌ No PKG file found in the artifacts directory"
+          elsend PKG file in the downloaded artifact directory
+            echo "❌ No PKG file found in the artifacts directory" -name "*.pkg" | head -n 1)
             find ./catalyst-build -type f | sort
-            exit 1
-          fi
-
-      - name: Verify PKG Path Before Upload
-        run: |
-          echo "Checking PKG file at: $PKG_OUTPUT_PATH"
-          if [ -f "$PKG_OUTPUT_PATH" ]; then
+            exit 1          if [ -n "$PKG_PATH" ]; then
+          fiH"
+H" >> $GITHUB_ENV
+      - name: Verify PKG Path Before Uploade
+        run: |in the artifacts directory"
+          echo "Checking PKG file at: $PKG_OUTPUT_PATH" -type f | sort
+          if [ -f "$PKG_OUTPUT_PATH" ]; then            exit 1
             echo "✅ PKG file exists"
             ls -la "$PKG_OUTPUT_PATH"
-          else
+          else      - name: Verify PKG Path Before Upload
             echo "❌ PKG file not found at path: $PKG_OUTPUT_PATH"
-            find ./ -name "*.pkg" || echo "No PKG files found"
+            find ./ -name "*.pkg" || echo "No PKG files found" "Checking PKG file at: $PKG_OUTPUT_PATH"
             exit 1
           fi
-
+  ls -la "$PKG_OUTPUT_PATH"
       - name: Print Environment Variables for Debugging
-        run: |
-          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
-          echo "BRANCH_NAME: $BRANCH_NAME"
+        run: |path: $PKG_OUTPUT_PATH"
+          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"nd"
+          echo "BRANCH_NAME: $BRANCH_NAME"it 1
           echo "PROJECT_VERSION: $PROJECT_VERSION"
           echo "NEW_BUILD_NUMBER: $NEW_BUILD_NUMBER"
-          echo "PKG_OUTPUT_PATH: $PKG_OUTPUT_PATH"
-
-      - name: Notarize Mac Catalyst App
+          echo "PKG_OUTPUT_PATH: $PKG_OUTPUT_PATH"t Environment Variables for Debugging
+ |
+      - name: Notarize Mac Catalyst App          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
         run: bundle exec fastlane ios notarize_catalyst
-        env:
+        env: "PROJECT_VERSION: $PROJECT_VERSION"
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.json
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}_PATH"
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}pp
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}undle exec fastlane ios notarize_catalyst
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          GIT_URL: ${{ secrets.GIT_URL }}key.json
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}E_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}P_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-
+ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
       - name: Find Notarized PKG Path
-        run: |
-          # First check if the notarized PKG path was set
-          if [ -n "$PKG_OUTPUT_PATH_NOTARIZED" ] && [ -f "$PKG_OUTPUT_PATH_NOTARIZED" ]; then
-            echo "Using notarized PKG at: $PKG_OUTPUT_PATH_NOTARIZED"
+        run: |M_ID }}
+          # First check if the notarized PKG path was set }}
+          if [ -n "$PKG_OUTPUT_PATH_NOTARIZED" ] && [ -f "$PKG_OUTPUT_PATH_NOTARIZED" ]; thenSSWORD }}
+            echo "Using notarized PKG at: $PKG_OUTPUT_PATH_NOTARIZED"PASSWORD }}
           else
             # Try to find notarized PKG file
             NOTARIZED_PKG_PATH=$(find . -name "*_notarized.pkg" | head -n 1)
-            
-            if [ -n "$NOTARIZED_PKG_PATH" ] && [ -f "$NOTARIZED_PKG_PATH" ]; then
+            First check if the notarized PKG path was set
+            if [ -n "$NOTARIZED_PKG_PATH" ] && [ -f "$NOTARIZED_PKG_PATH" ]; thenPATH_NOTARIZED" ]; then
               echo "Found notarized PKG at: $NOTARIZED_PKG_PATH"
               echo "PKG_OUTPUT_PATH_NOTARIZED=$NOTARIZED_PKG_PATH" >> $GITHUB_ENV
             else
-              echo "No notarized PKG found, using original PKG: $PKG_OUTPUT_PATH"
+              echo "No notarized PKG found, using original PKG: $PKG_OUTPUT_PATH"zed.pkg" | head -n 1)
             fi
-          fi
-
-      - name: Upload Notarized PKG
+          fi ] && [ -f "$NOTARIZED_PKG_PATH" ]; then
+RIZED_PKG_PATH"
+      - name: Upload Notarized PKGZED_PKG_PATH" >> $GITHUB_ENV
         if: success()
-        uses: actions/upload-artifact@v4
-        with:
+        uses: actions/upload-artifact@v4G: $PKG_OUTPUT_PATH"
+        with:            fi
           name: BlueWallet_MacCatalyst_Notarized
           path: ${{ env.PKG_OUTPUT_PATH_NOTARIZED || env.PKG_OUTPUT_PATH }}
           retention-days: 7
 
   testflight-upload-macos:
     needs: [build, notarize-macos]
-    runs-on: macos-15
+    runs-on: macos-15ized
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-    env:
+    env:tention-days: 7
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
       PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}os-15
+      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}*.name, 'testflight')
     steps:
-      - name: Checkout Project
-        uses: actions/checkout@v4
-
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Checkout ProjectID: ${{ secrets.APPLE_ID }}
+        uses: actions/checkout@v4      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+uild.outputs.project_version }}
+      - name: Set Up RubyESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        uses: ruby/setup-ruby@v1ts.branch_name }}
         with:
           ruby-version: 3.1.6
           bundler-cache: true
 
-      - name: Install Dependencies with Bundler
-        run: |
+      - name: Install Dependencies with Bundler      - name: Set Up Ruby
+        run: |uby@v1
           bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          bundle install --jobs 4 --retry 3 --quietn: 3.1.6
 
       - name: Download Notarized PKG from Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4 Bundler
         with:
           name: BlueWallet_MacCatalyst_Notarized
           path: ./catalyst-build/
 
-      - name: Find PKG and Show Contents
-        run: |
+      - name: Find PKG and Show Contentsme: Download Notarized PKG from Artifact
+        run: |-artifact@v4
           # List downloaded artifacts
-          echo "Downloaded artifacts:"
-          find ./catalyst-build -type f | sort
+          echo "Downloaded artifacts:"          name: BlueWallet_MacCatalyst_Notarized
+          find ./catalyst-build -type f | sortt-build/
           
-          # Find PKG file in the downloaded artifact directory
+          # Find PKG file in the downloaded artifact directory Find PKG and Show Contents
           PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
-          
-          if [ -n "$PKG_PATH" ]; then
+          rtifacts
+          if [ -n "$PKG_PATH" ]; then          echo "Downloaded artifacts:"
             echo "Found PKG at: $PKG_PATH"
             echo "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
-          else
-            echo "❌ No PKG file found in the artifacts directory"
-            exit 1
+          elsed artifact directory
+            echo "❌ No PKG file found in the artifacts directory".pkg" | head -n 1)
+            exit 1          
           fi
 
-      - name: Install Prerequisites for PKG Processing
+      - name: Install Prerequisites for PKG Processingcho "PKG_OUTPUT_PATH=$PKG_PATH" >> $GITHUB_ENV
         run: |
-          # Install xcbeautify for better xcodebuild output formatting
-          brew install xcbeautify
+          # Install xcbeautify for better xcodebuild output formattingound in the artifacts directory"
+          brew install xcbeautify            exit 1
           
           # Ensure the necessary directories exist
-          mkdir -p ./catalyst-build/extracted
+          mkdir -p ./catalyst-build/extractedor PKG Processing
           mkdir -p ./catalyst-build/archive
-
-      - name: Extract App from PKG
+ebuild output formatting
+      - name: Extract App from PKGbrew install xcbeautify
         run: |
           # Find the PKG file
-          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)
-          echo "Found PKG at: $PKG_PATH"
+          PKG_PATH=$(find ./catalyst-build -name "*.pkg" | head -n 1)mkdir -p ./catalyst-build/extracted
+          echo "Found PKG at: $PKG_PATH"rchive
           
           # Create a temporary directory for extraction
           TEMP_DIR="./catalyst-build/extracted"
           
-          # Extract the PKG content
-          pkgutil --expand "$PKG_PATH" "$TEMP_DIR"
-          
-          # Find and extract the payload
-          PAYLOAD_PATH=$(find "$TEMP_DIR" -name "Payload" | head -n 1)
+          # Extract the PKG content=$(find ./catalyst-build -name "*.pkg" | head -n 1)
+          pkgutil --expand "$PKG_PATH" "$TEMP_DIR"ho "Found PKG at: $PKG_PATH"
+                    
+          # Find and extract the payloadn
+          PAYLOAD_PATH=$(find "$TEMP_DIR" -name "Payload" | head -n 1)_DIR="./catalyst-build/extracted"
           if [ -n "$PAYLOAD_PATH" ]; then
-            echo "Found payload at: $PAYLOAD_PATH"
-            tar -xf "$PAYLOAD_PATH" -C "$TEMP_DIR"
+            echo "Found payload at: $PAYLOAD_PATH"nt
+            tar -xf "$PAYLOAD_PATH" -C "$TEMP_DIR"pkgutil --expand "$PKG_PATH" "$TEMP_DIR"
           else
             # Alternative approach if payload not found directly
-            find "$TEMP_DIR" -name "*.pkg" -exec pkgutil --expand-full {} "$TEMP_DIR/expanded" \;
-          fi
-          
-          # Find the extracted .app folder
+            find "$TEMP_DIR" -name "*.pkg" -exec pkgutil --expand-full {} "$TEMP_DIR/expanded" \;name "Payload" | head -n 1)
+          fi          if [ -n "$PAYLOAD_PATH" ]; then
+          : $PAYLOAD_PATH"
+          # Find the extracted .app folderr -xf "$PAYLOAD_PATH" -C "$TEMP_DIR"
           APP_PATH=$(find "$TEMP_DIR" -name "*.app" -type d | head -n 1)
           
-          if [ -n "$APP_PATH" ]; then
-            echo "Found extracted app at: $APP_PATH"
+          if [ -n "$APP_PATH" ]; theng" -exec pkgutil --expand-full {} "$TEMP_DIR/expanded" \;
+            echo "Found extracted app at: $APP_PATH"fi
             echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
           else
-            echo "Failed to find extracted .app package"
+            echo "Failed to find extracted .app package"APP_PATH=$(find "$TEMP_DIR" -name "*.app" -type d | head -n 1)
             find "$TEMP_DIR" -type f -name "*.app" || echo "No .app files found"
             exit 1
-          fi
-
+          fi  echo "Found extracted app at: $APP_PATH"
+ $GITHUB_ENV
       - name: Create IPA for TestFlight
-        run: |
-          # Create a temporary directory structure for the IPA
+        run: |d .app package"
+          # Create a temporary directory structure for the IPA || echo "No .app files found"
           TEMP_DIR="./catalyst-build/archive"
           mkdir -p "$TEMP_DIR/Payload"
           
           # Copy the app to the Payload directory
-          cp -R "$APP_PATH" "$TEMP_DIR/Payload/"
-          
-          # Create the IPA file
+          cp -R "$APP_PATH" "$TEMP_DIR/Payload/" |
+          # Create a temporary directory structure for the IPA
+          # Create the IPA fileve"
           cd "$TEMP_DIR"
           zip -r "../BlueWallet_Catalyst.ipa" Payload
-          cd -
+          cd -ad directory
           
           # Set the IPA path for later steps
-          IPA_PATH="./catalyst-build/BlueWallet_Catalyst.ipa"
+          IPA_PATH="./catalyst-build/BlueWallet_Catalyst.ipa"eate the IPA file
           echo "IPA_PATH=$IPA_PATH" >> $GITHUB_ENV
           
           if [ -f "$IPA_PATH" ]; then
             echo "Successfully created IPA at: $IPA_PATH"
-          else
-            echo "Failed to create IPA file"
-            exit 1
+          else          # Set the IPA path for later steps
+            echo "Failed to create IPA file"ueWallet_Catalyst.ipa"
+            exit 1 "IPA_PATH=$IPA_PATH" >> $GITHUB_ENV
           fi
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+      - name: Create App Store Connect API Key JSON IPA at: $IPA_PATH"
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.jsonelse
 
       - name: Verify IPA Path Before Upload
-        run: |
+        run: |fi
           if [ ! -f "$IPA_PATH" ]; then
-            echo "❌ IPA file not found at path: $IPA_PATH"
-            ls -la ./catalyst-build/
+            echo "❌ IPA file not found at path: $IPA_PATH" Store Connect API Key JSON
+            ls -la ./catalyst-build/KEY_CONTENT }}' > ./appstore_api_key.json
             exit 1
-          else
+          elseme: Verify IPA Path Before Upload
             echo "✅ Found IPA at: $IPA_PATH"
           fi
-
-      - name: Upload to TestFlight
+PA_PATH"
+      - name: Upload to TestFlight  ls -la ./catalyst-build/
         run: |
           echo "Uploading Mac Catalyst build to TestFlight..."
-          
+          ho "✅ Found IPA at: $IPA_PATH"
           # Generate changelog
           branch_name="${{ env.BRANCH_NAME }}"
-          commit_message="${{ env.LATEST_COMMIT_MESSAGE }}"
-          version="${{ env.PROJECT_VERSION }}"
-          build_number="${{ env.NEW_BUILD_NUMBER }}"
+          commit_message="${{ env.LATEST_COMMIT_MESSAGE }}": Upload to TestFlight
+          version="${{ env.PROJECT_VERSION }}"        run: |
+          build_number="${{ env.NEW_BUILD_NUMBER }}"tFlight..."
           
-          changelog="Build Information:\n"
-          
-          # Include the branch name only if it is not 'master'
-          if [ "$branch_name" != "master" ]; then
+          changelog="Build Information:\n"          # Generate changelog
+          }}"
+          # Include the branch name only if it is not 'master'it_message="${{ env.LATEST_COMMIT_MESSAGE }}"
+          if [ "$branch_name" != "master" ]; thenION }}"
             changelog+="- Branch: $branch_name\n"
           fi
-          
+          g="Build Information:\n"
           changelog+="- Commit: $commit_message\n"
-          changelog+="- Mac Catalyst Build"
-          
-          # Use fastlane to upload to TestFlight
+          changelog+="- Mac Catalyst Build"it is not 'master'
+           [ "$branch_name" != "master" ]; then
+          # Use fastlane to upload to TestFlight            changelog+="- Branch: $branch_name\n"
           bundle exec fastlane run upload_to_testflight \
             api_key_path:"./appstore_api_key.json" \
             ipa:"$IPA_PATH" \
-            skip_waiting_for_build_processing:true \
+            skip_waiting_for_build_processing:true \changelog+="- Mac Catalyst Build"
             changelog:"$changelog"
-        env:
+        env:ht
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}son" \
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}  skip_waiting_for_build_processing:true \
 
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      - name: Post PR Commentv:
+        if: success() && github.event_name == 'pull_request'crets.APPLE_APP_SPECIFIC_PASSWORD }}
+        uses: actions/github-script@v6ecrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+        env:{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}C_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
         with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
+          script: |== 'pull_request'
+            const buildNumber = process.env.BUILD_NUMBER;es: actions/github-script@v6
             const version = process.env.PROJECT_VERSION;
-            const message = `✅ Mac Catalyst build ${version} (${buildNumber}) has been successfully uploaded to TestFlight and will be available for testing soon.`;
-            const prNumber = context.payload.pull_request.number;
+            const message = `✅ Mac Catalyst build ${version} (${buildNumber}) has been successfully uploaded to TestFlight and will be available for testing soon.`;_number }}
+            const prNumber = context.payload.pull_request.number;roject_version }}
             const repo = context.repo;
             github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
+              ...repo,ocess.env.BUILD_NUMBER;
+              issue_number: prNumber,const version = process.env.PROJECT_VERSION;
+              body: message,y uploaded to TestFlight and will be available for testing soon.`;
             });

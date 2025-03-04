@@ -956,6 +956,29 @@ end
     UI.success("✅ App Store Connect API Key setup completed")
   end
 
+  desc "Fetch Mac Catalyst provisioning profiles for CI (readonly)"
+  lane :fetch_catalyst_profiles_ci do
+    UI.message("Fetching Mac Catalyst provisioning profiles for CI in readonly mode")
+    
+    # We need these environment variables
+    required_vars = ["APPLE_ID", "GIT_ACCESS_TOKEN", "GIT_URL", "MATCH_PASSWORD", "KEYCHAIN_PASSWORD"]
+    ensure_env_vars(required_vars)
+    
+    # Only fetch app store profiles for Catalyst
+    match(
+      type: "appstore",
+      platform: "catalyst",
+      app_identifier: app_identifiers,
+      git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+      git_url: ENV["GIT_URL"],
+      readonly: true,
+      keychain_name: "temp_keychain",
+      keychain_password: ENV["KEYCHAIN_PASSWORD"],
+      username: ENV["APPLE_ID"],
+      verbose: true
+    )
+  end
+
 end
 # ===========================
 #       Global Lanes
