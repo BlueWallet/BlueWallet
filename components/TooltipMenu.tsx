@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { Platform, TouchableOpacity } from 'react-native';
-import { MenuView, MenuAction, NativeActionEvent, MenuPreviewConfig } from '@react-native-menu/menu';
+import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
@@ -14,7 +14,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     onPressMenuItem,
     children,
     isButton = false,
-    renderPreview,
     ...restProps
   } = props;
 
@@ -32,15 +31,10 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           title: subaction.text,
           subtitle: subaction.subtitle,
           image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
-          imageColor: subaction.imageColor,
           attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
         };
         if ('menuState' in subaction) {
-          if (typeof subaction.menuState === 'boolean') {
-            subMenuItem.state = subaction.menuState ? 'on' : 'off';
-          } else {
-            subMenuItem.state = subaction.menuState;
-          }
+          subMenuItem.state = subaction.menuState ? 'on' : 'off';
         }
         if (subaction.subactions && subaction.subactions.length > 0) {
           const deepSubactions = subaction.subactions.map(deepSub => {
@@ -49,15 +43,10 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
               title: deepSub.text,
               subtitle: deepSub.subtitle,
               image: deepSub.icon?.iconValue ? deepSub.icon.iconValue : undefined,
-              imageColor: deepSub.imageColor,
               attributes: { disabled: deepSub.disabled, destructive: deepSub.destructive, hidden: deepSub.hidden },
             };
             if ('menuState' in deepSub) {
-              if (typeof deepSub.menuState === 'boolean') {
-                deepMenuItem.state = deepSub.menuState ? 'on' : 'off';
-              } else {
-                deepMenuItem.state = deepSub.menuState;
-              }
+              deepMenuItem.state = deepSub.menuState ? 'on' : 'off';
             }
             return deepMenuItem;
           });
@@ -71,16 +60,11 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       title: action.text,
       subtitle: action.subtitle,
       image: action.icon?.iconValue ? action.icon.iconValue : undefined,
-      imageColor: action.imageColor,
       attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
       displayInline: action.displayInline || false,
     };
     if ('menuState' in action) {
-      if (typeof action.menuState === 'boolean') {
-        menuItem.state = action.menuState ? 'on' : 'off';
-      } else {
-        menuItem.state = action.menuState;
-      }
+      menuItem.state = action.menuState ? 'on' : 'off';
     }
     if (subactions.length > 0) {
       menuItem.subactions = subactions;
@@ -121,43 +105,14 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     [onPressMenuItem],
   );
 
-  // Setup preview config for iOS
-  const previewConfig: MenuPreviewConfig | undefined = useMemo(() => {
-    if (Platform.OS === 'ios' && renderPreview) {
-      return {
-        previewType: 'CUSTOM',
-        previewSize: 'STRETCH'
-      };
-    }
-    return undefined;
-  }, [renderPreview]);
-  
-  // Setup event handlers for menu show/hide
-  const handleMenuOpen = useCallback(() => {
-    if (props.onMenuWillShow) {
-      props.onMenuWillShow();
-    }
-  }, [props.onMenuWillShow]);
-
-  const handleMenuClose = useCallback(() => {
-    if (props.onMenuWillHide) {
-      props.onMenuWillHide();
-    }
-  }, [props.onMenuWillHide]);
-
   const renderMenuView = () => {
     return (
       <MenuView
         title={title}
         isAnchoredToRight
         onPressAction={handlePressMenuItemForMenuView}
-        onOpenMenu={handleMenuOpen}
-        onCloseMenu={handleMenuClose}
         actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
         shouldOpenOnLongPress={!isMenuPrimaryAction}
-        // Add preview support for iOS
-        previewConfig={previewConfig}
-        renderPreview={renderPreview}
         // @ts-ignore: Not exposed in types
         accessibilityLabel={props.accessibilityLabel}
         accessibilityHint={props.accessibilityHint}
