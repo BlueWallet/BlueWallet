@@ -213,10 +213,6 @@ jobs:
             username:"$APPLE_ID" \
             verbose:"true"
 
-      # Add execution permission to our script
-      - name: Make Scripts Executable
-        run: chmod +x ./scripts/fix_bugsnag_catalyst.sh
-      
       # Run our custom script to fix Bugsnag for Catalyst
       - name: Fix Bugsnag for Catalyst
         run: |
