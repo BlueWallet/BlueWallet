@@ -149,46 +149,17 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      # Create API key file and extract p8 key
-      - name: Create App Store Connect API Key JSON and Extract p8
-        run: |
-          # Create the JSON file
-          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
-          echo "Created App Store Connect API key JSON file"
-          
-          # Extract p8 key from JSON
-          cat ./appstore_api_key.json | python3 -c '
-          import json, sys
-          try:
-              data = json.load(sys.stdin)
-              if "key" in data:
-                  with open("appstore_api_key.p8", "w") as f:
-                      f.write(data["key"])
-                  print("Successfully extracted p8 key")
-              else:
-                  print("JSON does not contain a key field")
-          except Exception as e:
-              print(f"Error processing JSON: {str(e)}")
-              exit(1)
-          '
-          
-          # Verify the p8 file exists
-          if [ -f "./appstore_api_key.p8" ]; then
-            echo "✅ p8 key extracted successfully"
-            chmod 600 ./appstore_api_key.p8
-            echo "APP_STORE_CONNECT_API_KEY_PATH=./appstore_api_key.p8" >> $GITHUB_ENV
-          else
-            echo "⚠️ p8 key extraction failed, will try to use JSON directly"
-            echo "APP_STORE_CONNECT_API_KEY_PATH=./appstore_api_key.json" >> $GITHUB_ENV
-          fi
+      # Simple approach - just creating the JSON file without any parsing
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
-      # Setup API Key using the p8 file if available
+      # Use the JSON file directly without extraction
       - name: Setup App Store Connect API Key
         run: bundle exec fastlane ios setup_app_store_connect_api_key
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: ${{ env.APP_STORE_CONNECT_API_KEY_PATH }}
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
@@ -240,7 +211,7 @@ jobs:
             username:"$APPLE_ID" \
             verbose:"true"
 
-      # Continue with the build step - make sure it uses the p8 file
+      # Continue with the build step - pass the JSON file path directly
       - name: Build Mac Catalyst App
         id: build_app
         env:
@@ -255,7 +226,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: ${{ env.APP_STORE_CONNECT_API_KEY_PATH }}
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           # Add environment variable to skip Bugsnag for Catalyst
           SKIP_BUGSNAG_CATALYST: 'YES'
         run: |
@@ -339,38 +310,9 @@ jobs:
           name: BlueWallet_MacCatalyst_AppStore_IPA
           path: ./catalyst-build/
 
-      # Create API key and extract p8 for upload job too
-      - name: Create App Store Connect API Key JSON and Extract p8
-        run: |
-          # Create the JSON file
-          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
-          echo "Created App Store Connect API key JSON file"
-          
-          # Extract p8 key from JSON
-          cat ./appstore_api_key.json | python3 -c '
-          import json, sys
-          try:
-              data = json.load(sys.stdin)
-              if "key" in data:
-                  with open("appstore_api_key.p8", "w") as f:
-                      f.write(data["key"])
-                  print("Successfully extracted p8 key")
-              else:
-                  print("JSON does not contain a key field")
-          except Exception as e:
-              print(f"Error processing JSON: {str(e)}")
-              exit(1)
-          '
-          
-          # Verify the p8 file exists
-          if [ -f "./appstore_api_key.p8" ]; then
-            echo "✅ p8 key extracted successfully"
-            chmod 600 ./appstore_api_key.p8
-            echo "APP_STORE_CONNECT_API_KEY_PATH=./appstore_api_key.p8" >> $GITHUB_ENV
-          else
-            echo "⚠️ p8 key extraction failed, will try to use JSON directly"
-            echo "APP_STORE_CONNECT_API_KEY_PATH=./appstore_api_key.json" >> $GITHUB_ENV
-          fi
+      # Simple approach for the upload job too
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
       - name: Find IPA and Set Path
         run: |
@@ -419,14 +361,14 @@ jobs:
           changelog+="- Commit: $commit_message\n"
           changelog+="- Mac Catalyst Build"
           
-          # Use the p8 file for TestFlight upload
+          # Use the JSON file directly
           bundle exec fastlane run upload_to_testflight \
-            api_key_path:"$APP_STORE_CONNECT_API_KEY_PATH" \
+            api_key_path:"./appstore_api_key.json" \
             ipa:"$IPA_PATH" \
             skip_waiting_for_build_processing:true \
             changelog:"$changelog"
         env:
-          APP_STORE_CONNECT_API_KEY_PATH: ${{ env.APP_STORE_CONNECT_API_KEY_PATH }}
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
