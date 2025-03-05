@@ -543,17 +543,61 @@ end
       begin
         # Make sure App Store Connect API Key is properly setup before building
         UI.message("Setting up App Store Connect API key for export...")
-        api_key_info = lane_context[SharedValues::APP_STORE_CONNECT_API_KEY]
         
-        # If the API key isn't already set up in lane context, set it up now
-        if api_key_info.nil?
-          # Check for API key JSON file
-          api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+        # Extract p8 key from JSON if needed
+        api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+        
+        if File.exist?(api_key_path)
+          UI.message("Using App Store Connect API key from: #{api_key_path}")
           
-          if File.exist?(api_key_path)
-            UI.message("Using App Store Connect API key from: #{api_key_path}")
+          # Check if the file is JSON and extract p8 key if needed
+          begin
+            content = File.read(api_key_path)
             
-            # Set up API key using the app_store_connect_api_key action
+            # Check if the content appears to be JSON
+            if content.strip.start_with?('{') && content.strip.end_with?('}')
+              UI.message("API key appears to be in JSON format, extracting p8...")
+              
+              # Parse JSON and extract the key
+              require 'json'
+              json_data = JSON.parse(content)
+              
+              if json_data.key?("key")
+                p8_content = json_data["key"]
+                p8_path = "./appstore_api_key.p8"
+                
+                # Write the p8 content to a new file
+                File.write(p8_path, p8_content)
+                UI.message("Successfully extracted p8 key to: #{p8_path}")
+                
+                # Use the p8 file for API key setup
+                api_key_info = app_store_connect_api_key(
+                  key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+                  issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+                  key_filepath: p8_path,
+                  duration: 1200, # 20 minutes
+                  in_house: false
+                )
+                
+                # Update the path for export
+                ENV['APP_STORE_CONNECT_API_KEY_PATH'] = p8_path
+              else
+                UI.error("JSON doesn't contain a 'key' field: #{json_data.keys.join(', ')}")
+                UI.user_error!("Invalid API key JSON format")
+              end
+            else
+              # If not JSON, assume it's already a p8 file
+              UI.message("API key doesn't appear to be in JSON format, using as-is")
+              api_key_info = app_store_connect_api_key(
+                key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+                issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+                key_filepath: api_key_path,
+                duration: 1200,
+                in_house: false
+              )
+            end
+          rescue JSON::ParserError => e
+            UI.message("Not valid JSON format, trying to use as-is: #{e.message}")
             api_key_info = app_store_connect_api_key(
               key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
               issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
@@ -561,10 +605,13 @@ end
               duration: 1200, # 20 minutes
               in_house: false
             )
-          else
-            UI.error("No API key file found at #{api_key_path}")
-            UI.user_error!("App Store Connect API key not found. This is required for Mac Catalyst builds.")
+          rescue => e
+            UI.error("Failed to process API key file: #{e.message}")
+            UI.user_error!("API key setup failed")
           end
+        else
+          UI.error("API key file not found at: #{api_key_path}")
+          UI.user_error!("App Store Connect API key file not found")
         end
         
         # Build for Mac Catalyst
