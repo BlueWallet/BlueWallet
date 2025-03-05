@@ -149,9 +149,11 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      # Simplified approach for API key - same as iOS workflow
+      # Simplified approach - just create the file
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        run: |
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          echo "Created App Store Connect API key file"
 
       - name: Setup App Store Connect API Key
         run: bundle exec fastlane ios setup_app_store_connect_api_key
@@ -309,9 +311,11 @@ jobs:
           name: BlueWallet_MacCatalyst_AppStore_IPA
           path: ./catalyst-build/
 
-      # Use the same simple approach for the upload job
+      # Update for testflight-upload-macos job
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        run: |
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          echo "Created App Store Connect API key file"
 
       - name: Find IPA and Set Path
         run: |
