@@ -213,7 +213,17 @@ jobs:
             username:"$APPLE_ID" \
             verbose:"true"
 
-      # Continue with the build step - pass the JSON file path directly
+      # Add execution permission to our script
+      - name: Make Scripts Executable
+        run: chmod +x ./scripts/fix_bugsnag_catalyst.sh
+      
+      # Run our custom script to fix Bugsnag for Catalyst
+      - name: Fix Bugsnag for Catalyst
+        run: |
+          chmod +x ./scripts/fix_bugsnag_for_catalyst.sh
+          ./scripts/fix_bugsnag_for_catalyst.sh
+
+      # Continue with the build step
       - name: Build Mac Catalyst App
         id: build_app
         env:
@@ -231,6 +241,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           # Add environment variable to skip Bugsnag for Catalyst
           SKIP_BUGSNAG_CATALYST: 'YES'
+          BUGSNAG_DISABLE_CATALYST: 'YES'
         run: |
           # First ensure export_options_catalyst.plist has the correct team ID if not already set
           sed -i '' "s/A7W54YZ4WU/$ITC_TEAM_ID/g" ./ios/export_options_catalyst.plist

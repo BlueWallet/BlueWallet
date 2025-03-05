@@ -18,6 +18,7 @@ export interface Action {
   subactions?: Action[]; // Nested/Inline actions (subactions) within an action
 }
 
+
 export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
@@ -27,6 +28,10 @@ export interface ToolTipMenuProps {
   title?: string;
   isMenuPrimaryAction?: boolean;
   isButton?: boolean;
+  /**
+   * Function to render a custom preview component for iOS context menus
+   * @platform iOS
+   */
   renderPreview?: () => React.ReactNode;
   onPress?: () => void;
   previewValue?: string;
@@ -38,7 +43,13 @@ export interface ToolTipMenuProps {
   accessibilityHint?: string;
   accessibilityState?: object;
   buttonStyle?: ViewStyle | ViewStyle[];
+  /**
+   * Called when the menu is about to be shown
+   */
   onMenuWillShow?: () => void;
+  /**
+   * Called when the menu is about to be hidden
+   */
   onMenuWillHide?: () => void;
 }
 

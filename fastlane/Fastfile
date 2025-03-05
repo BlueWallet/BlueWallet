@@ -567,7 +567,7 @@ end
         # Proceed with build even if API key setup fails
         UI.message("Building Mac Catalyst app...")
         
-        # First, create archive
+        # First, create archive with additional debug flags
         xcodebuild_output = []
         status = 0
         
@@ -581,23 +581,43 @@ end
           "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
           "SKIP_BUGSNAG_CATALYST=YES",
           "DEVELOPMENT_TEAM=#{ENV['ITC_TEAM_ID']}",
+          "COMPILER_INDEX_STORE_ENABLE=NO", # Speed up build by disabling indexing
+          "OTHER_SWIFT_FLAGS='-Xfrontend -debug-time-function-bodies'", # Debug build times
           "archive"
         ]
         
         UI.message("Running archive command: #{archive_cmd.join(' ')}")
         
+        # Create a log file for the archive output
+        archive_log_path = "#{build_dir}/archive_log.txt"
+        
         Open3.popen2e(archive_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
           stdout_stderr.each do |line|
             xcodebuild_output << line
-            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
+            # Also write to log file for detailed debugging
+            File.open(archive_log_path, 'a') { |f| f.puts(line) } if archive_log_path
+            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true" || line.include?("error:")
           end
           status = wait_thread.value.exitstatus
         end
         
         if status != 0
+          UI.important("Archive command failed with status: #{status}")
+          UI.important("Full build log available at: #{archive_log_path}")
+          
+          # Look for specific errors related to Bugsnag
+          bugsnag_errors = xcodebuild_output.select { |line| line.include?("Bugsnag") && line.include?("error") }
+          if bugsnag_errors.any?
+            UI.error("Found Bugsnag-related errors:")
+            bugsnag_errors.each { |line| UI.error(line) }
+          end
+          
+          # Print last 50 lines of output
           UI.error("Archive failed. Printing the last 50 lines of output:")
           xcodebuild_output.last(50).each { |line| UI.error(line) }
           UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
+        else
+          UI.success("Successfully created archive at #{build_dir}/BlueWallet.xcarchive")
         end
         
         # Now export the archive using API key authentication
