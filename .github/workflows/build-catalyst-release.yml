@@ -149,34 +149,16 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
+      # Simplified approach for API key - same as iOS workflow
       - name: Create App Store Connect API Key JSON
-        run: |
-          # Create API key in an absolute path to avoid directory issues
-          WORKSPACE_DIR="$(pwd)"
-          API_KEY_PATH="${WORKSPACE_DIR}/appstore_api_key.json"
-          
-          echo "Creating API key at: ${API_KEY_PATH}"
-          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > "${API_KEY_PATH}"
-          
-          # Make sure we set this for future steps
-          echo "API_KEY_PATH=${API_KEY_PATH}" >> $GITHUB_ENV
-          
-          # Verify file was created
-          if [ -f "${API_KEY_PATH}" ]; then
-            echo "✅ API key file created successfully at ${API_KEY_PATH}"
-            echo "File size: $(stat -f%z ${API_KEY_PATH}) bytes"
-            chmod 600 "${API_KEY_PATH}"
-          else
-            echo "❌ Failed to create API key file at ${API_KEY_PATH}"
-            exit 1
-          fi
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
       - name: Setup App Store Connect API Key
         run: bundle exec fastlane ios setup_app_store_connect_api_key
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: "${{ env.API_KEY_PATH }}"
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
 
@@ -243,7 +225,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_PATH: "${{ env.API_KEY_PATH }}"
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           # Add environment variable to skip Bugsnag for Catalyst
           SKIP_BUGSNAG_CATALYST: 'YES'
         run: |
@@ -327,27 +309,9 @@ jobs:
           name: BlueWallet_MacCatalyst_AppStore_IPA
           path: ./catalyst-build/
 
+      # Use the same simple approach for the upload job
       - name: Create App Store Connect API Key JSON
-        run: |
-          # Create API key in an absolute path to avoid directory issues
-          WORKSPACE_DIR="$(pwd)"
-          API_KEY_PATH="${WORKSPACE_DIR}/appstore_api_key.json"
-          
-          echo "Creating API key at: ${API_KEY_PATH}"
-          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > "${API_KEY_PATH}"
-          
-          # Make sure we set this for future steps
-          echo "API_KEY_PATH=${API_KEY_PATH}" >> $GITHUB_ENV
-          
-          # Verify file was created
-          if [ -f "${API_KEY_PATH}" ]; then
-            echo "✅ API key file created successfully at ${API_KEY_PATH}"
-            echo "File size: $(stat -f%z ${API_KEY_PATH}) bytes"
-            chmod 600 "${API_KEY_PATH}"
-          else
-            echo "❌ Failed to create API key file at ${API_KEY_PATH}"
-            exit 1
-          fi
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
       - name: Find IPA and Set Path
         run: |
@@ -396,13 +360,14 @@ jobs:
           changelog+="- Commit: $commit_message\n"
           changelog+="- Mac Catalyst Build"
           
-          # Use fastlane to upload to TestFlight
+          # Use fastlane to upload to TestFlight - same pattern as iOS workflow
           bundle exec fastlane run upload_to_testflight \
             api_key_path:"./appstore_api_key.json" \
             ipa:"$IPA_PATH" \
             skip_waiting_for_build_processing:true \
             changelog:"$changelog"
         env:
+          APP_STORE_CONNECT_API_KEY_PATH: "./appstore_api_key.json"
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
