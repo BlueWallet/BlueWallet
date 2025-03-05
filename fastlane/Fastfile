@@ -527,168 +527,79 @@ end
       # Generate output names based on version
       version_string = ENV['PROJECT_VERSION'] || "1.0"
       build_number = ENV['NEW_BUILD_NUMBER'] || "1"
+      ipa_name = "BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
       
-      # Set environment variables that will disable Bugsnag for Catalyst
-      ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
+      # Setup App Store Connect API key
+      api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
       
-      # Verify project file is valid before building
-      UI.message("Verifying project file integrity...")
-      verify_cmd = "plutil -lint \"#{File.join(project_root, 'ios', 'BlueWallet.xcodeproj', 'project.pbxproj')}\""
-      verify_status = system(verify_cmd)
-      unless verify_status
-        UI.error("Project file appears to be corrupted. Please restore it from version control.")
-        UI.user_error!("Invalid project file")
+      if File.exist?(api_key_path)
+        UI.message("Using App Store Connect API key from: #{api_key_path}")
+      else
+        UI.error("API key file not found at: #{api_key_path}")
       end
       
+      # Simplify by using build_mac_app action
       begin
-        # Make sure App Store Connect API Key is properly setup before building
-        UI.message("Setting up App Store Connect API key for export...")
+        # Create the environment variables for the build process
+        ENV['FL_BUILD_NUMBER'] = build_number.to_s
+        ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
         
-        api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+        UI.message("Building Mac Catalyst app using build_mac_app action...")
         
-        if File.exist?(api_key_path)
-          UI.message("Using App Store Connect API key from: #{api_key_path}")
-          
-          # Instead of trying to extract p8 key, just use the JSON file directly
-          begin
-            UI.message("Using API key file directly without extraction")
-            
-            # Just reference the key without trying to extract it
-            ENV["APP_STORE_CONNECT_API_KEY_PATH"] = api_key_path
-          rescue => e
-            UI.error("Failed to process API key file: #{e.message}")
-            UI.message("Will attempt to continue the process anyway")
-          end
-        else
-          UI.error("API key file not found at: #{api_key_path}")
-          UI.message("Will attempt to continue the process anyway")
-        end
+        # Use the built-in fastlane action for building Mac apps
+        build_mac_app(
+          workspace: workspace_path,
+          scheme: "BlueWallet",
+          output_directory: build_dir,
+          output_name: ipa_name,
+          export_method: "app-store",
+          export_options: export_options_path,
+          catalyst_platform: true,
+          skip_package_dependencies_resolution: true,
+          skip_profile_detection: true,
+          buildlog_path: File.join(build_dir, "build_logs"),
+          clean: true,
+          configuration: "Release",
+          xcargs: "SKIP_BUGSNAG_CATALYST=YES DEVELOPMENT_TEAM=#{ENV['ITC_TEAM_ID']}"
+        )
         
-        # Proceed with build even if API key setup fails
-        UI.message("Building Mac Catalyst app...")
+        # Find the exported IPA file
+        ipa_path = File.join(build_dir, ipa_name)
         
-        # First, create archive with additional debug flags
-        xcodebuild_output = []
-        status = 0
-        
-        # Include authentication-related environment variables in the build command
-        archive_cmd = [
-          "xcodebuild",
-          "-workspace", workspace_path,
-          "-scheme", "BlueWallet",
-          "-configuration", "Release",
-          "-destination", "'platform=macOS,variant=Mac Catalyst'",
-          "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
-          "SKIP_BUGSNAG_CATALYST=YES",
-          "DEVELOPMENT_TEAM=#{ENV['ITC_TEAM_ID']}",
-          "COMPILER_INDEX_STORE_ENABLE=NO", # Speed up build by disabling indexing
-          "OTHER_SWIFT_FLAGS='-Xfrontend -debug-time-function-bodies'", # Debug build times
-          "archive"
-        ]
-        
-        UI.message("Running archive command: #{archive_cmd.join(' ')}")
-        
-        # Create a log file for the archive output
-        archive_log_path = "#{build_dir}/archive_log.txt"
-        
-        Open3.popen2e(archive_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
-          stdout_stderr.each do |line|
-            xcodebuild_output << line
-            # Also write to log file for detailed debugging
-            File.open(archive_log_path, 'a') { |f| f.puts(line) } if archive_log_path
-            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true" || line.include?("error:")
-          end
-          status = wait_thread.value.exitstatus
-        end
-        
-        if status != 0
-          UI.important("Archive command failed with status: #{status}")
-          UI.important("Full build log available at: #{archive_log_path}")
-          
-          # Look for specific errors related to Bugsnag
-          bugsnag_errors = xcodebuild_output.select { |line| line.include?("Bugsnag") && line.include?("error") }
-          if bugsnag_errors.any?
-            UI.error("Found Bugsnag-related errors:")
-            bugsnag_errors.each { |line| UI.error(line) }
-          end
-          
-          # Print last 50 lines of output
-          UI.error("Archive failed. Printing the last 50 lines of output:")
-          xcodebuild_output.last(50).each { |line| UI.error(line) }
-          UI.user_error!("Failed to build Mac Catalyst app archive. See output above.")
-        else
-          UI.success("Successfully created archive at #{build_dir}/BlueWallet.xcarchive")
-        end
-        
-        # Now export the archive using API key authentication
-        UI.message("Exporting archive with App Store Connect API key authentication...")
-        
-        # The output IPA path
-        ipa_path = "#{build_dir}/BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
-        
-        # Add API key info to the export options plist
-        temp_export_options_path = "#{build_dir}/temp_export_options.plist"
-        FileUtils.cp(export_options_path, temp_export_options_path)
-        
-        # Generate export command with API key arguments
-        export_cmd = [
-          "xcodebuild", 
-          "-exportArchive", 
-          "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
-          "-exportPath", build_dir,
-          "-exportOptionsPlist", temp_export_options_path
-        ]
-        
-        # Add authentication key arguments only if we have the environment variables
-        if ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'] && ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'] && ENV['APP_STORE_CONNECT_API_KEY_PATH']
-          export_cmd << "-authenticationKeyIssuerID" << ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']
-          export_cmd << "-authenticationKeyID" << ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']
-          export_cmd << "-authenticationKeyPath" << ENV['APP_STORE_CONNECT_API_KEY_PATH']
-        else
-          UI.message("Not using authentication key parameters as some environment variables are missing")
-        end
-        
-        UI.message("Running export command: #{export_cmd.join(' ')}")
-        
-        export_output = []
-        export_status = 0
-        Open3.popen2e(export_cmd.join(' ')) do |stdin, stdout_stderr, wait_thread|
-          stdout_stderr.each do |line|
-            export_output << line
-            puts line if ENV['FL_XCODEBUILD_PRINT_COMMAND_OUTPUT'] == "true"
-          end
-          export_status = wait_thread.value.exitstatus
-        end
-        
-        if export_status != 0
-          UI.error("Export failed. Printing the last 50 lines of output:")
-          export_output.last(50).each { |line| UI.error(line) }
-          UI.user_error!("Failed to export Mac Catalyst app. See output above.")
-        end
-        
-        # Find the exported IPA file (the name will depend on the bundle ID)
-        found_ipa = Dir.glob("#{build_dir}/*.ipa").first
-        
-        if found_ipa.nil?
-          UI.user_error!("No IPA file found after export")
-        else
-          UI.success("Successfully exported IPA at: #{found_ipa}")
-          
-          # Rename to our standardized name
-          FileUtils.mv(found_ipa, ipa_path)
+        if File.exist?(ipa_path)
+          UI.success("Successfully built Mac Catalyst app at: #{ipa_path}")
           
           # Store the IPA path for future steps
-          ENV['PKG_OUTPUT_PATH'] = ipa_path # Reusing the same env var for simplicity
+          ENV['PKG_OUTPUT_PATH'] = ipa_path
           File.write("#{build_dir}/pkg_path.txt", ipa_path)
           
-          # Also create a GitHub Actions output if running in that environment
+          # Create GitHub Actions output if running in that environment
           if ENV['GITHUB_OUTPUT']
             sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
           end
+        else
+          # Fallback logic to find the IPA
+          UI.warning("IPA not found at expected path: #{ipa_path}")
+          found_ipa = Dir.glob("#{build_dir}/*.ipa").first
+          
+          if found_ipa
+            UI.message("Found IPA at alternative path: #{found_ipa}")
+            # Move to expected location
+            FileUtils.mv(found_ipa, ipa_path)
+            ENV['PKG_OUTPUT_PATH'] = ipa_path
+            File.write("#{build_dir}/pkg_path.txt", ipa_path)
+            
+            if ENV['GITHUB_OUTPUT']
+              sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
+            end
+          else
+            UI.user_error!("No IPA file found after build")
+          end
         end
-      ensure
-        # Clean up temporary files
-        FileUtils.rm_f("#{build_dir}/temp_export_options.plist") if File.exist?("#{build_dir}/temp_export_options.plist")
+      rescue => e
+        UI.error("Failed to build Mac Catalyst app: #{e.message}")
+        UI.error(e.backtrace.join("\n"))
+        UI.user_error!("Mac Catalyst build failed. See log for details.")
       end
     end
   end
