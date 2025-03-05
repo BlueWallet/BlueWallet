@@ -549,42 +549,14 @@ end
         if File.exist?(api_key_path)
           UI.message("Using App Store Connect API key from: #{api_key_path}")
           
-          # Extract p8 from JSON if needed 
-          api_key_content = File.read(api_key_path)
-          
-          if api_key_content.include?('"key":') 
-            begin
-              require 'json'
-              json_data = JSON.parse(api_key_content)
-              
-              if json_data.key?("key")
-                p8_content = json_data["key"]
-                p8_path = "#{Dir.pwd}/appstore_api_key.p8"
-                
-                File.write(p8_path, p8_content)
-                UI.message("Successfully extracted p8 key to: #{p8_path}")
-                
-                # Update the path to use p8 file
-                api_key_path = p8_path
-              end
-            rescue => e
-              UI.message("Warning: JSON parsing failed: #{e.message}. Will try to use file as-is.")
-            end
-          end
-          
-          # Set up API key
+          # Instead of trying to extract p8 key, just use the JSON file directly
           begin
-            api_key_info = app_store_connect_api_key(
-              key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
-              issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
-              key_filepath: api_key_path,
-              duration: 1200,
-              in_house: false
-            )
+            UI.message("Using API key file directly without extraction")
             
-            UI.message("API key setup successful")
+            # Just reference the key without trying to extract it
+            ENV["APP_STORE_CONNECT_API_KEY_PATH"] = api_key_path
           rescue => e
-            UI.error("Failed to set up app_store_connect_api_key: #{e.message}")
+            UI.error("Failed to process API key file: #{e.message}")
             UI.message("Will attempt to continue the process anyway")
           end
         else
@@ -644,11 +616,17 @@ end
           "-exportArchive", 
           "-archivePath", "#{build_dir}/BlueWallet.xcarchive",
           "-exportPath", build_dir,
-          "-exportOptionsPlist", temp_export_options_path,
-          "-authenticationKeyIssuerID", ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
-          "-authenticationKeyID", ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
-          "-authenticationKeyPath", ENV['APP_STORE_CONNECT_API_KEY_PATH'] || "./appstore_api_key.p8"
+          "-exportOptionsPlist", temp_export_options_path
         ]
+        
+        # Add authentication key arguments only if we have the environment variables
+        if ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'] && ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'] && ENV['APP_STORE_CONNECT_API_KEY_PATH']
+          export_cmd << "-authenticationKeyIssuerID" << ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']
+          export_cmd << "-authenticationKeyID" << ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']
+          export_cmd << "-authenticationKeyPath" << ENV['APP_STORE_CONNECT_API_KEY_PATH']
+        else
+          UI.message("Not using authentication key parameters as some environment variables are missing")
+        end
         
         UI.message("Running export command: #{export_cmd.join(' ')}")
         
@@ -814,53 +792,14 @@ end
     # Get path to API key file
     api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
     
-    # Read API key file if it exists
+    # Skip any processing of the API key file and just use it directly
     if File.exist?(api_key_path)
-      UI.message("Using API key file at: #{api_key_path}")
+      UI.message("App Store Connect API key file exists at: #{api_key_path}")
       
-      # Process the file - look for p8 content in JSON if needed
-      begin
-        content = File.read(api_key_path)
-        
-        # Check if content looks like JSON with p8 key
-        if content.include?('"key":')
-          begin
-            require 'json'
-            json_data = JSON.parse(content)
-            
-            if json_data.key?("key")
-              p8_path = "#{Dir.pwd}/appstore_api_key.p8"
-              File.write(p8_path, json_data["key"])
-              api_key_path = p8_path
-              UI.message("Extracted p8 key to: #{p8_path}")
-            end
-          rescue => e
-            UI.message("JSON parsing failed: #{e.message}")
-          end
-        end
-      rescue => e
-        UI.message("Error reading API key file: #{e.message}")
-      end
-    else
-      UI.message("API key file not found. Will try to proceed.")
-    end
-    
-    # Set up API key if file exists
-    if File.exist?(api_key_path)
-      begin
-        app_store_connect_api_key(
-          key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-          issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-          key_filepath: api_key_path,
-          duration: 1200, # 20 minutes
-          in_house: false
-        )
-        
-        UI.success("✅ App Store Connect API Key setup completed")
-      rescue => e
-        UI.error("Failed to set up API key: #{e.message}")
-        UI.message("Will try to continue with the process anyway")
-      end
+      # Don't try to parse or extract anything, just set it in the environment
+      ENV["APP_STORE_CONNECT_API_KEY_PATH"] = api_key_path
+      
+      UI.success("✅ App Store Connect API Key path set")
     else
       UI.error("No API key file found at #{api_key_path}")
       UI.message("Will try to continue with the process anyway")

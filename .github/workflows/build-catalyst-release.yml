@@ -149,11 +149,13 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      # Simple approach - just creating the JSON file without any parsing
+      # Simple approach - just create the file, no extraction attempts
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        run: |
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          echo "Created App Store Connect API key file"
 
-      # Use the JSON file directly without extraction
+      # Set up just the path without trying to extract p8 key
       - name: Setup App Store Connect API Key
         run: bundle exec fastlane ios setup_app_store_connect_api_key
         env:
@@ -310,9 +312,11 @@ jobs:
           name: BlueWallet_MacCatalyst_AppStore_IPA
           path: ./catalyst-build/
 
-      # Simple approach for the upload job too
+      # Simple approach for upload job too
       - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        run: |
+          echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+          echo "Created App Store Connect API key file"
 
       - name: Find IPA and Set Path
         run: |
