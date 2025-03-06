@@ -1,6 +1,6 @@
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, I18nManager, Keyboard, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { ActivityIndicator, I18nManager, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -19,26 +19,35 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { DecodedInvoice, TWallet } from '../../class/wallets/types';
+import { useKeyboard } from '../../hooks/useKeyboard';
 
-const ScanLndInvoice = () => {
+type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
+type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
+
+const ScanLNDInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
-  const route = useRoute();
-  const { walletID, uri, invoice } = useRoute().params;
-  /** @type {LightningCustodianWallet} */
-  const [wallet, setWallet] = useState(
-    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN),
+  const route = useRoute<RouteProps>();
+  const { walletID, uri, invoice } = route.params || {};
+  const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
+    (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
+      (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
   );
-  const { navigate, setParams, goBack, pop } = useNavigation();
-  const [isLoading, setIsLoading] = useState(false);
-  const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
-  const [destination, setDestination] = useState('');
-  const [unit, setUnit] = useState(BitcoinUnit.SATS);
-  const [decoded, setDecoded] = useState();
-  const [amount, setAmount] = useState();
-  const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState();
-  const [expiresIn, setExpiresIn] = useState();
+  const { navigate, setParams, goBack, pop } = useExtendedNavigation<NavigationProps>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
+  const [destination, setDestination] = useState<string>('');
+  const [unit, setUnit] = useState<BitcoinUnit>(BitcoinUnit.SATS);
+  const [decoded, setDecoded] = useState<DecodedInvoice | undefined>();
+  const [amount, setAmount] = useState<string | undefined>();
+  const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
+  const [expiresIn, setExpiresIn] = useState<string | undefined>();
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -55,17 +64,11 @@ const ScanLndInvoice = () => {
   });
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
-    return () => {
-      showSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  useEffect(() => {
     if (walletID && wallet?.getID() !== walletID) {
-      setWallet(wallets.find(w => w.getID() === walletID));
+      const newWallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
+      if (newWallet) {
+        setWallet(newWallet);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -75,7 +78,10 @@ const ScanLndInvoice = () => {
       if (!wallet) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         goBack();
-        setTimeout(() => presentAlert({ message: loc.wallets.no_ln_wallet_error }), 500);
+        setTimeout(
+          () => presentAlert({ message: loc.wallets.no_ln_wallet_error, hapticFeedback: HapticFeedbackTypes.NotificationError }),
+          500,
+        );
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
@@ -96,66 +102,68 @@ const ScanLndInvoice = () => {
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
-      let newDecoded;
+      let newDecoded: DecodedInvoice;
       try {
         newDecoded = wallet.decodeInvoice(data);
 
-        let newExpiresIn = (newDecoded.timestamp * 1 + newDecoded.expiry * 1) * 1000; // ms
-        if (+new Date() > newExpiresIn) {
+        const expiryTimeMs = (newDecoded.timestamp * 1 + newDecoded.expiry * 1) * 1000; // ms
+        let newExpiresIn: string;
+
+        if (+new Date() > expiryTimeMs) {
           newExpiresIn = loc.lnd.expired;
         } else {
-          const time = Math.round((newExpiresIn - +new Date()) / (60 * 1000));
+          const time = Math.round((expiryTimeMs - +new Date()) / (60 * 1000));
           newExpiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
+
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
-        setIsAmountInitiallyEmpty(newDecoded.num_satoshis === '0');
+        setIsAmountInitiallyEmpty(newDecoded.num_satoshis === 0);
         setDestination(data);
         setIsLoading(false);
-        setAmount(newDecoded.num_satoshis);
+        setAmount(newDecoded.num_satoshis.toString());
         setExpiresIn(newExpiresIn);
         setDecoded(newDecoded);
-      } catch (Err) {
+      } catch (Err: any) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
-        setTimeout(() => presentAlert({ message: Err.message }), 10);
+        setTimeout(() => presentAlert({ message: Err.message, hapticFeedback: HapticFeedbackTypes.NotificationError }), 10);
         setIsLoading(false);
-        setAmount();
-        setDestination();
-        setExpiresIn();
-        setDecoded();
+        setAmount(undefined);
+        setDestination('');
+        setExpiresIn(undefined);
+        setDecoded(undefined);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);
 
-  const _keyboardDidShow = () => {
+  const _keyboardDidShow = (): void => {
     setRenderWalletSelectionButtonHidden(true);
   };
 
-  const _keyboardDidHide = () => {
+  const _keyboardDidHide = (): void => {
     setRenderWalletSelectionButtonHidden(false);
   };
 
-  const processInvoice = data => {
+  useKeyboard({ onKeyboardDidShow: _keyboardDidShow, onKeyboardDidHide: _keyboardDidHide });
+
+  const processInvoice = (data: string): void => {
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
     if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
   };
 
-  const processLnurlPay = data => {
-    navigate('ScanLndInvoiceRoot', {
-      screen: 'LnurlPay',
-      params: {
-        lnurl: data,
-        walletID: walletID || wallet.getID(),
-      },
+  const processLnurlPay = (data: string): void => {
+    navigate('LnurlPay', {
+      lnurl: data,
+      walletID: walletID || wallet?.getID() || '',
     });
   };
 
   const pay = async () => {
-    if (!decoded) {
+    if (!decoded || !wallet || !amount || !invoice) {
       return null;
     }
 
@@ -167,22 +175,22 @@ const ScanLndInvoice = () => {
       }
     }
 
-    let amountSats = amount;
+    let amountSats: number = parseInt(amount, 10);
     switch (unit) {
       case BitcoinUnit.SATS:
-        amountSats = parseInt(amountSats, 10); // nop
+        // amount is already in sats
         break;
       case BitcoinUnit.BTC:
-        amountSats = btcToSatoshi(amountSats);
+        amountSats = btcToSatoshi(amount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        amountSats = btcToSatoshi(fiatToBTC(amountSats));
+        amountSats = btcToSatoshi(fiatToBTC(Number(amount)));
         break;
     }
     setIsLoading(true);
 
-    const newExpiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-    if (+new Date() > newExpiresIn) {
+    const expiryTimeMs = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+    if (+new Date() > expiryTimeMs) {
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return presentAlert({ message: loc.lnd.errorInvoiceExpired });
@@ -197,7 +205,7 @@ const ScanLndInvoice = () => {
 
     try {
       await wallet.payInvoice(invoice, amountSats);
-    } catch (Err) {
+    } catch (Err: any) {
       console.log(Err.message);
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -212,7 +220,7 @@ const ScanLndInvoice = () => {
     fetchAndSaveWalletTransactions(wallet.getID());
   };
 
-  const processTextForInvoice = text => {
+  const processTextForInvoice = (text: string): void => {
     if (
       (text && text.toLowerCase().startsWith('lnb')) ||
       text.toLowerCase().startsWith('lightning:lnb') ||
@@ -227,7 +235,7 @@ const ScanLndInvoice = () => {
     }
   };
 
-  const shouldDisablePayButton = () => {
+  const shouldDisablePayButton = (): boolean => {
     if (!decoded) {
       return true;
     } else {
@@ -235,16 +243,15 @@ const ScanLndInvoice = () => {
         return true;
       }
     }
-    return !(amount > 0);
-    // return decoded.num_satoshis <= 0 || isLoading || isNaN(decoded.num_satoshis);
+    return !(parseInt(amount, 10) > 0);
   };
 
-  const naviageToSelectWallet = () => {
+  const naviageToSelectWallet = (): void => {
     navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
   };
 
-  const renderWalletSelectionButton = () => {
-    if (renderWalletSelectionButtonHidden) return;
+  const renderWalletSelectionButton = (): JSX.Element | undefined => {
+    if (renderWalletSelectionButtonHidden || !wallet) return;
     const walletLabel = wallet.getLabel();
     return (
       <View style={styles.walletSelectRoot}>
@@ -267,25 +274,27 @@ const ScanLndInvoice = () => {
     );
   };
 
-  const getFees = () => {
-    const min = Math.floor(decoded.num_satoshis * 0.003);
-    const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
+  const getFees = (): string => {
+    if (!decoded) return '';
+    const num_satoshis = parseInt(decoded.num_satoshis.toString(), 10);
+    const min = Math.floor(num_satoshis * 0.003);
+    const max = Math.floor(num_satoshis * 0.01) + 1;
     return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
   };
 
-  const onBlur = () => {
+  const onBlur = (): void => {
     processTextForInvoice(destination);
   };
 
-  const onWalletSelect = selectedWallet => {
+  const onWalletSelect = (selectedWallet: TWallet): void => {
     setParams({ walletID: selectedWallet.getID() });
     pop();
   };
 
   const onBarScanned = useCallback(
-    value => {
+    (value: string): void => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, (completionValue: any) => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         navigate(...completionValue);
       });
@@ -300,6 +309,12 @@ const ScanLndInvoice = () => {
       setParams({ onBarScanned: undefined });
     }
   }, [navigate, onBarScanned, route.params?.onBarScanned, setParams]);
+
+  const onChangeText = (text: string): void => {
+    const trimmedText = text.trim();
+    setDestination(trimmedText);
+    processTextForInvoice(trimmedText);
+  };
 
   if (wallet === undefined || !wallet) {
     return (
@@ -334,16 +349,13 @@ const ScanLndInvoice = () => {
 
           <BlueCard>
             <AddressInput
-              onChangeText={text => {
-                text = text.trim();
-                setDestination(text);
-              }}
-              onBarScanned={data => processTextForInvoice(data.data)}
+              onChangeText={onChangeText}
               address={destination}
               isLoading={isLoading}
               placeholder={loc.lnd.placeholder}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
               onBlur={onBlur}
+              skipValidation
               keyboardType="email-address"
               style={styles.addressInput}
             />
@@ -381,7 +393,7 @@ const ScanLndInvoice = () => {
   );
 };
 
-export default ScanLndInvoice;
+export default ScanLNDInvoice;
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

@@ -79,6 +79,20 @@ export type TransactionOutput = {
   };
 };
 
+export interface DecodedInvoice {
+  destination: string;
+  payment_hash: string;
+  num_satoshis: number;
+  timestamp: number;
+  expiry: number;
+  description: string;
+  description_hash: string;
+  fallback_addr: string;
+  cltv_expiry: string;
+  route_hints: any[];
+  [key: string]: any;
+}
+
 export type LightningTransaction = {
   memo?: string;
   type?: 'user_invoice' | 'payment_request' | 'bitcoind_tx' | 'paid_invoice';

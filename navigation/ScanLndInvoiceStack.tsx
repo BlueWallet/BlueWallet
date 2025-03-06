@@ -7,21 +7,21 @@ import loc from '../loc';
 import {
   LnurlPayComponent,
   LnurlPaySuccessComponent,
-  ScanLndInvoiceComponent,
+  ScanLNDInvoiceComponent,
   SelectWalletComponent,
   SuccessComponent,
-} from './LazyLoadScanLndInvoiceStack';
+} from './LazyLoadScanLNDInvoiceStack';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 
 const Stack = createNativeStackNavigator();
 
-const ScanLndInvoiceRoot = () => {
+const ScanLNDInvoiceRoot = () => {
   const theme = useTheme();
   return (
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
-        name="ScanLndInvoice"
-        component={ScanLndInvoiceComponent}
+        name="ScanLNDInvoice"
+        component={ScanLNDInvoiceComponent}
         options={navigationStyle({ headerBackVisible: false, title: loc.send.header, statusBarStyle: 'light' })(theme)}
         initialParams={{ uri: undefined, walletID: undefined, invoice: undefined }}
       />
@@ -65,4 +65,4 @@ const ScanLndInvoiceRoot = () => {
   );
 };
 
-export default ScanLndInvoiceRoot;
+export default ScanLNDInvoiceRoot;

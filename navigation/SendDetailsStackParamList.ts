@@ -82,9 +82,11 @@ export type SendDetailsStackParamList = {
     launchedBy?: string;
   };
   Success: {
-    fee: number;
+    fee?: number;
     amount: number;
+    amountUnit?: BitcoinUnit;
     txid?: string;
+    invoiceDescription?: string;
   };
   SelectWallet: {
     chainType?: Chain;
