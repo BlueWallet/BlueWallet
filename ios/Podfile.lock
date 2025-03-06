@@ -1352,7 +1352,7 @@ PODS:
   - react-native-tcp-socket (6.2.0):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-true-sheet (2.0.0):
+  - react-native-true-sheet (2.0.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2285,7 +2285,7 @@ SPEC CHECKSUMS:
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
-  react-native-true-sheet: 15f8d1bfbf2aceca472b9ba585b4116041d20f34
+  react-native-true-sheet: 56b251601d36b092964eb59a6916f4ad0a6fbed0
   React-nativeconfig: 67fa7a63ea288cb5b1d0dd2deaf240405fec164f
   React-NativeModulesApple: 34b7a4d7441a4ee78d18109ff107c1ccf7c074a9
   React-perflogger: d1149037ac466ad2141d4ae541ca16cb73b2343b
