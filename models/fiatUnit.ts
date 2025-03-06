@@ -34,11 +34,7 @@ interface CoinbaseResponse {
 }
 
 interface CoinDeskResponse {
-  bpi: {
-    [ticker: string]: {
-      rate_float: number;
-    };
-  };
+  [ticker: string]: number;
 }
 
 interface CoinGeckoResponse {
@@ -96,8 +92,8 @@ const RateExtractors = {
 
   CoinDesk: async (ticker: string): Promise<number> => {
     try {
-      const json = (await fetchRate(`https://api.coindesk.com/v1/bpi/currentprice/${ticker}.json`)) as CoinDeskResponse;
-      const rate = Number(json?.bpi?.[ticker]?.rate_float);
+      const json = (await fetchRate(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${ticker}`)) as CoinDeskResponse;
+      const rate = json?.[ticker];
       if (!(rate >= 0)) throw new Error('Invalid data received');
       return rate;
     } catch (error: any) {
