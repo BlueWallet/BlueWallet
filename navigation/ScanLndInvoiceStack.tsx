@@ -4,14 +4,9 @@ import React from 'react';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import {
-  LnurlPayComponent,
-  LnurlPaySuccessComponent,
-  ScanLNDInvoiceComponent,
-  SelectWalletComponent,
-  SuccessComponent,
-} from './LazyLoadScanLNDInvoiceStack';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { LnurlPayComponent, LnurlPaySuccessComponent, ScanLNDInvoiceComponent, SuccessComponent } from './LazyLoadScanLNDInvoiceStack';
+import { SelectWalletComponent } from './LazyLoadLNDCreateInvoiceStack';
 
 const Stack = createNativeStackNavigator();
 
