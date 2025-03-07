@@ -92,8 +92,8 @@ const RateExtractors = {
 
   CoinDesk: async (ticker: string): Promise<number> => {
     try {
-      const json = (await fetchRate(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${ticker}`)) as CoinDeskResponse;
-      const rate = json?.[ticker];
+      const json = (await fetchRate(`https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${ticker.toUpperCase()}`)) as CoinDeskResponse;
+      const rate = json?.[ticker.toUpperCase()];
       if (!(rate >= 0)) throw new Error('Invalid data received');
       return rate;
     } catch (error: any) {
