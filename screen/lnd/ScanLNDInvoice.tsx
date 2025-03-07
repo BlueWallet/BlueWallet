@@ -355,7 +355,6 @@ const ScanLNDInvoice = () => {
               placeholder={loc.lnd.placeholder}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
               onBlur={onBlur}
-              skipValidation
               keyboardType="email-address"
               style={styles.addressInput}
             />
