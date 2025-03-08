@@ -109,7 +109,7 @@ const LNDCreateInvoice = () => {
         if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
           // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
           // invoices (including through lnurl-withdraw)
-          navigate('ScanLndInvoiceRoot', {
+          navigate('ScanLNDInvoiceRoot', {
             screen: 'LnurlPay',
             params: {
               lnurl: data,

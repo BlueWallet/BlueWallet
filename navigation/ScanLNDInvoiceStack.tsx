@@ -4,24 +4,19 @@ import React from 'react';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import {
-  LnurlPayComponent,
-  LnurlPaySuccessComponent,
-  ScanLndInvoiceComponent,
-  SelectWalletComponent,
-  SuccessComponent,
-} from './LazyLoadScanLndInvoiceStack';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { LnurlPayComponent, LnurlPaySuccessComponent, ScanLNDInvoiceComponent, SuccessComponent } from './LazyLoadScanLNDInvoiceStack';
+import { SelectWalletComponent } from './LazyLoadLNDCreateInvoiceStack';
 
 const Stack = createNativeStackNavigator();
 
-const ScanLndInvoiceRoot = () => {
+const ScanLNDInvoiceRoot = () => {
   const theme = useTheme();
   return (
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
-        name="ScanLndInvoice"
-        component={ScanLndInvoiceComponent}
+        name="ScanLNDInvoice"
+        component={ScanLNDInvoiceComponent}
         options={navigationStyle({ headerBackVisible: false, title: loc.send.header, statusBarStyle: 'light' })(theme)}
         initialParams={{ uri: undefined, walletID: undefined, invoice: undefined }}
       />
@@ -65,4 +60,4 @@ const ScanLndInvoiceRoot = () => {
   );
 };
 
-export default ScanLndInvoiceRoot;
+export default ScanLNDInvoiceRoot;

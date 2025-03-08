@@ -32,7 +32,6 @@ import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
 import SendDetailsStack from './SendDetailsStack';
 import SignVerifyStackRoot from './SignVerifyStack';
 import WalletExportStack from './WalletExportStack';
@@ -65,6 +64,7 @@ import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import ScanLNDInvoiceRoot from './ScanLNDInvoiceStack';
 import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 
 const DetailViewStackScreensStack = () => {
@@ -327,7 +327,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
       {/* screens */}
       <DetailViewStack.Screen

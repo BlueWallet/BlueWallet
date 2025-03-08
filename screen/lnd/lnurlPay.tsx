@@ -149,7 +149,7 @@ const LnurlPay: React.FC = () => {
         await _LN.storeSuccess(decoded.payment_hash, wallet.last_paid_invoice_result.payment_preimage);
       }
 
-      navigate('ScanLndInvoiceRoot', {
+      navigate('ScanLNDInvoiceRoot', {
         screen: 'LnurlPaySuccess',
         params: {
           paymentHash: decoded.payment_hash,

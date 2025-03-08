@@ -3,15 +3,15 @@ import React, { lazy, Suspense } from 'react';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 // Lazy loading components for the navigation stack
-const ScanLndInvoice = lazy(() => import('../screen/lnd/scanLndInvoice'));
+const ScanLNDInvoice = lazy(() => import('../screen/lnd/ScanLNDInvoice'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 const Success = lazy(() => import('../screen/send/success'));
 const LnurlPay = lazy(() => import('../screen/lnd/lnurlPay'));
 const LnurlPaySuccess = lazy(() => import('../screen/lnd/lnurlPaySuccess'));
 
-export const ScanLndInvoiceComponent = () => (
+export const ScanLNDInvoiceComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
-    <ScanLndInvoice />
+    <ScanLNDInvoice />
   </Suspense>
 );
 

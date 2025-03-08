@@ -98,7 +98,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         if (wallet?.chain === Chain.ONCHAIN) {
           navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
         } else {
-          navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: parameters });
+          navigate('ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: parameters });
         }
         setIsLoading(false);
       }
@@ -318,7 +318,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const sendButtonPress = () => {
     if (wallet?.chain === Chain.OFFCHAIN) {
-      return navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { walletID } });
+      return navigate('ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: { walletID } });
     }
 
     if (wallet?.type === WatchOnlyWallet.type && wallet.isHd() && !wallet.useWithHardwareWalletEnabled()) {

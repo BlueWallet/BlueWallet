@@ -515,7 +515,6 @@ const ElectrumSettings: React.FC = () => {
             onChangeText={text => setHost(text.trim())}
             editable={!isLoading}
             keyboardType="default"
-            skipValidation
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
             onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}

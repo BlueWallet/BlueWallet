@@ -47,7 +47,7 @@ export type DetailViewStackParamList = {
   AddWalletRoot: undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
-  ScanLndInvoiceRoot: {
+  ScanLNDInvoiceRoot: {
     screen: string;
     params: {
       paymentHash: string;
