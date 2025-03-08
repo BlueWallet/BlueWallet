@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
@@ -107,11 +107,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
         color: colors.feeValue,
       },
     });
-
-    useImperativeHandle(ref, () => ({
-      present: async () => await feeModalRef.current?.present(),
-      dismiss: async () => await feeModalRef.current?.dismiss(),
-    }));
 
     const options: Option[] = [
       {
