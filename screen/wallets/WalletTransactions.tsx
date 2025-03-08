@@ -7,7 +7,6 @@ import {
   findNodeHandle,
   FlatList,
   I18nManager,
-  InteractionManager,
   LayoutAnimation,
   PixelRatio,
   ScrollView,
@@ -53,12 +52,14 @@ const buttonFontSize =
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
-type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
+
+type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
+
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
-  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
+  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
@@ -384,17 +385,27 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     );
   };
 
+  useEffect(() => {
+    if (wallet) {
+      const screenKey = `WalletTransactions-${walletID}`;
+      registerTransactionsHandler(() => refreshTransactions(true), screenKey);
+
+      return () => {
+        unregisterTransactionsHandler(screenKey);
+      };
+    }
+  }, [wallet, walletID, refreshTransactions, registerTransactionsHandler, unregisterTransactionsHandler]);
+
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
-      });
-      return () => {
-        task.cancel();
-        console.debug('Next screen is focused, clearing reloadTransactionsMenuActionFunction');
-        setReloadTransactionsMenuActionFunction(() => {});
-      };
-    }, [setReloadTransactionsMenuActionFunction, refreshTransactions]),
+      if (wallet) {
+        const screenKey = `WalletTransactions-${walletID}`;
+
+        return () => {
+          unregisterTransactionsHandler(screenKey);
+        };
+      }
+    }, [wallet, walletID, unregisterTransactionsHandler]),
   );
 
   const [balance, setBalance] = useState(wallet ? wallet.getBalance() : 0);

@@ -98,7 +98,7 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const { setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction } = useMenuElements();
+  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
@@ -159,19 +159,41 @@ const WalletsList: React.FC = () => {
     }
   }, [getBalance]);
 
+  useEffect(() => {
+    const screenKey = route.name;
+    console.log(`[WalletsList] Registering handler with key: ${screenKey}`);
+    registerTransactionsHandler(onRefresh, screenKey);
+
+    return () => {
+      console.log(`[WalletsList] Unmounting - cleaning up handler for: ${screenKey}`);
+      unregisterTransactionsHandler(screenKey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onRefresh, registerTransactionsHandler, unregisterTransactionsHandler]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const screenKey = route.name;
+
+      return () => {
+        console.log(`[WalletsList] Blurred - cleaning up handler for: ${screenKey}`);
+        unregisterTransactionsHandler(screenKey);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [unregisterTransactionsHandler]),
+  );
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(onRefresh);
         verifyBalance();
         setSelectedWalletID(undefined);
       });
 
       return () => {
         task.cancel();
-        clearReloadTransactionsMenuAction();
       };
-    }, [onRefresh, setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction, verifyBalance, setSelectedWalletID]),
+    }, [verifyBalance, setSelectedWalletID]),
   );
 
   useEffect(() => {
@@ -207,6 +229,7 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     refreshTransactions();
+    // es-lint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
