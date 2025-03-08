@@ -611,9 +611,7 @@ const ElectrumSettings: React.FC = () => {
           onValueChange: onElectrumConnectionEnabledSwitchChange,
           value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
-          disabled: isLoading,
         }}
-        disabled={isLoading}
         bottomDivider={false}
         subtitle={loc.settings.electrum_offline_description}
       />
