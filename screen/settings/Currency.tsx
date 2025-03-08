@@ -118,7 +118,8 @@ const Currency: React.FC = () => {
       <FlatList
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
-        keyExtractor={(_item, index) => `${index}`}
+        automaticallyAdjustKeyboardInsets
+        keyExtractor={item => item.endPointKey}
         data={data}
         initialNumToRender={30}
         renderItem={renderItem}

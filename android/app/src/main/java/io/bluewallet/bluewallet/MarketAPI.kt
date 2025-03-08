@@ -56,7 +56,8 @@ object MarketAPI {
                 "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
                 "BNR" -> "https://www.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> "https://api.kraken.com/0/public/Ticker?pair=XXBTZ${endPointKey.uppercase()}"
-                else -> "https://api.coindesk.com/v1/bpi/currentprice/$endPointKey.json"
+                "CoinDesk" -> "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${endPointKey.uppercase()}"
+                else -> "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${endPointKey.uppercase()}"
             }
         }
     }
@@ -73,6 +74,10 @@ object MarketAPI {
                 "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
                 "Coinbase" -> json.getJSONObject("data").getString("amount")
                 "Kraken" -> json.getJSONObject("result").getJSONObject("XXBTZ${endPointKey.uppercase()}").getJSONArray("c").getString(0)
+                "CoinDesk" -> {
+                    val rate = json.optDouble(endPointKey.uppercase(), -1.0)
+                    if (rate < 0) null else rate.toString()
+                }
                 else -> null
             }
         } catch (e: Exception) {

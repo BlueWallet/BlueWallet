@@ -30,8 +30,8 @@ class MarketAPI {
             return "https://www.bnr.ro/nbrfxrates.xml"
         case "Kraken":
             return "https://api.kraken.com/0/public/Ticker?pair=XXBTZ\(endPointKey.uppercased())"
-        default:
-            return "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
+        default: // CoinDesk
+            return "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=\(endPointKey)"
         }
     }
     
@@ -131,8 +131,14 @@ class MarketAPI {
                     throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
                 }
             }
-        default:
-            throw CurrencyError(errorDescription: "Unsupported data source \(source)")
+        default: // CoinDesk
+            if let rateDouble = json[endPointKey] as? Double {
+                let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+                return latestRateDataStore
+            } else {
+                throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
+            }
         }
     }
     
