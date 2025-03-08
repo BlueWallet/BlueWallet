@@ -6,10 +6,6 @@ interface MenuElementsHook {
   isMenuElementsSupported: boolean;
 }
 
-const useMenuElements = (): MenuElementsHook => ({
-  registerTransactionsHandler: () => false,
-  unregisterTransactionsHandler: () => {},
-  isMenuElementsSupported: false,
-});
+declare const useMenuElements: () => MenuElementsHook;
 
 export default useMenuElements;
