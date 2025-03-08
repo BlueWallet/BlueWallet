@@ -1,3 +1,4 @@
+import { fetch } from '../util/fetch';
 import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
@@ -15,7 +16,8 @@ export const FiatUnitSource = {
 
 const handleError = (source: string, ticker: string, error: Error) => {
   throw new Error(
-    `Could not update rate for ${ticker} from ${source}: ${error.message}. ` + `Make sure the network you're on has access to ${source}.`,
+    `Could not update rate for ${ticker} from ${source}\n: ${error.message}. ` +
+      `\nMake sure the network you're on has access to ${source}.`,
   );
 };
 
@@ -34,11 +36,7 @@ interface CoinbaseResponse {
 }
 
 interface CoinDeskResponse {
-  bpi: {
-    [ticker: string]: {
-      rate_float: number;
-    };
-  };
+  [ticker: string]: number;
 }
 
 interface CoinGeckoResponse {
@@ -96,8 +94,10 @@ const RateExtractors = {
 
   CoinDesk: async (ticker: string): Promise<number> => {
     try {
-      const json = (await fetchRate(`https://api.coindesk.com/v1/bpi/currentprice/${ticker}.json`)) as CoinDeskResponse;
-      const rate = Number(json?.bpi?.[ticker]?.rate_float);
+      const json = (await fetchRate(
+        `https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${ticker.toUpperCase()}`,
+      )) as CoinDeskResponse;
+      const rate = json?.[ticker.toUpperCase()];
       if (!(rate >= 0)) throw new Error('Invalid data received');
       return rate;
     } catch (error: any) {
