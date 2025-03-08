@@ -163,7 +163,17 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
     };
 
     return (
-      <BottomModal ref={feeModalRef} backgroundColor={colors.modal}>
+      <BottomModal
+        ref={feeModalRef}
+        backgroundColor={colors.modal}
+        footer={
+          <View style={styles.feeModalFooter}>
+            <TouchableOpacity testID="feeCustom" accessibilityRole="button" onPress={handlePressCustom}>
+              <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
+            </TouchableOpacity>
+          </View>
+        }
+      >
         <View>
           {options.map(({ label, time, fee, rate, active, disabled }) => (
             <TouchableOpacity
@@ -190,11 +200,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
             </TouchableOpacity>
           ))}
         </View>
-        <View style={styles.feeModalFooter}>
-          <TouchableOpacity testID="feeCustom" accessibilityRole="button" onPress={handlePressCustom}>
-            <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
-          </TouchableOpacity>
-        </View>
 
         <BottomModal
           ref={customModalRef}
@@ -206,6 +211,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
               <SecondButton title={loc._.ok} onPress={handleCustomFeeSubmit} disabled={!customFee || Number(customFee) <= 0} />
             </View>
           }
+          footerDefaultMargins
         >
           <View>
             <Text style={[styles.feeModalLabel, stylesHook.insertCustomFeeText]}>{loc.send.insert_custom_fee}</Text>
