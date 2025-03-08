@@ -22,11 +22,11 @@ import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from '../components/Alert';
-import useMenuElements from './useMenuElements';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
+import useMenuElements from './useMenuElements';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
