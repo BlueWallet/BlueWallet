@@ -192,7 +192,7 @@ const ManageWallets: React.FC = () => {
   const { wallets: storedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
   const { setIsDrawerShouldHide } = useSettings();
   const walletsRef = useRef<TWallet[]>(deepCopyWallets(storedWallets)); // Create a deep copy of wallets for the DraggableFlatList
-  const { navigate, setOptions, goBack } = useExtendedNavigation();
+  const { navigate, setOptions, goBack, dispatch: navigationDispatch } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
   const debouncedSearchQuery = useDebounce(state.searchQuery, 300);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -227,13 +227,15 @@ const ManageWallets: React.FC = () => {
     return JSON.stringify(walletsRef.current) !== JSON.stringify(state.tempOrder.map(item => item.data));
   }, [state.tempOrder]);
 
-  usePreventRemove(hasUnsavedChanges, async () => {
-    await new Promise<void>(resolve => {
-      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-        { text: loc._.cancel, style: 'cancel', onPress: () => resolve() },
-        { text: loc._.ok, style: 'default', onPress: () => resolve() },
-      ]);
-    });
+  usePreventRemove(hasUnsavedChanges, ({ data: preventRemoveData }) => {
+    Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+      { text: loc._.cancel, style: 'cancel' },
+      {
+        text: loc._.ok,
+        style: 'destructive',
+        onPress: () => navigationDispatch(preventRemoveData.action),
+      },
+    ]);
   });
 
   const handleClose = useCallback(() => {
