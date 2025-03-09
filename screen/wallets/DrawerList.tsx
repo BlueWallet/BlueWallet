@@ -1,7 +1,5 @@
-import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { InteractionManager, LayoutAnimation, StyleSheet, View, ViewStyle } from 'react-native';
+import { InteractionManager, LayoutAnimation, StyleSheet, ScrollView, View, ViewStyle } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
@@ -12,6 +10,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useIsFocused } from '@react-navigation/native';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -134,8 +133,8 @@ const DrawerList: React.FC = memo(() => {
   }, [navigation]);
 
   return (
-    <DrawerContentScrollView
-      contentContainerStyle={stylesHook.root}
+    <ScrollView
+      contentContainerStyle={[styles.container, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets={true}
       showsHorizontalScrollIndicator={false}
@@ -160,8 +159,14 @@ const DrawerList: React.FC = memo(() => {
         selectedWallet={selectedWalletID}
         scrollEnabled={state.isFocused}
       />
-    </DrawerContentScrollView>
+    </ScrollView>
   );
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
 });
 
 export default DrawerList;

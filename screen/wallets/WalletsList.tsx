@@ -98,8 +98,13 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
+<<<<<<< Updated upstream
   const { setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction } = useMenuElements();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
+=======
+  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions } = useStorage();
+>>>>>>> Stashed changes
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -159,19 +164,38 @@ const WalletsList: React.FC = () => {
     }
   }, [getBalance]);
 
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+    const screenKey = `WalletsList-${route.name}`;
+    console.log(`[WalletsList] Registering handler with key: ${screenKey}`);
+    
+    // Register only once per mount
+    registerTransactionsHandler(onRefresh, screenKey);
+  
+    return () => {
+      console.log(`[WalletsList] Unmounting - cleaning up handler for: ${screenKey}`);
+      unregisterTransactionsHandler(screenKey);
+    };
+  }, [registerTransactionsHandler, unregisterTransactionsHandler, onRefresh, route.name]);
+
+>>>>>>> Stashed changes
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(onRefresh);
         verifyBalance();
-        setSelectedWalletID(undefined);
       });
 
       return () => {
         task.cancel();
         clearReloadTransactionsMenuAction();
       };
+<<<<<<< Updated upstream
     }, [onRefresh, setReloadTransactionsMenuActionFunction, clearReloadTransactionsMenuAction, verifyBalance, setSelectedWalletID]),
+=======
+    }, [verifyBalance]),
+>>>>>>> Stashed changes
   );
 
   useEffect(() => {

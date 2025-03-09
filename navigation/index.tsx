@@ -6,6 +6,7 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 
+// Lazy load the main navigation components
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
 
@@ -37,11 +38,9 @@ const MainRoot = () => {
     if (!walletsInitialized) {
       return <UnlockRoot />;
     } else {
-      // Conditional rendering based on the environment
-      const Component = isHandset ? DetailViewScreensStack : DrawerRoot;
       return (
         <Suspense fallback={<LazyLoadingIndicator />}>
-          <Component />
+          <DrawerRoot />
         </Suspense>
       );
     }

@@ -57,8 +57,13 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
+<<<<<<< Updated upstream
   const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { setReloadTransactionsMenuActionFunction } = useMenuElements();
+=======
+  const { wallets, saveToDisk } = useStorage(); // Remove setSelectedWalletID
+  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
+>>>>>>> Stashed changes
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
@@ -198,12 +203,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       refreshTransactions(false).catch(console.error);
     }
   }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
-
-  useEffect(() => {
-    if (wallet) {
-      setSelectedWalletID(walletID);
-    }
-  }, [wallet, setSelectedWalletID, walletID]);
 
   const isLightning = useCallback((): boolean => wallet?.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
@@ -593,6 +592,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           title={wallet.getLabel()}
           type={HandOffActivityType.Xpub}
           url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
+          userInfo={{ 
+            walletID: wallet.getID(),
+            xpub: wallet.getXpub()
+          }} // Add missing userInfo prop
         />
       ) : null}
     </View>

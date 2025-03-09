@@ -22,8 +22,6 @@ interface StorageContextType {
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
-  selectedWalletID: string | undefined;
-  setSelectedWalletID: (walletID: string | undefined) => void;
   addWallet: (wallet: TWallet) => void;
   deleteWallet: (wallet: TWallet) => void;
   currentSharedCosigner: string;
@@ -67,7 +65,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
-  const [selectedWalletID, setSelectedWalletID] = useState<string | undefined>();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
@@ -412,8 +409,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       counterpartyMetadata: counterpartyMetadata.current,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
-      selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,
@@ -446,8 +441,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       wallets,
       setWalletsWithNewOrder,
       saveToDisk,
-      selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,
