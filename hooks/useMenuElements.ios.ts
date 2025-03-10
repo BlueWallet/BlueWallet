@@ -1,140 +1,167 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import { navigationRef } from '../NavigationService';
 import { CommonActions } from '@react-navigation/native';
-import * as NavigationService from '../NavigationService';
-import { useStorage } from './context/useStorage';
 
 /*
 Hook for managing iPadOS and macOS menu actions with keyboard shortcuts.
-Uses MenuElementsEmitter for event handling.
+Uses MenuElementsEmitter for event handling and navigation state.
 */
 
-type MenuEventHandler = () => void;
+type MenuActionHandler = () => void;
 
+// Singleton setup - initialize once at module level
 const { MenuElementsEmitter } = NativeModules;
 let eventEmitter: NativeEventEmitter | null = null;
+let listenersInitialized = false;
 
-let globalReloadTransactionsFunction: MenuEventHandler | null = null;
+// Registry for transaction handlers by screen ID
+const handlerRegistry = new Map<string, MenuActionHandler>();
 
-// Only create the emitter if the module exists and we're on iOS/macOS
+// Store subscription references for proper cleanup
+let subscriptions: { remove: () => void }[] = [];
+
+// Create a more robust emitter with error handling
 try {
-  if ((Platform.OS === 'ios' || Platform.OS === 'macos') && MenuElementsEmitter) {
+  if (Platform.OS === 'ios' && MenuElementsEmitter) {
     eventEmitter = new NativeEventEmitter(MenuElementsEmitter);
   }
 } catch (error) {
+  console.warn('[MenuElements] Failed to initialize event emitter: ', error);
   eventEmitter = null;
 }
 
-// Empty function that does nothing - used as default
-const noop = () => {};
-
-const useMenuElements = () => {
-  const { walletsInitialized } = useStorage();
-  const reloadTransactionsMenuActionRef = useRef<MenuEventHandler>(noop);
-  // Track if listeners have been set up
-  const listenersInitialized = useRef<boolean>(false);
-  const listenersRef = useRef<any[]>([]);
-
-  const setReloadTransactionsMenuActionFunction = useCallback((handler: MenuEventHandler) => {
-    if (typeof handler !== 'function') {
+/**
+ * Safely navigate using multiple fallback approaches
+ */
+function safeNavigate(routeName: string, params?: Record<string, any>): void {
+  try {
+    if (navigationRef.current?.isReady()) {
+      navigationRef.current.navigate(routeName as never, params as never);
       return;
     }
 
-    reloadTransactionsMenuActionRef.current = handler;
-    globalReloadTransactionsFunction = handler;
-  }, []);
-
-  const clearReloadTransactionsMenuAction = useCallback(() => {
-    reloadTransactionsMenuActionRef.current = noop;
-  }, []);
-
-  const dispatchNavigate = useCallback((routeName: string, screen?: string) => {
-    try {
-      NavigationService.dispatch(CommonActions.navigate({ name: routeName, params: screen ? { screen } : undefined }));
-    } catch (error) {
-      // Navigation failed silently
+    if (navigationRef.isReady()) {
+      navigationRef.dispatch(
+        CommonActions.navigate({
+          name: routeName,
+          params,
+        }),
+      );
     }
-  }, []);
+  } catch (error) {
+    console.error(`[MenuElements] Navigation error:`, error);
+  }
+}
 
-  const eventActions = useMemo(
-    () => ({
-      openSettings: () => {
-        dispatchNavigate('Settings');
-      },
-      addWallet: () => {
-        dispatchNavigate('AddWalletRoot');
-      },
-      importWallet: () => {
-        dispatchNavigate('AddWalletRoot', 'ImportWallet');
-      },
-      reloadTransactions: () => {
-        try {
-          const handler = reloadTransactionsMenuActionRef.current || globalReloadTransactionsFunction || noop;
-          handler();
-        } catch (error) {
-          // Execution failed silently
-        }
-      },
-    }),
-    [dispatchNavigate],
-  );
-
-  useEffect(() => {
-    // Skip if emitter doesn't exist or wallets aren't initialized yet
-    if (!eventEmitter || !walletsInitialized) {
-      return;
-    }
-
-    if (listenersInitialized.current) {
-      return;
-    }
-
-    try {
-      if (listenersRef.current.length > 0) {
-        listenersRef.current.forEach(listener => listener?.remove?.());
-        listenersRef.current = [];
+// Cleanup event listeners to prevent memory leaks
+function cleanupListeners(): void {
+  if (subscriptions.length > 0) {
+    subscriptions.forEach(subscription => {
+      try {
+        subscription.remove();
+      } catch (e) {
+        console.warn('[MenuElements] Error removing subscription:', e);
       }
+    });
+    subscriptions = [];
+    listenersInitialized = false;
+  }
+}
 
-      eventEmitter.removeAllListeners('openSettings');
-      eventEmitter.removeAllListeners('addWalletMenuAction');
-      eventEmitter.removeAllListeners('importWalletMenuAction');
-      eventEmitter.removeAllListeners('reloadTransactionsMenuAction');
-    } catch (error) {
-      // Error cleanup silently ignored
-    }
+function initializeListeners(): void {
+  if (!eventEmitter || listenersInitialized) return;
 
-    try {
-      const listeners = [
-        eventEmitter.addListener('openSettings', eventActions.openSettings),
-        eventEmitter.addListener('addWalletMenuAction', eventActions.addWallet),
-        eventEmitter.addListener('importWalletMenuAction', eventActions.importWallet),
-        eventEmitter.addListener('reloadTransactionsMenuAction', eventActions.reloadTransactions),
-      ];
+  cleanupListeners();
 
-      listenersRef.current = listeners;
-      listenersInitialized.current = true;
-    } catch (error) {
-      // Listener setup failed silently
-    }
+  // Navigation actions
+  const globalActions = {
+    navigateToSettings: (): void => {
+      safeNavigate('Settings');
+    },
+
+    navigateToAddWallet: (): void => {
+      safeNavigate('AddWalletRoot');
+    },
+
+    navigateToImportWallet: (): void => {
+      safeNavigate('AddWalletRoot', { screen: 'ImportWallet' });
+    },
+
+    executeReloadTransactions: (): void => {
+      const currentRoute = navigationRef.current?.getCurrentRoute();
+      if (!currentRoute) return;
+
+      const screenName = currentRoute.name;
+      const params = (currentRoute.params as { walletID?: string }) || {};
+      const walletID = params.walletID;
+
+      const specificKey = walletID ? `${screenName}-${walletID}` : null;
+
+      const specificHandler = specificKey ? handlerRegistry.get(specificKey) : undefined;
+      const genericHandler = handlerRegistry.get(screenName);
+      const handler = specificHandler || genericHandler;
+
+      if (typeof handler === 'function') {
+        handler();
+      }
+    },
+  };
+
+  try {
+    subscriptions.push(eventEmitter.addListener('openSettings', globalActions.navigateToSettings));
+    subscriptions.push(eventEmitter.addListener('addWalletMenuAction', globalActions.navigateToAddWallet));
+    subscriptions.push(eventEmitter.addListener('importWalletMenuAction', globalActions.navigateToImportWallet));
+    subscriptions.push(eventEmitter.addListener('reloadTransactionsMenuAction', globalActions.executeReloadTransactions));
+  } catch (error) {
+    console.error('[MenuElements] Error setting up event listeners:', error);
+  }
+
+  listenersInitialized = true;
+}
+
+interface MenuElementsHook {
+  registerTransactionsHandler: (handler: MenuActionHandler, screenKey?: string) => boolean;
+  unregisterTransactionsHandler: (screenKey: string) => void;
+  isMenuElementsSupported: boolean;
+}
+
+const mountedComponents = new Set<string>();
+
+const useMenuElements = (): MenuElementsHook => {
+  useEffect(() => {
+    initializeListeners();
+
+    const unsubscribe = navigationRef.addListener('state', () => {});
 
     return () => {
-      try {
-        listenersRef.current.forEach(listener => {
-          if (listener && typeof listener.remove === 'function') {
-            listener.remove();
-          }
-        });
-        listenersRef.current = [];
-        listenersInitialized.current = false;
-      } catch (error) {
-        // Cleanup error silently ignored
-      }
+      unsubscribe();
     };
-  }, [walletsInitialized, eventActions]);
+  }, []);
+
+  const registerTransactionsHandler = useCallback((handler: MenuActionHandler, screenKey?: string): boolean => {
+    if (typeof handler !== 'function') return false;
+
+    const key = screenKey || navigationRef.current?.getCurrentRoute()?.name;
+    if (!key) return false;
+
+    mountedComponents.add(key);
+
+    handlerRegistry.set(key, handler);
+
+    return true;
+  }, []);
+
+  const unregisterTransactionsHandler = useCallback((screenKey: string): void => {
+    if (!screenKey) return;
+
+    handlerRegistry.delete(screenKey);
+    mountedComponents.delete(screenKey);
+  }, []);
 
   return {
-    setReloadTransactionsMenuActionFunction,
-    clearReloadTransactionsMenuAction,
+    registerTransactionsHandler,
+    unregisterTransactionsHandler,
     isMenuElementsSupported: !!eventEmitter,
   };
 };
