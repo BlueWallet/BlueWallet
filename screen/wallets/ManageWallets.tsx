@@ -10,6 +10,8 @@ import {
   LayoutAnimation,
   FlatList,
   ActivityIndicator,
+  Platform,
+  View,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, usePreventRemove } from '@react-navigation/native';
@@ -24,8 +26,16 @@ import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
-const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
+// Lazily load component only when needed
+const ManageWalletsListItem = lazy(() =>
+  Promise.all([
+    import('../../components/ManageWalletsListItem'),
+    // Add a small delay to ensure UI is responsive during loading
+    new Promise(resolve => setTimeout(resolve, 100)),
+  ]).then(([moduleExports]) => moduleExports),
+);
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -207,8 +217,19 @@ const ManageWallets: React.FC = () => {
   const [data, setData] = useState(state.tempOrder);
   const listRef = useRef<FlatList<Item> | null>(null);
 
+  const [isDragging, setIsDragging] = useState(false);
+  const draggedItem = useRef<Item | null>(null);
+  const initialRenderComplete = useRef(false);
+  const lastScrollTime = useRef(Date.now());
+
   useEffect(() => {
-    setData(state.tempOrder);
+    initialRenderComplete.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (initialRenderComplete.current) {
+      setData(state.tempOrder);
+    }
   }, [state.tempOrder]);
 
   useEffect(() => {
@@ -363,23 +384,35 @@ const ManageWallets: React.FC = () => {
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
       const walletID = wallet.getID();
-      goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
       });
     },
-    [goBack, navigate],
+    [navigate],
   );
 
   const renderItem = useCallback(
     (info: DragListRenderItemInfo<Item>) => {
-      const { item, onDragStart, isActive } = info;
+      const { item, onDragStart, onDragEnd, isActive } = info;
+
+      const handleDragStart = () => {
+        draggedItem.current = item;
+        setIsDragging(true);
+        if (onDragStart) onDragStart();
+      };
+
+      const handleDragEnd = () => {
+        setIsDragging(false);
+        draggedItem.current = null;
+        if (onDragEnd) onDragEnd();
+      };
+
       return (
         <ManageWalletsListItem
           item={item}
           onPressIn={undefined}
-          onPressOut={undefined}
+          onPressOut={handleDragEnd}
           isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
           state={state}
           navigateToWallet={navigateToWallet}
@@ -387,33 +420,74 @@ const ManageWallets: React.FC = () => {
           handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
           isActive={isActive}
-          drag={onDragStart}
+          drag={handleDragStart}
+          globalDragActive={isDragging}
         />
       );
     },
-    [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance],
+    [state, navigateToWallet, renderHighlightedText, handleDeleteWallet, handleToggleHideBalance, isDragging],
   );
 
   const onReordered = useCallback(
-    (fromIndex: number, toIndex: number) => {
+    async (fromIndex: number, toIndex: number) => {
+      // Skip if no actual change
+      if (fromIndex === toIndex) return;
+
+      setIsDragging(false);
+      draggedItem.current = null;
+
       const copy = [...state.order];
       const removed = copy.splice(fromIndex, 1);
       copy.splice(toIndex, 0, removed[0]);
 
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
+
+      if (Platform.OS === 'ios') {
+        LayoutAnimation.configureNext({
+          duration: 250,
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          update: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            springDamping: 0.7,
+          },
+        });
+      } else {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
+
       dispatch({ type: SET_TEMP_ORDER, payload: copy });
-      dispatch({
-        type: SET_INITIAL_ORDER,
-        payload: {
-          wallets: copy.filter(item => item.type === ItemType.WalletSection).map(item => item.data as TWallet),
-          txMetadata: state.txMetadata,
-        },
-      });
+
+      setTimeout(() => {
+        dispatch({
+          type: SET_INITIAL_ORDER,
+          payload: {
+            wallets: copy.filter(item => item.type === ItemType.WalletSection).map(item => item.data as TWallet),
+            txMetadata: state.txMetadata,
+          },
+        });
+      }, 50); // Small delay to ensure UI remains responsive
     },
     [state.order, state.txMetadata],
   );
 
-  const keyExtractor = useCallback((item: Item, index: number) => index.toString(), []);
+  const keyExtractor = useCallback((item: Item) => {
+    if (item.type === ItemType.WalletSection) {
+      return `wallet-${item.data.getID()}`;
+    }
+    return `tx-${item.data.hash || Math.random()}`;
+  }, []);
+
+  const onHoverChanged = useCallback(
+    (index: number) => {
+      if (isDragging) {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      }
+    },
+    [isDragging],
+  );
 
   const renderHeader = useMemo(() => {
     if (!state.searchQuery) return null;
@@ -429,24 +503,36 @@ const ManageWallets: React.FC = () => {
     );
   }, [state.searchQuery, state.wallets.length, state.txMetadata, stylesHook.noResultsText]);
 
+  const fallback = (
+    <View style={[styles.root, styles.fallbackContainer, { backgroundColor: colors.background }]}>
+      <ActivityIndicator size="large" color={colors.brandingColor} />
+    </View>
+  );
+
   return (
-    <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
+    <Suspense fallback={fallback}>
       <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
-        <>
-          {renderHeader}
-          <DragList
-            automaticallyAdjustContentInsets
-            automaticallyAdjustKeyboardInsets
-            automaticallyAdjustsScrollIndicatorInsets
-            contentInsetAdjustmentBehavior="automatic"
-            data={data}
-            containerStyle={[{ backgroundColor: colors.background }, styles.root]}
-            keyExtractor={keyExtractor}
-            onReordered={onReordered}
-            renderItem={renderItem}
-            ref={listRef}
-          />
-        </>
+        {renderHeader}
+        <DragList
+          data={data}
+          containerStyle={[{ backgroundColor: colors.background }, styles.root]}
+          keyExtractor={keyExtractor}
+          onReordered={onReordered}
+          onHoverChanged={onHoverChanged}
+          renderItem={renderItem}
+          ref={listRef}
+          maxToRenderPerBatch={5}
+          windowSize={5}
+          removeClippedSubviews={true}
+          initialNumToRender={8}
+          updateCellsBatchingPeriod={50}
+          automaticallyAdjustContentInsets
+          automaticallyAdjustKeyboardInsets
+          scrollEventThrottle={16}
+          onScroll={() => {
+            lastScrollTime.current = Date.now();
+          }}
+        />
       </GestureHandlerRootView>
     </Suspense>
   );
@@ -460,6 +546,10 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 16,
+  },
+  fallbackContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   noResultsText: {
     fontSize: 19,
