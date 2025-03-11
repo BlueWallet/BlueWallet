@@ -63,7 +63,7 @@ type ElectrumTransactionWithHex = ElectrumTransaction & {
   hex: string;
 };
 
-type MempoolTransaction = {
+export type MempoolTransaction = {
   height: 0;
   tx_hash: string;
   fee: number;
@@ -259,6 +259,7 @@ export async function connectMain(): Promise<void> {
 
     mainClient.onError = function (e: { message: string }) {
       console.log('electrum mainClient.onError():', e.message);
+      logSubscriptionActivity(`Connection error: ${e.message}`);
       if (mainConnected) {
         // most likely got a timeout from electrum ping. lets reconnect
         // but only if we were previously connected (mainConnected), otherwise theres other
@@ -269,6 +270,7 @@ export async function connectMain(): Promise<void> {
         // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
         // errors triggered
         console.log('reconnecting after socket error');
+        logSubscriptionActivity('Reconnecting after socket error');
         setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
       }
     };
@@ -278,6 +280,18 @@ export async function connectMain(): Promise<void> {
       serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
+
+      // If we have active subscriptions and are reconnecting, restore them
+      if (activeScripthashSubscriptions.size > 0) {
+        logSubscriptionActivity(`Reconnected to server, restoring ${activeScripthashSubscriptions.size} subscriptions`);
+        // We'll resubscribe in the background after completing connection setup
+        setTimeout(() => {
+          resubscribeToActiveAddresses().catch(error => {
+            logSubscriptionActivity(`Failed to resubscribe after reconnection: ${error instanceof Error ? error.message : String(error)}`);
+          });
+        }, 500);
+      }
+
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
 
@@ -510,17 +524,54 @@ export const getSecondsSinceLastRequest = function () {
   return mainClient && mainClient.timeLastCall ? (+new Date() - mainClient.timeLastCall) / 1000 : -1;
 };
 
-export const getTransactionsByAddress = async function (address: string): Promise<ElectrumHistory[]> {
+export const getTransactionsByAddress = async function (address: string, maxTransactions = 1000): Promise<ElectrumHistory[]> {
   if (!mainClient) throw new Error('Electrum client is not connected');
   const script = bitcoin.address.toOutputScript(address);
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(hash).reverse();
-  const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
-  for (const h of history || []) {
-    if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
-  }
 
-  return history;
+  try {
+    // First get transaction count without fetching all transactions
+    const scriptHash = reversedHash.toString('hex');
+    const status = await mainClient.blockchainScripthash_getHistory(scriptHash, true); // get only count
+
+    // Check if we're dealing with an address with too many transactions
+    if (Array.isArray(status) && status.length > maxTransactions) {
+      throw new Error(`Addresses with history of > ${maxTransactions} transactions are not supported`);
+    }
+
+    // If within limits, proceed to fetch the full transaction history
+    try {
+      const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
+      for (const h of history || []) {
+        if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
+      }
+
+      return history;
+    } catch (error) {
+      // Check if this is a "history too large" error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('history too large') || errorMessage.includes('too many')) {
+        console.warn(`Server response: history too large for address ${address}`);
+        throw new Error(`Address history is too large: ${address}`);
+      }
+      throw error; // Rethrow for other errors
+    }
+  } catch (error) {
+    console.error('Error fetching transaction history:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    // Map different server error messages to standardized error
+    if (
+      errorMessage.includes('history too large') || 
+      errorMessage.includes('too many') ||
+      errorMessage.includes('history of > ') ||
+      errorMessage.includes('too large') 
+    ) {
+      throw new Error(`Address history is too large and cannot be processed`);
+    }
+    throw error;
+  }
 };
 
 export const getMempoolTransactionsByAddress = async function (address: string): Promise<MempoolTransaction[]> {
@@ -920,8 +971,9 @@ export async function multiGetTransactionByTxid<T extends boolean>(
               let tx = await mainClient.blockchainTransaction_get(txid, false);
               tx = txhexToElectrumTransaction(tx);
               results.push({ result: tx, param: txid });
-            } catch (err) {
-              console.log(err);
+            } catch (error) {
+              // Changed from err to error
+              console.log(error);
             }
           }
         } else {
@@ -936,8 +988,9 @@ export async function multiGetTransactionByTxid<T extends boolean>(
                 tx = txhexToElectrumTransaction(tx);
               }
               results.push({ result: tx, param: txid });
-            } catch (err) {
-              console.log(err);
+            } catch (error) {
+              // Changed from err to error
+              console.log(error);
             }
           }
         }
@@ -1235,4 +1288,556 @@ const semVerToInt = function (semver: string): number {
   if (isNaN(ret)) return 0;
 
   return ret;
+};
+
+type AddressSubscriber = {
+  onUpdate: (
+    balance: { confirmed: number; unconfirmed: number },
+    txs: ElectrumHistory[],
+    mempool?: MempoolTransaction[],
+    txEstimate?: { eta: string; satPerVbyte: number | null },
+  ) => void;
+  onError?: (error: Error) => void;
+  incomingOnly?: boolean; // New flag to indicate we only care about incoming transactions
+};
+
+// Dictionary to track subscriptions by address
+const addressSubscriptions: Record<string, AddressSubscriber[]> = {};
+// Track active scripthash subscriptions for reconnection
+const activeScripthashSubscriptions = new Set<string>();
+
+/**
+ * Logs subscription activity with timestamp and detailed transaction info when available
+ * Only logs details for unconfirmed transactions
+ */
+const logSubscriptionActivity = (
+  message: string,
+  data?: any,
+  txDetails?: {
+    txid?: string;
+    amount?: number;
+    sender?: string[];
+    recipient?: string[];
+    type?: 'incoming' | 'outgoing';
+    confirmations?: number;
+    fee?: number;
+    eta?: string;
+    satPerVbyte?: number | null;
+  },
+) => {
+  const timestamp = new Date().toISOString();
+  let logMessage = `[${timestamp}] Subscription: ${message}`;
+
+  // Log basic data if provided
+  if (data) {
+    logMessage += ` | ${typeof data === 'object' ? JSON.stringify(data) : data}`;
+  }
+
+  // Only log detailed transaction information for unconfirmed transactions
+  if (txDetails && (!txDetails.confirmations || txDetails.confirmations === 0)) {
+    // Add emoji for incoming transactions to make them stand out in logs
+    const prefix = txDetails.type === 'incoming' ? '🔔 INCOMING PAYMENT: ' : '';
+    
+    console.log(`${prefix}${logMessage}`);
+    console.log('Transaction Details (Unconfirmed):');
+    if (txDetails.txid) console.log(`- TXID: ${txDetails.txid}`);
+    if (txDetails.type) console.log(`- Type: ${txDetails.type}`);
+    if (txDetails.amount !== undefined) console.log(`- Amount: ${txDetails.amount} BTC (${txDetails.amount * 100000000} satoshis)`);
+    if (txDetails.confirmations !== undefined) console.log(`- Confirmations: ${txDetails.confirmations}`);
+    if (txDetails.fee !== undefined) console.log(`- Fee: ${txDetails.fee} BTC`);
+    if (txDetails.sender && txDetails.sender.length) console.log(`- From: ${txDetails.sender.join(', ')}`);
+    if (txDetails.recipient && txDetails.recipient.length) console.log(`- To: ${txDetails.recipient.join(', ')}`);
+    if (txDetails.eta) console.log(`- ETA: ${txDetails.eta}`);
+    if (txDetails.satPerVbyte) console.log(`- Fee rate: ${txDetails.satPerVbyte} sat/vbyte`);
+    console.log('-----------------------------------');
+  } else {
+    console.log(logMessage);
+  }
+};
+
+/**
+ * Subscribe to address balance and history updates
+ * @param address Bitcoin address to monitor
+ * @param subscriber Subscriber object with callbacks
+ * @param incomingOnly If true, only notify on incoming transactions (default: true)
+ */
+export const subscribeToAddress = async (
+  address: string, 
+  subscriber: AddressSubscriber,
+): Promise<void> => {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+
+  // Default to incomingOnly=true if not specified
+  if (subscriber.incomingOnly === undefined) {
+    subscriber.incomingOnly = true;
+  }
+
+  logSubscriptionActivity(`Adding subscription for address: ${address} (incomingOnly: ${subscriber.incomingOnly})`);
+
+  // Add subscriber to the list
+  if (!addressSubscriptions[address]) {
+    addressSubscriptions[address] = [];
+  }
+  addressSubscriptions[address].push(subscriber);
+
+  try {
+    // Check if the address has too many transactions before attempting to subscribe
+    try {
+      // Get initial data - this will throw if too many transactions
+      const balance = await getBalanceByAddress(address);
+      const history = await getTransactionsByAddress(address);
+
+      // Continue with normal subscription flow
+      const script = bitcoin.address.toOutputScript(address);
+      const hash = bitcoin.crypto.sha256(script);
+      const reversedHash = Buffer.from(hash).reverse().toString('hex');
+
+      // Track this subscription for reconnection purposes
+      activeScripthashSubscriptions.add(reversedHash);
+
+      // Subscribe to scripthash with fallbacks
+      try {
+        await mainClient.blockchainScripthash_subscribe(reversedHash);
+        logSubscriptionActivity(`Successfully subscribed to scripthash: ${reversedHash} for address: ${address}`);
+      } catch (subError) {
+        // If the standard method fails, try alternatives
+        logSubscriptionActivity(`Failed to subscribe with standard method: ${String(subError)}. Trying alternatives...`);
+
+        if (typeof mainClient.blockchain_scripthash_subscribe === 'function') {
+          await mainClient.blockchain_scripthash_subscribe(reversedHash);
+          logSubscriptionActivity(`Subscribed using alternative method for: ${address}`);
+        } else if (typeof mainClient.subscribe === 'function') {
+          await mainClient.subscribe('blockchain.scripthash.subscribe', reversedHash);
+          logSubscriptionActivity(`Subscribed using generic method for: ${address}`);
+        } else {
+          throw new Error('No suitable subscribe method available on the server');
+        }
+      }
+
+      let txEstimate = { eta: '', satPerVbyte: null as number | null };
+      let mempool: MempoolTransaction[] = [];
+
+      // Get mempool and estimates if we have unconfirmed balance
+      if (balance.unconfirmed !== 0) {
+        mempool = await getMempoolTransactionsByAddress(address);
+        txEstimate = await getTransactionEstimate(address, mempool);
+      }
+
+      // Notify subscriber with enhanced initial data
+      subscriber.onUpdate(balance, history, mempool, txEstimate);
+    } catch (error) {
+      if (String(error).includes('history of > ')) {
+        // Special handling for addresses with too many transactions
+        logSubscriptionActivity(`Address ${address} has too many transactions to monitor: ${error}`);
+
+        if (subscriber.onError) {
+          subscriber.onError(error instanceof Error ? error : new Error(String(error)));
+        }
+
+        // Remove this subscription since we can't properly handle it
+        const index = addressSubscriptions[address].indexOf(subscriber);
+        if (index > -1) {
+          addressSubscriptions[address].splice(index, 1);
+        }
+        if (addressSubscriptions[address].length === 0) {
+          delete addressSubscriptions[address];
+        }
+        return;
+      }
+      throw error; // Re-throw other errors to be caught below
+    }
+  } catch (error) {
+    logSubscriptionActivity(`Error in subscribeToAddress: ${error instanceof Error ? error.message : String(error)}`);
+    if (subscriber.onError) {
+      subscriber.onError(error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+};
+
+/**
+ * Unsubscribe from address updates
+ * @param address Bitcoin address to unsubscribe from
+ * @param subscriber Subscriber to remove, if undefined removes all subscribers
+ * @param reason Optional reason for unsubscribing (for logging only)
+ */
+export const unsubscribeFromAddress = async (address: string, subscriber?: AddressSubscriber, reason?: string): Promise<void> => {
+  if (!mainClient) return;
+
+  try {
+    if (subscriber) {
+      // Remove specific subscriber
+      logSubscriptionActivity(`Removing specific subscriber for address: ${address} - Reason: ${reason || 'unspecified'}`);
+      if (addressSubscriptions[address]) {
+        const previousCount = addressSubscriptions[address].length;
+        addressSubscriptions[address] = addressSubscriptions[address].filter(sub => sub !== subscriber);
+        const newCount = addressSubscriptions[address].length;
+
+        if (addressSubscriptions[address].length === 0) {
+          delete addressSubscriptions[address];
+          logSubscriptionActivity(`Removed last subscriber (${previousCount} → ${newCount}) for address: ${address} - Reason: ${reason || 'unspecified'}`);
+        } else {
+          logSubscriptionActivity(`Removed subscriber (${previousCount} → ${newCount}) for address: ${address} - Reason: ${reason || 'unspecified'}`);
+        }
+      }
+    } else {
+      // Remove all subscribers for this address
+      const subscriberCount = addressSubscriptions[address]?.length || 0;
+      delete addressSubscriptions[address];
+      logSubscriptionActivity(`Removed all subscribers (${subscriberCount}) for address: ${address} - Reason: ${reason || 'unspecified'}`);
+    }
+
+    // If no more subscribers, unsubscribe from electrum server
+    if (!addressSubscriptions[address]) {
+      try {
+        const script = bitcoin.address.toOutputScript(address);
+        const hash = bitcoin.crypto.sha256(script);
+        const reversedHash = Buffer.from(hash).reverse().toString('hex');
+
+        // Remove from active subscriptions set
+        activeScripthashSubscriptions.delete(reversedHash);
+
+        if (mainClient && mainClient.status === 1) {
+          // Only attempt to unsubscribe if connected
+          // Check if the unsubscribe method exists (different electrum servers may have different APIs)
+          if (typeof mainClient.blockchainScripthash_unsubscribe === 'function') {
+            await mainClient.blockchainScripthash_unsubscribe(reversedHash);
+            logSubscriptionActivity(`Unsubscribed from scripthash: ${reversedHash} for address: ${address} - Reason: ${reason || 'unspecified'}`);
+          } else {
+            // Try alternative method names that might exist in some electrum server implementations
+            if (typeof mainClient.blockchain_scripthash_unsubscribe === 'function') {
+              await mainClient.blockchain_scripthash_unsubscribe(reversedHash);
+              logSubscriptionActivity(`Unsubscribed using alternative method for: ${address} - Reason: ${reason || 'unspecified'}`);
+            } else if (typeof mainClient.unsubscribe === 'function') {
+              await mainClient.unsubscribe('blockchain.scripthash.subscribe', reversedHash);
+              logSubscriptionActivity(`Unsubscribed using generic method for: ${address} - Reason: ${reason || 'unspecified'}`);
+            } else {
+              // If no unsubscribe methods are available, just log it
+              logSubscriptionActivity(`No unsubscribe method available for server. Removing subscription locally for: ${address} - Reason: ${reason || 'unspecified'}`);
+            }
+          }
+        } else {
+          logSubscriptionActivity(`Client disconnected, skipping unsubscribe call for address: ${address} - Reason: ${reason || 'unspecified'}`);
+        }
+      } catch (error) {
+        // Just log the error, don't throw, as we still want to remove the subscription locally
+        logSubscriptionActivity(`Server-side unsubscribe failed for ${address}: ${error instanceof Error ? error.message : String(error)} - Reason: ${reason || 'unspecified'}`);
+        logSubscriptionActivity(`Subscription was removed locally anyway.`);
+      }
+    }
+  } catch (error) {
+    logSubscriptionActivity(
+      `Error handling unsubscribe from address ${address}: ${error instanceof Error ? error.message : String(error)} - Reason: ${reason || 'unspecified'}`,
+    );
+  }
+};
+
+/**
+ * Resubscribe to all active subscriptions after reconnection
+ */
+export const resubscribeToActiveAddresses = async (): Promise<void> => {
+  if (!mainClient || mainClient.status !== 1) {
+    logSubscriptionActivity('Cannot resubscribe: client not connected');
+    return;
+  }
+
+  const addressesToResubscribe = Object.keys(addressSubscriptions);
+  if (addressesToResubscribe.length === 0) {
+    logSubscriptionActivity('No addresses to resubscribe to');
+    return;
+  }
+
+  logSubscriptionActivity(`Resubscribing to ${addressesToResubscribe.length} addresses after reconnection`);
+
+  for (const address of addressesToResubscribe) {
+    try {
+      const script = bitcoin.address.toOutputScript(address);
+      const hash = bitcoin.crypto.sha256(script);
+      const reversedHash = Buffer.from(hash).reverse().toString('hex');
+
+      // Resubscribe to the scripthash
+      try {
+        await mainClient.blockchainScripthash_subscribe(reversedHash);
+        // Mark as active again
+        activeScripthashSubscriptions.add(reversedHash);
+        logSubscriptionActivity(`Successfully resubscribed to scripthash: ${reversedHash} for address: ${address}`);
+      } catch (subError) {
+        // If the standard method fails, try alternatives
+        logSubscriptionActivity(`Failed to resubscribe with standard method: ${String(subError)}. Trying alternatives...`);
+
+        if (typeof mainClient.blockchain_scripthash_subscribe === 'function') {
+          await mainClient.blockchain_scripthash_subscribe(reversedHash);
+          logSubscriptionActivity(`Resubscribed using alternative method for: ${address}`);
+        } else if (typeof mainClient.subscribe === 'function') {
+          await mainClient.subscribe('blockchain.scripthash.subscribe', reversedHash);
+          logSubscriptionActivity(`Resubscribed using generic method for: ${address}`);
+        } else {
+          throw new Error('No suitable subscribe method available on the server');
+        }
+
+        activeScripthashSubscriptions.add(reversedHash);
+      }
+
+      // Get updated data to send to subscribers
+      const balance = await getBalanceByAddress(address);
+      const history = await getTransactionsByAddress(address);
+
+      // Notify all subscribers with fresh data
+      for (const subscriber of addressSubscriptions[address]) {
+        subscriber.onUpdate(balance, history);
+      }
+
+      logSubscriptionActivity(`Successfully resubscribed to address: ${address}`);
+    } catch (error) {
+      logSubscriptionActivity(`Error resubscribing to address ${address}: ${error instanceof Error ? error.message : String(error)}`);
+      // Notify subscribers of the error
+      for (const subscriber of addressSubscriptions[address] || []) {
+        if (subscriber.onError) {
+          subscriber.onError(error instanceof Error ? error : new Error(String(error)));
+        }
+      }
+    }
+  }
+};
+
+// Enhanced notification handling
+async function onNotificationReceived(address: string, scripthash: string) {
+  logSubscriptionActivity(`Received notification for address: ${address} (update method: SUBSCRIPTION)`);
+
+  try {
+    // Get updated data
+    const balance = await getBalanceByAddress(address);
+    const history = await getTransactionsByAddress(address);
+    let txEstimate = { eta: '', satPerVbyte: null as number | null };
+    let mempool: MempoolTransaction[] = [];
+    let detailedTxInfo = {}; // Transaction details object separate from txEstimate
+
+    // Log incoming transaction with clear indicators
+    if (balance.unconfirmed > 0) {
+      console.log(`🔔 INCOMING PAYMENT DETECTED: Address ${address} received ${balance.unconfirmed} satoshis (${balance.unconfirmed / 100000000} BTC)`);
+    }
+
+    // Only fetch mempool transactions if we have unconfirmed balance
+    // This ensures we're only dealing with 0-confirmation transactions
+    if (balance.unconfirmed !== 0) {
+      mempool = await getMempoolTransactionsByAddress(address);
+      txEstimate = await getTransactionEstimate(address, mempool);
+
+      // Check if there's a pending transaction (guaranteed to have 0 confirmations)
+      if (mempool.length > 0) {
+        const pendingTx = mempool[0];
+        try {
+          const txDetails = await multiGetTransactionByTxid([pendingTx.tx_hash], true, 1);
+          const txDetail = txDetails[pendingTx.tx_hash];
+
+          if (txDetail && txDetail.confirmations === 0) {
+            // Explicit check for 0 confirmations
+            // Extract transaction details
+            const recipients: string[] = [];
+            const senders: string[] = [];
+            let amount = 0;
+
+            // Find recipients and amount
+            for (const vout of txDetail.vout || []) {
+              if (vout.scriptPubKey?.addresses) {
+                if (vout.scriptPubKey.addresses.includes(address)) {
+                  amount += vout.value;
+                }
+                recipients.push(...vout.scriptPubKey.addresses);
+              }
+            } 
+
+            // Find senders
+            for (const vin of txDetail.vin || []) {
+              if (vin.addresses) {
+                senders.push(...vin.addresses);
+              }
+            }
+
+            // Determine transaction type
+            const type = recipients.includes(address) ? 'incoming' : 'outgoing';
+
+            // Store transaction details separately from txEstimate
+            detailedTxInfo = {
+              txid: pendingTx.tx_hash,
+              amount,
+              sender: senders,
+              recipient: recipients,
+              type,
+              confirmations: 0, // Explicitly set to 0 since it's unconfirmed
+              fee: pendingTx.fee / 100000000, // Convert satoshis to BTC
+            };
+            
+            // Log extra information for incoming transactions
+            if (type === 'incoming') {
+              console.log(`🔔 TRANSACTION DETAILS: TXID=${pendingTx.tx_hash}, Amount=${amount} BTC, Recipients=${recipients.join(', ')}`);
+            }
+          }
+        } catch (fetchDetailError) {
+          console.warn('Failed to fetch detailed transaction info:', fetchDetailError);
+        }
+      }
+    }
+
+    // Log detailed information including transaction info
+    // Will only include details if it's an unconfirmed transaction
+    logSubscriptionActivity(
+      `Updated data via SUBSCRIPTION for address: ${address} | Balance: ${balance.confirmed} confirmed, ${balance.unconfirmed} unconfirmed`,
+      { txCount: history.length, unconfirmedBalance: balance.unconfirmed !== 0 },
+      // Combine txEstimate with detailedTxInfo for logging purposes only
+      Object.keys(detailedTxInfo).length > 0 ? { ...detailedTxInfo, ...txEstimate } : undefined
+    );
+
+    // Notify all subscribers
+    const subscriberCount = addressSubscriptions[address]?.length || 0;
+    logSubscriptionActivity(`Notifying ${subscriberCount} subscribers for address: ${address}`);
+
+    for (const subscriber of addressSubscriptions[address] || []) {
+      // Only notify if: 
+      // 1. subscriber doesn't have incomingOnly flag, or 
+      // 2. incomingOnly is true and we have an incoming transaction (unconfirmed > 0)
+      if (!subscriber.incomingOnly || (subscriber.incomingOnly && balance.unconfirmed > 0)) {
+        subscriber.onUpdate(balance, history, mempool, txEstimate);
+      } else if (balance.unconfirmed < 0) {
+        // We have an outgoing transaction and subscriber only wants incoming
+        logSubscriptionActivity(`Skipping notification for outgoing transaction (balance: ${balance.unconfirmed}) to incomingOnly subscriber`);
+      }
+    }
+  } catch (error) {
+    logSubscriptionActivity(`Error processing notification for ${address}: ${error instanceof Error ? error.message : String(error)}`);
+    // Notify subscribers of error
+    for (const subscriber of addressSubscriptions[address] || []) {
+      if (subscriber.onError) {
+        subscriber.onError(error instanceof Error ? error : new Error(String(error)));
+      }
+    }
+  }
+}
+
+// Enhanced onNotify handler
+if (mainClient) {
+  mainClient.onNotify = async (event: string, params: any[]) => {
+    // Handle scripthash notifications
+    if (event === 'blockchain.scripthash.subscribe') {
+      const scripthash = params[0];
+      logSubscriptionActivity(`Received raw notification for scripthash: ${scripthash}`);
+
+      // Find the address that corresponds to this scripthash
+      for (const address of Object.keys(addressSubscriptions)) {
+        try {
+          const script = bitcoin.address.toOutputScript(address);
+          const hash = bitcoin.crypto.sha256(script);
+          const reversedHash = Buffer.from(hash).reverse().toString('hex');
+
+          if (reversedHash === scripthash) {
+            await onNotificationReceived(address, scripthash);
+            break;
+          }
+        } catch (error) {
+          logSubscriptionActivity(`Error processing notification: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+    }
+  };
+}
+
+// Add this to easily check subscription status
+export const getActiveSubscriptions = () => {
+  // Calculate some stats about monitored addresses
+  const addressesWithUnconfirmedBalance = Object.keys(addressSubscriptions).filter(addr => {
+    const subscribers = addressSubscriptions[addr];
+    // Check if any subscriber has unconfirmed balance data
+    return subscribers.some(sub => {
+      // We don't have a direct way to access the balance here
+      // This is just a placeholder - we'd need to track this separately
+      return true;
+    });
+  });
+
+  return {
+    addresses: Object.keys(addressSubscriptions),
+    subscriberCounts: Object.fromEntries(Object.entries(addressSubscriptions).map(([address, subs]) => [address, subs.length])),
+    activeScripthashes: Array.from(activeScripthashSubscriptions),
+    totalSubscribers: Object.values(addressSubscriptions).reduce((sum, subs) => sum + subs.length, 0),
+    addressesWithActivity: addressesWithUnconfirmedBalance.length,
+  };
+};
+
+// Add this new function to calculate transaction estimates
+export const getTransactionEstimate = async function (
+  address: string,
+  mempool?: MempoolTransaction[],
+): Promise<{ eta: string; satPerVbyte: number | null }> {
+  if (!mempool) {
+    try {
+      mempool = await getMempoolTransactionsByAddress(address);
+    } catch (error) {
+      console.log('Error fetching mempool transactions:', error);
+      return { eta: '', satPerVbyte: null };
+    }
+  }
+
+  // Default response
+  const response = {
+    eta: '',
+    satPerVbyte: null as number | null,
+  };
+
+  try {
+    // Only process if we have mempool transactions
+    if (mempool.length > 0) {
+      const tx = mempool[0];
+      const txDetails = await multiGetTransactionByTxid([tx.tx_hash], true, 10);
+
+      if (txDetails && txDetails[tx.tx_hash]) {
+        // Double check that this is truly an unconfirmed transaction
+        if (txDetails[tx.tx_hash].confirmations === 0) {
+          const satPerVbyte = Math.round(tx.fee / txDetails[tx.tx_hash].vsize);
+          response.satPerVbyte = satPerVbyte;
+
+          const fees = await estimateFees();
+
+          // Set ETA string based on fee rate
+          if (satPerVbyte >= fees.fast) {
+            response.eta = '10m';
+          } else if (satPerVbyte >= fees.medium) {
+            response.eta = '3h';
+          } else {
+            response.eta = '1d+';
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.log('Error calculating transaction estimate:', error);
+  }
+
+  return response;
+};
+
+/**
+ * Tracks active connections to help prevent redundant subscriptions
+ * and enable smart reconnection strategies 
+ */
+export const getConnectionStatus = () => {
+  return {
+    connected: mainClient && mainClient.status === 1,
+    host: mainClient?.host,
+    port: mainClient?.port,
+    connectionAttempt,
+    wasConnectedAtLeastOnce,
+    serverName,
+    subscribedAddresses: Object.keys(addressSubscriptions),
+    totalSubscribers: Object.values(addressSubscriptions).reduce((sum, subs) => sum + subs.length, 0),
+    serverBusy: Object.values(serverBusyFlags).some(flag => flag === true),
+  };
+};
+
+// Track server busy state per host
+const serverBusyFlags: Record<string, boolean> = {};
+
+// Update server busy flag when we detect issues
+export const markServerAsBusy = (host: string, isBusy: boolean = true) => {
+  const serverKey = host || 'default';
+  serverBusyFlags[serverKey] = isBusy;
+  console.log(`[BlueElectrum] Server ${serverKey} marked as ${isBusy ? 'busy' : 'available'}`);
 };

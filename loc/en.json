@@ -108,7 +108,16 @@
     "minSats": "Minimal amount is {min} sats",
     "minSatsFull": "Minimal amount is {min} sats or {currency}",
     "qrcode_for_the_address": "QR Code for the address",
-    "bip47_explanation": "Payment codes are a universal address that avoids disclosing your wallet addresses. Not all services will support them."
+    "address_too_many_transactions": "Address has too many transactions",
+    "address_too_many_transactions_detail": "This address has too many transactions to display. Please use a different address for new transactions.",
+    "address_history_too_large": "Address history is too large",
+    "address_history_too_large_detail": "The transaction history for this address is too large for the server to process. Please use a different address for new transactions.",
+    "bip47_explanation": "Payment codes are a universal address that avoids disclosing your wallet addresses. Not all services will support them.",
+    "server_busy": "Electrum server is busy",
+    "server_busy_detail": "We're experiencing high traffic. We'll continue monitoring your address in the background.",
+    "server_busy_still_working": "Your address {address} is still being monitored.",
+    "showing_stale_data": "Showing previously loaded data. Server is busy.",
+    "refresh_address": "Refresh"
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
