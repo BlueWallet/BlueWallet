@@ -250,14 +250,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
       await new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => resolve()));
 
-      const TIMEOUT_DURATION = 30000;
-      const timeoutPromise = new Promise<never>((_resolve, reject) =>
-        setTimeout(() => {
-          console.debug('[refreshAllWalletTransactions] Timeout reached');
-          reject(new Error('Timeout reached'));
-        }, TIMEOUT_DURATION),
-      );
-
       try {
         if (showUpdateStatusIndicator) {
           console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
@@ -279,23 +271,19 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
 
         console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
-        await Promise.race([
-          (async () => {
-            const balanceStart = Date.now();
-            await BlueApp.fetchWalletBalances(lastSnappedTo);
-            const balanceEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const balanceStart = Date.now();
+        await BlueApp.fetchWalletBalances(lastSnappedTo);
+        const balanceEnd = Date.now();
+        console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
 
-            const txStart = Date.now();
-            await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const txEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
+        const txStart = Date.now();
+        await BlueApp.fetchWalletTransactions(lastSnappedTo);
+        const txEnd = Date.now();
+        console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
 
-            console.debug('[refreshAllWalletTransactions] Saving data to disk');
-            await saveToDisk();
-          })(),
-          timeoutPromise,
-        ]);
+        console.debug('[refreshAllWalletTransactions] Saving data to disk');
+        await saveToDisk();
+
         console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
       } catch (error) {
         console.error('[refreshAllWalletTransactions] Error:', error);
