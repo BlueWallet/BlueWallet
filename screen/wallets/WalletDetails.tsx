@@ -443,7 +443,7 @@ const WalletDetails: React.FC = () => {
                 return (
                   <>
                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_address.toLowerCase()}</Text>
-                    <Text style={[styles.textValue, stylesHook.textValue]}>
+                    <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                       {(() => {
                         // gracefully handling faulty wallets, so at least user has an option to delete the wallet
                         try {
