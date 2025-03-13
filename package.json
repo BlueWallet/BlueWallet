@@ -140,7 +140,7 @@
     "react-native-default-preference": "https://github.com/BlueWallet/react-native-default-preference.git#6338a1f1235e4130b8cfc2dd3b53015eeff2870c",
     "react-native-device-info": "14.0.4",
     "react-native-document-picker": "9.3.1",
-    "react-native-draglist": "github:BlueWallet/react-native-draglist#8c52785",
+    "react-native-draglist": "github:BlueWallet/react-native-draglist#2fb0c1f",
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.23.1",
     "react-native-handoff": "github:BlueWallet/react-native-handoff#v0.0.4",
