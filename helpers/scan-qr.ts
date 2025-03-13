@@ -15,7 +15,8 @@ const scanQrHelper = async (): Promise<string> => {
   await requestCameraAuthorization();
   return new Promise(resolve => {
     if (navigationRef.isReady()) {
-      navigationRef.current?.navigate('ScanQRCode', {
+      navigationRef.navigate('ScanQRCode', {
+        showFileImportButton: true,
         onBarScanned: (data: string) => {
           resolve(data);
         },
