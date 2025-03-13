@@ -164,7 +164,7 @@
 		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -428,7 +428,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1821,7 +1821,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
@@ -1886,7 +1885,6 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
@@ -2039,7 +2037,6 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
@@ -2087,7 +2084,6 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "WalletInformationWidget/Widgets/Shared/BlueWalletWatch-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
 			};
