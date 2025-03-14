@@ -243,6 +243,7 @@
     "electrum_connected": "Połączony",
     "electrum_connected_not": "Nie Podłączony",
     "electrum_error_connect": "Nie można połączyć się z podanym serwerem Electrum.",
+    "electrum_error_connect_tor": "Nie można połączyć się z podanym serwerem Electrum. Upewnij się, że aplikacja Orbot jest połączona i spróbuj ponownie.",
     "lndhub_uri": "np. {example}",
     "electrum_host": "np. {example}",
     "electrum_offline_mode": "Tryb Offline",
@@ -289,6 +290,7 @@
     "language_isRTL": "Aby ustawienia dotyczące kierunku pisma wybranego języka zaczęły obowiązywać, BlueWallet musi być zrestartowany.",
     "license": "Licencja",
     "lightning_error_lndhub_uri": "Niepoprawny adres LNDhub",
+    "lightning_error_lndhub_uri_tor": "Nieprawidłowy adres LNDhub. Upewnij się, że aplikacja Orbot jest połączona i spróbuj ponownie.",
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
     "lightning_settings_explain": "Aby połączyć się z własnym węzłem LND, zainstaluj LNDhub i wprowadź jego URL tutaj w ustawieniach. Pamiętaj, że tylko portfele utworzone po zapisaniu zmian będą połączone z określonym LNDhubem.",
@@ -678,7 +680,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }
