@@ -71,14 +71,46 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       : { paddingVertical: 16, paddingHorizontal: 24 },
   });
 
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 0.97,
+      useNativeDriver: true,
+      friction: 4,
+    }).start();
+  }, [scale]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 4,
+    }).start();
+  }, [scale]);
+
   return (
-    <Pressable accessibilityRole="button" testID="CreateAWallet" onPress={onPress} style={isLargeScreen ? {} : { width: itemWidth * 1.2 }}>
-      <View
+    <Pressable
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      onPress={onPress}
+      testID="CreateAWallet"
+      style={({ pressed }) => [
+        isLargeScreen ? {} : { width: itemWidth * 1.2 },
+        {
+          opacity: pressed ? 0.9 : 1.0,
+        },
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={loc.wallets.list_create_a_wallet}
+    >
+      <Animated.View
         style={[
           nStyles.container,
           nStylesHooks.container,
           { backgroundColor: WalletGradient.createWallet() },
           isLargeScreen ? {} : { width: itemWidth },
+          { transform: [{ scale }] },
         ]}
       >
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
@@ -86,7 +118,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         <View style={nStyles.button}>
           <Text style={[nStyles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
         </View>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 };

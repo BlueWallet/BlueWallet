@@ -14,7 +14,7 @@ import {
   Platform,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFocusEffect, usePreventRemove } from '@react-navigation/native';
+import { usePreventRemove } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -23,7 +23,6 @@ import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -203,7 +202,6 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
-  const { setIsDrawerShouldHide } = useSettings();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack, dispatch: navigationDispatch } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -356,15 +354,6 @@ const ManageWallets: React.FC = () => {
       headerSearchBarOptions: searchBarOptions,
     });
   }, [setOptions, HeaderLeftButton, SaveButton]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setIsDrawerShouldHide(true);
-      return () => {
-        setIsDrawerShouldHide(false);
-      };
-    }, [setIsDrawerShouldHide]),
-  );
 
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {

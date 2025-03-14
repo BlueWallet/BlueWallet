@@ -1,4 +1,4 @@
-import { DrawerContentScrollView } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { InteractionManager, LayoutAnimation, StyleSheet, View, ViewStyle } from 'react-native';
@@ -31,10 +31,6 @@ interface SelectWalletAction {
   walletType: string;
 }
 
-interface SelectWalletAction {
-  type: WalletActionType.SelectWallet;
-  walletID: string;
-}
 interface NavigateAction {
   type: WalletActionType.Navigate;
   screen: string;
@@ -49,11 +45,6 @@ interface SetFocusAction {
 interface SetWalletsAction {
   type: WalletActionType.SetWallets;
   wallets: TWallet[];
-}
-
-interface SelectWalletAction {
-  type: WalletActionType.SelectWallet;
-  walletID: string;
 }
 
 type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction | NavigateAction;
@@ -74,16 +65,17 @@ const walletReducer = (state: WalletState, action: WalletAction): WalletState =>
   }
 };
 
-const DrawerList: React.FC = memo(() => {
+const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
   const initialState: WalletState = {
     wallets: [],
     isFocused: false,
   };
 
   const navigation = useExtendedNavigation();
+  const drawerNavigation = props.navigation;
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const walletsCarousel = useRef(null);
+  const walletsCarousel = useRef<any>(null);
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -111,30 +103,42 @@ const DrawerList: React.FC = memo(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         dispatch({ type: WalletActionType.SelectWallet, walletID, walletType });
         InteractionManager.runAfterInteractions(() => {
-          navigation.navigate({
-            name: 'WalletTransactions',
+          // Navigate to the nested screen through DetailViewStackScreensStack
+          drawerNavigation.navigate('DetailViewStackScreensStack', {
+            screen: 'WalletTransactions',
             params: { walletID, walletType },
           });
+          // Close drawer after navigation
+          drawerNavigation.closeDrawer();
         });
       }
     },
-    [navigation],
+    [drawerNavigation],
   );
 
   const handleLongPress = useCallback(() => {
     if (state.wallets.length > 1) {
-      navigation.navigate('ManageWallets');
+      // Navigate to the nested screen through DetailViewStackScreensStack
+      drawerNavigation.navigate('DetailViewStackScreensStack', {
+        screen: 'ManageWallets',
+      });
+      drawerNavigation.closeDrawer();
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
-  }, [state.wallets.length, navigation]);
+  }, [state.wallets.length, drawerNavigation]);
 
   const onNewWalletPress = useCallback(() => {
+    // Navigation needs to go through correct navigator hierarchy
+    drawerNavigation.closeDrawer();
+
+    // This will reach the AddWalletRoot screen in DetailViewScreensStack
     navigation.navigate('AddWalletRoot');
-  }, [navigation]);
+  }, [navigation, drawerNavigation]);
 
   return (
     <DrawerContentScrollView
+      {...props}
       contentContainerStyle={stylesHook.root}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets={true}
@@ -155,7 +159,7 @@ const DrawerList: React.FC = memo(() => {
         ref={walletsCarousel}
         horizontal={false}
         isFlatList={false}
-        onNewWalletPress={handleClick}
+        onNewWalletPress={onNewWalletPress}
         testID="WalletsList"
         selectedWallet={selectedWalletID}
         scrollEnabled={state.isFocused}

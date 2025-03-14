@@ -26,7 +26,7 @@ import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
-import { NavigationDefaultOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
+import { NavigationDefaultOptions, StatusBarLightOptions, DetailViewStack } from './index';
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
@@ -62,8 +62,8 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import ScanLNDInvoiceRoot from './ScanLNDInvoiceStack';
 import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 
@@ -329,7 +329,6 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
-      {/* screens */}
       <DetailViewStack.Screen
         name="WalletExportRoot"
         component={WalletExportStack}
@@ -340,12 +339,10 @@ const DetailViewStackScreensStack = () => {
         component={ExportMultisigCoordinationSetupStack}
         options={NavigationDefaultOptions}
       />
-
       <DetailViewStack.Screen
         name="ViewEditMultisigCosigners"
         component={ViewEditMultisigCosignersComponent}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
-        initialParams={{ walletID: undefined, cosigners: undefined }}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false }}
       />
       <DetailViewStack.Screen
         name="WalletXpubRoot"
@@ -361,24 +358,20 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="ManageWallets"
         component={ManageWallets}
-        options={navigationStyle({
-          headerBackVisible: false,
-          gestureEnabled: false,
+        options={{
           presentation: 'fullScreenModal',
           title: loc.wallets.manage_title,
           statusBarStyle: 'auto',
-        })(theme)}
+        }}
       />
       <DetailViewStack.Screen
         name="ScanQRCode"
         component={ScanQRCodeComponent}
-        options={navigationStyle({
+        options={{
           headerShown: false,
           statusBarHidden: true,
-          autoHideHomeIndicator: true,
           presentation: 'fullScreenModal',
-          headerShadowVisible: false,
-        })(theme)}
+        }}
       />
     </DetailViewStack.Navigator>
   );

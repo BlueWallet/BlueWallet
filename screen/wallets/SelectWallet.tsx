@@ -102,7 +102,7 @@ const SelectWallet: React.FC = () => {
   }
 
   return (
-    <View style={styles.walletsCarousel}>
+    <SafeArea style={styles.walletsCarousel}>
       <WalletsCarousel
         data={filteredWallets}
         scrollEnabled
@@ -111,7 +111,7 @@ const SelectWallet: React.FC = () => {
         testID="WalletsList"
         horizontal={false}
       />
-    </View>
+    </SafeArea>
   );
 };
 

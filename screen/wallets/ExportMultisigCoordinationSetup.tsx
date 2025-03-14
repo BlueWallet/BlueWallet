@@ -12,6 +12,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
 import { useSettings } from '../../hooks/context/useSettings';
 import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import SafeArea from '../../components/SafeArea';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -161,7 +162,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   };
 
   const renderView = wallet ? (
-    <>
+    <SafeArea style={[styles.scrollViewContent, stylesHook.scrollViewContent]}>
       <View>
         <BlueText style={[styles.type, stylesHook.type]}>{label}</BlueText>
       </View>
@@ -189,15 +190,16 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       <Text selectable style={[styles.secret, stylesHook.secret]}>
         {xpub}
       </Text>
-    </>
+    </SafeArea>
   ) : null;
 
   return (
     <ScrollView
       style={stylesHook.scrollViewContent}
-      contentContainerStyle={[styles.scrollViewContent, stylesHook.scrollViewContent]}
       centerContent
       automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      automaticallyAdjustsScrollIndicatorInsets
       contentInsetAdjustmentBehavior="automatic"
     >
       {isLoading ? <ActivityIndicator /> : renderView}
