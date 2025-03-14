@@ -418,7 +418,14 @@ const WalletsAdd: React.FC = () => {
   );
 
   return (
-    <ScrollView style={stylesHook.root} testID="ScrollView" automaticallyAdjustKeyboardInsets>
+    <ScrollView
+      style={stylesHook.root}
+      testID="ScrollView"
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustsScrollIndicatorInsets
+    >
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
       <View style={[styles.label, stylesHook.label]}>
