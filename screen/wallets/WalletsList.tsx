@@ -276,8 +276,15 @@ const WalletsList: React.FC = () => {
     );
   }, [stylesHook.listHeaderBack, stylesHook.listHeaderText]);
 
+  // Improve long press handler to make it more reliable
   const handleLongPress = useCallback(() => {
-    navigation.navigate('ManageWallets');
+    // Add haptic feedback for more tactile response
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
+
+    // Delay navigation slightly to ensure gesture is fully completed
+    setTimeout(() => {
+      navigation.navigate('ManageWallets');
+    }, 50);
   }, [navigation]);
 
   const renderTransactionListsRow = useCallback(

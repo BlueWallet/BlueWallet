@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect, useState } from 'react';
 import {
   Animated,
   FlatList,
@@ -25,6 +25,8 @@ import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import { Icon } from '@rneui/base';
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -104,6 +106,9 @@ interface WalletCarouselItemProps {
   animationsEnabled?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
+  longPressAction?: 'reorder' | 'default'; // Add this new prop
+  simplifiedRendering?: boolean; // Add prop for simplified rendering mode
+  longPressDelay?: number; // Add this prop with default value
 }
 
 const iStyles = StyleSheet.create({
@@ -163,6 +168,28 @@ const iStyles = StyleSheet.create({
       },
     }),
   },
+  longPressIndicator: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 10,
+    top: '50%',
+    left: '50%',
+    marginLeft: -30,
+    marginTop: -30,
+  },
+  longPressInnerCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
@@ -179,41 +206,204 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     isPlaceHolder = false,
     onPressIn,
     onPressOut,
+    longPressAction = 'default', // Default value
+    simplifiedRendering = false,
+    longPressDelay = 500, // Add this prop with default value
   }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
+    const hapticTriggered = useRef(false);
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { isLargeScreen } = useIsLargeScreen();
+    const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const springConfig = useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
+    // Add new state and animated values for long press indicator
+    const [showLongPressIndicator, setShowLongPressIndicator] = useState(false);
+    const longPressProgress = useRef(new Animated.Value(0)).current;
+    const longPressOpacity = useRef(new Animated.Value(0)).current;
+    const cardBackgroundOpacity = useRef(new Animated.Value(1)).current; // New animated value for card background
+    const LONG_PRESS_DURATION = 500; // Match the delayLongPress value
+
     const animateScale = useCallback(
       (toValue: number, callback?: () => void) => {
-        Animated.spring(scaleValue, { toValue, ...springConfig }).start(callback);
+        // Use timing for more consistent response
+        Animated.timing(scaleValue, {
+          toValue,
+          duration: 100, // Short duration for immediate feedback
+          useNativeDriver: true,
+        }).start(callback);
       },
-      [scaleValue, springConfig],
+      [scaleValue],
     );
 
+    // Animate the long press indicator
+    const startLongPressAnimation = useCallback(() => {
+      // Reset values
+      longPressProgress.setValue(0);
+      longPressOpacity.setValue(0);
+      cardBackgroundOpacity.setValue(1);
+
+      // Show the indicator
+      setShowLongPressIndicator(true);
+
+      // Animate opacity in
+      Animated.timing(longPressOpacity, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+
+      // Animate progress
+      Animated.timing(longPressProgress, {
+        toValue: 1,
+        duration: LONG_PRESS_DURATION,
+        useNativeDriver: true,
+      }).start();
+
+      // Animate card background opacity - create pulsing effect
+      Animated.sequence([
+        Animated.timing(cardBackgroundOpacity, {
+          toValue: 0.7,
+          duration: LONG_PRESS_DURATION / 3,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardBackgroundOpacity, {
+          toValue: 0.85,
+          duration: LONG_PRESS_DURATION / 3,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardBackgroundOpacity, {
+          toValue: 0.7,
+          duration: LONG_PRESS_DURATION / 3,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [longPressProgress, longPressOpacity, cardBackgroundOpacity, LONG_PRESS_DURATION]);
+
+    // Reset the long press indicator
+    const resetLongPressIndicator = useCallback(() => {
+      Animated.parallel([
+        Animated.timing(longPressOpacity, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardBackgroundOpacity, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setShowLongPressIndicator(false);
+        longPressProgress.setValue(0);
+      });
+    }, [longPressOpacity, longPressProgress, cardBackgroundOpacity]);
+
+    // Add a timeout delay before showing the long press indicator
+    const LONG_PRESS_INDICATOR_DELAY = 200; // Show indicator after 200ms of pressing
+    const longPressIndicatorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Separate the scale animation from the long press indicator
     const onPressedIn = useCallback(() => {
-      if (animationsEnabled) {
-        animateScale(0.95);
+      // Always animate the scale down for better feedback, unless specifically disabled
+      if (animationsEnabled !== false) {
+        animateScale(0.96);
       }
       if (onPressIn) onPressIn();
-    }, [animateScale, animationsEnabled, onPressIn]);
+
+      // Clear any existing timeouts to prevent multiple triggers
+      if (longPressTimeoutRef.current) {
+        clearTimeout(longPressTimeoutRef.current);
+      }
+      if (longPressIndicatorTimeoutRef.current) {
+        clearTimeout(longPressIndicatorTimeoutRef.current);
+      }
+
+      // Only show long press indicator if drag is available, and only after a delay
+      if (handleLongPress) {
+        // Set a timeout to show the long press indicator after a delay
+        longPressIndicatorTimeoutRef.current = setTimeout(() => {
+          startLongPressAnimation();
+
+          // Set a timeout to match the delayLongPress
+          longPressTimeoutRef.current = setTimeout(() => {
+            resetLongPressIndicator();
+          }, LONG_PRESS_DURATION - LONG_PRESS_INDICATOR_DELAY);
+        }, LONG_PRESS_INDICATOR_DELAY);
+      }
+    }, [
+      animateScale,
+      animationsEnabled,
+      onPressIn,
+      handleLongPress,
+      startLongPressAnimation,
+      resetLongPressIndicator,
+      LONG_PRESS_DURATION,
+    ]);
 
     const onPressedOut = useCallback(() => {
-      if (animationsEnabled) {
+      // Always animate the scale back up, unless specifically disabled
+      if (animationsEnabled !== false) {
         animateScale(1.0);
       }
       if (onPressOut) onPressOut();
-    }, [animateScale, animationsEnabled, onPressOut]);
+
+      // Clear both long press timeouts if the user releases before the long press activates
+      if (longPressTimeoutRef.current) {
+        clearTimeout(longPressTimeoutRef.current);
+        longPressTimeoutRef.current = null;
+      }
+      if (longPressIndicatorTimeoutRef.current) {
+        clearTimeout(longPressIndicatorTimeoutRef.current);
+        longPressIndicatorTimeoutRef.current = null;
+      }
+
+      // Hide the indicator
+      resetLongPressIndicator();
+    }, [animateScale, animationsEnabled, onPressOut, resetLongPressIndicator]);
 
     const handlePress = useCallback(() => {
-      onPress(item);
-    }, [item, onPress]);
+      // Clear any potential long press indicators when a tap is detected
+      if (longPressIndicatorTimeoutRef.current) {
+        clearTimeout(longPressIndicatorTimeoutRef.current);
+        longPressIndicatorTimeoutRef.current = null;
+      }
+      resetLongPressIndicator();
 
-    const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+      onPress(item);
+    }, [item, onPress, resetLongPressIndicator]);
+
+    // Clean up any timeouts when component unmounts
+    useEffect(() => {
+      return () => {
+        if (longPressTimeoutRef.current) {
+          clearTimeout(longPressTimeoutRef.current);
+        }
+        if (longPressIndicatorTimeoutRef.current) {
+          clearTimeout(longPressIndicatorTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Transform for the progress fill
+    const progressScale = longPressProgress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.4, 1],
+    });
+
+    // Render the appropriate icon based on longPressAction
+    const renderLongPressIcon = () => {
+      if (longPressAction === 'reorder') {
+        return <Icon name="sort" type="font-awesome" size={20} color="#000" />;
+      }
+      return <Icon name="list" type="font-awesome" size={20} color="#000" />;
+    };
+
+    // Calculate the combined opacity for the card
+    const finalOpacity = Animated.multiply(cardBackgroundOpacity, new Animated.Value(isSelectedWallet === false ? 0.5 : 1.0));
+
     let image;
     switch (item.type) {
       case LightningCustodianWallet.type:
@@ -237,11 +427,34 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
 
+    // If in simplified rendering mode, use a more performant version
+    if (simplifiedRendering) {
+      return (
+        <View
+          style={
+            isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth })
+          }
+        >
+          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
+            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
+              <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                {item.getLabel()}
+              </Text>
+            </LinearGradient>
+          </View>
+        </View>
+      );
+    }
+
+    // Regular rendering with animations
     return (
       <Animated.View
         style={[
           isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
-          { opacity, transform: [{ scale: scaleValue }] },
+          {
+            opacity: finalOpacity, // Use the combined animated opacity
+            transform: [{ scale: scaleValue }],
+          },
         ]}
       >
         <Pressable
@@ -249,14 +462,43 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           testID={item.getLabel()}
           onPressIn={onPressedIn}
           onPressOut={onPressedOut}
+          delayLongPress={longPressDelay} // Use the prop here instead of hardcoded value
           onLongPress={() => {
-            if (handleLongPress) handleLongPress();
+            if (handleLongPress) {
+              // Make sure haptic is triggered before the handler to provide instant feedback
+              triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
+              hapticTriggered.current = true;
+              handleLongPress();
+            }
           }}
           onPress={handlePress}
           delayHoverIn={0}
           delayHoverOut={0}
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
+            {/* Long press indicator overlay */}
+            {showLongPressIndicator && handleLongPress && (
+              <Animated.View
+                style={[
+                  iStyles.longPressIndicator,
+                  {
+                    opacity: longPressOpacity,
+                  },
+                ]}
+              >
+                <Animated.View
+                  style={[
+                    iStyles.longPressInnerCircle,
+                    {
+                      transform: [{ scale: progressScale }],
+                    },
+                  ]}
+                >
+                  {renderLongPressIcon()}
+                </Animated.View>
+              </Animated.View>
+            )}
+
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
@@ -297,6 +539,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       </Animated.View>
     );
   },
+  // Optimize re-renders with custom comparison
+  (prevProps, nextProps) => {
+    if (prevProps.simplifiedRendering && nextProps.simplifiedRendering) {
+      // For simplified rendering, only compare essential props
+      return prevProps.item.getID() === nextProps.item.getID();
+    }
+    // Default comparison for regular rendering
+    return (
+      prevProps.item.getID() === nextProps.item.getID() &&
+      prevProps.isSelectedWallet === nextProps.isSelectedWallet &&
+      prevProps.animationsEnabled === nextProps.animationsEnabled &&
+      prevProps.item.hideBalance === nextProps.item.hideBalance &&
+      prevProps.searchQuery === nextProps.searchQuery
+    );
+  },
 );
 
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
@@ -310,6 +567,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   scrollEnabled?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  disableAnimations?: boolean; // Add this new prop
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -349,10 +607,11 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     searchQuery,
     renderHighlightedText,
     isFlatList = true,
+    disableAnimations, // Add this prop
   } = props;
 
   const { width } = useWindowDimensions();
-  const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+  const itemWidth = useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
 
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
@@ -360,14 +619,17 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         <WalletCarouselItem
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
-          handleLongPress={handleLongPress}
+          handleLongPress={handleLongPress} // Pass through with no wrapper to avoid breaking the event chain
           onPress={onPress}
           horizontal={horizontal}
           searchQuery={searchQuery}
           renderHighlightedText={renderHighlightedText}
+          // Use shorter longPressDelay for better responsiveness
+          longPressDelay={300}
+          animationsEnabled={!disableAnimations} // Pass the prop here
         />
       ) : null,
-    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText],
+    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText, disableAnimations],
   );
 
   const flatListRef = useRef<FlatList<any>>(null);

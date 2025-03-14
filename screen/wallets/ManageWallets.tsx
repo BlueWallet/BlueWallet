@@ -12,6 +12,9 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Easing,
+  View,
+  Dimensions,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, usePreventRemove } from '@react-navigation/native';
@@ -26,6 +29,7 @@ import HeaderRightButton from '../../components/HeaderRightButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -200,6 +204,68 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// Add these new types and constants for animation state management
+type AnimationState = {
+  isDragging: boolean;
+  activeItemId: string | null;
+  isResettingAnimations: boolean;
+  animationsRunning: boolean;
+};
+
+type AnimationAction =
+  | { type: 'START_DRAG'; payload: { itemId: string | null } }
+  | { type: 'END_DRAG' }
+  | { type: 'START_ANIMATIONS' }
+  | { type: 'END_ANIMATIONS' }
+  | { type: 'START_RESET' }
+  | { type: 'END_RESET' };
+
+const initialAnimationState: AnimationState = {
+  isDragging: false,
+  activeItemId: null,
+  isResettingAnimations: false,
+  animationsRunning: false,
+};
+
+function animationReducer(state: AnimationState, action: AnimationAction): AnimationState {
+  switch (action.type) {
+    case 'START_DRAG':
+      return {
+        ...state,
+        isDragging: true,
+        activeItemId: action.payload.itemId,
+      };
+    case 'END_DRAG':
+      return {
+        ...state,
+        isDragging: false,
+        activeItemId: null,
+      };
+    case 'START_ANIMATIONS':
+      return {
+        ...state,
+        animationsRunning: true,
+      };
+    case 'END_ANIMATIONS':
+      return {
+        ...state,
+        animationsRunning: false,
+      };
+    case 'START_RESET':
+      return {
+        ...state,
+        isResettingAnimations: true,
+      };
+    case 'END_RESET':
+      return {
+        ...state,
+        isResettingAnimations: false,
+      };
+    default:
+      return state;
+  }
+}
+
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
@@ -218,9 +284,195 @@ const ManageWallets: React.FC = () => {
     },
   };
   const [uiData, setUiData] = useState(state.currentWalletsOrder);
-
-  const listRef = useRef<FlatList<Item> | null>(null);
   const [saveInProgress, setSaveInProgress] = useState(false);
+  const [navigationAttemptTarget, setNavigationAttemptTarget] = useState<{ wallet: TWallet; attempted: boolean } | null>(null);
+
+  // Replace multiple state variables and refs with a single useReducer
+  const [animState, animDispatch] = useReducer(animationReducer, initialAnimationState);
+
+  // Keep the animation values as useRefs for better performance
+  const contentWidthAnim = useRef(new Animated.Value(1)).current;
+  const contentMarginHorizontalAnim = useRef(new Animated.Value(0)).current;
+  const contentVerticalOffsetAnim = useRef(new Animated.Value(0)).current;
+  const contentScaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Add the missing listRef declaration
+  const listRef = useRef<FlatList<Item> | null>(null);
+
+  // Add the missing hasStartedDrag reference
+  const hasStartedDrag = useRef(false);
+
+  // Track active item to handle vertical centering
+  const activeItemRef = useRef<View | null>(null);
+  const listContainerRef = useRef<View | null>(null);
+
+  const screenDimensions = useRef({
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+  });
+
+  // Track dimensions changes
+  useEffect(() => {
+    const updateDimensions = () => {
+      screenDimensions.current = {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+      };
+    };
+
+    const dimensionListener = Dimensions.addEventListener('change', updateDimensions);
+    return () => {
+      dimensionListener.remove();
+    };
+  }, []);
+
+  // Watch for search state changes and reset drag UI if needed
+  useEffect(() => {
+    // If search is active or has text, reset the drag UI to default state
+    if (state.isSearchFocused || state.searchQuery.length > 0) {
+      // Only reset if we're in drag mode
+      if (animState.isDragging || animState.activeItemId !== null) {
+        // Reset state
+        animDispatch({ type: 'START_RESET' });
+        animDispatch({ type: 'END_DRAG' });
+
+        // Reset animations
+        contentScaleAnim.setValue(1);
+        contentWidthAnim.setValue(1);
+        contentMarginHorizontalAnim.setValue(0);
+        contentVerticalOffsetAnim.setValue(0);
+
+        // Clear info
+        setCurrentDragInfo(null);
+        hasStartedDrag.current = false;
+      }
+    }
+  }, [
+    state.isSearchFocused,
+    state.searchQuery,
+    animState.isDragging,
+    animState.activeItemId,
+    contentScaleAnim,
+    contentWidthAnim,
+    contentMarginHorizontalAnim,
+    contentVerticalOffsetAnim,
+  ]);
+
+  // Refactored animation system using the reducer
+  const startDragAnimations = useCallback(() => {
+    // Don't start drag animations if search is active or has text
+    if (state.isSearchFocused || state.searchQuery.length > 0 || animState.animationsRunning || animState.isResettingAnimations) return;
+
+    animDispatch({ type: 'START_ANIMATIONS' });
+
+    const verticalOffset = -screenDimensions.current.height * 0.2;
+
+    // Stop any ongoing animations
+    contentWidthAnim.stopAnimation();
+    contentMarginHorizontalAnim.stopAnimation();
+    contentVerticalOffsetAnim.stopAnimation();
+    contentScaleAnim.stopAnimation();
+
+    Animated.parallel([
+      Animated.timing(contentScaleAnim, {
+        toValue: 0.97,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentWidthAnim, {
+        toValue: 0.9,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentMarginHorizontalAnim, {
+        toValue: 10,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentVerticalOffsetAnim, {
+        toValue: verticalOffset,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        animDispatch({ type: 'END_ANIMATIONS' });
+      }
+    });
+  }, [
+    state.isSearchFocused,
+    state.searchQuery,
+    animState.animationsRunning,
+    animState.isResettingAnimations,
+    contentScaleAnim,
+    contentWidthAnim,
+    contentMarginHorizontalAnim,
+    contentVerticalOffsetAnim,
+  ]);
+
+  const resetDragAnimations = useCallback(() => {
+    if (animState.animationsRunning) return;
+
+    animDispatch({ type: 'START_RESET' });
+    animDispatch({ type: 'START_ANIMATIONS' });
+
+    // Stop any ongoing animations first
+    contentWidthAnim.stopAnimation();
+    contentMarginHorizontalAnim.stopAnimation();
+    contentVerticalOffsetAnim.stopAnimation();
+    contentScaleAnim.stopAnimation();
+
+    // Set values immediately to avoid flicker
+    contentWidthAnim.setValue(1);
+    contentMarginHorizontalAnim.setValue(0);
+    contentVerticalOffsetAnim.setValue(0);
+    contentScaleAnim.setValue(1);
+
+    Animated.parallel([
+      Animated.timing(contentScaleAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentWidthAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentMarginHorizontalAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+      Animated.timing(contentVerticalOffsetAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: false,
+        easing: Easing.out(Easing.cubic),
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        animDispatch({ type: 'END_ANIMATIONS' });
+        animDispatch({ type: 'END_RESET' });
+      }
+    });
+  }, [animState.animationsRunning, contentScaleAnim, contentWidthAnim, contentMarginHorizontalAnim, contentVerticalOffsetAnim]);
+
+  // Watch for state changes and trigger animations appropriately
+  useEffect(() => {
+    if ((animState.isDragging || animState.activeItemId !== null) && !animState.isResettingAnimations) {
+      startDragAnimations();
+    } else if (!animState.isDragging && !animState.activeItemId && animState.isResettingAnimations) {
+      resetDragAnimations();
+    }
+  }, [animState.isDragging, animState.activeItemId, animState.isResettingAnimations, startDragAnimations, resetDragAnimations]);
 
   useEffect(() => {
     setUiData(state.currentWalletsOrder);
@@ -271,7 +523,14 @@ const ManageWallets: React.FC = () => {
 
   usePreventRemove(hasUnsavedChanges && !saveInProgress, ({ data: preventRemoveData }) => {
     Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-      { text: loc._.cancel, style: 'cancel' },
+      {
+        text: loc._.cancel,
+        style: 'cancel',
+        onPress: () => {
+          // Reset any navigation attempt tracking when back navigation is cancelled
+          setNavigationAttemptTarget(null);
+        },
+      },
       {
         text: loc._.ok,
         style: 'destructive',
@@ -286,6 +545,58 @@ const ManageWallets: React.FC = () => {
       setSaveInProgress(false);
     }
   }, [saveInProgress, goBack]);
+
+  // Add a helper function to handle unsaved changes confirmation
+  const confirmNavigationWithUnsavedChanges = useCallback(
+    (wallet: TWallet, navigationAction: () => void) => {
+      // Check if we already attempted navigation to this wallet
+      const isSameWallet = navigationAttemptTarget?.wallet && navigationAttemptTarget.wallet.getID() === wallet.getID();
+
+      if (hasUnsavedChanges && (!navigationAttemptTarget || !isSameWallet)) {
+        // Set the navigation target for tracking
+        setNavigationAttemptTarget({ wallet, attempted: true });
+
+        Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+          {
+            text: loc._.cancel,
+            style: 'cancel',
+            onPress: () => {
+              // Reset the navigation target to ensure future attempts will trigger the alert
+              setNavigationAttemptTarget(null);
+            },
+          },
+          {
+            text: loc._.ok,
+            style: 'destructive',
+            onPress: () => {
+              // Proceed with navigation
+              navigationAction();
+            },
+          },
+        ]);
+      } else {
+        // No unsaved changes or we already attempted navigation to this wallet, proceed with navigation
+        navigationAction();
+      }
+    },
+    [hasUnsavedChanges, navigationAttemptTarget],
+  );
+
+  const navigateToWallet = useCallback(
+    (wallet: TWallet) => {
+      const walletID = wallet.getID();
+
+      // Use the confirmation helper before navigating
+      confirmNavigationWithUnsavedChanges(wallet, () => {
+        goBack();
+        navigate('WalletTransactions', {
+          walletID,
+          walletType: wallet.type,
+        });
+      });
+    },
+    [goBack, navigate, confirmNavigationWithUnsavedChanges],
+  );
 
   const handleClose = useCallback(() => {
     if (state.searchQuery.length === 0 && !state.isSearchFocused) {
@@ -310,6 +621,8 @@ const ManageWallets: React.FC = () => {
       dispatch({ type: SET_SEARCH_QUERY, payload: '' });
       dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
     }
+    // Always reset navigation attempt tracking when closing
+    setNavigationAttemptTarget(null);
   }, [
     setWalletsWithNewOrder,
     state.searchQuery,
@@ -427,41 +740,176 @@ const ManageWallets: React.FC = () => {
     [state.currentWalletsOrder],
   );
 
-  const navigateToWallet = useCallback(
-    (wallet: TWallet) => {
-      const walletID = wallet.getID();
-      goBack();
-      navigate('WalletTransactions', {
-        walletID,
-        walletType: wallet.type,
-      });
-    },
-    [goBack, navigate],
-  );
+  // Use an effect to handle active item tracking instead of doing it in render
+  const [currentDragInfo, setCurrentDragInfo] = useState<{ item: Item; isActive: boolean } | null>(null);
 
+  // When drag info changes, update the activeItemId
+  useEffect(() => {
+    if (currentDragInfo) {
+      const { item, isActive } = currentDragInfo;
+      if (isActive && item.type === ItemType.WalletSection) {
+        // Update through reducer instead of direct state
+        animDispatch({ type: 'START_DRAG', payload: { itemId: item.data.getID() } });
+      }
+    }
+  }, [currentDragInfo]);
+
+  // Modified animatedContainerStyle to use the reducer state
+  const animatedContainerStyle = useMemo(() => {
+    const centered = animState.isDragging || animState.activeItemId !== null;
+
+    // Define default style that will be applied both in normal and drag states
+    const baseStyle = {
+      width: contentWidthAnim.interpolate({
+        inputRange: [0.9, 1],
+        outputRange: ['90%', '100%'],
+      }),
+      alignSelf: 'center' as const,
+      marginHorizontal: contentMarginHorizontalAnim,
+      flex: 1,
+    };
+
+    // Apply transforms only during drag state to ensure clean reset
+    if (centered) {
+      return {
+        ...baseStyle,
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+        transform: [{ scale: contentScaleAnim }, { translateY: contentVerticalOffsetAnim }],
+      };
+    }
+
+    // When not dragging, use a clean style with no transforms for more reliable reset
+    return {
+      ...baseStyle,
+      transform: [{ scale: 1 }, { translateY: 0 }], // Explicitly set default transform values
+    };
+  }, [
+    contentWidthAnim,
+    contentMarginHorizontalAnim,
+    contentVerticalOffsetAnim,
+    contentScaleAnim,
+    animState.isDragging,
+    animState.activeItemId,
+  ]);
+
+  // Modified handleDragBegin to use the reducer
+  const handleDragBegin = useCallback(() => {
+    // Don't start drag if search is active - early return instead of conditional
+    if (state.isSearchFocused || state.searchQuery.length > 0) {
+      return;
+    }
+
+    if (!hasStartedDrag.current) {
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
+      hasStartedDrag.current = true;
+    }
+
+    // Dispatch to update drag state
+    animDispatch({ type: 'START_DRAG', payload: { itemId: animState.activeItemId } });
+
+    // Reset animations explicitly when drag begins to ensure clean state
+    contentScaleAnim.setValue(1);
+
+    // Start animation sequence
+    startDragAnimations();
+  }, [state.isSearchFocused, state.searchQuery, animState.activeItemId, contentScaleAnim, startDragAnimations]);
+
+  // Modified handleDragEnd to use the reducer
+  const handleDragEnd = useCallback(() => {
+    // Start the reset process
+    animDispatch({ type: 'START_RESET' });
+
+    // First ensure animated values are immediately reset to avoid visible glitch
+    contentScaleAnim.setValue(1);
+    contentWidthAnim.setValue(1);
+    contentMarginHorizontalAnim.setValue(0);
+    contentVerticalOffsetAnim.setValue(0);
+
+    // Update React state to reflect end of drag
+    setCurrentDragInfo(null);
+
+    // End the drag state
+    animDispatch({ type: 'END_DRAG' });
+
+    // Then run the reset animations for smooth visual transition
+    resetDragAnimations();
+
+    // Reset drag flags
+    hasStartedDrag.current = false;
+  }, [resetDragAnimations, contentScaleAnim, contentWidthAnim, contentMarginHorizontalAnim, contentVerticalOffsetAnim]);
+
+  // Update renderItem to handle drag disabling in the item renderer
   const renderItem = useCallback(
     (info: DragListRenderItemInfo<Item>) => {
       const { item, onDragStart, isActive } = info;
+
+      // Create modified drag handler that respects search state
+      const handleDragStart =
+        state.isSearchFocused || state.searchQuery.length > 0
+          ? undefined // Passing undefined prevents dragging
+          : onDragStart;
+
+      // Update drag info immediately without setTimeout to prevent delays
+      if (isActive && item.type === ItemType.WalletSection) {
+        // Use the item ID from the current active item
+        if (animState.activeItemId !== item.data.getID()) {
+          // Use requestAnimationFrame instead of setTimeout for smoother state updates
+          requestAnimationFrame(() => {
+            // Update through reducer instead of direct state setter
+            animDispatch({ type: 'START_DRAG', payload: { itemId: item.data.getID() } });
+            setCurrentDragInfo({ item, isActive });
+          });
+        }
+      }
 
       const compatibleState = {
         wallets: state.availableWallets,
         searchQuery: state.searchQuery,
       };
 
+      // Skip rendering updates for items not being dragged during active drag operations
+      if (
+        (animState.isDragging || animState.activeItemId !== null) &&
+        !isActive &&
+        item.type === ItemType.WalletSection &&
+        animState.activeItemId !== item.data.getID()
+      ) {
+        return (
+          <ManageWalletsListItem
+            item={item}
+            onPressIn={undefined}
+            onPressOut={undefined}
+            isDraggingDisabled={true}
+            state={compatibleState}
+            navigateToWallet={navigateToWallet}
+            renderHighlightedText={renderHighlightedText}
+            handleDeleteWallet={handleDeleteWallet}
+            handleToggleHideBalance={handleToggleHideBalance}
+            isActive={false}
+            globalDragActive={animState.isDragging || animState.activeItemId !== null}
+            optimization="high"
+          />
+        );
+      }
+
       return (
-        <ManageWalletsListItem
-          item={item}
-          onPressIn={undefined}
-          onPressOut={undefined}
-          isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
-          state={compatibleState}
-          navigateToWallet={navigateToWallet}
-          renderHighlightedText={renderHighlightedText}
-          handleDeleteWallet={handleDeleteWallet}
-          handleToggleHideBalance={handleToggleHideBalance}
-          isActive={isActive}
-          drag={onDragStart}
-        />
+        <View ref={isActive ? activeItemRef : null}>
+          <ManageWalletsListItem
+            item={item}
+            onPressIn={undefined}
+            onPressOut={undefined}
+            isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
+            state={compatibleState}
+            navigateToWallet={navigateToWallet}
+            renderHighlightedText={renderHighlightedText}
+            handleDeleteWallet={handleDeleteWallet}
+            handleToggleHideBalance={handleToggleHideBalance}
+            isActive={isActive}
+            globalDragActive={animState.isDragging || animState.activeItemId !== null}
+            drag={handleDragStart}
+          />
+        </View>
       );
     },
     [
@@ -472,16 +920,25 @@ const ManageWallets: React.FC = () => {
       renderHighlightedText,
       handleDeleteWallet,
       handleToggleHideBalance,
+      animState.isDragging,
+      animState.activeItemId,
+      animDispatch,
     ],
   );
 
   const onReordered = useCallback(
     (fromIndex: number, toIndex: number) => {
+      // Skip updating if indexes are the same to prevent unnecessary re-renders
+      if (fromIndex === toIndex) return;
+
       const updatedOrder = [...state.currentWalletsOrder];
       const removed = updatedOrder.splice(fromIndex, 1);
       updatedOrder.splice(toIndex, 0, removed[0]);
 
-      dispatch({ type: SET_TEMP_ORDER, payload: updatedOrder });
+      // Use requestAnimationFrame to ensure UI updates are batched properly
+      requestAnimationFrame(() => {
+        dispatch({ type: SET_TEMP_ORDER, payload: updatedOrder });
+      });
     },
     [state.currentWalletsOrder],
   );
@@ -504,21 +961,28 @@ const ManageWallets: React.FC = () => {
 
   return (
     <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
-      <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
+      <GestureHandlerRootView style={[styles.root, { backgroundColor: colors.background }]}>
         <>
           {renderHeader}
-          <DragList
-            automaticallyAdjustContentInsets
-            automaticallyAdjustKeyboardInsets
-            automaticallyAdjustsScrollIndicatorInsets
-            contentInsetAdjustmentBehavior="automatic"
-            data={uiData}
-            containerStyle={[{ backgroundColor: colors.background }, styles.root]}
-            keyExtractor={keyExtractor}
-            onReordered={onReordered}
-            renderItem={renderItem}
-            ref={listRef}
-          />
+          <View ref={listContainerRef} style={styles.containerFlex}>
+            <Animated.View style={animatedContainerStyle}>
+              <DragList
+                data={uiData}
+                keyExtractor={keyExtractor}
+                onReordered={onReordered}
+                renderItem={renderItem}
+                automaticallyAdjustContentInsets
+                contentInsetAdjustmentBehavior="automatic"
+                automaticallyAdjustKeyboardInsets
+                automaticallyAdjustsScrollIndicatorInsets
+                ref={listRef}
+                onDragBegin={handleDragBegin}
+                onDragEnd={handleDragEnd}
+                contentContainerStyle={styles.dragListContent}
+                containerStyle={styles.dragListContainer}
+              />
+            </Animated.View>
+          </View>
         </>
       </GestureHandlerRootView>
     </Suspense>
@@ -530,6 +994,11 @@ export default React.memo(ManageWallets);
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  containerFlex: {
+    flex: 1,
+    // Add justifyContent for better vertical centering during drag
+    justifyContent: 'center',
   },
   button: {
     padding: 16,
@@ -567,5 +1036,13 @@ const styles = StyleSheet.create({
   },
   highlightedContainer: {
     alignSelf: 'flex-start',
+  },
+  dragListContent: {
+    // Make drag list content fill the container for better centering
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  dragListContainer: {
+    flex: 1,
   },
 });
