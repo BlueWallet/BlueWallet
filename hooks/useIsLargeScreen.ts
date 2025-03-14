@@ -3,7 +3,7 @@ import { LargeScreenContext } from '../components/Context/LargeScreenProvider';
 
 interface UseIsLargeScreenResult {
   isLargeScreen: boolean;
-  setLargeScreenValue: (value: 'Handheld' | 'LargeScreen' | undefined) => void;
+  setLargeScreenValue: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 export const useIsLargeScreen = (): UseIsLargeScreenResult => {
@@ -13,6 +13,6 @@ export const useIsLargeScreen = (): UseIsLargeScreenResult => {
   }
   return {
     isLargeScreen: context.isLargeScreen,
-    setLargeScreenValue: context.setLargeScreenValue,
+    setLargeScreenValue: context.setIsLargeScreen,
   };
 };

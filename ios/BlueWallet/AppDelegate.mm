@@ -424,4 +424,15 @@
     }
 }
 
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  UITraitCollection *traitCollection = window.traitCollection;
+  if (traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
+      traitCollection.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+    // iPad or large iPhone
+    return UIInterfaceOrientationMaskAll;
+  }
+  // Regular iPhone
+  return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
 @end
