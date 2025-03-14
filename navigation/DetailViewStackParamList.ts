@@ -16,6 +16,7 @@ export type ScanQRCodeParamList = {
 };
 
 export type DetailViewStackParamList = {
+  DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };

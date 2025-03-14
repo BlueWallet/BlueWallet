@@ -452,6 +452,10 @@ const ReceiveDetails = () => {
   return (
     <>
       <ScrollView
+        automaticallyAdjustContentInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustsScrollIndicatorInsets
+        automaticallyAdjustKeyboardInsets
         testID="ReceiveDetailsScrollView"
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"

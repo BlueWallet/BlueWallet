@@ -57,6 +57,7 @@ import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
+import SafeArea from '../../components/SafeArea';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -1370,7 +1371,7 @@ const SendDetails = () => {
   });
 
   return (
-    <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+    <SafeArea style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
         <FlatList
           keyboardShouldPersistTaps="always"
@@ -1441,7 +1442,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
-    </View>
+    </SafeArea>
   );
 };
 
