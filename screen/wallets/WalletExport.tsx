@@ -99,7 +99,19 @@ const WalletExport: React.FC = () => {
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
-    setQRCodeSize(height > width ? width - HORIZONTAL_PADDING * 2 : width / 1.8);
+
+    const isPortrait = height > width;
+    const maxQRSize = 400;
+
+    if (isPortrait) {
+      const heightBasedSize = Math.min(height * 0.5, maxQRSize);
+      const widthBasedSize = width * 0.75 - HORIZONTAL_PADDING * 2;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    } else {
+      const heightBasedSize = Math.min(height * 0.6, maxQRSize);
+      const widthBasedSize = width * 0.35;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    }
   }, []);
 
   const handleCopy = useCallback(() => {
@@ -162,7 +174,9 @@ const WalletExport: React.FC = () => {
 
       <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
-      <QRCodeComponent isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+      <View style={styles.qrCodeContainer}>
+        <QRCodeComponent isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+      </View>
 
       {/* Do not allow to copy mnemonic */}
       {secretIsMnemonic ? (
@@ -244,6 +258,11 @@ const styles = StyleSheet.create({
   },
   copyText: {
     fontSize: 17,
+  },
+  qrCodeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
 });
 

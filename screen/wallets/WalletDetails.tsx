@@ -48,7 +48,7 @@ import SafeArea from '../../components/SafeArea';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, setSelectedWalletID, txMetadata, handleWalletDeletion } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -282,13 +282,6 @@ const WalletDetails: React.FC = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
-
-  useEffect(() => {
-    if (wallets.some(w => w.getID() === walletID)) {
-      setSelectedWalletID(walletID);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
 
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
