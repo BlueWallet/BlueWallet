@@ -27,7 +27,7 @@ type LNDViewInvoiceRouteParams = {
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
-  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
@@ -103,7 +103,6 @@ const LNDViewInvoice = () => {
     if (!wallet) {
       return;
     }
-    setSelectedWalletID(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {

@@ -109,7 +109,7 @@ type TransactionStatusProps = {
 const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { setSelectedWalletID, wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions } = useStorage();
   const { hash, walletID } = useRoute<RouteProps>().params;
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -328,14 +328,6 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   }, [tx, wallets]);
 
   useEffect(() => {}, [tx, wallets]);
-
-  useEffect(() => {
-    const wID = wallet?.getID();
-    if (wID) {
-      setSelectedWalletID(wallet?.getID());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
 
   useEffect(() => {
     console.debug('transactionStatus - useEffect');

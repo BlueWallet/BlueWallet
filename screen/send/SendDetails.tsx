@@ -77,7 +77,7 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
+  const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
@@ -247,7 +247,6 @@ const SendDetails = () => {
   // change header and reset state on wallet change
   useEffect(() => {
     if (!wallet) return;
-    setSelectedWalletID(wallet.getID());
 
     // reset other values
     setChangeAddress(null);

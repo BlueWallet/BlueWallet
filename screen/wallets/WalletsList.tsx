@@ -99,7 +99,7 @@ const WalletsList: React.FC = () => {
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -202,13 +202,12 @@ const WalletsList: React.FC = () => {
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
         verifyBalance();
-        setSelectedWalletID(undefined);
       });
 
       return () => {
         task.cancel();
       };
-    }, [verifyBalance, setSelectedWalletID]),
+    }, [verifyBalance]),
   );
 
   useEffect(() => {
