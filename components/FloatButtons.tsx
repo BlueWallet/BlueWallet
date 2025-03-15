@@ -1,22 +1,29 @@
-import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback } from 'react';
+import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Animated, Dimensions, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
-const BORDER_RADIUS = 8;
-const PADDINGS = 24;
+const PADDINGS = 30;
 const ICON_MARGIN = 7;
+const BUTTON_MARGIN = 10;
+const MIN_BUTTON_WIDTH = 100;
+const DRAWER_WIDTH = 320;
+const BUTTON_HEIGHT = 52;
+const CONTAINER_SIDE_MARGIN = 20;
+const DEFAULT_BORDER_RADIUS = 8;
 
 const buttonFontSize = (() => {
-  const baseSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
-  return Math.min(22, baseSize);
+  const baseSize = PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 24);
+  return Math.min(24, baseSize);
 })();
 
 const containerStyles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    height: '6.9%',
-    minHeight: 44,
+    height: '8%',
+    minHeight: 52,
+    marginHorizontal: CONTAINER_SIDE_MARGIN,
   },
   rootAbsolute: {
     position: 'absolute',
@@ -30,8 +37,9 @@ const containerStyles = StyleSheet.create({
     flexDirection: 'row',
     overflow: 'hidden',
   },
-  rootRound: {
-    borderRadius: 9999,
+  rootPostVertical: {
+    flexDirection: 'column',
+    overflow: 'hidden',
   },
 });
 
@@ -61,10 +69,14 @@ interface FContainerProps {
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
+  const [isVertical, setIsVertical] = useState(false);
   const layoutCalculated = useRef(false);
   const bottomInsets = { bottom: insets.bottom ? insets.bottom + 10 : 30 };
   const { height, width } = useWindowDimensions();
   const slideAnimation = useRef(new Animated.Value(height)).current;
+  const { isLargeScreen } = useIsLargeScreen();
+  const [buttonBorderRadius, setButtonBorderRadius] = useState<number>(DEFAULT_BORDER_RADIUS);
+  const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(BUTTON_HEIGHT / 2);
 
   useEffect(() => {
     slideAnimation.setValue(height);
@@ -76,15 +88,57 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     }).start();
   }, [height, slideAnimation]);
 
+  const getContainerHeight = useCallback((childrenCount: number, isVerticalLayout: boolean) => {
+    if (!isVerticalLayout) return { height: '8%', minHeight: BUTTON_HEIGHT };
+
+    const totalButtonsHeight = childrenCount * BUTTON_HEIGHT;
+    const totalMarginsHeight = (childrenCount - 1) * BUTTON_MARGIN;
+    const calculatedHeight = totalButtonsHeight + totalMarginsHeight;
+
+    return { height: calculatedHeight };
+  }, []);
+
   const computeNewWidth = useCallback(
     (layoutWidth: number, totalChildren: number) => {
-      const maxWidth = width - BORDER_RADIUS - 140;
-      const paddedWidth = Math.ceil(layoutWidth + PADDINGS * 2);
-      let calculatedWidth = paddedWidth * totalChildren > maxWidth ? Math.floor(maxWidth / totalChildren) : paddedWidth;
-      if (totalChildren === 1 && calculatedWidth < 90) calculatedWidth = 90;
+      const drawerOffset = isLargeScreen ? DRAWER_WIDTH : 0;
+      const availableWidth = width - drawerOffset;
+
+      const contentWidth = Math.ceil(layoutWidth);
+      const buttonWidth = contentWidth + PADDINGS * 2;
+      const totalButtonWidth = buttonWidth * totalChildren;
+      const totalSpacersWidth = (totalChildren - 1) * BUTTON_MARGIN;
+      const totalWidthNeeded = totalButtonWidth + totalSpacersWidth;
+
+      const shouldBeVertical = totalWidthNeeded > availableWidth && totalChildren > 1;
+      setIsVertical(shouldBeVertical);
+
+      let calculatedWidth;
+
+      if (shouldBeVertical) {
+        calculatedWidth = availableWidth;
+      } else {
+        if (totalWidthNeeded > availableWidth) {
+          const availableWidthPerButton = (availableWidth - totalSpacersWidth) / totalChildren;
+          calculatedWidth = Math.floor(availableWidthPerButton) - PADDINGS * 2;
+        } else {
+          calculatedWidth = contentWidth;
+        }
+      }
+
+      const dynamicRadius = Math.min(BUTTON_HEIGHT / 2, calculatedWidth / 10);
+      setButtonBorderRadius(dynamicRadius);
+
+      if (totalChildren === 1) {
+        setSingleButtonBorderRadius(BUTTON_HEIGHT / 2);
+      }
+
+      if (totalChildren === 1 && calculatedWidth < MIN_BUTTON_WIDTH - PADDINGS * 2) {
+        calculatedWidth = MIN_BUTTON_WIDTH - PADDINGS * 2;
+      }
+
       return calculatedWidth;
     },
-    [width],
+    [width, isLargeScreen],
   );
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
@@ -111,10 +165,24 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       first: index === 0,
       last: index === array.length - 1,
       singleChild: array.length === 1,
+      isVertical,
+      borderRadius: buttonBorderRadius,
     });
   };
 
   const totalChildren = React.Children.toArray(props.children).filter(Boolean).length;
+  const containerHeight = getContainerHeight(totalChildren, isVertical);
+
+  const dynamicRoundStyle = useMemo(() => {
+    if (totalChildren === 1) {
+      return {
+        borderRadius: singleButtonBorderRadius,
+        overflow: 'hidden',
+      };
+    }
+    return null;
+  }, [totalChildren, singleButtonBorderRadius]);
+
   return (
     <Animated.View
       ref={ref}
@@ -123,8 +191,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         containerStyles.root,
         props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
         bottomInsets,
-        newWidth ? containerStyles.rootPost : containerStyles.rootPre,
-        totalChildren === 1 ? containerStyles.rootRound : null,
+        newWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
+        dynamicRoundStyle,
+        isVertical ? containerHeight : null,
         { transform: [{ translateY: slideAnimation }] },
       ]}
     >
@@ -140,18 +209,36 @@ interface FButtonProps {
   first?: boolean;
   last?: boolean;
   singleChild?: boolean;
+  isVertical?: boolean;
+  borderRadius?: number;
   disabled?: boolean;
   testID?: string;
   onPress: () => void;
   onLongPress?: () => void;
 }
 
-export const FButton = ({ text, icon, width, first, last, singleChild, testID, ...props }: FButtonProps) => {
+export const FButton = ({
+  text,
+  icon,
+  width,
+  first,
+  last,
+  singleChild,
+  isVertical,
+  borderRadius = DEFAULT_BORDER_RADIUS,
+  testID,
+  ...props
+}: FButtonProps) => {
   const { colors } = useTheme();
+
+  const buttonBorderRadius = singleChild ? BUTTON_HEIGHT / 2 : borderRadius;
+
   const customButtonStyles = StyleSheet.create({
     root: {
       backgroundColor: colors.buttonBackgroundColor,
-      borderRadius: BORDER_RADIUS,
+      borderRadius: buttonBorderRadius,
+      height: BUTTON_HEIGHT,
+      overflow: 'hidden',
     },
     text: {
       color: colors.buttonAlternativeTextColor,
@@ -160,18 +247,18 @@ export const FButton = ({ text, icon, width, first, last, singleChild, testID, .
       color: colors.formBorder,
     },
     marginRight: {
-      marginRight: 10,
+      marginRight: BUTTON_MARGIN,
     },
-    rootRound: {
-      borderRadius: 9999,
+    marginBottom: {
+      marginBottom: BUTTON_MARGIN,
     },
   });
   const style: Record<string, any> = {};
-  const additionalStyles = !last ? customButtonStyles.marginRight : {};
+  const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
 
   if (width) {
     style.paddingHorizontal = PADDINGS;
-    style.width = width + PADDINGS * 2;
+    style.width = isVertical ? '100%' : width + PADDINGS * 2;
   }
 
   return (
@@ -179,7 +266,7 @@ export const FButton = ({ text, icon, width, first, last, singleChild, testID, .
       accessibilityLabel={text}
       accessibilityRole="button"
       testID={testID}
-      style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, singleChild ? customButtonStyles.rootRound : null]}
+      style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles]}
       {...props}
     >
       <View style={buttonStyles.icon}>{icon}</View>
