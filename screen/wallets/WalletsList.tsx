@@ -478,27 +478,28 @@ const WalletsList: React.FC = () => {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
-        <SectionList<any | string, SectionData>
-          removeClippedSubviews={false}
-          contentInsetAdjustmentBehavior="automatic"
-          automaticallyAdjustContentInsets
-          {...refreshProps}
-          renderItem={renderSectionItem}
-          keyExtractor={sectionListKeyExtractor}
-          renderSectionHeader={renderSectionHeader}
-          initialNumToRender={10} // Reduced from 20 to avoid rendering items off screen
-          contentInset={styles.scrollContent}
-          renderSectionFooter={renderSectionFooter}
-          sections={sections}
-          windowSize={21}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          getItemLayout={getItemLayout}
-          maintainVisibleContentPosition={{ minIndexForVisible: 0 }} // This helps maintain position during updates
-        />
-        {renderScanButton()}
-      </View>
+      <SectionList<any | string, SectionData>
+        removeClippedSubviews={false}
+        style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}
+        renderItem={renderSectionItem}
+        keyExtractor={sectionListKeyExtractor}
+        renderSectionHeader={renderSectionHeader}
+        initialNumToRender={10} // Reduced from 20 to avoid rendering items off screen
+        contentInset={styles.scrollContent}
+        renderSectionFooter={renderSectionFooter}
+        sections={sections}
+        windowSize={21}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={getItemLayout}
+        automaticallyAdjustContentInsets
+        automaticallyAdjustKeyboardInsets
+        automaticallyAdjustsScrollIndicatorInsets
+        contentInsetAdjustmentBehavior="automatic"
+        maintainVisibleContentPosition={{ minIndexForVisible: 0 }} // This helps maintain position during updates
+        {...refreshProps}
+      />
+      {renderScanButton()}
     </View>
   );
 };
@@ -512,7 +513,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     top: 0,
     left: 0,
-    bottom: 60,
+    bottom: 100,
     right: 0,
   },
   walletsListWrapper: {
