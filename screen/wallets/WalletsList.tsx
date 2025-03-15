@@ -145,6 +145,21 @@ const WalletsList: React.FC = () => {
     refreshWallets(undefined, true, false);
   }, [refreshWallets]);
 
+  useEffect(() => {
+    // Initial load of transactions without triggering scroll
+    const initialLoad = async () => {
+      if (isElectrumDisabled) return;
+      try {
+        await refreshAllWalletTransactions(undefined, false);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    initialLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');
     refreshTransactions();
@@ -445,26 +460,35 @@ const WalletsList: React.FC = () => {
   ];
 
   const getItemLayout = useCallback(
-    (data: any, index: number) => ({
-      length: 80, // Approximate height of each item
-      offset: 80 * index,
-      index,
-    }),
-    [],
+    (data: any, index: number) => {
+      if (index === 0) {
+        return {
+          length: isLargeScreen ? 0 : 195,
+          offset: 0,
+          index,
+        };
+      }
+      return {
+        length: 80,
+        offset: (isLargeScreen ? 0 : 195) + 80 * (index - 1),
+        index,
+      };
+    },
+    [isLargeScreen],
   );
 
   return (
     <View style={styles.root}>
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList<any | string, SectionData>
-          removeClippedSubviews
+          removeClippedSubviews={false}
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
           {...refreshProps}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}
-          initialNumToRender={20}
+          initialNumToRender={10} // Reduced from 20 to avoid rendering items off screen
           contentInset={styles.scrollContent}
           renderSectionFooter={renderSectionFooter}
           sections={sections}
@@ -472,6 +496,7 @@ const WalletsList: React.FC = () => {
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
           getItemLayout={getItemLayout}
+          maintainVisibleContentPosition={{ minIndexForVisible: 0 }} // This helps maintain position during updates
         />
         {renderScanButton()}
       </View>

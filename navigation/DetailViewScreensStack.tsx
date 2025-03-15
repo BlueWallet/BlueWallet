@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -99,7 +98,7 @@ const DetailViewStackScreensStack = () => {
     return {
       title: displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
-      headerShown: !isDesktop,
+      headerShown: !isLargeScreen,
       headerLargeTitle: displayTitle,
       headerShadowVisible: false,
       headerLargeTitleShadowVisible: false,
@@ -108,7 +107,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => RightBarButtons,
     };
-  }, [RightBarButtons, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
+  }, [RightBarButtons, isLargeScreen, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
