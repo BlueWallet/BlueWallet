@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect } from 'react';
 import {
   Animated,
   FlatList,
@@ -213,6 +213,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     onPressOut,
   }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
+    const opacityValue = useRef(new Animated.Value(isSelectedWallet === false ? 0.5 : 1.0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
@@ -226,6 +227,19 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       },
       [scaleValue, springConfig],
     );
+
+    useEffect(() => {
+      if (!animationsEnabled) return;
+
+      const targetOpacity = isSelectedWallet === false ? 0.5 : 1.0;
+      Animated.spring(opacityValue, {
+        toValue: targetOpacity,
+        useNativeDriver: true,
+        tension: 30,
+        friction: 7,
+        velocity: 0.1,
+      }).start();
+    }, [isSelectedWallet, opacityValue, animationsEnabled]);
 
     const onPressedIn = useCallback(() => {
       if (animationsEnabled) {
@@ -245,7 +259,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       onPress(item);
     }, [item, onPress]);
 
-    const opacity = isSelectedWallet === false ? 0.5 : 1.0;
     let image;
     switch (item.type) {
       case LightningCustodianWallet.type:
@@ -273,7 +286,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       <Animated.View
         style={[
           isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
-          { opacity, transform: [{ scale: scaleValue }] },
+          { opacity: opacityValue, transform: [{ scale: scaleValue }] },
         ]}
       >
         <Pressable

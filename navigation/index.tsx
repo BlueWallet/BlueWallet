@@ -31,7 +31,7 @@ const MainRoot = () => {
   const { walletsInitialized } = useStorage();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false, animationTypeForReplace: 'push' }}>
+    <DetailViewStack.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (

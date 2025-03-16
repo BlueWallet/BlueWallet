@@ -4,7 +4,6 @@ import { I18nManager, LayoutAnimation, Animated, Platform, Easing, View } from '
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
-import { useSettings } from '../hooks/context/useSettings';
 import { DrawerParamList } from './DrawerParamList';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -34,11 +33,10 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 
 const DrawerRoot = () => {
   const { isLargeScreen } = useIsLargeScreen();
-  const { isDrawerShouldHide } = useSettings();
 
   const getDrawerWidth = useMemo(() => {
-    return isLargeScreen && !isDrawerShouldHide ? 320 : 0;
-  }, [isLargeScreen, isDrawerShouldHide]);
+    return isLargeScreen ? 320 : 0;
+  }, [isLargeScreen]);
 
   useLayoutEffect(() => {
     const animConfig =
@@ -47,7 +45,7 @@ const DrawerRoot = () => {
         : LayoutAnimation.Presets.easeInEaseOut;
 
     LayoutAnimation.configureNext(animConfig);
-  }, [isDrawerShouldHide]);
+  }, []);
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
@@ -58,11 +56,11 @@ const DrawerRoot = () => {
       },
       drawerType: isLargeScreen ? 'permanent' : 'front',
       overlayColor: 'rgba(0,0,0,0.4)',
-      swipeEnabled: !isDrawerShouldHide,
+      swipeEnabled: false,
       drawerStatusBarAnimation: 'fade',
       ...getAnimationConfig(true),
     }),
-    [getDrawerWidth, isDrawerShouldHide, isLargeScreen],
+    [getDrawerWidth, isLargeScreen],
   );
 
   return (

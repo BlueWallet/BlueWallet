@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
@@ -23,6 +23,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
+import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -477,48 +478,28 @@ const WalletsList: React.FC = () => {
   );
 
   return (
-    <View style={styles.root}>
-      <SectionList<any | string, SectionData>
-        removeClippedSubviews={false}
-        style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}
+    <>
+      <SafeAreaSectionList<any | string, SectionData>
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}
         renderSectionHeader={renderSectionHeader}
         initialNumToRender={10} // Reduced from 20 to avoid rendering items off screen
-        contentInset={styles.scrollContent}
         renderSectionFooter={renderSectionFooter}
         sections={sections}
         windowSize={21}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
         getItemLayout={getItemLayout}
-        automaticallyAdjustContentInsets
-        automaticallyAdjustKeyboardInsets
-        automaticallyAdjustsScrollIndicatorInsets
-        contentInsetAdjustmentBehavior="automatic"
-        maintainVisibleContentPosition={{ minIndexForVisible: 0 }} // This helps maintain position during updates
         {...refreshProps}
       />
       {renderScanButton()}
-    </View>
+    </>
   );
 };
 
 export default WalletsList;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    top: 0,
-    left: 0,
-    bottom: 100,
-    right: 0,
-  },
-  walletsListWrapper: {
-    flex: 1,
-  },
   listHeaderBack: {
     flexDirection: 'row',
     justifyContent: 'space-between',
