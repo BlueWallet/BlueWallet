@@ -140,7 +140,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
           ]).start();
 
           setTimeout(() => {
-            if (scrollViewRef.current && lastAddedWalletId.current) {
+            if (scrollViewRef.current && lastAddedWalletId.current !== null) {
               const walletIndex = currentWalletIds.indexOf(lastAddedWalletId.current);
               if (walletIndex !== -1) {
                 const WALLET_CARD_HEIGHT = 195;
