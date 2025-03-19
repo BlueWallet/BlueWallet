@@ -26,7 +26,7 @@ const SelectWallet: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const isModal = useNavigationState(state => state.routes.length === 1);
+  const isModal = useNavigationState(state => state.routes.length > 1);
   const walletsCarousel = useRef(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
 
@@ -102,16 +102,15 @@ const SelectWallet: React.FC = () => {
   }
 
   return (
-    <SafeArea style={styles.walletsCarousel}>
-      <WalletsCarousel
-        data={filteredWallets}
-        scrollEnabled
-        onPress={onPress}
-        ref={walletsCarousel}
-        testID="WalletsList"
-        horizontal={false}
-      />
-    </SafeArea>
+    <WalletsCarousel
+      data={filteredWallets}
+      scrollEnabled
+      onPress={onPress}
+      ref={walletsCarousel}
+      testID="WalletsList"
+      horizontal={false}
+      style={styles.walletsCarousel}
+    />
   );
 };
 
@@ -124,6 +123,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     paddingTop: 20,
   },
+
   noWallets: {
     flex: 1,
     justifyContent: 'center',
