@@ -1,6 +1,6 @@
 import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
 import React, { useLayoutEffect, useEffect, useMemo } from 'react';
-import { I18nManager, LayoutAnimation, Animated, Platform, Easing, View } from 'react-native';
+import { I18nManager, LayoutAnimation, Animated, Platform, Easing } from 'react-native';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
@@ -12,7 +12,7 @@ const DrawerContent = (props: DrawerContentComponentProps) => {
   const { isLargeScreen } = useIsLargeScreen();
 
   if (!isLargeScreen) {
-    return <View />;
+    return null;
   }
 
   return <DrawerList {...props} />;
