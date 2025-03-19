@@ -96,9 +96,8 @@ const DetailViewStackScreensStack = () => {
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: displayTitle ? loc.wallets.wallets : '',
+      title: isLargeScreen ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
-      headerShown: !isLargeScreen,
       headerLargeTitle: true,
       headerShadowVisible: false,
       headerLargeTitleShadowVisible: false,

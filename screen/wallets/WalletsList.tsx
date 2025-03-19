@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
@@ -337,17 +337,20 @@ const WalletsList: React.FC = () => {
 
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
+      if (isLargeScreen) {
+        return null;
+      }
+
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return !isLargeScreen && isTotalBalanceEnabled ? (
+          return isTotalBalanceEnabled ? (
             <View style={stylesHook.walletsListWrapper}>
               <TotalWalletsBalance />
             </View>
           ) : null;
         }
-
         default:
           return null;
       }
@@ -452,23 +455,40 @@ const WalletsList: React.FC = () => {
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
-  const sections: SectionData[] = [
-    { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-    { key: WalletsListSections.TRANSACTIONS, data: dataSource },
-  ];
+  const sections: SectionData[] = useMemo(() => {
+    // On large screens, only show transactions section
+    if (isLargeScreen) {
+      return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
+    }
+
+    // On small screens, show both carousel and transactions
+    return [
+      { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
+      { key: WalletsListSections.TRANSACTIONS, data: dataSource },
+    ];
+  }, [isLargeScreen, dataSource]);
 
   const getItemLayout = useCallback(
     (data: any, index: number) => {
+      // When on large screen, don't include the carousel height in calculations
+      if (isLargeScreen) {
+        return {
+          length: 80,
+          offset: 80 * index,
+          index,
+        };
+      }
+
       if (index === 0) {
         return {
-          length: isLargeScreen ? 0 : 195,
+          length: 195,
           offset: 0,
           index,
         };
       }
       return {
         length: 80,
-        offset: (isLargeScreen ? 0 : 195) + 80 * (index - 1),
+        offset: 195 + 80 * (index - 1),
         index,
       };
     },
