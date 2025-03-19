@@ -25,7 +25,15 @@ const SafeAreaScrollView = (props: ScrollViewProps) => {
     );
   }, [insets, contentContainerStyle]);
 
-  return <ScrollView style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
+  return (
+    <ScrollView
+      style={componentStyle}
+      contentContainerStyle={contentStyle}
+      {...otherProps}
+      automaticallyAdjustKeyboardInsets
+      automaticallyAdjustsScrollIndicatorInsets
+    />
+  );
 };
 
 export default SafeAreaScrollView;

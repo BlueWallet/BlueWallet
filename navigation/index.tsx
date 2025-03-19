@@ -16,8 +16,10 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
-import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 import loc from '../loc';
+import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
 
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
 
@@ -49,6 +51,7 @@ const LazyDrawerRoot = () => (
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
+  const theme = useTheme();
 
   return (
     <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
@@ -77,7 +80,12 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
             component={ViewEditMultisigCosignersComponent}
-            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false }}
+            options={navigationStyle({
+              title: loc.multisig.view_edit_cosigners,
+              presentation: 'modal',
+              headerShown: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
           />
           <DetailViewStack.Screen
             name="WalletXpubRoot"
