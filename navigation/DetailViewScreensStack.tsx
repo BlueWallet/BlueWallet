@@ -87,7 +87,6 @@ const DetailViewStackScreensStack = () => {
       navigationBarColor: theme.colors.navigationBarColor,
       headerLargeTitle: true,
       headerShadowVisible: false,
-      headerLargeTitleShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
