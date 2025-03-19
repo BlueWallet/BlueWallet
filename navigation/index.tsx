@@ -105,6 +105,7 @@ const MainRoot = () => {
               presentation: 'fullScreenModal',
               title: loc.wallets.manage_title,
               statusBarStyle: 'auto',
+              headerShown: true,
             }}
           />
           <DetailViewStack.Screen
