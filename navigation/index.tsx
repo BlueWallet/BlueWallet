@@ -4,24 +4,25 @@ import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
-import AddWalletStack from './AddWalletStack';
-import SendDetailsStack from './SendDetailsStack';
-import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
-import ScanLNDInvoiceRoot from './ScanLNDInvoiceStack';
-import AztecoRedeemStackRoot from './AztecoRedeemStack';
-import WalletExportStack from './WalletExportStack';
-import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
-import WalletXpubStackRoot from './WalletXpubStack';
-import SignVerifyStackRoot from './SignVerifyStack';
-import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ManageWallets from '../screen/wallets/ManageWallets';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import loc from '../loc';
-import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 
+// Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
+const AddWalletStack = lazy(() => import('./AddWalletStack'));
+const SendDetailsStack = lazy(() => import('./SendDetailsStack'));
+const LNDCreateInvoiceRoot = lazy(() => import('./LNDCreateInvoiceStack'));
+const ScanLNDInvoiceRoot = lazy(() => import('./ScanLNDInvoiceStack'));
+const AztecoRedeemStackRoot = lazy(() => import('./AztecoRedeemStack'));
+const WalletExportStack = lazy(() => import('./WalletExportStack'));
+const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisigCoordinationSetupStack'));
+const WalletXpubStackRoot = lazy(() => import('./WalletXpubStack'));
+const SignVerifyStackRoot = lazy(() => import('./SignVerifyStack'));
+const ReceiveDetailsStackRoot = lazy(() => import('./ReceiveDetailsStack'));
+const ManageWallets = lazy(() => import('../screen/wallets/ManageWallets'));
+const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+const ViewEditMultisigCosigners = lazy(() => import('../screen/wallets/ViewEditMultisigCosigners'));
 
 export const NavigationDefaultOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -43,9 +44,88 @@ export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarSt
 
 const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
 
+// Lazy loading wrapper components
 const LazyDrawerRoot = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <DrawerRoot />
+  </Suspense>
+);
+
+const LazyAddWalletStack = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <AddWalletStack />
+  </Suspense>
+);
+
+const LazySendDetailsStack = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <SendDetailsStack />
+  </Suspense>
+);
+
+const LazyLNDCreateInvoiceRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <LNDCreateInvoiceRoot />
+  </Suspense>
+);
+
+const LazyScanLNDInvoiceRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ScanLNDInvoiceRoot />
+  </Suspense>
+);
+
+const LazyAztecoRedeemStackRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <AztecoRedeemStackRoot />
+  </Suspense>
+);
+
+const LazyWalletExportStack = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <WalletExportStack />
+  </Suspense>
+);
+
+const LazyExportMultisigCoordinationSetupStack = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ExportMultisigCoordinationSetupStack />
+  </Suspense>
+);
+
+const LazyViewEditMultisigCosignersComponent = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ViewEditMultisigCosigners />
+  </Suspense>
+);
+
+const LazyWalletXpubStackRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <WalletXpubStackRoot />
+  </Suspense>
+);
+
+const LazySignVerifyStackRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <SignVerifyStackRoot />
+  </Suspense>
+);
+
+const LazyReceiveDetailsStackRoot = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ReceiveDetailsStackRoot />
+  </Suspense>
+);
+
+const LazyManageWallets = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ManageWallets />
+  </Suspense>
+);
+
+const LazyScanQRCodeComponent = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <ScanQRCode />
   </Suspense>
 );
 
@@ -62,24 +142,24 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
 
           {/* Modal stacks */}
-          <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
-          <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
+          <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen
             name="WalletExportRoot"
-            component={WalletExportStack}
+            component={LazyWalletExportStack}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
           <DetailViewStack.Screen
             name="ExportMultisigCoordinationSetupRoot"
-            component={ExportMultisigCoordinationSetupStack}
+            component={LazyExportMultisigCoordinationSetupStack}
             options={NavigationDefaultOptions}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
-            component={ViewEditMultisigCosignersComponent}
+            component={LazyViewEditMultisigCosignersComponent}
             options={navigationStyle({
               title: loc.multisig.view_edit_cosigners,
               presentation: 'modal',
@@ -89,18 +169,18 @@ const MainRoot = () => {
           />
           <DetailViewStack.Screen
             name="WalletXpubRoot"
-            component={WalletXpubStackRoot}
+            component={LazyWalletXpubStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
           <DetailViewStack.Screen
             name="SignVerifyRoot"
-            component={SignVerifyStackRoot}
+            component={LazySignVerifyStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
-          <DetailViewStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="ReceiveDetailsRoot" component={LazyReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen
             name="ManageWallets"
-            component={ManageWallets}
+            component={LazyManageWallets}
             options={{
               presentation: 'fullScreenModal',
               title: loc.wallets.manage_title,
@@ -110,7 +190,7 @@ const MainRoot = () => {
           />
           <DetailViewStack.Screen
             name="ScanQRCode"
-            component={ScanQRCodeComponent}
+            component={LazyScanQRCodeComponent}
             options={{
               headerShown: false,
               statusBarHidden: true,
