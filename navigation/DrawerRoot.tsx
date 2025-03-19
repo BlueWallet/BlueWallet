@@ -1,5 +1,5 @@
 import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
-import React, { useLayoutEffect, useMemo } from 'react';
+import React, { useLayoutEffect, useEffect, useMemo } from 'react';
 import { I18nManager, LayoutAnimation, Animated, Platform, Easing, View } from 'react-native';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
@@ -45,7 +45,7 @@ const DrawerRoot = () => {
         : LayoutAnimation.Presets.easeInEaseOut;
 
     LayoutAnimation.configureNext(animConfig);
-  }, []);
+  }, [isLargeScreen]); // Add isLargeScreen as dependency to re-trigger animations when it changes
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
@@ -62,6 +62,10 @@ const DrawerRoot = () => {
     }),
     [getDrawerWidth, isLargeScreen],
   );
+
+  useEffect(() => {
+    console.debug('[DrawerRoot] isLargeScreen changed:', isLargeScreen);
+  }, [isLargeScreen]);
 
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerContent} initialRouteName="DetailViewStackScreensStack">

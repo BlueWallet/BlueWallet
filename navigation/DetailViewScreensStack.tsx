@@ -26,7 +26,6 @@ import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, StatusBarLightOptions, DetailViewStack } from './index';
-import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
@@ -322,7 +321,6 @@ const DetailViewStackScreensStack = () => {
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
-      <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
