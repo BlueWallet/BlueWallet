@@ -53,13 +53,13 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
 
       const proceedWithNavigation = () => {
         console.log('Proceeding with navigation to', screenName);
-        
+
         // Navigation logic based on current route and target screen
         if (navigationRef.current?.isReady()) {
           // Get the current route - we need to know which navigator we're in
           const currentRoute = navigationRef.current.getCurrentRoute();
           const currentRouteName = currentRoute?.name;
-          
+
           // Handle specific cases for nested navigation
           if (currentRouteName === 'DrawerRoot') {
             // If we're in DrawerRoot and trying to navigate to a screen that exists in DetailViewStackScreensStack
@@ -67,8 +67,8 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               screen: 'DetailViewStackScreensStack',
               params: {
                 screen: screenName,
-                params: params
-              }
+                params,
+              },
             });
           } else {
             // Normal navigation

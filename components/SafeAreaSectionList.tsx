@@ -17,6 +17,7 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SectionListProps<ItemT, Sec
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
+      progressViewOffset={60} // Adjusted to account for navigation header height
       contentContainerStyle={contentContainerStyle}
       contentInset={{ top: 0, left: 0, bottom: 100, right: 0 }}
       {...otherProps}
