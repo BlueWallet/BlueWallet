@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Alert, I18nManager, Linking, ScrollView, StyleSheet } from 'react-native';
+import { Alert, I18nManager, Linking, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
@@ -16,6 +16,7 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const styles = StyleSheet.create({
   buttonStyle: {
@@ -113,7 +114,7 @@ const LightningSettings: React.FC = () => {
   }, [params?.onBarScanned, setParams]);
 
   return (
-    <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+    <SafeAreaScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
@@ -144,7 +145,7 @@ const LightningSettings: React.FC = () => {
         <BlueSpacing40 />
         {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

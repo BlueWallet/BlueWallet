@@ -16,9 +16,6 @@ const SafeAreaScrollView = (props: ScrollViewProps) => {
   const contentStyle = useMemo(() => {
     return StyleSheet.compose(
       {
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
-        paddingLeft: insets.left,
         paddingRight: insets.right,
       },
       contentContainerStyle,
