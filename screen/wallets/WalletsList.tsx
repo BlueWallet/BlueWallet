@@ -468,29 +468,43 @@ const WalletsList: React.FC = () => {
     ];
   }, [isLargeScreen, dataSource]);
 
+  // Constants for layout calculations
+  const TRANSACTION_ITEM_HEIGHT = 80;
+  const CAROUSEL_HEIGHT = 195;
+  const SECTION_HEADER_HEIGHT = 56; // Height of the section header with "Transactions" title
+
   const getItemLayout = useCallback(
     (data: any, index: number) => {
-      // When on large screen, don't include the carousel height in calculations
       if (isLargeScreen) {
+        // On large screens: only transaction items, no carousel
         return {
-          length: 80,
-          offset: 80 * index,
+          length: TRANSACTION_ITEM_HEIGHT,
+          offset: TRANSACTION_ITEM_HEIGHT * index,
           index,
         };
-      }
+      } else {
+        // On small screens: first item is carousel, rest are transactions
+        // First section: Carousel
+        if (index === 0) {
+          return {
+            length: CAROUSEL_HEIGHT,
+            offset: 0,
+            index,
+          };
+        }
 
-      if (index === 0) {
+        // Second section: Transactions
+        // Need to account for:
+        // 1. Carousel height
+        // 2. Section header height for transactions section
+        // 3. Transaction items
+        const transactionIndex = index - 1; // Adjust index to account for carousel
         return {
-          length: 195,
-          offset: 0,
+          length: TRANSACTION_ITEM_HEIGHT,
+          offset: CAROUSEL_HEIGHT + SECTION_HEADER_HEIGHT + TRANSACTION_ITEM_HEIGHT * transactionIndex,
           index,
         };
       }
-      return {
-        length: 80,
-        offset: 195 + 80 * (index - 1),
-        index,
-      };
     },
     [isLargeScreen],
   );
