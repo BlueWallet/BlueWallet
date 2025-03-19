@@ -5,6 +5,19 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import AddWalletStack from './AddWalletStack';
+import SendDetailsStack from './SendDetailsStack';
+import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
+import ScanLNDInvoiceRoot from './ScanLNDInvoiceStack';
+import AztecoRedeemStackRoot from './AztecoRedeemStack';
+import WalletExportStack from './WalletExportStack';
+import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
+import WalletXpubStackRoot from './WalletXpubStack';
+import SignVerifyStackRoot from './SignVerifyStack';
+import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
+import ManageWallets from '../screen/wallets/ManageWallets';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
+import loc from '../loc';
 
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
 
@@ -16,6 +29,13 @@ export const NavigationDefaultOptions: NativeStackNavigationOptions = {
 export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
+};
+
+export const NavigationFormNoSwipeDefaultOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+  presentation: 'modal',
+  headerShadowVisible: false,
+  fullScreenGestureEnabled: false,
 };
 export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
@@ -38,7 +58,56 @@ const MainRoot = () => {
         <>
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
 
+          {/* Modal stacks */}
           <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
+          <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen
+            name="WalletExportRoot"
+            component={WalletExportStack}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewStack.Screen
+            name="ExportMultisigCoordinationSetupRoot"
+            component={ExportMultisigCoordinationSetupStack}
+            options={NavigationDefaultOptions}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigCosigners"
+            component={ViewEditMultisigCosignersComponent}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false }}
+          />
+          <DetailViewStack.Screen
+            name="WalletXpubRoot"
+            component={WalletXpubStackRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewStack.Screen
+            name="SignVerifyRoot"
+            component={SignVerifyStackRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen
+            name="ManageWallets"
+            component={ManageWallets}
+            options={{
+              presentation: 'fullScreenModal',
+              title: loc.wallets.manage_title,
+              statusBarStyle: 'auto',
+            }}
+          />
+          <DetailViewStack.Screen
+            name="ScanQRCode"
+            component={ScanQRCodeComponent}
+            options={{
+              headerShown: false,
+              statusBarHidden: true,
+              presentation: 'fullScreenModal',
+            }}
+          />
         </>
       )}
     </DetailViewStack.Navigator>

@@ -57,11 +57,32 @@ const useLargeScreenDetection = () => {
             height: currentDimensions.height,
           });
         }
+      } else {
+        console.debug('[LargeScreen] App state changed to:', nextAppState);
       }
     };
 
+    console.debug('[LargeScreen] Setting up AppState subscription');
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
+
+    // Trigger an initial check with current state
+    handleAppStateChange(AppState.currentState);
+
+    return () => {
+      console.debug('[LargeScreen] Cleaning up AppState subscription');
+      try {
+        subscription.remove();
+      } catch (error) {
+        console.warn('[LargeScreen] Error cleaning up AppState subscription:', error);
+        // Fallback for older React Native versions if needed
+        try {
+          // @ts-ignore - for backward compatibility
+          AppState.removeEventListener?.('change', handleAppStateChange);
+        } catch (fallbackError) {
+          console.error('[LargeScreen] Failed to clean up with fallback:', fallbackError);
+        }
+      }
+    };
   }, []);
 
   const isLargeScreen = useMemo(() => {

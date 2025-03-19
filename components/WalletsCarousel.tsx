@@ -724,6 +724,10 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={ListHeaderComponent}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      automaticallyAdjustsScrollIndicatorInsets
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}

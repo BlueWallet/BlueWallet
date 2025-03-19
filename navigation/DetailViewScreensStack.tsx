@@ -25,19 +25,9 @@ import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
-import { NavigationDefaultOptions, StatusBarLightOptions, DetailViewStack } from './index';
-import AztecoRedeemStackRoot from './AztecoRedeemStack';
+import { DetailViewStack } from './index';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
-import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
-import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import SendDetailsStack from './SendDetailsStack';
-import SignVerifyStackRoot from './SignVerifyStack';
-import WalletExportStack from './WalletExportStack';
-import WalletXpubStackRoot from './WalletXpubStack';
 import SettingsButton from '../components/icons/SettingsButton';
-import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
-import ManageWallets from '../screen/wallets/ManageWallets';
-import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
@@ -61,9 +51,7 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
-import ScanLNDInvoiceRoot from './ScanLNDInvoiceStack';
-import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
+import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -320,54 +308,6 @@ const DetailViewStackScreensStack = () => {
         name="SettingsPrivacy"
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
-      />
-      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={ScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen
-        name="WalletExportRoot"
-        component={WalletExportStack}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <DetailViewStack.Screen
-        name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupStack}
-        options={NavigationDefaultOptions}
-      />
-      <DetailViewStack.Screen
-        name="ViewEditMultisigCosigners"
-        component={ViewEditMultisigCosignersComponent}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false }}
-      />
-      <DetailViewStack.Screen
-        name="WalletXpubRoot"
-        component={WalletXpubStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <DetailViewStack.Screen
-        name="SignVerifyRoot"
-        component={SignVerifyStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <DetailViewStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-      <DetailViewStack.Screen
-        name="ManageWallets"
-        component={ManageWallets}
-        options={{
-          presentation: 'fullScreenModal',
-          title: loc.wallets.manage_title,
-          statusBarStyle: 'auto',
-        }}
-      />
-      <DetailViewStack.Screen
-        name="ScanQRCode"
-        component={ScanQRCodeComponent}
-        options={{
-          headerShown: false,
-          statusBarHidden: true,
-          presentation: 'fullScreenModal',
-        }}
       />
     </DetailViewStack.Navigator>
   );
