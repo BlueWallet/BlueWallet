@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { isDesktop } from '../blue_modules/environment';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -44,15 +45,25 @@ const useFloatButtonAnimation = (height: number) => {
 
   useEffect(() => {
     slideAnimation.setValue(height);
+
+    // Skip animation on desktop
+    if (isDesktop) {
+      slideAnimation.setValue(0);
+      return;
+    }
+
     Animated.spring(slideAnimation, {
       toValue: 0,
-      useNativeDriver: false,
+      useNativeDriver: true,
       speed: 100,
       bounciness: 3,
     }).start();
   }, [height, slideAnimation]);
 
   const configureLayoutAnimation = useCallback(() => {
+    // Skip layout animation on desktop
+    if (isDesktop) return;
+
     LayoutAnimation.configureNext({
       duration: LAYOUT.ANIMATION_DURATION,
       create: {
@@ -74,18 +85,26 @@ const useFloatButtonAnimation = (height: number) => {
 
   const animateBorderRadius = useCallback(
     (buttonRadius: number, singleRadius: number, onComplete?: () => void) => {
+      if (isDesktop) {
+        // On desktop, apply values immediately without animation
+        animatedButtonRadius.setValue(buttonRadius);
+        animatedSingleButtonRadius.setValue(singleRadius);
+        if (onComplete) onComplete();
+        return;
+      }
+
       setIsAnimating(true);
 
       Animated.parallel([
         Animated.timing(animatedButtonRadius, {
           toValue: buttonRadius,
           duration: LAYOUT.ANIMATION_DURATION,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
         Animated.timing(animatedSingleButtonRadius, {
           toValue: singleRadius,
           duration: LAYOUT.ANIMATION_DURATION,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]).start(() => {
         setIsAnimating(false);
@@ -99,7 +118,7 @@ const useFloatButtonAnimation = (height: number) => {
     slideAnimation,
     animatedButtonRadius,
     animatedSingleButtonRadius,
-    isAnimating,
+    isAnimating: isDesktop ? false : isAnimating, // Never report animating state on desktop
     setIsAnimating,
     configureLayoutAnimation,
     animateBorderRadius,
@@ -432,10 +451,15 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
     if (cachedCalculation) {
       if (cachedCalculation.isVertical !== isVertical || newWidth !== cachedCalculation.width) {
-        configureLayoutAnimation();
+        // Only do layout animation on non-desktop
+        if (!isDesktop) {
+          configureLayoutAnimation();
+        }
+
         setNewWidth(cachedCalculation.width);
         setIsVertical(cachedCalculation.isVertical);
 
+        // Apply border radius changes (animation hook will handle desktop case)
         animateBorderRadius(cachedCalculation.buttonRadius, cachedCalculation.singleButtonRadius, () => {
           setButtonBorderRadius(cachedCalculation.buttonRadius);
           setSingleButtonBorderRadius(cachedCalculation.singleButtonRadius);
@@ -453,10 +477,15 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       const { buttonRadius, singleButtonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, totalChildren);
 
       if (shouldBeVertical !== isVertical || newWidth !== calculatedWidth) {
-        configureLayoutAnimation();
+        // Only do layout animation on non-desktop
+        if (!isDesktop) {
+          configureLayoutAnimation();
+        }
+
         setNewWidth(calculatedWidth);
         setIsVertical(shouldBeVertical);
 
+        // Apply border radius changes (animation hook will handle desktop case)
         animateBorderRadius(buttonRadius, singleButtonRadius, () => {
           setButtonBorderRadius(buttonRadius);
           setSingleButtonBorderRadius(singleButtonRadius);
