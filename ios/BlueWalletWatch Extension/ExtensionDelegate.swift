@@ -3,23 +3,51 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/6/19.
-
 //
 
 import WatchKit
 import ClockKit
 import Bugsnag
+import WatchConnectivity
 
+// WatchKit 2 uses WKExtensionDelegate, not WKApplicationDelegate
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
   let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
 
   func applicationDidFinishLaunching() {
+    // Initialize WatchDataSource in the application lifecycle
+    initializeWCSession()
+    
     scheduleNextReload()
     updatePreferredFiatCurrency()
     if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
       Bugsnag.start()
     }
+  }
+  
+  private func initializeWCSession() {
+    // Ensure WatchDataSource is initialized and session is started
+    WatchDataSource.shared.startSession()
+    
+    // Log session state for debugging
+    if WCSession.isSupported() {
+      let session = WCSession.default
+      print("WCSession initialized with state: \(session.activationState.rawValue)")
+      print("Is WCSession reachable: \(session.isReachable)")
+    } else {
+      print("WCSession is not supported on this device")
+    }
+  }
+  
+  func applicationDidBecomeActive() {
+    // Request data when app becomes active
+    WatchDataSource.shared.requestDataFromiOS()
+  }
+  
+  func applicationWillResignActive() {
+    // Perform any cleanup before app goes inactive
+    print("Watch app will resign active")
   }
   
   func updatePreferredFiatCurrency() {
@@ -57,8 +85,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     return calendar.date(byAdding: .minute, value: 10, to: date)!
   }
   
+  // Update to use the correct API for scheduling background tasks in WatchKit 2
   func scheduleNextReload() {
     let targetDate = nextReloadTime(after: Date())
+    // Use scheduleBackgroundRefresh instead of newer API
     WKExtension.shared().scheduleBackgroundRefresh(
       withPreferredDate: targetDate,
       userInfo: nil,
@@ -71,6 +101,9 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
       switch task {
         case let backgroundTask as WKApplicationRefreshBackgroundTask:
           handleApplicationRefreshBackgroundTask(backgroundTask)
+        case let snapshotTask as WKSnapshotRefreshBackgroundTask:
+          // Handle snapshot generation
+          snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
         default:
           task.setTaskCompletedWithSnapshot(false)
       }
@@ -84,6 +117,10 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
           return
       }
       updateMarketData(for: fiatUnitUserDefaults)
+      
+      // Request updated wallet data during background refresh
+      WatchDataSource.shared.requestDataFromiOS()
+      
       backgroundTask.setTaskCompletedWithSnapshot(false)
   }
   
