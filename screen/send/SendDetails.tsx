@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   findNodeHandle,
   FlatList,
   I18nManager,
@@ -20,6 +19,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { Icon } from '@rneui/themed';
@@ -57,7 +57,8 @@ import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -93,9 +94,17 @@ const SendDetails = () => {
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
+  const { width } = useWindowDimensions();
+  const { isLargeScreen } = useIsLargeScreen();
+
+  // Calculate the effective width considering drawer width in large screen mode
+  const effectiveWidth = useMemo(() => {
+    // When large screen is active, a drawer takes 320px width
+    const DRAWER_WIDTH = 320;
+    return isLargeScreen ? width - DRAWER_WIDTH : width;
+  }, [isLargeScreen, width]);
 
   // state
-  const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
@@ -1174,10 +1183,6 @@ const SendDetails = () => {
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.elevated,
-    },
-
     selectLabel: {
       color: colors.buttonTextColor,
     },
@@ -1269,10 +1274,19 @@ const SendDetails = () => {
     );
   };
 
+  const getItemLayout = useCallback(
+    (data: ArrayLike<IPaymentDestinations> | null | undefined, index: number) => ({
+      length: effectiveWidth, // Use effective width instead of full width
+      offset: effectiveWidth * index,
+      index,
+    }),
+    [effectiveWidth],
+  );
+
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={{ width }} testID={'Transaction' + index}>
+      <View style={[styles.transactionItemContainer, { width: effectiveWidth }]} testID={'Transaction' + index}>
         <AmountInput
           isLoading={isLoading}
           amount={item.amount ? item.amount.toString() : null}
@@ -1363,16 +1377,10 @@ const SendDetails = () => {
     );
   };
 
-  const getItemLayout = (_: any, index: number) => ({
-    length: width,
-    offset: width * index,
-    index,
-  });
-
   return (
-    <SafeArea style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+    <SafeAreaScrollView contentContainerStyle={styles.root}>
       <View>
-        <FlatList
+        <FlatList<IPaymentDestinations>
           keyboardShouldPersistTaps="always"
           scrollEnabled={addresses.length > 1}
           data={addresses}
@@ -1441,7 +1449,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
-    </SafeArea>
+    </SafeAreaScrollView>
   );
 };
 
@@ -1537,7 +1545,11 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   addressInput: {
-    marginHorizontal: 16,
     marginVertical: 8,
+    width: '100%',
+  },
+  transactionItemContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 });

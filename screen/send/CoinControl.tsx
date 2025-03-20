@@ -4,7 +4,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import {
   ActivityIndicator,
-  FlatList,
   Keyboard,
   LayoutAnimation,
   PixelRatio,
@@ -36,6 +35,7 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import TipBox from '../../components/TipBox';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -490,9 +490,9 @@ const CoinControl: React.FC = () => {
   // Adding the ToolTipMenu to the header
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => HeaderRight,
+      headerRight: () => (utxos.length > 0 ? HeaderRight : null),
     });
-  }, [HeaderRight, navigation]);
+  }, [HeaderRight, navigation, utxos.length]);
 
   if (loading) {
     return (
@@ -536,7 +536,7 @@ const CoinControl: React.FC = () => {
       >
         {renderOutputModalContent(output)}
       </BottomModal>
-      <FlatList
+      <SafeAreaFlatList
         ListHeaderComponent={tipCoins}
         data={utxos}
         renderItem={renderItem}

@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     borderRadius: 4,
+    width: '100%',
   },
   input: {
     flex: 1,

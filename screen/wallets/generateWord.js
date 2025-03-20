@@ -1,12 +1,13 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
 import loc from '../../loc';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const GenerateWord = () => {
   const { colors } = useTheme();
@@ -52,7 +53,7 @@ const GenerateWord = () => {
   };
 
   return (
-    <ScrollView
+    <SafeAreaScrollView
       style={styles.blueArea}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustContentInsets
@@ -96,7 +97,7 @@ const GenerateWord = () => {
           <BlueSpacing20 />
         </BlueCard>
       </View>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 
