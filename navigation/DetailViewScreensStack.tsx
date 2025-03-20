@@ -130,14 +130,13 @@ const DetailViewStackScreensStack = () => {
           walletID: undefined,
         }}
         options={navigationStyle({
-          title: '',
           statusBarStyle: 'auto',
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
-          headerBackTitle: undefined,
+          headerTitle: '',
           headerRight: () => DetailButton,
-          headerBackTitleStyle: { fontSize: 0 },
+          headerBackButtonDisplayMode: 'default',
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
