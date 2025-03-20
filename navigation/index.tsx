@@ -164,6 +164,7 @@ const MainRoot = () => {
               title: loc.multisig.view_edit_cosigners,
               presentation: 'modal',
               headerShown: true,
+              gestureEnabled: false,
               closeButtonPosition: CloseButtonPosition.Right,
             })(theme)}
           />
