@@ -7,11 +7,11 @@ import {
   Alert,
   I18nManager,
   Animated,
-  FlatList,
   ActivityIndicator,
   LayoutAnimation,
   UIManager,
   Platform,
+  ViewStyle,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { usePreventRemove } from '@react-navigation/native';
@@ -217,8 +217,12 @@ const ManageWallets: React.FC = () => {
   };
   const [uiData, setUiData] = useState(state.currentWalletsOrder);
 
-  const listRef = useRef<FlatList<Item> | null>(null);
+  const listRef = useRef<DragList<Item> | null>(null);
   const [saveInProgress, setSaveInProgress] = useState(false);
+  const [globalDragActive, setGlobalDragActive] = useState(false);
+  const [activeDragIndex, setActiveDragIndex] = useState<number | null>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const listHeight = useRef(0);
 
   useEffect(() => {
     setUiData(state.currentWalletsOrder);
@@ -377,26 +381,32 @@ const ManageWallets: React.FC = () => {
     [bounceAnim],
   );
 
-  const handleDeleteWallet = useCallback(async (wallet: TWallet) => {
-    LayoutAnimation.configureNext({
-      duration: 300,
-      create: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-        duration: 200,
-      },
-    });
+  const handleDeleteWallet = useCallback(
+    async (wallet: TWallet) => {
+      // Only configure animation if we're not in the middle of another animation
+      if (!globalDragActive) {
+        LayoutAnimation.configureNext({
+          duration: 300,
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          update: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          delete: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+            duration: 200,
+          },
+        });
+      }
 
-    dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
-  }, []);
+      dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
+    },
+    [globalDragActive],
+  );
 
   const handleToggleHideBalance = useCallback(
     (wallet: TWallet) => {
@@ -419,23 +429,98 @@ const ManageWallets: React.FC = () => {
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
       const walletID = wallet.getID();
-      goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
       });
     },
-    [goBack, navigate],
+    [navigate],
+  );
+
+  const onDragStart = useCallback((index: number) => {
+    console.log('Drag started at index:', index);
+    setGlobalDragActive(true);
+    setActiveDragIndex(index);
+
+    // Don't use LayoutAnimation during drag operations to avoid conflicts
+    // The Animated API in ManageWalletsListItem will handle animations instead
+  }, []);
+
+  const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number }; layoutMeasurement: { height: number } } }) => {
+    setScrollPosition(event.nativeEvent.contentOffset.y);
+    listHeight.current = event.nativeEvent.layoutMeasurement.height;
+  }, []);
+
+  const scrollToIndex = useCallback(
+    (index: number, animated = true) => {
+      if (!listRef.current) return;
+
+      const estimatedItemHeight = 160;
+      const estimatedPosition = index * estimatedItemHeight;
+
+      if (estimatedPosition > scrollPosition + listHeight.current * 0.7) {
+        const targetPosition = estimatedPosition - listHeight.current / 3;
+        listRef.current.scrollToOffset?.({
+          offset: Math.max(0, targetPosition),
+          animated,
+        });
+      } else if (estimatedPosition < scrollPosition + listHeight.current * 0.3) {
+        const targetPosition = estimatedPosition - listHeight.current / 3;
+        listRef.current.scrollToOffset?.({
+          offset: Math.max(0, targetPosition),
+          animated,
+        });
+      }
+    },
+    [scrollPosition],
+  );
+
+  const onDragEnd = useCallback(
+    (info?: { index: number }) => {
+      console.log('Drag ended, index:', info?.index);
+      setGlobalDragActive(false);
+      setActiveDragIndex(null);
+
+      if (info?.index !== undefined) {
+        setTimeout(() => {
+          scrollToIndex(info.index, true);
+        }, 300);
+      }
+
+      LayoutAnimation.configureNext({
+        duration: 250,
+        update: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+        },
+      });
+    },
+    [scrollToIndex],
   );
 
   const renderItem = useCallback(
     (info: DragListRenderItemInfo<Item>) => {
-      const { item, onDragStart, isActive } = info;
+      const { item, index, onDragStart: dragListStartHandler, isActive } = info;
 
       const compatibleState = {
         wallets: state.availableWallets,
         searchQuery: state.searchQuery,
       };
+
+      let stackIndex = 0;
+      if (globalDragActive && activeDragIndex !== null && !isActive) {
+        const distance = Math.abs(index - activeDragIndex);
+
+        // Create even more compressed card stacking effect
+        if (distance === 0) {
+          stackIndex = 0;
+        } else if (distance === 1) {
+          stackIndex = 0.2;
+        } else if (distance <= 3) {
+          stackIndex = 0.2 + (distance - 1) * 0.15;
+        } else {
+          stackIndex = 0.5 + (distance - 3) * 0.03;
+        }
+      }
 
       return (
         <ManageWalletsListItem
@@ -449,7 +534,14 @@ const ManageWallets: React.FC = () => {
           handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
           isActive={isActive}
-          drag={onDragStart}
+          drag={() => {
+            if (dragListStartHandler) {
+              dragListStartHandler();
+              onDragStart(index);
+            }
+          }}
+          globalDragActive={globalDragActive}
+          stackIndex={stackIndex}
         />
       );
     },
@@ -461,6 +553,9 @@ const ManageWallets: React.FC = () => {
       renderHighlightedText,
       handleDeleteWallet,
       handleToggleHideBalance,
+      globalDragActive,
+      activeDragIndex,
+      onDragStart,
     ],
   );
 
@@ -471,8 +566,12 @@ const ManageWallets: React.FC = () => {
       updatedOrder.splice(toIndex, 0, removed[0]);
 
       dispatch({ type: SET_TEMP_ORDER, payload: updatedOrder });
+
+      setTimeout(() => {
+        onDragEnd({ index: toIndex });
+      }, 10);
     },
-    [state.currentWalletsOrder],
+    [state.currentWalletsOrder, onDragEnd],
   );
 
   const keyExtractor = useCallback((item: Item, index: number) => index.toString(), []);
@@ -491,22 +590,28 @@ const ManageWallets: React.FC = () => {
     );
   }, [state.searchQuery, state.availableWallets.length, state.txMetadata, stylesHook.noResultsText]);
 
+  const dragListStyle = useMemo<ViewStyle[]>(() => [styles.containerBase, styles.root, styles.noPadding], []);
+
   return (
     <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
-      <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
+      <GestureHandlerRootView style={[styles.containerBase, styles.root]}>
         <>
           {renderHeader}
-          <DragList
+          <DragList<Item>
             automaticallyAdjustContentInsets
             automaticallyAdjustKeyboardInsets
             automaticallyAdjustsScrollIndicatorInsets
             contentInsetAdjustmentBehavior="automatic"
             data={uiData}
-            containerStyle={[{ backgroundColor: colors.background }, styles.root]}
+            containerStyle={dragListStyle}
             keyExtractor={keyExtractor}
             onReordered={onReordered}
             renderItem={renderItem}
             ref={listRef}
+            onDragEnd={onDragEnd}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            contentContainerStyle={styles.dragListContent}
           />
         </>
       </GestureHandlerRootView>
@@ -519,6 +624,15 @@ export default React.memo(ManageWallets);
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  containerBase: {
+    backgroundColor: (colors: Theme) => colors.background,
+  },
+  noPadding: {
+    paddingVertical: 0,
+  },
+  dragListContent: {
+    paddingVertical: 10,
   },
   button: {
     padding: 16,
@@ -545,7 +659,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
     textShadowOffset: { width: 1, height: 1 },
     textShadowColor: '#000',
-    textDecorationStyle: 'double',
+    textDecorationStyle: 'double' as const, // Fix const assertion
     textDecorationLine: 'underline',
     alignSelf: 'flex-start',
     padding: 2,

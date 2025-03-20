@@ -282,9 +282,14 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           onPressIn={onPressedIn}
           onPressOut={onPressedOut}
           onLongPress={() => {
-            if (handleLongPress) handleLongPress();
+            if (handleLongPress) {
+              handleLongPress();
+              // Don't call onPress when performing a long press to avoid navigation
+              // This ensures we only handle drag in long press
+            }
           }}
-          onPress={handlePress}
+          delayLongPress={200} // Shorter delay for more responsive drag
+          onPress={handlePress} // Only trigger press for normal taps
           delayHoverIn={0}
           delayHoverOut={0}
         >
