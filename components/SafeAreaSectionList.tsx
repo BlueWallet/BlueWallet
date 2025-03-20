@@ -9,7 +9,7 @@ interface SafeAreaSectionListProps<ItemT, SectionT> extends SectionListProps<Ite
 }
 
 const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<ItemT, SectionT>) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 70, ...otherProps } = props;
+  const { style, contentContainerStyle, floatingButtonHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 

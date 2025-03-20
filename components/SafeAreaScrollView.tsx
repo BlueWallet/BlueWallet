@@ -9,7 +9,7 @@ interface SafeAreaScrollViewProps extends ScrollViewProps {
 }
 
 const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((props, ref) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 70, ...otherProps } = props;
+  const { style, contentContainerStyle, floatingButtonHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
