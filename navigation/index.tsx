@@ -93,7 +93,7 @@ const LazyExportMultisigCoordinationSetupStack = () => (
   </Suspense>
 );
 
-const LazyViewEditMultisigCosignersComponent = () => (
+const LazyViewEditMultisigCosigners = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <ViewEditMultisigCosigners />
   </Suspense>
@@ -159,7 +159,7 @@ const MainRoot = () => {
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
-            component={LazyViewEditMultisigCosignersComponent}
+            component={LazyViewEditMultisigCosigners}
             options={navigationStyle({
               title: loc.multisig.view_edit_cosigners,
               presentation: 'modal',
