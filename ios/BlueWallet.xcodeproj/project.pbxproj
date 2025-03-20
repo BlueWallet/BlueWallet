@@ -84,7 +84,6 @@
 		B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
 		B44033D82BCC369500162242 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		B44033DA2BCC369A00162242 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
-		B44033DB2BCC369B00162242 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4C3A254FBF4800E9F9AA /* Colors.swift */; };
 		B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B44033DE2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B44033DF2BCC36C300162242 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
@@ -164,6 +163,7 @@
 		B4D59C1C2D8BAFE300B7025B /* Bugsnag in Frameworks */ = {isa = PBXBuildFile; productRef = B4D59C1B2D8BAFE300B7025B /* Bugsnag */; };
 		B4D59C1E2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B4D59C1D2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin */; };
 		B4D59C212D8BB42100B7025B /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C202D8BB41F00B7025B /* File.swift */; };
+		B4D59C272D8C5D6F00B7025B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C262D8C5D6E00B7025B /* main.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
 		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
@@ -326,7 +326,6 @@
 		B40D4E35225841ED00428FCC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B40D4E37225841ED00428FCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B40D4E45225841ED00428FCC /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		B40D4E49225841ED00428FCC /* Info 2.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info 2.plist"; sourceTree = "<group>"; };
 		B40D4E4A225841ED00428FCC /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		B40D4E552258425400428FCC /* InterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
 		B40D4E562258425400428FCC /* NumericKeypadInterfaceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumericKeypadInterfaceController.swift; sourceTree = "<group>"; };
@@ -386,6 +385,7 @@
 		B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveMethod.swift; sourceTree = "<group>"; };
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4D59C202D8BB41F00B7025B /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		B4D59C262D8C5D6E00B7025B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -662,6 +662,7 @@
 		B40D4E31225841EC00428FCC /* BlueWalletWatch */ = {
 			isa = PBXGroup;
 			children = (
+				B4D59C262D8C5D6E00B7025B /* main.swift */,
 				B4D59C202D8BB41F00B7025B /* File.swift */,
 				B43D03242258474500FBAA95 /* Objects */,
 				32F0A2992311DBB20095C559 /* ComplicationController.swift */,
@@ -672,7 +673,6 @@
 				6DFC807124EA2FA9007B8700 /* ViewQRCodefaceController.swift */,
 				B40D4E582258425400428FCC /* SpecifyInterfaceController.swift */,
 				B40D4E5C2258425500428FCC /* WalletDetailsInterfaceController.swift */,
-				B40D4E49225841ED00428FCC /* Info 2.plist */,
 				B40D4E4A225841ED00428FCC /* PushNotificationPayload.apns */,
 				B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */,
 				6D4AF18225D215D0009DD853 /* BlueWalletWatch-Bridging-Header.h */,
@@ -1277,6 +1277,7 @@
 				6DFC807224EA2FA9007B8700 /* ViewQRCodefaceController.swift in Sources */,
 				B40D4E46225841ED00428FCC /* NotificationController.swift in Sources */,
 				B40D4E5D2258425500428FCC /* InterfaceController.swift in Sources */,
+				B4D59C272D8C5D6F00B7025B /* main.swift in Sources */,
 				B4793DBD2CEDACBD00C92C2E /* Chain.swift in Sources */,
 				B44033FA2BCC379200162242 /* WidgetDataStore.swift in Sources */,
 				B44033DE2BCC36C300162242 /* LatestTransaction.swift in Sources */,
@@ -1287,7 +1288,6 @@
 				B40D4E642258425500428FCC /* WalletDetailsInterfaceController.swift in Sources */,
 				6D4AF16D25D21192009DD853 /* Placeholders.swift in Sources */,
 				B4793DC42CEDAD4400C92C2E /* KeychainHelper.swift in Sources */,
-				B44033DB2BCC369B00162242 /* Colors.swift in Sources */,
 				B40D4E632258425500428FCC /* ReceiveInterfaceController.swift in Sources */,
 				B43D0378225847C500FBAA95 /* WalletGradient.swift in Sources */,
 				B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */,
@@ -1840,6 +1840,7 @@
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
 				INFOPLIST_KEY_CLKComplicationPrincipalClass = io.bluewallet.bluewallet.watch.extension.ComplicationController;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
@@ -1849,6 +1850,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 7.1.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1864,7 +1866,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -1894,6 +1896,7 @@
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
 				INFOPLIST_KEY_CLKComplicationPrincipalClass = io.bluewallet.bluewallet.watch.extension.ComplicationController;
 				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = io.bluewallet.bluewallet;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
@@ -1903,6 +1906,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
 				MARKETING_VERSION = 7.1.5;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
@@ -1917,7 +1921,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};
@@ -1976,8 +1980,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
-				kind = exactVersion;
-				version = 6.2.2;
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.2.2;
 			};
 		};
 		B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */ = {
