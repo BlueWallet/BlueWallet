@@ -117,9 +117,11 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
+      paddingTop: isLargeScreen ? 8 : 0,
     },
     listHeaderText: {
       color: colors.foregroundColor,
+      flexShrink: 1,
     },
   });
 
@@ -281,7 +283,12 @@ const WalletsList: React.FC = () => {
   const renderListHeaderComponent = useCallback(() => {
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
-        <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
+        <Text
+          textBreakStrategy="simple"
+          style={[styles.listHeaderText, stylesHook.listHeaderText]}
+          numberOfLines={2}
+          adjustsFontSizeToFit={true}
+        >
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
       </View>
@@ -469,10 +476,17 @@ const WalletsList: React.FC = () => {
   // Constants for layout calculations
   const TRANSACTION_ITEM_HEIGHT = 80;
   const CAROUSEL_HEIGHT = 195;
-  const SECTION_HEADER_HEIGHT = 56; // Height of the section header with "Transactions" title
+  const SECTION_HEADER_HEIGHT = 56; // Base height
+  const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
+
+  const getSectionHeaderHeight = useCallback(() => {
+    return SECTION_HEADER_HEIGHT + (isLargeScreen ? LARGE_TITLE_EXTRA_HEIGHT : 0);
+  }, [isLargeScreen]);
 
   const getItemLayout = useCallback(
     (data: any, index: number) => {
+      const headerHeight = getSectionHeaderHeight();
+
       if (isLargeScreen) {
         // On large screens: only transaction items, no carousel
         return {
@@ -499,12 +513,12 @@ const WalletsList: React.FC = () => {
         const transactionIndex = index - 1; // Adjust index to account for carousel
         return {
           length: TRANSACTION_ITEM_HEIGHT,
-          offset: CAROUSEL_HEIGHT + SECTION_HEADER_HEIGHT + TRANSACTION_ITEM_HEIGHT * transactionIndex,
+          offset: CAROUSEL_HEIGHT + headerHeight + TRANSACTION_ITEM_HEIGHT * transactionIndex,
           index,
         };
       }
     },
-    [isLargeScreen],
+    [isLargeScreen, getSectionHeaderHeight],
   );
 
   return (
@@ -535,11 +549,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
+    minHeight: 56,
   },
   listHeaderText: {
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 16,
+    flexWrap: 'wrap',
   },
   footerRoot: {
     top: 80,
