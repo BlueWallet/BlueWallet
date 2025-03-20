@@ -3,13 +3,7 @@ import React, { lazy, Suspense } from 'react';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 // Define lazy imports with more reliable loading patterns
-const WalletsAdd = lazy(() => {
-  console.log('Loading Add wallet component...');
-  return import('../screen/wallets/Add').catch(error => {
-    console.error('Failed to load Add wallet component:', error);
-    return { default: () => null };
-  });
-});
+const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
 const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/ImportCustomDerivationPath'));
 const ImportWalletDiscovery = lazy(() => import('../screen/wallets/ImportWalletDiscovery'));
 const ImportSpeed = lazy(() => import('../screen/wallets/ImportSpeed'));
@@ -21,15 +15,11 @@ const WalletsAddMultisig = lazy(() => import('../screen/wallets/WalletsAddMultis
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
 
-interface AddComponentProps {
-  // Define additional props if needed
-}
-
-export const AddComponent: React.FC<AddComponentProps> = (props: AddComponentProps) => {
+export const AddComponent: React.FC = () => {
   console.log('Rendering AddComponent wrapper');
   return (
     <Suspense fallback={<LazyLoadingIndicator />}>
-      <WalletsAdd {...props} />
+      <WalletsAdd />
     </Suspense>
   );
 };
