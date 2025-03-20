@@ -3,7 +3,7 @@ import bip38 from 'bip38';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
@@ -24,6 +24,7 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';
 import loc from '../../loc';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -285,7 +286,7 @@ export default class SelfTest extends Component {
 
   render() {
     return (
-      <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      <SafeAreaScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
         <BlueSpacing20 />
 
         {this.state.isLoading ? (
@@ -319,7 +320,7 @@ export default class SelfTest extends Component {
         </SaveFileButton>
         <BlueSpacing20 />
         <Button title="Test File Import" onPress={this.onPressImportDocument} />
-      </ScrollView>
+      </SafeAreaScrollView>
     );
   }
 }

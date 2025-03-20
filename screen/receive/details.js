@@ -481,6 +481,7 @@ const ReceiveDetails = () => {
         automaticallyAdjustsScrollIndicatorInsets
         automaticallyAdjustKeyboardInsets
         testID="ReceiveDetailsScrollView"
+        style={stylesHook.root}
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"
         onLayout={onLayout}
@@ -497,13 +498,20 @@ const ReceiveDetails = () => {
               />
             </View>
           )}
+
           {showAddress && renderTabContent()}
           {address !== undefined && showAddress && (
             <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
           )}
-          {showConfirmedBalance ? renderConfirmedBalance() : null}
-          {showPendingBalance ? renderPendingBalance() : null}
-          {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
+          {showConfirmedBalance && renderConfirmedBalance()}
+          {showPendingBalance && renderPendingBalance()}
+
+          {!showAddress && !showPendingBalance && !showConfirmedBalance && (
+            <View style={styles.loadingContainer}>
+              <BlueLoading />
+            </View>
+          )}
+
           <View style={styles.share}>
             <BlueCard>
               {showAddress && currentTab === loc.wallets.details_address && (
@@ -514,11 +522,16 @@ const ReceiveDetails = () => {
                   onPress={showCustomAmountModal}
                 />
               )}
-              <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+              <Button
+                onPress={handleShareButtonPressed}
+                title={loc.receive.details_share}
+                disabled={!bip21encoded && !(wallet?.getBIP47PaymentCode && currentTab === segmentControlValues[1])}
+              />
             </BlueCard>
           </View>
         </SafeArea>
       </ScrollView>
+
       <BottomModal
         ref={bottomModalRef}
         contentContainerStyle={styles.modalContainerJustify}
@@ -600,9 +613,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   share: {
-    justifyContent: 'flex-end',
+    width: '100%',
     paddingHorizontal: 32,
-    marginVertical: 8,
+    marginVertical: 16,
+    marginTop: 'auto',
   },
   link: {
     marginVertical: 16,
@@ -654,6 +668,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
   },
 });
 

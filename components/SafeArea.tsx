@@ -9,7 +9,7 @@ interface SafeAreaProps extends ViewProps {
 }
 
 const SafeArea = (props: SafeAreaProps) => {
-  const { style, floatingButtonHeight = 70, ...otherProps } = props;
+  const { style, floatingButtonHeight, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -20,7 +20,7 @@ const SafeArea = (props: SafeAreaProps) => {
         flex: 1,
         backgroundColor: colors.background,
         paddingTop: insets.top,
-        paddingBottom: insets.bottom + (floatingButtonHeight > 0 ? floatingButtonHeight : 0),
+        paddingBottom: insets.bottom + (floatingButtonHeight ?? 0),
         paddingLeft: insets.left,
         paddingRight: insets.right,
         width,
