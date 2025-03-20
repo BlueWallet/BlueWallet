@@ -483,7 +483,7 @@ const ReceiveDetails = () => {
         testID="ReceiveDetailsScrollView"
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"
-        onLayout={onLayout} // Apply the onLayout function here
+        onLayout={onLayout}
       >
         <SafeArea style={stylesHook.root}>
           {wallet?.allowBIP47() && wallet?.isBIP47Enabled() && (
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: '600',
     textAlign: 'center',
-    paddingBottom: 12, // reduced from 24
+    paddingBottom: 12,
   },
   modalButton: {
     paddingVertical: 14,
