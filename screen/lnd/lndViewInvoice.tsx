@@ -8,7 +8,6 @@ import { BlueLoading, BlueSpacing20, BlueText, BlueTextCentered } from '../../Bl
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -19,6 +18,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import BigNumber from 'bignumber.js';
 import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -290,7 +290,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return <SafeArea onLayout={onLayout}>{render()}</SafeArea>;
+  return <SafeAreaScrollView onLayout={onLayout}>{render()}</SafeAreaScrollView>;
 };
 
 export default LNDViewInvoice;

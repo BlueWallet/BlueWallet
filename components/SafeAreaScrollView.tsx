@@ -18,16 +18,28 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
   }, [colors.background, style]);
 
   const contentStyle = useMemo(() => {
-    return StyleSheet.compose(
-      {
-        paddingBottom: insets.bottom + floatingButtonHeight, // Add extra padding for the floating button
-        paddingRight: insets.right,
-        paddingLeft: insets.left,
-        // Adding top padding to account for navigation header
-        paddingTop: insets.top > 0 ? 5 : 0, // Small padding if we have a safe area at top
-      },
-      contentContainerStyle,
-    );
+    // Calculate base inset paddings with proper typing
+    const basePadding: {
+      paddingBottom: number;
+      paddingTop: number;
+      paddingLeft?: number;
+      paddingRight?: number;
+    } = {
+      paddingBottom: insets.bottom + floatingButtonHeight, // Add extra padding for the floating button
+      paddingTop: insets.top > 0 ? 5 : 0, // Small padding if we have a safe area at top
+    };
+
+    // Only add horizontal paddings if they aren't explicitly defined in contentContainerStyle
+    if (!StyleSheet.flatten(contentContainerStyle)?.paddingHorizontal && !StyleSheet.flatten(contentContainerStyle)?.paddingLeft) {
+      basePadding.paddingLeft = insets.left;
+    }
+
+    if (!StyleSheet.flatten(contentContainerStyle)?.paddingHorizontal && !StyleSheet.flatten(contentContainerStyle)?.paddingRight) {
+      basePadding.paddingRight = insets.right;
+    }
+
+    // Now compose with contentContainerStyle to ensure passed styles override defaults
+    return StyleSheet.compose(basePadding, contentContainerStyle);
   }, [insets, contentContainerStyle, floatingButtonHeight]);
 
   return (
