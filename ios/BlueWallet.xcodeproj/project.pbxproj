@@ -13,7 +13,7 @@
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
-		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D4AF15925D21172009DD853 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */; };
 		6D4AF16D25D21192009DD853 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Placeholders.swift */; };
 		6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
@@ -52,7 +52,7 @@
 		B40D4E3D225841ED00428FCC /* BlueWalletWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B40D4E44225841ED00428FCC /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E43225841ED00428FCC /* ExtensionDelegate.swift */; };
 		B40D4E46225841ED00428FCC /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E45225841ED00428FCC /* NotificationController.swift */; };
-		B40D4E4D225841ED00428FCC /* BlueWalletWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B40D4E30225841EC00428FCC /* BlueWalletWatch.app */; platformFilter = ios; };
+		B40D4E4D225841ED00428FCC /* BlueWalletWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B40D4E30225841EC00428FCC /* BlueWalletWatch.app */; };
 		B40D4E5D2258425500428FCC /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E552258425400428FCC /* InterfaceController.swift */; };
 		B40D4E5E2258425500428FCC /* NumericKeypadInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E562258425400428FCC /* NumericKeypadInterfaceController.swift */; };
 		B40D4E602258425500428FCC /* SpecifyInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E582258425400428FCC /* SpecifyInterfaceController.swift */; };
@@ -164,7 +164,7 @@
 		B4D0B2682C1DED67006B6B1B /* ReceiveMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2672C1DED67006B6B1B /* ReceiveMethod.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -428,7 +428,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1382,7 +1382,6 @@
 /* Begin PBXTargetDependency section */
 		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 6D2A6460258BA92C0092292B /* Stickers */;
 			targetProxy = 6D2A6466258BA92D0092292B /* PBXContainerItemProxy */;
 		};
@@ -1402,7 +1401,6 @@
 		};
 		B40D4E4C225841ED00428FCC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = B40D4E2F225841EC00428FCC /* BlueWalletWatch */;
 			targetProxy = B40D4E4B225841ED00428FCC /* PBXContainerItemProxy */;
 		};
@@ -1498,7 +1496,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueWallet-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1556,7 +1554,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueWallet-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,6";
