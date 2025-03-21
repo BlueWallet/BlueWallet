@@ -2,7 +2,6 @@ import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-nav
 import { useIsFocused, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { InteractionManager, StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
@@ -222,15 +221,9 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
   );
 
   const handleLongPress = useCallback(() => {
-    if (state.wallets.length > 1) {
-      drawerNavigation.navigate('DetailViewStackScreensStack', {
-        screen: 'ManageWallets',
-      });
-      drawerNavigation.closeDrawer();
-    } else {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-    }
-  }, [state.wallets.length, drawerNavigation]);
+    drawerNavigation.closeDrawer();
+    navigation.navigate('ManageWallets');
+  }, [navigation, drawerNavigation]);
 
   const onNewWalletPress = useCallback(() => {
     drawerNavigation.closeDrawer();
