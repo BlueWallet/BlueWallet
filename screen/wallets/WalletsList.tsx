@@ -527,7 +527,7 @@ const WalletsList: React.FC = () => {
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}
         renderSectionHeader={renderSectionHeader}
-        initialNumToRender={10} // Reduced from 20 to avoid rendering items off screen
+        initialNumToRender={10}
         renderSectionFooter={renderSectionFooter}
         sections={sections}
         windowSize={21}
@@ -535,6 +535,7 @@ const WalletsList: React.FC = () => {
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
         getItemLayout={getItemLayout}
+        ignoreTopInset={true} // Ignore top inset as the screen header already handles it
         {...refreshProps}
       />
       {renderScanButton()}

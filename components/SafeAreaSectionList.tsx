@@ -6,10 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface SafeAreaSectionListProps<ItemT, SectionT> extends SectionListProps<ItemT, SectionT> {
   floatingButtonHeight?: number;
+  ignoreTopInset?: boolean;
 }
 
 const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<ItemT, SectionT>) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 0, ...otherProps } = props;
+  const { style, contentContainerStyle, floatingButtonHeight = 0, ignoreTopInset = false, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -23,11 +24,11 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
         paddingBottom: insets.bottom + floatingButtonHeight, // Add extra padding for the floating button
         paddingRight: insets.right,
         paddingLeft: insets.left,
-        paddingTop: insets.top, // Use the actual top inset value from safe area
+        paddingTop: ignoreTopInset ? 0 : insets.top,
       },
       contentContainerStyle,
     );
-  }, [insets, contentContainerStyle, floatingButtonHeight]);
+  }, [insets, contentContainerStyle, floatingButtonHeight, ignoreTopInset]);
 
   return (
     <SectionList
