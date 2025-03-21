@@ -28,6 +28,9 @@
     "Bitcoin price: %@" : {
 
     },
+    "Blue Wallet" : {
+
+    },
     "Brazil (Brazilian Real)" : {
 
     },
@@ -129,6 +132,9 @@
 
     },
     "From %@" : {
+
+    },
+    "Get Started" : {
 
     },
     "Ghana (Ghanaian Cedi)" : {
@@ -377,6 +383,9 @@
       }
     },
     "Wallet and Market" : {
+
+    },
+    "Welcome to your Bitcoin wallet" : {
 
     }
   },

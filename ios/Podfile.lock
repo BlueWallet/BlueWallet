@@ -1343,7 +1343,7 @@ PODS:
     - Yoga
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (5.2.0):
+  - react-native-safe-area-context (5.3.0):
     - React-Core
   - react-native-screen-capture (0.2.3):
     - React
@@ -2281,7 +2281,7 @@ SPEC CHECKSUMS:
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
   react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
-  react-native-safe-area-context: 3e33e7c43c8b74dba436a5a32651cb8d7064c740
+  react-native-safe-area-context: fdb0a66feac038cb6eb1edafcf2ccee2b5cf0284
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
