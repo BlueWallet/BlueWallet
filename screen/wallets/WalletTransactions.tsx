@@ -80,6 +80,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
+    listFooterStyle: {
+      height: '100%',
+      backgroundColor: colors.background,
+    },
   });
 
   useFocusEffect(
@@ -209,7 +213,18 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const isLightning = useCallback((): boolean => wallet?.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return wallet && wallet.getTransactions().length > limit ? <ActivityIndicator style={styles.activityIndicator} /> : <View />;
+    return wallet && wallet.getTransactions().length > limit ? (
+      <ActivityIndicator
+        style={[
+          styles.activityIndicator,
+          {
+            backgroundColor: colors.background,
+          },
+        ]}
+      />
+    ) : (
+      <View style={stylesHook.listFooterStyle} />
+    );
   };
 
   const navigateToSendScreen = () => {
@@ -566,6 +581,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           minIndexForVisible: 0,
         }}
       />
+
       <FContainer ref={walletActionButtonsRef}>
         {wallet?.allowReceive() && (
           <FButton
@@ -613,7 +629,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 export default WalletTransactions;
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: { flex: 1, height: '100%', minHeight: '100%' },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
@@ -623,7 +639,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 140,
+    height: '100%',
   },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
