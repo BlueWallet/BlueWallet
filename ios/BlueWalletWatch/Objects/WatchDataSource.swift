@@ -3,6 +3,7 @@
 import Foundation
 import WatchConnectivity
 import Security
+import Combine
 import ClockKit
 
 struct NotificationName {
@@ -12,34 +13,33 @@ struct Notifications {
   static let dataUpdated = Notification(name: NotificationName.dataUpdated)
 }
 
+/// Represents the group user defaults keys.
+/// Ensure these match the keys used in your iOS app for sharing data.
+
 /// Handles WatchConnectivity and data synchronization between iOS and Watch apps.
-class WatchDataSource: NSObject, WCSessionDelegate {
+class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     // MARK: - Singleton Instance
   
-    static func postDataUpdatedNotification() {
-        NotificationCenter.default.post(Notifications.dataUpdated)
+  static func postDataUpdatedNotification() {
+      NotificationCenter.default.post(Notifications.dataUpdated)
     }
+
     
     static let shared = WatchDataSource()
     
-    // MARK: - Properties
+    // MARK: - Published Properties
     
     /// The list of wallets to be displayed on the Watch app.
-    var wallets: [Wallet] = [] {
-        didSet {
-            // When wallets are updated, save to keychain and refresh complications
-            saveWalletsToKeychain()
-            reloadComplications()
-        }
-    }
+    @Published var wallets: [Wallet] = []
     
-    var isDataLoaded: Bool = false
+    @Published var isDataLoaded: Bool = false
     
     // MARK: - Private Properties
     
     private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     private let keychain = KeychainHelper.shared
     private let session: WCSession
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
@@ -53,8 +53,9 @@ class WatchDataSource: NSObject, WCSessionDelegate {
         self.session = WCSession.default
         super.init()
         
-        // Set delegate before trying to load data
+        // Set delegate and setup bindings before trying to load data
         self.session.delegate = self
+        setupBindings()
         
         // Load cached data from keychain to show something while waiting for fresh data
         loadKeychainData()
@@ -82,6 +83,19 @@ class WatchDataSource: NSObject, WCSessionDelegate {
         // Handle any necessary cleanup here.
     }
     
+    // MARK: - Data Binding
+    
+    /// Sets up bindings to observe changes to `wallets` and perform actions accordingly.
+    private func setupBindings() {
+        // Observe changes to wallets and perform actions if needed.
+        $wallets
+            .sink { [weak self] updatedWallets in
+                self?.saveWalletsToKeychain()
+                self?.reloadComplications()
+            }
+            .store(in: &cancellables)
+    }
+    
     // MARK: - Keychain Operations
     
     /// Loads wallets data from the Keychain asynchronously.
@@ -97,15 +111,12 @@ class WatchDataSource: NSObject, WCSessionDelegate {
             // Filter wallets to include only on-chain wallets.
             let onChainWallets = decodedWallets.filter { $0.chain == .onchain }
             
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+            DispatchQueue.main.async {
                 if onChainWallets != self.wallets {
                     self.wallets = onChainWallets
                     print("Loaded \(onChainWallets.count) on-chain wallets from Keychain.")
                 }
                 self.isDataLoaded = true
-                // Post notification about data update
-                WatchDataSource.postDataUpdatedNotification()
             }
         }
     }
@@ -294,7 +305,7 @@ class WatchDataSource: NSObject, WCSessionDelegate {
             processedWallets.append(wallet)
         }
         
-        // Update the `wallets` property on the main thread.
+        // Update the published `wallets` property on the main thread.
         DispatchQueue.main.async { [weak self] in
             self?.wallets = processedWallets
             print("Updated wallets from received context.")
@@ -381,8 +392,8 @@ class WatchDataSource: NSObject, WCSessionDelegate {
     /// - Parameters:
     ///   - walletIdentifier: The index of the wallet in the `wallets` array.
     ///   - hideBalance: A boolean indicating whether to hide the balance.
-    func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
-        guard wallets.indices.contains(walletIdentifier.hashValue) else {
+  func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
+    guard wallets.indices.contains(walletIdentifier.hashValue) else {
             responseHandler(false)
             return
         }
