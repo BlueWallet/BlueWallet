@@ -1,7 +1,6 @@
 /* global jest */
 
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
-import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 
 const consoleWarnOrig = console.warn;
 console.warn = (...args) => {
@@ -268,7 +267,5 @@ const mockKeychain = {
 jest.mock('react-native-keychain', () => mockKeychain);
 
 jest.mock('react-native-tcp-socket', () => mockKeychain);
-
-jest.mock('react-native-safe-area-context', () => mockSafeAreaContext);
 
 global.alert = () => {};
