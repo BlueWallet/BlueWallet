@@ -10,13 +10,16 @@ import {
   fiatToBTC,
   getCurrencySymbol,
   isRateOutdated,
+  localeSettings,
+  formatNumberLocale,
   mostRecentFetchedRate,
   satoshiToBTC,
+  satoshiToLocalCurrency,
   updateExchangeRate,
 } from '../blue_modules/currency';
 import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
-import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
+import loc, { parseNumberStringToFloat } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useTheme } from './themes';
 
@@ -86,29 +89,83 @@ class AmountInput extends Component {
     const amount = this.props.amount || 0;
     const log = `${amount}(${previousUnit}) ->`;
     let sats = 0;
+
+    // Parse the amount using locale-aware parsing
+    const numericAmount = parseNumberStringToFloat(amount.toString());
+
+    // Convert the value to satoshis based on the unit
     switch (previousUnit) {
       case BitcoinUnit.BTC:
-        sats = new BigNumber(amount).multipliedBy(100000000).toString();
+        sats = new BigNumber(numericAmount).multipliedBy(100000000).toString();
         break;
-      case BitcoinUnit.SATS:
-        sats = amount;
+      case BitcoinUnit.SATS: {
+        // For SATS, remove any locale-specific separators before parsing
+        const satsValue = amount.toString().replace(new RegExp(`\\${localeSettings.groupSeparator}`, 'g'), '');
+        sats = parseInt(satsValue, 10);
         break;
+      }
       case BitcoinUnit.LOCAL_CURRENCY:
-        sats = new BigNumber(fiatToBTC(amount)).multipliedBy(100000000).toString();
+        sats = new BigNumber(fiatToBTC(numericAmount)).multipliedBy(100000000).toString();
         break;
     }
+
     if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[amount + previousUnit]) {
       // cache hit! we reuse old value that supposedly doesnt have rounding errors
       sats = AmountInput.conversionCache[amount + previousUnit];
     }
 
-    const newInputValue = formatBalancePlain(sats, newUnit, false);
+    // Format the output based on the new unit and locale
+    let newInputValue;
+    if (newUnit === BitcoinUnit.BTC) {
+      // For BTC, use locale's decimal separator
+      const btcValue = new BigNumber(sats).dividedBy(100000000);
+
+      // Format with locale settings
+      newInputValue = btcValue.toFormat(8, {
+        decimalSeparator: localeSettings.decimalSeparator,
+        groupSeparator: '',
+        groupSize: 3,
+      });
+
+      // Remove trailing zeros
+      while (newInputValue.endsWith('0')) {
+        newInputValue = newInputValue.slice(0, -1);
+      }
+      if (newInputValue.endsWith(localeSettings.decimalSeparator)) {
+        newInputValue = newInputValue.slice(0, -1);
+      }
+    } else if (newUnit === BitcoinUnit.SATS) {
+      // For SATS, use locale's group separator
+      const satsInt = parseInt(sats);
+      newInputValue = new Intl.NumberFormat(localeSettings.deviceLocale, {
+        useGrouping: true,
+        maximumFractionDigits: 0,
+      }).format(satsInt);
+    } else if (newUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      // For local currency, use the locale-aware formatter
+      const localAmount = satoshiToLocalCurrency(sats, false); // Get raw number without formatting
+
+      try {
+        // Format the amount with the locale's decimal separator
+        const numAmount = parseFloat(localAmount);
+        newInputValue = new Intl.NumberFormat(localeSettings.deviceLocale, {
+          useGrouping: false, // We'll add grouping later as needed
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(numAmount);
+      } catch (error) {
+        // Fallback if formatting fails
+        newInputValue = localAmount;
+      }
+    }
+
     console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
       // we cache conversion, so when we will need reverse conversion there wont be a rounding error
       AmountInput.conversionCache[newInputValue + newUnit] = amount;
     }
+
     this.props.onChangeText(newInputValue);
     this.props.onAmountUnitChange(newUnit);
   }
@@ -138,6 +195,8 @@ class AmountInput extends Component {
         return 11;
       case BitcoinUnit.SATS:
         return 15;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        return undefined; // No limit for local currency
       default:
         return 15;
     }
@@ -153,42 +212,249 @@ class AmountInput extends Component {
 
   handleChangeText = text => {
     text = text.trim();
-    if (this.props.unit !== BitcoinUnit.LOCAL_CURRENCY) {
-      text = text.replace(',', '.');
-      const split = text.split('.');
-      if (split.length >= 2) {
-        text = `${parseInt(split[0], 10)}.${split[1]}`;
-      } else {
-        text = `${parseInt(split[0], 10)}`;
+
+    if (text === '') {
+      this.props.onChangeText('');
+      return;
+    }
+
+    const { decimalSeparator, deviceLocale } = localeSettings; // Remove unused groupSeparator
+
+    if (this.props.unit === BitcoinUnit.BTC) {
+      // Allow user to input either with their locale format or with standard formats
+      // This regex accepts both dot and comma as potential decimal separators, and spaces/dots/commas as group separators
+      const rawText = text.replace(/[^\d., ]/g, '');
+
+      // We need to determine which separator the user is using as decimal
+      let userDecimalSeparator = decimalSeparator;
+
+      // If there's both a dot and a comma, determine which is the decimal separator based on position
+      if (rawText.includes('.') && rawText.includes(',')) {
+        const lastDotIndex = rawText.lastIndexOf('.');
+        const lastCommaIndex = rawText.lastIndexOf(',');
+
+        // The one that appears last is likely the decimal separator
+        userDecimalSeparator = lastDotIndex > lastCommaIndex ? '.' : ',';
+      } else if (rawText.includes('.')) {
+        userDecimalSeparator = '.';
+      } else if (rawText.includes(',')) {
+        userDecimalSeparator = ',';
       }
 
-      text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+      // Now process based on the determined decimal separator
+      const parts = rawText.split(userDecimalSeparator);
+      let integerPart = parts[0];
+      const decimalPart = parts.length > 1 ? parts.slice(1).join('') : undefined;
 
-      if (text.startsWith('.')) {
-        text = '0.';
+      // Remove any non-digit characters from integer part (all separators)
+      integerPart = integerPart.replace(/[^\d]/g, '');
+
+      // Limit decimal precision to 8 places for BTC
+      let formattedDecimalPart = decimalPart;
+      if (formattedDecimalPart && formattedDecimalPart.length > 8) {
+        formattedDecimalPart = formattedDecimalPart.substring(0, 8);
+      }
+
+      // Format integer part with locale-appropriate group separators
+      let formattedIntegerPart;
+      if (integerPart) {
+        formattedIntegerPart = new Intl.NumberFormat(deviceLocale, {
+          useGrouping: true,
+          maximumFractionDigits: 0,
+        }).format(parseInt(integerPart, 10));
+      } else {
+        formattedIntegerPart = '0';
+      }
+
+      // Reconstruct with the locale's decimal separator
+      const formattedText =
+        formattedDecimalPart !== undefined ? `${formattedIntegerPart}${decimalSeparator}${formattedDecimalPart}` : formattedIntegerPart;
+
+      this.props.onChangeText(formattedText);
+    } else if (this.props.unit === BitcoinUnit.SATS) {
+      text = text.trim();
+
+      if (text === '') {
+        this.props.onChangeText('');
+        return;
+      }
+
+      const { decimalSeparator, groupSeparator, deviceLocale } = localeSettings;
+
+      if (this.props.unit === BitcoinUnit.BTC) {
+        // For BTC - strictly follow device's locale format
+
+        // Allow only digits and the locale-specific decimal separator
+        let rawText = text.replace(new RegExp(`[^\\d${decimalSeparator}${groupSeparator}]`, 'g'), '');
+
+        // Handle multiple decimal separators - keep only the first one
+        const sepParts = rawText.split(decimalSeparator);
+        if (sepParts.length > 2) {
+          rawText = sepParts[0] + decimalSeparator + sepParts.slice(1).join('');
+        }
+
+        // Split the number into integer and decimal parts
+        let [integerPart, decimalPart] = rawText.split(decimalSeparator);
+
+        // Remove any existing group separators from integer part
+        integerPart = integerPart.replace(new RegExp(`\\${groupSeparator}`, 'g'), '');
+
+        // Limit decimal precision to 8 places for BTC
+        if (decimalPart && decimalPart.length > 8) {
+          decimalPart = decimalPart.substring(0, 8);
+        }
+
+        // Format integer part with locale-appropriate group separators
+        let formattedInteger;
+        if (integerPart) {
+          formattedInteger = new Intl.NumberFormat(deviceLocale, {
+            useGrouping: true,
+            maximumFractionDigits: 0,
+          }).format(parseInt(integerPart, 10));
+        } else {
+          formattedInteger = '0';
+        }
+
+        // Reconstruct the formatted text
+        const formattedText = decimalPart !== undefined ? `${formattedInteger}${decimalSeparator}${decimalPart}` : formattedInteger;
+
+        this.props.onChangeText(formattedText);
+      } else if (this.props.unit === BitcoinUnit.SATS) {
+        // For SATS - follow device's locale for grouping
+
+        // Remove any non-numeric and non-grouping characters
+        const rawText = text.replace(new RegExp(`[^\\d${groupSeparator}]`, 'g'), '');
+
+        // Remove any existing group separators
+        const digitsOnly = rawText.replace(new RegExp(`\\${groupSeparator}`, 'g'), '');
+
+        if (digitsOnly === '') {
+          this.props.onChangeText('');
+          return;
+        }
+
+        // Format with locale-appropriate thousand separators
+        const formattedText = new Intl.NumberFormat(deviceLocale, {
+          useGrouping: true,
+          maximumFractionDigits: 0,
+        }).format(parseInt(digitsOnly, 10));
+
+        this.props.onChangeText(formattedText);
+      } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
+        // For fiat currency - strictly follow locale's number format
+        try {
+          // Extract digits and locale-specific separators
+          const filteredText = text.replace(new RegExp(`[^\\d${decimalSeparator}${groupSeparator}]`, 'g'), '');
+
+          // Count decimal separators
+          const decimalCount = (filteredText.match(new RegExp(`\\${decimalSeparator}`, 'g')) || []).length;
+
+          // If we have too many decimal separators, revert to previous valid input
+          if (decimalCount > 1) {
+            this.props.onChangeText(this.props.amount || '');
+            return;
+          }
+
+          // Split the text into integer and decimal parts
+          let [integerPart, decimalPart] = filteredText.split(decimalSeparator);
+
+          // Remove any group separators from the integer part
+          integerPart = integerPart.replace(new RegExp(`\\${groupSeparator}`, 'g'), '');
+
+          // Limit decimal precision to 2 places for fiat
+          if (decimalPart && decimalPart.length > 2) {
+            decimalPart = decimalPart.substring(0, 2);
+          }
+
+          // Format the integer part with appropriate group separators
+          let formattedInteger;
+          if (integerPart === '' || integerPart === '0') {
+            formattedInteger = '0';
+          } else {
+            formattedInteger = new Intl.NumberFormat(deviceLocale, {
+              useGrouping: true,
+              maximumFractionDigits: 0,
+            }).format(parseInt(integerPart, 10));
+          }
+
+          // Put it all together with the proper separators
+          let formattedText;
+          if (decimalPart !== undefined) {
+            formattedText = `${formattedInteger}${decimalSeparator}${decimalPart}`;
+          } else if (text.endsWith(decimalSeparator)) {
+            formattedText = `${formattedInteger}${decimalSeparator}`;
+          } else {
+            formattedText = formattedInteger;
+          }
+
+          this.props.onChangeText(formattedText);
+        } catch (error) {
+          console.error('Error formatting local currency:', error);
+          this.props.onChangeText(text);
+        }
       }
     } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
-      text = text.replace(/,/gi, '.');
-      if (text.split('.').length > 2) {
-        // too many dots. stupid code to remove all but first dot:
-        let rez = '';
-        let first = true;
-        for (const part of text.split('.')) {
-          rez += part;
-          if (first) {
-            rez += '.';
-            first = false;
-          }
+      // For fiat currency - use a more flexible approach to accept different formats
+      try {
+        // Accept any combination of digits, dots, commas and spaces
+        const filteredText = text.replace(/[^\d., ]/g, '');
+
+        // Try to detect which separator the user is using as decimal
+        let userDecimalSeparator = decimalSeparator;
+
+        // If there's both a dot and a comma, determine which is the decimal separator
+        if (filteredText.includes('.') && filteredText.includes(',')) {
+          const lastDotIndex = filteredText.lastIndexOf('.');
+          const lastCommaIndex = filteredText.lastIndexOf(',');
+
+          // The one that appears last is likely the decimal separator
+          userDecimalSeparator = lastDotIndex > lastCommaIndex ? '.' : ',';
+        } else if (filteredText.includes('.')) {
+          userDecimalSeparator = '.';
+        } else if (filteredText.includes(',')) {
+          userDecimalSeparator = ',';
         }
-        text = rez;
+
+        // Split based on the determined decimal separator
+        const parts = filteredText.split(userDecimalSeparator);
+        let integerPart = parts[0];
+        let decimalPart = parts.length > 1 ? parts.slice(1).join('') : undefined;
+
+        // Remove any non-digit characters from integer part
+        integerPart = integerPart.replace(/[^\d]/g, '');
+
+        // Limit decimal precision to 2 places for fiat
+        if (decimalPart && decimalPart.length > 2) {
+          decimalPart = decimalPart.substring(0, 2);
+        }
+
+        // Format integer part with locale-appropriate group separators
+        let formattedIntegerPart;
+        if (integerPart === '' || integerPart === '0') {
+          formattedIntegerPart = '0';
+        } else {
+          formattedIntegerPart = new Intl.NumberFormat(deviceLocale, {
+            useGrouping: true,
+            maximumFractionDigits: 0,
+          }).format(parseInt(integerPart, 10));
+        }
+
+        // Put it all together with the proper separators
+        let formattedText;
+        if (decimalPart !== undefined) {
+          formattedText = `${formattedIntegerPart}${decimalSeparator}${decimalPart}`;
+        } else if (text.includes(userDecimalSeparator) && parts.length > 1) {
+          formattedText = `${formattedIntegerPart}${decimalSeparator}`;
+        } else {
+          formattedText = formattedIntegerPart;
+        }
+
+        this.props.onChangeText(formattedText);
+      } catch (error) {
+        console.error('Error formatting local currency:', error);
+        this.props.onChangeText(text);
       }
-      if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
-        text = text.replace(/^(0+)/g, '');
-      }
-      text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
-      text = text.replace(/(\..*)\./g, '$1');
     }
-    this.props.onChangeText(text);
   };
 
   resetAmount = async () => {
@@ -223,30 +489,90 @@ class AmountInput extends Component {
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
-    let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
-
-    // if main display is sat or btc - secondary display is fiat
-    // if main display is fiat - secondary dislay is btc
+    let secondaryDisplayCurrency = '';
     let sat;
+
     switch (unit) {
       case BitcoinUnit.BTC:
-        sat = new BigNumber(amount).multipliedBy(100000000).toString();
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        try {
+          const btcValue = parseNumberStringToFloat(amount.toString());
+          if (isNaN(btcValue)) {
+            secondaryDisplayCurrency = satoshiToLocalCurrency(0, true);
+          } else {
+            sat = new BigNumber(btcValue).multipliedBy(100000000).toString();
+            secondaryDisplayCurrency = satoshiToLocalCurrency(sat, true);
+          }
+        } catch (error) {
+          console.error('Error formatting secondary display:', error);
+          secondaryDisplayCurrency = satoshiToLocalCurrency(0, true);
+        }
         break;
+
       case BitcoinUnit.SATS:
-        secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        try {
+          const plainSats = amount.toString().replace(new RegExp(`\\${localeSettings.groupSeparator}`, 'g'), '');
+
+          let satsValue;
+          try {
+            satsValue = parseInt(plainSats, 10);
+            if (isNaN(satsValue)) satsValue = 0;
+          } catch (e) {
+            satsValue = 0;
+          }
+
+          secondaryDisplayCurrency = satoshiToLocalCurrency(satsValue, true);
+        } catch (error) {
+          secondaryDisplayCurrency = satoshiToLocalCurrency(0, true);
+        }
         break;
+
       case BitcoinUnit.LOCAL_CURRENCY:
-        secondaryDisplayCurrency = fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
-        if (AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesn't have rounding errors
-          const sats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
-          secondaryDisplayCurrency = satoshiToBTC(sats);
+        try {
+          let fiatValue = 0;
+          try {
+            fiatValue = parseNumberStringToFloat(amount.toString());
+            if (isNaN(fiatValue)) fiatValue = 0;
+          } catch (e) {
+            // Default to 0
+          }
+
+          let btcValue = '0';
+
+          if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+            const sats = AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
+            btcValue = satoshiToBTC(sats);
+          } else {
+            try {
+              btcValue = fiatToBTC(fiatValue);
+            } catch (e) {
+              btcValue = '0';
+            }
+          }
+
+          try {
+            const numBtcValue = parseFloat(btcValue);
+            if (!isNaN(numBtcValue)) {
+              secondaryDisplayCurrency = new Intl.NumberFormat(localeSettings.deviceLocale, {
+                maximumFractionDigits: 8,
+                minimumFractionDigits: 2,
+              }).format(numBtcValue);
+            } else {
+              secondaryDisplayCurrency = '0';
+            }
+          } catch (e) {
+            secondaryDisplayCurrency = '0';
+          }
+        } catch (error) {
+          secondaryDisplayCurrency = '0';
         }
         break;
     }
 
-    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we don't want to display NaN
+    if (secondaryDisplayCurrency === 'NaN' || secondaryDisplayCurrency.includes('NaN')) {
+      secondaryDisplayCurrency = unit === BitcoinUnit.LOCAL_CURRENCY ? '0' : satoshiToLocalCurrency(0, true);
+    }
+
+    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = '';
 
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
@@ -292,7 +618,7 @@ class AmountInput extends Component {
                     maxLength={this.maxLength()}
                     ref={textInput => (this.textInput = textInput)}
                     editable={!this.props.isLoading && !disabled}
-                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : String(amount)}
                     placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
                     style={[styles.input, stylesHook.input]}
                   />
@@ -307,9 +633,7 @@ class AmountInput extends Component {
               </View>
               <View style={styles.secondaryRoot}>
                 <Text style={styles.secondaryText}>
-                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                    ? removeTrailingZeros(secondaryDisplayCurrency)
-                    : secondaryDisplayCurrency}
+                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? secondaryDisplayCurrency : secondaryDisplayCurrency}
                   {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
                 </Text>
               </View>

@@ -378,6 +378,126 @@ function _setSkipUpdateExchangeRate(): void {
   skipUpdateExchangeRate = true;
 }
 
+/**
+ * Utility to get the device's locale information for number formatting
+ */
+export function getLocaleNumberSettings() {
+  try {
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    const formatter = new Intl.NumberFormat(deviceLocale);
+    const formattedNumber = formatter.format(1234.5);
+
+    let decimalSeparator = '.';
+    let groupSeparator = ',';
+
+    const decimalPosition = formattedNumber.indexOf('4') + 1;
+    if (decimalPosition > 0 && decimalPosition < formattedNumber.length) {
+      decimalSeparator = formattedNumber.charAt(decimalPosition);
+    }
+
+    const thousandsPosition = formattedNumber.indexOf('1') + 1;
+    if (thousandsPosition > 0 && thousandsPosition < formattedNumber.length) {
+      const potentialSeparator = formattedNumber.charAt(thousandsPosition);
+      if (!/\d/.test(potentialSeparator) && potentialSeparator !== decimalSeparator) {
+        groupSeparator = potentialSeparator;
+      }
+    }
+
+    const test = new Intl.NumberFormat(deviceLocale, {
+      useGrouping: true,
+    }).format(1000);
+
+    if (!test.includes(groupSeparator)) {
+      console.log(`Detected group separator "${groupSeparator}" not found in formatted test. Using default.`);
+    }
+
+    return {
+      deviceLocale,
+      decimalSeparator,
+      groupSeparator,
+      formatter,
+    };
+  } catch (error) {
+    console.error('Error detecting locale settings:', error);
+    return {
+      deviceLocale: 'en-US',
+      decimalSeparator: '.',
+      groupSeparator: ',',
+      formatter: new Intl.NumberFormat('en-US'),
+    };
+  }
+}
+
+// Cache the locale settings for performance
+export const localeSettings = (() => {
+  try {
+    return getLocaleNumberSettings();
+  } catch (e) {
+    console.error('Failed to get locale settings:', e);
+    return {
+      deviceLocale: 'en-US',
+      decimalSeparator: '.',
+      groupSeparator: ',',
+      formatter: new Intl.NumberFormat('en-US'),
+    };
+  }
+})();
+
+/**
+ * Formats a number according to the device's locale settings
+ */
+export function formatNumberLocale(amount: number | string, options: Intl.NumberFormatOptions = {}): string {
+  // Handle string or number input
+  let num: number;
+
+  if (typeof amount === 'string') {
+    // If it's already a string, try to parse it using more flexible rules
+    try {
+      // Accept both dot and comma as decimal separators
+      const cleaned = amount.replace(/[^\d.,\s-]/g, '');
+      
+      // Detect which separator might be the decimal separator
+      let userDecimalSeparator = localeSettings.decimalSeparator;
+      
+      if (cleaned.includes('.') && cleaned.includes(',')) {
+        const lastDotIndex = cleaned.lastIndexOf('.');
+        const lastCommaIndex = cleaned.lastIndexOf(',');
+        
+        // The one that appears last is likely the decimal separator
+        userDecimalSeparator = lastDotIndex > lastCommaIndex ? '.' : ',';
+      } else if (cleaned.includes('.')) {
+        userDecimalSeparator = '.';
+      } else if (cleaned.includes(',')) {
+        userDecimalSeparator = ',';
+      }
+      
+      // Split based on the determined decimal separator
+      const parts = cleaned.split(userDecimalSeparator);
+      const integerPart = parts[0].replace(/[^\d-]/g, ''); // Remove any non-digit chars
+      const decimalPart = parts.length > 1 ? parts[1].replace(/\D/g, '') : '';
+      
+      // Reconstruct with dot as decimal separator for JS parsing
+      const normalized = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+      
+      num = parseFloat(normalized);
+    } catch (e) {
+      console.error('Error parsing number:', e);
+      num = 0;
+    }
+  } else {
+    num = amount;
+  }
+
+  if (isNaN(num)) return '0';
+
+  try {
+    return new Intl.NumberFormat(localeSettings.deviceLocale, options).format(num);
+  } catch (error) {
+    console.error('Error formatting with locale:', error);
+    return num.toString();
+  }
+}
+
 export {
   _setExchangeRate,
   _setPreferredFiatCurrency,

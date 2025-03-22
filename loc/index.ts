@@ -7,7 +7,7 @@ import Localization, { LocalizedStrings } from 'react-localization';
 import { I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
-import { satoshiToLocalCurrency } from '../blue_modules/currency';
+import { satoshiToLocalCurrency, localeSettings } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import enJson from './en.json';
@@ -307,6 +307,152 @@ export const removeTrailingZeros = (value: number | string): string => {
 };
 
 /**
+ * Parses a number string according to locale-aware rules
+ * @param {string} numStr - The string representation of a number
+ * @returns {number} The parsed float value
+ */
+export function parseNumberStringToFloat(numStr: string): number {
+  if (!numStr) return NaN;
+
+  const { decimalSeparator, groupSeparator } = localeSettings; // Remove unused deviceLocale
+  
+  // First try the straightforward approach using the locale
+  try {
+    // First clean the string of any characters we know aren't part of number format
+    const cleaned = numStr.replace(/[^\d.,\s-]/g, '');
+    
+    // Try using Intl.NumberFormat to parse according to locale
+    // We need to normalize the string to work with NumberFormat.format()
+    
+    // Replace all group separators
+    let normalized = cleaned.replace(new RegExp(`\\${groupSeparator}`, 'g'), '');
+    
+    // Replace decimal separator with a period for JS parsing
+    if (decimalSeparator !== '.') {
+      normalized = normalized.replace(new RegExp(`\\${decimalSeparator}`, 'g'), '.');
+    }
+    
+    const result = parseFloat(normalized);
+    if (!isNaN(result)) {
+      return result;
+    }
+  } catch (e) {
+    // Fall through to more robust parsing if this fails
+  }
+
+  // More robust parsing as fallback
+  // Clean the input string but keep separators
+  const cleanedStr = numStr.replace(/[^\d.,'-]/g, '');
+  if (!cleanedStr) return NaN;
+
+  // Try parsing with Number directly (handles standard format)
+  const standardParse = Number(cleanedStr);
+  if (!isNaN(standardParse)) return standardParse;
+
+  // Detect format pattern
+  const hasDot = cleanedStr.includes('.');
+  const hasComma = cleanedStr.includes(',');
+
+  if (hasDot && hasComma) {
+    // Both separators exist - determine which is decimal vs. thousands
+    const lastDotIndex = cleanedStr.lastIndexOf('.');
+    const lastCommaIndex = cleanedStr.lastIndexOf(',');
+
+    if (lastDotIndex > lastCommaIndex) {
+      // Format like 1,000.00 (US format)
+      const withoutThousands = cleanedStr.replace(/,/g, '');
+      return Number(withoutThousands);
+    } else {
+      // Format like 1.000,00 (European format)
+      const converted = cleanedStr.replace(/\./g, '').replace(',', '.');
+      return Number(converted);
+    }
+  } else if (hasComma && !hasDot) {
+    // Only comma exists - check against locale settings
+    if (decimalSeparator === ',') {
+      // In locales where comma is the decimal separator
+      return Number(cleanedStr.replace(',', '.'));
+    } else {
+      // In locales where comma might be the thousands separator
+      return Number(cleanedStr.replace(/,/g, ''));
+    }
+  } else if (hasDot && !hasComma) {
+    // Only dots exist - check against locale settings
+    if (decimalSeparator === '.') {
+      // In locales where dot is the decimal separator
+      return Number(cleanedStr);
+    } else {
+      // In locales where dot might be the thousands separator
+      const parts = cleanedStr.split('.');
+      if (parts.length > 1) {
+        // Assume last dot is decimal if there are multiple
+        return Number(cleanedStr.replace(/\./g, '').replace(/(.+)([0-9]{1,2})$/, '$1.$2'));
+      }
+      // Otherwise, it's just removing the dot
+      return Number(cleanedStr.replace(/\./g, ''));
+    }
+  }
+
+  // Last attempt - try standard parsing
+  return Number(cleanedStr.replace(/[,.]/g, ''));
+}
+
+export function _leaveNumbersAndDots(newInputValue: string) {
+  if (!newInputValue) return '';
+
+  // Get locale separators
+  const { decimalSeparator } = localeSettings; // Remove unused groupSeparator
+
+  // Clean the input by removing all characters except digits and the decimal separator
+  const cleanInput = newInputValue.replace(new RegExp(`[^\\d${decimalSeparator}]`, 'g'), '');
+
+  if (!cleanInput) return '';
+
+  try {
+    // Try to parse the number to validate it
+    const numValue = parseNumberStringToFloat(cleanInput);
+
+    if (!isNaN(numValue)) {
+      // If we have a valid number, we need to determine if it has a decimal part
+      const hasDecimalPart = cleanInput.includes(decimalSeparator);
+
+      if (hasDecimalPart) {
+        // Split by the decimal separator to preserve the decimal part exactly as entered
+        const parts = cleanInput.split(decimalSeparator);
+        if (parts.length === 2) {
+          // Return in standard format with period as decimal separator for internal use
+          return `${parts[0]}.${parts[1]}`;
+        }
+      }
+
+      // If no decimal part or format is not recognized, just return the parsed number
+      return numValue.toString();
+    }
+  } catch (e) {
+    console.error('Error processing number input:', e);
+  }
+
+  // Fallback: Remove all non-digit characters except the first occurrence of the decimal separator
+  let result = '';
+  let hasAddedDecimalSeparator = false;
+
+  for (let i = 0; i < cleanInput.length; i++) {
+    const char = cleanInput[i];
+    if (/\d/.test(char)) {
+      // Always keep digits
+      result += char;
+    } else if ((char === '.' || char === ',') && !hasAddedDecimalSeparator) {
+      // Convert any decimal separator to standard period for internal use
+      result += '.';
+      hasAddedDecimalSeparator = true;
+    }
+    // Ignore all other characters
+  }
+
+  return result;
+}
+
+/**
  *
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js
@@ -358,21 +504,13 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
  */
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return _leaveNumbersAndDots(newInputValue.toString());
-}
 
-export function _leaveNumbersAndDots(newInputValue: string) {
-  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
-  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
-
-  if (newInputValue[newInputValue.length - 3] === ',') {
-    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
-    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  if (typeof newInputValue === 'number') {
+    return newInputValue.toString();
   }
-  newInputValue = newInputValue.replace(/,/gi, '');
 
-  return newInputValue;
+  // Use the enhanced _leaveNumbersAndDots function
+  return _leaveNumbersAndDots(newInputValue.toString());
 }
 
 /**
