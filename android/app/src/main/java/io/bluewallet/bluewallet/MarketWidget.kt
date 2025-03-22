@@ -103,7 +103,7 @@ class MarketWidget : AppWidgetProvider() {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_market_layout, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_market, pendingIntent)
             
             // Set the text for each view
             views.setTextViewText(R.id.next_block_value, marketData.formattedNextBlock)
