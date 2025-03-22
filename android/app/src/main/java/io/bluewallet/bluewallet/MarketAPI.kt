@@ -208,7 +208,7 @@ object MarketAPI {
             val response = fetchPriceWithResponse(context, currency)
             
             if (response.code == 429) {
-                throw MarketWidgetUpdateWorker.RateLimitException("Rate limited by price API")
+                throw WidgetUpdateWorker.RateLimitException("Rate limited by price API")
             }
             
             val priceStr = response.body
@@ -231,7 +231,7 @@ object MarketAPI {
             marketData.nextBlock = nextBlockFee
             
         } catch (e: Exception) {
-            if (e is MarketWidgetUpdateWorker.RateLimitException) throw e
+            if (e is WidgetUpdateWorker.RateLimitException) throw e
             Log.e(TAG, "Error fetching market data", e)
         }
         

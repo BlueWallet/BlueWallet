@@ -1,8 +1,11 @@
 package io.bluewallet.bluewallet
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.work.BackoffPolicy
@@ -36,6 +39,50 @@ class MarketWidget : AppWidgetProvider() {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
+        
+        fun updateAllWidgets(context: Context) {
+            val widgetIds = getAllWidgetIds(context)
+            if (widgetIds.isNotEmpty()) {
+                WidgetUpdateWorker.scheduleMarketUpdate(context, widgetIds)
+            }
+        }
+        
+        fun refreshAllWidgetsImmediately(context: Context) {
+            val widgetIds = getAllWidgetIds(context)
+            if (widgetIds.isNotEmpty()) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                for (widgetId in widgetIds) {
+                    updateAppWidget(context, appWidgetManager, widgetId)
+                }
+                
+                val data = androidx.work.Data.Builder()
+                    .putIntArray("widget_ids", widgetIds)
+                    .build()
+                    
+                val constraints = androidx.work.Constraints.Builder()
+                    .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                    .build()
+                    
+                val updateRequest = androidx.work.OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+                    .setConstraints(constraints)
+                    .setInputData(data)
+                    .build()
+                    
+                androidx.work.WorkManager.getInstance(context).enqueueUniqueWork(
+                    WidgetUpdateWorker.MARKET_WORK_NAME,
+                    androidx.work.ExistingWorkPolicy.REPLACE,
+                    updateRequest
+                )
+                
+                Log.d(TAG, "Scheduled immediate market widget update")
+            }
+        }
+        
+        fun getAllWidgetIds(context: Context): IntArray {
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val thisWidget = ComponentName(context, MarketWidget::class.java)
+            return appWidgetManager.getAppWidgetIds(thisWidget)
+        }
 
         private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             Log.d(TAG, "Updating widget: $appWidgetId")
@@ -45,6 +92,18 @@ class MarketWidget : AppWidgetProvider() {
             
             // Create RemoteViews to update the widget
             val views = RemoteViews(context.packageName, R.layout.widget_market)
+            
+            // Add click intent to open the app
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_market_layout, pendingIntent)
             
             // Set the text for each view
             views.setTextViewText(R.id.next_block_value, marketData.formattedNextBlock)
@@ -97,7 +156,7 @@ class MarketWidget : AppWidgetProvider() {
         }
         
         // Then schedule a work request to fetch fresh data
-        MarketWidgetUpdateWorker.scheduleUpdate(context, appWidgetIds)
+        WidgetUpdateWorker.scheduleMarketUpdate(context, appWidgetIds)
     }
 
     override fun onEnabled(context: Context) {
@@ -108,6 +167,6 @@ class MarketWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         Log.d(TAG, "MarketWidget disabled")
-        WorkManager.getInstance(context).cancelUniqueWork(MarketWidgetUpdateWorker.WORK_NAME)
+        WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.MARKET_WORK_NAME)
     }
 }
