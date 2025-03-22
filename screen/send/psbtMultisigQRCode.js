@@ -91,6 +91,7 @@ const PsbtMultisigQRCode = () => {
       testID="PsbtMultisigQRCodeScrollView"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
+      style={stylesHook.root}
       contentContainerStyle={[styles.scrollViewContent, stylesHook.root, styles.modalContentShort, stylesHook.modalContentShort]}
     >
       <TipBox

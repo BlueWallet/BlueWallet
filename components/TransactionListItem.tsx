@@ -24,6 +24,8 @@ import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 interface TransactionListItemProps {
   itemPriceUnit?: BitcoinUnit;
@@ -44,12 +46,16 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const menuRef = useRef<ToolTipMenuProps>();
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
     const { language, selectedBlockExplorer } = useSettings();
+    const insets = useSafeAreaInsets();
+    const { isLargeScreen } = useIsLargeScreen();
     const containerStyle = useMemo(
       () => ({
         backgroundColor: colors.background,
         borderBottomColor: colors.lightBorder,
+        paddingLeft: isLargeScreen ? insets.left : 16,
+        paddingRight: isLargeScreen ? insets.right : 16,
       }),
-      [colors.background, colors.lightBorder],
+      [colors.background, colors.lightBorder, isLargeScreen, insets],
     );
 
     const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);

@@ -1,9 +1,9 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
 import { isNotificationsCapable } from '../../blue_modules/notifications';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const NetworkSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
@@ -21,7 +21,7 @@ const NetworkSettings: React.FC = () => {
   };
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+    <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <ListItem title={loc.settings.block_explorer} onPress={navigateToBlockExplorerSettings} testID="BlockExplorerSettings" chevron />
       <ListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
       <ListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
@@ -33,7 +33,7 @@ const NetworkSettings: React.FC = () => {
           chevron
         />
       )}
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

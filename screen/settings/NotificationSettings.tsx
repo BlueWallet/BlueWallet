@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
+import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import {
   getDefaultUri,
@@ -26,6 +26,7 @@ import loc from '../../loc';
 import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -196,7 +197,7 @@ const NotificationSettings: React.FC = () => {
   };
 
   return (
-    <ScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+    <SafeAreaScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <ListItem
         Component={PressableWrapper}
         title={loc.settings.notifications}
@@ -267,7 +268,7 @@ const NotificationSettings: React.FC = () => {
       )}
       <BlueSpacing40 />
       <ListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

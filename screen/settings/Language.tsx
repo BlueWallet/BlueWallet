@@ -1,5 +1,4 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { FlatList, Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -7,6 +6,8 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
@@ -55,7 +56,7 @@ const Language = () => {
   };
 
   return (
-    <FlatList
+    <SafeAreaFlatList
       style={styles.flex}
       contentContainerStyle={stylesHook.content}
       keyExtractor={(_item, index) => `${index}`}

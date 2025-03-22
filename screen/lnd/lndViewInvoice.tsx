@@ -8,7 +8,6 @@ import { BlueLoading, BlueSpacing20, BlueText, BlueTextCentered } from '../../Bl
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -19,6 +18,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import BigNumber from 'bignumber.js';
 import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -27,7 +27,7 @@ type LNDViewInvoiceRouteParams = {
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
-  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
@@ -103,7 +103,6 @@ const LNDViewInvoice = () => {
     if (!wallet) {
       return;
     }
-    setSelectedWalletID(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
@@ -291,7 +290,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return <SafeArea onLayout={onLayout}>{render()}</SafeArea>;
+  return <SafeAreaScrollView onLayout={onLayout}>{render()}</SafeAreaScrollView>;
 };
 
 export default LNDViewInvoice;

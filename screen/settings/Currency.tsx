@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
 
 import {
   CurrencyRate,
@@ -18,6 +18,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 import { useSettings } from '../../hooks/context/useSettings';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 
 dayjs.extend(calendar);
 
@@ -168,7 +169,7 @@ const Currency: React.FC = () => {
 
   return (
     <View style={[styles.flex, stylesHook.flex]}>
-      <FlatList
+      <SafeAreaFlatList
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         automaticallyAdjustKeyboardInsets

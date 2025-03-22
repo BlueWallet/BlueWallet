@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect, createRef } from 'react';
 import {
   Animated,
   FlatList,
@@ -13,6 +13,8 @@ import {
   FlatListProps,
   ListRenderItemInfo,
   ViewStyle,
+  LayoutAnimation,
+  UIManager,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlueSpacing10 } from '../BlueComponents';
@@ -25,6 +27,10 @@ import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -136,6 +142,8 @@ interface WalletCarouselItemProps {
   animationsEnabled?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
+  isNewWallet?: boolean;
+  isExiting?: boolean;
 }
 
 const iStyles = StyleSheet.create({
@@ -211,8 +219,12 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     isPlaceHolder = false,
     onPressIn,
     onPressOut,
+    isNewWallet = false,
+    isExiting = false,
   }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
+    const opacityValue = useRef(new Animated.Value(isSelectedWallet === false ? 0.5 : 1.0)).current;
+    const translateYValue = useRef(new Animated.Value(isNewWallet ? 20 : 0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
@@ -226,6 +238,19 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       },
       [scaleValue, springConfig],
     );
+
+    useEffect(() => {
+      if (!animationsEnabled) return;
+
+      const targetOpacity = isSelectedWallet === false ? 0.5 : 1.0;
+      Animated.spring(opacityValue, {
+        toValue: targetOpacity,
+        useNativeDriver: true,
+        tension: 30,
+        friction: 7,
+        velocity: 0.1,
+      }).start();
+    }, [isSelectedWallet, opacityValue, animationsEnabled]);
 
     const onPressedIn = useCallback(() => {
       if (animationsEnabled) {
@@ -245,7 +270,40 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       onPress(item);
     }, [item, onPress]);
 
-    const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+    useEffect(() => {
+      if (isNewWallet && animationsEnabled) {
+        Animated.parallel([
+          Animated.timing(translateYValue, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.spring(opacityValue, {
+            toValue: isSelectedWallet === false ? 0.5 : 1.0,
+            useNativeDriver: true,
+            friction: 7,
+          }),
+        ]).start();
+      }
+    }, [isNewWallet, animationsEnabled, translateYValue, opacityValue, isSelectedWallet]);
+
+    useEffect(() => {
+      if (isExiting && animationsEnabled) {
+        Animated.parallel([
+          Animated.timing(translateYValue, {
+            toValue: -20,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityValue, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    }, [isExiting, animationsEnabled, translateYValue, opacityValue]);
+
     let image;
     switch (item.type) {
       case LightningCustodianWallet.type:
@@ -273,7 +331,10 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       <Animated.View
         style={[
           isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
-          { opacity, transform: [{ scale: scaleValue }] },
+          {
+            opacity: opacityValue,
+            transform: [{ scale: scaleValue }, { translateY: translateYValue }],
+          },
         ]}
       >
         <Pressable
@@ -342,6 +403,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   scrollEnabled?: boolean;
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  animateChanges?: boolean;
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -381,10 +443,196 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     searchQuery,
     renderHighlightedText,
     isFlatList = true,
+    animateChanges = false,
   } = props;
 
   const { width } = useWindowDimensions();
   const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+
+  const prevDataLength = useRef(data.length);
+  const prevWalletIds = useRef<string[]>([]);
+  const newWalletsMap = useRef<Record<string, boolean>>({});
+  const lastAddedWalletId = useRef<string | null>(null);
+  const hasFocusedRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
+
+  const flatListRef = useRef<FlatList<any>>(null);
+  const walletRefs = useRef<Record<string, React.RefObject<View>>>({});
+
+  useImperativeHandle(ref, (): any => {
+    if (isFlatList) {
+      return {
+        scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
+        scrollToIndex: (params: {
+          animated?: boolean | null | undefined;
+          index: number;
+          viewOffset?: number | undefined;
+          viewPosition?: number | undefined;
+        }) => flatListRef.current?.scrollToIndex(params),
+        scrollToItem: (params: {
+          animated?: boolean | null | undefined;
+          item: any;
+          viewOffset?: number | undefined;
+          viewPosition?: number | undefined;
+        }) => flatListRef.current?.scrollToItem(params),
+        scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
+        recordInteraction: () => flatListRef.current?.recordInteraction(),
+        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+        getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+      };
+    } else {
+      // For non-FlatList mode, we'll return simpler methods to get/set information
+      // but not actually handle scrolling (leaving that to the parent drawer)
+      return {
+        scrollToEnd: () => console.debug('[WalletsCarousel] scrollToEnd not implemented for non-FlatList'),
+        scrollToIndex: () => console.debug('[WalletsCarousel] scrollToIndex not implemented for non-FlatList'),
+        scrollToItem: () => console.debug('[WalletsCarousel] scrollToItem not implemented for non-FlatList'),
+        scrollToOffset: () => console.debug('[WalletsCarousel] scrollToOffset not implemented for non-FlatList'),
+        recordInteraction: () => {},
+        flashScrollIndicators: () => {},
+        getNativeScrollRef: () => null,
+        // Add a method to get position information about a wallet
+        getWalletPosition: (walletId: string) => {
+          const walletRef = walletRefs.current[walletId];
+          if (walletRef?.current) {
+            return new Promise<{ x: number; y: number; width: number; height: number }>(resolve => {
+              walletRef.current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
+                resolve({ x: pageX, y: pageY, width: widthVal, height: heightVal });
+              });
+            });
+          }
+          return Promise.resolve(null);
+        },
+      };
+    }
+  }, [isFlatList]);
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    data.forEach(wallet => {
+      if (!walletRefs.current[wallet.getID()]) {
+        walletRefs.current[wallet.getID()] = createRef<View>();
+      }
+    });
+  }, [data]);
+
+  const scrollToWalletById = useCallback(
+    (walletId: string, animated = true) => {
+      if (!walletId) return;
+
+      console.debug('[WalletsCarousel] Attempting to scroll to wallet:', walletId);
+
+      if (isFlatList && flatListRef.current) {
+        const walletIndex = data.findIndex(wallet => wallet.getID() === walletId);
+        if (walletIndex !== -1) {
+          try {
+            console.debug('[WalletsCarousel] Found wallet at index:', walletIndex, 'horizontal:', horizontal);
+            flatListRef.current.scrollToIndex({
+              index: walletIndex,
+              animated,
+              viewPosition: 0.5, // Center the wallet in the view
+            });
+          } catch (error) {
+            console.warn('[WalletsCarousel] Error scrolling to wallet:', error);
+            // Fallback: try scrolling to offset
+            // Use different measurement based on orientation
+            const itemSize = horizontal ? itemWidth : 195; // 195 is the approximate height of wallet card
+            flatListRef.current.scrollToOffset({
+              offset: itemSize * walletIndex,
+              animated,
+            });
+          }
+        }
+      } else if (!isFlatList) {
+        // For non-FlatList, just log the attempt
+        // The parent DrawerContentScrollView should handle this
+        const walletIndex = data.findIndex(wallet => wallet.getID() === walletId);
+        console.debug(
+          '[WalletsCarousel] Would scroll to wallet index:',
+          walletIndex,
+          'but leaving scrolling to parent DrawerContentScrollView',
+        );
+      }
+    },
+    [data, isFlatList, itemWidth, horizontal],
+  );
+
+  useEffect(() => {
+    if (animateChanges) {
+      const currentWalletIds = data.map(wallet => wallet.getID());
+
+      // Skip auto-scrolling on initial mount
+      if (isInitialMount.current) {
+        isInitialMount.current = false;
+        prevWalletIds.current = currentWalletIds;
+        prevDataLength.current = data.length;
+        return;
+      }
+
+      // Handle wallet additions
+      const addedWallets = currentWalletIds.filter(id => !prevWalletIds.current.includes(id));
+      if (addedWallets.length > 0) {
+        // Track last added wallet for animations and scrolling
+        lastAddedWalletId.current = addedWallets[addedWallets.length - 1];
+
+        addedWallets.forEach(id => {
+          newWalletsMap.current[id] = true;
+        });
+
+        // Always animate layout changes
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+        // Auto-scroll to new wallet after mount (no condition, always scroll)
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+
+        scrollTimeoutRef.current = setTimeout(() => {
+          // Add null check before calling scrollToWalletById
+          if (lastAddedWalletId.current !== null) {
+            scrollToWalletById(lastAddedWalletId.current, true);
+          }
+        }, 300);
+      }
+
+      // Handle wallet removals
+      if (prevDataLength.current > data.length) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
+
+      // Update refs for next comparison
+      prevWalletIds.current = currentWalletIds;
+      prevDataLength.current = data.length;
+
+      // Clear animation states
+      if (addedWallets.length > 0) {
+        setTimeout(() => {
+          addedWallets.forEach(id => {
+            delete newWalletsMap.current[id];
+          });
+          lastAddedWalletId.current = null;
+        }, 2000);
+      }
+    }
+  }, [data, animateChanges, scrollToWalletById]);
+
+  const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
+    console.debug('onScrollToIndexFailed', error);
+    flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
+    setTimeout(() => {
+      if (data.length !== 0 && flatListRef.current !== null) {
+        flatListRef.current.scrollToIndex({ index: error.index, animated: true });
+      }
+    }, 100);
+  };
 
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
@@ -397,52 +645,72 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           horizontal={horizontal}
           searchQuery={searchQuery}
           renderHighlightedText={renderHighlightedText}
+          isNewWallet={animateChanges && newWalletsMap.current[item.getID()]}
+          animationsEnabled={animateChanges}
         />
       ) : null,
-    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText],
+    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText, animateChanges],
   );
 
-  const flatListRef = useRef<FlatList<any>>(null);
-  useImperativeHandle(ref, (): any => {
-    return {
-      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-      scrollToIndex: (params: {
-        animated?: boolean | null | undefined;
-        index: number;
-        viewOffset?: number | undefined;
-        viewPosition?: number | undefined;
-      }) => flatListRef.current?.scrollToIndex(params),
-      scrollToItem: (params: {
-        animated?: boolean | null | undefined;
-        item: any;
-        viewOffset?: number | undefined;
-        viewPosition?: number | undefined;
-      }) => flatListRef.current?.scrollToItem(params),
-      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
-      recordInteraction: () => flatListRef.current?.recordInteraction(),
-      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
-    };
-  }, []);
-  const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
-    console.debug('onScrollToIndexFailed', error);
-    flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
-    setTimeout(() => {
-      if (data.length !== 0 && flatListRef.current !== null) {
-        flatListRef.current.scrollToIndex({ index: error.index, animated: true });
-      }
-    }, 100);
-  };
+  const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
 
   const sliderHeight = 195;
 
-  const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
+  useEffect(() => {
+    return () => {
+      hasFocusedRef.current = false;
+    };
+  }, []);
+
+  const renderNonFlatListWallets = useCallback(() => {
+    return data.map((item, index) =>
+      item ? (
+        <View
+          key={item.getID()}
+          ref={walletRefs.current[item.getID()]}
+          onLayout={() => {
+            if (walletRefs.current[item.getID()]?.current && newWalletsMap.current[item.getID()]) {
+              walletRefs.current[item.getID()].current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
+                console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
+              });
+            }
+          }}
+        >
+          <WalletCarouselItem
+            isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
+            item={item}
+            handleLongPress={handleLongPress}
+            onPress={onPress}
+            searchQuery={props.searchQuery}
+            renderHighlightedText={props.renderHighlightedText}
+            isNewWallet={animateChanges && newWalletsMap.current[item.getID()]}
+            animationsEnabled={animateChanges}
+          />
+        </View>
+      ) : null,
+    );
+  }, [data, horizontal, selectedWallet, handleLongPress, onPress, props.searchQuery, props.renderHighlightedText, animateChanges]);
+
+  useEffect(() => {
+    // We check the current values inside the effect, but don't include them as dependencies
+    if (!isFlatList && lastAddedWalletId.current !== null && !isInitialMount.current) {
+      // Use a slightly longer delay to ensure the ScrollView has fully rendered
+      const scrollDelay = setTimeout(() => {
+        console.debug('[WalletsCarousel] Attempting delayed scroll to:', lastAddedWalletId.current);
+        if (lastAddedWalletId.current !== null) {
+          scrollToWalletById(lastAddedWalletId.current, true);
+        }
+      }, 500);
+
+      return () => clearTimeout(scrollDelay);
+    }
+  }, [isFlatList, scrollToWalletById]); // Remove ref.current values from dependency array
 
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={data}
+      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]} // Include lastAddedWalletId in extraData
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={horizontal}
@@ -456,6 +724,10 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
       ListHeaderComponent={ListHeaderComponent}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      automaticallyAdjustsScrollIndicatorInsets
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
@@ -463,19 +735,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
-      {data.map((item, index) =>
-        item ? (
-          <WalletCarouselItem
-            isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
-            item={item}
-            handleLongPress={handleLongPress}
-            onPress={onPress}
-            key={index}
-            searchQuery={props.searchQuery}
-            renderHighlightedText={props.renderHighlightedText}
-          />
-        ) : null,
-      )}
+      {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
   );

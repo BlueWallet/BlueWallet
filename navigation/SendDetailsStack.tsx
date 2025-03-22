@@ -30,7 +30,7 @@ const SendDetailsStack = () => {
   );
 
   return (
-    <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false }}>
+    <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}>
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}

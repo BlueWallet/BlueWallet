@@ -1,21 +1,9 @@
 import React from 'react';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  container: Platform.select({
-    android: {
-      paddingTop: 50,
-    },
-    default: undefined,
-  }),
-});
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
@@ -24,12 +12,7 @@ const Settings = () => {
   const { language } = useSettings();
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={styles.container}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-    >
+    <SafeAreaScrollView>
       <ListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />
       <ListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
@@ -37,7 +20,7 @@ const Settings = () => {
       <ListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} testID="NetworkSettings" chevron />
       <ListItem title={loc.settings.tools} onPress={() => navigate('ToolsScreen')} testID="Tools" chevron />
       <ListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

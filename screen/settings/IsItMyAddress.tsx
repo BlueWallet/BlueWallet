@@ -13,6 +13,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -136,7 +137,7 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <ScrollView
+    <SafeAreaScrollView
       ref={scrollViewRef}
       contentContainerStyle={styles.wrapper}
       automaticallyAdjustContentInsets
@@ -205,7 +206,7 @@ const IsItMyAddress: React.FC = () => {
             </View>
           ))}
       </BlueCard>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

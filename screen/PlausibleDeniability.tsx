@@ -1,5 +1,4 @@
 import React, { useReducer, useRef } from 'react';
-import { ScrollView } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
 import presentAlert from '../components/Alert';
@@ -12,6 +11,7 @@ import PromptPasswordConfirmationModal, {
 } from '../components/PromptPasswordConfirmationModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { StackActions } from '@react-navigation/native';
+import SafeAreaScrollView from '../components/SafeAreaScrollView';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -91,7 +91,7 @@ const PlausibleDeniability: React.FC = () => {
   };
 
   return (
-    <ScrollView centerContent={state.isLoading} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+    <SafeAreaScrollView centerContent={state.isLoading}>
       {state.isLoading ? (
         <BlueLoading />
       ) : (
@@ -114,7 +114,7 @@ const PlausibleDeniability: React.FC = () => {
         onConfirmationSuccess={handleConfirmationSuccess}
         onConfirmationFailure={handleConfirmationFailure}
       />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

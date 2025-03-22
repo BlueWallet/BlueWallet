@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { SectionList, StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation } from 'react-native';
+import { StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation } from 'react-native';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
@@ -16,6 +16,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { useSettings } from '../../hooks/context/useSettings';
 import SettingsBlockExplorerCustomUrlItem from '../../components/SettingsBlockExplorerCustomUrlListItem';
 import { Header } from '../../components/Header';
+import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 
 type BlockExplorerItem = BlockExplorer | string;
 
@@ -185,7 +186,7 @@ const SettingsBlockExplorer: React.FC = () => {
   }, []);
 
   return (
-    <SectionList<BlockExplorerItem, SectionData>
+    <SafeAreaSectionList<BlockExplorerItem, SectionData>
       sections={sections}
       keyExtractor={(item, index) => {
         if (typeof item === 'string') {

@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useReducer } from 'react';
-import { ScrollView, TouchableWithoutFeedback, View } from 'react-native';
+import { TouchableWithoutFeedback, View } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
 import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type RootStackParamList = {
   SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };
@@ -94,7 +95,7 @@ const DefaultView: React.FC = () => {
   };
 
   return (
-    <ScrollView automaticallyAdjustContentInsets={false} contentInsetAdjustmentBehavior="automatic">
+    <SafeAreaScrollView automaticallyAdjustContentInsets={false} contentInsetAdjustmentBehavior="automatic">
       <View>
         <ListItem
           title={loc.settings.default_wallets}
@@ -117,7 +118,7 @@ const DefaultView: React.FC = () => {
           />
         )}
       </View>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import { Header } from '../../components/Header';
@@ -10,6 +10,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../BlueComponents';
 import { isDesktop } from '../../blue_modules/environment';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 enum SettingsPrivacySection {
   None,
@@ -110,7 +111,7 @@ const SettingsPrivacy: React.FC = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+    <SafeAreaScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       {Platform.OS === 'android' ? (
         <View style={styles.headerContainer}>
           <Header leftText={loc.settings.general} />
@@ -205,7 +206,7 @@ const SettingsPrivacy: React.FC = () => {
       )}
 
       <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

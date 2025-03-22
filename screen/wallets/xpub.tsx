@@ -69,7 +69,19 @@ const WalletXpub: React.FC = () => {
 
   const onLayout = (e: { nativeEvent: { layout: { width: any; height?: any } } }) => {
     const { height, width } = e.nativeEvent.layout;
-    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+
+    const isPortrait = height > width;
+    const maxQRSize = 450;
+
+    if (isPortrait) {
+      const heightBasedSize = Math.min(height * 0.6, maxQRSize);
+      const widthBasedSize = width * 0.8;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    } else {
+      const heightBasedSize = Math.min(height * 0.55, maxQRSize);
+      const widthBasedSize = width * 0.38;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    }
   };
 
   const handleShareButtonPressed = useCallback(() => {
@@ -93,7 +105,6 @@ const WalletXpub: React.FC = () => {
             )}
             <QRCodeComponent value={xpub} size={qrCodeSize} />
 
-            <BlueSpacing20 />
             {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
           <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />

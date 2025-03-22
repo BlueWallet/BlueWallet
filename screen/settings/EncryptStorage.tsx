@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -14,6 +14,7 @@ import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
 import { BlueSpacing20 } from '../../BlueComponents';
 import { StackActions } from '@react-navigation/native';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -143,11 +144,7 @@ const EncryptStorage = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.root, styleHooks.root]}
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <SafeAreaScrollView>
       <View style={styles.paddingTop} />
       {state.deviceBiometricCapable && (
         <>
@@ -233,14 +230,11 @@ const EncryptStorage = () => {
           dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
         }}
       />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   paddingTop: { paddingTop: 19 },
   row: { minHeight: 60 },
   subtitleText: {
