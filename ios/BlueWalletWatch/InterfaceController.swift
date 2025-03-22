@@ -13,15 +13,15 @@ class InterfaceController: WKInterfaceController {
   
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
-  
+    
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    print("InterfaceController: awake")
+    // Ensure WatchDataSource is initialized early in the lifecycle
+    _ = WatchDataSource.shared
   }
   
   override func willActivate() {
     super.willActivate()
-    print("InterfaceController: willActivate (WatchKit 2)")
     
     // Request fresh data when controller becomes active
     WatchDataSource.shared.requestDataFromiOS()
@@ -30,12 +30,7 @@ class InterfaceController: WKInterfaceController {
     updateUI()
     
     // Register for notifications
-    NotificationCenter.default.addObserver(
-      self, 
-      selector: #selector(updateUI), 
-      name: Notifications.dataUpdated.name, 
-      object: nil
-    )
+    NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: Notifications.dataUpdated.name, object: nil)
   }
   
   override func didDeactivate() {
