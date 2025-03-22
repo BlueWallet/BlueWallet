@@ -191,10 +191,11 @@ object MarketAPI {
         val formatter = NumberFormat.getCurrencyInstance()
         try {
             formatter.currency = Currency.getInstance(currencyCode)
+            formatter.maximumFractionDigits = 0 // Ensure no fractional parts
         } catch (e: Exception) {
             Log.e(TAG, "Invalid currency code: $currencyCode", e)
         }
-        return formatter.format(amount)
+        return formatter.format(amount.toInt()) // Convert to integer before formatting
     }
     
     /**
@@ -217,11 +218,11 @@ object MarketAPI {
                 marketData.rate = rate
                 
                 if (rate > 0) {
-                    // Format price with currency symbol
+                    // Format price with currency symbol - convert to integer
                     marketData.price = formatCurrencyAmount(rate, currency)
                     
-                    // Calculate sats
-                    val satsValue = (10 / rate) * 10000000
+                    // Calculate sats - convert to integer for display
+                    val satsValue = ((10 / rate) * 10000000).toInt()
                     marketData.sats = numberFormatter.format(satsValue)
                 }
             }

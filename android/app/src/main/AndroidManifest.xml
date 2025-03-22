@@ -94,6 +94,16 @@
                 android:resource="@xml/market_widget_info" />
         </receiver>
 
+        <!-- Market Widget Configuration Activity -->
+        <activity
+            android:name=".MarketWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
             android:exported="false">
