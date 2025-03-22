@@ -4,4 +4,8 @@
     <color name="widget_background">#FFFFFF</color>
     <color name="text_primary">#0C234F</color>
     <color name="text_secondary">#949494</color>
+    <color name="widget_background_color">#121212</color>
+    <color name="widget_text_color">#FFFFFF</color>
+    <color name="container_green">#4ADCBA</color>
+    <color name="container_red">#F83661</color>
 </resources>

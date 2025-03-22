@@ -22,7 +22,12 @@ class MainApplication : Application(), ReactApplication {
     private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         if (key == "preferredCurrency") {
             prefs.edit().remove("previous_price").apply()
+            
+            // Update BitcoinPrice widgets
             WidgetUpdateWorker.scheduleWork(this)
+            
+            // Immediately refresh Market widgets
+            MarketWidget.refreshAllWidgetsImmediately(this)
         }
     }
 
