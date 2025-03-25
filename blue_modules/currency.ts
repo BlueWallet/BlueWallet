@@ -35,23 +35,54 @@ function getCurrencySymbol(): string {
 
 function getCurrencyFormatter(): Intl.NumberFormat {
   if (!currencyFormatter) {
-    // Always use fresh device locale for formatting
+    // Always use fresh device locale and number format settings
     const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
 
-    currencyFormatter = new Intl.NumberFormat(deviceLocale, {
-      style: 'currency',
-      currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      numberingSystem: 'latn',
-      signDisplay: 'never',
-    });
+    console.log(`Creating currency formatter with locale: ${deviceLocale}, decimal: ${decimalSeparator}, group: ${groupingSeparator}`);
 
+    // Create a custom formatter function that will use the exact separators from RNLocalize
+    currencyFormatter = {
+      format: (value: number): string => {
+        try {
+          // Format the number to fixed 2 decimal places first (standard for currency)
+          const valueAsString = value.toFixed(2);
+          const parts = valueAsString.split('.');
+
+          // Format integer part with proper grouping
+          const integerPart = parts[0];
+          let formattedInteger = '';
+          for (let i = 0; i < integerPart.length; i++) {
+            if (i > 0 && (integerPart.length - i) % 3 === 0) {
+              formattedInteger += groupingSeparator;
+            }
+            formattedInteger += integerPart[i];
+          }
+
+          // Add decimal part with the correct separator
+          const decimalPart = parts.length > 1 ? parts[1] : '00';
+          const formattedValue = `${formattedInteger}${decimalSeparator}${decimalPart}`;
+
+          // Add currency symbol based on position convention
+          // For most currencies, symbol goes before the number
+          return `${preferredFiatCurrency.symbol}${formattedValue}`;
+        } catch (error) {
+          console.error('Error in custom currency formatter:', error);
+          // Fallback to simple formatting
+          return `${preferredFiatCurrency.symbol}${value.toFixed(2)}`;
+        }
+      },
+    } as Intl.NumberFormat;
+
+    // Log a test format to verify
+    const testValue = 1234.56;
     console.debug('Currency formatter created:', {
       deviceLocale,
+      decimalSeparator,
+      groupingSeparator,
       currency: preferredFiatCurrency.endPointKey,
       symbol: getCurrencySymbol(),
-      test: currencyFormatter.format(1234.56),
+      test: currencyFormatter.format(testValue),
     });
   }
   return currencyFormatter;
@@ -59,16 +90,41 @@ function getCurrencyFormatter(): Intl.NumberFormat {
 
 // For input fields, use this function to get formatting without currency symbol
 export function getNumberFormatter(): Intl.NumberFormat {
-  // Always use device locale, not currency locale
-  const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+  // Always use fresh device locale settings
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
 
-  return new Intl.NumberFormat(deviceLocale, {
-    style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-    numberingSystem: 'latn',
-    useGrouping: true,
-  });
+  // Create a custom formatter function that will use the exact separators from RNLocalize
+  const formatter = {
+    format: (value: number): string => {
+      try {
+        // Format the number to fixed 2 decimal places
+        const valueAsString = value.toFixed(2);
+        const parts = valueAsString.split('.');
+
+        // Format integer part with proper grouping
+        const integerPart = parts[0];
+        let formattedInteger = '';
+        for (let i = 0; i < integerPart.length; i++) {
+          if (i > 0 && (integerPart.length - i) % 3 === 0) {
+            formattedInteger += groupingSeparator;
+          }
+          formattedInteger += integerPart[i];
+        }
+
+        // Add decimal part with the correct separator
+        const decimalPart = parts.length > 1 ? parts[1] : '00';
+        const formattedValue = `${formattedInteger}${decimalSeparator}${decimalPart}`;
+
+        return formattedValue;
+      } catch (error) {
+        console.error('Error in custom number formatter:', error);
+        // Fallback to simple formatting
+        return value.toFixed(2).replace('.', decimalSeparator);
+      }
+    },
+  } as Intl.NumberFormat;
+
+  return formatter;
 }
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
@@ -302,6 +358,9 @@ function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string
   }
 
   try {
+    // Always get fresh locale settings
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
     // Use BigNumber for all calculations to maintain precision
     const btcAmount = new BigNumber(satoshi).dividedBy(100000000);
     const convertedAmount = btcAmount.multipliedBy(exchangeRate);
@@ -327,26 +386,29 @@ function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string
         return '...';
       }
 
-      // Format with currency symbol
-      let formatted = getCurrencyFormatter().format(Number(formattedAmount));
-
-      // If the amount ends with .00, remove it for cleaner display
-      if (formatted.includes('.00') && formatted.endsWith('.00')) {
-        formatted = formatted.replace('.00', '');
-      } else if (formatted.includes(',00') && formatted.endsWith(',00')) {
-        // Handle locales that use comma as decimal separator
-        formatted = formatted.replace(',00', '');
-      }
+      // Format with our custom formatter that enforces the correct separators
+      const formatted = getCurrencyFormatter().format(Number(formattedAmount));
 
       return formatted;
     } catch (error) {
       console.error('Error formatting currency:', error);
-      const symbol = preferredFiatCurrency?.symbol || '$';
-      // Remove .00 for cleaner display in the fallback as well
-      if (formattedAmount.endsWith('.00')) {
-        formattedAmount = formattedAmount.replace('.00', '');
+
+      // Manual formatting as fallback
+      const numValue = parseFloat(formattedAmount);
+      const parts = numValue.toFixed(2).split('.');
+      const integerPart = parts[0];
+      const decimalPart = parts[1] || '00';
+
+      // Format integer part with grouping separators
+      let formattedInteger = '';
+      for (let i = 0; i < integerPart.length; i++) {
+        if (i > 0 && (integerPart.length - i) % 3 === 0) {
+          formattedInteger += groupingSeparator;
+        }
+        formattedInteger += integerPart[i];
       }
-      return symbol + ' ' + formattedAmount; // Fallback with symbol
+
+      return `${preferredFiatCurrency.symbol} ${formattedInteger}${decimalSeparator}${decimalPart}`;
     }
   } catch (error) {
     console.error('Error in satoshiToLocalCurrency:', error);
@@ -424,9 +486,55 @@ function fiatToBTC(fiatFloat: number): string {
   }
 }
 
-function formatBTC(btc: BigNumber.Value): string {
-  // Always use dot as decimal separator for BTC, no commas for grouping
-  return new BigNumber(btc).toFixed(8).replace(/\.?0+$/, '');
+/**
+ * Simple direct function to format BTC values consistently
+ * Uses device locale for decimal separator
+ */
+function formatBTCInternal(btc: BigNumber.Value): string {
+  try {
+    // Get device's decimal separator
+    const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
+    // Format with 8 decimal places
+    const formatted = new BigNumber(btc).toFixed(8);
+
+    // Remove trailing zeros, being careful to keep at least one decimal place if it had decimal part
+    const cleanFormatted = formatted.replace(/\.?0+$/, '');
+
+    // For display purposes, replace the dot with device's decimal separator if different
+    if (decimalSeparator !== '.') {
+      return cleanFormatted === '' ? '0' : cleanFormatted.replace('.', decimalSeparator);
+    }
+
+    return cleanFormatted === '' ? '0' : cleanFormatted;
+  } catch (error) {
+    console.error('Error formatting BTC:', error);
+    return '0';
+  }
+}
+
+/**
+ * Simple direct function to format SATS values consistently
+ * Uses device locale for grouping separators
+ */
+function formatSatsInternal(sats: number): string {
+  try {
+    // Get device locale for proper grouping
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    const { groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+    // Use device locale settings for formatting
+    return new Intl.NumberFormat(deviceLocale, {
+      useGrouping: true,
+      maximumFractionDigits: 0,
+    }).format(Math.round(sats));
+  } catch (error) {
+    console.error('Error formatting SATS with locale:', error);
+    // Fallback to simple grouping with commas
+    return Math.round(sats)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
 }
 
 // Remove the listener-based approach which is causing errors
@@ -484,20 +592,36 @@ export const localeSettings = getLocaleNumberSettings();
  */
 export function updateLocaleSettings(): void {
   try {
-    // Always get fresh settings from the device
-    const newSettings = getLocaleNumberSettings();
+    // Get fresh settings directly from the device
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
 
-    // Update the shared localeSettings object with fresh values
-    Object.assign(localeSettings, newSettings);
+    // Update the shared localeSettings object
+    localeSettings.deviceLocale = deviceLocale;
+    localeSettings.decimalSeparator = decimalSeparator;
+    localeSettings.groupSeparator = groupingSeparator;
 
-    // Reset formatter to use new locale
+    // Create a fresh formatter
+    localeSettings.formatter = new Intl.NumberFormat(deviceLocale, {
+      style: 'decimal',
+      useGrouping: true,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 10,
+    });
+
+    // Reset currency formatter to force recreation with new locale
     currencyFormatter = null;
 
     console.log('Updated locale settings from device:', {
-      deviceLocale: newSettings.deviceLocale,
-      decimalSeparator: newSettings.decimalSeparator,
-      groupSeparator: newSettings.groupSeparator,
+      deviceLocale,
+      decimalSeparator,
+      groupingSeparator,
     });
+
+    // Test format to ensure locale settings are working
+    const testValue = 1234.56;
+    const formatted = localeSettings.formatter.format(testValue);
+    console.log(`TEST FORMAT: ${testValue} → "${formatted}"`);
   } catch (error) {
     console.error('Failed to update locale settings:', error);
   }
@@ -549,86 +673,52 @@ export function getFreshNumberFormatter(options: Intl.NumberFormatOptions = {}):
 export function parseNumberStringToFloat(numStr: string): number {
   if (!numStr) return 0;
 
-  const { decimalSeparator, groupSeparator, deviceLocale } = localeSettings;
+  // Always get fresh locale settings directly from the device
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+  const deviceLocale = RNLocalize.getLocales()[0].languageTag;
 
   console.log(
-    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${deviceLocale} | DECIMAL: ${decimalSeparator} | GROUP: ${groupSeparator}`,
+    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${deviceLocale} | DECIMAL: ${decimalSeparator} | GROUP: ${groupingSeparator}`,
   );
 
   try {
-    // First sanitize by removing all characters except digits, dots, commas and minus sign
-    let cleaned = numStr.replace(/[^\d.,-]/g, '');
+    // First, handle special case of empty string
+    if (numStr.trim() === '') return 0;
 
-    // Determine which separator is which based on the locale
-    const dotCount = (cleaned.match(/\./g) || []).length;
-    const commaCount = (cleaned.match(/,/g) || []).length;
-
-    // Handle the case where we have multiple separators
-    if (dotCount > 1 || commaCount > 1 || (dotCount >= 1 && commaCount >= 1)) {
-      // The rightmost separator is likely the decimal separator in ambiguous cases
-      const lastDot = cleaned.lastIndexOf('.');
-      const lastComma = cleaned.lastIndexOf(',');
-
-      const probableDecimalSeparator = lastDot > lastComma ? '.' : ',';
-
-      // Check if our guess matches the locale's expectation
-      const matchesLocaleExpectation =
-        (probableDecimalSeparator === '.' && decimalSeparator === '.') || (probableDecimalSeparator === ',' && decimalSeparator === ',');
-
-      // If format doesn't match locale's expected format, we have to be more careful
-      if (!matchesLocaleExpectation) {
-        // Check position - if it's very close to the end, it's likely a decimal
-        const distanceFromEnd = cleaned.length - Math.max(lastDot, lastComma);
-        if (distanceFromEnd <= 3) {
-          // Likely a decimal separator (e.g., "1,000.50" or "1.000,50")
-          const lastSeparatorPos = Math.max(lastDot, lastComma);
-          const beforeSeparator = cleaned.substring(0, lastSeparatorPos).replace(/[.,]/g, '');
-          const afterSeparator = cleaned.substring(lastSeparatorPos + 1).replace(/[.,]/g, '');
-          cleaned = beforeSeparator + '.' + afterSeparator; // Convert to JS decimal
-        } else {
-          // Tricky case - use hints from the format
-          if (groupSeparator === '.' && decimalSeparator === ',') {
-            // For European format (1.234,56), convert comma to dot for JS
-            cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.');
-          } else if (groupSeparator === ',' && decimalSeparator === '.') {
-            // For US format (1,234.56), just remove commas
-            cleaned = cleaned.replace(/,/g, '');
-          } else {
-            // For other formats, try to guess smartly
-            if (probableDecimalSeparator === '.') {
-              cleaned = cleaned.replace(/,/g, ''); // Remove all commas (assume grouping)
-            } else {
-              cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.'); // European style
-            }
-          }
-        }
-      } else {
-        // Format matches locale expectations, do standard processing
-        if (decimalSeparator === ',') {
-          // European format - remove dots, convert comma to dot
-          cleaned = cleaned.replace(/\./g, '').replace(/,/g, '.');
-        } else {
-          // US format - remove commas
-          cleaned = cleaned.replace(/,/g, '');
-        }
-      }
-    } else {
-      // Simple case with at most one of each separator
-      if (decimalSeparator === ',') {
-        // For locales that use comma as decimal separator
-        cleaned = cleaned.replace(/,/g, '.'); // Replace comma with dot for JS
-      } else {
-        // For locales that use dot as decimal separator
-        cleaned = cleaned.replace(/,/g, ''); // Remove commas (assumed to be grouping)
-      }
+    // Special case: if the input is already a valid number with a dot decimal separator,
+    // and doesn't contain any group separators, just parse it directly
+    if (/^-?\d+(\.\d+)?$/.test(numStr)) {
+      const result = parseFloat(numStr);
+      console.log(`Direct parse result: "${numStr}" → ${result}`);
+      return result;
     }
 
-    // Finally parse the cleaned string
-    const result = parseFloat(cleaned);
+    // Normalize the input based on the device's actual locale settings
+    let cleanedInput = numStr;
 
-    console.log(`LOCALE-AWARE PARSE RESULT: "${numStr}" → ${result} | CLEANED: "${cleaned}"`);
+    // For safe regex, escape any special regex characters in separators
+    const safeGroupingSeparator = groupingSeparator ? groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+    const safeDecimalSeparator = decimalSeparator ? decimalSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
 
-    return isNaN(result) ? 0 : result; // Return 0 for NaN
+    // Step 1: Remove group separators if present
+    if (groupingSeparator) {
+      const groupSepRegex = new RegExp(safeGroupingSeparator, 'g');
+      cleanedInput = cleanedInput.replace(groupSepRegex, '');
+    }
+
+    // Step 2: Replace decimal separator with period for JavaScript parsing
+    if (decimalSeparator && decimalSeparator !== '.') {
+      const decimalSepRegex = new RegExp(safeDecimalSeparator, 'g');
+      cleanedInput = cleanedInput.replace(decimalSepRegex, '.');
+    }
+
+    // Step 3: Clean any remaining non-numeric characters except the decimal point and negative sign
+    cleanedInput = cleanedInput.replace(/[^\d.\-]/g, '');
+
+    // Final parsing
+    const result = parseFloat(cleanedInput);
+    console.log(`PARSE RESULT: "${numStr}" → ${result} | CLEANED: "${cleanedInput}"`);
+    return isNaN(result) ? 0 : result;
   } catch (e) {
     console.error('Error in parseNumberStringToFloat:', e);
     return 0;
@@ -753,14 +843,12 @@ export function formatNumberLocale(amount: number | string, options: ExtendedNum
 
     // For BTC, ensure we ONLY use dots as decimal separator, NEVER commas
     if (options.isBitcoin && options.isBtcUnit) {
-      const numStr = num.toFixed(8).replace(/\.?0+$/, ''); // Remove trailing zeros
-      return numStr;
+      return formatBTCInternal(num);
     }
 
     // For SATS, ensure we ONLY use commas as separators, NEVER dots or decimals
     if (options.isBitcoin && options.isSatsUnit) {
-      const intNum = Math.round(num);
-      return intNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return formatSatsInternal(Math.round(num));
     }
 
     // For local currency, use proper decimal places based on currency
@@ -777,15 +865,6 @@ export function formatNumberLocale(amount: number | string, options: ExtendedNum
     console.error('Error formatting with locale:', error);
     return num.toString();
   }
-}
-
-/**
- * Formats SATS with commas as thousands separators
- */
-export function formatSats(sats: number): string {
-  return Math.round(sats)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
@@ -820,6 +899,7 @@ export {
   satoshiToLocalCurrency,
   setPreferredCurrency,
   updateExchangeRate,
-  formatBTC,
+  formatBTCInternal as formatBTC,
+  formatSatsInternal as formatSats,
   preferredFiatCurrency,
 };

@@ -307,47 +307,79 @@ export const removeTrailingZeros = (value: number | string): string => {
 };
 
 /**
- * Parses a number string according to locale-aware rules
+ * Parses a number string according to locale-specific rules,
+ * strictly based on RNLocalize.getNumberFormatSettings()
+ *
  * @param {string} numStr - The string representation of a number
  * @returns {number} The parsed float value
  */
 export function parseNumberStringToFloat(numStr: string): number {
   if (!numStr) return 0;
 
+  // Always get fresh locale settings directly from the device
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+  const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+
   console.log(
-    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${localeSettings.deviceLocale} | DECIMAL: ${localeSettings.decimalSeparator} | GROUP: ${localeSettings.groupSeparator}`,
+    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${deviceLocale} | DECIMAL: ${decimalSeparator} | GROUP: ${groupingSeparator}`,
   );
 
   try {
     // First, handle special case of empty string
     if (numStr.trim() === '') return 0;
 
-    // Get a proper cleanedInput by normalizing according to locale rules
-    let cleanedInput = numStr;
-
-    // If we have the locale's group separator, remove it
-    if (localeSettings.groupSeparator) {
-      const groupSepRegex = new RegExp('\\' + localeSettings.groupSeparator, 'g');
-      cleanedInput = cleanedInput.replace(groupSepRegex, '');
+    // Special case: if the input is already a valid number with dot decimal separator,
+    // and doesn't contain any separators, just parse it directly
+    if (/^-?\d+(\.\d+)?$/.test(numStr)) {
+      const result = parseFloat(numStr);
+      console.log(`Direct parse result: "${numStr}" → ${result}`);
+      return result;
     }
 
-    // If we have the locale's decimal separator and it's not a period,
-    // replace it with a period for JavaScript parsing
-    if (localeSettings.decimalSeparator && localeSettings.decimalSeparator !== '.') {
-      const decimalSepRegex = new RegExp('\\' + localeSettings.decimalSeparator, 'g');
-      cleanedInput = cleanedInput.replace(decimalSepRegex, '.');
+    // EXPLICIT PARSING BASED ON RNLOCALIZE SETTINGS
+    // First, escape special regex characters in separators for safe regex use
+    const safeGroupSep = groupingSeparator ? groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+    console.log(`Parsing with explicit separators - Group: "${groupingSeparator}", Decimal: "${decimalSeparator}"`);
+
+    // STEP 1: Check if the input actually contains our separators
+    const hasGroupSep = groupingSeparator && numStr.includes(groupingSeparator);
+    const hasDecimalSep = decimalSeparator && numStr.includes(decimalSeparator);
+
+    // Start with a copy of the input string
+    let processedInput = numStr;
+
+    // STEP 2: Handle grouping separators first - remove ALL of them
+    if (hasGroupSep) {
+      console.log(`Removing all grouping separators "${groupingSeparator}" from: "${processedInput}"`);
+      processedInput = processedInput.replace(new RegExp(safeGroupSep, 'g'), '');
+      console.log(`After removing grouping separators: "${processedInput}"`);
     }
 
-    // Handle remaining non-numeric characters, but keep decimal point and negative sign
-    cleanedInput = cleanedInput.replace(/[^\d.-]/g, '');
+    // STEP 3: Now handle the decimal separator - convert to standard JS decimal point
+    if (hasDecimalSep && decimalSeparator !== '.') {
+      // Make sure we only replace the first occurrence of the decimal separator
+      const parts = processedInput.split(decimalSeparator);
+      if (parts.length > 1) {
+        // Use first part + decimal point + all remaining parts joined
+        processedInput = parts[0] + '.' + parts.slice(1).join('');
+        console.log(`After converting decimal separator: "${processedInput}"`);
+      }
+    }
 
-    // Parse the cleaned string
-    const result = parseFloat(cleanedInput);
+    // STEP 4: Remove any remaining non-numeric characters except decimal point and negative sign
+    const finalInput = processedInput.replace(/[^\d.\-]/g, '');
+    console.log(`Final sanitized input: "${finalInput}"`);
 
-    console.log(`EXPECTED_FORMAT: "1234.56" → "${new Intl.NumberFormat(localeSettings.deviceLocale).format(1234.56)}"`);
-    console.log(`PARSE RESULT: "${numStr}" → ${result} | CLEANED: "${cleanedInput}"`);
+    // STEP 5: Parse the final cleaned string
+    const result = parseFloat(finalInput);
 
-    return isNaN(result) ? 0 : result;
+    if (isNaN(result)) {
+      console.log(`Result is NaN, returning 0 for input: "${numStr}"`);
+      return 0;
+    }
+
+    console.log(`Final parsed result: "${numStr}" → ${result}`);
+    return result;
   } catch (e) {
     console.error('Error in parseNumberStringToFloat:', e);
     return 0;
@@ -410,21 +442,75 @@ export function _leaveNumbersAndDots(newInputValue: string) {
 }
 
 /**
+ * Custom number formatter that explicitly respects the number formatting settings
+ * regardless of the device locale
  *
+ * @param {number} num - Number to format
+ * @param {number} decimals - Max decimal places
+ * @returns {string} - Formatted number string
+ */
+function formatNumberWithSeparators(num: number, decimals: number = 8): string {
+  // Always get latest formatting settings directly from RNLocalize
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Convert to string with specified decimal places
+  // First convert to standard format with period as decimal separator
+  const str = num.toFixed(decimals);
+
+  // Split into integer and decimal parts
+  const parts = str.split('.');
+  const integerPart = parts[0];
+  // Remove trailing zeros from decimal part if needed
+  const decimalPart = parts.length > 1 ? parts[1].replace(/0+$/, '') : '';
+
+  // Format the integer part with grouping separators
+  let formattedInteger = '';
+  for (let i = 0; i < integerPart.length; i++) {
+    if (i > 0 && (integerPart.length - i) % 3 === 0) {
+      formattedInteger += groupingSeparator;
+    }
+    formattedInteger += integerPart[i];
+  }
+
+  // Return formatted number with appropriate separators
+  return decimalPart ? `${formattedInteger}${decimalSeparator}${decimalPart}` : formattedInteger;
+}
+
+/**
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
 export function formatBalance(balance: number, toUnit: string, withFormatting = false): string {
   if (toUnit === undefined) {
     return balance + ' ' + loc.units[BitcoinUnit.BTC];
   }
+
+  // Get number formatting settings
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
   if (toUnit === BitcoinUnit.BTC) {
-    const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(+value) + ' ' + loc.units[BitcoinUnit.BTC];
+    const btcValue = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+
+    if (withFormatting) {
+      // Use our custom formatter that respects the RNLocalize settings
+      const formattedValue = formatNumberWithSeparators(parseFloat(btcValue));
+      return formattedValue + ' ' + loc.units[BitcoinUnit.BTC];
+    } else {
+      const valueWithoutTrailing = removeTrailingZeros(+btcValue);
+      // Replace decimal point with device's decimal separator if needed
+      const formattedValue = decimalSeparator !== '.' ? valueWithoutTrailing.replace('.', decimalSeparator) : valueWithoutTrailing;
+      return formattedValue + ' ' + loc.units[BitcoinUnit.BTC];
+    }
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
+    if (withFormatting) {
+      // Use our custom formatter with 0 decimals for satoshis
+      const formattedValue = formatNumberWithSeparators(balance, 0);
+      return formattedValue + ' ' + loc.units[BitcoinUnit.SATS];
+    } else {
+      return String(balance) + ' ' + loc.units[BitcoinUnit.SATS];
+    }
   } else {
     return satoshiToLocalCurrency(balance);
   }
@@ -434,18 +520,33 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
  *
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
 export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withFormatting = false): string | number {
   if (toUnit === undefined) {
     return balance;
   }
+
+  // Get number formatting settings
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value);
+
+    if (withFormatting) {
+      return formatNumberWithSeparators(parseFloat(value));
+    } else {
+      const valueWithoutTrailing = removeTrailingZeros(value);
+      // Replace decimal point with device's decimal separator if needed
+      return decimalSeparator !== '.' ? valueWithoutTrailing.replace('.', decimalSeparator) : valueWithoutTrailing;
+    }
   } else if (toUnit === BitcoinUnit.SATS) {
-    return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
+    if (withFormatting) {
+      return formatNumberWithSeparators(balance, 0);
+    } else {
+      return String(balance);
+    }
   } else {
     return satoshiToLocalCurrency(balance);
   }

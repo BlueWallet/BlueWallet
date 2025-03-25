@@ -208,161 +208,173 @@ class AmountInput extends Component {
     }
 
     try {
-      // First check if we can retrieve from cache for local_currency → BTC/SATS conversion
+      // *** CRITICAL FIX: Always check locale settings when parsing input ***
+      const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+      console.log(`Conversion with locale settings - decimal: ${decimalSeparator}, group: ${groupingSeparator}`);
+
       if (previousUnit === BitcoinUnit.LOCAL_CURRENCY) {
+        // For local currency, check cache first
         const cachedSats = AmountInput.getCachedSatoshis(amount);
         if (cachedSats) {
           console.log(`Cache hit! Found cached value: ${cachedSats} sats for ${amount} ${previousUnit}`);
           // Convert string to number to ensure it's valid
-          sats = typeof cachedSats === 'string' ? parseInt(cachedSats.replace(/,/g, ''), 10) : cachedSats;
+          sats = typeof cachedSats === 'string' ? parseInt(cachedSats.replace(/[^\d]/g, ''), 10) : cachedSats;
           console.log(`Using cached sats value: ${sats}`);
+        } else {
+          // If no cache, parse using our locale-aware function
+          const numericAmount = parseNumberStringToFloat(amount.toString());
+          console.log(`Parsed LOCAL_CURRENCY amount: ${numericAmount}`);
+
+          if (isNaN(numericAmount)) {
+            this.props.onChangeText('0');
+            this.props.onAmountUnitChange(newUnit);
+            return;
+          }
+
+          try {
+            // Use high precision for fiat to BTC conversion
+            const btcValue = fiatToBTC(numericAmount);
+            sats = new BigNumber(btcValue).multipliedBy(100000000).toNumber();
+            console.log(`Fiat ${numericAmount} → BTC ${btcValue} → SATS ${sats}`);
+          } catch (error) {
+            console.error('Error converting fiat to BTC:', error);
+            sats = 0;
+          }
         }
-      }
-
-      // If we don't have cached value, parse and convert normally
-      if (!sats) {
-        // Parse the amount using locale-aware parsing
-        const numericAmount = parseNumberStringToFloat(amount.toString());
-        console.log(`Parsed numeric amount:`, numericAmount);
-
-        // Handle NaN values safely
-        if (isNaN(numericAmount)) {
-          // If parsing fails, default to empty string
+      } else if (previousUnit === BitcoinUnit.BTC) {
+        // *** CRITICAL FIX: Properly handle locale-specific decimal separators for BTC ***
+        console.log(`Parsing BTC amount: "${amount}" with decimal separator: "${decimalSeparator}"`);
+        
+        // This is the key improvement - use parseNumberStringToFloat to correctly handle the locale's decimal separator
+        const parsedBtc = parseNumberStringToFloat(amount);
+        
+        if (isNaN(parsedBtc)) {
+          console.warn(`Failed to parse BTC amount: "${amount}"`);
           this.props.onChangeText('0');
           this.props.onAmountUnitChange(newUnit);
           return;
         }
-
-        // Convert the value to satoshis based on the unit
-        switch (previousUnit) {
-          case BitcoinUnit.BTC:
-            // Use BigNumber for high precision, especially with decimal values
-            sats = new BigNumber(numericAmount).multipliedBy(100000000).toNumber();
-            break;
-          case BitcoinUnit.SATS: {
-            // For SATS, remove any locale-specific separators before parsing
-            const satsValue = amount.toString().replace(/,/g, '');
-            sats = parseInt(satsValue, 10);
-            break;
-          }
-          case BitcoinUnit.LOCAL_CURRENCY: {
-            // Add safeguards against large values that might cause overflow
-            const maxSafeValue = 1000000000; // 1 billion in local currency
-            if (numericAmount > maxSafeValue) {
-              console.warn(`Very large value detected: ${numericAmount}, capping conversion`);
-              sats = new BigNumber(fiatToBTC(maxSafeValue)).multipliedBy(100000000).toNumber();
-            } else {
-              try {
-                // Use high precision for fiat to BTC conversion to preserve decimals
-                const btcValue = fiatToBTC(numericAmount);
-                sats = new BigNumber(btcValue).multipliedBy(100000000).toNumber();
-                console.log(`Fiat ${numericAmount} → BTC ${btcValue} → SATS ${sats}`);
-              } catch (error) {
-                console.error('Error converting fiat to BTC:', error);
-                // If conversion fails, use 0
-                sats = 0;
-              }
-            }
-            break;
-          }
+        
+        // Convert to satoshis using BigNumber for precision
+        sats = new BigNumber(parsedBtc).multipliedBy(100000000).toNumber();
+        console.log(`BTC parsed: ${parsedBtc} → SATS: ${sats}`);
+      } else if (previousUnit === BitcoinUnit.SATS) {
+        // For SATS, remove any grouping separators and parse
+        let normalizedAmount = amount.toString();
+        
+        // Remove any non-digit characters including grouping separators
+        if (groupingSeparator) {
+          const safeGroupingSep = groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          normalizedAmount = normalizedAmount.replace(new RegExp(safeGroupingSep, 'g'), '');
         }
+        
+        // Remove any other non-digit characters
+        normalizedAmount = normalizedAmount.replace(/\D/g, '');
+        
+        // Parse to integer
+        sats = parseInt(normalizedAmount || '0', 10);
+        console.log(`SATS normalized: "${amount}" → "${normalizedAmount}" = ${sats}`);
       }
 
-      // Ensure sats is a valid number before proceeding
-      if (isNaN(sats) || sats === null || sats === undefined) {
-        console.warn('Invalid satoshi value detected, resetting to 0');
-        sats = 0;
-      } else {
-        // Log the valid satoshi value we're using
-        console.log(`Using satoshi value for conversion: ${sats}`);
+      // Safety check for extremely large values
+      const MAX_SAFE_SATS = 2100000000000000; // 21 million BTC in satoshis
+      if (sats > MAX_SAFE_SATS) {
+        console.warn(`Extremely large satoshi value detected: ${sats}, capping to max supply`);
+        sats = MAX_SAFE_SATS;
       }
+
+      // Get fresh device locale settings for formatting
+      const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+      console.log(`Unit change locale settings: locale=${deviceLocale}, decimal=${decimalSeparator}, group=${groupingSeparator}`);
 
       // Format the output based on the new unit and locale
       let newInputValue = '0'; // Default value
 
       if (newUnit === BitcoinUnit.BTC) {
-        // For BTC, always use dot as decimal separator, NEVER commas
+        // *** IMPROVED BTC FORMATTING: Use BigNumber and respect locale ***
         try {
+          // Convert to BTC - with proper decimal places
           const btcValue = new BigNumber(sats).dividedBy(100000000);
-
-          // Format BTC with proper precision to preserve decimal places
-          // Keep full 8 decimal places initially, then remove trailing zeros
-          newInputValue = btcValue.toFixed(8).replace(/\.?0+$/, '');
-          if (newInputValue.endsWith('.')) newInputValue += '0'; // Ensure we always have at least one decimal place
-
+          
+          // Format to string first with 8 decimal places max
+          const formattedBtc = btcValue.toFixed(8);
+          
+          // Remove trailing zeros, but ensure we have at least one decimal place
+          let trimmedBtc = formattedBtc.replace(/\.?0+$/, '');
+          if (!trimmedBtc.includes('.')) {
+            trimmedBtc += '.0';
+          }
+          
+          // Replace the decimal separator with device's if needed
+          if (decimalSeparator !== '.') {
+            trimmedBtc = trimmedBtc.replace('.', decimalSeparator);
+          }
+          
+          newInputValue = trimmedBtc;
           console.log(`SATS ${sats} → BTC formatted: ${newInputValue}`);
         } catch (error) {
           console.error('Error formatting BTC value:', error);
-          newInputValue = '0';
+          newInputValue = `0${decimalSeparator}0`;
         }
       } else if (newUnit === BitcoinUnit.SATS) {
-        // For SATS, only use commas as separators, NEVER dots
+        // *** IMPROVED SATS FORMATTING: Use Intl.NumberFormat with correct locale ***
         try {
-          // Convert to integer for SATS (no decimals)
+          // Ensure we have an integer
           const satsInt = Math.round(sats);
-          const numStr = isNaN(satsInt) ? '0' : satsInt.toString();
-          // Insert commas every 3 digits from the right
-          newInputValue = numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+          
+          // Use Intl.NumberFormat with device locale
+          newInputValue = new Intl.NumberFormat(deviceLocale, {
+            useGrouping: true,
+            maximumFractionDigits: 0
+          }).format(satsInt);
+          
+          console.log(`SATS formatted with locale: ${satsInt} → "${newInputValue}"`);
         } catch (error) {
           console.error('Error formatting SATS value:', error);
-          newInputValue = '0';
+          // Fallback to simple string without formatting
+          newInputValue = String(Math.round(sats));
         }
       } else if (newUnit === BitcoinUnit.LOCAL_CURRENCY) {
-        // For local currency, always use fresh device locale settings
-        const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-
         try {
           const localAmount = satoshiToLocalCurrency(sats, false);
-
-          // Check if localAmount is valid
+          
           if (localAmount === '...' || isNaN(parseFloat(localAmount))) {
-            console.warn('Invalid local amount:', localAmount);
             newInputValue = '0.00';
           } else {
-            // Format the amount using freshly obtained device locale
-            const numAmount = parseFloat(localAmount);
-
-            // Always show decimal places for fiat currencies to preserve precision
             const decimals = getDecimalPlaces(BitcoinUnit.LOCAL_CURRENCY);
+            
+            // Use Intl.NumberFormat for consistent locale-aware formatting
             newInputValue = new Intl.NumberFormat(deviceLocale, {
-              minimumFractionDigits: Math.min(2, decimals), // Always at least 2 for fiat
+              minimumFractionDigits: Math.min(2, decimals),
               maximumFractionDigits: decimals,
-            }).format(numAmount);
-
-            console.log(`SATS ${sats} → FIAT formatted: ${newInputValue} (locale: ${deviceLocale})`);
+              useGrouping: true,
+            }).format(parseFloat(localAmount));
+            
+            console.log(`SATS ${sats} → LOCAL formatted: ${newInputValue}`);
           }
         } catch (error) {
           console.error('Error formatting local currency:', error);
-          newInputValue = '0.00'; // Safe fallback
+          // Use a safe default with proper decimal separator
+          newInputValue = `0${decimalSeparator}00`;
         }
       }
 
-      console.log(`CONVERSION: "${amount}" (${previousUnit}) → "${newInputValue}" (${newUnit}) | SATS: ${sats}`);
-
-      // Sanity check - if we somehow still have NaN, reset to 0
-      if (newInputValue === 'NaN' || newInputValue.includes('NaN')) {
-        console.warn('NaN detected in final formatted value, resetting to 0');
-        newInputValue = newUnit === BitcoinUnit.LOCAL_CURRENCY ? '0.00' : '0';
-      }
+      console.log(`FINAL CONVERSION: "${amount}" (${previousUnit}) → "${newInputValue}" (${newUnit}) | SATS: ${sats}`);
 
       // Always cache conversions involving local currency
-      if (previousUnit === BitcoinUnit.SATS && newUnit === BitcoinUnit.LOCAL_CURRENCY) {
-        // Cache SATS → LOCAL_CURRENCY conversion for future retrieval
-        AmountInput.setCachedSatoshis(newInputValue, amount);
-        console.log(`Cached SATS→LOCAL conversion:`, { key: newInputValue, value: amount });
-      } else if (previousUnit === BitcoinUnit.BTC && newUnit === BitcoinUnit.LOCAL_CURRENCY) {
-        // Cache BTC → LOCAL_CURRENCY conversion (convert BTC to SATS first)
-        const btcInSats = new BigNumber(amount).multipliedBy(100000000).toString();
-        AmountInput.setCachedSatoshis(newInputValue, btcInSats);
-        console.log(`Cached BTC→LOCAL conversion:`, { key: newInputValue, value: btcInSats });
+      if ((previousUnit === BitcoinUnit.SATS || previousUnit === BitcoinUnit.BTC) && 
+          newUnit === BitcoinUnit.LOCAL_CURRENCY) {
+        AmountInput.setCachedSatoshis(newInputValue, sats.toString());
+        console.log(`Cached conversion to LOCAL_CURRENCY:`, { key: newInputValue, value: sats });
       }
 
       this.props.onChangeText(newInputValue);
       this.props.onAmountUnitChange(newUnit);
     } catch (error) {
       console.error('Critical error in currency conversion:', error);
-      // Provide safe fallback
-      const safeValue = newUnit === BitcoinUnit.LOCAL_CURRENCY ? '0.00' : '0';
+      // Provide safe fallback with proper decimal separator
+      const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+      const safeValue = newUnit === BitcoinUnit.LOCAL_CURRENCY ? `0${decimalSeparator}00` : '0';
       this.props.onChangeText(safeValue);
       this.props.onAmountUnitChange(newUnit);
     }
@@ -442,122 +454,128 @@ class AmountInput extends Component {
   // Local currency input handling with proper locale awareness
   handleLocalCurrencyInput = text => {
     // Always get fresh locale settings directly from the device
-    const { decimalSeparator, groupingSeparator: groupSeparator } = RNLocalize.getNumberFormatSettings();
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
     const deviceLocale = RNLocalize.getLocales()[0].languageTag;
 
     // Get the maximum allowed decimal places for the current currency
     let maxDecimalPlaces = 2; // Default to 2 if we can't get from getDecimalPlaces
-
     try {
       maxDecimalPlaces = getDecimalPlaces(BitcoinUnit.LOCAL_CURRENCY);
     } catch (error) {
       console.error('Error getting decimal places:', error);
-      // Keep the default value
     }
 
     console.log(
-      `Using device locale: ${deviceLocale} | decimal="${decimalSeparator}" | group="${groupSeparator}" | maxDecimals=${maxDecimalPlaces}`,
+      `Using device locale: ${deviceLocale} | decimal="${decimalSeparator}" | group="${groupingSeparator}" | maxDecimals=${maxDecimalPlaces}`,
     );
+    console.log(`Raw input text: "${text}"`);
 
-    // Check if the user entered a decimal separator
-    const hasPeriod = text.includes('.');
-    const hasComma = text.includes(',');
+    // CRITICAL: Determine if commas or periods are being used as decimal vs grouping separators
+    // This explicitly uses RNLocalize settings rather than locale conventions
 
-    // If we have both period and comma, determine which is the decimal separator
-    // based on position (last one is typically decimal)
-    let decimalPart = '';
+    // For safe regex handling, escape any special characters
+    const safeDecimalSep = decimalSeparator ? decimalSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+    const safeGroupSep = groupingSeparator ? groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+
+    // Remove any characters that are not digits or our expected separators
+    const validCharsPattern = new RegExp(`[^\\d${safeDecimalSep}${safeGroupSep}-]`, 'g');
+    const sanitizedText = text.replace(validCharsPattern, '');
+    console.log(`After removing invalid chars: "${sanitizedText}"`);
+
     let integerPart = '';
+    let decimalPart = '';
+    let hasDecimalSeparator = false;
 
-    // Split the input into integer and decimal parts
-    if (hasPeriod && hasComma) {
-      // Determine which is likely the decimal separator by position
-      const lastPeriodIndex = text.lastIndexOf('.');
-      const lastCommaIndex = text.lastIndexOf(',');
+    // First check: does the input contain the decimal separator from RNLocalize?
+    if (sanitizedText.includes(decimalSeparator)) {
+      hasDecimalSeparator = true;
+      const parts = sanitizedText.split(decimalSeparator);
 
-      if (lastPeriodIndex > lastCommaIndex) {
-        // Period is likely the decimal separator
-        [integerPart, decimalPart] = text.split('.');
-        // Remove any commas from integer part (they were thousand separators)
-        integerPart = integerPart.replace(/,/g, '');
-      } else {
-        // Comma is likely the decimal separator
-        [integerPart, decimalPart] = text.split(',');
-        // Remove any periods from integer part (they were thousand separators)
-        integerPart = integerPart.replace(/\./g, '');
+      // Take only the first part before the first decimal separator
+      integerPart = parts[0] || '';
+
+      // Take the first part after the first decimal separator
+      decimalPart = parts.length > 1 ? parts[1] : '';
+
+      // Limit decimal places to the maximum allowed
+      if (decimalPart.length > maxDecimalPlaces) {
+        decimalPart = decimalPart.substring(0, maxDecimalPlaces);
       }
-    } else if (hasPeriod) {
-      // Only period is present, treat as decimal separator
-      [integerPart, decimalPart] = text.split('.');
-    } else if (hasComma) {
-      // Determine if comma is used as decimal or thousand separator
-      const parts = text.split(',');
 
-      // If there's only one comma and less than 3 digits after it, it's likely a decimal
-      if (parts.length === 2 && parts[1].length <= 2) {
-        [integerPart, decimalPart] = parts;
-      } else {
-        // Comma is used as thousand separator, remove them
-        integerPart = text.replace(/,/g, '');
+      // Now, VERY IMPORTANT: If the decimal separator is used, remove ALL grouping separators
+      // This is because we're now dealing with the integer part specifically
+      if (groupingSeparator && integerPart.includes(groupingSeparator)) {
+        console.log(`Removing grouping separators from integer part: "${integerPart}"`);
+        const groupSepRegex = new RegExp(safeGroupSep, 'g');
+        integerPart = integerPart.replace(groupSepRegex, '');
+        console.log(`Integer part after removing separators: "${integerPart}"`);
       }
     } else {
-      // No separators at all
-      integerPart = text;
+      // No decimal separator - this is all integer part
+      integerPart = sanitizedText;
+
+      // CRITICAL: If we have grouping separators, we must keep them intact at this stage
+      // We'll only format them later
     }
 
-    // Clean non-numeric characters from integer and decimal parts
+    // Remove any non-digits from both parts (but keep the separators intact for now)
     integerPart = integerPart.replace(/[^\d]/g, '');
-    decimalPart = decimalPart ? decimalPart.replace(/[^\d]/g, '') : '';
+    decimalPart = decimalPart.replace(/[^\d]/g, '');
 
-    // Limit decimal places if needed
-    if (decimalPart.length > maxDecimalPlaces) {
-      decimalPart = decimalPart.substring(0, maxDecimalPlaces);
-    }
+    console.log(`Parsed: integer="${integerPart}", decimal="${decimalPart}"`);
 
-    // ONLY format the integer part with group separators if it's long enough
-    let formattedInteger = integerPart;
+    // Now format the integer part with proper group separators
+    let formattedInteger = '';
 
-    // Only add group separators if we have at least 4 digits in the integer part
-    if (integerPart.length >= 4) {
-      try {
-        // Remove any existing group separators (if any) before reformatting
-        const cleanInteger = integerPart.replace(new RegExp('\\' + groupSeparator, 'g'), '');
-
-        // Format with proper group separators for the locale
-        formattedInteger = new Intl.NumberFormat(deviceLocale, {
-          useGrouping: true,
-          maximumFractionDigits: 0,
-        }).format(parseInt(cleanInteger, 10));
-      } catch (error) {
-        console.error('Error formatting integer part:', error);
-        formattedInteger = integerPart; // Keep original if formatting fails
+    if (integerPart.length > 0) {
+      // Manual formatting to ensure consistent grouping
+      for (let i = 0; i < integerPart.length; i++) {
+        // Add grouping separator every 3 digits from the right
+        if (i > 0 && (integerPart.length - i) % 3 === 0) {
+          formattedInteger += groupingSeparator;
+        }
+        formattedInteger += integerPart[i];
       }
+    } else {
+      formattedInteger = '0'; // Default to '0' for empty input
     }
 
-    // Construct the final result - start with the integer part
-    let result = formattedInteger;
-
-    // Add decimal part only if it exists or if user explicitly added a decimal separator
-    if (decimalPart || hasPeriod || (hasComma && text.split(',').length === 2 && text.split(',')[1].length <= 2)) {
-      // Use the device's decimal separator for consistency
-      result = formattedInteger + decimalSeparator + decimalPart;
+    // Combine the parts back together with the correct separators
+    let formattedResult;
+    if (hasDecimalSeparator || decimalPart.length > 0) {
+      // If there was a decimal separator in the input or we have decimal digits
+      formattedResult = `${formattedInteger}${decimalSeparator}${decimalPart}`;
+    } else if (text.endsWith(decimalSeparator)) {
+      // Special case: user just added a decimal separator at the end
+      formattedResult = `${formattedInteger}${decimalSeparator}`;
+    } else {
+      // No decimal part
+      formattedResult = formattedInteger;
     }
 
-    console.log(`Formatted input: "${text}" → "${result}"`);
-    this.props.onChangeText(result);
+    console.log(`Final formatted result: "${formattedResult}"`);
+    this.props.onChangeText(formattedResult);
   };
 
-  // BTC input handling - always uses dot as decimal separator
+  // BTC input handling - respect device locale for decimal separator
   handleBtcInput = text => {
-    // Maximum 8 decimal places for BTC
-
+    // Get fresh device locale settings
+    const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
     const maxDecimalPlaces = 8;
 
-    // Remove any commas and allow only one dot
-    let cleanedInput = text.replace(/,/g, '');
+    console.log(`BTC input with device settings - decimal: ${decimalSeparator}`);
 
-    // Only process decimal part if user has entered a decimal point
-    if (cleanedInput.includes('.')) {
-      const parts = cleanedInput.split('.');
+    // Remove any characters that are not digits or decimal separator
+    const safeDecimalSeparator = decimalSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Create a regex that excludes decimal separator and digits
+    const invalidCharsPattern = new RegExp(`[^\\d${safeDecimalSeparator}\\-]`, 'g');
+    let cleanedInput = text.replace(invalidCharsPattern, '');
+
+    // Only process decimal part if user has entered a decimal separator
+    if (cleanedInput.includes(decimalSeparator)) {
+      const parts = cleanedInput.split(decimalSeparator);
+      // Take only first occurrence of decimal separator
       const integerPart = parts[0];
       let decimalPart = parts.slice(1).join('');
 
@@ -566,25 +584,37 @@ class AmountInput extends Component {
         decimalPart = decimalPart.substring(0, maxDecimalPlaces);
       }
 
-      cleanedInput = `${integerPart}.${decimalPart}`;
+      cleanedInput = `${integerPart}${decimalSeparator}${decimalPart}`;
     }
 
-    // Validate that the input is a number
-    if (cleanedInput === '.' || cleanedInput === '') {
-      // Allow user to start with decimal point
-      this.props.onChangeText(cleanedInput);
-    } else if (!isNaN(parseFloat(cleanedInput))) {
-      this.props.onChangeText(cleanedInput);
-    }
+    // Pass the formatted value
+    this.props.onChangeText(cleanedInput);
   };
 
-  // Fix the SATS input to prevent any decimals
+  // Fix the SATS input to prevent any decimals and use device locale for grouping
   handleSatsInput = text => {
-    // Remove all non-digits and any decimal parts
+    // Get fresh device locale settings
+    const { groupingSeparator } = RNLocalize.getNumberFormatSettings();
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+
+    console.log(`SATS input with device locale: ${deviceLocale}, group separator: ${groupingSeparator}`);
+
+    // Remove all non-digits including any decimal separators
     const digitsOnly = text.replace(/\D/g, '');
 
-    // Format with commas as thousands separators
-    const formatted = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    // Format with device-appropriate thousands separators
+    let formatted;
+    try {
+      formatted = new Intl.NumberFormat(deviceLocale, {
+        useGrouping: true,
+        maximumFractionDigits: 0,
+      }).format(parseInt(digitsOnly || '0', 10));
+    } catch (error) {
+      console.error('Error using Intl.NumberFormat for SATS:', error);
+      // Fallback to simple regex-based formatting with device group separator
+      const safeGroupSeparator = groupingSeparator || ',';
+      formatted = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, safeGroupSeparator);
+    }
 
     this.props.onChangeText(formatted);
   };
@@ -660,12 +690,19 @@ class AmountInput extends Component {
       switch (unit) {
         case BitcoinUnit.BTC:
           try {
+            // Convert BTC to satoshis for accurate conversion - using locale-aware parsing
             const btcValue = parseNumberStringToFloat(amount.toString());
             if (isNaN(btcValue)) {
               secondaryDisplayCurrency = satoshiToLocalCurrency(0, true);
             } else {
               sat = new BigNumber(btcValue).multipliedBy(100000000).toString();
-              secondaryDisplayCurrency = satoshiToLocalCurrency(sat, true);
+              // Get the formatted local currency value without currency symbol first
+              const localCurrencyValue = satoshiToLocalCurrency(sat, false);
+              // Then get the currency symbol separately
+              const currencySymbol = getCurrencySymbol();
+              // Combine in the proper order: amount followed by currency
+              secondaryDisplayCurrency = `${localCurrencyValue} ${currencySymbol}`;
+              console.log(`BTC ${btcValue} → Local Currency: ${secondaryDisplayCurrency}`);
             }
           } catch (error) {
             console.error('Error formatting secondary display:', error);
@@ -675,123 +712,142 @@ class AmountInput extends Component {
 
         case BitcoinUnit.SATS:
           try {
-            // For SATS, remove commas before parsing
-            const plainSats = amount.toString().replace(/,/g, '');
-
-            let satsValue;
-            try {
-              satsValue = parseInt(plainSats, 10);
-              if (isNaN(satsValue)) satsValue = 0;
-            } catch (e) {
-              satsValue = 0;
+            // For SATS, carefully remove all non-digit characters before parsing
+            let normalizedAmount = amount.toString();
+            
+            // First, use the built-in device locale settings to handle proper formatting
+            const { groupSeparator } = localeSettings;
+            if (groupSeparator) {
+              // Escape special regex characters
+              const safeGroupSep = groupSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              normalizedAmount = normalizedAmount.replace(new RegExp(safeGroupSep, 'g'), '');
             }
-
-            secondaryDisplayCurrency = satoshiToLocalCurrency(satsValue, true);
+            
+            // Remove any other non-digit characters to be safe
+            normalizedAmount = normalizedAmount.replace(/\D/g, '');
+            
+            // Parse as integer
+            const satsValue = parseInt(normalizedAmount, 10);
+            
+            console.log(`SECONDARY DISPLAY: SATS normalized from "${amount}" to "${normalizedAmount}" = ${satsValue}`);
+            
+            if (isNaN(satsValue)) {
+              // Get the formatted local currency value without currency symbol first
+              const localCurrencyValue = satoshiToLocalCurrency(0, false);
+              // Then get the currency symbol separately
+              const currencySymbol = getCurrencySymbol();
+              // Combine in the proper order: amount followed by currency
+              secondaryDisplayCurrency = `${localCurrencyValue} ${currencySymbol}`;
+            } else {
+              // Get the formatted local currency value without currency symbol first
+              const localCurrencyValue = satoshiToLocalCurrency(satsValue, false);
+              // Then get the currency symbol separately
+              const currencySymbol = getCurrencySymbol();
+              // Combine in the proper order: amount followed by currency
+              secondaryDisplayCurrency = `${localCurrencyValue} ${currencySymbol}`;
+              console.log(`SATS ${satsValue} → Local Currency: ${secondaryDisplayCurrency}`);
+            }
           } catch (error) {
+            console.error('Error formatting SATS secondary display:', error);
             secondaryDisplayCurrency = satoshiToLocalCurrency(0, true);
           }
           break;
 
         case BitcoinUnit.LOCAL_CURRENCY:
           try {
-            let fiatValue = 0;
-            try {
-              // Fix the parsing of local currency values
-              // First, properly handle formatted numbers with both decimal and group separators
-              const { decimalSeparator, groupSeparator } = localeSettings;
-
-              // Create a clean version for parsing
-              let cleanAmount = amount.toString();
-
-              // If we have the locale's group separator, remove it
-              if (groupSeparator) {
-                const groupSepRegex = new RegExp('\\' + groupSeparator, 'g');
-                cleanAmount = cleanAmount.replace(groupSepRegex, '');
+            // For local currency conversions, try to use cached values first
+            const cachedSats = AmountInput.getCachedSatoshis(amount);
+            
+            if (cachedSats) {
+              console.log(`Using cached sats (${cachedSats}) for secondary display`);
+              // Parse the cached sats value carefully - it might have separators
+              const normalizedCachedSats = cachedSats.toString().replace(/[^\d]/g, '');
+              const numericSats = parseInt(normalizedCachedSats, 10);
+              
+              if (!isNaN(numericSats)) {
+                // Use the cached value directly for more accurate conversion
+                const btcValue = satoshiToBTC(numericSats);
+                
+                // Improve the formatting for large numbers by using appropriate decimal places
+                let formattedBtcValue;
+                if (numericSats >= 100000000000) { // More than 1000 BTC
+                  formattedBtcValue = new BigNumber(btcValue).toFixed(2); // Show only 2 decimals
+                } else if (numericSats >= 10000000000) { // More than 100 BTC
+                  formattedBtcValue = new BigNumber(btcValue).toFixed(4); // Show 4 decimals
+                } else {
+                  formattedBtcValue = new BigNumber(btcValue).toFixed(8); // Show full precision
+                }
+                
+                // Remove trailing zeros
+                formattedBtcValue = formattedBtcValue.replace(/\.?0+$/, '');
+                if (!formattedBtcValue.includes('.')) formattedBtcValue += '.0';
+                
+                // Replace decimal point with device's decimal separator if needed
+                const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+                if (decimalSeparator !== '.') {
+                  formattedBtcValue = formattedBtcValue.replace('.', decimalSeparator);
+                }
+                
+                // Format as amount followed by unit
+                secondaryDisplayCurrency = `${formattedBtcValue} ${loc.units[BitcoinUnit.BTC]}`;
+                console.log(`LOCAL_CURRENCY → BTC: ${secondaryDisplayCurrency}`);
+                break;
               }
-
-              // If we have the locale's decimal separator and it's not a period,
-              // replace it with a period for JS parsing
-              if (decimalSeparator && decimalSeparator !== '.') {
-                const decimalSepRegex = new RegExp('\\' + decimalSeparator, 'g');
-                cleanAmount = cleanAmount.replace(decimalSepRegex, '.');
-              }
-
-              // Now parse the cleaned string
-              fiatValue = parseFloat(cleanAmount);
-
-              if (isNaN(fiatValue)) {
-                console.warn(`Failed to parse local currency amount: "${amount}" → "${cleanAmount}"`);
-                fiatValue = 0;
-              } else {
-                console.log(`Successfully parsed local currency: "${amount}" → "${cleanAmount}" → ${fiatValue}`);
-              }
-            } catch (e) {
-              console.error('Error parsing local currency amount:', e);
-              // Default to 0
-              fiatValue = 0;
             }
-
-            let btcValue = '0';
-
-            // Try to use cached satoshis for more accurate conversion
-            if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-              const sats = AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
-              // When using cached sats, ensure it's properly converted to a number
-              const numericSats = typeof sats === 'string' ? parseInt(sats.replace(/,/g, ''), 10) : sats;
-              btcValue = satoshiToBTC(numericSats);
-              console.log(`Using cached satoshis for secondary display: ${numericSats} sats → ${btcValue} BTC`);
+            
+            // If no valid cached value, fall back to parsing the amount and converting
+            const fiatValue = parseNumberStringToFloat(amount.toString());
+            if (isNaN(fiatValue)) {
+              console.warn(`Failed to parse local currency amount: "${amount}"`);
+              secondaryDisplayCurrency = `0 ${loc.units[BitcoinUnit.BTC]}`;
             } else {
-              try {
-                btcValue = fiatToBTC(fiatValue);
-              } catch (e) {
-                console.error('Error converting fiat to BTC:', e);
-                btcValue = '0';
-              }
-            }
-
-            try {
-              const numBtcValue = parseFloat(btcValue);
-              if (!isNaN(numBtcValue)) {
-                // Format BTC value for display - removing trailing zeros
-                secondaryDisplayCurrency = formatBTC(numBtcValue);
+              // Convert fiat to BTC
+              const btcValue = fiatToBTC(fiatValue);
+              
+              // For large BTC values, format with fewer decimal places
+              let formattedBtcValue;
+              if (parseFloat(btcValue) >= 1000) {
+                formattedBtcValue = new BigNumber(btcValue).toFixed(2); // Show only 2 decimals for large amounts
+              } else if (parseFloat(btcValue) >= 100) {
+                formattedBtcValue = new BigNumber(btcValue).toFixed(4); // Show 4 decimals
               } else {
-                secondaryDisplayCurrency = '0';
+                formattedBtcValue = btcValue; // Use default
               }
-            } catch (e) {
-              console.error('Error formatting BTC value:', e);
-              secondaryDisplayCurrency = '0';
+              
+              // Remove trailing zeros
+              formattedBtcValue = removeTrailingZeros(formattedBtcValue);
+              
+              // Replace decimal point with device's decimal separator if needed
+              const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+              if (decimalSeparator !== '.') {
+                formattedBtcValue = formattedBtcValue.replace('.', decimalSeparator);
+              }
+              
+              // Format as amount followed by unit
+              secondaryDisplayCurrency = `${formattedBtcValue} ${loc.units[BitcoinUnit.BTC]}`;
+              console.log(`Local currency ${fiatValue} → BTC: ${secondaryDisplayCurrency}`);
             }
           } catch (error) {
-            console.error('Overall error in LOCAL_CURRENCY handling:', error);
-            secondaryDisplayCurrency = '0';
+            console.error('Error in local currency conversion:', error);
+            secondaryDisplayCurrency = `0 ${loc.units[BitcoinUnit.BTC]}`;
           }
           break;
       }
 
       if (secondaryDisplayCurrency === 'NaN' || secondaryDisplayCurrency.includes('NaN')) {
-        secondaryDisplayCurrency = unit === BitcoinUnit.LOCAL_CURRENCY ? '0' : satoshiToLocalCurrency(0, true);
-      }
-
-      // Clean up the secondary display to remove unnecessary decimal zeros
-      if (unit === BitcoinUnit.LOCAL_CURRENCY) {
-        // BTC values already use formatBTC which removes trailing zeros
-      } else {
-        // For local currency values, remove decimal .00 or ,00 as needed
-        if (secondaryDisplayCurrency.includes('.00')) {
-          const parts = secondaryDisplayCurrency.split('.00');
-          if (parts.length === 2 && parts[1] === '') {
-            secondaryDisplayCurrency = parts[0];
-          }
-        } else if (secondaryDisplayCurrency.includes(',00')) {
-          const parts = secondaryDisplayCurrency.split(',00');
-          if (parts.length === 2 && parts[1] === '') {
-            secondaryDisplayCurrency = parts[0];
-          }
+        // Format correctly based on the current unit
+        if (unit === BitcoinUnit.LOCAL_CURRENCY) {
+          secondaryDisplayCurrency = `0 ${loc.units[BitcoinUnit.BTC]}`;
+        } else {
+          const currencySymbol = getCurrencySymbol();
+          secondaryDisplayCurrency = `0 ${currencySymbol}`;
         }
       }
     }
 
-    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = '';
+    if (amount === BitcoinUnit.MAX) {
+      secondaryDisplayCurrency = '';
+    }
 
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
@@ -883,8 +939,7 @@ class AmountInput extends Component {
               {showSecondaryDisplay && (
                 <View style={styles.secondaryRoot}>
                   <Text style={styles.secondaryText}>
-                    {unit === BitcoinUnit.LOCAL_CURRENCY ? secondaryDisplayCurrency : secondaryDisplayCurrency}
-                    {unit === BitcoinUnit.LOCAL_CURRENCY ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
+                    {secondaryDisplayCurrency}
                   </Text>
                 </View>
               )}
@@ -924,6 +979,12 @@ class AmountInput extends Component {
       </Pressable>
     );
   }
+}
+
+// Helper function to remove trailing zeros from a number string
+function removeTrailingZeros(numberStr) {
+  if (!numberStr.includes('.')) return numberStr;
+  return numberStr.replace(/\.?0+$/, match => match === '.' ? '.0' : '');
 }
 
 const styles = StyleSheet.create({
