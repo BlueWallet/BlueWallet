@@ -313,38 +313,40 @@ export const removeTrailingZeros = (value: number | string): string => {
  */
 export function parseNumberStringToFloat(numStr: string): number {
   if (!numStr) return 0;
-  
-  console.log(`parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${localeSettings.deviceLocale} | DECIMAL: ${localeSettings.decimalSeparator} | GROUP: ${localeSettings.groupSeparator}`);
+
+  console.log(
+    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${localeSettings.deviceLocale} | DECIMAL: ${localeSettings.decimalSeparator} | GROUP: ${localeSettings.groupSeparator}`,
+  );
 
   try {
     // First, handle special case of empty string
     if (numStr.trim() === '') return 0;
-    
+
     // Get a proper cleanedInput by normalizing according to locale rules
     let cleanedInput = numStr;
-    
+
     // If we have the locale's group separator, remove it
     if (localeSettings.groupSeparator) {
       const groupSepRegex = new RegExp('\\' + localeSettings.groupSeparator, 'g');
       cleanedInput = cleanedInput.replace(groupSepRegex, '');
     }
-    
+
     // If we have the locale's decimal separator and it's not a period,
     // replace it with a period for JavaScript parsing
     if (localeSettings.decimalSeparator && localeSettings.decimalSeparator !== '.') {
       const decimalSepRegex = new RegExp('\\' + localeSettings.decimalSeparator, 'g');
       cleanedInput = cleanedInput.replace(decimalSepRegex, '.');
     }
-    
+
     // Handle remaining non-numeric characters, but keep decimal point and negative sign
-    cleanedInput = cleanedInput.replace(/[^\d.\-]/g, '');
-    
-    // Parse the cleaned string 
+    cleanedInput = cleanedInput.replace(/[^\d.-]/g, '');
+
+    // Parse the cleaned string
     const result = parseFloat(cleanedInput);
-    
+
     console.log(`EXPECTED_FORMAT: "1234.56" → "${new Intl.NumberFormat(localeSettings.deviceLocale).format(1234.56)}"`);
     console.log(`PARSE RESULT: "${numStr}" → ${result} | CLEANED: "${cleanedInput}"`);
-    
+
     return isNaN(result) ? 0 : result;
   } catch (e) {
     console.error('Error in parseNumberStringToFloat:', e);

@@ -47,13 +47,11 @@ const Currency: React.FC = () => {
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
 
-
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.background,
     },
   });
-
 
   const data = useMemo(() => {
     if (search.length > 0) {
@@ -165,7 +163,7 @@ const Currency: React.FC = () => {
     try {
       // Always get fresh device locale directly from RNLocalize
       const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-      
+
       // Fiat currency example using current device locale
       fiatFormatted = new Intl.NumberFormat(deviceLocale, {
         style: 'currency',
@@ -222,11 +220,15 @@ const Currency: React.FC = () => {
         </View>
         <View style={styles.exampleRow}>
           <BlueText style={styles.exampleLabel}>{BitcoinUnit.BTC}:</BlueText>
-          <BlueText style={styles.exampleValue}>{btcFormatted} {loc.units[BitcoinUnit.BTC]}</BlueText>
+          <BlueText style={styles.exampleValue}>
+            {btcFormatted} {loc.units[BitcoinUnit.BTC]}
+          </BlueText>
         </View>
         <View style={styles.exampleRow}>
           <BlueText style={styles.exampleLabel}>{BitcoinUnit.SATS}:</BlueText>
-          <BlueText style={styles.exampleValue}>{satsFormatted} {loc.units[BitcoinUnit.SATS]}</BlueText>
+          <BlueText style={styles.exampleValue}>
+            {satsFormatted} {loc.units[BitcoinUnit.SATS]}
+          </BlueText>
         </View>
         <BlueSpacing20 />
       </BlueCard>

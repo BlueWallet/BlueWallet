@@ -20,7 +20,7 @@ const App = () => {
   useEffect(() => {
     // Initial locale setup when app starts
     updateLocaleSettings();
-    
+
     // Update locale settings when app returns to the foreground
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
@@ -28,10 +28,10 @@ const App = () => {
         updateLocaleSettings();
       }
     };
-    
+
     // Subscribe to app state changes
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     // Clean up
     return () => {
       subscription.remove();

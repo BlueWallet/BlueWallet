@@ -557,7 +557,7 @@ export function parseNumberStringToFloat(numStr: string): number {
 
   try {
     // First sanitize by removing all characters except digits, dots, commas and minus sign
-    let cleaned = numStr.replace(/[^\d.,\-]/g, '');
+    let cleaned = numStr.replace(/[^\d.,-]/g, '');
 
     // Determine which separator is which based on the locale
     const dotCount = (cleaned.match(/\./g) || []).length;
@@ -651,7 +651,7 @@ export function getDecimalPlaces(unit: string): number {
       console.warn('preferredFiatCurrency not available, using default decimal places (2)');
       return 2; // Default to 2 if currency isn't available yet
     }
-    
+
     // Get the current preferred currency's code
     const currencyCode = preferredFiatCurrency.endPointKey;
 
