@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
+import calendar from 'dayjs/plugin/localizedFormat';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 
 import {
   CurrencyRate,
@@ -9,6 +12,8 @@ import {
   initCurrencyDaemon,
   mostRecentFetchedRate,
   setPreferredCurrency,
+  formatBTC,
+  formatSats,
 } from '../../blue_modules/currency';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -18,9 +23,14 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 import { useSettings } from '../../hooks/context/useSettings';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
+// Extend dayjs with required plugins
 dayjs.extend(calendar);
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
 
+// Import additional necessary plugins for localization
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -37,11 +47,13 @@ const Currency: React.FC = () => {
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
 
+
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.background,
     },
   });
+
 
   const data = useMemo(() => {
     if (search.length > 0) {
@@ -146,6 +158,47 @@ const Currency: React.FC = () => {
   const CurrencyInfo = useMemo(() => {
     if (isSearchFocused && !selectedCurrencyVisible) return null;
 
+    // Create example values to show formatting patterns
+    const exampleFiatAmount = 1234.56;
+    let fiatFormatted, btcFormatted, satsFormatted;
+
+    try {
+      // Always get fresh device locale directly from RNLocalize
+      const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+      
+      // Fiat currency example using current device locale
+      fiatFormatted = new Intl.NumberFormat(deviceLocale, {
+        style: 'currency',
+        currency: selectedCurrency.endPointKey,
+        minimumFractionDigits: 2,
+      }).format(exampleFiatAmount);
+
+      // BTC example using locale-aware decimal formatting but always with dot
+      const btcValue = 0.12345678;
+      btcFormatted = formatBTC(btcValue);
+
+      // Sats example using locale-aware thousands separators but always with commas
+      const satsValue = 12345678;
+      satsFormatted = formatSats(satsValue);
+
+      console.log(`Formatted examples for locale ${deviceLocale}:`, {
+        fiat: fiatFormatted,
+        btc: btcFormatted,
+        sats: satsFormatted,
+      });
+    } catch (error) {
+      console.log('Error formatting examples:', error);
+      fiatFormatted = `${selectedCurrency.symbol}1,234.56`;
+      btcFormatted = '0.12345678';
+      satsFormatted = '12,345,678';
+    }
+
+    // Format the LastUpdated date with the current locale
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    const formattedDate = currencyRate.LastUpdated
+      ? dayjs(currencyRate.LastUpdated).locale(deviceLocale).format('LLL') // Use device locale
+      : loc._.never;
+
     return (
       <BlueCard>
         <BlueText>
@@ -157,12 +210,36 @@ const Currency: React.FC = () => {
         </BlueText>
         <BlueSpacing10 />
         <BlueText>
-          {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+          {loc.settings.last_updated}: {formattedDate}
         </BlueText>
+        <BlueSpacing20 />
+
+        <BlueText style={styles.sectionHeader}>{loc.settings.currency_display_example}:</BlueText>
+        <BlueSpacing10 />
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{selectedCurrency.endPointKey}</BlueText>
+          <BlueText style={styles.exampleValue}>{fiatFormatted}</BlueText>
+        </View>
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{BitcoinUnit.BTC}:</BlueText>
+          <BlueText style={styles.exampleValue}>{btcFormatted} {loc.units[BitcoinUnit.BTC]}</BlueText>
+        </View>
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{BitcoinUnit.SATS}:</BlueText>
+          <BlueText style={styles.exampleValue}>{satsFormatted} {loc.units[BitcoinUnit.SATS]}</BlueText>
+        </View>
         <BlueSpacing20 />
       </BlueCard>
     );
-  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
+  }, [
+    isSearchFocused,
+    selectedCurrencyVisible,
+    selectedCurrency?.source,
+    selectedCurrency.endPointKey,
+    selectedCurrency.symbol,
+    currencyRate.Rate,
+    currencyRate.LastUpdated,
+  ]);
 
   const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
 
@@ -193,5 +270,20 @@ export default Currency;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  sectionHeader: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  exampleRow: {
+    flexDirection: 'row',
+    marginVertical: 2,
+  },
+  exampleLabel: {
+    minWidth: 50,
+    fontWeight: '500',
+  },
+  exampleValue: {
+    marginLeft: 10,
   },
 });

@@ -312,89 +312,44 @@ export const removeTrailingZeros = (value: number | string): string => {
  * @returns {number} The parsed float value
  */
 export function parseNumberStringToFloat(numStr: string): number {
-  if (!numStr) return NaN;
-
-  const { decimalSeparator, groupSeparator } = localeSettings; // Remove unused deviceLocale
+  if (!numStr) return 0;
   
-  // First try the straightforward approach using the locale
+  console.log(`parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${localeSettings.deviceLocale} | DECIMAL: ${localeSettings.decimalSeparator} | GROUP: ${localeSettings.groupSeparator}`);
+
   try {
-    // First clean the string of any characters we know aren't part of number format
-    const cleaned = numStr.replace(/[^\d.,\s-]/g, '');
+    // First, handle special case of empty string
+    if (numStr.trim() === '') return 0;
     
-    // Try using Intl.NumberFormat to parse according to locale
-    // We need to normalize the string to work with NumberFormat.format()
+    // Get a proper cleanedInput by normalizing according to locale rules
+    let cleanedInput = numStr;
     
-    // Replace all group separators
-    let normalized = cleaned.replace(new RegExp(`\\${groupSeparator}`, 'g'), '');
-    
-    // Replace decimal separator with a period for JS parsing
-    if (decimalSeparator !== '.') {
-      normalized = normalized.replace(new RegExp(`\\${decimalSeparator}`, 'g'), '.');
+    // If we have the locale's group separator, remove it
+    if (localeSettings.groupSeparator) {
+      const groupSepRegex = new RegExp('\\' + localeSettings.groupSeparator, 'g');
+      cleanedInput = cleanedInput.replace(groupSepRegex, '');
     }
     
-    const result = parseFloat(normalized);
-    if (!isNaN(result)) {
-      return result;
+    // If we have the locale's decimal separator and it's not a period,
+    // replace it with a period for JavaScript parsing
+    if (localeSettings.decimalSeparator && localeSettings.decimalSeparator !== '.') {
+      const decimalSepRegex = new RegExp('\\' + localeSettings.decimalSeparator, 'g');
+      cleanedInput = cleanedInput.replace(decimalSepRegex, '.');
     }
+    
+    // Handle remaining non-numeric characters, but keep decimal point and negative sign
+    cleanedInput = cleanedInput.replace(/[^\d.\-]/g, '');
+    
+    // Parse the cleaned string 
+    const result = parseFloat(cleanedInput);
+    
+    console.log(`EXPECTED_FORMAT: "1234.56" → "${new Intl.NumberFormat(localeSettings.deviceLocale).format(1234.56)}"`);
+    console.log(`PARSE RESULT: "${numStr}" → ${result} | CLEANED: "${cleanedInput}"`);
+    
+    return isNaN(result) ? 0 : result;
   } catch (e) {
-    // Fall through to more robust parsing if this fails
+    console.error('Error in parseNumberStringToFloat:', e);
+    return 0;
   }
-
-  // More robust parsing as fallback
-  // Clean the input string but keep separators
-  const cleanedStr = numStr.replace(/[^\d.,'-]/g, '');
-  if (!cleanedStr) return NaN;
-
-  // Try parsing with Number directly (handles standard format)
-  const standardParse = Number(cleanedStr);
-  if (!isNaN(standardParse)) return standardParse;
-
-  // Detect format pattern
-  const hasDot = cleanedStr.includes('.');
-  const hasComma = cleanedStr.includes(',');
-
-  if (hasDot && hasComma) {
-    // Both separators exist - determine which is decimal vs. thousands
-    const lastDotIndex = cleanedStr.lastIndexOf('.');
-    const lastCommaIndex = cleanedStr.lastIndexOf(',');
-
-    if (lastDotIndex > lastCommaIndex) {
-      // Format like 1,000.00 (US format)
-      const withoutThousands = cleanedStr.replace(/,/g, '');
-      return Number(withoutThousands);
-    } else {
-      // Format like 1.000,00 (European format)
-      const converted = cleanedStr.replace(/\./g, '').replace(',', '.');
-      return Number(converted);
-    }
-  } else if (hasComma && !hasDot) {
-    // Only comma exists - check against locale settings
-    if (decimalSeparator === ',') {
-      // In locales where comma is the decimal separator
-      return Number(cleanedStr.replace(',', '.'));
-    } else {
-      // In locales where comma might be the thousands separator
-      return Number(cleanedStr.replace(/,/g, ''));
-    }
-  } else if (hasDot && !hasComma) {
-    // Only dots exist - check against locale settings
-    if (decimalSeparator === '.') {
-      // In locales where dot is the decimal separator
-      return Number(cleanedStr);
-    } else {
-      // In locales where dot might be the thousands separator
-      const parts = cleanedStr.split('.');
-      if (parts.length > 1) {
-        // Assume last dot is decimal if there are multiple
-        return Number(cleanedStr.replace(/\./g, '').replace(/(.+)([0-9]{1,2})$/, '$1.$2'));
-      }
-      // Otherwise, it's just removing the dot
-      return Number(cleanedStr.replace(/\./g, ''));
-    }
-  }
-
-  // Last attempt - try standard parsing
-  return Number(cleanedStr.replace(/[,.]/g, ''));
 }
 
 export function _leaveNumbersAndDots(newInputValue: string) {

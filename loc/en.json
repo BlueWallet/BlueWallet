@@ -236,6 +236,7 @@
     "currency": "Currency",
     "currency_source": "Rate is obtained from",
     "currency_fetch_error": "There was an error while obtaining the rate for the selected currency.",
+    "currency_display_example": "How will the currency be displayed",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
     "default_title": "On Launch",
