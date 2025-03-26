@@ -28,8 +28,10 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import TipBox from '../../components/TipBox';
+import SafeArea from '../../components/SafeArea';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
+const HORIZONTAL_PADDING = 20;
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -57,6 +59,7 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
+  const [qrCodeSize, setQRCodeSize] = useState(90);
   const stylesHook = StyleSheet.create({
     customAmount: {
       borderColor: colors.formBorder,
@@ -312,6 +315,23 @@ const ReceiveDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onLayout = useCallback(e => {
+    const { height, width } = e.nativeEvent.layout;
+
+    const isPortrait = height > width;
+    const maxQRSize = 500;
+
+    if (isPortrait) {
+      const heightBasedSize = Math.min(height * 0.6, maxQRSize);
+      const widthBasedSize = width * 0.85 - HORIZONTAL_PADDING * 2;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    } else {
+      const heightBasedSize = Math.min(height * 0.7, maxQRSize);
+      const widthBasedSize = width * 0.45;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    }
+  }, []);
+
   const renderReceiveDetails = () => {
     return (
       <>
@@ -331,11 +351,36 @@ const ReceiveDetails = () => {
             </>
           )}
 
-          <QRCodeComponent value={bip21encoded} />
+          <View style={styles.qrCodeContainer}>
+            <QRCodeComponent value={bip21encoded} size={qrCodeSize} />
+          </View>
           <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
       </>
     );
+  };
+
+  const renderTabContent = () => {
+    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
+
+    if (currentTab === segmentControlValues[0]) {
+      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
+    } else {
+      return (
+        <View style={styles.container}>
+          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
+          {qrValue && (
+            <>
+              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
+              <View style={styles.qrCodeContainer}>
+                <QRCodeComponent value={qrValue} size={qrCodeSize} />
+              </View>
+              <CopyTextToClipboard text={qrValue} truncated={false} />
+            </>
+          )}
+        </View>
+      );
+    }
   };
 
   useFocusEffect(
@@ -428,27 +473,6 @@ const ReceiveDetails = () => {
     }
   };
 
-  const renderTabContent = () => {
-    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
-
-    if (currentTab === segmentControlValues[0]) {
-      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
-    } else {
-      return (
-        <View style={styles.container}>
-          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
-          {qrValue && (
-            <>
-              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
-              <QRCodeComponent value={qrValue} />
-              <CopyTextToClipboard text={qrValue} truncated={false} />
-            </>
-          )}
-        </View>
-      );
-    }
-  };
-
   return (
     <>
       <ScrollView
@@ -457,41 +481,57 @@ const ReceiveDetails = () => {
         automaticallyAdjustsScrollIndicatorInsets
         automaticallyAdjustKeyboardInsets
         testID="ReceiveDetailsScrollView"
+        style={stylesHook.root}
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"
+        onLayout={onLayout}
       >
-        {wallet?.allowBIP47() && wallet?.isBIP47Enabled() && (
-          <View style={styles.tabsContainer}>
-            <SegmentedControl
-              values={segmentControlValues}
-              selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-              onChange={index => {
-                setCurrentTab(segmentControlValues[index]);
-              }}
-            />
-          </View>
-        )}
-        {showAddress && renderTabContent()}
-        {address !== undefined && showAddress && (
-          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
-        )}
-        {showConfirmedBalance ? renderConfirmedBalance() : null}
-        {showPendingBalance ? renderPendingBalance() : null}
-        {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
-        <View style={styles.share}>
-          <BlueCard>
-            {showAddress && currentTab === loc.wallets.details_address && (
-              <BlueButtonLink
-                style={styles.link}
-                testID="SetCustomAmountButton"
-                title={loc.receive.details_setAmount}
-                onPress={showCustomAmountModal}
+        <SafeArea style={stylesHook.root}>
+          {wallet?.allowBIP47() && wallet?.isBIP47Enabled() && (
+            <View style={styles.tabsContainer}>
+              <SegmentedControl
+                values={segmentControlValues}
+                selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
+                onChange={index => {
+                  setCurrentTab(segmentControlValues[index]);
+                }}
               />
-            )}
-            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-          </BlueCard>
-        </View>
+            </View>
+          )}
+
+          {showAddress && renderTabContent()}
+          {address !== undefined && showAddress && (
+            <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
+          )}
+          {showConfirmedBalance && renderConfirmedBalance()}
+          {showPendingBalance && renderPendingBalance()}
+
+          {!showAddress && !showPendingBalance && !showConfirmedBalance && (
+            <View style={styles.loadingContainer}>
+              <BlueLoading />
+            </View>
+          )}
+
+          <View style={styles.share}>
+            <BlueCard>
+              {showAddress && currentTab === loc.wallets.details_address && (
+                <BlueButtonLink
+                  style={styles.link}
+                  testID="SetCustomAmountButton"
+                  title={loc.receive.details_setAmount}
+                  onPress={showCustomAmountModal}
+                />
+              )}
+              <Button
+                onPress={handleShareButtonPressed}
+                title={loc.receive.details_share}
+                disabled={!bip21encoded && !(wallet?.getBIP47PaymentCode && currentTab === segmentControlValues[1])}
+              />
+            </BlueCard>
+          </View>
+        </SafeArea>
       </ScrollView>
+
       <BottomModal
         ref={bottomModalRef}
         contentContainerStyle={styles.modalContainerJustify}
@@ -562,23 +602,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   tabsContainer: {
-    marginTop: 16,
+    marginTop: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollBody: {
-    marginTop: 32,
+    marginTop: 16,
     flexGrow: 1,
     alignItems: 'center',
     paddingHorizontal: 16,
   },
   share: {
-    justifyContent: 'flex-end',
+    width: '100%',
     paddingHorizontal: 32,
     marginVertical: 16,
+    marginTop: 'auto',
   },
   link: {
-    marginVertical: 32,
+    marginVertical: 16,
     paddingHorizontal: 32,
   },
   amount: {
@@ -589,7 +630,7 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: '600',
     textAlign: 'center',
-    paddingBottom: 24,
+    paddingBottom: 12,
   },
   modalButton: {
     paddingVertical: 14,
@@ -622,6 +663,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginVertical: 24,
+  },
+  qrCodeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
   },
 });
 

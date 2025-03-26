@@ -39,17 +39,17 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-      <SafeAreaProvider>
-        <LargeScreenProvider>
+    <LargeScreenProvider>
+      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+        <SafeAreaProvider>
           <StorageProvider>
             <SettingsProvider>
               <MasterView />
             </SettingsProvider>
           </StorageProvider>
-        </LargeScreenProvider>
-      </SafeAreaProvider>
-    </NavigationContainer>
+        </SafeAreaProvider>
+      </NavigationContainer>
+    </LargeScreenProvider>
   );
 };
 

@@ -3,8 +3,7 @@ import calendar from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
-import * as RNLocalize from 'react-native-localize';
+import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
 
 import {
   CurrencyRate,
@@ -25,6 +24,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 import { useSettings } from '../../hooks/context/useSettings';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 // Extend dayjs with required plugins
@@ -166,9 +166,9 @@ const Currency: React.FC = () => {
       fiatFormatted = satoshiToLocalCurrency(exampleSatsAmount, true);
 
       const btcValue = satoshiToBTC(exampleSatsAmount);
-      btcFormatted = `${formatBTC(Number(btcValue))} ${loc.units[BitcoinUnit.BTC]}`;
+      btcFormatted = `${formatBTC(Number(btcValue))} ${BitcoinUnit.BTC}`;
 
-      satsFormatted = `${formatSats(exampleSatsAmount)} ${loc.units[BitcoinUnit.SATS]}`;
+      satsFormatted = `${formatSats(exampleSatsAmount)} ${BitcoinUnit.SATS}`;
 
       console.log(`Currency display examples:`, {
         fiat: fiatFormatted,
@@ -179,8 +179,8 @@ const Currency: React.FC = () => {
       console.error('Error generating currency examples:', error);
 
       fiatFormatted = `${selectedCurrency.symbol}1,234.56`;
-      btcFormatted = `0.12345678 ${loc.units[BitcoinUnit.BTC]}`;
-      satsFormatted = `12,345,678 ${loc.units[BitcoinUnit.SATS]}`;
+      btcFormatted = `0.12345678 ${BitcoinUnit.BTC}`;
+      satsFormatted = `12,345,678 ${BitcoinUnit.SATS}`;
     }
 
     const deviceLocale = RNLocalize.getLocales()[0].languageTag;
@@ -232,7 +232,7 @@ const Currency: React.FC = () => {
 
   return (
     <View style={[styles.flex, stylesHook.flex]}>
-      <FlatList
+      <SafeAreaFlatList
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         automaticallyAdjustKeyboardInsets
