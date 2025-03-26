@@ -9,11 +9,14 @@ import * as RNLocalize from 'react-native-localize';
 
 import {
   fiatToBTC,
+  formatNumberByUnit,
+  formatNumberWithLocale,
   getCurrencySymbol,
   getDecimalPlaces,
   isRateOutdated,
   localeSettings,
   mostRecentFetchedRate,
+  parsePastedNumber,
   satoshiToBTC,
   satoshiToLocalCurrency,
   updateExchangeRate,
@@ -21,7 +24,7 @@ import {
 } from '../blue_modules/currency';
 import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
-import loc, { parseNumberStringToFloat } from '../loc';
+import loc, { getTextSizeForAmount, parseNumberStringToFloat, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useTheme } from './themes';
 
@@ -664,12 +667,11 @@ class AmountInput extends Component {
     try {
       console.log(`Handling pasted text: "${text}"`);
 
-      // Check for empty text
-      if (!text || text.trim() === '') return;
-
-      // Get device's separator settings (what we need to convert TO)
-      const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
-      console.log(`Device separators - decimal: ${decimalSeparator}, group: ${groupingSeparator}`);
+      // Null/empty check
+      if (!text || text.trim() === '') {
+        console.log('Pasted text is null, undefined, or empty');
+        return;
+      }
 
       // Special case: check for non-numeric text that might have been pasted by mistake
       if (text.replace(/[,.\s\d\-+]/g, '').length > 0) {
@@ -678,204 +680,45 @@ class AmountInput extends Component {
         return;
       }
 
-      // Analyze separators in the pasted text
-      const hasPeriod = text.includes('.');
-      const hasComma = text.includes(',');
+      // Use the imported parsePastedNumber function from currency.ts
+      const parsed = parsePastedNumber(text);
+      // Fix: Only destructure the values we actually need
+      const { numericValue } = parsed;
 
-      // Extract integer and decimal parts based on the format detection
-      let integerPart = '';
-      let decimalPart = '';
-
-      // STEP 1: EXTRACT INTEGER AND DECIMAL PARTS
-      if (hasPeriod && hasComma) {
-        // Format has both separators - need to determine which is which
-        const lastPeriod = text.lastIndexOf('.');
-        const lastComma = text.lastIndexOf(',');
-
-        if (lastPeriod > lastComma) {
-          // US format: 1,234.56 (period is decimal)
-          const parts = text.split('.');
-          integerPart = parts[0].replace(/,/g, ''); // Remove thousands separators
-          decimalPart = parts[1] || '';
-          console.log(`Detected US format (1,234.56): integer=${integerPart}, decimal=${decimalPart}`);
-        } else {
-          // EU format: 1.234,56 (comma is decimal)
-          const parts = text.split(',');
-          integerPart = parts[0].replace(/\./g, ''); // Remove thousands separators
-          decimalPart = parts[1] || '';
-          console.log(`Detected EU format (1.234,56): integer=${integerPart}, decimal=${decimalPart}`);
-        }
-      } else if (hasPeriod) {
-        // Only has periods - assume it's a decimal separator
-        const parts = text.split('.');
-        if (parts.length === 2) {
-          // Single period - treat as decimal: 1234.56
-          integerPart = parts[0];
-          decimalPart = parts[1];
-          console.log(`Detected decimal period format (1234.56): integer=${integerPart}, decimal=${decimalPart}`);
-        } else {
-          // Multiple periods - strip them all as grouping: 1.234.567
-          integerPart = text.replace(/\./g, '');
-          console.log(`Detected multiple periods - treating as grouping: integer=${integerPart}`);
-        }
-      } else if (hasComma) {
-        // Only has commas
-        const parts = text.split(',');
-        if (parts.length === 2) {
-          // Single comma - treat as decimal: 1234,56
-          integerPart = parts[0];
-          decimalPart = parts[1];
-          console.log(`Detected decimal comma format (1234,56): integer=${integerPart}, decimal=${decimalPart}`);
-        } else {
-          // Multiple commas - strip them all as grouping: 1,234,567
-          integerPart = text.replace(/,/g, '');
-          console.log(`Detected multiple commas - treating as grouping: integer=${integerPart}`);
-        }
-      } else {
-        // No separators - just digits
-        integerPart = text;
-        console.log(`No separators detected: integer=${integerPart}`);
+      if (isNaN(numericValue)) {
+        console.log(`Failed to parse number: "${text}"`);
+        this.handleChangeText(text);
+        return;
       }
 
-      // Clean up any leftover non-digits
-      integerPart = integerPart.replace(/\D/g, '');
-      decimalPart = decimalPart.replace(/\D/g, '');
-
-      // STEP 2: DETERMINE DECIMALS TO USE BASED ON CURRENT UNIT
-      let maxDecimals;
-      switch (this.props.unit) {
-        case BitcoinUnit.LOCAL_CURRENCY:
-          try {
-            maxDecimals = getDecimalPlaces(BitcoinUnit.LOCAL_CURRENCY);
-          } catch (e) {
-            maxDecimals = 2;
-          }
-          break;
-        case BitcoinUnit.BTC:
-          maxDecimals = 8;
-          break;
-        case BitcoinUnit.SATS:
-          maxDecimals = 0; // no decimals for sats
-          break;
-        default:
-          maxDecimals = 2;
-      }
-
-      // Limit decimal part length if needed
-      if (decimalPart.length > maxDecimals) {
-        decimalPart = decimalPart.substring(0, maxDecimals);
-      }
-
-      // STEP 3: FORMAT WITH PROPER DEVICE SEPARATORS
-
-      // Format integer part with grouping separators
-      let formattedInteger = '';
-      if (integerPart) {
-        for (let i = 0; i < integerPart.length; i++) {
-          // Add grouping separator every 3 digits from right
-          if (i > 0 && (integerPart.length - i) % 3 === 0) {
-            formattedInteger += groupingSeparator;
-          }
-          formattedInteger += integerPart[i];
-        }
-      } else {
-        formattedInteger = '0';
-      }
-
-      // Build final result
-      let result;
-      if (decimalPart && maxDecimals > 0) {
-        result = `${formattedInteger}${decimalSeparator}${decimalPart}`;
-      } else {
-        result = formattedInteger;
-      }
+      // Format according to current unit using the extracted formatNumberByUnit function
+      const result = formatNumberByUnit(
+        numericValue,
+        this.props.unit,
+        this.props.unit === BitcoinUnit.LOCAL_CURRENCY
+          ? getDecimalPlaces(BitcoinUnit.LOCAL_CURRENCY)
+          : this.props.unit === BitcoinUnit.BTC
+            ? 8
+            : 0,
+      );
 
       console.log(`Final formatted result: "${text}" → "${result}"`);
       this.props.onChangeText(result);
     } catch (error) {
       console.error('Error in paste handling:', error);
-      // Fall back to standard handling
+      // Fallback to standard handling
       this.handleChangeText(text);
     }
   };
 
-  // Rename to formatNumberWithLocale to avoid duplication - enhanced version
-  formatNumberWithLocale = (number, decimals) => {
-    try {
-      // Handle NaN and Infinity
-      if (!isFinite(number)) {
-        console.warn(`Attempt to format non-finite number: ${number}`);
-        return '0';
-      }
-
-      const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
-      const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-
-      // Safety check: ensure decimals is a positive number
-      decimals = Math.max(0, Math.min(20, decimals || 0));
-
-      // Format with appropriate decimal places
-      let formatted;
-
-      try {
-        // Try using Intl.NumberFormat first (more accurate for locales)
-        formatted = new Intl.NumberFormat(deviceLocale, {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: decimals,
-          useGrouping: true,
-        }).format(number);
-      } catch (intlError) {
-        console.warn('Intl.NumberFormat error, using manual formatting:', intlError);
-
-        // Manual formatting as fallback - with extra safety
-        try {
-          // First get the fixed string representation
-          const fixedString = number.toFixed(decimals);
-
-          // Split into integer and decimal parts
-          const parts = fixedString.split('.');
-          const integerPart = parts[0] || '0';
-          const decimalPart = parts.length > 1 ? parts[1] : '';
-
-          // Format integer part with grouping separators
-          let formattedInteger = '';
-          for (let i = 0; i < integerPart.length; i++) {
-            if (i > 0 && (integerPart.length - i) % 3 === 0) {
-              formattedInteger += groupingSeparator || ','; // Fallback to comma if null
-            }
-            formattedInteger += integerPart[i];
-          }
-
-          // Combine with decimal part if available
-          if (decimalPart) {
-            formatted = `${formattedInteger}${decimalSeparator || '.'}${decimalPart}`;
-          } else {
-            formatted = formattedInteger;
-          }
-        } catch (manualError) {
-          console.error('Manual formatting failed:', manualError);
-          // Ultimate fallback
-          formatted = String(number);
-        }
-      }
-
-      return formatted;
-    } catch (error) {
-      console.error('Error formatting number for device locale:', error);
-      // Simple fallback if all formatting fails
-      return String(number);
-    }
+  // Use the extracted formatNumberWithLocale function from currency.ts
+  formatWithLocale = (number, decimals) => {
+    return formatNumberWithLocale(number, decimals);
   };
 
   getInputFontSize = () => {
-    const { amount } = this.props;
-    if (!amount) return 36; // Default size
-    if (amount.length > 15) {
-      return 16; // Very long numbers (e.g., with decimals)
-    } else if (amount.length > 10) {
-      return 20; // Long numbers
-    }
-    return 36; // Default size
+    // Use the extracted getTextSizeForAmount function from loc/index.ts
+    return getTextSizeForAmount(this.props.amount);
   };
 
   render() {
@@ -1170,12 +1013,6 @@ class AmountInput extends Component {
       </Pressable>
     );
   }
-}
-
-// Helper function to remove trailing zeros from a number string
-function removeTrailingZeros(numberStr) {
-  if (!numberStr.includes('.')) return numberStr;
-  return numberStr.replace(/\.?0+$/, match => (match === '.' ? '.0' : ''));
 }
 
 const styles = StyleSheet.create({

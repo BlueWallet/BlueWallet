@@ -1,32 +1,41 @@
 import assert from 'assert';
 
 import { _setExchangeRate, _setPreferredFiatCurrency, _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
-import { _leaveNumbersAndDots, formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
+import {
+  _leaveNumbersAndDots,
+  cleanNumberString,
+  formatBalance,
+  formatBalancePlain,
+  formatBalanceWithoutSuffix,
+  getTextSizeForAmount,
+  parseNumberStringToFloat,
+  removeTrailingZeros,
+} from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 
 describe('Localization', () => {
   it('internal formatter', () => {
-    assert.strictEqual(_leaveNumbersAndDots('1,00 ₽'), '1');
-    assert.strictEqual(_leaveNumbersAndDots('0,50 ₽"'), '0.50');
+    assert.strictEqual(_leaveNumbersAndDots('1,00 ₽'), '1');
+    assert.strictEqual(_leaveNumbersAndDots('0,50 ₽"'), '0.50');
     assert.strictEqual(_leaveNumbersAndDots('RUB 1,00'), '1');
   });
 
-  it('formatBalancePlain() && formatBalancePlain()', () => {
+  it('formatBalancePlain() && formatBalanceWithoutSuffix()', () => {
     _setExchangeRate('BTC_RUB', 660180.143);
     _setPreferredFiatCurrency(FiatUnit.RUB);
     let newInputValue = formatBalanceWithoutSuffix(152, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.ok(newInputValue === 'RUB 1.00' || newInputValue === '1,00 ₽', 'Unexpected: ' + newInputValue);
+    assert.ok(newInputValue === 'RUB 1.00' || newInputValue === '1,00 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(152, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '1');
 
     newInputValue = formatBalanceWithoutSuffix(1515, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.ok(newInputValue === 'RUB 10.00' || newInputValue === '10,00 ₽', 'Unexpected: ' + newInputValue);
+    assert.ok(newInputValue === 'RUB 10.00' || newInputValue === '10,00 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(1515, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '10');
 
     newInputValue = formatBalanceWithoutSuffix(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.ok(newInputValue === 'RUB 110,869.52' || newInputValue === '110 869,52 ₽', 'Unexpected: ' + newInputValue);
+    assert.ok(newInputValue === 'RUB 110,869.52' || newInputValue === '110 869,52 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '110869.52');
 
@@ -82,4 +91,41 @@ describe('Localization', () => {
     },
     240000,
   );
+
+  // Add tests for new functions
+  it('should clean number strings correctly', () => {
+    assert.strictEqual(cleanNumberString('123,456.78'), '123456.78');
+    assert.strictEqual(cleanNumberString('-123,456.78'), '-123456.78');
+    assert.strictEqual(cleanNumberString('$1,234.56'), '1234.56');
+    assert.strictEqual(cleanNumberString('1,234.56 USD'), '1234.56');
+    assert.strictEqual(cleanNumberString('1.234,56'), '1234,56'); // keep comma as decimal if it's used that way
+  });
+
+  it('should parse number strings to floats according to locale', () => {
+    assert.strictEqual(parseNumberStringToFloat('1234.56'), 1234.56);
+    assert.strictEqual(parseNumberStringToFloat('1,234.56'), 1234.56);
+    assert.strictEqual(parseNumberStringToFloat('1.234,56'), 1234.56); // Handles European format
+    assert.strictEqual(parseNumberStringToFloat('-1,234.56'), -1234.56);
+    assert.strictEqual(parseNumberStringToFloat('not a number'), 0);
+    assert.strictEqual(parseNumberStringToFloat(''), 0);
+  });
+
+  it('should remove trailing zeros according to locale', () => {
+    assert.strictEqual(removeTrailingZeros(1.2), '1.2');
+    assert.strictEqual(removeTrailingZeros(1.0), '1.0'); // Keeps at least one decimal place
+    assert.strictEqual(removeTrailingZeros('123.4500'), '123.45');
+    assert.strictEqual(removeTrailingZeros('100.0000'), '100.0');
+    assert.strictEqual(removeTrailingZeros(100), '100'); // No decimal point, no change
+  });
+
+  it('should calculate appropriate font size for amount display', () => {
+    assert.strictEqual(getTextSizeForAmount('123'), 36); // Default size
+    assert.strictEqual(getTextSizeForAmount('1234567890'), 36); // 10 chars - default size
+    assert.strictEqual(getTextSizeForAmount('12345678901'), 20); // 11 chars - smaller
+    assert.strictEqual(getTextSizeForAmount('1234567890123456'), 16); // Very long - smallest
+    assert.strictEqual(getTextSizeForAmount(null), 36); // Handles null - default
+    assert.strictEqual(getTextSizeForAmount(undefined), 36); // Handles undefined - default
+    assert.strictEqual(getTextSizeForAmount(''), 36); // Handles empty - default
+    assert.strictEqual(getTextSizeForAmount(123), 36); // Handles number - default
+  });
 });

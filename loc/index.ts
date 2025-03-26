@@ -300,9 +300,27 @@ export const removeTrailingZeros = (value: number | string): string => {
   if (ret.indexOf('.') === -1) {
     return ret;
   }
-  while ((ret.slice(-1) === '0' || ret.slice(-1) === '.') && ret.indexOf('.') !== -1) {
-    ret = ret.substr(0, ret.length - 1);
+
+  // Get device's decimal separator
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Create pattern with the correct decimal separator
+  const dotSeparator = '.';
+  const trailingZerosPattern = /\.?0+$/;
+
+  // First standardize the decimal separator to period for processing
+  if (decimalSeparator !== dotSeparator && ret.includes(decimalSeparator)) {
+    ret = ret.replace(decimalSeparator, dotSeparator);
   }
+
+  // Remove trailing zeros but ensure we have at least one decimal digit if needed
+  ret = ret.replace(trailingZerosPattern, match => (match === dotSeparator ? dotSeparator + '0' : ''));
+
+  // Convert back to the device's decimal separator if needed
+  if (decimalSeparator !== dotSeparator) {
+    ret = ret.replace(dotSeparator, decimalSeparator);
+  }
+
   return ret;
 };
 
@@ -576,6 +594,56 @@ export function formatBalancePlain(balance = 0, toUnit: string, withFormatting =
  */
 export function formatStringAddTwoWhiteSpaces(text: string): string {
   return `${text}  `;
+}
+
+/**
+ * Cleans a number string by removing all characters except digits, decimal separator and negative sign
+ * @param numStr The number string to clean
+ * @returns A standardized number string with proper decimal separator
+ *
+ * @export - Exported for use in UI components
+ */
+export function cleanNumberString(numStr: string): string {
+  if (!numStr) return '';
+
+  // Get device's locale settings
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Escape special regex characters in the decimal separator
+  const safeDecimalSep = decimalSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Keep only digits, decimal separator, and minus sign
+  const validCharsPattern = new RegExp(`[^\\d${safeDecimalSep}\\-]`, 'g');
+  const sanitizedText = numStr.replace(validCharsPattern, '');
+
+  // Ensure there's only one decimal separator
+  if (sanitizedText.includes(decimalSeparator)) {
+    const parts = sanitizedText.split(decimalSeparator);
+    // Keep first occurrence of decimal separator
+    return `${parts[0]}${decimalSeparator}${parts.slice(1).join('')}`;
+  }
+
+  return sanitizedText;
+}
+
+/**
+ * Determines an appropriate font size for displaying an amount
+ * @param amount The amount string to display
+ * @param defaultSize The default font size
+ * @returns Appropriate font size for the amount
+ */
+export function getTextSizeForAmount(amount: string | null | undefined, defaultSize = 36): number {
+  if (!amount) return defaultSize;
+
+  const length = amount.toString().length;
+
+  if (length > 15) {
+    return 16; // Very long numbers (e.g., with decimals)
+  } else if (length > 10) {
+    return 20; // Long numbers
+  }
+
+  return defaultSize; // Default size
 }
 
 export default loc;

@@ -866,6 +866,223 @@ export function formatNumberLocale(amount: number | string, options: ExtendedNum
   }
 }
 
+/**
+ * Formats a number according to the device's locale settings
+ * @param number The number to format
+ * @param decimals Number of decimal places
+ * @returns Formatted string
+ */
+function formatNumberWithLocale(number: number, decimals: number = 2): string {
+  try {
+    // Handle NaN and Infinity
+    if (!isFinite(number)) {
+      console.warn(`Attempt to format non-finite number: ${number}`);
+      return '0';
+    }
+
+    // Always get fresh locale settings directly from RNLocalize
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+
+    // Safety check: ensure decimals is a positive number
+    decimals = Math.max(0, Math.min(20, decimals || 0));
+
+    // Format with appropriate decimal places
+    let formatted;
+
+    try {
+      // Try using Intl.NumberFormat first (more accurate for locales)
+      formatted = new Intl.NumberFormat(deviceLocale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: decimals,
+        useGrouping: true,
+      }).format(number);
+    } catch (intlError) {
+      console.warn('Intl.NumberFormat error, using manual formatting:', intlError);
+
+      // Manual formatting as fallback - with extra safety
+      try {
+        // First get the fixed string representation
+        const fixedString = number.toFixed(decimals);
+
+        // Split into integer and decimal parts
+        const parts = fixedString.split('.');
+        const integerPart = parts[0] || '0';
+        const decimalPart = parts.length > 1 ? parts[1] : '';
+
+        // Format integer part with grouping separators
+        let formattedInteger = '';
+        for (let i = 0; i < integerPart.length; i++) {
+          if (i > 0 && (integerPart.length - i) % 3 === 0) {
+            formattedInteger += groupingSeparator || ','; // Fallback to comma if null
+          }
+          formattedInteger += integerPart[i];
+        }
+
+        // Combine with decimal part if available
+        if (decimalPart) {
+          formatted = `${formattedInteger}${decimalSeparator || '.'}${decimalPart}`;
+        } else {
+          formatted = formattedInteger;
+        }
+      } catch (manualError) {
+        console.error('Manual formatting failed:', manualError);
+        // Ultimate fallback
+        formatted = String(number);
+      }
+    }
+
+    return formatted;
+  } catch (error) {
+    console.error('Error formatting number for device locale:', error);
+    // Simple fallback if all formatting fails
+    return String(number);
+  }
+}
+
+/**
+ * Detects and parses pasted number formats correctly according to different locale standards
+ * @param text The text that was pasted
+ * @returns An object containing parsed number and formatting information
+ */
+function parsePastedNumber(text: string): {
+  numericValue: number;
+  integerPart: string;
+  decimalPart: string;
+  hasDecimal: boolean;
+} {
+  if (!text || text.trim() === '') {
+    return { numericValue: 0, integerPart: '0', decimalPart: '', hasDecimal: false };
+  }
+
+  // Get device's separator settings
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+  console.log(`Parsing pasted number: "${text}" with device separators - decimal: ${decimalSeparator}, group: ${groupingSeparator}`);
+
+  // Analyze separators in the text
+  const hasPeriod = text.includes('.');
+  const hasComma = text.includes(',');
+
+  // Extract integer and decimal parts based on the format detection
+  let integerPart = '';
+  let decimalPart = '';
+
+  // STEP 1: EXTRACT INTEGER AND DECIMAL PARTS
+  if (hasPeriod && hasComma) {
+    // Format has both separators - need to determine which is which
+    const lastPeriod = text.lastIndexOf('.');
+    const lastComma = text.lastIndexOf(',');
+
+    if (lastPeriod > lastComma) {
+      // US format: 1,234.56 (period is decimal)
+      const parts = text.split('.');
+      integerPart = parts[0].replace(/,/g, ''); // Remove thousands separators
+      decimalPart = parts[1] || '';
+      console.log(`Detected US format (1,234.56): integer=${integerPart}, decimal=${decimalPart}`);
+    } else {
+      // EU format: 1.234,56 (comma is decimal)
+      const parts = text.split(',');
+      integerPart = parts[0].replace(/\./g, ''); // Remove thousands separators
+      decimalPart = parts[1] || '';
+      console.log(`Detected EU format (1.234,56): integer=${integerPart}, decimal=${decimalPart}`);
+    }
+  } else if (hasPeriod) {
+    // Only has periods - assume it's a decimal separator
+    const parts = text.split('.');
+    if (parts.length === 2) {
+      // Single period - treat as decimal: 1234.56
+      integerPart = parts[0];
+      decimalPart = parts[1];
+      console.log(`Detected decimal period format (1234.56): integer=${integerPart}, decimal=${decimalPart}`);
+    } else {
+      // Multiple periods - strip them all as grouping: 1.234.567
+      integerPart = text.replace(/\./g, '');
+      console.log(`Detected multiple periods - treating as grouping: integer=${integerPart}`);
+    }
+  } else if (hasComma) {
+    // Only has commas
+    const parts = text.split(',');
+    if (parts.length === 2) {
+      // Single comma - treat as decimal: 1234,56
+      integerPart = parts[0];
+      decimalPart = parts[1];
+      console.log(`Detected decimal comma format (1234,56): integer=${integerPart}, decimal=${decimalPart}`);
+    } else {
+      // Multiple commas - strip them all as grouping: 1,234,567
+      integerPart = text.replace(/,/g, '');
+      console.log(`Detected multiple commas - treating as grouping: integer=${integerPart}`);
+    }
+  } else {
+    // No separators - just digits
+    integerPart = text;
+    console.log(`No separators detected: integer=${integerPart}`);
+  }
+
+  // Clean up any leftover non-digits
+  integerPart = integerPart.replace(/\D/g, '');
+  decimalPart = decimalPart.replace(/\D/g, '');
+
+  // Convert to standard numeric format for JavaScript
+  const standardNumericString = decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+  const numericValue = parseFloat(standardNumericString);
+
+  return {
+    numericValue: isNaN(numericValue) ? 0 : numericValue,
+    integerPart: integerPart || '0',
+    decimalPart,
+    hasDecimal: decimalPart.length > 0,
+  };
+}
+
+/**
+ * Formats a number according to device locale and unit settings
+ * @param numericValue The number to format
+ * @param unit The Bitcoin unit (BTC, SATS, LOCAL_CURRENCY)
+ * @param maxDecimals Override for the maximum decimal places
+ */
+function formatNumberByUnit(numericValue: number, unit: string, maxDecimals?: number): string {
+  if (isNaN(numericValue)) return '0';
+
+  // Get device's separator settings
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Determine decimals to use based on unit or override
+  const decimals = typeof maxDecimals === 'number' ? maxDecimals : getDecimalPlaces(unit);
+
+  // Format integer part with grouping separators
+  const absValue = Math.abs(Math.round(unit === BitcoinUnit.SATS ? numericValue : numericValue));
+  const intString = absValue.toString();
+  let formattedInteger = '';
+
+  for (let i = 0; i < intString.length; i++) {
+    // Add grouping separator every 3 digits from right
+    if (i > 0 && (intString.length - i) % 3 === 0) {
+      formattedInteger += groupingSeparator;
+    }
+    formattedInteger += intString[i];
+  }
+
+  // Add negative sign if needed
+  if (numericValue < 0) {
+    formattedInteger = '-' + formattedInteger;
+  }
+
+  // For sats, return just the integer part
+  if (unit === BitcoinUnit.SATS || decimals === 0) {
+    return formattedInteger;
+  }
+
+  // For other units with decimals
+  const valueStr = numericValue.toFixed(decimals);
+  const decimalPart = valueStr.split('.')[1] || '';
+
+  if (decimalPart) {
+    return `${formattedInteger}${decimalSeparator}${decimalPart}`;
+  } else {
+    return formattedInteger;
+  }
+}
+
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
   preferredFiatCurrency = currency;
 }
@@ -901,4 +1118,7 @@ export {
   formatBTCInternal as formatBTC,
   formatSatsInternal as formatSats,
   preferredFiatCurrency,
+  formatNumberWithLocale,
+  parsePastedNumber,
+  formatNumberByUnit,
 };
