@@ -107,7 +107,13 @@ const SelectWallet: React.FC = () => {
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
     if (onWalletSelect) {
-      onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
+      // Create a dummy navigate function with proper type compatibility
+      const dummyNavigate = (..._args: any[]) => {
+        // This function intentionally does nothing
+        console.log('Dummy navigate called');
+      };
+
+      onWalletSelect(item, { navigation: { pop, navigate: dummyNavigate } });
     } else {
       // @ts-ignore: fix later
       navigation.popTo(previousRouteName, { walletID: item.getID(), merge: true });

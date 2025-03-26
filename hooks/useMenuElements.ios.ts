@@ -37,7 +37,7 @@ try {
 function safeNavigate(routeName: string, params?: Record<string, any>): void {
   try {
     if (navigationRef.current?.isReady()) {
-      navigationRef.current.navigate(routeName as never, params as never);
+      navigationRef.current.navigate(routeName, params);
       return;
     }
 
