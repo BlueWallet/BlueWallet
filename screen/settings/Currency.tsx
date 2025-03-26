@@ -4,6 +4,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import updateLocale from 'dayjs/plugin/updateLocale';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 
 import {
   CurrencyRate,
