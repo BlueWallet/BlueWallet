@@ -10,6 +10,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { navigationRef } from '../../NavigationService';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -22,8 +23,7 @@ interface StorageContextType {
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
-  selectedWalletID: string | undefined;
-  setSelectedWalletID: (walletID: string | undefined) => void;
+  selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
   deleteWallet: (wallet: TWallet) => void;
   currentSharedCosigner: string;
@@ -67,12 +67,86 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
-  const [selectedWalletID, setSelectedWalletID] = useState<string | undefined>();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
+
+  const selectedWalletID = useCallback((): string | undefined => {
+    if (!navigationRef.current || !navigationRef.current.isReady()) return undefined;
+
+    const screensToCheck = ['LNDCreateInvoice', 'SendDetails', 'WalletTransactions', 'TransactionStatus'];
+
+    const currentRoute = navigationRef.current.getCurrentRoute();
+    console.debug('[StorageProvider] Current route:', currentRoute?.name);
+
+    if (currentRoute) {
+      if (screensToCheck.includes(currentRoute.name) && currentRoute.params) {
+        const params = currentRoute.params as { walletID?: string };
+        if (params.walletID) {
+          console.debug('[StorageProvider] selectedWalletID from current route:', params.walletID);
+          return params.walletID;
+        }
+      }
+    }
+
+    const state = navigationRef.current.getState();
+
+    if (state?.routes) {
+      for (const screenName of screensToCheck) {
+        const walletID = findWalletIDInNavigationState(state.routes, screenName);
+        if (walletID) {
+          console.debug('[StorageProvider] selectedWalletID from navigation state:', walletID, 'in screen:', screenName);
+          return walletID;
+        }
+      }
+
+      const drawerRoute = state.routes.find(route => route.name === 'DrawerRoot');
+      if (drawerRoute?.state?.routes) {
+        const detailViewStack = drawerRoute.state.routes.find(route => route.name === 'DetailViewStackScreensStack');
+        if (detailViewStack?.state?.routes) {
+          for (const route of detailViewStack.state.routes) {
+            if (screensToCheck.includes(route.name) && (route.params as { walletID?: string })?.walletID) {
+              console.debug(
+                '[StorageProvider] selectedWalletID from drawer navigation:',
+                (route.params as { walletID?: string })?.walletID,
+              );
+              return (route.params as { walletID?: string })?.walletID;
+            }
+          }
+        }
+      }
+    }
+
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const findWalletIDInNavigationState = (routes: any[], screenName: string): string | undefined => {
+    for (let i = routes.length - 1; i >= 0; i--) {
+      const route = routes[i];
+
+      if (route.name === screenName && (route.params as { walletID?: string }).walletID) {
+        return (route.params as { walletID?: string }).walletID;
+      }
+
+      if (route.state?.routes) {
+        const walletID = findWalletIDInNavigationState(route.state.routes, screenName);
+        if (walletID) return walletID;
+      }
+
+      if (route.params?.screen === screenName && route.params?.params?.walletID) {
+        return route.params.params.walletID;
+      }
+
+      if (route.name === 'DetailViewStackScreensStack' && route.params?.screen === screenName && route.params?.params?.walletID) {
+        return route.params.params.walletID;
+      }
+    }
+
+    return undefined;
+  };
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -413,7 +487,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,
@@ -447,7 +520,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,

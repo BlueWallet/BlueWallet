@@ -58,7 +58,7 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
-  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
@@ -203,12 +203,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       refreshTransactions(false).catch(console.error);
     }
   }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
-
-  useEffect(() => {
-    if (wallet) {
-      setSelectedWalletID(walletID);
-    }
-  }, [wallet, setSelectedWalletID, walletID]);
 
   const isLightning = useCallback((): boolean => wallet?.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {

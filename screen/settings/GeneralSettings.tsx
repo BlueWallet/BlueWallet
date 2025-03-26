@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { BlueSpacing20 } from '../../BlueComponents';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const styles = StyleSheet.create({
   root: {
@@ -36,7 +37,11 @@ const GeneralSettings: React.FC = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, stylesWithThemeHook.root]} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+    <SafeAreaScrollView
+      style={[styles.root, stylesWithThemeHook.root]}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
       {wallets.length > 0 && (
         <>
           {/* @ts-ignore: Fix later */}
@@ -60,7 +65,7 @@ const GeneralSettings: React.FC = () => {
         switch={{ onValueChange: setIsLegacyURv1EnabledStorage, value: isLegacyURv1Enabled }}
       />
       <BlueSpacing20 />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

@@ -21,25 +21,28 @@ type RouteProps = RouteProp<SendDetailsStackParamList, 'SelectWallet'>;
 
 const SelectWallet: React.FC = () => {
   const route = useRoute<RouteProps>();
-  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = route.params;
+  const {
+    chainType,
+    onWalletSelect,
+    availableWallets,
+    noWalletExplanationText,
+    onChainRequireSend = false,
+    selectedWalletID,
+  } = route.params;
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useExtendedNavigation<NavigationProps>();
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const isModal = useNavigationState(state => state.routes.length === 1);
-  const walletsCarousel = useRef(null);
+  const isModal = useNavigationState(state => state.routes.length > 1);
+  const walletsCarousel = useRef<any>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
+  const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
 
   const stylesHook = StyleSheet.create({
     loading: {
       backgroundColor: colors.background,
     },
   });
-
-  useEffect(() => {
-    console.log('SelectWallet - useEffect');
-    setIsLoading(false);
-  }, []);
 
   const filterWallets = useCallback(() => {
     if (availableWallets && availableWallets.length > 0) {
@@ -57,11 +60,43 @@ const SelectWallet: React.FC = () => {
     return wallets.filter(item => item.allowSend());
   }, [availableWallets, chainType, onChainRequireSend, wallets]);
 
+  // Initialize filtered wallets and handle loading state
+  useEffect(() => {
+    console.log('SelectWallet - useEffect');
+    const filtered = filterWallets();
+    setFilteredWallets(filtered);
+    setIsLoading(false);
+  }, [filterWallets]);
+
+  // Scroll to the selected wallet if provided
+  useEffect(() => {
+    if (!isLoading && selectedWalletID && walletsCarousel.current) {
+      const walletIndex = filteredWallets.findIndex(wallet => wallet.getID() === selectedWalletID);
+
+      if (walletIndex !== -1) {
+        // Add a slight delay to ensure the carousel is fully rendered
+        setTimeout(() => {
+          if (walletsCarousel.current) {
+            walletsCarousel.current.scrollToIndex({
+              index: walletIndex,
+              animated: true,
+              viewPosition: 0.5, // Center the item
+            });
+
+            console.log(`Scrolled to wallet index ${walletIndex} with ID ${selectedWalletID}`);
+          }
+        }, 200);
+      } else {
+        console.log(`Wallet with ID ${selectedWalletID} not found in filtered wallets`);
+      }
+    }
+  }, [isLoading, selectedWalletID, filteredWallets]);
+
   useEffect(() => {
     navigation.setOptions({
-      statusBarStyle: isLoading || (availableWallets || filterWallets()).length === 0 ? 'light' : 'auto',
+      statusBarStyle: isLoading || filteredWallets.length === 0 ? 'light' : 'auto',
     });
-  }, [isLoading, availableWallets, filterWallets, navigation]);
+  }, [isLoading, filteredWallets, navigation]);
 
   useEffect(() => {
     if (!isModal) {
@@ -87,8 +122,6 @@ const SelectWallet: React.FC = () => {
     );
   }
 
-  const filteredWallets = filterWallets();
-
   if (filteredWallets.length <= 0) {
     return (
       <SafeArea>
@@ -102,16 +135,16 @@ const SelectWallet: React.FC = () => {
   }
 
   return (
-    <SafeArea style={styles.walletsCarousel}>
-      <WalletsCarousel
-        data={filteredWallets}
-        scrollEnabled
-        onPress={onPress}
-        ref={walletsCarousel}
-        testID="WalletsList"
-        horizontal={false}
-      />
-    </SafeArea>
+    <WalletsCarousel
+      data={filteredWallets}
+      scrollEnabled
+      onPress={onPress}
+      ref={walletsCarousel}
+      testID="WalletsList"
+      horizontal={false}
+      style={styles.walletsCarousel}
+      animateChanges={true}
+    />
   );
 };
 
@@ -124,6 +157,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     paddingTop: 20,
   },
+
   noWallets: {
     flex: 1,
     justifyContent: 'center',
