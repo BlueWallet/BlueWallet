@@ -14,6 +14,8 @@ import {
   setPreferredCurrency,
   formatBTC,
   formatSats,
+  satoshiToLocalCurrency,
+  satoshiToBTC,
 } from '../../blue_modules/currency';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -156,46 +158,33 @@ const Currency: React.FC = () => {
   const CurrencyInfo = useMemo(() => {
     if (isSearchFocused && !selectedCurrencyVisible) return null;
 
-    // Create example values to show formatting patterns
-    const exampleFiatAmount = 1234.56;
+    const exampleSatsAmount = 12345678;
+
     let fiatFormatted, btcFormatted, satsFormatted;
 
     try {
-      // Always get fresh device locale directly from RNLocalize
-      const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+      fiatFormatted = satoshiToLocalCurrency(exampleSatsAmount, true);
 
-      // Fiat currency example using current device locale
-      fiatFormatted = new Intl.NumberFormat(deviceLocale, {
-        style: 'currency',
-        currency: selectedCurrency.endPointKey,
-        minimumFractionDigits: 2,
-      }).format(exampleFiatAmount);
+      const btcValue = satoshiToBTC(exampleSatsAmount);
+      btcFormatted = `${formatBTC(Number(btcValue))} ${loc.units[BitcoinUnit.BTC]}`;
 
-      // BTC example using locale-aware decimal formatting but always with dot
-      const btcValue = 0.12345678;
-      btcFormatted = formatBTC(btcValue);
+      satsFormatted = `${formatSats(exampleSatsAmount)} ${loc.units[BitcoinUnit.SATS]}`;
 
-      // Sats example using locale-aware thousands separators but always with commas
-      const satsValue = 12345678;
-      satsFormatted = formatSats(satsValue);
-
-      console.log(`Formatted examples for locale ${deviceLocale}:`, {
+      console.log(`Currency display examples:`, {
         fiat: fiatFormatted,
         btc: btcFormatted,
         sats: satsFormatted,
       });
     } catch (error) {
-      console.log('Error formatting examples:', error);
+      console.error('Error generating currency examples:', error);
+
       fiatFormatted = `${selectedCurrency.symbol}1,234.56`;
-      btcFormatted = '0.12345678';
-      satsFormatted = '12,345,678';
+      btcFormatted = `0.12345678 ${loc.units[BitcoinUnit.BTC]}`;
+      satsFormatted = `12,345,678 ${loc.units[BitcoinUnit.SATS]}`;
     }
 
-    // Format the LastUpdated date with the current locale
     const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-    const formattedDate = currencyRate.LastUpdated
-      ? dayjs(currencyRate.LastUpdated).locale(deviceLocale).format('LLL') // Use device locale
-      : loc._.never;
+    const formattedDate = currencyRate.LastUpdated ? dayjs(currencyRate.LastUpdated).locale(deviceLocale).format('LLL') : loc._.never;
 
     return (
       <BlueCard>
@@ -215,20 +204,16 @@ const Currency: React.FC = () => {
         <BlueText style={styles.sectionHeader}>{loc.settings.currency_display_example}:</BlueText>
         <BlueSpacing10 />
         <View style={styles.exampleRow}>
-          <BlueText style={styles.exampleLabel}>{selectedCurrency.endPointKey}</BlueText>
+          <BlueText style={styles.exampleLabel}>{selectedCurrency.endPointKey}:</BlueText>
           <BlueText style={styles.exampleValue}>{fiatFormatted}</BlueText>
         </View>
         <View style={styles.exampleRow}>
           <BlueText style={styles.exampleLabel}>{BitcoinUnit.BTC}:</BlueText>
-          <BlueText style={styles.exampleValue}>
-            {btcFormatted} {loc.units[BitcoinUnit.BTC]}
-          </BlueText>
+          <BlueText style={styles.exampleValue}>{btcFormatted}</BlueText>
         </View>
         <View style={styles.exampleRow}>
           <BlueText style={styles.exampleLabel}>{BitcoinUnit.SATS}:</BlueText>
-          <BlueText style={styles.exampleValue}>
-            {satsFormatted} {loc.units[BitcoinUnit.SATS]}
-          </BlueText>
+          <BlueText style={styles.exampleValue}>{satsFormatted}</BlueText>
         </View>
         <BlueSpacing20 />
       </BlueCard>
@@ -236,9 +221,9 @@ const Currency: React.FC = () => {
   }, [
     isSearchFocused,
     selectedCurrencyVisible,
-    selectedCurrency?.source,
     selectedCurrency.endPointKey,
     selectedCurrency.symbol,
+    selectedCurrency?.source,
     currencyRate.Rate,
     currencyRate.LastUpdated,
   ]);

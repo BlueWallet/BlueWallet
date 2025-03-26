@@ -521,7 +521,6 @@ function formatSatsInternal(sats: number): string {
   try {
     // Get device locale for proper grouping
     const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-    const { groupingSeparator } = RNLocalize.getNumberFormatSettings();
 
     // Use device locale settings for formatting
     return new Intl.NumberFormat(deviceLocale, {
@@ -713,7 +712,7 @@ export function parseNumberStringToFloat(numStr: string): number {
     }
 
     // Step 3: Clean any remaining non-numeric characters except the decimal point and negative sign
-    cleanedInput = cleanedInput.replace(/[^\d.\-]/g, '');
+    cleanedInput = cleanedInput.replace(/[^\d.-]/g, '');
 
     // Final parsing
     const result = parseFloat(cleanedInput);

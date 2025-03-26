@@ -367,7 +367,7 @@ export function parseNumberStringToFloat(numStr: string): number {
     }
 
     // STEP 4: Remove any remaining non-numeric characters except decimal point and negative sign
-    const finalInput = processedInput.replace(/[^\d.\-]/g, '');
+    const finalInput = processedInput.replace(/[^\d.-]/g, '');
     console.log(`Final sanitized input: "${finalInput}"`);
 
     // STEP 5: Parse the final cleaned string
