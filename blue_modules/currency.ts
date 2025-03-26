@@ -1050,7 +1050,7 @@ function formatNumberByUnit(numericValue: number, unit: string, maxDecimals?: nu
   const decimals = typeof maxDecimals === 'number' ? maxDecimals : getDecimalPlaces(unit);
 
   // Format integer part with grouping separators
-  const absValue = Math.abs(Math.round(unit === BitcoinUnit.SATS ? numericValue : numericValue));
+  const absValue = Math.abs(Math.round(numericValue));
   const intString = absValue.toString();
   let formattedInteger = '';
 
