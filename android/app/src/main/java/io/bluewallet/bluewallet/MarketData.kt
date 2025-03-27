@@ -1,5 +1,6 @@
 package io.bluewallet.bluewallet
 
+import android.util.Log
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.Date
@@ -14,13 +15,17 @@ data class MarketData(
     val formattedNextBlock: String
         get() {
             if (nextBlock == "..." || nextBlock == "!") {
-                return "..."
+                Log.d("MarketData", "Next block is a placeholder: $nextBlock")
+                return nextBlock
             } else {
                 try {
                     val nextBlockInt = nextBlock.toInt()
                     val numberFormatter = NumberFormat.getNumberInstance()
-                    return "${numberFormatter.format(nextBlockInt)} sat/vb"
+                    val formattedValue = "${numberFormatter.format(nextBlockInt)} sat/vb"
+                    Log.d("MarketData", "Formatted next block: $formattedValue from $nextBlock")
+                    return formattedValue
                 } catch (e: Exception) {
+                    Log.e("MarketData", "Error formatting next block value: $nextBlock", e)
                     return "$nextBlock sat/vb"
                 }
             }
@@ -40,5 +45,9 @@ data class MarketData(
         
     companion object {
         const val PREF_KEY = "market_data"
+    }
+    
+    override fun toString(): String {
+        return "MarketData(nextBlock=$nextBlock, sats=$sats, price=$price, rate=$rate, formattedNextBlock=$formattedNextBlock)"
     }
 }
