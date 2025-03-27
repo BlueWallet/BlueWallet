@@ -374,7 +374,7 @@ const CoinControl: React.FC = () => {
 
   const handleUseCoin = async (u: Utxo[]) => {
     setOutput(undefined);
-    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, true);
+    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, { merge: true });
     navigation.dispatch(popToAction);
   };
 
