@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
+import calendar from 'dayjs/plugin/localizedFormat';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 
 import {
   CurrencyRate,
@@ -9,6 +12,10 @@ import {
   initCurrencyDaemon,
   mostRecentFetchedRate,
   setPreferredCurrency,
+  formatBTC,
+  formatSats,
+  satoshiToLocalCurrency,
+  satoshiToBTC,
 } from '../../blue_modules/currency';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -19,9 +26,14 @@ import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
+// Extend dayjs with required plugins
 dayjs.extend(calendar);
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
 
+// Import additional necessary plugins for localization
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -147,6 +159,34 @@ const Currency: React.FC = () => {
   const CurrencyInfo = useMemo(() => {
     if (isSearchFocused && !selectedCurrencyVisible) return null;
 
+    const exampleSatsAmount = 12345678;
+
+    let fiatFormatted, btcFormatted, satsFormatted;
+
+    try {
+      fiatFormatted = satoshiToLocalCurrency(exampleSatsAmount, true);
+
+      const btcValue = satoshiToBTC(exampleSatsAmount);
+      btcFormatted = `${formatBTC(Number(btcValue))} ${BitcoinUnit.BTC}`;
+
+      satsFormatted = `${formatSats(exampleSatsAmount)} ${BitcoinUnit.SATS}`;
+
+      console.log(`Currency display examples:`, {
+        fiat: fiatFormatted,
+        btc: btcFormatted,
+        sats: satsFormatted,
+      });
+    } catch (error) {
+      console.error('Error generating currency examples:', error);
+
+      fiatFormatted = `${selectedCurrency.symbol}1,234.56`;
+      btcFormatted = `0.12345678 ${BitcoinUnit.BTC}`;
+      satsFormatted = `12,345,678 ${BitcoinUnit.SATS}`;
+    }
+
+    const deviceLocale = RNLocalize.getLocales()[0].languageTag;
+    const formattedDate = currencyRate.LastUpdated ? dayjs(currencyRate.LastUpdated).locale(deviceLocale).format('LLL') : loc._.never;
+
     return (
       <BlueCard>
         <BlueText>
@@ -158,12 +198,36 @@ const Currency: React.FC = () => {
         </BlueText>
         <BlueSpacing10 />
         <BlueText>
-          {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+          {loc.settings.last_updated}: {formattedDate}
         </BlueText>
+        <BlueSpacing20 />
+
+        <BlueText style={styles.sectionHeader}>{loc.settings.currency_display_example}:</BlueText>
+        <BlueSpacing10 />
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{selectedCurrency.endPointKey}:</BlueText>
+          <BlueText style={styles.exampleValue}>{fiatFormatted}</BlueText>
+        </View>
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{BitcoinUnit.BTC}:</BlueText>
+          <BlueText style={styles.exampleValue}>{btcFormatted}</BlueText>
+        </View>
+        <View style={styles.exampleRow}>
+          <BlueText style={styles.exampleLabel}>{BitcoinUnit.SATS}:</BlueText>
+          <BlueText style={styles.exampleValue}>{satsFormatted}</BlueText>
+        </View>
         <BlueSpacing20 />
       </BlueCard>
     );
-  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
+  }, [
+    isSearchFocused,
+    selectedCurrencyVisible,
+    selectedCurrency.endPointKey,
+    selectedCurrency.symbol,
+    selectedCurrency?.source,
+    currencyRate.Rate,
+    currencyRate.LastUpdated,
+  ]);
 
   const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
 
@@ -194,5 +258,20 @@ export default Currency;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  sectionHeader: {
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  exampleRow: {
+    flexDirection: 'row',
+    marginVertical: 2,
+  },
+  exampleLabel: {
+    minWidth: 50,
+    fontWeight: '500',
+  },
+  exampleValue: {
+    marginLeft: 10,
   },
 });

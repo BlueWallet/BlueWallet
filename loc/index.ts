@@ -7,7 +7,7 @@ import Localization, { LocalizedStrings } from 'react-localization';
 import { I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
-import { satoshiToLocalCurrency } from '../blue_modules/currency';
+import { satoshiToLocalCurrency, localeSettings } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import enJson from './en.json';
@@ -300,28 +300,372 @@ export const removeTrailingZeros = (value: number | string): string => {
   if (ret.indexOf('.') === -1) {
     return ret;
   }
-  while ((ret.slice(-1) === '0' || ret.slice(-1) === '.') && ret.indexOf('.') !== -1) {
-    ret = ret.substr(0, ret.length - 1);
+
+  // Get device's decimal separator
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Create pattern with the correct decimal separator
+  const dotSeparator = '.';
+
+  // First standardize the decimal separator to period for processing
+  if (decimalSeparator !== dotSeparator && ret.includes(decimalSeparator)) {
+    ret = ret.replace(decimalSeparator, dotSeparator);
   }
+
+  // Special case: if the value is exactly X.0, preserve the decimal point and zero
+  if (/^\d+\.0+$/.test(ret)) {
+    // Convert back to the device's decimal separator if needed
+    if (decimalSeparator !== dotSeparator) {
+      return ret.replace(dotSeparator, decimalSeparator);
+    }
+    return ret;
+  }
+
+  // Remove trailing zeros but preserve at least one decimal if present
+  const parts = ret.split('.');
+  if (parts.length === 2) {
+    const cleanedDecimal = parts[1].replace(/0+$/, '');
+    if (cleanedDecimal === '') {
+      ret = parts[0]; // Remove decimal part entirely if it was all zeros
+    } else {
+      ret = parts[0] + '.' + cleanedDecimal;
+    }
+  }
+
+  // Convert back to the device's decimal separator if needed
+  if (decimalSeparator !== dotSeparator && ret.includes(dotSeparator)) {
+    ret = ret.replace(new RegExp('\\' + dotSeparator, 'g'), decimalSeparator);
+  }
+
   return ret;
 };
 
 /**
+ * Parses a number string according to locale-specific rules,
+ * strictly based on RNLocalize.getNumberFormatSettings()
  *
+ * @param {string | number} numStr - The string representation of a number
+ * @returns {number} The parsed float value
+ */
+export function parseNumberStringToFloat(numStr: string | number): number {
+  if (numStr === null || numStr === undefined || numStr === '') return 0;
+
+  // Convert to string if it's a number already
+  const str = typeof numStr === 'string' ? numStr : String(numStr);
+
+  // Always get fresh locale settings directly from the device
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+  try {
+    // First, handle special case of empty string
+    if (str.trim() === '') return 0;
+
+    // Handle case with just a decimal separator (like ".5" or ",5")
+    if (str === decimalSeparator || str === '.' || str === ',') {
+      return 0;
+    }
+
+    // Handle leading decimal separator cases (like ".5" or ",5")
+    if (
+      str.startsWith(decimalSeparator) ||
+      (decimalSeparator !== '.' && str.startsWith('.')) ||
+      (decimalSeparator !== ',' && str.startsWith(','))
+    ) {
+      const withLeadingZero = '0' + (str.startsWith(decimalSeparator) ? str : str.replace(/^([.,])/, decimalSeparator));
+
+      // Create standardized string with period as decimal
+      let standardized = withLeadingZero;
+      if (decimalSeparator !== '.' && standardized.includes(decimalSeparator)) {
+        standardized = standardized.replace(decimalSeparator, '.');
+      }
+
+      return parseFloat(standardized);
+    }
+
+    // Special case: if the input is already a valid number with dot decimal separator,
+    // and doesn't contain any locale-specific separators, just parse it directly
+    if (/^-?\d+(\.\d+)?$/.test(str)) {
+      return parseFloat(str);
+    }
+
+    // For more complex cases, we need to handle the separators explicitly
+
+    // First, escape special regex characters in separators for safe regex use
+    const safeGroupSep = groupingSeparator ? groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
+
+    // Check if the input uses our separators
+    const hasGroupSep = groupingSeparator && str.includes(groupingSeparator);
+    const hasDecimalSep = decimalSeparator && str.includes(decimalSeparator);
+
+    // Clean the string - keep only digits, decimal separator, minus sign and group separators
+    const validCharsPattern = new RegExp(`[^\\d\\-${safeGroupSep}${decimalSeparator === '.' ? '\\.' : decimalSeparator}]`, 'g');
+    let cleaned = str.replace(validCharsPattern, '');
+
+    // Format detection - determine which style of number format is being used
+    const commasAsDecimal = cleaned.includes(',') && (!cleaned.includes('.') || cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.'));
+
+    // STANDARDIZING STEP: Convert to JavaScript's decimal point format
+
+    // Handle both common number formats
+    if (hasGroupSep) {
+      // Remove all group separators
+      cleaned = cleaned.replace(new RegExp(safeGroupSep, 'g'), '');
+    }
+
+    // Now handle decimal separator
+    if (hasDecimalSep && decimalSeparator !== '.') {
+      // Replace the decimal separator with a standard period
+      cleaned = cleaned.replace(decimalSeparator, '.');
+    }
+    // Special case for comma as decimal without explicit locale setting
+    else if (commasAsDecimal) {
+      cleaned = cleaned.replace(',', '.');
+    }
+
+    // Final handling of European format (1.234,56 -> 1234.56)
+    if ((cleaned.match(/\./g) || []).length > 1) {
+      // Multiple periods found - this might be European format with periods as thousands separators
+      // Remove all periods except the last one
+      const parts = cleaned.split('.');
+      const last = parts.pop();
+      cleaned = parts.join('') + '.' + last;
+    }
+
+    // Parse the final cleaned string
+    const result = parseFloat(cleaned);
+
+    return isNaN(result) ? 0 : result;
+  } catch (e) {
+    console.error('Error in parseNumberStringToFloat:', e);
+    return 0;
+  }
+}
+
+export function _leaveNumbersAndDots(newInputValue: string) {
+  if (!newInputValue) return '';
+
+  // Get locale separators
+  const { decimalSeparator } = localeSettings; // Remove unused groupSeparator
+
+  // Clean the input by removing all characters except digits and the decimal separator
+  const cleanInput = newInputValue.replace(new RegExp(`[^\\d${decimalSeparator}]`, 'g'), '');
+
+  if (!cleanInput) return '';
+
+  try {
+    // Try to parse the number to validate it
+    const numValue = parseNumberStringToFloat(cleanInput);
+
+    if (!isNaN(numValue)) {
+      // If we have a valid number, we need to determine if it has a decimal part
+      const hasDecimalPart = cleanInput.includes(decimalSeparator);
+
+      if (hasDecimalPart) {
+        // Split by the decimal separator to preserve the decimal part exactly as entered
+        const parts = cleanInput.split(decimalSeparator);
+        if (parts.length === 2) {
+          // Return in standard format with period as decimal separator for internal use
+          return `${parts[0]}.${parts[1]}`;
+        }
+      }
+
+      // If no decimal part or format is not recognized, just return the parsed number
+      return numValue.toString();
+    }
+  } catch (e) {
+    console.error('Error processing number input:', e);
+  }
+
+  // Fallback: Remove all non-digit characters except the first occurrence of the decimal separator
+  let result = '';
+  let hasAddedDecimalSeparator = false;
+
+  for (let i = 0; i < cleanInput.length; i++) {
+    const char = cleanInput[i];
+    if (/\d/.test(char)) {
+      // Always keep digits
+      result += char;
+    } else if ((char === '.' || char === ',') && !hasAddedDecimalSeparator) {
+      // Convert any decimal separator to standard period for internal use
+      result += '.';
+      hasAddedDecimalSeparator = true;
+    }
+    // Ignore all other characters
+  }
+
+  return result;
+}
+
+/**
+ * Custom number formatter that explicitly respects the number formatting settings
+ * regardless of the device locale
+ *
+ * @param {number} num - Number to format
+ * @param {number} decimals - Max decimal places
+ * @returns {string} - Formatted number string
+ */
+function formatNumberWithSeparators(num: number, decimals: number = 8): string {
+  // Always get latest formatting settings directly from RNLocalize
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Convert to string with specified decimal places
+  const str = num.toFixed(decimals);
+
+  // Split into integer and decimal parts
+  const parts = str.split('.');
+  const integerPart = parts[0];
+  // Remove trailing zeros from decimal part if needed
+  const decimalPart = parts.length > 1 ? parts[1].replace(/0+$/, '') : '';
+
+  // Format the integer part with grouping separators
+  let formattedInteger = '';
+  for (let i = 0; i < integerPart.length; i++) {
+    if (i > 0 && (integerPart.length - i) % 3 === 0) {
+      formattedInteger += groupingSeparator;
+    }
+    formattedInteger += integerPart[i];
+  }
+
+  // Return formatted number with appropriate separators
+  return decimalPart ? `${formattedInteger}${decimalSeparator}${decimalPart}` : formattedInteger;
+}
+
+/**
+ * Formats a number according to the device's locale settings
+ * @param number The number to format
+ * @param decimals Number of decimal places
+ * @returns Formatted string
+ */
+function formatNumberWithLocale(number: number | string, decimals: number = 2): string {
+  try {
+    // Convert string to number if needed
+    const num = typeof number === 'string' ? parseFloat(number) : number;
+
+    // Handle NaN and Infinity
+    if (!isFinite(num)) {
+      console.warn(`Attempt to format non-finite number: ${num}`);
+      return '0';
+    }
+
+    // Always get fresh locale settings directly from RNLocalize
+    const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
+    // Safety check: ensure decimals is a positive number
+    decimals = Math.max(0, Math.min(20, decimals || 0));
+
+    // Format with appropriate decimal places
+    let formatted;
+
+    try {
+      // Format the number but don't use the result directly
+
+      // Instead of using Intl result directly, use our manual formatting
+      // with the exact separators from RNLocalize
+      const parts = num.toFixed(decimals).split('.');
+      const integerPart = parts[0] || '0';
+      const decimalPart = parts.length > 1 ? parts[1] : '';
+
+      // Format integer part with grouping separators
+      let formattedInteger = '';
+      for (let i = 0; i < integerPart.length; i++) {
+        if (i > 0 && (integerPart.length - i) % 3 === 0) {
+          formattedInteger += groupingSeparator;
+        }
+        formattedInteger += integerPart[i];
+      }
+
+      // Combine with decimal part if available
+      if (decimalPart && decimals > 0) {
+        // Ensure we never have trailing zeros if not needed
+        const significantDecimal = removeTrailingZeros(decimalPart);
+        if (significantDecimal) {
+          formatted = `${formattedInteger}${decimalSeparator}${significantDecimal}`;
+        } else {
+          formatted = formattedInteger;
+        }
+      } else {
+        formatted = formattedInteger;
+      }
+    } catch (intlError) {
+      console.warn('Intl.NumberFormat error, using manual formatting:', intlError);
+
+      // Manual formatting as fallback - with extra safety
+      try {
+        // First get the fixed string representation
+        const fixedString = num.toFixed(decimals);
+
+        // Split into integer and decimal parts
+        const parts = fixedString.split('.');
+        const integerPart = parts[0] || '0';
+        const decimalPart = parts.length > 1 ? parts[1] : '';
+
+        // Format integer part with grouping separators
+        let formattedInteger = '';
+        for (let i = 0; i < integerPart.length; i++) {
+          if (i > 0 && (integerPart.length - i) % 3 === 0) {
+            formattedInteger += groupingSeparator || ','; // Fallback to comma if null
+          }
+          formattedInteger += integerPart[i];
+        }
+
+        // Combine with decimal part if available
+        if (decimalPart) {
+          formatted = `${formattedInteger}${decimalSeparator || '.'}${decimalPart}`;
+        } else {
+          formatted = formattedInteger;
+        }
+      } catch (manualError) {
+        console.error('Manual formatting failed:', manualError);
+        // Ultimate fallback
+        formatted = String(num);
+      }
+    }
+
+    return formatted;
+  } catch (error) {
+    console.error('Error formatting number for device locale:', error);
+    // Simple fallback if all formatting fails
+    return String(number);
+  }
+}
+
+export { formatNumberWithLocale };
+
+/**
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
  * @returns {string}
  */
 export function formatBalance(balance: number, toUnit: string, withFormatting = false): string {
   if (toUnit === undefined) {
     return balance + ' ' + loc.units[BitcoinUnit.BTC];
   }
+
+  // Get number formatting settings
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
   if (toUnit === BitcoinUnit.BTC) {
-    const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(+value) + ' ' + loc.units[BitcoinUnit.BTC];
+    const btcValue = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+
+    if (withFormatting) {
+      // Use our custom formatter that respects the RNLocalize settings
+      const formattedValue = formatNumberWithSeparators(parseFloat(btcValue));
+      return formattedValue + ' ' + loc.units[BitcoinUnit.BTC];
+    } else {
+      const valueWithoutTrailing = removeTrailingZeros(+btcValue);
+      // Replace decimal point with device's decimal separator if needed
+      const formattedValue = decimalSeparator !== '.' ? valueWithoutTrailing.replace('.', decimalSeparator) : valueWithoutTrailing;
+      return formattedValue + ' ' + loc.units[BitcoinUnit.BTC];
+    }
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
+    if (withFormatting) {
+      // Use our custom formatter with 0 decimals for satoshis
+      const formattedValue = formatNumberWithSeparators(balance, 0);
+      return formattedValue + ' ' + loc.units[BitcoinUnit.SATS];
+    } else {
+      return String(balance) + ' ' + loc.units[BitcoinUnit.SATS];
+    }
   } else {
     return satoshiToLocalCurrency(balance);
   }
@@ -331,18 +675,51 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
  *
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
- * @returns {string}
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
+ * @returns {string | number}
  */
 export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withFormatting = false): string | number {
   if (toUnit === undefined) {
     return balance;
   }
+
+  // Always get fresh locale settings
+  const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
+
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value);
+
+    if (withFormatting) {
+      // Use our improved formatNumberWithSeparators function
+      return formatNumberWithSeparators(parseFloat(value));
+    } else {
+      const valueWithoutTrailing = removeTrailingZeros(value);
+      // Replace decimal point with device's decimal separator if needed
+      return decimalSeparator !== '.' ? valueWithoutTrailing.replace(/\./g, decimalSeparator) : valueWithoutTrailing;
+    }
   } else if (toUnit === BitcoinUnit.SATS) {
-    return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
+    if (withFormatting) {
+      try {
+        // Use imported formatSats function from currency module
+        const { formatSatsInternal } = require('../blue_modules/currency');
+        return formatSatsInternal(balance);
+      } catch (error) {
+        console.error('Error formatting SATS in formatBalanceWithoutSuffix:', error);
+
+        // Fallback to local implementation if import fails
+        let formatted = '';
+        const numberStr = String(balance);
+        for (let i = 0; i < numberStr.length; i++) {
+          if (i > 0 && (numberStr.length - i) % 3 === 0) {
+            formatted += groupingSeparator;
+          }
+          formatted += numberStr[i];
+        }
+        return formatted;
+      }
+    } else {
+      return String(balance);
+    }
   } else {
     return satoshiToLocalCurrency(balance);
   }
@@ -358,21 +735,13 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
  */
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return _leaveNumbersAndDots(newInputValue.toString());
-}
 
-export function _leaveNumbersAndDots(newInputValue: string) {
-  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
-  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
-
-  if (newInputValue[newInputValue.length - 3] === ',') {
-    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
-    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  if (typeof newInputValue === 'number') {
+    return newInputValue.toString();
   }
-  newInputValue = newInputValue.replace(/,/gi, '');
 
-  return newInputValue;
+  // Use the enhanced _leaveNumbersAndDots function
+  return _leaveNumbersAndDots(newInputValue.toString());
 }
 
 /**
@@ -380,6 +749,56 @@ export function _leaveNumbersAndDots(newInputValue: string) {
  */
 export function formatStringAddTwoWhiteSpaces(text: string): string {
   return `${text}  `;
+}
+
+/**
+ * Cleans a number string by removing all characters except digits, decimal separator and negative sign
+ * @param numStr The number string to clean
+ * @returns A standardized number string with proper decimal separator
+ *
+ * @export - Exported for use in UI components
+ */
+export function cleanNumberString(numStr: string): string {
+  if (!numStr) return '';
+
+  // Get device's locale settings
+  const { decimalSeparator } = RNLocalize.getNumberFormatSettings();
+
+  // Escape special regex characters in the decimal separator
+  const safeDecimalSep = decimalSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Keep only digits, decimal separator, and minus sign
+  const validCharsPattern = new RegExp(`[^\\d${safeDecimalSep}\\-]`, 'g');
+  const sanitizedText = numStr.replace(validCharsPattern, '');
+
+  // Ensure there's only one decimal separator
+  if (sanitizedText.includes(decimalSeparator)) {
+    const parts = sanitizedText.split(decimalSeparator);
+    // Keep first occurrence of decimal separator
+    return `${parts[0]}${decimalSeparator}${parts.slice(1).join('')}`;
+  }
+
+  return sanitizedText;
+}
+
+/**
+ * Determines an appropriate font size for displaying an amount
+ * @param amount The amount string to display
+ * @param defaultSize The default font size
+ * @returns Appropriate font size for the amount
+ */
+export function getTextSizeForAmount(amount: string | null | undefined, defaultSize = 36): number {
+  if (!amount) return defaultSize;
+
+  const length = amount.toString().length;
+
+  if (length > 15) {
+    return 16; // Very long numbers (e.g., with decimals)
+  } else if (length > 10) {
+    return 20; // Long numbers
+  }
+
+  return defaultSize; // Default size
 }
 
 export default loc;
