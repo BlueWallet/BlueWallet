@@ -995,7 +995,7 @@ class AmountInput extends Component {
                 getDecimalPlaces(BitcoinUnit.LOCAL_CURRENCY),
               );
 
-              secondaryDisplayCurrency = `${formattedValue} ${getCurrencySymbol()}`;
+              secondaryDisplayCurrency = `${preferredFiatCurrency.endPointKey}${getCurrencySymbol()} ${formattedValue}`;
             }
           } catch (error) {
             console.error('Error formatting secondary display:', error);

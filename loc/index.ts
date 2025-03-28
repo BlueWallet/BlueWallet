@@ -306,15 +306,31 @@ export const removeTrailingZeros = (value: number | string): string => {
 
   // Create pattern with the correct decimal separator
   const dotSeparator = '.';
-  const trailingZerosPattern = /\.?0+$/;
 
   // First standardize the decimal separator to period for processing
   if (decimalSeparator !== dotSeparator && ret.includes(decimalSeparator)) {
     ret = ret.replace(decimalSeparator, dotSeparator);
   }
 
-  // Remove trailing zeros completely if all are zeros after decimal
-  ret = ret.replace(trailingZerosPattern, '');
+  // Special case: if the value is exactly X.0, preserve the decimal point and zero
+  if (/^\d+\.0+$/.test(ret)) {
+    // Convert back to the device's decimal separator if needed
+    if (decimalSeparator !== dotSeparator) {
+      return ret.replace(dotSeparator, decimalSeparator);
+    }
+    return ret;
+  }
+
+  // Remove trailing zeros but preserve at least one decimal if present
+  const parts = ret.split('.');
+  if (parts.length === 2) {
+    const cleanedDecimal = parts[1].replace(/0+$/, '');
+    if (cleanedDecimal === '') {
+      ret = parts[0]; // Remove decimal part entirely if it was all zeros
+    } else {
+      ret = parts[0] + '.' + cleanedDecimal;
+    }
+  }
 
   // Convert back to the device's decimal separator if needed
   if (decimalSeparator !== dotSeparator && ret.includes(dotSeparator)) {
