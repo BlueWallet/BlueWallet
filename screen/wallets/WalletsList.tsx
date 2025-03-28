@@ -126,7 +126,7 @@ const WalletsList: React.FC = () => {
   });
 
   const refreshWallets = useCallback(
-    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = true) => {
       if (isElectrumDisabled) return;
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
       try {
@@ -145,7 +145,7 @@ const WalletsList: React.FC = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = useCallback(() => {
-    refreshWallets(undefined, true, false);
+    refreshWallets(undefined, true, true);
   }, [refreshWallets]);
 
   useEffect(() => {
@@ -153,9 +153,12 @@ const WalletsList: React.FC = () => {
     const initialLoad = async () => {
       if (isElectrumDisabled) return;
       try {
-        await refreshAllWalletTransactions(undefined, false);
+        dispatch({ type: ActionTypes.SET_LOADING, payload: true });
+        await refreshAllWalletTransactions(undefined, true);
       } catch (error) {
         console.error(error);
+      } finally {
+        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
       }
     };
 
@@ -166,8 +169,8 @@ const WalletsList: React.FC = () => {
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');
     refreshTransactions();
-    // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
-  }, [refreshTransactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const verifyBalance = useCallback(() => {
     if (getBalance() !== 0) {
@@ -243,7 +246,6 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     refreshTransactions();
-    // es-lint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
