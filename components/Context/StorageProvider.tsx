@@ -438,6 +438,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       });
 
       await w.fetchBalance();
+      // Fetch all transactions for the wallet after importing
+      await fetchAndSaveWalletTransactions(w.getID());
       try {
         await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       } catch (error) {
@@ -445,7 +447,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         // Consider if user should be notified of notification setup failure
       }
     },
-    [wallets, addWallet, saveToDisk],
+    [wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions],
   );
 
   function confirmWalletDeletion(wallet: any, onConfirmed: () => void) {
