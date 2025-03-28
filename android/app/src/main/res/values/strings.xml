@@ -3,6 +3,19 @@
     <string name="loading">Loading...</string>
     <string name="last_updated">Last Updated</string>
     <string name="from">From</string>
+    
+    <!-- Market Widget -->
     <string name="market_widget_name">Bitcoin Market</string>
     <string name="market_widget_description">View real-time Bitcoin market data including price, satoshi rate, and next block fee.</string>
+    <string name="market_title">Market</string>
+    <string name="market_next_block">Next Block</string>
+    <string name="market_sats_label">Sats/%s</string>
+    <string name="market_price">Price</string>
+    
+    <!-- Bitcoin Price Widget -->
+    <string name="bitcoin_price_widget_name">Bitcoin Price</string>
+    <string name="bitcoin_price_widget_description">View real-time Bitcoin price in your preferred currency</string>
+    <string name="offline">Offline</string>
+    <string name="price_from">From:</string>
+    <string name="price_label">Price</string>
 </resources>

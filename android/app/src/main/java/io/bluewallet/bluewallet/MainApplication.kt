@@ -2,7 +2,10 @@ package io.bluewallet.bluewallet
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.util.Log
 import com.bugsnag.android.Bugsnag
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -19,6 +22,7 @@ import com.facebook.react.modules.i18nmanager.I18nUtil
 class MainApplication : Application(), ReactApplication {
 
     private lateinit var sharedPref: SharedPreferences
+    private val themeChangeReceiver = ThemeChangeReceiver()
     private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
         if (key == "preferredCurrency") {
             prefs.edit().remove("previous_price").apply()
@@ -28,6 +32,9 @@ class MainApplication : Application(), ReactApplication {
             
             // Immediately refresh Market widgets
             MarketWidget.refreshAllWidgetsImmediately(this)
+        } else if (key == "force_dark_mode") {
+            // Theme setting changed, update all widgets
+            ThemeHelper.updateAllWidgets(this)
         }
     }
 
@@ -54,6 +61,10 @@ class MainApplication : Application(), ReactApplication {
         super.onCreate()
         sharedPref = getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
         sharedPref.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
+        
+        // Register the theme change receiver
+        registerReceiver(themeChangeReceiver, IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED))
+        
         val sharedI18nUtilInstance = I18nUtil.getInstance()
         sharedI18nUtilInstance.allowRTL(applicationContext, true)
         SoLoader.init(this, OpenSourceMergedSoMapping)
@@ -68,6 +79,13 @@ class MainApplication : Application(), ReactApplication {
     override fun onTerminate() {
         super.onTerminate()
         sharedPref.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+        
+        // Unregister the theme change receiver
+        try {
+            unregisterReceiver(themeChangeReceiver)
+        } catch (e: Exception) {
+            Log.e("MainApplication", "Error unregistering theme receiver", e)
+        }
     }
 
     private fun initializeBugsnag() {

@@ -23,16 +23,16 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
 
     companion object {
         const val TAG = "WidgetUpdateWorker"
-        const val WORK_NAME = "widget_update_work"
-        const val MARKET_WORK_NAME = "market_widget_update_work"
+        const val WORK_NAME = "bitcoin_price_widget_update_work"
+        const val NETWORK_RETRY_WORK_NAME = "bitcoin_price_network_retry_work"
         const val REPEAT_INTERVAL_MINUTES = 15L
-        private const val KEY_WIDGET_IDS = "widget_ids"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         private const val DEFAULT_CURRENCY = "USD"
-        private const val KEY_LAST_UPDATE_TIME = "market_widget_last_update_time"
-        private const val MIN_UPDATE_INTERVAL_MS = 15L * 60 * 1000 // 15 minutes
-        private const val RATE_LIMIT_COOLDOWN_MS = 30L * 60 * 1000 // 30 minutes
+        private const val NETWORK_RETRY_DELAY_SECONDS = 30L
 
+        /**
+         * Schedule periodic work for Bitcoin Price Widget
+         */
         fun scheduleWork(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
                 REPEAT_INTERVAL_MINUTES, TimeUnit.MINUTES
@@ -42,115 +42,56 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
                 ExistingPeriodicWorkPolicy.REPLACE,
                 workRequest
             )
-            Log.d(TAG, "Scheduling work for widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
+            Log.d(TAG, "Scheduling work for Bitcoin price widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
         }
-        
-        fun scheduleMarketUpdate(context: Context, appWidgetIds: IntArray, forceUpdate: Boolean = false) {
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val lastUpdateTime = sharedPrefs.getLong(KEY_LAST_UPDATE_TIME, 0)
-            val currentTime = System.currentTimeMillis()
-            
-            if (!forceUpdate && currentTime - lastUpdateTime < MIN_UPDATE_INTERVAL_MS) {
-                Log.d(TAG, "Skipping update - too soon since last update")
-                return
-            }
-            
-            val data = Data.Builder()
-                .putIntArray(KEY_WIDGET_IDS, appWidgetIds)
-                .build()
-                
+
+        /**
+         * Schedule a retry when network becomes available
+         */
+        fun scheduleRetryOnNetworkAvailable(context: Context, appWidgetIds: IntArray) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
                 
-            val initialDelay = if (forceUpdate) 0 else calculateInitialDelay(context)
-            
             val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
                 .setConstraints(constraints)
-                .setInputData(data)
-                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.MINUTES)
+                .setInitialDelay(NETWORK_RETRY_DELAY_SECONDS, TimeUnit.SECONDS)
                 .build()
                 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                MARKET_WORK_NAME,
+                NETWORK_RETRY_WORK_NAME,
                 ExistingWorkPolicy.REPLACE,
                 updateRequest
             )
             
-            Log.d(TAG, "Scheduled market widget update work with delay: ${initialDelay}ms")
-        }
-        
-        private fun calculateInitialDelay(context: Context): Long {
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val rateLimitedTime = sharedPrefs.getLong("market_widget_rate_limited_time", 0)
-            val currentTime = System.currentTimeMillis()
-            
-            return if (rateLimitedTime > 0 && currentTime - rateLimitedTime < RATE_LIMIT_COOLDOWN_MS) {
-                val remainingCooldown = RATE_LIMIT_COOLDOWN_MS - (currentTime - rateLimitedTime)
-                Log.d(TAG, "Rate limit cooldown active, delaying for ${remainingCooldown}ms")
-                remainingCooldown
-            } else {
-                0
-            }
+            Log.d(TAG, "Scheduled network retry in $NETWORK_RETRY_DELAY_SECONDS seconds")
         }
     }
 
     private lateinit var sharedPref: SharedPreferences
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Widget update worker running")
-
+        Log.d(TAG, "Bitcoin price widget update worker running")
+        
         sharedPref = applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         
-        val widgetIds = inputData.getIntArray(KEY_WIDGET_IDS)
-        if (widgetIds != null && widgetIds.isNotEmpty()) {
-            return updateMarketWidgets(widgetIds)
-        } else {
-            return updatePriceWidgets()
-        }
-    }
-    
-    private suspend fun updateMarketWidgets(widgetIds: IntArray): Result {
-        Log.d(TAG, "Starting market widget update work")
-        
-        val currency = getPreferredCurrency(applicationContext)
-        
-        try {
-            markUpdateTime()
+        // Check network connectivity first
+        if (!NetworkUtils.isNetworkAvailable(applicationContext)) {
+            Log.d(TAG, "No network connection available")
             
-            val marketData = withContext(Dispatchers.IO) {
-                MarketAPI.fetchMarketData(applicationContext, currency)
-            }
+            // Update all Bitcoin price widgets to show offline status
+            val component = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
+            val widgetIds = AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(component)
             
-            if (marketData.rate > 0) {
-                storeMarketData(marketData)
-                
-                val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-                for (widgetId in widgetIds) {
-                    MarketWidget.updateWidget(applicationContext, widgetId)
-                }
-                
-                clearRateLimitFlag()
-                
-                scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(30))
-                
-                return Result.success()
-            } else {
-                Log.w(TAG, "Market data fetch returned invalid rate (${marketData.rate})")
-                scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(15))
-                return Result.retry()
-            }
-        } catch (e: RateLimitException) {
-            Log.e(TAG, "Rate limit encountered", e)
-            setRateLimitFlag()
-            scheduleNextMarketUpdate(widgetIds, RATE_LIMIT_COOLDOWN_MS)
-            return Result.failure()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error updating market widget", e)
-            scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(15))
+            BitcoinPriceWidget.updateNetworkStatus(applicationContext, widgetIds)
+            
+            // Schedule retry with network constraint
+            scheduleRetryOnNetworkAvailable(applicationContext, widgetIds)
+            
             return Result.retry()
         }
+
+        return updatePriceWidgets()
     }
 
     private suspend fun updatePriceWidgets(): Result {
@@ -186,6 +127,10 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
 
         val fetchedPrice = fetchPrice(preferredCurrency)
+
+        // Check network connectivity
+        val isNetworkAvailable = NetworkUtils.isNetworkAvailable(applicationContext)
+        views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
 
         handlePriceResult(
             appWidgetManager, appWidgetIds, views, sharedPref,
@@ -324,77 +269,4 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
     private fun savePrice(sharedPref: SharedPreferences, price: String) {
         sharedPref.edit().putString("previous_price", price).apply()
     }
-    
-    private fun storeMarketData(marketData: MarketData) {
-        try {
-            val json = JSONObject().apply {
-                put("nextBlock", marketData.nextBlock)
-                put("sats", marketData.sats)
-                put("price", marketData.price)
-                put("rate", marketData.rate)
-                put("dateString", marketData.dateString)
-            }
-            
-            applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-                .edit()
-                .putString(MarketData.PREF_KEY, json.toString())
-                .apply()
-                
-            Log.d(TAG, "Stored market data: $marketData")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error storing market data", e)
-        }
-    }
-    
-    private fun scheduleNextMarketUpdate(widgetIds: IntArray, delayMs: Long) {
-        val data = Data.Builder()
-            .putIntArray(KEY_WIDGET_IDS, widgetIds)
-            .build()
-            
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-            
-        val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
-            .setConstraints(constraints)
-            .setInputData(data)
-            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
-            .build()
-            
-        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
-            MARKET_WORK_NAME,
-            ExistingWorkPolicy.REPLACE,
-            updateRequest
-        )
-        
-        Log.d(TAG, "Scheduled next market update with delay: ${delayMs}ms")
-    }
-    
-    private fun getPreferredCurrency(context: Context): String {
-        val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-        return sharedPrefs.getString("preferredCurrency", DEFAULT_CURRENCY) ?: DEFAULT_CURRENCY
-    }
-    
-    private fun markUpdateTime() {
-        applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putLong(KEY_LAST_UPDATE_TIME, System.currentTimeMillis())
-            .apply()
-    }
-    
-    private fun setRateLimitFlag() {
-        applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putLong("market_widget_rate_limited_time", System.currentTimeMillis())
-            .apply()
-    }
-    
-    private fun clearRateLimitFlag() {
-        applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .remove("market_widget_rate_limited_time")
-            .apply()
-    }
-    
-    class RateLimitException(message: String) : Exception(message)
 }
