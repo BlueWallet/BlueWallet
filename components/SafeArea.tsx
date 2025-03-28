@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, ViewProps, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, ViewProps, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
@@ -12,7 +12,6 @@ const SafeArea = (props: SafeAreaProps) => {
   const { style, floatingButtonHeight, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
 
   const componentStyle = useMemo(() => {
     return StyleSheet.compose(
@@ -23,11 +22,10 @@ const SafeArea = (props: SafeAreaProps) => {
         paddingBottom: insets.bottom + (floatingButtonHeight ?? 0),
         paddingLeft: insets.left,
         paddingRight: insets.right,
-        width,
       },
       style,
     );
-  }, [colors.background, style, insets, floatingButtonHeight, width]);
+  }, [colors.background, style, insets, floatingButtonHeight]);
 
   return <View style={componentStyle} {...otherProps} />;
 };
