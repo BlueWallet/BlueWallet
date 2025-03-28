@@ -92,8 +92,21 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   };
 
   const handleCustomFeeChange = (customFee: string) => {
-    const sanitizedFee = customFee.replace(/[^0-9]/g, '');
-    setCustomFeeValue(sanitizedFee);
+    // Remove everything that is not a number or a '.'
+    const sanitizedFee = customFee.replace(/[^0-9.]/g, '');
+    // Ensure there are 0 or 1 decimal points
+    const parts = sanitizedFee.split('.');
+    if (parts.length > 2) {
+      return;
+    }
+    // Limit decimal places to 2
+    // E.g: 2.333 -> will be transformed to -> 2.33
+    if (parts.length === 2 && parts[1].length > 2) {
+      parts[1] = parts[1].substring(0, 2);
+      setCustomFeeValue(parts.join('.'));
+    } else {
+      setCustomFeeValue(sanitizedFee);
+    }
     handleFeeSelection(NetworkTransactionFeeType.CUSTOM);
   };
 
@@ -151,7 +164,7 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
         <View style={[styles.buttonContent, styles.customFeeInputContainer]}>
           <TextInput
             onChangeText={handleCustomFeeChange}
-            keyboardType="numeric"
+            keyboardType="decimal-pad"
             value={customFeeValue}
             ref={customTextInput}
             maxLength={9}
