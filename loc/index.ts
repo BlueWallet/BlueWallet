@@ -344,95 +344,97 @@ export const removeTrailingZeros = (value: number | string): string => {
  * Parses a number string according to locale-specific rules,
  * strictly based on RNLocalize.getNumberFormatSettings()
  *
- * @param {string} numStr - The string representation of a number
+ * @param {string | number} numStr - The string representation of a number
  * @returns {number} The parsed float value
  */
-export function parseNumberStringToFloat(numStr: string): number {
-  if (!numStr) return 0;
+export function parseNumberStringToFloat(numStr: string | number): number {
+  if (numStr === null || numStr === undefined || numStr === '') return 0;
+
+  // Convert to string if it's a number already
+  const str = typeof numStr === 'string' ? numStr : String(numStr);
 
   // Always get fresh locale settings directly from the device
   const { decimalSeparator, groupingSeparator } = RNLocalize.getNumberFormatSettings();
-  const deviceLocale = RNLocalize.getLocales()[0].languageTag;
-
-  console.log(
-    `parseNumberStringToFloat INPUT: "${numStr}" | LOCALE: ${deviceLocale} | DECIMAL: ${decimalSeparator} | GROUP: ${groupingSeparator}`,
-  );
 
   try {
     // First, handle special case of empty string
-    if (numStr.trim() === '') return 0;
+    if (str.trim() === '') return 0;
 
-    // Handle case where string is just a decimal separator
-    if (numStr === decimalSeparator || numStr === '.') {
-      console.log('Input is just a decimal separator, returning 0');
+    // Handle case with just a decimal separator (like ".5" or ",5")
+    if (str === decimalSeparator || str === '.' || str === ',') {
       return 0;
     }
 
-    // Handle case with a leading decimal separator (like ".5")
-    if (numStr.startsWith(decimalSeparator) || numStr.startsWith('.')) {
-      const withLeadingZero = '0' + numStr;
-      console.log(`Adding leading zero to decimal: "${numStr}" → "${withLeadingZero}"`);
-      numStr = withLeadingZero;
+    // Handle leading decimal separator cases (like ".5" or ",5")
+    if (
+      str.startsWith(decimalSeparator) ||
+      (decimalSeparator !== '.' && str.startsWith('.')) ||
+      (decimalSeparator !== ',' && str.startsWith(','))
+    ) {
+      const withLeadingZero = '0' + (str.startsWith(decimalSeparator) ? str : str.replace(/^([.,])/, decimalSeparator));
+
+      // Create standardized string with period as decimal
+      let standardized = withLeadingZero;
+      if (decimalSeparator !== '.' && standardized.includes(decimalSeparator)) {
+        standardized = standardized.replace(decimalSeparator, '.');
+      }
+
+      return parseFloat(standardized);
     }
 
     // Special case: if the input is already a valid number with dot decimal separator,
     // and doesn't contain any locale-specific separators, just parse it directly
-    if (/^-?\d+(\.\d+)?$/.test(numStr)) {
-      const result = parseFloat(numStr);
-      console.log(`Direct parse result: "${numStr}" → ${result}`);
-      return result;
+    if (/^-?\d+(\.\d+)?$/.test(str)) {
+      return parseFloat(str);
     }
 
-    // EXPLICIT PARSING BASED ON RNLOCALIZE SETTINGS
+    // For more complex cases, we need to handle the separators explicitly
+
     // First, escape special regex characters in separators for safe regex use
     const safeGroupSep = groupingSeparator ? groupingSeparator.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
-    console.log(`Parsing with explicit separators - Group: "${groupingSeparator}", Decimal: "${decimalSeparator}"`);
 
-    // STEP 1: Check if the input actually contains our separators
-    const hasGroupSep = groupingSeparator && numStr.includes(groupingSeparator);
-    const hasDecimalSep = decimalSeparator && numStr.includes(decimalSeparator);
+    // Check if the input uses our separators
+    const hasGroupSep = groupingSeparator && str.includes(groupingSeparator);
+    const hasDecimalSep = decimalSeparator && str.includes(decimalSeparator);
 
-    // Start with a copy of the input string
-    let processedInput = numStr;
+    // Clean the string - keep only digits, decimal separator, minus sign and group separators
+    const validCharsPattern = new RegExp(`[^\\d\\-${safeGroupSep}${decimalSeparator === '.' ? '\\.' : decimalSeparator}]`, 'g');
+    let cleaned = str.replace(validCharsPattern, '');
 
-    // STEP 2: Handle grouping separators first - remove ALL of them
+    // Format detection - determine which style of number format is being used
+    const commasAsDecimal = cleaned.includes(',') && (!cleaned.includes('.') || cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.'));
+
+    // STANDARDIZING STEP: Convert to JavaScript's decimal point format
+
+    // Handle both common number formats
     if (hasGroupSep) {
-      console.log(`Removing all grouping separators "${groupingSeparator}" from: "${processedInput}"`);
-      processedInput = processedInput.replace(new RegExp(safeGroupSep, 'g'), '');
-      console.log(`After removing grouping separators: "${processedInput}"`);
+      // Remove all group separators
+      cleaned = cleaned.replace(new RegExp(safeGroupSep, 'g'), '');
     }
 
-    // STEP 3: Now handle the decimal separator - convert to standard JS decimal point
+    // Now handle decimal separator
     if (hasDecimalSep && decimalSeparator !== '.') {
-      // Make sure we only replace the first occurrence of the decimal separator
-      const parts = processedInput.split(decimalSeparator);
-      if (parts.length > 1) {
-        // Use first part + decimal point + all remaining parts joined
-        processedInput = parts[0] + '.' + parts.slice(1).join('');
-        console.log(`After converting decimal separator: "${processedInput}"`);
-      }
+      // Replace the decimal separator with a standard period
+      cleaned = cleaned.replace(decimalSeparator, '.');
+    }
+    // Special case for comma as decimal without explicit locale setting
+    else if (commasAsDecimal) {
+      cleaned = cleaned.replace(',', '.');
     }
 
-    // STEP 4: Handle edge cases like ".0" with no leading integer or just "."
-    if (processedInput === '.' || processedInput === '.0') {
-      console.log(`Edge case detected: "${processedInput}", returning 0`);
-      return 0;
+    // Final handling of European format (1.234,56 -> 1234.56)
+    if ((cleaned.match(/\./g) || []).length > 1) {
+      // Multiple periods found - this might be European format with periods as thousands separators
+      // Remove all periods except the last one
+      const parts = cleaned.split('.');
+      const last = parts.pop();
+      cleaned = parts.join('') + '.' + last;
     }
 
-    // STEP 5: Remove any remaining non-numeric characters except the decimal point and negative sign
-    const finalInput = processedInput.replace(/[^\d.-]/g, '');
-    console.log(`Final sanitized input: "${finalInput}"`);
+    // Parse the final cleaned string
+    const result = parseFloat(cleaned);
 
-    // STEP 6: Parse the final cleaned string
-    const result = parseFloat(finalInput);
-
-    if (isNaN(result)) {
-      console.log(`Result is NaN, returning 0 for input: "${numStr}"`);
-      return 0;
-    }
-
-    console.log(`Final parsed result: "${numStr}" → ${result}`);
-    return result;
+    return isNaN(result) ? 0 : result;
   } catch (e) {
     console.error('Error in parseNumberStringToFloat:', e);
     return 0;
@@ -674,7 +676,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces between groups of 000
- * @returns {string}
+ * @returns {string | number}
  */
 export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withFormatting = false): string | number {
   if (toUnit === undefined) {
