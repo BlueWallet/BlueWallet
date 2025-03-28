@@ -306,7 +306,7 @@ class AmountInput extends Component {
                 )}
               </View>
               <View style={styles.secondaryRoot}>
-                <Text style={styles.secondaryText}>
+                <Text style={styles.secondaryText} selectable>
                   {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
                     ? removeTrailingZeros(secondaryDisplayCurrency)
                     : secondaryDisplayCurrency}
