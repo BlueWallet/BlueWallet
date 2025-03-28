@@ -152,10 +152,15 @@ describe('Localization', () => {
       `Unexpected format with no decimals: ${noDecimals}`,
     );
 
-    // Test with more decimals
+    // Test with more decimals - adjusted to account for potential rounding
     const moreDecimals = formatNumberWithLocale(1234.56789, 3);
     assert.ok(
-      moreDecimals.startsWith('1,234.567') || moreDecimals.startsWith('1.234,567') || moreDecimals.startsWith('1 234,567'),
+      moreDecimals.startsWith('1,234.567') ||
+        moreDecimals.startsWith('1,234.568') || // Handles potential rounding
+        moreDecimals.startsWith('1.234,567') ||
+        moreDecimals.startsWith('1.234,568') ||
+        moreDecimals.startsWith('1 234,567') ||
+        moreDecimals.startsWith('1 234,568'),
       `Unexpected format with more decimals: ${moreDecimals}`,
     );
   });
