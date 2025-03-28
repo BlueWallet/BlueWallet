@@ -7,6 +7,7 @@ import {
   formatBalance,
   formatBalancePlain,
   formatBalanceWithoutSuffix,
+  formatNumberWithLocale,
   getTextSizeForAmount,
   parseNumberStringToFloat,
   removeTrailingZeros,
@@ -92,7 +93,7 @@ describe('Localization', () => {
     240000,
   );
 
-  // Add tests for new functions
+  // Tests for new functions
   it('should clean number strings correctly', () => {
     assert.strictEqual(cleanNumberString('123,456.78'), '123456.78');
     assert.strictEqual(cleanNumberString('-123,456.78'), '-123456.78');
@@ -108,6 +109,9 @@ describe('Localization', () => {
     assert.strictEqual(parseNumberStringToFloat('-1,234.56'), -1234.56);
     assert.strictEqual(parseNumberStringToFloat('not a number'), 0);
     assert.strictEqual(parseNumberStringToFloat(''), 0);
+    assert.strictEqual(parseNumberStringToFloat('.5'), 0.5); // Handles leading decimal point
+    assert.strictEqual(parseNumberStringToFloat(',5'), 0.5); // Handles comma as decimal separator
+    assert.strictEqual(parseNumberStringToFloat('-.5'), -0.5); // Handles negative decimal
   });
 
   it('should remove trailing zeros according to locale', () => {
@@ -127,5 +131,32 @@ describe('Localization', () => {
     assert.strictEqual(getTextSizeForAmount(undefined), 36); // Handles undefined - default
     assert.strictEqual(getTextSizeForAmount(''), 36); // Handles empty - default
     assert.strictEqual(getTextSizeForAmount(123), 36); // Handles number - default
+  });
+
+  it('should format numbers with locale settings', () => {
+    // Since formatNumberWithLocale uses RNLocalize which might behave differently in tests,
+    // we'll only test basic cases where we can predict the output
+    const formatted = formatNumberWithLocale(1234.56);
+    assert.ok(formatted === '1,234.56' || formatted === '1.234,56' || formatted === '1 234,56', `Unexpected format: ${formatted}`);
+
+    const formattedZero = formatNumberWithLocale(0);
+    assert.ok(
+      formattedZero === '0' || formattedZero === '0.00' || formattedZero === '0,00',
+      `Unexpected format for zero: ${formattedZero}`,
+    );
+
+    // Test with 0 decimals
+    const noDecimals = formatNumberWithLocale(1234, 0);
+    assert.ok(
+      noDecimals === '1,234' || noDecimals === '1.234' || noDecimals === '1 234',
+      `Unexpected format with no decimals: ${noDecimals}`,
+    );
+
+    // Test with more decimals
+    const moreDecimals = formatNumberWithLocale(1234.56789, 3);
+    assert.ok(
+      moreDecimals.startsWith('1,234.567') || moreDecimals.startsWith('1.234,567') || moreDecimals.startsWith('1 234,567'),
+      `Unexpected format with more decimals: ${moreDecimals}`,
+    );
   });
 });
