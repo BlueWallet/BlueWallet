@@ -29,7 +29,9 @@
     "unlock": "Unlock",
     "port": "Port",
     "ssl_port": "SSL Port",
-    "suggested": "Suggested"
+    "suggested": "Suggested",
+    "file_does_not_exist": "File does not exist",
+    "file_picking_failed": "Picking and caching a file failed"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -308,6 +310,7 @@
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
     "privacy_quickactions": "Wallet Shortcuts",
+    "grant_access": "Grant Access",
     "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
@@ -321,7 +324,8 @@
     "total_balance": "Total Balance",
     "total_balance_explanation": "Display the total balance of all your wallets on your home screen widgets.",
     "widgets": "Widgets",
-    "tools": "Tools"
+    "tools": "Tools",
+    "storage_access_denied": "Storage access is required to save files. Please grant BlueWallet permission to access files."
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Would you like to receive notifications when you get incoming payments?",
