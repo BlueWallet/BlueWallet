@@ -3,6 +3,7 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import Share from 'react-native-share';
+import * as ScopedStorage from 'react-native-scoped-storage';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
@@ -14,49 +15,163 @@ const _sanitizeFileName = (fileName: string) => {
   return fileName.replace(/[^a-zA-Z0-9\-_.]/g, '');
 };
 
+const isScopedStorageSupported = (): boolean => {
+  const isSupported = Platform.OS === 'android' && Platform.Version >= 29;
+  console.debug(`[fs] isScopedStorageSupported: ${isSupported}, Platform: ${Platform.OS}, Version: ${Platform.Version}`);
+  return isSupported;
+};
+
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   try {
     await Share.open({
       url: 'file://' + filePath,
       saveToFiles: isDesktop || !showShareDialog,
-      // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
-      useInternalStorage: Platform.OS === 'android',
       failOnCancel: false,
     });
   } catch (error: any) {
     console.log(error);
-    // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
     if (error.message !== 'CANCELLED') {
       presentAlert({ message: error.message });
     }
   } finally {
-    await RNFS.unlink(filePath);
+    if (isScopedStorageSupported() && filePath.startsWith('content://')) {
+      await ScopedStorage.deleteFile(filePath);
+    } else {
+      await RNFS.unlink(filePath);
+    }
   }
 };
 
-/**
- * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
- * or perhaps messaging app). Provided filename should be just a file name, NOT a path
- */
+const _getMimeType = (fileName: string): string => {
+  if (fileName.toLowerCase().endsWith('.psbt') || fileName.toLowerCase().endsWith('.psbt.txn')) {
+    return 'application/octet-stream';
+  } else if (fileName.toLowerCase().endsWith('.json')) {
+    return 'application/json';
+  } else if (fileName.toLowerCase().endsWith('.txt')) {
+    return 'text/plain';
+  }
+  return 'text/plain';
+};
 
-export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
+const checkStoragePermissions = async (): Promise<boolean> => {
+  if (Platform.OS !== 'android') return true;
+
+  try {
+    const persistedUris = await ScopedStorage.getPersistedUriPermissions();
+    const hasPermissions = persistedUris.length > 0;
+    console.debug(`[fs] checkStoragePermissions: ${hasPermissions}, URIs: ${persistedUris.length}`);
+    return hasPermissions;
+  } catch (error) {
+    console.error('Error checking storage permissions:', error);
+    return false;
+  }
+};
+
+const requestStoragePermission = async (): Promise<{ uri: string; name: string } | null> => {
+  if (Platform.OS !== 'android') return null;
+
+  try {
+    console.debug('[fs] Requesting storage permissions with directory picker');
+    const dirResult = await ScopedStorage.openDocumentTree(true);
+
+    if (!dirResult || !dirResult.uri) {
+      console.debug('[fs] User cancelled directory selection');
+      return null;
+    }
+
+    console.debug(`[fs] Obtained permission to directory: ${dirResult.name}, URI: ${dirResult.uri}`);
+    const persistedUris = await ScopedStorage.getPersistedUriPermissions();
+    if (!persistedUris.includes(dirResult.uri)) {
+      console.warn('[fs] Permission was not persisted for the selected directory');
+    } else {
+      console.debug('[fs] Permission was successfully persisted for the selected directory');
+    }
+
+    return dirResult;
+  } catch (error) {
+    console.error('Error requesting storage permissions:', error);
+    return null;
+  }
+};
+
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true): Promise<void> {
   const sanitizedFileName = _sanitizeFileName(fileName);
+  console.debug(`[fs] writeFileAndExport: ${sanitizedFileName}, showShare: ${showShareDialog}`);
   try {
     if (Platform.OS === 'ios') {
       const filePath = `${RNFS.TemporaryDirectoryPath}/${sanitizedFileName}`;
       await RNFS.writeFile(filePath, contents);
       await _shareOpen(filePath, showShareDialog);
     } else if (Platform.OS === 'android') {
-      const filePath = `${RNFS.DownloadDirectoryPath}/${sanitizedFileName}`;
       try {
-        await RNFS.writeFile(filePath, contents);
-        if (showShareDialog) {
-          await _shareOpen(filePath);
+        const mimeType = _getMimeType(sanitizedFileName);
+        console.debug(`[fs] Android write, mime: ${mimeType}, using scoped storage: ${isScopedStorageSupported()}`);
+
+        if (isScopedStorageSupported()) {
+          console.debug('[fs] Using Android Scoped Storage API');
+
+          if (!showShareDialog) {
+            console.debug('[fs] Requesting full storage access');
+            await requestFullStorageAccess();
+          }
+
+          try {
+            console.debug('[fs] Prompting user to select save location');
+            const file = await ScopedStorage.createDocument(sanitizedFileName, mimeType, contents, 'utf8');
+
+            if (file && file.uri && file.name) {
+              console.debug(`[fs] File saved as: ${file.name} at ${file.uri}`);
+              if (showShareDialog) {
+                await _shareOpen(file.uri, showShareDialog);
+              } else {
+                presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath: file.name }) });
+              }
+            } else {
+              console.debug('[fs] File save operation returned incomplete result');
+            }
+          } catch (saveError: any) {
+            console.error('[fs] Error during file save operation:', saveError);
+            if (saveError.message.includes('permission') || saveError.message.includes('denied') || saveError.message.includes('cancel')) {
+              console.debug('[fs] User cancelled save operation or denied permission');
+              const wantToGrantAccess = await new Promise(resolve => {
+                presentAlert({
+                  message: loc.settings.storage_access_denied,
+                  buttons: [
+                    {
+                      text: loc._.cancel,
+                      onPress: () => resolve(false),
+                      style: 'cancel',
+                    },
+                    {
+                      text: loc.settings.grant_access,
+                      style: 'default',
+                      onPress: () => resolve(true),
+                    },
+                  ],
+                });
+              });
+
+              if (wantToGrantAccess) {
+                console.debug('[fs] User wants to grant folder access');
+                await requestAccessToAdditionalDirectories();
+                console.debug('[fs] Retrying file save after granting permissions');
+                return writeFileAndExport(fileName, contents, showShareDialog);
+              }
+            } else {
+              throw saveError;
+            }
+          }
         } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+          const filePath = `${RNFS.DownloadDirectoryPath}/${sanitizedFileName}`;
+          await RNFS.writeFile(filePath, contents);
+          if (showShareDialog) {
+            await _shareOpen(filePath);
+          } else {
+            presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+          }
         }
       } catch (e: any) {
-        console.error(e);
+        console.error('Error in writeFileAndExport for Android:', e);
         presentAlert({ message: e.message });
       }
     }
@@ -66,9 +181,52 @@ export const writeFileAndExport = async function (fileName: string, contents: st
   }
 };
 
-/**
- * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (wont throw).
- */
+export const requestAccessToAdditionalDirectories = async (): Promise<boolean> => {
+  if (!isScopedStorageSupported()) {
+    return false;
+  }
+
+  try {
+    const dir = await requestStoragePermission();
+    if (dir) {
+      console.debug(`[fs] Successfully granted access to ${dir.name}`);
+      return true;
+    } else {
+      console.debug('[fs] No folder was selected or permission was denied');
+      return false;
+    }
+  } catch (error: any) {
+    console.error('Error requesting additional directory access:', error);
+    presentAlert({ message: 'Error: ' + error.message });
+    return false;
+  }
+};
+
+export const requestFullStorageAccess = async (): Promise<boolean> => {
+  if (!isScopedStorageSupported()) {
+    console.debug('[fs] Scoped storage not supported on this device');
+    return false;
+  }
+
+  try {
+    const rootDir = await ScopedStorage.openDocumentTree(true);
+    if (rootDir && rootDir.uri) {
+      console.debug(`[fs] Access granted to ${rootDir.name}`);
+      return true;
+    } else {
+      console.debug('[fs] Storage access was not granted');
+      return false;
+    }
+  } catch (error: any) {
+    console.error('Error requesting full storage access:', error);
+    return false;
+  }
+};
+
+export const addStorageSettingsSection = async (): Promise<void> => {
+  await requestFullStorageAccess();
+};
+
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
     const res = await DocumentPicker.pickSingle({
@@ -89,7 +247,15 @@ export const openSignedTransaction = async function (): Promise<string | false> 
 };
 
 const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
-  const base64 = await RNFS.readFile(uri, 'base64');
+  console.debug(`[fs] _readPsbtFileIntoBase64: ${uri}`);
+  let base64;
+  if (isScopedStorageSupported()) {
+    console.debug('[fs] Reading PSBT with ScopedStorage');
+    base64 = await ScopedStorage.readFile(uri, 'base64');
+  } else {
+    base64 = await RNFS.readFile(uri, 'base64');
+  }
+
   const stringData = Buffer.from(base64, 'base64').toString(); // decode from base64
   if (stringData.startsWith('psbt')) {
     // file was binary, but outer code expects base64 psbt, so we return base64 we got from rn-fs;
@@ -140,7 +306,16 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
 };
 
 export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
+  console.debug('[fs] showFilePickerAndReadFile: starting');
   try {
+    if (isScopedStorageSupported() && Platform.OS === 'android') {
+      const hasPermission = await checkStoragePermissions();
+      if (!hasPermission) {
+        console.debug('[fs] No storage permissions, requesting access');
+        await requestAccessToAdditionalDirectories();
+      }
+    }
+
     const res = await DocumentPicker.pickSingle({
       copyTo: 'cachesDirectory',
       type:
@@ -157,12 +332,12 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
     });
 
     if (!res.fileCopyUri) {
-      // to make ts happy, should not need this check here
-      presentAlert({ message: 'Picking and caching a file failed' });
+      presentAlert({ message: loc._.file_picking_failed });
       return { data: false, uri: false };
     }
 
     const fileCopyUri = decodeURI(res.fileCopyUri);
+    console.debug(`[fs] File picked: ${fileCopyUri}, type: ${res.type}`);
 
     if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
@@ -174,7 +349,9 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
       return await handleImageFile(fileCopyUri);
     }
 
-    const file = await RNFS.readFile(fileCopyUri);
+    console.debug(`[fs] Reading file with ${isScopedStorageSupported() ? 'ScopedStorage' : 'RNFS'}`);
+    const file = isScopedStorageSupported() ? await ScopedStorage.readFile(fileCopyUri) : await RNFS.readFile(fileCopyUri);
+
     return { data: file, uri: fileCopyUri };
   } catch (err: any) {
     if (!DocumentPicker.isCancel(err)) {
@@ -186,12 +363,24 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
 
 const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
   try {
-    const exists = await RNFS.exists(fileCopyUri);
+    let exists = false;
+
+    if (isScopedStorageSupported()) {
+      try {
+        await ScopedStorage.stat(fileCopyUri);
+        exists = true;
+      } catch (e) {
+        exists = false;
+      }
+    } else {
+      exists = await RNFS.exists(fileCopyUri);
+    }
+
     if (!exists) {
-      presentAlert({ message: 'File does not exist' });
+      presentAlert({ message: loc._.file_does_not_exist });
       return { data: false, uri: false };
     }
-    // First attempt: use original URI
+
     let result = await RNQRGenerator.detect({ uri: decodeURI(fileCopyUri) });
     if (result?.values && result.values.length > 0) {
       return { data: result.values[0], uri: fileCopyUri };
@@ -214,10 +403,9 @@ const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | fa
 export const readFileOutsideSandbox = (filePath: string) => {
   if (Platform.OS === 'ios') {
     return readFile(filePath);
-  } else if (Platform.OS === 'android') {
-    return RNFS.readFile(filePath);
+  } else if (isScopedStorageSupported()) {
+    return ScopedStorage.readFile(filePath);
   } else {
-    presentAlert({ message: 'Not implemented for this platform' });
-    throw new Error('Not implemented for this platform');
+    return RNFS.readFile(filePath);
   }
 };
