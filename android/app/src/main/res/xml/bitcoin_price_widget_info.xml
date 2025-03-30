@@ -7,4 +7,6 @@
     android:widgetCategory="home_screen"
     android:previewImage="@drawable/widget_preview"
     android:resizeMode="none"
+    android:label="@string/bitcoin_price_widget_name"
+    android:description="@string/bitcoin_price_widget_description"
 />
