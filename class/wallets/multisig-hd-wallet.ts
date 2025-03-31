@@ -3,7 +3,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import createHash from 'create-hash';
 import { ECPairFactory } from 'ecpair';
 import * as mn from 'electrum-mnemonic';
@@ -12,7 +12,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import { CreateTransactionResult, CreateTransactionUtxo } from './types';
+import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -926,23 +926,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return howManyPrivKeysWeGot;
   }
 
-  /**
-   * @inheritDoc
-   */
-  createTransaction(
+  coinselect(
     utxos: CreateTransactionUtxo[],
-    targets: CoinSelectTarget[],
+    targets: CreateTransactionTarget[],
     feeRate: number,
-    changeAddress: string,
-    sequence: number,
-    skipSigning = false,
-    masterFingerprint: number,
-  ): CreateTransactionResult {
-    if (targets.length === 0) throw new Error('No destination provided');
-    if (this.howManySignaturesCanWeMake() === 0) skipSigning = true;
+  ): { inputs: CoinSelectReturnInput[]; outputs: CoinSelectOutput[]; fee: number } {
+    const _utxos = JSON.parse(JSON.stringify(utxos)) as CreateTransactionUtxo[];
 
     // overriding script length for proper vbytes calculation
-    for (const u of utxos) {
+    for (const u of _utxos) {
       if (u.script?.length) {
         continue;
       }
@@ -961,6 +953,24 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         };
       }
     }
+
+    return super.coinselect(_utxos, targets, feeRate);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  createTransaction(
+    utxos: CreateTransactionUtxo[],
+    targets: CoinSelectTarget[],
+    feeRate: number,
+    changeAddress: string,
+    sequence: number,
+    skipSigning = false,
+    masterFingerprint: number,
+  ): CreateTransactionResult {
+    if (targets.length === 0) throw new Error('No destination provided');
+    if (this.howManySignaturesCanWeMake() === 0) skipSigning = true;
 
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;

@@ -375,7 +375,35 @@ export class LegacyWallet extends AbstractWallet {
       algo = coinSelectSplit;
     }
 
-    const { inputs, outputs, fee } = algo(utxos, targets as CoinSelectTarget[], feeRate);
+    const _utxos = JSON.parse(JSON.stringify(utxos)) as CreateTransactionUtxo[];
+    const _targets = JSON.parse(JSON.stringify(targets)) as CreateTransactionTarget[];
+
+    // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
+    for (const u of _utxos) {
+      if (u.script?.length) {
+        continue;
+      }
+
+      if (this.segwitType === 'p2wpkh') {
+        u.script = { length: 27 };
+      } else if (this.segwitType === 'p2sh(p2wpkh)') {
+        u.script = { length: 50 };
+      }
+    }
+
+    for (const t of _targets) {
+      if (t.address?.startsWith('bc1')) {
+        // in case address is non-typical and takes more bytes than coinselect library anticipates by default
+        t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
+      }
+
+      if (t.script?.hex) {
+        // setting length for coinselect lib manually as it is not aware of our field `hex`
+        t.script.length = t.script.hex.length / 2 - 4;
+      }
+    }
+
+    const { inputs, outputs, fee } = algo(_utxos, _targets as CoinSelectTarget[], feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
