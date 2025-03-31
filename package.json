@@ -58,6 +58,7 @@
     "branch2json": "./scripts/current-branch.sh > current-branch.json",
     "start": "react-native start",
     "android": "react-native run-android",
+    "adb": "adb reverse tcp:8081 tcp:8081",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run patches",

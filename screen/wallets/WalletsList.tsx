@@ -145,7 +145,7 @@ const WalletsList: React.FC = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = useCallback(() => {
-    refreshWallets(undefined, true, false);
+    refreshWallets(undefined, true, true);
   }, [refreshWallets]);
 
   useEffect(() => {
@@ -153,7 +153,7 @@ const WalletsList: React.FC = () => {
     const initialLoad = async () => {
       if (isElectrumDisabled) return;
       try {
-        await refreshAllWalletTransactions(undefined, false);
+        await refreshAllWalletTransactions(undefined, true);
       } catch (error) {
         console.error(error);
       }
