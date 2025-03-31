@@ -75,6 +75,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet?._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
   const MAX_FAILURES = 3;
+  const flatListRef = useRef<FlatList<Transaction>>(null);
+  const headerRef = useRef<View>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -82,6 +85,16 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     },
     listFooterStyle: {
       height: '100%',
+      backgroundColor: colors.background,
+    },
+    backgroundContainer: {
+      backgroundColor: colors.background,
+    },
+    gradientBackground: {
+      backgroundColor: wallet && headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
+      height: headerHeight > 0 ? headerHeight : '30%',
+    },
+    activityIndicatorStyle: {
       backgroundColor: colors.background,
     },
   });
@@ -208,14 +221,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
     return wallet && wallet.getTransactions().length > limit ? (
-      <ActivityIndicator
-        style={[
-          styles.activityIndicator,
-          {
-            backgroundColor: colors.background,
-          },
-        ]}
-      />
+      <ActivityIndicator style={[styles.activityIndicator, stylesHook.activityIndicatorStyle]} />
     ) : (
       <View style={stylesHook.listFooterStyle} />
     );
@@ -447,10 +453,37 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     [navigation, wallet, walletBalance, setOptions, route],
   );
 
+  const measureHeaderHeight = useCallback(() => {
+    if (!headerRef.current) {
+      // If header ref is not available, use default background
+      setHeaderHeight(0);
+      return;
+    }
+
+    headerRef.current.measure((x, y, width, height, pageX, pageY) => {
+      // Check if the header is actually visible
+      if (height === 0 || pageY < 0) {
+        // Header is not visible, use default background
+        setHeaderHeight(0);
+        return;
+      }
+
+      const fullHeight = pageY + height;
+      if (fullHeight > 0) {
+        setHeaderHeight(fullHeight);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(measureHeaderHeight, 100);
+    return () => clearTimeout(timer);
+  }, [walletID, measureHeaderHeight]);
+
   const ListHeaderComponent = useCallback(
     () =>
       wallet ? (
-        <>
+        <View ref={headerRef} onLayout={measureHeaderHeight}>
           <TransactionsNavigationHeader
             wallet={wallet}
             onWalletUnitChange={async selectedUnit => {
@@ -495,12 +528,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             }}
           />
           <>
-            <View style={[styles.flex, { backgroundColor: colors.background }]}>
+            <View style={[styles.flex, stylesHook.backgroundContainer]}>
               <View style={styles.listHeaderTextRow}>
                 <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
               </View>
             </View>
-            <View style={{ backgroundColor: colors.background }}>
+            <View style={stylesHook.backgroundContainer}>
               {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
                 <WatchOnlyWarning
                   handleDismiss={() => {
@@ -512,11 +545,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
               )}
             </View>
           </>
-        </>
+        </View>
       ) : undefined,
     [
       wallet,
-      colors.background,
+      measureHeaderHeight,
+      stylesHook.backgroundContainer,
       stylesHook.listHeaderText,
       saveToDisk,
       isBiometricUseCapableAndEnabled,
@@ -527,19 +561,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     ],
   );
 
-  return (
-    <View style={[styles.flex, { backgroundColor: colors.background }]}>
-      {/* The color of the refresh indicator. Temporary hack */}
-      <View
-        style={[
-          styles.refreshIndicatorBackground,
-          { backgroundColor: wallet ? WalletGradient.headerColorFor(wallet.type) : colors.background },
-        ]}
-        testID="TransactionsListView"
-      />
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  }, [walletID]);
 
+  return (
+    <View style={[styles.flex, stylesHook.backgroundContainer]}>
+      <View style={[styles.refreshIndicatorBackground, stylesHook.gradientBackground]} testID="TransactionsListView" />
       <FlatList<Transaction>
+        ref={flatListRef}
         getItemLayout={getItemLayout}
+        testID="TransactionsListView"
         updateCellsBatchingPeriod={50}
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
@@ -550,15 +584,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         renderItem={renderItem}
         initialNumToRender={10}
         removeClippedSubviews
-        contentContainerStyle={{ backgroundColor: colors.background }}
+        contentContainerStyle={stylesHook.backgroundContainer}
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         maxToRenderPerBatch={10}
         onScroll={handleScroll}
+        windowSize={15}
         scrollEventThrottle={16}
-        stickyHeaderHiddenOnScroll
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
-          <ScrollView style={[styles.flex, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollViewContent}>
+          <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
@@ -570,10 +604,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} tintColor={colors.msSuccessCheck} />
           ) : undefined
         }
-        windowSize={15}
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-        }}
       />
 
       <FContainer ref={walletActionButtonsRef}>
@@ -623,7 +653,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 export default WalletTransactions;
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, height: '100%', minHeight: '100%' },
+  flex: { flex: 1 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
@@ -633,8 +663,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: '100%',
   },
+  emptyTxsContainer: { height: '100%', minHeight: '100%', flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
