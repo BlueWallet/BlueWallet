@@ -21,7 +21,7 @@ console.warn = console.log = (...args) => {
   let output = '';
   args.map(arg => (output += String(arg)));
 
-  process.stdout.write(output + '\n');
+  process.stdout.write('\n\t\t' + output + '\n');
 };
 
 /**
