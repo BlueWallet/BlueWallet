@@ -573,7 +573,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
       <FlatList<Transaction>
         ref={flatListRef}
         getItemLayout={getItemLayout}
-        testID="TransactionsListView"
         updateCellsBatchingPeriod={50}
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
