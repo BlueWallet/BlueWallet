@@ -302,7 +302,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [saveToDisk],
   );
 
-  // Initialize wallets and connect to Electrum
+  // Initialize wallets
   useEffect(() => {
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
@@ -320,16 +320,19 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         console.debug('[refreshAllWalletTransactions] Refresh already in progress');
         return;
       }
+      console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
 
       await new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => resolve()));
 
       const TIMEOUT_DURATION = 30000;
-      const timeoutPromise = new Promise<never>((_resolve, reject) =>
-        setTimeout(() => {
-          console.debug('[refreshAllWalletTransactions] Timeout reached');
-          reject(new Error('Timeout reached'));
-        }, TIMEOUT_DURATION),
+      let refreshTimeout;
+      const timeoutPromise = new Promise<never>(
+        (_resolve, reject) =>
+          (refreshTimeout = setTimeout(() => {
+            console.debug('[refreshAllWalletTransactions] Timeout reached');
+            reject(new Error('Timeout reached'));
+          }, TIMEOUT_DURATION)),
       );
 
       try {
@@ -339,6 +342,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
         await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ping())) {
+          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
+          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
+          // should pick up)
+          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
+          await BlueElectrum.waitTillConnected();
+        }
+
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
         // Restore fetch payment codes timing measurement
@@ -364,6 +375,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             await BlueApp.fetchWalletTransactions(lastSnappedTo);
             const txEnd = Date.now();
             console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
+
+            clearTimeout(refreshTimeout);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();

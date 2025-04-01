@@ -20,7 +20,7 @@ console.warn = console.log = (...args) => {
   let output = '';
   args.map(arg => (output += String(arg)));
 
-  process.stdout.write(output + '\n');
+  process.stdout.write('\n\t\t' + output + '\n');
 };
 
 /**
@@ -769,5 +769,51 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('TransactionsListEmpty'))).not.toBeVisible();
 
     assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
+  });
+
+  it('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t25');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t25'), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    await device.launchApp({ newInstance: true });
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await element(by.id('WalletDetails')).tap();
+
+    // tapping backdoor button to purge txs and balance:
+    for (let c = 0; c <= 10; c++) {
+      await element(by.id('PurgeBackdoorButton')).tap();
+      await sleep(500);
+    }
+
+    await waitForText('OK');
+    await tapIfTextPresent('OK');
+
+    if (device.getPlatform() === 'ios') {
+      console.warn('rest of the test is Android only, skipped');
+      return;
+    }
+
+    await device.pressBack();
+
+    // asserting there are no transactions and balance is 0:
+
+    await expect(element(by.id('WalletBalance'))).toHaveText('0');
+    await waitForId('TransactionsListEmpty');
+    assert.strictEqual(await countElements('TransactionListItem'), 0);
+
+    // now, restarting the app:
+    await device.launchApp({ newInstance: true });
+    // ^^^ its supposed to refetch txs and balance
+
+    // asserting balance and txs loaded:
+    await waitForText('0.00105526 BTC '); // the wait inside allows network request to propagate. also, stupid space in the end of the string
+    assert.ok((await countElements('TransactionListItem')) >= 2); // 2 is arbitrary, real txs on screen depend on screen size
   });
 });
