@@ -925,17 +925,30 @@ const SendDetails = () => {
       });
       return;
     }
+
     // Add new recipient as usual if all recipients are complete
-    setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
-    // Wait for the state to update before scrolling
+    const newIndex = addresses.length; // This will be the index of the new item
+    setAddresses(prevAddresses => [
+      ...prevAddresses,
+      { address: '', key: String(Math.random()), unit: amountUnit } as IPaymentDestinations,
+    ]);
+
+    // Update the scroll index to point to the new recipient
+    scrollIndex.current = newIndex;
+
+    // Wait for the state update and layout to complete before scrolling
+    // Use a longer timeout to ensure the layout has been calculated
     setTimeout(() => {
-      scrollIndex.current = addresses.length; // New index at the end
-      scrollView.current?.scrollToIndex({
-        index: scrollIndex.current,
-        animated: true,
-      });
-    }, 0);
-  }, [addresses]);
+      if (scrollView.current) {
+        scrollView.current.scrollToIndex({
+          index: newIndex,
+          animated: true,
+          viewOffset: 0, // Make sure it's fully visible
+          viewPosition: 0, // Align at the start
+        });
+      }
+    }, 100);
+  }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]);
@@ -1406,6 +1419,8 @@ const SendDetails = () => {
       testID="SendDetails"
       style={[styles.root, stylesHook.root]}
       keyboardShouldPersistTaps="handled"
+      automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets
     >
       <View style={styles.spaceBetween}>
         <View onLayout={onContainerLayout}>
