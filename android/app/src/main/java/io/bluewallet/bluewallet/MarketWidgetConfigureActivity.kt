@@ -40,7 +40,7 @@ class MarketWidgetConfigureActivity : AppCompatActivity() {
 
         // Schedule an immediate update for this widget
         val widgetIds = intArrayOf(appWidgetId)
-        WidgetUpdateWorker.scheduleMarketUpdate(this, widgetIds, true)
+        MarketWidgetUpdateWorker.scheduleMarketUpdate(this, widgetIds, true)
 
         // Finish the activity
         finish()

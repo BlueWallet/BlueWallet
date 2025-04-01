@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (8.2.0):
+  - BugsnagReactNative (8.3.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1838,7 +1838,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.9.2):
+  - RNScreens (4.10.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2234,7 +2234,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
-  BugsnagReactNative: 3e53a711e96ca1097bff567fb66213778905e3ca
+  BugsnagReactNative: 99075268e263b0dffd630a560156d3b1f4a2df56
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
@@ -2331,7 +2331,7 @@ SPEC CHECKSUMS:
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: 00ba111b82aa266bb3ee1aa576831c2ea9a9dfad
   RNReanimated: 66cf0f600a26d2b5e74c6e0b1c77c1ab1f62fc05
-  RNScreens: 0e8829648c78f4168f3e96cdc2e219213cb1907c
+  RNScreens: 578cbc135e908cfc3e4739ce12a42fdb1d798ca6
   RNShare: 381ed02f6c0dc42b8c24bb5a1e5df0ee5fd91354
   RNSVG: a07e14363aa208062c6483bad24a438d5986d490
   RNVectorIcons: 182892e7d1a2f27b52d3c627eca5d2665a22ee28

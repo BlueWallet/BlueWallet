@@ -99,7 +99,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
     await element(by.type('android.widget.EditText')).typeText(remainingBalanceSat);
     await element(by.text('Delete')).tap();
   }
-  await expect(element(by.id('NoTransactionsMessage'))).toBeVisible();
+  await waitForId('NoTransactionsMessage');
 }
 
 /*
