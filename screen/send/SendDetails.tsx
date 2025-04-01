@@ -1415,9 +1415,9 @@ const SendDetails = () => {
 
   return (
     <SafeAreaScrollView
-      contentContainerStyle={styles.root}
       testID="SendDetails"
-      style={[styles.root, stylesHook.root]}
+      style={stylesHook.root}
+      contentContainerStyle={styles.rootContainer}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustsScrollIndicatorInsets
       automaticallyAdjustKeyboardInsets
@@ -1505,7 +1505,7 @@ const SendDetails = () => {
 export default SendDetails;
 
 const styles = StyleSheet.create({
-  root: {
+  rootContainer: {
     flexGrow: 1,
   },
   spaceBetween: {
