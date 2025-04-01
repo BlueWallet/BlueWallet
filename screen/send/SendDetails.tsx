@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Alert,
-  Dimensions,
   findNodeHandle,
   FlatList,
   I18nManager,
@@ -20,6 +19,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
+  LayoutChangeEvent,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import { Icon } from '@rneui/themed';
@@ -57,7 +58,7 @@ import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -93,9 +94,11 @@ const SendDetails = () => {
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
+  const [containerWidth, setContainerWidth] = useState(windowWidth);
+  const layoutChangeScrollRestorationRef = useRef<NodeJS.Timeout | null>(null);
 
   // state
-  const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
@@ -1272,7 +1275,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={{ width }} testID={'Transaction' + index}>
+      <View style={[styles.transactionItem, { width: containerWidth }]} testID={'Transaction' + index}>
         <AmountInput
           isLoading={isLoading}
           amount={item.amount ? item.amount.toString() : null}
@@ -1363,65 +1366,104 @@ const SendDetails = () => {
     );
   };
 
-  const getItemLayout = (_: any, index: number) => ({
-    length: width,
-    offset: width * index,
-    index,
-  });
+  useEffect(() => {
+    if (scrollView.current && scrollIndex.current >= 0) {
+      if (layoutChangeScrollRestorationRef.current) {
+        clearTimeout(layoutChangeScrollRestorationRef.current);
+      }
+
+      layoutChangeScrollRestorationRef.current = setTimeout(() => {
+        if (scrollView.current) {
+          scrollView.current.scrollToIndex({
+            index: scrollIndex.current,
+            animated: false,
+            viewPosition: 0,
+          });
+        }
+      }, 50);
+    }
+
+    return () => {
+      if (layoutChangeScrollRestorationRef.current) {
+        clearTimeout(layoutChangeScrollRestorationRef.current);
+      }
+    };
+  }, [containerWidth]);
+
+  const onContainerLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { width } = event.nativeEvent.layout;
+      if (width !== containerWidth) {
+        setContainerWidth(width);
+      }
+    },
+    [containerWidth],
+  );
 
   return (
-    <SafeArea style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-      <View>
-        <FlatList
-          keyboardShouldPersistTaps="always"
-          scrollEnabled={addresses.length > 1}
-          data={addresses}
-          renderItem={renderBitcoinTransactionInfoFields}
-          horizontal
-          ref={scrollView}
-          automaticallyAdjustKeyboardInsets
-          pagingEnabled
-          removeClippedSubviews={false}
-          onMomentumScrollBegin={Keyboard.dismiss}
-          onScroll={handleRecipientsScroll}
-          scrollEventThrottle={16}
-          scrollIndicatorInsets={styles.scrollViewIndicator}
-          contentContainerStyle={styles.scrollViewContent}
-          getItemLayout={getItemLayout}
-        />
-        <View style={[styles.memo, stylesHook.memo]}>
-          <TextInput
-            onChangeText={setTransactionMemo}
-            placeholder={loc.send.details_note_placeholder}
-            placeholderTextColor="#81868e"
-            value={transactionMemo}
-            numberOfLines={1}
-            style={styles.memoText}
-            editable={!isLoading}
-            onSubmitEditing={Keyboard.dismiss}
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+    <SafeAreaScrollView
+      contentContainerStyle={styles.root}
+      testID="SendDetails"
+      style={[styles.root, stylesHook.root]}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.spaceBetween}>
+        <View onLayout={onContainerLayout}>
+          <FlatList
+            keyboardShouldPersistTaps="always"
+            scrollEnabled={addresses.length > 1}
+            data={addresses}
+            renderItem={renderBitcoinTransactionInfoFields}
+            horizontal
+            ref={scrollView}
+            automaticallyAdjustKeyboardInsets
+            pagingEnabled
+            onMomentumScrollBegin={Keyboard.dismiss}
+            onScroll={handleRecipientsScroll}
+            scrollEventThrottle={16}
+            scrollIndicatorInsets={styles.scrollViewIndicator}
+            extraData={containerWidth}
+            getItemLayout={(_, index) => ({
+              length: containerWidth,
+              offset: containerWidth * index,
+              index,
+            })}
+            key={`flatlist-${containerWidth}`}
           />
-        </View>
-        <TouchableOpacity
-          testID="chooseFee"
-          accessibilityRole="button"
-          onPress={() => feeModalRef.current?.present()}
-          disabled={isLoading}
-          style={styles.fee}
-        >
-          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+          <View style={[styles.memo, stylesHook.memo]}>
+            <TextInput
+              onChangeText={setTransactionMemo}
+              placeholder={loc.send.details_note_placeholder}
+              placeholderTextColor="#81868e"
+              value={transactionMemo}
+              numberOfLines={1}
+              style={styles.memoText}
+              editable={!isLoading}
+              onSubmitEditing={Keyboard.dismiss}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+            />
+          </View>
+          <TouchableOpacity
+            testID="chooseFee"
+            accessibilityRole="button"
+            onPress={() => feeModalRef.current?.present()}
+            disabled={isLoading}
+            style={styles.fee}
+          >
+            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-          {networkTransactionFeesIsLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <View style={[styles.feeRow, stylesHook.feeRow]}>
-              <Text style={stylesHook.feeValue}>
-                {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-        {renderCreateButton()}
+            {networkTransactionFeesIsLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <View style={[styles.feeRow, stylesHook.feeRow]}>
+                <Text style={stylesHook.feeValue}>
+                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          {renderCreateButton()}
+        </View>
         <SelectFeeModal
           ref={feeModalRef}
           networkTransactionFees={networkTransactionFees}
@@ -1441,7 +1483,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
-    </SafeArea>
+    </SafeAreaScrollView>
   );
 };
 
@@ -1449,17 +1491,21 @@ export default SendDetails;
 
 const styles = StyleSheet.create({
   root: {
+    flexGrow: 1,
+  },
+  spaceBetween: {
     flex: 1,
     justifyContent: 'space-between',
-  },
-  scrollViewContent: {
-    flexDirection: 'row',
   },
   scrollViewIndicator: {
     top: 0,
     left: 8,
     bottom: 0,
     right: 8,
+  },
+  transactionItem: {
+    flex: 1,
+    maxHeight: 250,
   },
   createButton: {
     marginVertical: 16,
@@ -1468,7 +1514,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   select: {
-    marginBottom: 24,
+    marginVertical: 24,
     marginHorizontal: 24,
     alignItems: 'center',
   },
