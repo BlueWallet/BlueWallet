@@ -72,20 +72,14 @@ const requestStoragePermission = async (): Promise<{ uri: string; name: string }
 
   try {
     console.debug('[fs] Requesting storage permissions with directory picker');
-    const dirResult = await ScopedStorage.openDocumentTree(true);
+    const dirResult = await ScopedStorage.openDocumentTree(false);
 
     if (!dirResult || !dirResult.uri) {
       console.debug('[fs] User cancelled directory selection');
       return null;
     }
 
-    console.debug(`[fs] Obtained permission to directory: ${dirResult.name}, URI: ${dirResult.uri}`);
-    const persistedUris = await ScopedStorage.getPersistedUriPermissions();
-    if (!persistedUris.includes(dirResult.uri)) {
-      console.warn('[fs] Permission was not persisted for the selected directory');
-    } else {
-      console.debug('[fs] Permission was successfully persisted for the selected directory');
-    }
+    console.debug(`[fs] Obtained temporary permission to directory: ${dirResult.name}, URI: ${dirResult.uri}`);
 
     return dirResult;
   } catch (error) {
@@ -308,51 +302,98 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
 export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
   console.debug('[fs] showFilePickerAndReadFile: starting');
   try {
-    if (isScopedStorageSupported() && Platform.OS === 'android') {
-      const hasPermission = await checkStoragePermissions();
-      if (!hasPermission) {
-        console.debug('[fs] No storage permissions, requesting access');
-        await requestAccessToAdditionalDirectories();
+    if (Platform.OS === 'ios') {
+      const res = await DocumentPicker.pickSingle({
+        copyTo: 'cachesDirectory',
+        type: [
+          'io.bluewallet.psbt',
+          'io.bluewallet.psbt.txn',
+          'io.bluewallet.backup',
+          DocumentPicker.types.plainText,
+          DocumentPicker.types.json,
+          DocumentPicker.types.images,
+        ],
+      });
+
+      if (!res.fileCopyUri) {
+        presentAlert({ message: loc._.file_picking_failed });
+        return { data: false, uri: false };
+      }
+
+      const fileCopyUri = decodeURI(res.fileCopyUri);
+      console.debug(`[fs] File picked: ${fileCopyUri}, type: ${res.type}`);
+
+      if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
+        // this is either binary file from ElectrumDesktop OR string file with base64 string in there
+        const file = await _readPsbtFileIntoBase64(fileCopyUri);
+        return { data: file, uri: fileCopyUri };
+      }
+
+      if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
+        return await handleImageFile(fileCopyUri);
+      }
+
+      const file = await RNFS.readFile(fileCopyUri);
+      return { data: file, uri: fileCopyUri };
+    } else if (Platform.OS === 'android') {
+      // Use ScopedStorage for Android
+      if (isScopedStorageSupported()) {
+        console.debug('[fs] Using ScopedStorage.openDocument on Android');
+        const res = await ScopedStorage.openDocument();
+
+        if (!res || !res.uri) {
+          console.debug('[fs] User cancelled file selection');
+          return { data: false, uri: false };
+        }
+
+        const fileCopyUri = res.uri;
+        console.debug(`[fs] File picked with ScopedStorage: ${fileCopyUri}, name: ${res.name}, type: ${res.type || 'unknown'}`);
+
+        // Handle PSBT files based on extension
+        if (res.name && res.name.toLowerCase().endsWith('.psbt')) {
+          const file = await _readPsbtFileIntoBase64(fileCopyUri);
+          return { data: file, uri: fileCopyUri };
+        }
+
+        // Handle image files based on mime type
+        if (res.mime && res.mime.startsWith('image/')) {
+          console.debug(`[fs] Detected image file with mime type: ${res.mime}`);
+          return await handleImageFile(fileCopyUri);
+        }
+
+        // Read the file content
+        const file = await ScopedStorage.readFile(fileCopyUri);
+        return { data: file, uri: fileCopyUri };
+      } else {
+        // Fall back to DocumentPicker for older Android versions
+        const res = await DocumentPicker.pickSingle({
+          copyTo: 'cachesDirectory',
+          type: [DocumentPicker.types.allFiles],
+        });
+
+        if (!res.fileCopyUri) {
+          presentAlert({ message: loc._.file_picking_failed });
+          return { data: false, uri: false };
+        }
+
+        const fileCopyUri = decodeURI(res.fileCopyUri);
+        console.debug(`[fs] File picked with DocumentPicker: ${fileCopyUri}, type: ${res.type}`);
+
+        if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
+          const file = await _readPsbtFileIntoBase64(fileCopyUri);
+          return { data: file, uri: fileCopyUri };
+        }
+
+        if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
+          return await handleImageFile(fileCopyUri);
+        }
+
+        const file = await RNFS.readFile(fileCopyUri);
+        return { data: file, uri: fileCopyUri };
       }
     }
 
-    const res = await DocumentPicker.pickSingle({
-      copyTo: 'cachesDirectory',
-      type:
-        Platform.OS === 'ios'
-          ? [
-              'io.bluewallet.psbt',
-              'io.bluewallet.psbt.txn',
-              'io.bluewallet.backup',
-              DocumentPicker.types.plainText,
-              DocumentPicker.types.json,
-              DocumentPicker.types.images,
-            ]
-          : [DocumentPicker.types.allFiles],
-    });
-
-    if (!res.fileCopyUri) {
-      presentAlert({ message: loc._.file_picking_failed });
-      return { data: false, uri: false };
-    }
-
-    const fileCopyUri = decodeURI(res.fileCopyUri);
-    console.debug(`[fs] File picked: ${fileCopyUri}, type: ${res.type}`);
-
-    if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
-      // this is either binary file from ElectrumDesktop OR string file with base64 string in there
-      const file = await _readPsbtFileIntoBase64(fileCopyUri);
-      return { data: file, uri: fileCopyUri };
-    }
-
-    if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
-      return await handleImageFile(fileCopyUri);
-    }
-
-    console.debug(`[fs] Reading file with ${isScopedStorageSupported() ? 'ScopedStorage' : 'RNFS'}`);
-    const file = isScopedStorageSupported() ? await ScopedStorage.readFile(fileCopyUri) : await RNFS.readFile(fileCopyUri);
-
-    return { data: file, uri: fileCopyUri };
+    return { data: false, uri: false };
   } catch (err: any) {
     if (!DocumentPicker.isCancel(err)) {
       presentAlert({ message: err.message });
@@ -409,3 +450,5 @@ export const readFileOutsideSandbox = (filePath: string) => {
     return RNFS.readFile(filePath);
   }
 };
+
+export { checkStoragePermissions };
