@@ -49,12 +49,14 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
-        options={navigationStyle({ title: loc.send.header, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
+        options={navigationStyle({ title: loc.send.header, gestureEnabled: false, fullScreenGestureEnabled: false, freezeOnBlur: true })(
+          theme,
+        )}
       />
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details })(theme)}
+        options={navigationStyle({ title: loc.send.create_details, freezeOnBlur: true })(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -64,7 +66,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtMultisigQRCode"
         component={PsbtMultisigQRCodeComponent}
-        options={navigationStyle({ title: loc.multisig.header })(theme)}
+        options={navigationStyle({ title: loc.multisig.header, freezeOnBlur: true })(theme)}
       />
       <Stack.Screen
         name="Success"
@@ -90,6 +92,7 @@ const SendDetailsStack = () => {
           statusBarHidden: true,
           presentation: 'fullScreenModal',
           headerShadowVisible: false,
+          freezeOnBlur: true,
         })(theme)}
       />
     </Stack.Navigator>

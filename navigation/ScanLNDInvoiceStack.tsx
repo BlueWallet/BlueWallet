@@ -54,6 +54,7 @@ const ScanLNDInvoiceRoot = () => {
           statusBarHidden: true,
           presentation: 'fullScreenModal',
           headerShadowVisible: false,
+          freezeOnBlur: true,
         })(theme)}
       />
     </Stack.Navigator>

@@ -1,10 +1,8 @@
-import React, { Component } from 'react';
-import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from '@rneui/themed';
-
+import React, { useState, useEffect, useRef, useCallback, forwardRef, ForwardedRef } from 'react';
+import { Dimensions, Text, LayoutAnimation, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { encodeUR } from '../blue_modules/ur';
 import { BlueSpacing20 } from '../BlueComponents';
-import { BlueCurrentTheme } from '../components/themes';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
 import QRCodeComponent from './QRCodeComponent';
 
@@ -16,169 +14,178 @@ interface DynamicQRCodeProps {
   hideControls?: boolean;
 }
 
-interface DynamicQRCodeState {
-  index: number;
-  total: number;
-  qrCodeHeight: number;
-  intervalHandler: ReturnType<typeof setInterval> | number | null;
-  displayQRCode: boolean;
-  hideControls?: boolean;
-}
+export const DynamicQRCode = forwardRef<View, DynamicQRCodeProps>(
+  ({ value, capacity = 175, hideControls: initialHideControls = true }, ref: ForwardedRef<View>) => {
+    const qrCodeHeight = Math.min(height > width ? width - 40 : width / 3, 370);
+    const fragmentsRef = useRef<string[]>([]);
+    const { colors } = useTheme();
+    const [index, setIndex] = useState(0);
+    const [total, setTotal] = useState(0);
+    const [intervalHandler, setIntervalHandler] = useState<ReturnType<typeof setInterval> | number | null>(null);
+    const [displayQRCode, setDisplayQRCode] = useState(true);
+    const [hideControls, setHideControls] = useState(initialHideControls);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fragmentsInitialized, setFragmentsInitialized] = useState(false);
 
-export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeState> {
-  constructor(props: DynamicQRCodeProps) {
-    super(props);
-    const qrCodeHeight = height > width ? width - 40 : width / 3;
-    const qrCodeMaxHeight = 370;
-    this.state = {
-      index: 0,
-      total: 0,
-      qrCodeHeight: Math.min(qrCodeHeight, qrCodeMaxHeight),
-      intervalHandler: null,
-      displayQRCode: true,
-    };
-  }
+    const moveToNextFragment = useCallback(() => {
+      if (!fragmentsRef.current || fragmentsRef.current.length === 0) return;
 
-  fragments: string[] = [];
+      if (index === total - 1) {
+        setIndex(0);
+      } else {
+        setIndex(prevIndex => prevIndex + 1);
+      }
+    }, [index, total]);
 
-  componentDidMount() {
-    const { value, capacity = 175, hideControls = true } = this.props;
-    try {
-      this.fragments = encodeUR(value, capacity);
-      this.setState(
-        {
-          total: this.fragments.length,
-          hideControls,
-          displayQRCode: true,
-        },
-        () => {
-          this.startAutoMove();
-        },
-      );
-    } catch (e) {
-      console.log(e);
-      this.setState({ displayQRCode: false, hideControls });
-    }
-  }
-
-  moveToNextFragment = () => {
-    const { index, total } = this.state;
-    if (index === total - 1) {
-      this.setState({
-        index: 0,
+    const startAutoMove = useCallback(() => {
+      setIntervalHandler(prevHandler => {
+        if (prevHandler) {
+          clearInterval(prevHandler as number);
+        }
+        return setInterval(moveToNextFragment, 500);
       });
-    } else {
-      this.setState(state => ({
-        index: state.index + 1,
-      }));
-    }
-  };
+    }, [moveToNextFragment]);
 
-  startAutoMove = () => {
-    if (!this.state.intervalHandler)
-      this.setState(() => ({
-        intervalHandler: setInterval(this.moveToNextFragment, 500),
-      }));
-  };
+    const stopAutoMove = useCallback(() => {
+      setIntervalHandler(prevHandler => {
+        if (prevHandler) {
+          clearInterval(prevHandler as number);
+        }
+        return null;
+      });
+    }, []);
 
-  stopAutoMove = () => {
-    clearInterval(this.state.intervalHandler as number);
-    this.setState(() => ({
-      intervalHandler: null,
-    }));
-  };
+    const moveToPreviousFragment = useCallback(() => {
+      if (index > 0) {
+        setIndex(prevIndex => prevIndex - 1);
+      } else {
+        setIndex(total - 1);
+      }
+    }, [index, total]);
 
-  moveToPreviousFragment = () => {
-    const { index, total } = this.state;
-    if (index > 0) {
-      this.setState(state => ({
-        index: state.index - 1,
-      }));
-    } else {
-      this.setState(state => ({
-        index: total - 1,
-      }));
-    }
-  };
+    const onError = useCallback(() => {
+      console.log('Data is too large for QR Code.');
+      setDisplayQRCode(false);
+    }, []);
 
-  onError = () => {
-    console.log('Data is too large for QR Code.');
-    this.setState({ displayQRCode: false });
-  };
+    useEffect(() => {
+      setIsLoading(true);
+      try {
+        fragmentsRef.current = encodeUR(value, capacity);
+        setTotal(fragmentsRef.current.length);
+        setIndex(0); // Reset index when fragments change
+        setDisplayQRCode(true);
+        setFragmentsInitialized(true);
+        setIsLoading(false);
+      } catch (e) {
+        console.log(e);
+        setDisplayQRCode(false);
+        setIsLoading(false);
+      }
+    }, [value, capacity]);
 
-  render() {
-    const currentFragment = this.fragments[this.state.index];
+    // Effect to start auto-moving once fragments are ready
+    useEffect(() => {
+      if (total > 0 && !isLoading && fragmentsInitialized) {
+        startAutoMove();
+      }
+    }, [total, isLoading, fragmentsInitialized, startAutoMove]);
 
-    if (!currentFragment && this.state.displayQRCode) {
-      return (
-        <View>
-          <Text>{loc.send.dynamic_init}</Text>
-        </View>
-      );
-    }
+    useEffect(() => {
+      return () => {
+        if (intervalHandler) {
+          clearInterval(intervalHandler as number);
+        }
+      };
+    }, [intervalHandler]);
+
+    useEffect(() => {
+      if (total > 0 && index >= total) {
+        setIndex(0);
+      }
+    }, [index, total]);
+
+    const getCurrentFragment = useCallback(() => {
+      if (!fragmentsRef.current || index >= fragmentsRef.current.length || index < 0) {
+        return '';
+      }
+      return fragmentsRef.current[index];
+    }, [index]);
+
+    const currentFragment = getCurrentFragment();
 
     return (
-      <View style={animatedQRCodeStyle.container}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          testID="DynamicCode"
-          onPress={() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            this.setState(prevState => ({ hideControls: !prevState.hideControls }));
-          }}
-        >
-          {this.state.displayQRCode && (
-            <View style={animatedQRCodeStyle.qrcodeContainer}>
-              <QRCodeComponent
-                isLogoRendered={false}
-                value={currentFragment.toUpperCase()}
-                size={this.state.qrCodeHeight}
-                isMenuAvailable={false}
-                ecl="L"
-                onError={this.onError}
-              />
-            </View>
-          )}
-        </TouchableOpacity>
+      <View style={animatedQRCodeStyle.container} ref={ref}>
+        {isLoading ? (
+          <ActivityIndicator size="large" />
+        ) : !currentFragment && displayQRCode ? (
+          <Text style={{ color: colors.foregroundColor }}>{loc.send.dynamic_init}</Text>
+        ) : (
+          <>
+            <TouchableOpacity
+              accessibilityRole="button"
+              testID="DynamicCode"
+              onPress={() => {
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                setHideControls(prevState => !prevState);
+              }}
+            >
+              {displayQRCode && (
+                <View style={animatedQRCodeStyle.qrcodeContainer}>
+                  <QRCodeComponent
+                    isLogoRendered={false}
+                    value={currentFragment.toUpperCase()}
+                    size={qrCodeHeight}
+                    isMenuAvailable={false}
+                    ecl="L"
+                    onError={onError}
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
 
-        {!this.state.hideControls && (
-          <View style={animatedQRCodeStyle.container}>
-            <BlueSpacing20 />
-            <View>
-              <Text style={animatedQRCodeStyle.text}>
-                {loc.formatString(loc._.of, { number: this.state.index + 1, total: this.state.total })}
-              </Text>
-            </View>
-            <BlueSpacing20 />
-            <View style={animatedQRCodeStyle.controller}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonPrev]}
-                onPress={this.moveToPreviousFragment}
-              >
-                <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonStopStart]}
-                onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
-              >
-                <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonNext]}
-                onPress={this.moveToNextFragment}
-              >
-                <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            {!hideControls && (
+              <View style={animatedQRCodeStyle.container}>
+                <BlueSpacing20 />
+                <View>
+                  <Text style={[animatedQRCodeStyle.text, { color: colors.foregroundColor }]}>
+                    {loc.formatString(loc._.of, { number: index + 1, total })}
+                  </Text>
+                </View>
+                <BlueSpacing20 />
+                <View style={animatedQRCodeStyle.controller}>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonPrev]}
+                    onPress={moveToPreviousFragment}
+                  >
+                    <Text style={[animatedQRCodeStyle.text, { color: colors.foregroundColor }]}>{loc.send.dynamic_prev}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonStopStart]}
+                    onPress={intervalHandler ? stopAutoMove : startAutoMove}
+                  >
+                    <Text style={[animatedQRCodeStyle.text, { color: colors.foregroundColor }]}>
+                      {intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonNext]}
+                    onPress={moveToNextFragment}
+                  >
+                    <Text style={[animatedQRCodeStyle.text, { color: colors.foregroundColor }]}>{loc.send.dynamic_next}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </>
         )}
       </View>
     );
-  }
-}
+  },
+);
 
 const animatedQRCodeStyle = StyleSheet.create({
   container: {
@@ -217,7 +224,6 @@ const animatedQRCodeStyle = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'bold',
   },
 });

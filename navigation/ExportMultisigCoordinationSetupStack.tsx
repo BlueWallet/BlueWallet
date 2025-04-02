@@ -24,6 +24,7 @@ const ExportMultisigCoordinationSetupStack = () => {
         options={navigationStyle({
           headerBackVisible: false,
           statusBarStyle: 'light',
+          freezeOnBlur: true,
           title: loc.multisig.export_coordination_setup,
         })(theme)}
       />
