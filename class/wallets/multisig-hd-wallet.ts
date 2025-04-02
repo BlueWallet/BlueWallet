@@ -949,7 +949,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         };
       } else {
         u.script = {
-          length: 9 + this.getM() * 74 + this.getN() * 34,
+          length: 2 + this.getM() * 74 + this.getN() * 34,
         };
       }
     }
