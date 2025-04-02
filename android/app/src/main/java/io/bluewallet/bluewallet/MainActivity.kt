@@ -30,7 +30,6 @@ class MainActivity : ReactActivity() {
     private fun isLargeScreen(): Boolean {
         val metrics = DisplayMetrics()
         
-        // Use different API based on Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // Modern API (Android 11+)
             val windowMetrics = windowManager.currentWindowMetrics
@@ -41,7 +40,6 @@ class MainActivity : ReactActivity() {
             val width = bounds.width() / density
             val height = bounds.height() / density
             
-            // Continue with the same logic as before
             val isTablet = (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) >= 
                     Configuration.SCREENLAYOUT_SIZE_LARGE
                     
@@ -56,15 +54,6 @@ class MainActivity : ReactActivity() {
                 
             val hasAdequateWidth = largerDimension >= REQUIRED_WIDTH
             val hasAdequateHeight = smallerDimension >= MIN_CONTENT_HEIGHT_LANDSCAPE
-            
-            // Log for debugging
-            android.util.Log.d("BlueWallet", 
-                "Screen metrics (R+): ${width}x${height}, " +
-                "isTablet=$isTablet, isLandscape=$isLandscape, " + 
-                "largerDim=$largerDimension, smallerDim=$smallerDimension, " +
-                "adequateWidth=$hasAdequateWidth, adequateHeight=$hasAdequateHeight, " +
-                "isLargeLandscapePhone=$isLargeLandscapePhone"
-            )
             
             return (hasAdequateWidth && hasAdequateHeight) || isLargeLandscapePhone || isTablet
         } else {
@@ -75,7 +64,6 @@ class MainActivity : ReactActivity() {
             val width = metrics.widthPixels / metrics.density
             val height = metrics.heightPixels / metrics.density
             
-            // The rest of your existing logic
             val isTablet = (resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK) >= 
                     Configuration.SCREENLAYOUT_SIZE_LARGE
                     
@@ -90,15 +78,6 @@ class MainActivity : ReactActivity() {
                 
             val hasAdequateWidth = largerDimension >= REQUIRED_WIDTH
             val hasAdequateHeight = smallerDimension >= MIN_CONTENT_HEIGHT_LANDSCAPE
-            
-            // Log for debugging
-            android.util.Log.d("BlueWallet", 
-                "Screen metrics (Legacy): ${width}x${height}, " +
-                "isTablet=$isTablet, isLandscape=$isLandscape, " + 
-                "largerDim=$largerDimension, smallerDim=$smallerDimension, " +
-                "adequateWidth=$hasAdequateWidth, adequateHeight=$hasAdequateHeight, " +
-                "isLargeLandscapePhone=$isLargeLandscapePhone"
-            )
             
             return (hasAdequateWidth && hasAdequateHeight) || isLargeLandscapePhone || isTablet
         }
@@ -116,10 +95,8 @@ class MainActivity : ReactActivity() {
     
     private fun updateOrientation() {
         if (isLargeScreen()) {
-            android.util.Log.d("BlueWallet", "Setting orientation: UNSPECIFIED (all orientations allowed)")
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
-            android.util.Log.d("BlueWallet", "Setting orientation: PORTRAIT only")
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
     }
