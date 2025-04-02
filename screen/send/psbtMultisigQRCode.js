@@ -1,4 +1,4 @@
-import { StackActions, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
@@ -10,9 +10,10 @@ import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import TipBox from '../../components/TipBox';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const PsbtMultisigQRCode = () => {
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
   const { params } = useRoute();
