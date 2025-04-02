@@ -1,4 +1,4 @@
-import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
 import React, { useEffect, useState } from 'react';
@@ -65,7 +65,6 @@ const ScanQRCode = () => {
   const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
   const scannedCache: Record<string, number> = {};
   const { colors } = useTheme();
-  const isFocused = useIsFocused();
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [urTotal, setUrTotal] = useState(0);
   const [urHave, setUrHave] = useState(0);
@@ -290,7 +289,7 @@ const ScanQRCode = () => {
           <BlueSpacing40 />
           <Button title={loc._.cancel} onPress={dismiss} />
         </View>
-      ) : isFocused && cameraStatusGranted ? (
+      ) : cameraStatusGranted ? (
         <CameraScreen
           onReadCode={handleReadCode}
           showFilePickerButton={showFileImportButton}

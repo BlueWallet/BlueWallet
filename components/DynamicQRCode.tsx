@@ -1,5 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, forwardRef, ForwardedRef } from 'react';
-import { Dimensions, Text, LayoutAnimation, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import {
+  Dimensions,
+  Text,
+  LayoutAnimation,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+  Platform,
+  UIManager,
+} from 'react-native';
 import { encodeUR } from '../blue_modules/ur';
 import { BlueSpacing20 } from '../BlueComponents';
 import { useTheme } from '../components/themes';
@@ -12,6 +22,10 @@ interface DynamicQRCodeProps {
   value: string;
   capacity?: number;
   hideControls?: boolean;
+}
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
 export const DynamicQRCode = forwardRef<View, DynamicQRCodeProps>(
