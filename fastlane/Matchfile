@@ -27,7 +27,7 @@ team_id(ENV["ITC_TEAM_ID"])
 readonly(ENV["MATCH_READONLY"] == "false" ? false : true)
 
 # Define the platform to use
-platform("ios")
+platform(ENV["MATCH_PLATFORM"] || "ios")
 
 # Git basic authentication through access token
 # This is useful for CI/CD environments where SSH keys aren't available

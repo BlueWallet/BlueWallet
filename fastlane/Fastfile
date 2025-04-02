@@ -467,7 +467,7 @@ end
         build_ios_app(
           scheme: "BlueWallet",
           workspace: workspace_path,
-          export_method: "app-store",
+          export_method: "app-store-connect",
           export_options: export_options_path,
           output_directory: ipa_directory,
           output_name: ipa_name,
@@ -511,6 +511,153 @@ end
     end
   end
 
+  desc "Build Mac Catalyst app"
+  lane :build_catalyst_app do
+    Dir.chdir(project_root) do
+      UI.message("Building Mac Catalyst app from: #{Dir.pwd}")
+      
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      export_options_path = File.join(project_root, "ios", "export_options_catalyst.plist")
+      project_path = File.join(project_root, "ios", "BlueWallet.xcodeproj")
+      
+      # Prepare output directory
+      build_dir = File.join(project_root, "ios", "build")
+      FileUtils.mkdir_p(build_dir)
+      
+      # Generate output names based on version
+      version_string = ENV['PROJECT_VERSION'] || "1.0"
+      build_number = ENV['NEW_BUILD_NUMBER'] || "1"
+      ipa_name = "BlueWallet_#{version_string}_#{build_number}_catalyst.ipa"
+      
+      # Setup App Store Connect API key
+      api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+      
+      if File.exist?(api_key_path)
+        UI.message("Using App Store Connect API key from: #{api_key_path}")
+      else
+        UI.error("API key file not found at: #{api_key_path}")
+      end
+      
+      # Simplify by using build_mac_app action
+      begin
+        # Create the environment variables for the build process
+        ENV['FL_BUILD_NUMBER'] = build_number.to_s
+        ENV['SKIP_BUGSNAG_CATALYST'] = 'YES'
+        
+        UI.message("Building Mac Catalyst app using build_mac_app action...")
+        
+        # Use the built-in fastlane action for building Mac apps
+        build_mac_app(
+          workspace: workspace_path,
+          scheme: "BlueWallet",
+          output_directory: build_dir,
+          output_name: ipa_name,
+          export_method: "app-store",
+          export_options: export_options_path,
+          catalyst_platform: true,
+          skip_package_dependencies_resolution: true,
+          skip_profile_detection: true,
+          buildlog_path: File.join(build_dir, "build_logs"),
+          clean: true,
+          configuration: "Release",
+          xcargs: "SKIP_BUGSNAG_CATALYST=YES DEVELOPMENT_TEAM=#{ENV['ITC_TEAM_ID']}"
+        )
+        
+        # Find the exported IPA file
+        ipa_path = File.join(build_dir, ipa_name)
+        
+        if File.exist?(ipa_path)
+          UI.success("Successfully built Mac Catalyst app at: #{ipa_path}")
+          
+          # Store the IPA path for future steps
+          ENV['PKG_OUTPUT_PATH'] = ipa_path
+          File.write("#{build_dir}/pkg_path.txt", ipa_path)
+          
+          # Create GitHub Actions output if running in that environment
+          if ENV['GITHUB_OUTPUT']
+            sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
+          end
+        else
+          # Fallback logic to find the IPA
+          UI.warning("IPA not found at expected path: #{ipa_path}")
+          found_ipa = Dir.glob("#{build_dir}/*.ipa").first
+          
+          if found_ipa
+            UI.message("Found IPA at alternative path: #{found_ipa}")
+            # Move to expected location
+            FileUtils.mv(found_ipa, ipa_path)
+            ENV['PKG_OUTPUT_PATH'] = ipa_path
+            File.write("#{build_dir}/pkg_path.txt", ipa_path)
+            
+            if ENV['GITHUB_OUTPUT']
+              sh("echo 'pkg_output_path=#{ipa_path}' >> $GITHUB_OUTPUT")
+            end
+          else
+            UI.user_error!("No IPA file found after build")
+          end
+        end
+      rescue => e
+        UI.error("Failed to build Mac Catalyst app: #{e.message}")
+        UI.error(e.backtrace.join("\n"))
+        UI.user_error!("Mac Catalyst build failed. See log for details.")
+      end
+    end
+  end
+
+  desc "Notarize Mac Catalyst app"
+  lane :notarize_catalyst do
+    pkg_path = ENV['PKG_OUTPUT_PATH']
+    UI.user_error!("PKG_OUTPUT_PATH environment variable is missing") if pkg_path.nil?
+    
+    UI.message("Notarizing Mac Catalyst PKG from path: #{pkg_path}")
+    
+    # Create a temporary directory to store the notarization output
+    tmp_dir = File.join(File.dirname(pkg_path), "notarization_tmp")
+    FileUtils.mkdir_p(tmp_dir)
+    
+    begin
+      # Get original filename without path
+      original_filename = File.basename(pkg_path)
+      base_filename = File.basename(pkg_path, File.extname(pkg_path))
+      notarized_pkg_path = File.join(File.dirname(pkg_path), "#{base_filename}_notarized.pkg")
+      
+      # Notarize the PKG
+      UI.message("Submitting PKG for notarization...")
+      
+      notarize_output = sh("xcrun notarytool submit \"#{pkg_path}\" --keychain-profile \"AC_PASSWORD\" --output-format json --wait", log: true)
+      
+      # Check if notarization was successful
+      if notarize_output.include?("status: Accepted")
+        UI.success("Notarization successful!")
+        
+        # Staple the notarization ticket to the PKG
+        UI.message("Stapling notarization ticket to PKG...")
+        sh("xcrun stapler staple \"#{pkg_path}\"", log: true)
+        
+        # Copy the stapled PKG to a new file with _notarized suffix
+        FileUtils.cp(pkg_path, notarized_pkg_path)
+        UI.success("Created notarized PKG at: #{notarized_pkg_path}")
+        
+        # Set environment variables for future steps
+        ENV['PKG_OUTPUT_PATH_NOTARIZED'] = notarized_pkg_path
+        if ENV['GITHUB_OUTPUT']
+          sh("echo 'pkg_output_path_notarized=#{notarized_pkg_path}' >> $GITHUB_OUTPUT")
+        end
+      else
+        UI.error("Notarization failed. Output: #{notarize_output}")
+        UI.user_error!("Failed to notarize Mac Catalyst app")
+      end
+    rescue => e
+      UI.error("Notarization process failed with error: #{e.message}")
+      UI.user_error!("Notarization process failed")
+    ensure
+      # Clean up temporary directory
+      FileUtils.rm_rf(tmp_dir) if File.directory?(tmp_dir)
+    end
+  end
+  
+  # Helper methods for Catalyst build
+  
   desc "Delete temporary keychain"
   lane :delete_temp_keychain do
     UI.message("Deleting temporary keychain...")
@@ -548,6 +695,45 @@ end
       # Default to a reasonable iOS version if no iOS runtimes
       UI.important("No iOS simulator runtimes found. Using default version.")
       "17.6" # Implicit return
+    end
+  end
+
+  desc "Update WWDR Certificate"
+  lane :update_wwdr_certificate do
+    UI.message("Updating WWDR Certificate...")
+    sh("curl -sf -o AppleWWDRCA.cer https://developer.apple.com/certificationauthority/AppleWWDRCA.cer || curl -sf -o AppleWWDRCA.cer https://www.apple.com/certificateauthority/AppleWWDRCA.cer")
+    sh("curl -sf -o AppleWWDRCAG2.cer https://developer.apple.com/certificationauthority/AppleWWDRCAG2.cer || curl -sf -o AppleWWDRCAG2.cer https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer")
+    sh("curl -sf -o AppleWWDRCAG3.cer https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer || curl -sf -o AppleWWDRCAG3.cer https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer")
+    sh("security import AppleWWDRCA.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("security import AppleWWDRCAG2.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("security import AppleWWDRCAG3.cer -k ~/Library/Keychains/login.keychain-db || true")
+    sh("rm AppleWWDRCA.cer AppleWWDRCAG2.cer AppleWWDRCAG3.cer")
+  end
+
+  desc "Setup App Store Connect API Key"
+  lane :setup_app_store_connect_api_key do
+    UI.message("Setting up App Store Connect API Key...")
+    
+    # Check for required environment variables
+    required_vars = ["APP_STORE_CONNECT_API_KEY_KEY_ID", "APP_STORE_CONNECT_API_KEY_ISSUER_ID"]
+    required_vars.each do |var|
+      UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
+    end
+    
+    # Get path to API key file
+    api_key_path = ENV["APP_STORE_CONNECT_API_KEY_PATH"] || "./appstore_api_key.json"
+    
+    # Skip any processing of the API key file and just use it directly
+    if File.exist?(api_key_path)
+      UI.message("App Store Connect API key file exists at: #{api_key_path}")
+      
+      # Don't try to parse or extract anything, just set it in the environment
+      ENV["APP_STORE_CONNECT_API_KEY_PATH"] = api_key_path
+      
+      UI.success("✅ App Store Connect API Key path set")
+    else
+      UI.error("No API key file found at #{api_key_path}")
+      UI.message("Will try to continue with the process anyway")
     end
   end
 

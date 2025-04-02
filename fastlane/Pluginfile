@@ -3,5 +3,5 @@
 # Ensure this file is checked in to source control!
 
 gem 'fastlane-plugin-browserstack'
+gem 'fastlane-plugin-bugsnag'
 gem 'fastlane-plugin-bugsnag_sourcemaps_upload'
-gem "fastlane-plugin-bugsnag"
