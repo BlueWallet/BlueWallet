@@ -46,7 +46,6 @@ const useFloatButtonAnimation = (height: number) => {
   useEffect(() => {
     slideAnimation.setValue(height);
 
-    // Skip animation on desktop
     if (isDesktop) {
       slideAnimation.setValue(0);
       return;
@@ -61,7 +60,6 @@ const useFloatButtonAnimation = (height: number) => {
   }, [height, slideAnimation]);
 
   const configureLayoutAnimation = useCallback(() => {
-    // Skip layout animation on desktop
     if (isDesktop) return;
 
     LayoutAnimation.configureNext({
@@ -86,7 +84,6 @@ const useFloatButtonAnimation = (height: number) => {
   const animateBorderRadius = useCallback(
     (buttonRadius: number, singleRadius: number, onComplete?: () => void) => {
       if (isDesktop) {
-        // On desktop, apply values immediately without animation
         animatedButtonRadius.setValue(buttonRadius);
         animatedSingleButtonRadius.setValue(singleRadius);
         if (onComplete) onComplete();
@@ -118,7 +115,7 @@ const useFloatButtonAnimation = (height: number) => {
     slideAnimation,
     animatedButtonRadius,
     animatedSingleButtonRadius,
-    isAnimating: isDesktop ? false : isAnimating, // Never report animating state on desktop
+    isAnimating: isDesktop ? false : isAnimating,
     setIsAnimating,
     configureLayoutAnimation,
     animateBorderRadius,
@@ -127,7 +124,6 @@ const useFloatButtonAnimation = (height: number) => {
 
 const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
   const lastVerticalDecision = useRef(false);
-  const { height } = useWindowDimensions();
 
   const shouldUseVerticalLayout = useCallback(
     (totalWidthNeeded: number, availableWidth: number, totalChildren: number) => {
@@ -186,16 +182,12 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
         }
       }
 
-      // Special case for single button - limit to 50% of available width
       if (totalChildren === 1 && !shouldBeVertical) {
-        // For a single button in horizontal layout, limit width to 50% of available container
         const singleButtonMaxWidth = availableWidth * 0.5;
-        // Ensure it's not smaller than the minimum width
         const effectiveSingleMinWidth = isLargeScreen ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
-        // Choose the larger of the minimum width and 50% of available width
         calculatedWidth = Math.max(
           effectiveSingleMinWidth - LAYOUT.PADDINGS * 2,
-          Math.min(calculatedWidth, singleButtonMaxWidth - LAYOUT.PADDINGS * 2)
+          Math.min(calculatedWidth, singleButtonMaxWidth - LAYOUT.PADDINGS * 2),
         );
       }
 
@@ -216,31 +208,17 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
 
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
 
-      // For single buttons, use a pill shape (fully rounded corners)
-      // For multiple buttons, use more squared corners
       let buttonRadius;
       if (totalChildren === 1) {
-        // For single button, use pill shape (half of height)
         buttonRadius = LAYOUT.BUTTON_HEIGHT / 2;
       } else {
-        // For multiple buttons, use more squared corners
-        buttonRadius = Math.min(
-          LAYOUT.DEFAULT_BORDER_RADIUS * 1.5, // Maximum radius for multiple buttons
-          calculatedWidth / 12 // Scale based on width, but keep it modest
-        );
+        buttonRadius = Math.min(LAYOUT.DEFAULT_BORDER_RADIUS * 1.5, calculatedWidth / 12);
       }
 
-      // Default to fixed border radius for multi-button layout
       const multiButtonRadius = Math.max(LAYOUT.DEFAULT_BORDER_RADIUS, Math.floor(buttonRadius));
-      
-      // Always use pill shape for single button
       const singleButtonRadius = LAYOUT.BUTTON_HEIGHT / 2;
 
-      return { 
-        buttonRadius: multiButtonRadius, 
-        singleButtonRadius, 
-        shouldBeVertical 
-      };
+      return { buttonRadius: multiButtonRadius, singleButtonRadius, shouldBeVertical };
     },
     [width, isLargeScreen, shouldUseVerticalLayout],
   );
@@ -523,8 +501,12 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         animationInProgress.current = false;
 
         if (pendingAnimationParams.current) {
-          const { buttonRadius: nextRadius, singleRadius: nextSingle, 
-                  shouldBeVertical: nextVertical, calculatedWidth: nextWidth } = pendingAnimationParams.current;
+          const {
+            buttonRadius: nextRadius,
+            singleRadius: nextSingle,
+            shouldBeVertical: nextVertical,
+            calculatedWidth: nextWidth,
+          } = pendingAnimationParams.current;
           pendingAnimationParams.current = null;
 
           setTimeout(() => {
@@ -533,7 +515,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         }
       });
     },
-    [animateBorderRadius, configureLayoutAnimation, isDesktop, height, width, isVertical],
+    [animateBorderRadius, configureLayoutAnimation, height, width, isVertical],
   );
 
   useEffect(() => {
@@ -598,8 +580,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         ? animatedSingleButtonRadius
         : singleButtonBorderRadius
       : isAnimating
-      ? animatedButtonRadius
-      : buttonBorderRadius;
+        ? animatedButtonRadius
+        : buttonBorderRadius;
 
     return React.cloneElement(child as React.ReactElement<any>, {
       width: newWidth,
