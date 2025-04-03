@@ -16,14 +16,11 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
         const val TAG = "MarketWidgetUpdateWorker"
         const val WORK_NAME = "market_widget_update_work"
         const val NETWORK_RETRY_WORK_NAME = "market_network_retry_work"
-        const val BLOCK_CHECK_WORK_NAME = "block_check_work"
         private const val KEY_WIDGET_IDS = "widget_ids"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         private const val DEFAULT_CURRENCY = "USD"
         private const val KEY_LAST_UPDATE_TIME = "market_widget_last_update_time"
-        private const val KEY_LAST_BLOCK_CHECK = "market_last_block_check"
         private const val MIN_UPDATE_INTERVAL_MS = 15L * 60 * 1000 // 15 minutes
-        private const val BLOCK_CHECK_INTERVAL_MS = 5L * 60 * 1000 // 5 minutes
         private const val RATE_LIMIT_COOLDOWN_MS = 30L * 60 * 1000 // 30 minutes
         private const val NETWORK_RETRY_DELAY_SECONDS = 30L
 
@@ -109,41 +106,6 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
             
             Log.d(TAG, "Scheduled network retry in $NETWORK_RETRY_DELAY_SECONDS seconds")
         }
-
-        /**
-         * Schedule regular checks for new Bitcoin blocks
-         */
-        fun scheduleBlockHeightChecks(context: Context) {
-            Log.d(TAG, "Scheduling regular Bitcoin block height checks")
-            
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val lastBlockCheck = sharedPrefs.getLong(KEY_LAST_BLOCK_CHECK, 0)
-            val currentTime = System.currentTimeMillis()
-            
-            if (currentTime - lastBlockCheck < BLOCK_CHECK_INTERVAL_MS) {
-                Log.d(TAG, "Skipping block check - too soon since last check")
-                return
-            }
-            
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            
-            val checkRequest = OneTimeWorkRequestBuilder<BlockHeightCheckWorker>()
-                .setConstraints(constraints)
-                .build()
-            
-            WorkManager.getInstance(context).enqueueUniqueWork(
-                BLOCK_CHECK_WORK_NAME,
-                ExistingWorkPolicy.REPLACE,
-                checkRequest
-            )
-            
-            // Update last check time
-            sharedPrefs.edit().putLong(KEY_LAST_BLOCK_CHECK, currentTime).apply()
-            
-            Log.d(TAG, "Scheduled block height check")
-        }
     }
 
     override suspend fun doWork(): Result {
@@ -189,9 +151,7 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
         try {
             markUpdateTime()
             
-            // Also schedule periodic block height checks
-            scheduleBlockHeightChecks(applicationContext)
-            
+            // Fetch market data
             val marketData = withContext(Dispatchers.IO) {
                 MarketAPI.fetchMarketData(applicationContext, currency)
             }
@@ -232,7 +192,6 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
     private fun storeMarketData(marketData: MarketData) {
         try {
             val json = JSONObject().apply {
-                put("nextBlock", marketData.nextBlock)
                 put("sats", marketData.sats)
                 put("price", marketData.price)
                 put("rate", marketData.rate)
