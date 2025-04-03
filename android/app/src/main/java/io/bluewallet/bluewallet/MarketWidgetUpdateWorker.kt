@@ -152,25 +152,27 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
             markUpdateTime()
             
             // Fetch market data
+            Log.i(TAG, "About to call MarketAPI.fetchMarketData")
             val marketData = withContext(Dispatchers.IO) {
                 MarketAPI.fetchMarketData(applicationContext, currency)
             }
+            Log.i(TAG, "Received market data from API: $marketData with nextBlock=${marketData.nextBlock}")
+            
+            // Store data regardless of rate (to ensure fee is stored even if price fails)
+            storeMarketData(marketData)
+            Log.i(TAG, "Stored market data including nextBlock=${marketData.nextBlock}")
+            
+            val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
+            for (widgetId in widgetIds) {
+                MarketWidget.updateWidget(applicationContext, widgetId)
+            }
             
             if (marketData.rate > 0) {
-                storeMarketData(marketData)
-                
-                val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-                for (widgetId in widgetIds) {
-                    MarketWidget.updateWidget(applicationContext, widgetId)
-                }
-                
                 clearRateLimitFlag()
-                
                 scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(30))
-                
                 return Result.success()
             } else {
-                Log.w(TAG, "Market data fetch returned invalid rate (${marketData.rate})")
+                Log.w(TAG, "Market data fetch returned invalid rate (${marketData.rate}), but fee may be available")
                 scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(15))
                 return Result.retry()
             }
@@ -192,15 +194,19 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
     private fun storeMarketData(marketData: MarketData) {
         try {
             val json = JSONObject().apply {
+                put("nextBlock", marketData.nextBlock)
                 put("sats", marketData.sats)
                 put("price", marketData.price)
                 put("rate", marketData.rate)
                 put("dateString", marketData.dateString)
             }
             
+            val jsonString = json.toString()
+            Log.d(TAG, "Storing market data JSON: $jsonString")
+            
             applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
                 .edit()
-                .putString(MarketData.PREF_KEY, json.toString())
+                .putString(MarketData.PREF_KEY, jsonString)
                 .apply()
                 
             Log.d(TAG, "Stored market data: $marketData")
