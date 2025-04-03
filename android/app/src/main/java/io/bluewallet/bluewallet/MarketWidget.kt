@@ -76,10 +76,15 @@ class MarketWidget : AppWidgetProvider() {
             // Apply theme appropriate styling if needed beyond resource qualifiers
             applyTheme(context, views)
             
-            // Add click intent to open the app
+            // Add click intent to open the app as a single instance
             val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or 
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or 
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                action = Intent.ACTION_MAIN
+                addCategory(Intent.CATEGORY_LAUNCHER)
             }
+            
             val pendingIntent = PendingIntent.getActivity(
                 context,
                 0,
@@ -90,8 +95,14 @@ class MarketWidget : AppWidgetProvider() {
             
             // Set the text for each view
             val formattedNextBlock = marketData.formattedNextBlock
-            Log.d(TAG, "Setting next block value to: $formattedNextBlock")
-            views.setTextViewText(R.id.next_block_value, formattedNextBlock)
+            Log.d(TAG, "Setting next block value to: '$formattedNextBlock'")
+            
+            val displayText = when (formattedNextBlock) {
+                "..." -> context.getString(R.string.loading_placeholder, "...")
+                "!" -> context.getString(R.string.error_placeholder, "!")
+                else -> formattedNextBlock
+            }
+            views.setTextViewText(R.id.next_block_value, displayText)
             
             // Get the user preferred currency
             val currency = getPreferredCurrency(context)
@@ -127,11 +138,16 @@ class MarketWidget : AppWidgetProvider() {
             val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             val marketDataJson = sharedPrefs.getString(MarketData.PREF_KEY, null)
             
+            Log.d(TAG, "Reading market data from preferences: $marketDataJson")
+            
             return if (marketDataJson != null) {
                 try {
                     val json = JSONObject(marketDataJson)
+                    val nextBlock = json.optString("nextBlock", "...")
+                    Log.d(TAG, "Retrieved nextBlock from storage: $nextBlock")
+                    
                     MarketData(
-                        nextBlock = json.optString("nextBlock", "..."),
+                        nextBlock = nextBlock,
                         sats = json.optString("sats", "..."),
                         price = json.optString("price", "..."),
                         rate = json.optDouble("rate", 0.0),
@@ -142,6 +158,7 @@ class MarketWidget : AppWidgetProvider() {
                     MarketData()
                 }
             } else {
+                Log.d(TAG, "No market data found in preferences")
                 MarketData()
             }
         }
