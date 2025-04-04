@@ -1,6 +1,6 @@
 import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from '@rneui/themed';
 import Rate, { AndroidMarket } from 'react-native-rate';
@@ -14,6 +14,7 @@ import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const branch = require('../../current-branch.json');
 
@@ -87,7 +88,7 @@ const About: React.FC = () => {
   };
 
   return (
-    <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+    <SafeAreaScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <BlueCard>
         <View style={styles.center}>
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
@@ -222,7 +223,7 @@ const About: React.FC = () => {
       </View>
       <BlueSpacing20 />
       <BlueSpacing20 />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

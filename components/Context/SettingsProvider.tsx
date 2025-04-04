@@ -95,8 +95,6 @@ interface SettingsContextType {
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
   setTotalBalancePreferredUnitStorage: (unit: BitcoinUnit) => Promise<void>;
-  isDrawerShouldHide: boolean;
-  setIsDrawerShouldHide: (value: boolean) => void;
   selectedBlockExplorer: BlockExplorer;
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
   isElectrumDisabled: boolean;
@@ -126,8 +124,6 @@ const defaultSettingsContext: SettingsContextType = {
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
   setTotalBalancePreferredUnitStorage: async () => {},
-  isDrawerShouldHide: false,
-  setIsDrawerShouldHide: () => {},
   selectedBlockExplorer: BLOCK_EXPLORERS.default,
   setBlockExplorerStorage: async () => false,
   isElectrumDisabled: false,
@@ -148,7 +144,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
-  const [isDrawerShouldHide, setIsDrawerShouldHide] = useState<boolean>(false);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
 
@@ -365,8 +360,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
-      isDrawerShouldHide,
-      setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
       isElectrumDisabled,
@@ -395,8 +388,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
-      isDrawerShouldHide,
-      setIsDrawerShouldHide,
       selectedBlockExplorer,
       setBlockExplorerStorage,
       isElectrumDisabled,

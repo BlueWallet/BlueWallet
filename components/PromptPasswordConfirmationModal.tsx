@@ -321,6 +321,9 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       secureTextEntry
                       placeholder="Password"
                       value={password}
+                      autoCapitalize="none"
+                      autoComplete="off"
+                      autoCorrect={false}
                       onChangeText={setPassword}
                       style={[styles.input, stylesHook.input]}
                       clearTextOnFocus
@@ -337,6 +340,9 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                         placeholder="Confirm Password"
                         value={confirmPassword}
                         clearTextOnFocus
+                        autoCorrect={false}
+                        autoComplete="off"
+                        autoCapitalize="none"
                         clearButtonMode="while-editing"
                         onChangeText={setConfirmPassword}
                         style={[styles.input, stylesHook.input]}

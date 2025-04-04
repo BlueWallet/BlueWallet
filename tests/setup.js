@@ -229,10 +229,6 @@ jest.mock('realm', () => {
   };
 });
 
-jest.mock('react-native-ios-context-menu', () => {
-  return {};
-});
-
 jest.mock('rn-qr-generator', () => ({
   detect: jest.fn(uri => {
     if (uri === 'invalid-image') {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Alert, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInput, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -27,6 +27,7 @@ import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -52,6 +53,11 @@ const ElectrumSettings: React.FC = () => {
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+  const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
+    host: '',
+    tcp: '',
+    ssl: '',
+  });
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -127,6 +133,12 @@ const ElectrumSettings: React.FC = () => {
       setConfig(await BlueElectrum.getConfig());
     }, 500);
 
+    setSavedServer({
+      host: savedHost || '',
+      tcp: savedPort ? savedPort.toString() : '',
+      ssl: savedSslPort ? savedSslPort.toString() : '',
+    });
+
     setIsLoading(false);
 
     return () => {
@@ -174,7 +186,11 @@ const ElectrumSettings: React.FC = () => {
 
         if (serverHost && (serverPort || serverSslPort)) {
           const testConnect = await BlueElectrum.testConnection(serverHost, Number(serverPort), Number(serverSslPort));
-          if (!testConnect) return;
+          if (!testConnect) {
+            return presentAlert({
+              message: serverHost.endsWith('.onion') ? loc.settings.electrum_error_connect_tor : loc.settings.electrum_error_connect,
+            });
+          }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
           // Clear current data for the preferred host
@@ -454,6 +470,11 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const preferredServerIsEmpty = !host || (!port && !sslPort);
+  const saveDisabled: boolean =
+    preferredServerIsEmpty ||
+    (host === savedServer.host &&
+      ((savedServer.tcp !== '' && port?.toString() === savedServer.tcp) ||
+        (savedServer.ssl !== '' && sslPort?.toString() === savedServer.ssl)));
 
   const renderElectrumSettings = () => {
     return (
@@ -495,7 +516,6 @@ const ElectrumSettings: React.FC = () => {
             onChangeText={text => setHost(text.trim())}
             editable={!isLoading}
             keyboardType="default"
-            skipValidation
             onBlur={() => setIsAndroidAddressKeyboardVisible(false)}
             onFocus={() => setIsAndroidAddressKeyboardVisible(true)}
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
@@ -541,13 +561,7 @@ const ElectrumSettings: React.FC = () => {
         </BlueCard>
         <BlueCard>
           <BlueSpacing20 />
-          <Button
-            showActivityIndicator={isLoading}
-            disabled={isLoading || preferredServerIsEmpty}
-            testID="Save"
-            onPress={save}
-            title={loc.settings.save}
-          />
+          <Button disabled={saveDisabled} testID="Save" onPress={save} title={loc.settings.save} />
         </BlueCard>
 
         {Platform.select({
@@ -583,7 +597,7 @@ const ElectrumSettings: React.FC = () => {
   };
 
   return (
-    <ScrollView
+    <SafeAreaScrollView
       keyboardShouldPersistTaps="always"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
@@ -598,13 +612,12 @@ const ElectrumSettings: React.FC = () => {
           value: isElectrumDisabled,
           testID: 'ElectrumConnectionEnabledSwitch',
         }}
-        disabled={isLoading}
         bottomDivider={false}
         subtitle={loc.settings.electrum_offline_description}
       />
 
       {!isElectrumDisabled && renderElectrumSettings()}
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

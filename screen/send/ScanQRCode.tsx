@@ -1,7 +1,7 @@
-import { StackActions, useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
@@ -12,13 +12,15 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 
-let decoder = false;
+let decoder: BlueURDecoder | undefined;
+
+type RouteProps = RouteProp<SendDetailsStackParamList, 'ScanQRCode'>;
 
 const styles = StyleSheet.create({
   root: {
@@ -54,15 +56,14 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { setIsDrawerShouldHide } = useSettings();
   const navigation = useExtendedNavigation();
-  const route = useRoute();
+  const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
   const previousRoute = navigationState.routes[navigationState.routes.length - 2];
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
-  const { launchedBy = defaultLaunchedBy, showFileImportButton } = route.params || {};
-  const scannedCache = {};
+  const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
+  const scannedCache: Record<string, number> = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -70,8 +71,8 @@ const ScanQRCode = () => {
   const [urHave, setUrHave] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
-  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
-  const [cameraStatusGranted, setCameraStatusGranted] = useState(undefined);
+  const [animatedQRCodeData, setAnimatedQRCodeData] = useState<Record<string, string>>({});
+  const [cameraStatusGranted, setCameraStatusGranted] = useState<boolean | undefined>(undefined);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -89,30 +90,23 @@ const ScanQRCode = () => {
     isCameraAuthorizationStatusGranted().then(setCameraStatusGranted);
   }, []);
 
-  const HashIt = function (s) {
+  const HashIt = function (s: string): string {
     return createHash('sha256').update(s).digest().toString('hex');
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      setIsDrawerShouldHide(true);
-
-      return () => {
-        setIsDrawerShouldHide(false);
-      };
-    }, [setIsDrawerShouldHide]),
-  );
-
-  const _onReadUniformResourceV2 = part => {
+  const _onReadUniformResourceV2 = (part: string) => {
     if (!decoder) decoder = new BlueURDecoder();
     try {
       decoder.receivePart(part);
       if (decoder.isComplete()) {
         const data = decoder.toString();
-        decoder = false; // nullify for future use (?)
+        decoder = undefined; // nullify for future use (?)
         if (launchedBy) {
           const merge = true;
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
+          if (onBarScanned) {
+            onBarScanned(data);
+          }
 
           navigation.dispatch(popToAction);
         }
@@ -123,11 +117,8 @@ const ScanQRCode = () => {
     } catch (error) {
       setIsLoading(true);
       presentAlert({
-        title: loc.send.scan_error,
+        title: loc.errors.error,
         message: loc._.invalid_animated_qr_code_fragment,
-        onPress: () => {
-          setIsLoading(false);
-        },
       });
     }
   };
@@ -136,7 +127,7 @@ const ScanQRCode = () => {
    *
    * @deprecated remove when we get rid of URv1 support
    */
-  const _onReadUniformResource = ur => {
+  const _onReadUniformResource = (ur: string) => {
     try {
       const [index, total] = extractSingleWorkload(ur);
       animatedQRCodeData[index + 'of' + total] = ur;
@@ -145,17 +136,20 @@ const ScanQRCode = () => {
       if (Object.values(animatedQRCodeData).length === total) {
         const payload = decodeUR(Object.values(animatedQRCodeData));
         // lets look inside that data
-        let data = false;
-        if (Buffer.from(payload, 'hex').toString().startsWith('psbt')) {
+        let data: false | string = false;
+        if (Buffer.from(String(payload), 'hex').toString().startsWith('psbt')) {
           // its a psbt, and whoever requested it expects it encoded in base64
-          data = Buffer.from(payload, 'hex').toString('base64');
+          data = Buffer.from(String(payload), 'hex').toString('base64');
         } else {
           // its something else. probably plain text is expected
-          data = Buffer.from(payload, 'hex').toString();
+          data = Buffer.from(String(payload), 'hex').toString();
         }
         if (launchedBy) {
           const merge = true;
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
+          if (onBarScanned) {
+            onBarScanned(data);
+          }
 
           navigation.dispatch(popToAction);
         }
@@ -166,16 +160,13 @@ const ScanQRCode = () => {
       setIsLoading(true);
 
       presentAlert({
-        title: loc.send.scan_error,
+        title: loc.errors.error,
         message: loc._.invalid_animated_qr_code_fragment,
-        onPress: () => {
-          setIsLoading(false);
-        },
       });
     }
   };
 
-  const onBarCodeRead = ret => {
+  const onBarCodeRead = (ret: { data: string }) => {
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
@@ -214,17 +205,23 @@ const ScanQRCode = () => {
 
       if (launchedBy) {
         const merge = true;
-        const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, merge);
+        const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
+        if (onBarScanned) {
+          onBarScanned(data);
+        }
         navigation.dispatch(popToAction);
       }
       return;
     } catch (_) {
-      if (!isLoading) {
+      if (!isLoading && launchedBy) {
         setIsLoading(true);
         try {
           const merge = true;
 
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, merge);
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge });
+          if (onBarScanned) {
+            onBarScanned(ret.data);
+          }
 
           navigation.dispatch(popToAction);
         } catch (e) {
@@ -257,7 +254,7 @@ const ScanQRCode = () => {
     navigation.goBack();
   };
 
-  const handleReadCode = event => {
+  const handleReadCode = (event: any) => {
     onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
   };
 
@@ -289,14 +286,13 @@ const ScanQRCode = () => {
           <BlueSpacing40 />
           {showFileImportButton && <Button title={loc.wallets.import_file} onPress={showFilePicker} />}
           <BlueSpacing40 />
-          <Button title={loc.wallets.list_long_choose} onPress={showFilePicker} />
+          <Button title={loc.wallets.list_long_choose} onPress={onShowImagePickerButtonPress} />
           <BlueSpacing40 />
           <Button title={loc._.cancel} onPress={dismiss} />
         </View>
       ) : isFocused && cameraStatusGranted ? (
         <CameraScreen
           onReadCode={handleReadCode}
-          showFrame={false}
           showFilePickerButton={showFileImportButton}
           showImagePickerButton={true}
           onFilePickerButtonPress={showFilePicker}

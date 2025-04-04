@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
 import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -12,7 +11,8 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { isDesktop } from '../../blue_modules/environment';
+import { useSettings } from '../../hooks/context/useSettings';
+import { disableScreenProtect, enableScreenProtect } from '../../helpers/screenProtect';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -131,6 +131,7 @@ const WalletAddresses: React.FC = () => {
   const allowSignVerifyMessage = (wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage()) ?? false;
 
   const { colors } = useTheme();
+  const { isPrivacyBlurEnabled } = useSettings();
   const { setOptions } = useExtendedNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
@@ -138,6 +139,15 @@ const WalletAddresses: React.FC = () => {
       backgroundColor: colors.elevated,
     },
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isPrivacyBlurEnabled) enableScreenProtect();
+      return () => {
+        disableScreenProtect();
+      };
+    }, [isPrivacyBlurEnabled]),
+  );
 
   const getAddresses = useMemo(() => {
     if (!walletInstance) return [];
@@ -176,15 +186,6 @@ const WalletAddresses: React.FC = () => {
       },
     });
   }, [setOptions]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!isDesktop) disallowScreenshot(true);
-      return () => {
-        if (!isDesktop) disallowScreenshot(false);
-      };
-    }, []),
-  );
 
   const data =
     search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;

@@ -10,6 +10,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { navigationRef } from '../../NavigationService';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -22,8 +23,7 @@ interface StorageContextType {
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
-  selectedWalletID: string | undefined;
-  setSelectedWalletID: (walletID: string | undefined) => void;
+  selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
   deleteWallet: (wallet: TWallet) => void;
   currentSharedCosigner: string;
@@ -67,12 +67,86 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
-  const [selectedWalletID, setSelectedWalletID] = useState<string | undefined>();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
+
+  const selectedWalletID = useCallback((): string | undefined => {
+    if (!navigationRef.current || !navigationRef.current.isReady()) return undefined;
+
+    const screensToCheck = ['LNDCreateInvoice', 'SendDetails', 'WalletTransactions', 'TransactionStatus'];
+
+    const currentRoute = navigationRef.current.getCurrentRoute();
+    console.debug('[StorageProvider] Current route:', currentRoute?.name);
+
+    if (currentRoute) {
+      if (screensToCheck.includes(currentRoute.name) && currentRoute.params) {
+        const params = currentRoute.params as { walletID?: string };
+        if (params.walletID) {
+          console.debug('[StorageProvider] selectedWalletID from current route:', params.walletID);
+          return params.walletID;
+        }
+      }
+    }
+
+    const state = navigationRef.current.getState();
+
+    if (state?.routes) {
+      for (const screenName of screensToCheck) {
+        const walletID = findWalletIDInNavigationState(state.routes, screenName);
+        if (walletID) {
+          console.debug('[StorageProvider] selectedWalletID from navigation state:', walletID, 'in screen:', screenName);
+          return walletID;
+        }
+      }
+
+      const drawerRoute = state.routes.find(route => route.name === 'DrawerRoot');
+      if (drawerRoute?.state?.routes) {
+        const detailViewStack = drawerRoute.state.routes.find(route => route.name === 'DetailViewStackScreensStack');
+        if (detailViewStack?.state?.routes) {
+          for (const route of detailViewStack.state.routes) {
+            if (screensToCheck.includes(route.name) && (route.params as { walletID?: string })?.walletID) {
+              console.debug(
+                '[StorageProvider] selectedWalletID from drawer navigation:',
+                (route.params as { walletID?: string })?.walletID,
+              );
+              return (route.params as { walletID?: string })?.walletID;
+            }
+          }
+        }
+      }
+    }
+
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const findWalletIDInNavigationState = (routes: any[], screenName: string): string | undefined => {
+    for (let i = routes.length - 1; i >= 0; i--) {
+      const route = routes[i];
+
+      if (route.name === screenName && (route.params as { walletID?: string }).walletID) {
+        return (route.params as { walletID?: string }).walletID;
+      }
+
+      if (route.state?.routes) {
+        const walletID = findWalletIDInNavigationState(route.state.routes, screenName);
+        if (walletID) return walletID;
+      }
+
+      if (route.params?.screen === screenName && route.params?.params?.walletID) {
+        return route.params.params.walletID;
+      }
+
+      if (route.name === 'DetailViewStackScreensStack' && route.params?.screen === screenName && route.params?.params?.walletID) {
+        return route.params.params.walletID;
+      }
+    }
+
+    return undefined;
+  };
 
   const saveToDisk = useCallback(
     async (force: boolean = false) => {
@@ -228,7 +302,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [saveToDisk],
   );
 
-  // Initialize wallets and connect to Electrum
+  // Initialize wallets
   useEffect(() => {
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
@@ -246,14 +320,19 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         console.debug('[refreshAllWalletTransactions] Refresh already in progress');
         return;
       }
-      console.debug('[refreshAllWalletTransactions] Starting refreshAllWalletTransactions');
+      console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
+
+      await new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => resolve()));
+
       const TIMEOUT_DURATION = 30000;
-      const timeoutPromise = new Promise<never>((_resolve, reject) =>
-        setTimeout(() => {
-          console.debug('[refreshAllWalletTransactions] Timeout reached');
-          reject(new Error('Timeout reached'));
-        }, TIMEOUT_DURATION),
+      let refreshTimeout;
+      const timeoutPromise = new Promise<never>(
+        (_resolve, reject) =>
+          (refreshTimeout = setTimeout(() => {
+            console.debug('[refreshAllWalletTransactions] Timeout reached');
+            reject(new Error('Timeout reached'));
+          }, TIMEOUT_DURATION)),
       );
 
       try {
@@ -263,6 +342,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
         await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ping())) {
+          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
+          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
+          // should pick up)
+          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
+          await BlueElectrum.waitTillConnected();
+        }
+
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
         // Restore fetch payment codes timing measurement
@@ -289,15 +376,16 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             const txEnd = Date.now();
             console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
 
+            clearTimeout(refreshTimeout);
+
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();
           })(),
-
           timeoutPromise,
         ]);
         console.debug('[refreshAllWalletTransactions] Refresh completed successfully');
       } catch (error) {
-        console.error('[refreshAllWalletTransactions] Error in refreshAllWalletTransactions:', error);
+        console.error('[refreshAllWalletTransactions] Error:', error);
       } finally {
         console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
@@ -412,7 +500,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,
@@ -446,7 +533,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,
-      setSelectedWalletID,
       addWallet,
       deleteWallet,
       currentSharedCosigner,

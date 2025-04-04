@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useCallback, useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Platform, StyleSheet, View, LayoutAnimation, UIManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 
@@ -9,6 +9,14 @@ import { ActionIcons } from '../typings/ActionIcons';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const configureLayoutAnimation = () => {
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+};
 
 interface QRCodeComponentProps {
   value: string;
@@ -65,6 +73,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 }) => {
   const qrCode = useRef<any>();
   const { colors, dark } = useTheme();
+
+  const animatableProps = { value, size, dark, isLogoRendered };
+  const serializedProps = JSON.stringify(animatableProps);
+
+  useEffect(() => {
+    configureLayoutAnimation();
+  }, [serializedProps]);
 
   const handleShareQRCode = () => {
     qrCode.current.toDataURL((data: string) => {

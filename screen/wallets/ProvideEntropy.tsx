@@ -327,7 +327,7 @@ const ProvideEntropy = () => {
               does not support passing Buffer objects between screens
             */
 
-            const popTo = StackActions.popTo('AddWallet', { entropy: buf.toString('hex'), words }, true);
+            const popTo = StackActions.popTo('AddWallet', { entropy: buf.toString('hex'), words }, { merge: true });
 
             navigation.dispatch(popTo);
           },
