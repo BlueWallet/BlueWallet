@@ -17,14 +17,22 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
 
     companion object {
         const val TAG = "WidgetUpdateWorker"
-        const val WORK_NAME = "widget_update_work"
+        const val WORK_NAME = "bitcoin_price_widget_update_work"
+        const val NETWORK_RETRY_WORK_NAME = "bitcoin_price_network_retry_work"
         const val REPEAT_INTERVAL_MINUTES = 15L
+        private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
+        private const val DEFAULT_CURRENCY = "USD"
+        private const val NETWORK_RETRY_DELAY_SECONDS = 30L
 
+        /**
+         * Schedule periodic work for Bitcoin Price Widget
+         */
         fun scheduleWork(context: Context) {
             val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
                 REPEAT_INTERVAL_MINUTES, TimeUnit.MINUTES
@@ -34,17 +42,59 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
                 ExistingPeriodicWorkPolicy.REPLACE,
                 workRequest
             )
-            Log.d(TAG, "Scheduling work for widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
+            Log.d(TAG, "Scheduling work for Bitcoin price widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
+        }
+
+        /**
+         * Schedule a retry when network becomes available
+         */
+        fun scheduleRetryOnNetworkAvailable(context: Context, appWidgetIds: IntArray) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+                
+            val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+                .setConstraints(constraints)
+                .setInitialDelay(NETWORK_RETRY_DELAY_SECONDS, TimeUnit.SECONDS)
+                .build()
+                
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                NETWORK_RETRY_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                updateRequest
+            )
+            
+            Log.d(TAG, "Scheduled network retry in $NETWORK_RETRY_DELAY_SECONDS seconds")
         }
     }
 
     private lateinit var sharedPref: SharedPreferences
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Widget update worker running")
+        Log.d(TAG, "Bitcoin price widget update worker running")
+        
+        sharedPref = applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+        
+        // Check network connectivity first
+        if (!NetworkUtils.isNetworkAvailable(applicationContext)) {
+            Log.d(TAG, "No network connection available")
+            
+            // Update all Bitcoin price widgets to show offline status
+            val component = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
+            val widgetIds = AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(component)
+            
+            BitcoinPriceWidget.updateNetworkStatus(applicationContext, widgetIds)
+            
+            // Schedule retry with network constraint
+            scheduleRetryOnNetworkAvailable(applicationContext, widgetIds)
+            
+            return Result.retry()
+        }
 
-        sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        return updatePriceWidgets()
+    }
 
+    private suspend fun updatePriceWidgets(): Result {
         val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         val thisWidget = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
@@ -62,7 +112,6 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         
         views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent)
 
-        // Show loading indicator
         views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
         views.setViewVisibility(R.id.price_value, View.GONE)
         views.setViewVisibility(R.id.last_updated_label, View.GONE)
@@ -78,6 +127,10 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
 
         val fetchedPrice = fetchPrice(preferredCurrency)
+
+        // Check network connectivity
+        val isNetworkAvailable = NetworkUtils.isNetworkAvailable(applicationContext)
+        views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
 
         handlePriceResult(
             appWidgetManager, appWidgetIds, views, sharedPref,
@@ -166,7 +219,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         preferredCurrency: String?,
         preferredCurrencyLocale: String?
     ) {
-        val currentPrice = fetchedPrice.toDouble().toInt() // Remove cents
+        val currentPrice = fetchedPrice.toDouble().toInt()
         val currencyFormat = getCurrencyFormat(preferredCurrency, preferredCurrencyLocale)
 
         views.apply {
@@ -201,12 +254,11 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         val currency = try {
             Currency.getInstance(currencyCode ?: "USD")
         } catch (e: IllegalArgumentException) {
-            Currency.getInstance("USD") // Default to USD if an invalid code is provided
+            Currency.getInstance("USD")
         }
         currencyFormat.currency = currency
-        currencyFormat.maximumFractionDigits = 0 // No cents
+        currencyFormat.maximumFractionDigits = 0
 
-        // Remove the ISO country code and keep only the symbol
         val decimalFormatSymbols = (currencyFormat as java.text.DecimalFormat).decimalFormatSymbols
         decimalFormatSymbols.currencySymbol = currency.symbol
         currencyFormat.decimalFormatSymbols = decimalFormatSymbols

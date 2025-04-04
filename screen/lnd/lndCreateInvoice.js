@@ -32,7 +32,7 @@ import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } fr
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { params } = useRoute();
@@ -109,7 +109,7 @@ const LNDCreateInvoice = () => {
         if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
           // we are here by mistake. user wants to SEND to lnurl-pay, but he is on a screen that creates
           // invoices (including through lnurl-withdraw)
-          navigate('ScanLndInvoiceRoot', {
+          navigate('ScanLNDInvoiceRoot', {
             screen: 'LnurlPay',
             params: {
               lnurl: data,
@@ -190,21 +190,9 @@ const LNDCreateInvoice = () => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    if (wallet.current && wallet.current.getID() !== walletID) {
-      const newWallet = wallets.find(w => w.getID() === walletID);
-      if (newWallet) {
-        wallet.current = newWallet;
-        setSelectedWalletID(newWallet.getID());
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
-
   useFocusEffect(
     useCallback(() => {
       if (wallet.current) {
-        setSelectedWalletID(walletID);
         if (wallet.current.getUserHasSavedExport()) {
           renderReceiveDetails();
         } else {

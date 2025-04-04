@@ -8,6 +8,29 @@
     android:background="@drawable/widget_background"
     android:gravity="end">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" 
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/network_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/offline"
+            android:textColor="@color/container_red"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:layout_marginEnd="8dp" />
+    </LinearLayout>
+
     <ProgressBar
         android:id="@+id/loading_indicator"
         android:layout_width="wrap_content"
@@ -20,13 +43,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="end"
-        android:layout_gravity="end">
+        android:layout_gravity="end"
+        android:layout_marginBottom="10dp">
         <TextView
             android:id="@+id/last_updated_label"
             style="@style/WidgetTextSecondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last Updated"
+            android:text="@string/last_updated"
+            android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:textStyle="bold"
             android:layout_marginEnd="8dp"
@@ -39,6 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="--:--"
+            android:textColor="@color/text_primary"
             android:textSize="12sp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="2dp"
@@ -55,8 +81,7 @@
 
         <TextView
             android:id="@+id/price_value"
-            style="@style/WidgetTextPrimary"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginEnd="8dp"
@@ -67,9 +92,11 @@
             android:autoSizeTextType="uniform"
             android:duplicateParentState="false"
             android:editable="false"
+            android:gravity="end"
             android:lines="1"
             android:text="Loading..."
             android:textSize="24sp"
+            android:textColor="@color/text_primary"
             android:textStyle="bold"
             android:visibility="gone" />
         <LinearLayout
@@ -91,21 +118,21 @@
 
             <TextView
                 android:id="@+id/previous_price_label"
-                style="@style/WidgetTextPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="From:"
+                android:text="@string/price_from"
                 android:textSize="12sp"
+                android:textColor="@color/text_primary"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_gravity="end"/>
             <TextView
                 android:id="@+id/previous_price"
-                style="@style/WidgetTextPrimary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="--"
                 android:textSize="12sp"
+                android:textColor="@color/text_primary"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:layout_gravity="end"/>

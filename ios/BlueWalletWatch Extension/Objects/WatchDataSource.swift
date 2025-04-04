@@ -3,7 +3,6 @@
 import Foundation
 import WatchConnectivity
 import Security
-import Combine
 import ClockKit
 
 struct NotificationName {
@@ -13,61 +12,67 @@ struct Notifications {
   static let dataUpdated = Notification(name: NotificationName.dataUpdated)
 }
 
-/// Represents the group user defaults keys.
-/// Ensure these match the keys used in your iOS app for sharing data.
-
 /// Handles WatchConnectivity and data synchronization between iOS and Watch apps.
-class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
+class WatchDataSource: NSObject, WCSessionDelegate {
     // MARK: - Singleton Instance
   
-  static func postDataUpdatedNotification() {
-      NotificationCenter.default.post(Notifications.dataUpdated)
+    static func postDataUpdatedNotification() {
+        NotificationCenter.default.post(Notifications.dataUpdated)
     }
-
     
     static let shared = WatchDataSource()
     
-    // MARK: - Published Properties
+    // MARK: - Properties
     
     /// The list of wallets to be displayed on the Watch app.
-    @Published var wallets: [Wallet] = []
+    var wallets: [Wallet] = [] {
+        didSet {
+            // When wallets are updated, save to keychain and refresh complications
+            saveWalletsToKeychain()
+            reloadComplications()
+        }
+    }
     
-    @Published var isDataLoaded: Bool = false
+    var isDataLoaded: Bool = false
     
     // MARK: - Private Properties
     
     private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     private let keychain = KeychainHelper.shared
     private let session: WCSession
-    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
     private override init() {
         guard WCSession.isSupported() else {
             print("WCSession is not supported on this device.")
-            // Initialize with a default session but mark as unsupported
             self.session = WCSession.default
             super.init()
             return
         }
         self.session = WCSession.default
         super.init()
+        
+        // Set delegate before trying to load data
         self.session.delegate = self
+        
+        // Load cached data from keychain to show something while waiting for fresh data
         loadKeychainData()
-        setupBindings()
     }
     
     // MARK: - Public Methods
     
     /// Starts the WatchConnectivity session.
     func startSession() {
-        // Check if keychain has existing wallets data before activating session
-        if let existingData = keychain.retrieve(service: UserDefaultsGroupKey.WatchAppBundleIdentifier.rawValue, account: UserDefaultsGroupKey.BundleIdentifier.rawValue),
-           !existingData.isEmpty {
+        if session.activationState != .activated {
+            print("[WatchKit 2] Activating WCSession...")
             session.activate()
         } else {
-            print("Keychain is empty. Skipping WCSession activation.")
+            print("[WatchKit 2] WCSession is already activated: \(session.activationState.rawValue)")
+            // Even if activated, attempt to request data
+            if session.isReachable {
+                requestDataFromiOS()
+            }
         }
     }
     
@@ -75,19 +80,6 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     /// Note: WCSession does not provide a deactivate method, but you can handle any necessary cleanup here.
     func deactivateSession() {
         // Handle any necessary cleanup here.
-    }
-    
-    // MARK: - Data Binding
-    
-    /// Sets up bindings to observe changes to `wallets` and perform actions accordingly.
-    private func setupBindings() {
-        // Observe changes to wallets and perform actions if needed.
-        $wallets
-            .sink { [weak self] updatedWallets in
-                self?.saveWalletsToKeychain()
-                self?.reloadComplications()
-            }
-            .store(in: &cancellables)
     }
     
     // MARK: - Keychain Operations
@@ -105,12 +97,15 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             // Filter wallets to include only on-chain wallets.
             let onChainWallets = decodedWallets.filter { $0.chain == .onchain }
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
                 if onChainWallets != self.wallets {
                     self.wallets = onChainWallets
                     print("Loaded \(onChainWallets.count) on-chain wallets from Keychain.")
                 }
                 self.isDataLoaded = true
+                // Post notification about data update
+                WatchDataSource.postDataUpdatedNotification()
             }
         }
     }
@@ -119,10 +114,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     private func saveWalletsToKeychain() {
         DispatchQueue.global(qos: .background).async { [weak self] in
             guard let self = self else { return }
-            guard self.session.isReachable || self.session.activationState == .activated else {
-                print("iPhone is not reachable or session is not active. Skipping save to Keychain.")
-                return
-            }
+            // Save to keychain regardless of session state
             guard let encodedData = try? JSONEncoder().encode(self.wallets) else {
                 print("Failed to encode wallets.")
                 return
@@ -141,10 +133,15 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     /// Handles the activation completion of the WCSession.
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if let error = error {
-            print("WCSession activation failed with error: \(error.localizedDescription)")
+            print("[WatchKit 2] WCSession activation failed with error: \(error.localizedDescription)")
         } else {
-            print("WCSession activated with state: \(activationState.rawValue)")
-            // Request current wallets data from iOS app.
+            print("[WatchKit 2] WCSession activated with state: \(activationState.rawValue)")
+            
+            if activationState == .activated {
+                DispatchQueue.main.async {
+                    self.requestDataFromiOS()
+                }
+            }
         }
     }
     
@@ -155,8 +152,64 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     
     /// Handles received application context updates from the iOS app.
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        print("[WatchKit 2] Received application context: \(applicationContext.keys)")
         if applicationContext.isEmpty { return }
-        processReceivedData(applicationContext)
+        
+        DispatchQueue.main.async {
+            self.processReceivedData(applicationContext)
+            // Post notification that data was updated
+            WatchDataSource.postDataUpdatedNotification()
+        }
+    }
+    
+    /// Requests current data from the iOS app
+    func requestDataFromiOS() {
+        guard session.activationState == .activated else {
+            print("[WatchKit 2] Cannot request data: WCSession not activated (state: \(session.activationState.rawValue))")
+            startSession() // Try to activate the session
+            return
+        }
+        
+        let message = ["message": "sendApplicationContext"]
+        
+        // First check if we can use direct messaging
+        if session.isReachable {
+            print("[WatchKit 2] iOS app is reachable, sending direct message")
+            session.sendMessage(message, replyHandler: { [weak self] _ in
+                print("[WatchKit 2] Successfully requested application context from iOS app")
+                // Notify that we might have received data
+                DispatchQueue.main.async {
+                    WatchDataSource.postDataUpdatedNotification()
+                }
+            }, errorHandler: { error in
+                print("[WatchKit 2] Error requesting application context: \(error.localizedDescription)")
+                
+                // Fallback to application context as a backup
+                self.sendApplicationContextRequest()
+            })
+        } else {
+            print("[WatchKit 2] iOS app is not reachable, using application context")
+            sendApplicationContextRequest()
+        }
+    }
+    
+    private func sendApplicationContextRequest() {
+        do {
+            try session.updateApplicationContext(["message": "sendApplicationContext"])
+            print("[WatchKit 2] Sent context update request to iOS app")
+        } catch {
+            print("[WatchKit 2] Failed to send context update request: \(error.localizedDescription)")
+        }
+    }
+    
+    // Enhance session reachability notification
+    func sessionReachabilityDidChange(_ session: WCSession) {
+        print("[WatchKit 2] Session reachability changed: \(session.isReachable)")
+        
+        if session.isReachable {
+            // If iOS app becomes reachable, request fresh data
+            requestDataFromiOS()
+        }
     }
     
     // MARK: - Data Processing
@@ -241,7 +294,7 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
             processedWallets.append(wallet)
         }
         
-        // Update the published `wallets` property on the main thread.
+        // Update the `wallets` property on the main thread.
         DispatchQueue.main.async { [weak self] in
             self?.wallets = processedWallets
             print("Updated wallets from received context.")
@@ -328,8 +381,8 @@ class WatchDataSource: NSObject, ObservableObject, WCSessionDelegate {
     /// - Parameters:
     ///   - walletIdentifier: The index of the wallet in the `wallets` array.
     ///   - hideBalance: A boolean indicating whether to hide the balance.
-  func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
-    guard wallets.indices.contains(walletIdentifier.hashValue) else {
+    func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ success: Bool) -> Void) {
+        guard wallets.indices.contains(walletIdentifier.hashValue) else {
             responseHandler(false)
             return
         }

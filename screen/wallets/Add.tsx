@@ -6,7 +6,6 @@ import {
   LayoutAnimation,
   Linking,
   Platform,
-  ScrollView,
   StyleSheet,
   TextInput,
   useColorScheme,
@@ -32,6 +31,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -418,7 +418,14 @@ const WalletsAdd: React.FC = () => {
   );
 
   return (
-    <ScrollView style={stylesHook.root} testID="ScrollView" automaticallyAdjustKeyboardInsets>
+    <SafeAreaScrollView
+      style={stylesHook.root}
+      testID="ScrollView"
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustsScrollIndicatorInsets
+    >
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
       <View style={[styles.label, stylesHook.label]}>
@@ -503,7 +510,7 @@ const WalletsAdd: React.FC = () => {
           <ActivityIndicator />
         )}
       </View>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

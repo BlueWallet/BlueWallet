@@ -9,17 +9,16 @@ import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import Share from 'react-native-share';
-
 import { satoshiToBTC } from '../../blue_modules/currency';
 import { isDesktop } from '../../blue_modules/environment';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
@@ -49,9 +48,11 @@ const SendCreate = () => {
 
   useEffect(() => {
     console.log('send/create - useEffect');
-    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
     return () => {
-      if (!isDesktop) disallowScreenshot(false);
+      disableScreenProtect();
     };
   }, [isPrivacyBlurEnabled]);
 

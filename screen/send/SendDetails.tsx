@@ -57,6 +57,7 @@ import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
+import SafeArea from '../../components/SafeArea';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -76,7 +77,7 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
+  const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
@@ -130,13 +131,6 @@ const SendDetails = () => {
   }, [customFee, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
-    console.log('send/details - useEffect');
-    if (wallet) {
-      setHeaderRightOptions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
-  useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
@@ -172,19 +166,19 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
     } else if (routeParams.address) {
-      const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
-      // @ts-ignore: needs fix
-      setAddresses(value => {
-        if (currentAddress && currentAddress.address && routeParams.address) {
-          currentAddress.address = routeParams.address;
-          value[scrollIndex.current] = currentAddress;
-          value[scrollIndex.current].unit = unit;
-          return [...value];
-        } else {
-          return [...value, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
-        }
+      // screen was called with `address` parameter, so we just prefill it
+      setAddresses(prevAddresses => {
+        const updatedAddresses = [...prevAddresses];
+        updatedAddresses[0] = {
+          ...updatedAddresses[0],
+          address: routeParams.address,
+          amount: 0,
+          amountSats: 0,
+        } as IPaymentDestinations;
+        return updatedAddresses;
       });
     } else if (routeParams.addRecipientParams) {
+      // used to add a recipient, mainly from contacts aka paymentcodes screen
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
       const { address, amount } = routeParams.addRecipientParams;
 
@@ -208,6 +202,7 @@ const SendDetails = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+
   useEffect(() => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
@@ -252,7 +247,6 @@ const SendDetails = () => {
   // change header and reset state on wallet change
   useEffect(() => {
     if (!wallet) return;
-    setSelectedWalletID(wallet.getID());
 
     // reset other values
     setChangeAddress(null);
@@ -294,38 +288,38 @@ const SendDetails = () => {
 
     const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
+    let targets = [];
+    for (const transaction of addresses) {
+      if (transaction.amount === BitcoinUnit.MAX) {
+        // single output with MAX
+        targets = [{ address: transaction.address }];
+        break;
+      }
+      const value = transaction.amountSats;
+      if (Number(value) > 0) {
+        targets.push({ address: transaction.address, value });
+      } else if (transaction.amount) {
+        if (btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+        }
+      }
+    }
+
+    // if targets is empty, insert dust
+    if (targets.length === 0) {
+      targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+    }
+
+    // replace wrong addresses with dump
+    targets = targets.map(t => {
+      if (!wallet.isAddressValid(t.address)) {
+        return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+      } else {
+        return t;
+      }
+    });
+
     for (const opt of options) {
-      let targets = [];
-      for (const transaction of addresses) {
-        if (transaction.amount === BitcoinUnit.MAX) {
-          // single output with MAX
-          targets = [{ address: transaction.address }];
-          break;
-        }
-        const value = transaction.amountSats;
-        if (Number(value) > 0) {
-          targets.push({ address: transaction.address, value });
-        } else if (transaction.amount) {
-          if (btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
-          }
-        }
-      }
-
-      // if targets is empty, insert dust
-      if (targets.length === 0) {
-        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
-      }
-
-      // replace wrong addresses with dump
-      targets = targets.map(t => {
-        if (!wallet.isAddressValid(t.address)) {
-          return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
-        } else {
-          return t;
-        }
-      });
-
       let flag = false;
       while (true) {
         try {
@@ -1157,11 +1151,18 @@ const SendDetails = () => {
     [headerRightOnPress, isLoading, headerRightActions],
   );
 
-  const setHeaderRightOptions = () => {
+  const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
       headerRight: HeaderRight,
     });
-  };
+  }, [HeaderRight, navigation]);
+
+  useEffect(() => {
+    console.log('send/details - useEffect');
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;
@@ -1245,7 +1246,7 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -1257,7 +1258,7 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
             disabled={!isEditable || isLoading}
           >
@@ -1369,7 +1370,7 @@ const SendDetails = () => {
   });
 
   return (
-    <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+    <SafeArea style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
         <FlatList
           keyboardShouldPersistTaps="always"
@@ -1440,7 +1441,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
-    </View>
+    </SafeArea>
   );
 };
 

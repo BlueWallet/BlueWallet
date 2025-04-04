@@ -29,6 +29,15 @@ export type SendDetailsParams = {
   };
 };
 
+export type TNavigation = {
+  pop: () => void;
+  navigate: () => void;
+};
+
+export type TNavigationWrapper = {
+  navigation: TNavigation;
+};
+
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
   Confirm: {
@@ -73,16 +82,19 @@ export type SendDetailsStackParamList = {
     launchedBy?: string;
   };
   Success: {
-    fee: number;
+    fee?: number;
     amount: number;
+    amountUnit?: BitcoinUnit;
     txid?: string;
+    invoiceDescription?: string;
   };
   SelectWallet: {
     chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigation: any) => void;
+    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
     availableWallets?: TWallet[];
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
+    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
   };
   CoinControl: {
     walletID: string;

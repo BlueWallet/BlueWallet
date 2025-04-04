@@ -6,12 +6,9 @@
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
-#import "EventEmitter.h"
-#import "MenuElementsEmitter.h"
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
 #import "BlueWallet-Swift.h"
-#import "CustomSegmentedControlManager.h"
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -23,8 +20,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [MenuElementsEmitter sharedInstance];
-  [CustomSegmentedControlManager registerIfNecessary];
   [self clearFilesIfNeeded];
   self.userDefaultsGroup = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   
@@ -171,8 +166,8 @@
       [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.xpub"] ||
       [userActivity.activityType isEqualToString:@"io.bluewallet.bluewallet.blockexplorer"]) {
     
-    if ([EventEmitter.sharedInstance respondsToSelector:@selector(sendUserActivity:)]) {
-      [EventEmitter.sharedInstance sendUserActivity:userActivityData];
+    if ([EventEmitter.shared respondsToSelector:@selector(sendUserActivity:)]) {
+      [EventEmitter.shared sendUserActivity:userActivityData];
     } else {
       NSLog(@"[Handoff] EventEmitter does not implement sendUserActivity:");
     }
@@ -210,7 +205,7 @@
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
 {
   NSDictionary *userInfo = notification.request.content.userInfo;
-  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionList | UNNotificationPresentationOptionBanner | UNNotificationPresentationOptionBadge);
 }
 
 - (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
@@ -259,25 +254,59 @@
 }
 
 - (void)openSettings:(UIKeyCommand *)keyCommand {
-  [MenuElementsEmitter.sharedInstance openSettings];
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        NSLog(@"[MenuElements] AppDelegate: openSettings called, calling emitter");
+        // Force on main thread for consistency
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter openSettings];
+        });
+    } else {
+        NSLog(@"[MenuElements] AppDelegate: MenuElementsEmitter not available for openSettings");
+    }
 }
 
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
-    // Implement the functionality for adding a wallet
-    [MenuElementsEmitter.sharedInstance addWalletMenuAction];
-    NSLog(@"Add Wallet action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        NSLog(@"[MenuElements] AppDelegate: addWalletAction called, calling emitter");
+        // Force on main thread for consistency
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter addWalletMenuAction];
+        });
+    } else {
+        NSLog(@"[MenuElements] AppDelegate: MenuElementsEmitter not available for addWalletAction");
+    }
 }
 
 - (void)importWalletAction:(UIKeyCommand *)keyCommand {
-    // Implement the functionality for adding a wallet
-    [MenuElementsEmitter.sharedInstance importWalletMenuAction];
-    NSLog(@"Import Wallet action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        NSLog(@"[MenuElements] AppDelegate: importWalletAction called, calling emitter");
+        // Force on main thread for consistency
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter importWalletMenuAction];
+        });
+    } else {
+        NSLog(@"[MenuElements] AppDelegate: MenuElementsEmitter not available for importWalletAction");
+    }
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
-    // Implement the functionality for adding a wallet
-  [MenuElementsEmitter.sharedInstance reloadTransactionsMenuAction];
-    NSLog(@"Reload Transactions action performed");
+    // Safely access the MenuElementsEmitter
+    MenuElementsEmitter *emitter = [MenuElementsEmitter shared];
+    if (emitter) {
+        NSLog(@"[MenuElements] AppDelegate: reloadTransactionsAction called, calling emitter");
+        // Force on main thread for consistency
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [emitter reloadTransactionsMenuAction];
+        });
+    } else {
+        NSLog(@"[MenuElements] AppDelegate: MenuElementsEmitter not available for reloadTransactionsAction");
+    }
 }
 
 - (void)showHelp:(id)sender {
@@ -393,6 +422,17 @@
             NSLog(@"Error removing file: %@", error.localizedDescription);
         }
     }
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+  UITraitCollection *traitCollection = window.traitCollection;
+  if (traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
+      traitCollection.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+    // iPad or large iPhone
+    return UIInterfaceOrientationMaskAll;
+  }
+  // Regular iPhone
+  return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
 }
 
 @end

@@ -55,9 +55,13 @@ const useHandoffListener = () => {
 
     const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', handleUserActivity);
 
-    EventEmitter.getMostRecentUserActivity?.()
-      .then(handleUserActivity)
-      .catch(() => console.debug('No valid user activity object received'));
+    if (EventEmitter && EventEmitter.getMostRecentUserActivity) {
+      EventEmitter.getMostRecentUserActivity()
+        .then(handleUserActivity)
+        .catch(() => console.debug('No valid user activity object received'));
+    } else {
+      console.debug('EventEmitter native module is not available.');
+    }
 
     return () => {
       activitySubscription?.remove();

@@ -1,4 +1,12 @@
-import { hashIt, helperDeleteWallet, helperImportWallet, sleep, yo } from './helperz';
+import { hashIt, helperDeleteWallet, helperImportWallet, sleep, waitForId } from './helperz';
+
+// if loglevel is set to `error`, this kind of logging will still get through
+console.warn = console.log = (...args) => {
+  let output = '';
+  args.map(arg => (output += String(arg)));
+
+  process.stdout.write('\n\t\t' + output + '\n');
+};
 
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
@@ -87,7 +95,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('scanQrBackdoorInput')).replaceText(signedPsbt);
     await element(by.id('scanQrBackdoorOkButton')).tap();
     await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
-    await yo('PsbtWithHardwareWalletBroadcastTransactionButton');
+    await waitForId('PsbtWithHardwareWalletBroadcastTransactionButton');
 
     await device.pressBack();
     await device.pressBack();
