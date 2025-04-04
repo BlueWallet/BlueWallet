@@ -99,10 +99,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
     masterFingerprint: number,
   ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
-    // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
-    for (const u of utxos) {
-      u.script = { length: 50 };
-    }
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
