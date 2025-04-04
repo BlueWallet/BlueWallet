@@ -13,15 +13,13 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
+    alignItems: 'center',
   } as ViewStyle,
-  icon: {
-    left: 0,
-    top: 0,
-  },
 });
 
 const TransactionExpiredIcon: React.FC = () => {
   const { colors } = useTheme();
+
   const stylesHooks = StyleSheet.create({
     ballOutgoingExpired: {
       backgroundColor: colors.ballOutgoingExpired,
@@ -31,7 +29,7 @@ const TransactionExpiredIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingExpired, stylesHooks.ballOutgoingExpired]}>
-        <Icon name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={styles.icon} />
+        <Icon name="clock" size={16} type="octicon" color="#9AA0AA" />
       </View>
     </View>
   );
