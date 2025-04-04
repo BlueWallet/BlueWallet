@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-nativ
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
 import loc, { formatBalance } from '../loc';
-import { SecondButton } from './SecondButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 
 interface NetworkTransactionFees {
@@ -39,9 +38,9 @@ interface SelectFeeModalProps {
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
   ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit = BitcoinUnit.BTC }, ref) => {
-    const [customFee, setCustomFeeState] = useState('');
+    const [customFeeValue, setCustomFeeValue] = useState('');
     const feeModalRef = useRef<BottomModalHandle>(null);
-    const customModalRef = useRef<BottomModalHandle>(null);
+    const customFeeInputRef = useRef<TextInput>(null);
     const nf = networkTransactionFees;
 
     const { colors } = useTheme();
@@ -106,6 +105,15 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       feeValue: {
         color: colors.feeValue,
       },
+      customFeeInput: {
+        color: colors.successColor,
+        borderColor: colors.formBorder,
+        width: 70,
+        textAlign: 'right',
+        marginRight: 4,
+        padding: 0,
+        fontSize: 16,
+      },
     });
 
     useImperativeHandle(ref, () => ({
@@ -141,23 +149,12 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
 
     const formatFee = (fee: number) => formatBalance(fee, feeUnit, true);
 
-    const handleCustomFeeSubmit = async () => {
-      if (!/^\d+(\.\d+)?$/.test(customFee) || Number(customFee) < 1) {
-        return;
+    const isCustomFeeSelected = () => {
+      const matchesPresetOption = options.some(option => Number(feeRate) === option.rate);
+      if (matchesPresetOption) {
+        return false;
       }
-      const fee = Number(customFee) < 1 ? '1' : customFee;
-      setCustomFee(fee);
-      await customModalRef.current?.dismiss();
-      await feeModalRef.current?.dismiss();
-    };
-
-    const handleCancel = async () => {
-      setCustomFeeState('');
-      await customModalRef.current?.dismiss();
-    };
-
-    const handlePressCustom = async () => {
-      await customModalRef.current?.present();
+      return true;
     };
 
     const handleSelectOption = async (fee: number | null, rate: number) => {
@@ -166,18 +163,28 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       await feeModalRef.current?.dismiss();
     };
 
+    const handleCustomFeeChange = (value: string) => {
+      setCustomFeeValue(value);
+      if (/^\d+(\.\d+)?$/.test(value) && Number(value) > 0) {
+        setCustomFee(value);
+        setFeePrecalc(fp => ({ ...fp, current: null })); // Custom fee has no precalculated fee
+      }
+    };
+
+    const handleCustomFeeSubmit = async () => {
+      if (customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue) && Number(customFeeValue) > 0) {
+        setCustomFee(customFeeValue);
+        setFeePrecalc(fp => ({ ...fp, current: null })); // Custom fee has no precalculated fee
+        await feeModalRef.current?.dismiss();
+      }
+    };
+
+    const handleCustomPress = () => {
+      customFeeInputRef.current?.focus();
+    };
+
     return (
-      <BottomModal
-        ref={feeModalRef}
-        backgroundColor={colors.modal}
-        footer={
-          <View style={styles.feeModalFooter}>
-            <TouchableOpacity testID="feeCustom" accessibilityRole="button" onPress={handlePressCustom}>
-              <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      >
+      <BottomModal ref={feeModalRef} backgroundColor={colors.modal}>
         <View>
           {options.map(({ label, time, fee, rate, active, disabled }) => (
             <TouchableOpacity
@@ -203,33 +210,40 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
               </View>
             </TouchableOpacity>
           ))}
-        </View>
 
-        <BottomModal
-          ref={customModalRef}
-          blurTint="regular"
-          onCloseModalPressed={handleCancel}
-          backgroundColor={colors.modal}
-          footer={
-            <View style={[styles.feeModalFooter, styles.feeModalFooterSpacing]}>
-              <SecondButton title={loc._.ok} onPress={handleCustomFeeSubmit} disabled={!customFee || Number(customFee) <= 0} />
+          {/* Custom Fee Option */}
+          <TouchableOpacity
+            accessibilityRole="button"
+            testID="feeCustom"
+            onPress={handleCustomPress}
+            style={[
+              styles.feeModalItem,
+              styles.customFeeButton,
+              isCustomFeeSelected() && styles.feeModalItemActive,
+              isCustomFeeSelected() && stylesHook.feeModalItemActive,
+            ]}
+          >
+            <View style={styles.feeModalRow}>
+              <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{loc.send.fee_custom}</Text>
+              <View style={styles.customFeeContainer}>
+                <TextInput
+                  ref={customFeeInputRef}
+                  style={[styles.customFeeInput, stylesHook.customFeeInput]}
+                  keyboardType="numeric"
+                  placeholder={loc.send.insert_custom_fee}
+                  value={customFeeValue}
+                  placeholderTextColor={colors.placeholderTextColor}
+                  onChangeText={handleCustomFeeChange}
+                  onSubmitEditing={handleCustomFeeSubmit}
+                  returnKeyType="done"
+                  accessibilityLabel={loc.send.create_fee}
+                  testID="customFeeInput"
+                />
+                {customFeeValue && <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>}
+              </View>
             </View>
-          }
-          footerDefaultMargins
-        >
-          <View>
-            <Text style={[styles.feeModalLabel, stylesHook.insertCustomFeeText]}>{loc.send.insert_custom_fee}</Text>
-            <View style={styles.optionsContent} />
-            <TextInput
-              style={[styles.input, stylesHook.input]}
-              keyboardType="numeric"
-              placeholder={loc.send.create_fee}
-              value={customFee}
-              onChangeText={setCustomFeeState}
-              autoFocus
-            />
-          </View>
-        </BottomModal>
+          </TouchableOpacity>
+        </View>
       </BottomModal>
     );
   },
@@ -240,7 +254,7 @@ export default SelectFeeModal;
 const styles = StyleSheet.create({
   loading: {
     flex: 1,
-    paddingTop: 20,
+    paddingVertical: 20,
   },
   root: {
     flex: 1,
@@ -393,5 +407,19 @@ const styles = StyleSheet.create({
   },
   feeModalCloseButtonText: {
     color: '#007AFF',
+  },
+  customFeeInput: {
+    fontSize: 16,
+    height: 36,
+    textAlign: 'right',
+    padding: 0,
+  },
+  customFeeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  customFeeButton: {
+    marginBottom: 44,
   },
 });
