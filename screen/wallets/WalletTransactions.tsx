@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  emptyTxsContainer: { height: '100%', minHeight: '100%', flex: 1 },
+  emptyTxsContainer: { height: '10%', minHeight: '10%', flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
