@@ -336,61 +336,29 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
       const file = await RNFS.readFile(fileCopyUri);
       return { data: file, uri: fileCopyUri };
     } else if (Platform.OS === 'android') {
-      // Use ScopedStorage for Android
-      if (isScopedStorageSupported()) {
-        console.debug('[fs] Using ScopedStorage.openDocument on Android');
-        const res = await ScopedStorage.openDocument();
+      console.debug('[fs] Using ScopedStorage.openDocument on Android');
+      const res = await ScopedStorage.openDocument(true, 'utf8');
 
-        if (!res || !res.uri) {
-          console.debug('[fs] User cancelled file selection');
-          return { data: false, uri: false };
-        }
+      if (!res || !res.uri) {
+        console.debug('[fs] User cancelled file selection');
+        return { data: false, uri: false };
+      }
 
-        const fileCopyUri = res.uri;
-        console.debug(`[fs] File picked with ScopedStorage: ${fileCopyUri}, name: ${res.name}, type: ${res.type || 'unknown'}`);
+      const fileCopyUri = res.uri;
+      console.debug(`[fs] File picked with ScopedStorage: ${fileCopyUri}, name: ${res.name}, type: ${res.mime || 'unknown'}`);
 
-        // Handle PSBT files based on extension
-        if (res.name && res.name.toLowerCase().endsWith('.psbt')) {
-          const file = await _readPsbtFileIntoBase64(fileCopyUri);
-          return { data: file, uri: fileCopyUri };
-        }
-
-        // Handle image files based on mime type
-        if (res.mime && res.mime.startsWith('image/')) {
-          console.debug(`[fs] Detected image file with mime type: ${res.mime}`);
-          return await handleImageFile(fileCopyUri);
-        }
-
-        // Read the file content
-        const file = await ScopedStorage.readFile(fileCopyUri);
-        return { data: file, uri: fileCopyUri };
-      } else {
-        // Fall back to DocumentPicker for older Android versions
-        const res = await DocumentPicker.pickSingle({
-          copyTo: 'cachesDirectory',
-          type: [DocumentPicker.types.allFiles],
-        });
-
-        if (!res.fileCopyUri) {
-          presentAlert({ message: loc._.file_picking_failed });
-          return { data: false, uri: false };
-        }
-
-        const fileCopyUri = decodeURI(res.fileCopyUri);
-        console.debug(`[fs] File picked with DocumentPicker: ${fileCopyUri}, type: ${res.type}`);
-
-        if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
-          const file = await _readPsbtFileIntoBase64(fileCopyUri);
-          return { data: file, uri: fileCopyUri };
-        }
-
-        if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
-          return await handleImageFile(fileCopyUri);
-        }
-
-        const file = await RNFS.readFile(fileCopyUri);
+      if (res.name && res.name.toLowerCase().endsWith('.psbt')) {
+        const file = await _readPsbtFileIntoBase64(fileCopyUri);
         return { data: file, uri: fileCopyUri };
       }
+
+      if (res.mime && res.mime.startsWith('image/')) {
+        console.debug(`[fs] Detected image file with mime type: ${res.mime}`);
+        return await handleImageFile(fileCopyUri);
+      }
+
+      const file = res.data;
+      return { data: file, uri: fileCopyUri };
     }
 
     return { data: false, uri: false };
