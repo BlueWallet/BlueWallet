@@ -530,7 +530,6 @@ const WalletsList: React.FC = () => {
         initialNumToRender={10}
         renderSectionFooter={renderSectionFooter}
         sections={sections}
-        windowSize={21}
         floatingButtonHeight={70}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
