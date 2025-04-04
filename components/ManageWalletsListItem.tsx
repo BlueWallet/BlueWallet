@@ -89,6 +89,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 }) => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
+  const resetFunctionRef = useRef<(() => void) | null>(null);
 
   const CARD_SORT_ACTIVE = 1.06;
   const INACTIVE_SCALE_WHEN_ACTIVE = 0.9;
@@ -125,24 +127,39 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     reset();
   };
 
-  const leftContent = (reset: () => void) => (
-    <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />
-  );
-
-  const handleRightPress = (reset: () => void) => {
-    handleDeleteWallet(item.data as TWallet);
-    reset();
+  const leftContent = (reset: () => void) => {
+    resetFunctionRef.current = reset;
+    return <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />;
   };
 
-  const rightContent = (reset: () => void) => <RightSwipeContent onPress={() => handleRightPress(reset)} />;
+  const handleRightPress = (reset: () => void) => {
+    reset();
+
+    setTimeout(() => {
+      handleDeleteWallet(item.data as TWallet);
+    }, 100); // short delay to allow swipe reset animation to complete
+  };
+
+  const rightContent = (reset: () => void) => {
+    resetFunctionRef.current = reset;
+    return <RightSwipeContent onPress={() => handleRightPress(reset)} />;
+  };
 
   const startDrag = useCallback(() => {
+    if (isSwipeActive) {
+      return;
+    }
+
+    if (resetFunctionRef.current) {
+      resetFunctionRef.current();
+    }
+
     scaleValue.setValue(CARD_SORT_ACTIVE);
     triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     if (drag) {
       drag();
     }
-  }, [CARD_SORT_ACTIVE, drag, scaleValue]);
+  }, [CARD_SORT_ACTIVE, drag, scaleValue, isSwipeActive]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;
@@ -155,23 +172,38 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     };
 
     const backgroundColor = isActive || globalDragActive ? colors.brandingColor : colors.background;
+
+    const swipeDisabled = isActive || globalDragActive;
+
     return (
       <Animated.View style={animatedStyle}>
         <ListItem.Swipeable
-          leftWidth={80}
-          rightWidth={90}
-          containerStyle={[style, { backgroundColor }, isActive || globalDragActive ? styles.transparentBackground : {}]}
-          leftContent={globalDragActive ? null : isActive ? null : leftContent}
-          rightContent={globalDragActive ? null : isActive ? null : rightContent}
+          leftWidth={swipeDisabled ? 0 : 80}
+          rightWidth={swipeDisabled ? 0 : 90}
+          containerStyle={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}
+          leftContent={swipeDisabled ? null : leftContent}
+          rightContent={swipeDisabled ? null : rightContent}
           onPressOut={onPressOut}
-          minSlideWidth={80}
+          minSlideWidth={swipeDisabled ? 0 : 80}
           onPressIn={onPressIn}
-          style={isActive || globalDragActive ? styles.transparentBackground : {}}
+          style={swipeDisabled ? styles.transparentBackground : {}}
+          onSwipeBegin={direction => {
+            if (!swipeDisabled) {
+              console.debug(`Swipe began: ${direction}`);
+              setIsSwipeActive(true);
+            }
+          }}
+          onSwipeEnd={() => {
+            if (!swipeDisabled) {
+              console.debug('Swipe ended');
+              setIsSwipeActive(false);
+            }
+          }}
         >
           <ListItem.Content>
             <WalletCarouselItem
               item={item.data}
-              handleLongPress={isDraggingDisabled ? undefined : startDrag}
+              handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
               onPress={onPress}
               onPressIn={onPressIn}
               onPressOut={onPressOut}

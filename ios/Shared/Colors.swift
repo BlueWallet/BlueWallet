@@ -6,7 +6,8 @@
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
-import SwiftUI
+import SwiftUICore
+
 
 extension Color {
   static let textColor = Color("TextColor")

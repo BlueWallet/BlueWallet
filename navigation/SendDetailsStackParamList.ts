@@ -1,5 +1,5 @@
 import { Psbt } from 'bitcoinjs-lib';
-import { CreateTransactionTarget, CreateTransactionUtxo } from '../class/wallets/types';
+import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
@@ -21,11 +21,21 @@ export type SendDetailsParams = {
   utxos?: CreateTransactionUtxo[] | null;
   isEditable?: boolean;
   uri?: string;
+  paymentCode?: string;
   addRecipientParams?: {
     address: string;
     amount?: number;
     memo?: string;
   };
+};
+
+export type TNavigation = {
+  pop: () => void;
+  navigate: () => void;
+};
+
+export type TNavigationWrapper = {
+  navigation: TNavigation;
 };
 
 export type SendDetailsStackParamList = {
@@ -72,18 +82,26 @@ export type SendDetailsStackParamList = {
     launchedBy?: string;
   };
   Success: {
-    fee: number;
+    fee?: number;
     amount: number;
+    amountUnit?: BitcoinUnit;
     txid?: string;
+    invoiceDescription?: string;
   };
   SelectWallet: {
-    chainType: Chain;
+    chainType?: Chain;
+    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
+    availableWallets?: TWallet[];
+    noWalletExplanationText?: string;
+    onChainRequireSend?: boolean;
+    selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
   };
   CoinControl: {
     walletID: string;
   };
   PaymentCodeList: {
     walletID: string;
+    merge?: boolean;
   };
   ScanQRCode: ScanQRCodeParamList;
 };

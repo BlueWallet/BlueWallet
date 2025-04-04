@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
 import BN from 'bignumber.js';
@@ -326,7 +326,10 @@ const ProvideEntropy = () => {
             /* Convert Buffer to hex string before navigating as React Navigation
               does not support passing Buffer objects between screens
             */
-            navigation.navigate('AddWallet', { entropy: buf.toString('hex'), words });
+
+            const popTo = StackActions.popTo('AddWallet', { entropy: buf.toString('hex'), words }, { merge: true });
+
+            navigation.dispatch(popTo);
           },
           style: 'default',
         },

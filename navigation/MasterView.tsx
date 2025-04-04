@@ -1,22 +1,16 @@
-import 'react-native-gesture-handler'; // should be on top
-
-import React, { lazy, Suspense } from 'react';
-import MainRoot from '../navigation';
-import { useStorage } from '../hooks/context/useStorage';
+import React from 'react';
 import DevMenu from '../components/DevMenu';
-const CompanionDelegates = lazy(() => import('../components/CompanionDelegates'));
+import MainRoot from './index';
+import useCompanionListeners from '../hooks/useCompanionListeners';
 
 const MasterView = () => {
-  const { walletsInitialized } = useStorage();
+  // Initialize companion listeners only when wallets are initialized
+  // The hook checks walletsInitialized internally, so it won't run until ready
+  useCompanionListeners();
 
   return (
     <>
       <MainRoot />
-      {walletsInitialized && (
-        <Suspense>
-          <CompanionDelegates />
-        </Suspense>
-      )}
       {__DEV__ && <DevMenu />}
     </>
   );

@@ -1,17 +1,16 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();
@@ -22,10 +21,13 @@ const PleaseBackupLNDHub = () => {
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { isPrivacyBlurEnabled } = useSettings();
 
-  const handleBackButton = useCallback(() => {
-    navigation.getParent().pop();
-    return true;
+  const dismiss = useCallback(() => {
+    navigation.getParent().goBack();
   }, [navigation]);
+  const handleBackButton = useCallback(() => {
+    dismiss();
+    return true;
+  }, [dismiss]);
   const styles = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -34,41 +36,39 @@ const PleaseBackupLNDHub = () => {
       flexGrow: 1,
       backgroundColor: colors.elevated,
       justifyContent: 'center',
-
       alignItems: 'center',
       padding: 20,
+      paddingHorizontal: 30, // Added additional horizontal padding
     },
   });
 
   useEffect(() => {
-    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+    if (isPrivacyBlurEnabled) {
+      enableScreenProtect();
+    }
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      if (!isDesktop) disallowScreenshot(false);
+      disableScreenProtect();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
   }, [handleBackButton, isPrivacyBlurEnabled]);
-
-  const pop = () => navigation.getParent().pop();
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
   return (
-    <SafeArea style={styles.root} onLayout={onLayout}>
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
-        <View>
-          <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
-          <BlueSpacing20 />
-        </View>
+    <SafeAreaScrollView style={styles.root} contentContainerStyle={styles.scrollViewContent} centerContent onLayout={onLayout}>
+      <View>
+        <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
         <BlueSpacing20 />
-        <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
-        <CopyTextToClipboard text={wallet.getSecret()} />
-        <BlueSpacing20 />
-        <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
-      </ScrollView>
-    </SafeArea>
+      </View>
+      <BlueSpacing20 />
+      <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
+      <CopyTextToClipboard text={wallet.getSecret()} />
+      <BlueSpacing20 />
+      <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />
+    </SafeAreaScrollView>
   );
 };
 

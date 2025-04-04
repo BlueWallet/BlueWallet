@@ -1,19 +1,14 @@
-import React, { useCallback } from 'react';
-import { Keyboard, StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
+import React from 'react';
+import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
 import { useTheme } from './themes';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 interface AddressInputProps {
   isLoading?: boolean;
   address?: string;
   placeholder?: string;
   onChangeText: (text: string) => void;
-  onBarScanned: (ret: { data?: any }) => void;
-  scanButtonTapped?: () => void;
-  launchedBy?: string;
   editable?: boolean;
   inputAccessoryViewID?: string;
   onFocus?: () => void;
@@ -34,7 +29,6 @@ interface AddressInputProps {
     | 'twitter'
     | 'web-search'
     | 'visible-password';
-  skipValidation?: boolean;
 }
 
 const AddressInput = ({
@@ -43,16 +37,12 @@ const AddressInput = ({
   testID = 'AddressInput',
   placeholder = loc.send.details_address,
   onChangeText,
-  onBarScanned,
-  scanButtonTapped = () => {},
-  launchedBy,
   editable = true,
   inputAccessoryViewID,
   onFocus = () => {},
   onBlur = () => {},
   keyboardType = 'default',
   style,
-  skipValidation = false,
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -65,29 +55,6 @@ const AddressInput = ({
       color: colors.foregroundColor,
     },
   });
-
-  const validateAddressWithFeedback = useCallback(
-    (value: string) => {
-      if (skipValidation) return;
-      const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(value);
-      const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(value);
-      const isValid = isBitcoinAddress || isLightningInvoice;
-
-      triggerHapticFeedback(isValid ? HapticFeedbackTypes.NotificationSuccess : HapticFeedbackTypes.NotificationError);
-      return {
-        isValid,
-        type: isBitcoinAddress ? 'bitcoin' : isLightningInvoice ? 'lightning' : 'invalid',
-      };
-    },
-    [skipValidation],
-  );
-
-  const onBlurEditing = () => {
-    if (!skipValidation) {
-      validateAddressWithFeedback(address);
-    }
-    Keyboard.dismiss();
-  };
 
   return (
     <View style={[styles.root, stylesHook.root, style]}>
@@ -106,17 +73,9 @@ const AddressInput = ({
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType={keyboardType}
-        {...(skipValidation ? { onBlur } : { onBlur: onBlurEditing })}
+        onBlur={onBlur}
       />
-      {editable ? (
-        <AddressInputScanButton
-          isLoading={isLoading}
-          launchedBy={launchedBy}
-          scanButtonTapped={scanButtonTapped}
-          onBarScanned={onBarScanned}
-          onChangeText={onChangeText}
-        />
-      ) : null}
+      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>
   );
 };

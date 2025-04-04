@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from './TooltipMenu';
@@ -9,33 +9,27 @@ import { useTheme } from './themes';
 import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
-import { useRoute } from '@react-navigation/native';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 interface AddressInputScanButtonProps {
-  isLoading: boolean;
-  launchedBy?: string;
-  scanButtonTapped: () => void;
-  onBarScanned: (ret: { data?: any }) => void;
+  isLoading?: boolean;
   onChangeText: (text: string) => void;
-}
-
-interface RouteParams {
-  onBarScanned?: any;
+  type?: 'default' | 'link';
+  testID?: string;
+  beforePress?: () => Promise<void> | void;
 }
 
 export const AddressInputScanButton = ({
   isLoading,
-  launchedBy,
-  scanButtonTapped,
-  onBarScanned,
   onChangeText,
+  type = 'default',
+  testID = 'BlueAddressInputScanQrButton',
+  beforePress,
 }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
 
   const navigation = useExtendedNavigation();
-  const params = useRoute().params as RouteParams;
   const stylesHook = StyleSheet.create({
     scan: {
       backgroundColor: colors.scanLabel,
@@ -46,16 +40,17 @@ export const AddressInputScanButton = ({
   });
 
   const toolTipOnPress = useCallback(async () => {
-    await scanButtonTapped();
+    if (beforePress) {
+      await beforePress();
+    }
     Keyboard.dismiss();
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
     });
-  }, [navigation, scanButtonTapped]);
+  }, [navigation, beforePress]);
 
   const actions = useMemo(() => {
     const availableActions = [
-      CommonToolTipActions.ScanQR,
       CommonToolTipActions.ChoosePhoto,
       CommonToolTipActions.ImportFile,
       {
@@ -67,20 +62,10 @@ export const AddressInputScanButton = ({
     return availableActions;
   }, [isClipboardGetContentEnabled]);
 
-  useEffect(() => {
-    const data = params.onBarScanned;
-    if (data) {
-      onBarScanned({ data });
-      navigation.setParams({ onBarScanned: undefined });
-    }
-  });
-
   const onMenuItemPressed = useCallback(
     async (action: string) => {
-      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
       switch (action) {
         case CommonToolTipActions.ScanQR.id:
-          scanButtonTapped();
           navigation.navigate('ScanQRCode', {
             showFileImportButton: true,
           });
@@ -147,7 +132,7 @@ export const AddressInputScanButton = ({
       }
       Keyboard.dismiss();
     },
-    [navigation, onBarScanned, onChangeText, scanButtonTapped],
+    [navigation, onChangeText],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
@@ -157,20 +142,28 @@ export const AddressInputScanButton = ({
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
-      testID="BlueAddressInputScanQrButton"
+      testID={testID}
       disabled={isLoading}
       onPress={toolTipOnPress}
-      buttonStyle={buttonStyle}
+      buttonStyle={type === 'default' ? buttonStyle : undefined}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
     >
-      <Image source={require('../img/scan-white.png')} accessible={false} />
-      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-        {loc.send.details_scan}
-      </Text>
+      {type === 'default' ? (
+        <>
+          <Image source={require('../img/scan-white.png')} accessible={false} />
+          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+            {loc.send.details_scan}
+          </Text>
+        </>
+      ) : (
+        <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
+      )}
     </ToolTipMenu>
   );
 };
+
+AddressInputScanButton.displayName = 'AddressInputScanButton';
 
 const styles = StyleSheet.create({
   scan: {
@@ -185,5 +178,9 @@ const styles = StyleSheet.create({
   },
   scanText: {
     marginLeft: 4,
+  },
+  linkText: {
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

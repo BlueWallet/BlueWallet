@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -10,10 +10,11 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
-import { popToTop } from '../../NavigationService';
 import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { StackActions } from '@react-navigation/native';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -65,7 +66,7 @@ const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
@@ -134,15 +135,16 @@ const EncryptStorage = () => {
   };
 
   const navigateToPlausibleDeniability = () => {
-    navigate('PlausibleDeniability');
+    navigation.navigate('PlausibleDeniability');
+  };
+
+  const popToTop = () => {
+    const action = StackActions.popToTop();
+    navigation.dispatch(action);
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={[styles.root, styleHooks.root]}
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <SafeAreaScrollView>
       <View style={styles.paddingTop} />
       {state.deviceBiometricCapable && (
         <>
@@ -178,6 +180,7 @@ const EncryptStorage = () => {
           onValueChange: onEncryptStorageSwitch,
           value: state.storageIsEncryptedSwitchEnabled,
           disabled: state.currentLoadingSwitch !== null,
+          testID: 'EncyptedAndPasswordProtectedSwitch',
         }}
         isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
         containerStyle={[styles.row, styleHooks.root]}
@@ -212,7 +215,7 @@ const EncryptStorage = () => {
               await decryptStorage(password);
               await saveToDisk();
               popToTop();
-              success = true;
+              return true;
             } catch (error) {
               success = false;
             }
@@ -227,14 +230,11 @@ const EncryptStorage = () => {
           dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
         }}
       />
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   paddingTop: { paddingTop: 19 },
   row: { minHeight: 60 },
   subtitleText: {

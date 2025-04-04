@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
@@ -23,6 +23,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
+import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -98,8 +99,8 @@ const WalletsList: React.FC = () => {
   const { isLargeScreen } = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const { setReloadTransactionsMenuActionFunction } = useMenuElements();
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID } = useStorage();
+  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -116,33 +117,55 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
+      paddingTop: isLargeScreen ? 8 : 0,
     },
     listHeaderText: {
       color: colors.foregroundColor,
+      flexShrink: 1,
     },
   });
+
+  const refreshWallets = useCallback(
+    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+      if (isElectrumDisabled) return;
+      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
+      try {
+        await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+      }
+    },
+    [isElectrumDisabled, refreshAllWalletTransactions],
+  );
 
   /**
    * Forcefully fetches TXs and balance for ALL wallets.
    * Triggered manually by user on pull-to-refresh.
    */
-  const refreshTransactions = useCallback(
-    async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-      if (isElectrumDisabled) {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-        return;
+  const refreshTransactions = useCallback(() => {
+    refreshWallets(undefined, true, true);
+  }, [refreshWallets]);
+
+  useEffect(() => {
+    // Initial load of transactions without triggering scroll
+    const initialLoad = async () => {
+      if (isElectrumDisabled) return;
+      try {
+        await refreshAllWalletTransactions(undefined, true);
+      } catch (error) {
+        console.error(error);
       }
-      dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
-        dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
-    },
-    [isElectrumDisabled, refreshAllWalletTransactions],
-  );
+    };
+
+    initialLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');
-    refreshTransactions(true, false);
+    refreshTransactions();
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
@@ -154,28 +177,49 @@ const WalletsList: React.FC = () => {
     }
   }, [getBalance]);
 
+  useEffect(() => {
+    const screenKey = route.name;
+    console.log(`[WalletsList] Registering handler with key: ${screenKey}`);
+    registerTransactionsHandler(onRefresh, screenKey);
+
+    return () => {
+      console.log(`[WalletsList] Unmounting - cleaning up handler for: ${screenKey}`);
+      unregisterTransactionsHandler(screenKey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onRefresh, registerTransactionsHandler, unregisterTransactionsHandler]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const screenKey = route.name;
+
+      return () => {
+        console.log(`[WalletsList] Blurred - cleaning up handler for: ${screenKey}`);
+        unregisterTransactionsHandler(screenKey);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [unregisterTransactionsHandler]),
+  );
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        setReloadTransactionsMenuActionFunction(() => onRefresh);
         verifyBalance();
-        setSelectedWalletID(undefined);
       });
+
       return () => {
         task.cancel();
-        setReloadTransactionsMenuActionFunction(() => {});
       };
-    }, [onRefresh, setReloadTransactionsMenuActionFunction, verifyBalance, setSelectedWalletID]),
+    }, [verifyBalance]),
   );
 
   useEffect(() => {
-    // new wallet added
-    if (wallets.length > walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current], viewPosition: 0.3 });
+    // new wallet added - no longer auto-scrolls
+    if (!isLargeScreen) {
+      // Just update the count, no scrolling
+      walletsCount.current = wallets.length;
     }
-
-    walletsCount.current = wallets.length;
-  }, [wallets]);
+  }, [isLargeScreen, wallets]);
 
   const onBarScanned = useCallback(
     (value: any) => {
@@ -198,7 +242,8 @@ const WalletsList: React.FC = () => {
   }, [navigation, onBarScanned, route.params?.onBarScanned]);
 
   useEffect(() => {
-    refreshTransactions(false, true);
+    refreshTransactions();
+    // es-lint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -217,10 +262,6 @@ const WalletsList: React.FC = () => {
     [navigation],
   );
 
-  const setIsLoading = useCallback((value: boolean) => {
-    dispatch({ type: ActionTypes.SET_LOADING, payload: value });
-  }, []);
-
   const onSnapToItem = useCallback(
     (e: { nativeEvent: { contentOffset: any } }) => {
       if (!isFocused) return;
@@ -231,18 +272,23 @@ const WalletsList: React.FC = () => {
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+          refreshWallets(index, false, false);
         }
         currentWalletIndex.current = index;
       }
     },
-    [isFocused, refreshAllWalletTransactions, setIsLoading, wallets, width],
+    [isFocused, refreshWallets, wallets, width],
   );
 
   const renderListHeaderComponent = useCallback(() => {
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
-        <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
+        <Text
+          textBreakStrategy="simple"
+          style={[styles.listHeaderText, stylesHook.listHeaderText]}
+          numberOfLines={2}
+          adjustsFontSizeToFit={true}
+        >
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
       </View>
@@ -255,9 +301,7 @@ const WalletsList: React.FC = () => {
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
-      <View style={styles.transaction}>
-        <TransactionListItem item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
-      </View>
+      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
     ),
     [],
   );
@@ -276,6 +320,7 @@ const WalletsList: React.FC = () => {
           testID="WalletsList"
           horizontal
           scrollEnabled={isFocused}
+          animateChanges={true}
         />
       </>
     );
@@ -297,17 +342,20 @@ const WalletsList: React.FC = () => {
 
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
+      if (isLargeScreen) {
+        return null;
+      }
+
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return !isLargeScreen && isTotalBalanceEnabled ? (
+          return isTotalBalanceEnabled ? (
             <View style={stylesHook.walletsListWrapper}>
               <TotalWalletsBalance />
             </View>
           ) : null;
         }
-
         default:
           return null;
       }
@@ -354,9 +402,9 @@ const WalletsList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanImage, wallets.length]);
 
-  const sectionListKeyExtractor = (item: any, index: any) => {
+  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
     return `${item}${index}}`;
-  };
+  }, []);
 
   const onScanButtonPressed = useCallback(() => {
     navigation.navigate('ScanQRCode', {
@@ -412,61 +460,103 @@ const WalletsList: React.FC = () => {
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
-  const sections: SectionData[] = [
-    { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-    { key: WalletsListSections.TRANSACTIONS, data: dataSource },
-  ];
+  const sections: SectionData[] = useMemo(() => {
+    // On large screens, only show transactions section
+    if (isLargeScreen) {
+      return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
+    }
+
+    // On small screens, show both carousel and transactions
+    return [
+      { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
+      { key: WalletsListSections.TRANSACTIONS, data: dataSource },
+    ];
+  }, [isLargeScreen, dataSource]);
+
+  // Constants for layout calculations
+  const TRANSACTION_ITEM_HEIGHT = 80;
+  const CAROUSEL_HEIGHT = 195;
+  const SECTION_HEADER_HEIGHT = 56; // Base height
+  const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
+
+  const getSectionHeaderHeight = useCallback(() => {
+    return SECTION_HEADER_HEIGHT + (isLargeScreen ? LARGE_TITLE_EXTRA_HEIGHT : 0);
+  }, [isLargeScreen]);
+
+  const getItemLayout = useCallback(
+    (data: any, index: number) => {
+      const headerHeight = getSectionHeaderHeight();
+
+      if (isLargeScreen) {
+        // On large screens: only transaction items, no carousel
+        return {
+          length: TRANSACTION_ITEM_HEIGHT,
+          offset: TRANSACTION_ITEM_HEIGHT * index,
+          index,
+        };
+      } else {
+        // On small screens: first item is carousel, rest are transactions
+        // First section: Carousel
+        if (index === 0) {
+          return {
+            length: CAROUSEL_HEIGHT,
+            offset: 0,
+            index,
+          };
+        }
+
+        // Second section: Transactions
+        // Need to account for:
+        // 1. Carousel height
+        // 2. Section header height for transactions section
+        // 3. Transaction items
+        const transactionIndex = index - 1; // Adjust index to account for carousel
+        return {
+          length: TRANSACTION_ITEM_HEIGHT,
+          offset: CAROUSEL_HEIGHT + headerHeight + TRANSACTION_ITEM_HEIGHT * transactionIndex,
+          index,
+        };
+      }
+    },
+    [isLargeScreen, getSectionHeaderHeight],
+  );
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
-        <SectionList<any | string, SectionData>
-          removeClippedSubviews
-          contentInsetAdjustmentBehavior="automatic"
-          automaticallyAdjustContentInsets
-          {...refreshProps}
-          renderItem={renderSectionItem}
-          keyExtractor={sectionListKeyExtractor}
-          renderSectionHeader={renderSectionHeader}
-          initialNumToRender={20}
-          contentInset={styles.scrollContent}
-          renderSectionFooter={renderSectionFooter}
-          sections={sections}
-          windowSize={21}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-        />
-        {renderScanButton()}
-      </View>
-    </View>
+    <>
+      <SafeAreaSectionList<any | string, SectionData>
+        renderItem={renderSectionItem}
+        keyExtractor={sectionListKeyExtractor}
+        renderSectionHeader={renderSectionHeader}
+        initialNumToRender={10}
+        renderSectionFooter={renderSectionFooter}
+        sections={sections}
+        floatingButtonHeight={70}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={getItemLayout}
+        ignoreTopInset={true} // Ignore top inset as the screen header already handles it
+        {...refreshProps}
+      />
+      {renderScanButton()}
+    </>
   );
 };
 
 export default WalletsList;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    top: 0,
-    left: 0,
-    bottom: 60,
-    right: 0,
-  },
-  walletsListWrapper: {
-    flex: 1,
-  },
   listHeaderBack: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
+    minHeight: 56,
   },
   listHeaderText: {
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 16,
+    flexWrap: 'wrap',
   },
   footerRoot: {
     top: 80,
@@ -483,8 +573,5 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
     fontWeight: '600',
-  },
-  transaction: {
-    marginHorizontal: 0,
   },
 });

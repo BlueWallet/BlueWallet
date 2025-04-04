@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CommonActions, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, usePreventRemove, StackActions } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -19,12 +19,12 @@ import { Badge, Icon } from '@rneui/themed';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {
-  BlueButtonLink,
   BlueCard,
   BlueFormMultiInput,
   BlueLoading,
   BlueSpacing10,
   BlueSpacing20,
+  BlueSpacing40,
   BlueTextCentered,
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -41,20 +41,21 @@ import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { disallowScreenshot } from 'react-native-screen-capture';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
-import { ViewEditMultisigCosignersStackParamList } from '../../navigation/ViewEditMultisigCosignersStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { navigationRef } from '../../NavigationService';
 import SafeArea from '../../components/SafeArea';
+import { TWallet } from '../../class/wallets/types';
+import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
-type RouteParams = RouteProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
-type NavigationProp = NativeStackNavigationProp<ViewEditMultisigCosignersStackParamList, 'ViewEditMultisigCosigners'>;
+type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
+type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
@@ -62,8 +63,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { navigate, dispatch, addListener, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
-  const openScannerButtonRef = useRef();
+  const { dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -82,7 +82,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const data = useRef<any[]>();
+  const [walletData, setWalletData] = useState<TWallet[]>([]);
   /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
     user tries to leave the screen with unsaved changes.
     Why the container view ? It was the easiest to get the ref for. No other reason.
@@ -116,53 +116,37 @@ const ViewEditMultisigCosigners: React.FC = () => {
       color: colors.buttonTextColor,
     },
   });
-  useFocusEffect(
-    useCallback(() => {
-      const unsubscribe = addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
-        // Check if there are unsaved changes
-        if (isSaveButtonDisabled) {
-          // If there are no unsaved changes, let the user leave the screen
-          return;
-        }
 
-        // Prevent the default action (going back)
-        e.preventDefault();
-
-        // Show an alert asking the user to discard changes or cancel
-        if (isDesktop) {
-          if (!discardChangesRef.current) return dispatch(e.data.action);
-          const anchor = findNodeHandle(discardChangesRef.current);
-          if (!anchor) return dispatch(e.data.action);
-          ActionSheet.showActionSheetWithOptions(
-            {
-              options: [loc._.cancel, loc._.ok],
-              cancelButtonIndex: 0,
-              title: loc._.discard_changes,
-              message: loc._.discard_changes_explain,
-              anchor,
-            },
-            buttonIndex => {
-              if (buttonIndex === 1) {
-                dispatch(e.data.action);
-              }
-            },
-          );
-        } else {
-          Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-            { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-            {
-              text: loc._.ok,
-              style: 'default',
-              // If the user confirms, then we dispatch the action we blocked earlier
-              onPress: () => dispatch(e.data.action),
-            },
-          ]);
-        }
-      });
-
-      return unsubscribe;
-    }, [isSaveButtonDisabled, addListener, dispatch]),
-  );
+  usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
+    if (isDesktop) {
+      if (!discardChangesRef.current) return dispatch(data.action);
+      const anchor = findNodeHandle(discardChangesRef.current);
+      if (!anchor) return dispatch(data.action);
+      ActionSheet.showActionSheetWithOptions(
+        {
+          options: [loc._.cancel, loc._.ok],
+          cancelButtonIndex: 0,
+          title: loc._.discard_changes,
+          message: loc._.discard_changes_explain,
+          anchor,
+        },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            dispatch(data.action);
+          }
+        },
+      );
+    } else {
+      Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+        { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+        {
+          text: loc._.ok,
+          style: 'default',
+          onPress: () => dispatch(data.action),
+        },
+      ]);
+    }
+  });
 
   const onSave = async () => {
     if (!wallet) {
@@ -193,9 +177,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
       setIsSaveButtonDisabled(true);
       setWalletsWithNewOrder(newWallets);
       setTimeout(() => {
-        navigationRef.dispatch(
-          CommonActions.navigate({ name: 'WalletTransactions', params: { walletID: wallet.getID(), walletType: MultisigHDWallet.type } }),
-        );
+        const popTo = StackActions.popTo('WalletTransactions', {
+          walletID,
+          walletType: wallet.type,
+        });
+        dispatch(popTo);
       }, 500);
     }, 100);
   };
@@ -205,7 +191,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
       if (hasLoaded.current) return;
       setIsLoading(true);
-      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+      if (isPrivacyBlurEnabled) enableScreenProtect();
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {
@@ -214,14 +200,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
           w.current.setNativeSegwit();
         } else {
           tempWallet.current.setSecret(w.current.getSecret());
-          data.current = new Array(tempWallet.current.getN());
+          setWalletData(new Array(tempWallet.current.getN()));
           setWallet(tempWallet.current);
         }
         hasLoaded.current = true;
         setIsLoading(false);
       });
       return () => {
-        if (!isDesktop) disallowScreenshot(false);
+        disableScreenProtect();
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -318,8 +304,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
     }
 
-    // @ts-ignore not sure which one is correct
-    const length = data?.length ?? data.current?.length ?? 0;
+    const length = walletData.length;
 
     return (
       <View>
@@ -473,7 +458,34 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const handleUseMnemonicPhrase = async () => {
+  const _handleUseMnemonicPhrase = useCallback(
+    (mnemonic: string, passphrase?: string) => {
+      if (!wallet || !currentlyEditingCosignerNum) {
+        // failsafe
+        return;
+      }
+
+      const hd = new HDSegwitBech32Wallet();
+      hd.setSecret(mnemonic);
+      if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
+      try {
+        wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
+      } catch (e: any) {
+        console.log(e);
+        return presentAlert({ message: e.message });
+      }
+
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setWallet(wallet);
+      provideMnemonicsModalRef.current?.dismiss();
+      setIsSaveButtonDisabled(false);
+      setImportText('');
+      setAskPassphrase(false);
+    },
+    [wallet, currentlyEditingCosignerNum],
+  );
+
+  const handleUseMnemonicPhrase = useCallback(async () => {
     let passphrase;
     if (askPassphrase) {
       try {
@@ -487,29 +499,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
     return _handleUseMnemonicPhrase(importText, passphrase);
-  };
-
-  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase?: string) => {
-    if (!wallet || !currentlyEditingCosignerNum) {
-      // failsafe
-      return;
-    }
-
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonic);
-    if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
-    try {
-      wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
-    } catch (e: any) {
-      console.log(e);
-      return presentAlert({ message: e.message });
-    }
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setWallet(wallet);
-    provideMnemonicsModalRef.current?.dismiss();
-    resetModalData();
-  };
+  }, [askPassphrase, importText, _handleUseMnemonicPhrase]);
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -528,19 +518,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
     });
   };
 
-  const scanOrOpenFile = async () => {
-    await provideMnemonicsModalRef.current?.dismiss();
-    navigate('ScanQRCode', { showFileImportButton: true });
-  };
-
   useEffect(() => {
     const scannedData = route.params.onBarScanned;
     if (scannedData) {
       setImportText(String(scannedData));
-      setParams({ onBarScanned: undefined });
-      provideMnemonicsModalRef.current?.present();
+      handleUseMnemonicPhrase();
     }
-  }, [route.params.onBarScanned, setParams]);
+  }, [route.params.onBarScanned, setParams, handleUseMnemonicPhrase]);
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
@@ -583,10 +567,21 @@ const ViewEditMultisigCosigners: React.FC = () => {
             ) : (
               <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
-            <>
-              <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
-              <BlueSpacing20 />
-            </>
+
+            {!isLoading && (
+              <>
+                <BlueSpacing40 />
+                <AddressInputScanButton
+                  beforePress={async () => {
+                    await provideMnemonicsModalRef.current?.dismiss();
+                  }}
+                  isLoading={isLoading}
+                  type="link"
+                  onChangeText={setImportText}
+                />
+                <BlueSpacing40 />
+              </>
+            )}
           </>
         }
       >
@@ -594,7 +589,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
           <View style={styles.multiLineTextInput}>
-            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+            <BlueFormMultiInput editable={!isLoading} value={importText} onChangeText={setImportText} />
           </View>
         </>
       </BottomModal>
@@ -666,7 +661,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
       <FlatList
         ListHeaderComponent={tipKeys}
-        data={data.current}
+        data={walletData}
         extraData={vaultKeyData}
         renderItem={_renderKeyItem}
         automaticallyAdjustKeyboardInsets

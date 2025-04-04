@@ -16,6 +16,7 @@ export type ScanQRCodeParamList = {
 };
 
 export type DetailViewStackParamList = {
+  DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
@@ -32,8 +33,8 @@ export type DetailViewStackParamList = {
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
-  Broadcast: { onBarScanned?: string };
-  IsItMyAddress: { address?: string; onBarScanned?: string };
+  Broadcast: object;
+  IsItMyAddress: object;
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {
@@ -45,13 +46,9 @@ export type DetailViewStackParamList = {
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
-  SendDetailsRoot: {
-    screen: string;
-    params: SendDetailsParams;
-    merge: boolean;
-  };
+  SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
-  ScanLndInvoiceRoot: {
+  ScanLNDInvoiceRoot: {
     screen: string;
     params: {
       paymentHash: string;
@@ -83,7 +80,7 @@ export type DetailViewStackParamList = {
   ReleaseNotes: undefined;
   ToolsScreen: undefined;
   SettingsPrivacy: undefined;
-  ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
+  ViewEditMultisigCosigners: { walletID: string; cosigners: string[]; onBarScanned?: string };
   WalletXpubRoot: undefined;
   SignVerifyRoot: {
     screen: 'SignVerify';

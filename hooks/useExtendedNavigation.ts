@@ -7,23 +7,37 @@ import { requestCameraAuthorization } from '../helpers/scan-qr';
 import { useCallback, useMemo } from 'react';
 
 // List of screens that require biometrics
-const requiresBiometrics = [
-  'WalletExportRoot',
-  'WalletXpubRoot',
-  'ViewEditMultisigCosignersRoot',
-  'ExportMultisigCoordinationSetupRoot',
-];
+const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosigners', 'ExportMultisigCoordinationSetupRoot'];
 
 // List of screens that require wallet export to be saved
 const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
 
-export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T => {
+export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T & {
+  navigateToWalletsList: () => void;
+} => {
   const originalNavigation = useNavigation<T>();
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
 
-  const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = useCallback(
-    (screenOrOptions: any, params?: any, options?: { merge?: boolean }) => {
+  const enhancedNavigate = useCallback(
+    (
+      ...args:
+        | [string]
+        | [string, object | undefined]
+        | [string, object | undefined, { merge?: boolean }]
+        | [{ name: string; params?: object; path?: string; merge?: boolean }]
+    ) => {
+      let screenOrOptions: any;
+      let params: any;
+      let options: { merge?: boolean } | undefined;
+
+      if (typeof args[0] === 'string') {
+        screenOrOptions = args[0];
+        params = args[1];
+        options = args[2];
+      } else {
+        screenOrOptions = args[0];
+      }
       let screenName: string;
       if (typeof screenOrOptions === 'string') {
         screenName = screenOrOptions;
@@ -39,17 +53,36 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
 
       const proceedWithNavigation = () => {
         console.log('Proceeding with navigation to', screenName);
+
+        // Navigation logic based on current route and target screen
         if (navigationRef.current?.isReady()) {
-          if (typeof screenOrOptions === 'string') {
-            originalNavigation.navigate({ name: screenOrOptions, params, merge: options?.merge });
+          // Get the current route - we need to know which navigator we're in
+          const currentRoute = navigationRef.current.getCurrentRoute();
+          const currentRouteName = currentRoute?.name;
+
+          // Handle specific cases for nested navigation
+          if (currentRouteName === 'DrawerRoot') {
+            // If we're in DrawerRoot and trying to navigate to a screen that exists in DetailViewStackScreensStack
+            originalNavigation.navigate('DrawerRoot', {
+              screen: 'DetailViewStackScreensStack',
+              params: {
+                screen: screenName,
+                params,
+              },
+            });
           } else {
-            originalNavigation.navigate({ ...screenOrOptions, params, merge: options?.merge });
+            // Normal navigation
+            if (typeof screenOrOptions === 'string') {
+              originalNavigation.navigate({ name: screenOrOptions, params, merge: options?.merge });
+            } else {
+              originalNavigation.navigate({ ...screenOrOptions, params, merge: options?.merge });
+            }
           }
         }
       };
 
       (async () => {
-        // NEW: If the current (active) screen is 'ScanQRCode', bypass all checks.
+        // Skip checks for ScanQRCode screen
         const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
         if (currentRouteName === 'ScanQRCode') {
           proceedWithNavigation();
@@ -65,7 +98,6 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               return;
             } else {
               console.error('Biometric authentication failed');
-              // Do not proceed if authentication fails.
               return;
             }
           }
@@ -90,17 +122,15 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               await saveToDisk();
               proceedWithNavigation();
             } catch (error) {
-              // If there was an error (or the user cancelled), navigate to the wallet export screen.
               originalNavigation.navigate('WalletExportRoot', {
                 screen: 'WalletExport',
                 params: { walletID },
               });
             }
-            return; // Do not proceed with the original navigation if reminder was shown.
+            return;
           }
         }
 
-        // If the target screen is ScanQRCode, request camera authorization.
         if (screenName === 'ScanQRCode') {
           await requestCameraAuthorization();
         }
@@ -121,9 +151,5 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
       navigateToWalletsList,
     }),
     [originalNavigation, enhancedNavigate, navigateToWalletsList],
-  );
+  ) as T & { navigateToWalletsList: () => void };
 };
-
-// Usage example:
-// type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
-// const navigation = useExtendedNavigation<NavigationProps>();

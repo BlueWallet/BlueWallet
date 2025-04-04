@@ -109,7 +109,7 @@ const LnurlPaySuccess: React.FC = () => {
           {repeatable ? (
             <Button
               onPress={() => {
-                navigate('ScanLndInvoiceRoot', {
+                navigate('ScanLNDInvoiceRoot', {
                   screen: 'LnurlPay',
                   params: {
                     // @ts-ignore  fixme

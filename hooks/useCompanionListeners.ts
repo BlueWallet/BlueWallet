@@ -1,5 +1,3 @@
-import 'react-native-gesture-handler'; // should be on top
-
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
@@ -21,25 +19,42 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
-import { useStorage } from '../hooks/context/useStorage';
+import { useStorage } from './context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
-import presentAlert from './Alert';
-import useMenuElements from '../hooks/useMenuElements';
-import useWidgetCommunication from '../hooks/useWidgetCommunication';
-import useWatchConnectivity from '../hooks/useWatchConnectivity';
-import useDeviceQuickActions from '../hooks/useDeviceQuickActions';
-import useHandoffListener from '../hooks/useHandoffListener';
+import presentAlert from '../components/Alert';
+import useWidgetCommunication from './useWidgetCommunication';
+import useWatchConnectivity from './useWatchConnectivity';
+import useDeviceQuickActions from './useDeviceQuickActions';
+import useHandoffListener from './useHandoffListener';
+import useMenuElements from './useMenuElements';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
 });
 
-const CompanionDelegates = () => {
-  const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
+/**
+ * Hook that initializes all companion listeners and functionality without rendering a component
+ */
+const useCompanionListeners = (skipIfNotInitialized = true) => {
+  const {
+    wallets,
+    addWallet,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+    walletsInitialized,
+  } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
+  // We need to call hooks unconditionally before any conditional logic
+  // We'll use this check inside the effects to conditionally run logic
+  const shouldActivateListeners = !skipIfNotInitialized || walletsInitialized;
+
+  // Initialize other hooks regardless of activation status
+  // They'll handle their own conditional logic internally
   useWatchConnectivity();
   useWidgetCommunication();
   useMenuElements();
@@ -47,6 +62,8 @@ const CompanionDelegates = () => {
   useHandoffListener();
 
   const processPushNotifications = useCallback(async () => {
+    if (!shouldActivateListeners) return false;
+
     await new Promise(resolve => setTimeout(resolve, 200));
     try {
       const notifications2process = await getStoredNotifications();
@@ -166,15 +183,19 @@ const CompanionDelegates = () => {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
+  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets, shouldActivateListeners]);
 
   useEffect(() => {
+    if (!shouldActivateListeners) return;
+
     initializeNotifications(processPushNotifications);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shouldActivateListeners]);
 
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
+      if (!shouldActivateListeners) return;
+
       try {
         if (!event.url) return;
         let decodedUrl: string;
@@ -229,11 +250,13 @@ const CompanionDelegates = () => {
         presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
       }
     },
-    [wallets, addWallet, saveToDisk, setSharedCosigner],
+    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
   );
 
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
+      if (!shouldActivateListeners) return;
+
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
       getClipboardContent().then(clipboard => {
         if (!clipboard) return;
@@ -256,12 +279,13 @@ const CompanionDelegates = () => {
         );
       });
     },
-    [handleOpenURL],
+    [handleOpenURL, shouldActivateListeners],
   );
 
   const handleAppStateChange = useCallback(
     async (nextAppState: AppStateStatus | undefined) => {
-      if (wallets.length === 0) return;
+      if (!shouldActivateListeners || wallets.length === 0) return;
+
       if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         updateExchangeRate();
@@ -301,10 +325,12 @@ const CompanionDelegates = () => {
         appState.current = nextAppState;
       }
     },
-    [processPushNotifications, showClipboardAlert, wallets],
+    [processPushNotifications, showClipboardAlert, wallets, shouldActivateListeners],
   );
 
   const addListeners = useCallback(() => {
+    if (!shouldActivateListeners) return { urlSubscription: null, appStateSubscription: null };
+
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
 
@@ -312,18 +338,16 @@ const CompanionDelegates = () => {
       urlSubscription,
       appStateSubscription,
     };
-  }, [handleOpenURL, handleAppStateChange]);
+  }, [handleOpenURL, handleAppStateChange, shouldActivateListeners]);
 
   useEffect(() => {
     const subscriptions = addListeners();
 
     return () => {
-      subscriptions.urlSubscription?.remove();
-      subscriptions.appStateSubscription?.remove();
+      subscriptions.urlSubscription?.remove?.();
+      subscriptions.appStateSubscription?.remove?.();
     };
   }, [addListeners]);
-
-  return null;
 };
 
-export default CompanionDelegates;
+export default useCompanionListeners;

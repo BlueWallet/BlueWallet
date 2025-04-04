@@ -1,17 +1,16 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
 import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import { isDesktop } from '../../blue_modules/environment';
 
 import SeedWords from '../../components/SeedWords';
+import { disableScreenProtect, enableScreenProtect } from '../../helpers/screenProtect';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -34,20 +33,26 @@ const PleaseBackup: React.FC = () => {
   });
 
   const handleBackButton = useCallback(() => {
-    // @ts-ignore: Ignore
-    navigation.getParent()?.pop();
+    navigation.getParent()?.goBack();
     return true;
   }, [navigation]);
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-    if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-      if (!isDesktop) disallowScreenshot(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isPrivacyBlurEnabled) enableScreenProtect();
+      return () => {
+        disableScreenProtect();
+      };
+    }, [isPrivacyBlurEnabled]),
+  );
 
   return (
     <ScrollView

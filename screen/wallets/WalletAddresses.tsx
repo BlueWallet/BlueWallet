@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
 import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -12,7 +11,8 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { isDesktop } from '../../blue_modules/environment';
+import { useSettings } from '../../hooks/context/useSettings';
+import { disableScreenProtect, enableScreenProtect } from '../../helpers/screenProtect';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -131,6 +131,7 @@ const WalletAddresses: React.FC = () => {
   const allowSignVerifyMessage = (wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage()) ?? false;
 
   const { colors } = useTheme();
+  const { isPrivacyBlurEnabled } = useSettings();
   const { setOptions } = useExtendedNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
@@ -138,6 +139,34 @@ const WalletAddresses: React.FC = () => {
       backgroundColor: colors.elevated,
     },
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (isPrivacyBlurEnabled) enableScreenProtect();
+      return () => {
+        disableScreenProtect();
+      };
+    }, [isPrivacyBlurEnabled]),
+  );
+
+  const getAddresses = useMemo(() => {
+    if (!walletInstance) return [];
+    const newAddresses: Address[] = [];
+    // @ts-ignore: idk what to do
+    for (let index = 0; index <= (walletInstance?.next_free_change_address_index ?? 0); index++) {
+      newAddresses.push(getAddress(walletInstance, index, true));
+    }
+    // @ts-ignore: idk what to do
+    for (let index = 0; index < (walletInstance?.next_free_address_index ?? 0) + (walletInstance?.gap_limit ?? 0); index++) {
+      newAddresses.push(getAddress(walletInstance, index, false));
+    }
+    return newAddresses;
+  }, [walletInstance]);
+
+  useEffect(() => {
+    dispatch({ type: SET_ADDRESSES, payload: getAddresses });
+    dispatch({ type: SET_SHOW_ADDRESSES, payload: true });
+  }, [getAddresses]);
 
   const filteredAddresses = useMemo(
     () => addresses.filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab)).sort(sortByAddressIndex),
@@ -158,35 +187,10 @@ const WalletAddresses: React.FC = () => {
     });
   }, [setOptions]);
 
-  const getAddresses = useCallback(() => {
-    const newAddresses: Address[] = [];
-    // @ts-ignore: idk what to do
-    for (let index = 0; index <= (walletInstance?.next_free_change_address_index ?? 0); index++) {
-      const address = getAddress(walletInstance, index, true);
-      newAddresses.push(address);
-    }
-
-    // @ts-ignore: idk what to do
-    for (let index = 0; index < (walletInstance?.next_free_address_index ?? 0) + (walletInstance?.gap_limit ?? 0); index++) {
-      const address = getAddress(walletInstance, index, false);
-      newAddresses.push(address);
-    }
-    dispatch({ type: SET_ADDRESSES, payload: newAddresses });
-    dispatch({ type: SET_SHOW_ADDRESSES, payload: true });
-  }, [walletInstance]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!isDesktop) disallowScreenshot(true);
-      getAddresses();
-      return () => {
-        if (!isDesktop) disallowScreenshot(false);
-      };
-    }, [getAddresses]),
-  );
-
   const data =
     search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;
+
+  const keyExtractor = useCallback((item: Address) => item.key, []);
 
   const renderRow = useCallback(
     ({ item }: { item: Address }) => {
@@ -206,31 +210,32 @@ const WalletAddresses: React.FC = () => {
   }
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
-      <FlatList
-        contentContainerStyle={stylesHook.root}
-        ref={addressList}
-        data={data}
-        extraData={data}
-        initialNumToRender={20}
-        renderItem={renderRow}
-        ListEmptyComponent={search.length > 0 ? null : <ActivityIndicator />}
-        centerContent={!showAddresses}
-        contentInsetAdjustmentBehavior="automatic"
-        ListHeaderComponent={
-          <SegmentedControl
-            values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
-            selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
-            onChange={index => {
-              const tabKey = Object.keys(TABS)[index] as TabKey;
-              dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
-            }}
-
-            // style={{ marginVertical: 10 }}
-          />
-        }
-      />
-    </View>
+    <FlatList
+      contentContainerStyle={stylesHook.root}
+      ref={addressList}
+      data={data}
+      extraData={data}
+      style={styles.root}
+      keyExtractor={keyExtractor}
+      initialNumToRender={20}
+      renderItem={renderRow}
+      ListEmptyComponent={search.length > 0 ? null : <ActivityIndicator />}
+      centerContent={!showAddresses}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustsScrollIndicatorInsets
+      automaticallyAdjustKeyboardInsets
+      ListHeaderComponent={
+        <SegmentedControl
+          values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
+          selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
+          onChange={index => {
+            const tabKey = Object.keys(TABS)[index] as TabKey;
+            dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+          }}
+        />
+      }
+    />
   );
 };
 

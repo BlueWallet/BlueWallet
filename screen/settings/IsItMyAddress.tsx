@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
@@ -8,23 +7,18 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
-import { navigate } from '../../NavigationService';
-
-type RouteProps = RouteProp<DetailViewStackParamList, 'IsItMyAddress'>;
-type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'IsItMyAddress'>;
+import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
 
 const IsItMyAddress: React.FC = () => {
+  const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const navigation = useNavigation<NavigationProp>();
-  const route = useRoute<RouteProps>();
   const { colors } = useTheme();
-  const scanButtonRef = useRef<any>();
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
 
@@ -39,20 +33,6 @@ const IsItMyAddress: React.FC = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
-
-  useEffect(() => {
-    if (route.params?.address && route.params.address !== address) {
-      setAddress(route.params.address);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route.params?.address]);
-
-  useEffect(() => {
-    const currentAddress = route.params?.address;
-    if (currentAddress !== address) {
-      navigation.setParams({ address });
-    }
-  }, [address, navigation, route.params?.address]);
 
   const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
@@ -102,27 +82,16 @@ const IsItMyAddress: React.FC = () => {
     }
   };
 
-  const onBarScanned = (value: string) => {
+  const importScan = async () => {
+    const value = await scanQrHelper();
     const cleanAddress = value.replace(/^bitcoin(:|=)/i, '').split('?')[0];
     setAddress(value);
     setResultCleanAddress(cleanAddress);
   };
 
-  const importScan = async () => {
-    navigate('ScanQRCode');
-  };
-
-  useEffect(() => {
-    const data = route.params?.onBarScanned;
-    if (data) {
-      onBarScanned(data);
-      navigation.setParams({ onBarScanned: undefined });
-    }
-  }, [navigation, route.name, route.params?.onBarScanned]);
-
   const viewQRCode = () => {
     if (!resultCleanAddress) return;
-    navigation.navigate('ReceiveDetailsRoot', {
+    navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
         address: resultCleanAddress,
@@ -168,7 +137,7 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <ScrollView
+    <SafeAreaScrollView
       ref={scrollViewRef}
       contentContainerStyle={styles.wrapper}
       automaticallyAdjustContentInsets
@@ -195,7 +164,7 @@ const IsItMyAddress: React.FC = () => {
         </View>
 
         <BlueSpacing10 />
-        <BlueButtonLink ref={scanButtonRef} title={loc.wallets.import_scan_qr} onPress={importScan} />
+        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
         <BlueSpacing20 />
         {resultCleanAddress && (
           <>
@@ -227,7 +196,7 @@ const IsItMyAddress: React.FC = () => {
               <WalletCarouselItem
                 item={wallet}
                 onPress={item => {
-                  navigation.navigate('WalletTransactions', {
+                  navigate('WalletTransactions', {
                     walletID: item.getID(),
                     walletType: item.type,
                   });
@@ -237,7 +206,7 @@ const IsItMyAddress: React.FC = () => {
             </View>
           ))}
       </BlueCard>
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

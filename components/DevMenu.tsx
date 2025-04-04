@@ -3,7 +3,6 @@ import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import { TWallet } from '../class/wallets/types';
 
 const getRandomLabelFromSecret = (secret: string): string => {
@@ -71,7 +70,6 @@ const showAlertWithWalletOptions = (
 
 const DevMenu: React.FC = () => {
   const { wallets, addWallet } = useStorage();
-  const { setLargeScreenValue } = useIsLargeScreen();
 
   useEffect(() => {
     if (__DEV__) {
@@ -163,23 +161,8 @@ const DevMenu: React.FC = () => {
           Alert.alert(msg);
         });
       });
-
-      DevSettings.addMenuItem('Force Large Screen Interface', () => {
-        setLargeScreenValue('LargeScreen');
-        Alert.alert('Large Screen Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Force Handheld Interface', () => {
-        setLargeScreenValue('Handheld');
-        Alert.alert('Handheld Interface forced.');
-      });
-
-      DevSettings.addMenuItem('Reset Screen Interface', () => {
-        setLargeScreenValue(undefined);
-        Alert.alert('Screen Interface reset to default.');
-      });
     }
-  }, [wallets, addWallet, setLargeScreenValue]);
+  }, [wallets, addWallet]);
 
   return null;
 };

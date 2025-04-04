@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   FlatList,
   I18nManager,
+  InteractionManager,
   Keyboard,
   LayoutAnimation,
   Platform,
@@ -16,7 +17,7 @@ import { Icon } from '@rneui/themed';
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -25,31 +26,32 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
-import { disallowScreenshot } from 'react-native-screen-capture';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
+import Clipboard from '@react-native-clipboard/clipboard';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
+import { AddressInputScanButton } from '../../components/AddressInputScanButton';
+import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
+  const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { colors } = useTheme();
 
-  const { navigate, navigateToWalletsList, setParams, setOptions } = useExtendedNavigation();
+  const navigation = useExtendedNavigation();
   const params = useRoute().params;
   const { m, n, format, walletLabel } = params;
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
@@ -63,16 +65,17 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const openScannerButton = useRef();
   const { isPrivacyBlurEnabled } = useSettings();
   const data = useRef(new Array(n));
   const { isVisible } = useKeyboard();
 
   useFocusEffect(
     useCallback(() => {
-      if (!isDesktop) disallowScreenshot(isPrivacyBlurEnabled);
+      if (isPrivacyBlurEnabled) {
+        enableScreenProtect();
+      }
       return () => {
-        if (!isDesktop) disallowScreenshot(false);
+        disableScreenProtect();
       };
     }, [isPrivacyBlurEnabled]),
   );
@@ -92,19 +95,7 @@ const WalletsAddMultisigStep2 = () => {
   }, [currentSharedCosigner]);
 
   const handleOnHelpPress = async () => {
-    await dismissAllModals();
-    navigate('WalletsAddMultisigHelp');
-  };
-
-  const dismissAllModals = async () => {
-    try {
-      await mnemonicsModalRef.current?.dismiss();
-      await provideMnemonicsModalRef.current?.dismiss();
-      await renderCosignersXpubModalRef.current?.dismiss();
-    } catch (e) {
-      // in rare occasions trying to dismiss non visible modals can error out
-      console.debug('dismissAllModals error', e);
-    }
+    navigation.navigate('WalletsAddMultisigHelp');
   };
 
   const stylesHook = StyleSheet.create({
@@ -139,13 +130,13 @@ const WalletsAddMultisigStep2 = () => {
 
   const onCreate = async () => {
     setIsLoading(true);
-    setOptions({ headerBackVisible: false });
+    navigation.setOptions({ headerBackVisible: false });
     await sleep(100);
     try {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
-      setOptions({ headerBackVisible: true });
+      navigation.setOptions({ headerBackVisible: true });
       presentAlert({ message: e.message });
       console.log('create MS wallet error', e);
     }
@@ -181,30 +172,10 @@ const WalletsAddMultisigStep2 = () => {
       await w.fetchBalance();
     }
 
-    addWallet(w);
-    await saveToDisk();
+    addAndSaveWallet(w);
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    navigateToWalletsList();
-  };
-
-  const generateNewKey = () => {
-    const w = new HDSegwitBech32Wallet();
-    w.generate().then(() => {
-      const cosignersCopy = [...cosigners];
-      cosignersCopy.push([w.getSecret(), false, false]);
-      if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setCosigners(cosignersCopy);
-      setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
-      setIsLoading(true);
-      mnemonicsModalRef.current.present();
-      setTimeout(() => {
-        // filling cache
-        setXpubCacheForMnemonics(w.getSecret());
-        setFpCacheForMnemonics(w.getSecret());
-        setIsLoading(false);
-      }, 500);
-    });
+    navigation.getParent()?.goBack();
   };
 
   const getPath = useCallback(() => {
@@ -227,6 +198,36 @@ const WalletsAddMultisigStep2 = () => {
     return path;
   }, [format]);
 
+  const setXpubCacheForMnemonics = useCallback(
+    (seed, passphrase) => {
+      const path = getPath();
+      const w = new MultisigHDWallet();
+      w.setDerivationPath(path);
+      staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+      return staticCache[seed + path + passphrase];
+    },
+    [getPath],
+  );
+
+  const generateNewKey = () => {
+    const w = new HDSegwitBech32Wallet();
+    w.generate().then(() => {
+      const cosignersCopy = [...cosigners];
+      cosignersCopy.push([w.getSecret(), false, false]);
+      if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setCosigners(cosignersCopy);
+      setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
+      setIsLoading(true);
+      mnemonicsModalRef.current.present();
+      setTimeout(() => {
+        // filling cache
+        setXpubCacheForMnemonics(w.getSecret());
+        setFpCacheForMnemonics(w.getSecret());
+        setIsLoading(false);
+      }, 500);
+    });
+  };
+
   const viewKey = cosigner => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
       setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));
@@ -245,18 +246,13 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const getXpubCacheForMnemonics = (seed, passphrase) => {
-    const path = getPath();
-    return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
-  };
-
-  const setXpubCacheForMnemonics = (seed, passphrase) => {
-    const path = getPath();
-    const w = new MultisigHDWallet();
-    w.setDerivationPath(path);
-    staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-    return staticCache[seed + path + passphrase];
-  };
+  const getXpubCacheForMnemonics = useCallback(
+    (seed, passphrase) => {
+      const path = getPath();
+      return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
+    },
+    [getPath, setXpubCacheForMnemonics],
+  );
 
   const getFpCacheForMnemonics = (seed, passphrase) => {
     return staticCache[seed + (passphrase ?? '')] || setFpCacheForMnemonics(seed, passphrase);
@@ -274,7 +270,6 @@ const WalletsAddMultisigStep2 = () => {
   const tryUsingXpub = useCallback(
     async (xpub, fp, path) => {
       if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
-        provideMnemonicsModalRef.current.dismiss();
         setIsLoading(false);
         setImportText('');
         setAskPassphrase(false);
@@ -308,7 +303,6 @@ const WalletsAddMultisigStep2 = () => {
         }
       }
 
-      provideMnemonicsModalRef.current.dismiss();
       setIsLoading(false);
       setImportText('');
       setAskPassphrase(false);
@@ -321,7 +315,129 @@ const WalletsAddMultisigStep2 = () => {
     [cosigners, getPath],
   );
 
-  const useMnemonicPhrase = async () => {
+  const isValidMnemonicSeed = mnemonicSeed => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonicSeed);
+    return hd.validateMnemonic();
+  };
+
+  const onBarScanned = useCallback(
+    async ret => {
+      if (!ret.data) ret = { data: ret };
+
+      try {
+        let retData = JSON.parse(ret.data);
+        if (Array.isArray(retData) && retData.length === 1) {
+          // UR:CRYPTO-ACCOUNT now parses as an array of accounts, even if it is just one,
+          // so in case of cosigner data its gona be an array of 1 cosigner account. lets pop it for
+          // the code that expects it
+          retData = retData.pop();
+          ret.data = JSON.stringify(retData);
+        }
+      } catch (e) {
+        console.debug('JSON parsing failed for ret.data:', e);
+      }
+
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+      } else if (isValidMnemonicSeed(ret.data)) {
+        setImportText(ret.data);
+        setTimeout(async () => {
+          await provideMnemonicsModalRef.current.present();
+        }, 100);
+      } else {
+        if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
+          return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
+        }
+        if (MultisigHDWallet.isXpubValid(ret.data)) {
+          return tryUsingXpub(ret.data);
+        }
+        let cosigner = new MultisigCosigner(ret.data);
+        if (!cosigner.isValid()) {
+          return presentAlert({ message: loc.multisig.invalid_cosigner });
+        }
+
+        if (cosigner.howManyCosignersWeHave() > 1) {
+          // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
+          // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
+          for (const cc of cosigner.getAllCosigners()) {
+            switch (format) {
+              case MultisigHDWallet.FORMAT_P2WSH:
+                if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/2'")) {
+                  // found it
+                  cosigner = cc;
+                }
+                break;
+              case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+              case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+                if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/1'")) {
+                  // found it
+                  cosigner = cc;
+                }
+                break;
+              case MultisigHDWallet.FORMAT_P2SH:
+                if (cc.getPath().startsWith('m/45')) {
+                  // found it
+                  cosigner = cc;
+                }
+                break;
+              default:
+                console.error('Unexpected format:', format);
+                throw new Error('This should never happen');
+            }
+          }
+        }
+
+        for (const existingCosigner of cosigners) {
+          let existingXpub = existingCosigner[0];
+          if (!MultisigHDWallet.isXpubValid(existingXpub)) {
+            // derive the xpub from mnemonic-based cosigner
+            existingXpub = getXpubCacheForMnemonics(existingCosigner[0], existingCosigner[3]);
+          }
+          if (existingXpub === cosigner.getXpub()) {
+            return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
+          }
+        }
+        // now, validating that cosigner is in correct format:
+
+        let correctFormat = false;
+        switch (format) {
+          case MultisigHDWallet.FORMAT_P2WSH:
+            if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/2'")) {
+              correctFormat = true;
+            }
+            break;
+          case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+          case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+            if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/1'")) {
+              correctFormat = true;
+            }
+            break;
+          case MultisigHDWallet.FORMAT_P2SH:
+            if (cosigner.getPath().startsWith('m/45')) {
+              correctFormat = true;
+            }
+            break;
+          default:
+            console.error('Unexpected format:', format);
+            throw new Error('This should never happen');
+        }
+        if (!correctFormat) {
+          return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
+        }
+        const cosignersCopy = [...cosigners];
+        cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setCosigners(cosignersCopy);
+      }
+    },
+    [cosigners, format, getXpubCacheForMnemonics, tryUsingXpub],
+  );
+
+  const utilizeMnemonicPhrase = useCallback(async () => {
+    try {
+      await provideMnemonicsModalRef.current.dismiss();
+    } catch {}
     setIsLoading(true);
 
     if (MultisigHDWallet.isXpubValid(importText)) {
@@ -366,133 +482,21 @@ const WalletsAddMultisigStep2 = () => {
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
 
-    provideMnemonicsModalRef.current.dismiss();
     setIsLoading(false);
     setImportText('');
     setAskPassphrase(false);
-  };
-
-  const isValidMnemonicSeed = mnemonicSeed => {
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonicSeed);
-    return hd.validateMnemonic();
-  };
-
-  const onBarScanned = useCallback(
-    ret => {
-      if (!ret.data) ret = { data: ret };
-
-      try {
-        let retData = JSON.parse(ret.data);
-        if (Array.isArray(retData) && retData.length === 1) {
-          // UR:CRYPTO-ACCOUNT now parses as an array of accounts, even if it is just one,
-          // so in case of cosigner data its gona be an array of 1 cosigner account. lets pop it for
-          // the code that expects it
-          retData = retData.pop();
-          ret.data = JSON.stringify(retData);
-        }
-      } catch (_) {}
-
-      if (ret.data.toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-      } else if (isValidMnemonicSeed(ret.data)) {
-        setImportText(ret.data);
-        setTimeout(() => {
-          provideMnemonicsModalRef.current.present().then(() => {});
-        }, 100);
-      } else {
-        if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
-          return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
-        }
-        if (MultisigHDWallet.isXpubValid(ret.data)) {
-          return tryUsingXpub(ret.data);
-        }
-        let cosigner = new MultisigCosigner(ret.data);
-        if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
-        provideMnemonicsModalRef.current.dismiss();
-        if (cosigner.howManyCosignersWeHave() > 1) {
-          // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
-          // for example m/48'/0'/0'/2' if user chose to setup native segwit in BW
-          for (const cc of cosigner.getAllCosigners()) {
-            switch (format) {
-              case MultisigHDWallet.FORMAT_P2WSH:
-                if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/2'")) {
-                  // found it
-                  cosigner = cc;
-                }
-                break;
-              case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-              case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-                if (cc.getPath().startsWith('m/48') && cc.getPath().endsWith("/1'")) {
-                  // found it
-                  cosigner = cc;
-                }
-                break;
-              case MultisigHDWallet.FORMAT_P2SH:
-                if (cc.getPath().startsWith('m/45')) {
-                  // found it
-                  cosigner = cc;
-                }
-                break;
-              default:
-                console.error('Unexpected format:', format);
-                throw new Error('This should never happen');
-            }
-          }
-        }
-
-        for (const existingCosigner of cosigners) {
-          if (existingCosigner[0] === cosigner.getXpub()) return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
-        }
-
-        // now, validating that cosigner is in correct format:
-
-        let correctFormat = false;
-        switch (format) {
-          case MultisigHDWallet.FORMAT_P2WSH:
-            if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/2'")) {
-              correctFormat = true;
-            }
-            break;
-          case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-          case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-            if (cosigner.getPath().startsWith('m/48') && cosigner.getPath().endsWith("/1'")) {
-              correctFormat = true;
-            }
-            break;
-          case MultisigHDWallet.FORMAT_P2SH:
-            if (cosigner.getPath().startsWith('m/45')) {
-              correctFormat = true;
-            }
-            break;
-          default:
-            console.error('Unexpected format:', format);
-            throw new Error('This should never happen');
-        }
-
-        if (!correctFormat) return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
-
-        const cosignersCopy = [...cosigners];
-        cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
-        if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setCosigners(cosignersCopy);
-      }
-    },
-    [cosigners, format, tryUsingXpub],
-  );
-
-  const scanOrOpenFile = async () => {
-    await provideMnemonicsModalRef.current.dismiss();
-    navigate('ScanQRCode');
-  };
+  }, [askPassphrase, cosigners, importText, tryUsingXpub]);
 
   useEffect(() => {
-    const scannedData = params.onBarScanned;
-    if (scannedData) {
-      onBarScanned(scannedData);
-      setParams({ onBarScanned: undefined });
-    }
-  }, [onBarScanned, params.onBarScanned, setParams]);
+    InteractionManager.runAfterInteractions(() => {
+      const scannedData = params.onBarScanned;
+      if (scannedData) {
+        onBarScanned(scannedData);
+        navigation.setParams({ onBarScanned: undefined });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigation, params.onBarScanned]);
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
     if (isChecked) {
@@ -588,6 +592,10 @@ const WalletsAddMultisigStep2 = () => {
     return component;
   };
 
+  const dismissMnemonicsModal = async () => {
+    await mnemonicsModalRef.current.dismiss();
+  };
+
   const renderMnemonicsModal = () => {
     return (
       <BottomModal
@@ -599,11 +607,7 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         footer={
           <View style={styles.modalFooterBottomPadding}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
-            )}
+            {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={dismissMnemonicsModal} />}
           </View>
         }
       >
@@ -635,38 +639,43 @@ const WalletsAddMultisigStep2 = () => {
   }, [askPassphrase]);
 
   const renderProvideMnemonicsModal = () => {
+    const opacity = isVisible ? 0 : 1;
     return (
       <BottomModal
         footer={
-          !isVisible && (
-            <View style={styles.modalFooterBottomPadding}>
-              {isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <>
-                  <Button
-                    testID="DoImportKeyButton"
-                    disabled={importText.trim().length === 0}
-                    title={loc.wallets.import_do_import}
-                    onPress={useMnemonicPhrase}
-                  />
-                  <BlueButtonLink
-                    testID="ScanOrOpenFile"
-                    ref={openScannerButton}
-                    disabled={isLoading}
-                    onPress={scanOrOpenFile}
-                    title={loc.wallets.import_scan_qr}
-                  />
-                </>
-              )}
-            </View>
-          )
+          <View style={[styles.modalFooterBottomPadding, { opacity }]} pointerEvents={isVisible ? 'none' : 'auto'}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <Button
+                  testID="DoImportKeyButton"
+                  disabled={importText.trim().length === 0}
+                  title={loc.wallets.import_do_import}
+                  onPress={utilizeMnemonicPhrase}
+                />
+                <View style={styles.height16} />
+
+                <AddressInputScanButton
+                  beforePress={async () => {
+                    await provideMnemonicsModalRef.current.dismiss();
+                  }}
+                  onBarScanned={onBarScanned}
+                  testID="ScanOrOpenFile"
+                  type="link"
+                  disabled={isLoading}
+                />
+              </>
+            )}
+          </View>
         }
+        keyboardMode="auto"
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
+        contentContainerStyle={styles.provideMnemonicsModalStyle}
         isGrabberVisible={false}
         showCloseButton={true}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
+        sizes={[Platform.OS === 'ios' ? 'auto' : 420]}
         onDismiss={() => {
           Keyboard.dismiss();
           setImportText('');
@@ -696,8 +705,15 @@ const WalletsAddMultisigStep2 = () => {
             inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
           />
           {Platform.select({
-            ios: <DoneAndDismissKeyboardInputAccessory />,
-            android: isVisible && <DoneAndDismissKeyboardInputAccessory />,
+            ios: (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
+                }}
+              />
+            ),
           })}
 
           <BlueSpacing20 />
@@ -765,7 +781,7 @@ const WalletsAddMultisigStep2 = () => {
     <View style={[styles.root, stylesHook.root]}>
       {renderHelp()}
       <View style={styles.wrapBox}>
-        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
+        <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} extraData={cosigners} />
       </View>
       {renderMnemonicsModal()}
 
@@ -773,6 +789,7 @@ const WalletsAddMultisigStep2 = () => {
 
       {renderCosignersXpubModal()}
       {footer}
+      <BlueSpacing20 />
     </View>
   );
 };
@@ -785,6 +802,9 @@ const styles = StyleSheet.create({
   wrapBox: {
     flex: 1,
     marginVertical: 24,
+  },
+  height16: {
+    height: 16,
   },
   buttonBottom: {
     marginHorizontal: 20,
@@ -852,6 +872,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
+  },
+  provideMnemonicsModalStyle: {
+    minHeight: 420,
   },
 });
 

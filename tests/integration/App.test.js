@@ -1,10 +1,10 @@
-import assert from 'assert';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
-
+import { render } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { Header } from '../../components/Header';
 import SelfTest from '../../screen/settings/SelfTest';
 import Settings from '../../screen/settings/Settings';
+import { BlueDefaultTheme } from '../../components/themes';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -12,37 +12,33 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
+const Wrapper = ({ children }) => <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>;
+
 it('Header works', () => {
-  const rendered = TestRenderer.create(<Header />).toJSON();
-  expect(rendered).toBeTruthy();
+  const { toJSON } = render(
+    <Wrapper>
+      <Header />
+    </Wrapper>,
+  );
+  expect(toJSON()).toBeTruthy();
 });
 
 // eslint-disable-next-line jest/no-disabled-tests
 it.skip('Settings work', () => {
-  const rendered = TestRenderer.create(<Settings />).toJSON();
-  expect(rendered).toBeTruthy();
+  const { toJSON } = render(
+    <Wrapper>
+      <Settings />
+    </Wrapper>,
+  );
+  expect(toJSON()).toBeTruthy();
 });
 
 it('SelfTest work', () => {
-  const component = TestRenderer.create(<SelfTest />);
-  const root = component.root;
-  const rendered = component.toJSON();
-  expect(rendered).toBeTruthy();
-  // console.log((root.findAllByType('Text')[0].props));
-
-  let okFound = false;
-  const allTests = [];
-  for (const v of root.findAllByType('Text')) {
-    let text = v.props.children;
-    if (text.join) {
-      text = text.join('');
-    }
-    if (text === 'OK') {
-      okFound = true;
-    }
-    allTests.push(text);
-    // console.log(text);
-  }
-
-  assert.ok(okFound, 'OK not found. Got: ' + allTests.join('; '));
+  const { toJSON, getByText } = render(
+    <Wrapper>
+      <SelfTest />
+    </Wrapper>,
+  );
+  expect(toJSON()).toBeTruthy();
+  expect(getByText('OK')).toBeTruthy();
 });
