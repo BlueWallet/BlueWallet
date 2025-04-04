@@ -142,8 +142,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
     const formatFee = (fee: number) => formatBalance(fee, feeUnit, true);
 
     const handleCustomFeeSubmit = async () => {
-      if (!/^\d+$/.test(customFee) || Number(customFee) <= 0) {
-        // Handle error if necessary
+      if (!/^\d+(\.\d+)?$/.test(customFee) || Number(customFee) < 1) {
         return;
       }
       const fee = Number(customFee) < 1 ? '1' : customFee;
