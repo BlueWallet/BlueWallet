@@ -106,9 +106,6 @@ const SendDetails = () => {
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
-  const handleCustomFeeChange = useCallback((fee: number) => {
-    setCustomFee(fee.toString());
-  }, []);
   const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
@@ -1430,7 +1427,7 @@ const SendDetails = () => {
           networkTransactionFees={networkTransactionFees}
           feePrecalc={feePrecalc}
           feeRate={feeRate}
-          setCustomFee={handleCustomFeeChange}
+          setCustomFee={setCustomFee}
           setFeePrecalc={setFeePrecalc}
           feeUnit={addresses[scrollIndex.current]?.unit ?? BitcoinUnit.BTC}
         />
