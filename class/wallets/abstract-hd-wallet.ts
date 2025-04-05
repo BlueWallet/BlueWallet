@@ -334,4 +334,12 @@ export class AbstractHDWallet extends LegacyWallet {
   setDerivationPath(path: string) {
     this._derivationPath = path;
   }
+
+  getMasterFingerprintHex(): string {
+    return '00000000';
+  }
+
+  getMasterFingerprint(): number {
+    return 0;
+  }
 }

@@ -15,6 +15,7 @@ const keys = {
   ViewInSats: 'viewInSats',
   ViewInFiat: 'viewInFiat',
   Entropy: 'entropy',
+  Edit: 'edit',
   SearchAccount: 'searchAccount',
   Passphrase: 'passphrase',
   MoreInfo: 'moreInfo',
@@ -80,6 +81,7 @@ const icons = {
   PaymentsCode: { iconValue: 'qrcode.viewfinder' },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
   AddRecipient: { iconValue: 'person.badge.plus' },
+  Edit: { iconValue: 'pencil' },
   RemoveRecipient: { iconValue: 'person.badge.minus' },
   ScanQR: { iconValue: Platform.OS === 'ios' ? 'qrcode.viewfinder' : 'ic_menu_camera' },
   ChoosePhoto: { iconValue: Platform.OS === 'ios' ? 'photo.on.rectangle' : 'ic_menu_gallery' },
@@ -123,6 +125,11 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     id: keys.OpenInBlockExplorer,
     text: loc.transactions.details_view_in_browser,
     icon: icons.Link,
+  },
+  Edit: {
+    id: keys.Edit,
+    text: loc._.edit,
+    icon: icons.Edit,
   },
   ExpandNote: {
     id: keys.ExpandNote,
