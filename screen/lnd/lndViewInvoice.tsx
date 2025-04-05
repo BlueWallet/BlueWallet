@@ -56,10 +56,13 @@ const LNDViewInvoice = () => {
   });
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      goBack();
+      return true;
+    });
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      subscription.remove();
       clearInterval(fetchInvoiceInterval.current);
       fetchInvoiceInterval.current = undefined;
     };
@@ -153,11 +156,6 @@ const LNDViewInvoice = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleBackButton = () => {
-    goBack();
-    return true;
-  };
 
   const navigateToPreImageScreen = () => {
     navigate('LNDViewAdditionalInvoicePreImage', {

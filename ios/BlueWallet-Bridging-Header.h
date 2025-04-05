@@ -1,7 +1,12 @@
 //
-//  Use this file to import your target's public headers that you would like to expose to Swift.
+//  BlueWallet-Bridging-Header.h
+//  BlueWallet
+//
+//  Created by Marcos Rodriguez on 4/4/25.
+//  Copyright © 2025 BlueWallet. All rights reserved.
 //
 
-#import "AppDelegate.h"
 #import <React/RCTBridgeModule.h>
 #import "React/RCTViewManager.h"
+#import <RNCPushNotificationIOS.h>
+#import "RNQuickActionManager.h"
