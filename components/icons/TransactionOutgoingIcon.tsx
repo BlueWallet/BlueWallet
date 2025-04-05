@@ -14,11 +14,13 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     transform: [{ rotate: '225deg' }],
     justifyContent: 'center',
+    alignItems: 'center',
   } as ViewStyle,
 });
 
 const TransactionOutgoingIcon: React.FC = () => {
   const { colors } = useTheme();
+
   const stylesBlueIconHooks = StyleSheet.create({
     ballOutgoing: {
       backgroundColor: colors.ballOutgoing,

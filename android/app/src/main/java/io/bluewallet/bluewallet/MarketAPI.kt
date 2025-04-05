@@ -3,6 +3,7 @@ package io.bluewallet.bluewallet
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -10,6 +11,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.text.NumberFormat
 import java.util.Currency
+import kotlin.math.min
 
 object MarketAPI {
 
@@ -18,9 +20,11 @@ object MarketAPI {
     private val numberFormatter = NumberFormat.getNumberInstance()
     private val electrumClient = ElectrumClient()
     
-    private var lastCheckedBlockHeight = -1
     private var lastFetchedFee: String? = null
 
+    // Single indicator for error/unavailable
+    private const val ERROR_INDICATOR = "!"
+    
     var baseUrl: String? = null
     
     data class ApiResponse(val body: String?, val code: Int)
@@ -157,7 +161,6 @@ object MarketAPI {
     
     /**
      * Fetch the next block fee from Electrum servers with network awareness
-     * and block height monitoring
      */
     suspend fun fetchNextBlockFee(context: Context): String {
         val startTime = System.currentTimeMillis()
@@ -181,85 +184,85 @@ object MarketAPI {
             }
         })
         
-        // Set up block height listener
-        electrumClient.setBlockHeightListener(object : ElectrumClient.BlockHeightListener {
-            override fun onBlockHeightChanged(newHeight: Int, previousHeight: Int) {
-                Log.i(TAG, "Bitcoin block height changed: $previousHeight -> $newHeight")
-                // This will be called when a new block is detected
-                // The widget worker should check for this and update
-            }
-        })
-        
         try {
             // Check network connectivity first
             if (!NetworkUtils.isNetworkAvailable(context)) {
                 Log.e(TAG, "No network connection available for fetching next block fee")
-                return "!"
+                return ERROR_INDICATOR
             }
             
-            // Check current block height
-            val currentBlockHeight = electrumClient.fetchBlockHeight()
-            Log.d(TAG, "Current block height: $currentBlockHeight, last checked: $lastCheckedBlockHeight")
-            
-            // If we already have a fee and the block hasn't changed, return the cached fee
-            if (lastFetchedFee != null && currentBlockHeight == lastCheckedBlockHeight && lastFetchedFee != "!") {
-                Log.d(TAG, "Using cached fee (no new blocks): $lastFetchedFee")
-                return lastFetchedFee!!
+            // For direct testing with hardcoded value
+            val useTestValue = false
+            if (useTestValue) {
+                Log.w(TAG, "Using TEST VALUE for next block fee")
+                return "25"
             }
             
-            // Update the last checked block height
-            lastCheckedBlockHeight = currentBlockHeight
+            // First try connecting directly for fee histogram
+            Log.d(TAG, "Attempting to connect directly to Electrum server for fee")
+            var success = electrumClient.connectToNextAvailable(validateCertificates = false)
             
-            Log.d(TAG, "Attempting to connect to Electrum server for fee histogram")
-            if (!electrumClient.connectToNextAvailable(validateCertificates = false)) {
-                Log.e(TAG, "Failed to connect to any Electrum peer")
-                return "!"
+            if (!success) {
+                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
+                // Short delay before retry
+                delay(1000)
+                success = electrumClient.connectToNextAvailable(validateCertificates = false)
+                
+                if (!success) {
+                    Log.e(TAG, "Failed to connect to any Electrum server after retry. Fee unavailable.")
+                    return ERROR_INDICATOR
+                }
             }
             
-            Log.d(TAG, "Sending fee histogram request")
+            Log.d(TAG, "Successfully connected to Electrum server. Sending fee histogram request")
             val message = "{\"id\": 1, \"method\": \"mempool.get_fee_histogram\", \"params\": []}\n"
             if (!electrumClient.send(message.toByteArray())) {
-                Log.e(TAG, "Failed to send fee histogram request")
-                return "!"
+                Log.e(TAG, "Failed to send fee histogram request. Fee unavailable.")
+                return ERROR_INDICATOR
             }
             
             Log.d(TAG, "Waiting for fee histogram response")
             val receivedData = electrumClient.receive()
             if (receivedData.isEmpty()) {
-                Log.e(TAG, "Empty response from Electrum server when requesting fee histogram")
-                return "!"
+                Log.e(TAG, "Empty response from Electrum server when requesting fee histogram. Fee unavailable.")
+                return ERROR_INDICATOR
             }
             
             val jsonString = String(receivedData)
             Log.d(TAG, "Received fee histogram: $jsonString")
             
-            val json = JSONObject(jsonString)
-            if (!json.has("result")) {
-                Log.e(TAG, "Invalid fee histogram response - missing 'result' field")
-                return "!"
+            try {
+                val json = JSONObject(jsonString)
+                if (!json.has("result")) {
+                    Log.e(TAG, "Invalid fee histogram response - missing 'result' field. Fee unavailable.")
+                    return ERROR_INDICATOR
+                }
+                
+                val feeHistogram = json.getJSONArray("result")
+                if (feeHistogram.length() == 0) {
+                    Log.e(TAG, "Empty fee histogram array. Fee unavailable.")
+                    return ERROR_INDICATOR
+                }
+                
+                Log.d(TAG, "Calculating fee from ${feeHistogram.length()} data points")
+                
+                val feeRate = calculateFeeFromHistogram(feeHistogram, 1)
+                if (feeRate <= 0) {
+                    Log.e(TAG, "Invalid fee rate calculated: $feeRate. Fee unavailable.")
+                    return ERROR_INDICATOR
+                }
+                
+                val formattedFee = feeRate.toInt().toString()
+                
+                Log.i(TAG, "Successfully calculated next block fee: $formattedFee sat/vB")
+                return formattedFee
+            } catch (e: Exception) {
+                Log.e(TAG, "Error parsing fee histogram JSON: ${e.message}", e)
+                return ERROR_INDICATOR
             }
-            
-            val feeHistogram = json.getJSONArray("result")
-            if (feeHistogram.length() == 0) {
-                Log.e(TAG, "Empty fee histogram array")
-                return "!"
-            }
-            
-            Log.d(TAG, "Calculating fastest fee from ${feeHistogram.length()} data points")
-            val fastestFee = calculateFeeFromHistogram(feeHistogram, 1)
-            Log.d(TAG, "Calculated fastest fee: $fastestFee")
-            
-            val formattedFee = fastestFee.toInt().toString()
-            lastFetchedFee = formattedFee // Cache the result
-            
-            val duration = System.currentTimeMillis() - startTime
-            Log.i(TAG, "Successfully fetched next block fee in ${duration}ms: $formattedFee sat/vB for block height $currentBlockHeight")
-            
-            return formattedFee
         } catch (e: Exception) {
-            val duration = System.currentTimeMillis() - startTime
-            Log.e(TAG, "Error fetching next block fee after ${duration}ms: ${e.javaClass.simpleName} - ${e.message}", e)
-            return "!"
+            Log.e(TAG, "Error fetching next block fee: ${e.message}", e)
+            return ERROR_INDICATOR
         } finally {
             electrumClient.close()
         }
@@ -274,64 +277,78 @@ object MarketAPI {
      */
     private fun calculateFeeFromHistogram(feeHistogram: JSONArray, targetBlocks: Int): Double {
         try {
-            Log.d(TAG, "Calculating fee from histogram with ${feeHistogram.length()} entries")
+            Log.d(TAG, "Calculating fee from histogram with ${feeHistogram.length()} entries for $targetBlocks blocks")
             
-            // First, sort the histogram entries by fee rate in descending order
-            val entries = ArrayList<Pair<Double, Double>>() // (fee_rate, vsize)
+            // Transform histogram - accumulate vsize until we reach the target block size
+            val blockSize = 1000000 // 1MB block size
+            var totalVsize = 0.0
+            val histogramToUse = mutableListOf<Pair<Double, Double>>() // (fee, vsize)
+            
             for (i in 0 until feeHistogram.length()) {
                 val entry = feeHistogram.getJSONArray(i)
                 val feeRate = entry.getDouble(0)
-                val vsize = entry.getDouble(1)
-                entries.add(Pair(feeRate, vsize))
+                var vsize = entry.getDouble(1)
+                var timeToStop = false
                 
-                if (i < 5 || i > feeHistogram.length() - 5) {
-                    // Log just the first and last few entries for debugging
-                    Log.v(TAG, "Fee histogram entry $i: rate=$feeRate, vsize=$vsize")
+                if (totalVsize + vsize >= blockSize * targetBlocks) {
+                    // Only take what we need to fill the target block size
+                    vsize = blockSize * targetBlocks - totalVsize
+                    timeToStop = true
+                }
+                
+                histogramToUse.add(Pair(feeRate, vsize))
+                totalVsize += vsize
+                
+                Log.v(TAG, "Fee entry: rate=$feeRate, vsize=$vsize, accumulated=$totalVsize")
+                
+                if (timeToStop) break
+            }
+            
+            Log.d(TAG, "Transformed histogram has ${histogramToUse.size} entries with total vsize $totalVsize")
+            
+            // Create a weighted flat array (similar to the JS implementation)
+            val histogramFlat = mutableListOf<Double>()
+            for ((fee, vsize) in histogramToUse) {
+                // Divide by a factor to keep the array size manageable
+                val count = (vsize / 25000.0).toInt().coerceAtLeast(1)
+                repeat(count) {
+                    histogramFlat.add(fee)
                 }
             }
             
-            // Sort by fee rate in descending order
-            entries.sortByDescending { it.first }
-            
-            // For target blocks = 1, take the highest fee rate
-            // This is a simple heuristic that can be improved
-            if (targetBlocks == 1 && entries.isNotEmpty()) {
-                // We use the highest fee rate to ensure confirmation in the next block
-                val highestFee = entries[0].first
-                Log.d(TAG, "Using highest fee rate for next block: $highestFee sat/vB")
-                return highestFee
-            } else {
-                // For target blocks > 1, consider a percentile of all transactions
-                // This is a more advanced estimate which looks at transaction volumes
-                var totalSize = 0.0
-                entries.forEach { totalSize += it.second }
-                
-                // Average block size is roughly 1.5MB (1,500,000 vbytes)
-                val targetBlockSize = 1500000.0 * targetBlocks
-                var cumulativeSize = 0.0
-                
-                for (entry in entries) {
-                    cumulativeSize += entry.second
-                    if (cumulativeSize >= totalSize * 0.1) { // Top 10% of transactions
-                        Log.d(TAG, "Using fee rate for blocks $targetBlocks: ${entry.first} sat/vB")
-                        return entry.first
-                    }
-                }
-                
-                // If we couldn't find a suitable fee, use the median fee
-                if (entries.isNotEmpty()) {
-                    val medianFee = entries[entries.size / 2].first
-                    Log.d(TAG, "Using median fee rate: $medianFee sat/vB")
-                    return medianFee
-                }
+            if (histogramFlat.isEmpty()) {
+                Log.e(TAG, "Empty flat histogram array")
+                return 0.0 // Return 0 to indicate failure, will be caught and converted to ERROR_INDICATOR
             }
+            
+            // Sort the flat array
+            histogramFlat.sort()
+            
+            // Calculate the median (50th percentile)
+            val median = calculatePercentile(histogramFlat, 0.5)
+            val result = median.coerceAtLeast(2.0) // Minimum 2 sat/vB
+            
+            Log.d(TAG, "Calculated median fee rate: $median, final rate: $result sat/vB")
+            return result
+            
         } catch (e: Exception) {
             Log.e(TAG, "Error calculating fee from histogram: ${e.message}", e)
+            return 0.0 // Return 0 to indicate failure, will be caught and converted to ERROR_INDICATOR
         }
+    }
+    
+    /**
+     * Calculate the percentile of a sorted list of values
+     * 
+     * @param sortedValues the sorted list of values
+     * @param percentile the percentile to calculate (0.0 - 1.0)
+     * @return the percentile value
+     */
+    private fun calculatePercentile(sortedValues: List<Double>, percentile: Double): Double {
+        if (sortedValues.isEmpty()) return 0.0
         
-        // Default fallback fee
-        Log.w(TAG, "Using default fallback fee: 5 sat/vB")
-        return 5.0
+        val index = (percentile * sortedValues.size).toInt().coerceIn(0, sortedValues.size - 1)
+        return sortedValues[index]
     }
     
     /**
@@ -362,9 +379,9 @@ object MarketAPI {
             if (!NetworkUtils.isNetworkAvailable(context)) {
                 Log.e(TAG, "No network connection available for fetching market data")
                 return marketData.apply { 
-                    nextBlock = "!"
-                    sats = "!"
-                    price = "!"
+                    nextBlock = ERROR_INDICATOR
+                    sats = ERROR_INDICATOR
+                    price = ERROR_INDICATOR
                 }
             }
             
@@ -401,7 +418,7 @@ object MarketAPI {
                 Log.w(TAG, "No price data received")
             }
             
-            // 2. Fetch next block fee
+            // 2. Fetch next block fee - Always run this, regardless of price fetch result
             Log.d(TAG, "Fetching next block fee")
             val feeStartTime = System.currentTimeMillis()
             val nextBlockFee = fetchNextBlockFee(context)
@@ -409,6 +426,7 @@ object MarketAPI {
             
             Log.d(TAG, "Next block fee fetched in ${feeDuration}ms: $nextBlockFee")
             marketData.nextBlock = nextBlockFee
+            Log.i(TAG, "Set nextBlock fee in marketData: ${marketData.nextBlock}")
             
             val totalDuration = System.currentTimeMillis() - startTime
             Log.i(TAG, "Market data fetch completed in ${totalDuration}ms: $marketData")
