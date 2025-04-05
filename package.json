@@ -143,7 +143,7 @@
     "react-native-document-picker": "9.3.1",
     "react-native-draglist": "github:BlueWallet/react-native-draglist#2fb0c1f",
     "react-native-fs": "2.20.0",
-    "react-native-gesture-handler": "2.24.0",
+    "react-native-gesture-handler": "2.25.0",
     "react-native-handoff": "github:BlueWallet/react-native-handoff#v0.0.4",
     "react-native-haptic-feedback": "2.3.3",
     "react-native-image-picker": "8.2.0",
