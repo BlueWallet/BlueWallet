@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, useMemo, useCallback } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
@@ -18,27 +18,59 @@ interface FeePrecalc {
   current: number | null;
 }
 
-interface Option {
-  label: string;
-  time: string;
-  fee: number | null;
-  rate: number;
-  active: boolean;
-  disabled?: boolean;
-}
-
 interface SelectFeeModalProps {
   networkTransactionFees: NetworkTransactionFees;
   feePrecalc: FeePrecalc;
   feeRate: number | string;
-  setCustomFee: (fee: string) => void;
+  setCustomFee: (fee: number) => void;
   setFeePrecalc: (fn: (fp: FeePrecalc) => FeePrecalc) => void;
   feeUnit: BitcoinUnit;
 }
 
+const FeeOption = React.memo(({ label, time, fee, rate, active, disabled, onPress, colors, formatFee }: any) => (
+  <TouchableOpacity
+    accessibilityRole="button"
+    disabled={disabled}
+    onPress={onPress}
+    style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && { backgroundColor: colors.feeActive }]}
+  >
+    <View style={styles.feeModalRow}>
+      <Text style={[styles.feeModalLabel, { color: disabled ? colors.buttonDisabledTextColor : colors.successColor }]}>{label}</Text>
+      <View style={[styles.feeModalTime, { backgroundColor: disabled ? colors.buttonDisabledBackgroundColor : colors.successColor }]}>
+        <Text style={{ color: colors.background }}>~{time}</Text>
+      </View>
+    </View>
+    <View style={styles.feeModalRow}>
+      <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>{fee && formatFee(fee)}</Text>
+      <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>
+        {rate} {loc.units.sat_vbyte}
+      </Text>
+    </View>
+  </TouchableOpacity>
+));
+
+const CustomFeeInput = React.memo(({ value, onChangeText, onSubmitEditing, onFocus, onBlur, colors }: any) => (
+  <TextInput
+    style={[styles.customFeeInput, { color: colors.successColor, borderColor: colors.formBorder }]}
+    keyboardType="numeric"
+    placeholder={loc.send.insert_custom_fee}
+    value={value}
+    placeholderTextColor={colors.placeholderTextColor}
+    onChangeText={onChangeText}
+    onSubmitEditing={onSubmitEditing}
+    onFocus={onFocus}
+    onBlur={onBlur}
+    enablesReturnKeyAutomatically
+    returnKeyType="done"
+    accessibilityLabel={loc.send.create_fee}
+    testID="feeCustom"
+  />
+));
+
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
   ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit = BitcoinUnit.BTC }, ref) => {
-    const [customFeeValue, setCustomFeeValue] = useState('');
+    const [customFeeValue, setCustomFeeValue] = useState<string>('');
+    const [isCustomFeeFocused, setIsCustomFeeFocused] = useState(false);
     const feeModalRef = useRef<BottomModalHandle>(null);
     const customFeeInputRef = useRef<TextInput>(null);
     const nf = networkTransactionFees;
@@ -121,61 +153,90 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       dismiss: async () => await feeModalRef.current?.dismiss(),
     }));
 
-    const options: Option[] = [
-      {
-        label: loc.send.fee_fast,
-        time: loc.send.fee_10m,
-        fee: feePrecalc.fastestFee,
-        rate: nf.fastestFee,
-        active: Number(feeRate) === nf.fastestFee,
-      },
-      {
-        label: loc.send.fee_medium,
-        time: loc.send.fee_3h,
-        fee: feePrecalc.mediumFee,
-        rate: nf.mediumFee,
-        active: Number(feeRate) === nf.mediumFee,
-        disabled: nf.mediumFee === nf.fastestFee,
-      },
-      {
-        label: loc.send.fee_slow,
-        time: loc.send.fee_1d,
-        fee: feePrecalc.slowFee,
-        rate: nf.slowFee,
-        active: Number(feeRate) === nf.slowFee,
-        disabled: nf.slowFee === nf.mediumFee || nf.slowFee === nf.fastestFee,
-      },
-    ];
+    const formatFee = useCallback((fee: number) => formatBalance(fee, feeUnit, true), [feeUnit]);
 
-    const formatFee = (fee: number) => formatBalance(fee, feeUnit, true);
-
-    const isCustomFeeSelected = () => {
-      const matchesPresetOption = options.some(option => Number(feeRate) === option.rate);
-      if (matchesPresetOption) {
-        return false;
-      }
-      return true;
-    };
-
-    const handleSelectOption = async (fee: number | null, rate: number) => {
-      setFeePrecalc(fp => ({ ...fp, current: fee }));
-      setCustomFee(rate.toString());
-      await feeModalRef.current?.dismiss();
-    };
-
-    const handleCustomFeeChange = (value: string) => {
-      setCustomFeeValue(value);
-      if (/^\d+(\.\d+)?$/.test(value) && Number(value) > 0) {
-        setCustomFee(value);
-        setFeePrecalc(fp => ({ ...fp, current: null })); // Custom fee has no precalculated fee
-      }
-    };
-
-    const handleCustomFeeSubmit = async () => {
-      if (customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue) && Number(customFeeValue) > 0) {
-        setCustomFee(customFeeValue);
-        setFeePrecalc(fp => ({ ...fp, current: null })); // Custom fee has no precalculated fee
+    const handleSelectOption = useCallback(
+      async (fee: number | null, rate: number) => {
+        setFeePrecalc(fp => ({ ...fp, current: fee }));
+        setCustomFee(rate);
         await feeModalRef.current?.dismiss();
+      },
+      [setFeePrecalc, setCustomFee],
+    );
+
+    const handleCustomFeeChange = useCallback(
+      (value: string) => {
+        // Allow both . and , as decimal separators without replacing
+        const sanitizedValue = value.replace(/[^\d.,]/g, '').replace(/([.,].*?)[.,]/g, '$1');
+
+        if (sanitizedValue !== value) {
+          setCustomFeeValue(sanitizedValue);
+        } else {
+          setCustomFeeValue(value);
+        }
+
+        if (sanitizedValue === '') {
+          setCustomFee(Number(networkTransactionFees.fastestFee));
+          setFeePrecalc(fp => ({ ...fp, current: feePrecalc.fastestFee }));
+          return;
+        }
+
+        if (/^\d*[.,]?\d*$/.test(sanitizedValue)) {
+          const numericValue = Number(sanitizedValue.replace(',', '.'));
+          if (numericValue > 0) {
+            setCustomFee(numericValue);
+            setFeePrecalc(fp => ({ ...fp, current: null }));
+          }
+        }
+      },
+      [networkTransactionFees.fastestFee, feePrecalc.fastestFee, setCustomFee, setFeePrecalc],
+    );
+
+    const handleCustomFeeSubmit = useCallback(async () => {
+      const number = Number(customFeeValue.replace(',', '.'));
+      if (number && number > 0) {
+        setCustomFee(number);
+        setFeePrecalc(fp => ({ ...fp, current: null }));
+        await feeModalRef.current?.dismiss();
+      }
+    }, [customFeeValue, setCustomFee, setFeePrecalc]);
+
+    const options = useMemo(
+      () => [
+        {
+          label: loc.send.fee_fast,
+          time: loc.send.fee_10m,
+          fee: feePrecalc.fastestFee,
+          rate: nf.fastestFee,
+          active: !isCustomFeeFocused && Number(feeRate) === nf.fastestFee,
+        },
+        {
+          label: loc.send.fee_medium,
+          time: loc.send.fee_3h,
+          fee: feePrecalc.mediumFee,
+          rate: nf.mediumFee,
+          active: !isCustomFeeFocused && Number(feeRate) === nf.mediumFee,
+          disabled: nf.mediumFee === nf.fastestFee,
+        },
+        {
+          label: loc.send.fee_slow,
+          time: loc.send.fee_1d,
+          fee: feePrecalc.slowFee,
+          rate: nf.slowFee,
+          active: !isCustomFeeFocused && Number(feeRate) === nf.slowFee,
+          disabled: nf.slowFee === nf.mediumFee || nf.slowFee === nf.fastestFee,
+        },
+      ],
+      [feePrecalc, nf, feeRate, isCustomFeeFocused],
+    );
+
+    const handleCustomFeeBlur = () => {
+      setIsCustomFeeFocused(false);
+      const valueNumber = Number(customFeeValue);
+      if (!customFeeValue || valueNumber < 1) {
+        setCustomFeeValue('');
+        setCustomFee(networkTransactionFees.fastestFee);
+        setFeePrecalc(fp => ({ ...fp, current: feePrecalc.fastestFee }));
       }
     };
 
@@ -183,35 +244,33 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       customFeeInputRef.current?.focus();
     };
 
+    const isCustomFeeSelected = () => {
+      if (isCustomFeeFocused) return true;
+      const matchesPresetOption = options.some(option => Number(feeRate) === option.rate);
+      if (matchesPresetOption) {
+        return false;
+      }
+      return true;
+    };
+
     return (
       <BottomModal ref={feeModalRef} backgroundColor={colors.modal}>
         <View>
           {options.map(({ label, time, fee, rate, active, disabled }) => (
-            <TouchableOpacity
-              accessibilityRole="button"
+            <FeeOption
               key={label}
+              label={label}
+              time={time}
+              fee={fee}
+              rate={rate}
+              active={active}
               disabled={disabled}
               onPress={() => handleSelectOption(fee, rate)}
-              style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
-            >
-              <View style={styles.feeModalRow}>
-                <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
-                  {label}
-                </Text>
-                <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
-                  <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
-                </View>
-              </View>
-              <View style={styles.feeModalRow}>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                  {rate} {loc.units.sat_vbyte}
-                </Text>
-              </View>
-            </TouchableOpacity>
+              colors={colors}
+              formatFee={formatFee}
+              feeUnit={feeUnit}
+            />
           ))}
-
-          {/* Custom Fee Option */}
           <TouchableOpacity
             accessibilityRole="button"
             onPress={handleCustomPress}
@@ -225,20 +284,17 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
             <View style={styles.feeModalRow}>
               <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{loc.send.fee_custom}</Text>
               <View style={styles.customFeeContainer}>
-                <TextInput
-                  ref={customFeeInputRef}
-                  style={[styles.customFeeInput, stylesHook.customFeeInput]}
-                  keyboardType="numeric"
-                  placeholder={loc.send.insert_custom_fee}
+                <CustomFeeInput
                   value={customFeeValue}
-                  placeholderTextColor={colors.placeholderTextColor}
                   onChangeText={handleCustomFeeChange}
                   onSubmitEditing={handleCustomFeeSubmit}
-                  returnKeyType="done"
-                  accessibilityLabel={loc.send.create_fee}
-                  testID="feeCustom"
+                  onFocus={() => setIsCustomFeeFocused(true)}
+                  onBlur={handleCustomFeeBlur}
+                  colors={colors}
                 />
-                {customFeeValue && <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>}
+                {customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue.toString()) && Number(customFeeValue) > 0 && (
+                  <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>
+                )}
               </View>
             </View>
           </TouchableOpacity>
