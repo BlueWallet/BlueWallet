@@ -11,6 +11,22 @@ type UtxoMetadata = {
   memo?: string;
 };
 
+export interface AbstractWalletInterface {
+  getID: () => string;
+  getLabel: () => string;
+  setLabel: (label: string) => void;
+  getTransactions: () => Transaction[];
+  getBalance: () => number;
+  allowSend: () => boolean;
+  allowXpub: () => boolean;
+  allowSignVerifyMessage: () => boolean;
+  getLastTxFetch: () => number;
+  allowMasterFingerprint?: () => boolean;
+  getMasterFingerprint?: () => number;
+  getMasterFingerprintHex?: () => string;
+  setMasterFingerprint?: (masterFingerprint: string) => void;
+}
+
 export class AbstractWallet {
   static readonly type = 'abstract';
   static readonly typeReadable = 'abstract';
@@ -521,5 +537,9 @@ export class AbstractWallet {
     hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
 
     return parseInt(hexValue, 16);
+  }
+
+  setMasterFingerprint(fingerprint: string): void {
+    this.masterFingerprint = parseInt(fingerprint, 10);
   }
 }

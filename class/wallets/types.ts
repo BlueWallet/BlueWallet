@@ -161,3 +161,19 @@ export type TWallet =
   | WatchOnlyWallet;
 
 export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet;
+
+export interface AbstractWalletInterface {
+  getID: () => string;
+  getLabel: () => string;
+  setLabel: (label: string) => void;
+  getTransactions: () => Transaction[];
+  getBalance: () => number;
+  allowSend: () => boolean;
+  allowXpub: () => boolean;
+  allowSignVerifyMessage: () => boolean;
+  getLastTxFetch: () => number;
+  allowMasterFingerprint?: () => boolean;
+  getMasterFingerprint?: () => number;
+  getMasterFingerprintHex?: () => string;
+  setMasterFingerprint?: (masterFingerprint: string) => void;
+}

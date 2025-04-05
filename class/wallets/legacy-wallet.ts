@@ -645,4 +645,8 @@ export class LegacyWallet extends AbstractWallet {
     const txs = await BlueElectrum.getTransactionsByAddress(address);
     return txs.length > 0;
   }
+
+  getMasterFingerprintHex(): string {
+    return '00000000';
+  }
 }
