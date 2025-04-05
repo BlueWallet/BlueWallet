@@ -25,7 +25,6 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 interface TransactionListItemProps {
   itemPriceUnit?: BitcoinUnit;
@@ -47,15 +46,15 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
     const { language, selectedBlockExplorer } = useSettings();
     const insets = useSafeAreaInsets();
-    const { isLargeScreen } = useIsLargeScreen();
     const containerStyle = useMemo(
       () => ({
         backgroundColor: colors.background,
         borderBottomColor: colors.lightBorder,
-        paddingLeft: isLargeScreen ? insets.left : 16,
-        paddingRight: isLargeScreen ? insets.right : 16,
+        paddingLeft: 16,
+
+        paddingRight: 16,
       }),
-      [colors.background, colors.lightBorder, isLargeScreen, insets],
+      [colors.background, colors.lightBorder],
     );
 
     const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
@@ -131,8 +130,20 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         fontSize: 14,
         fontWeight: '600',
         textAlign: 'right',
+        paddingRight: insets.right,
+        paddingLeft: insets.left,
       };
-    }, [item, colors.foregroundColor, colors.successColor]);
+    }, [
+      colors.successColor,
+      colors.foregroundColor,
+      item.type,
+      item.value,
+      item.timestamp,
+      item.expire_time,
+      item.ispaid,
+      insets.right,
+      insets.left,
+    ]);
 
     const determineTransactionTypeAndAvatar = () => {
       if (item.category === 'receive' && item.confirmations! < 3) {
