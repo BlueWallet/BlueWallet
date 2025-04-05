@@ -27,45 +27,97 @@ interface SelectFeeModalProps {
   feeUnit: BitcoinUnit;
 }
 
-const FeeOption = React.memo(({ label, time, fee, rate, active, disabled, onPress, colors, formatFee }: any) => (
-  <TouchableOpacity
-    accessibilityRole="button"
-    disabled={disabled}
-    onPress={onPress}
-    style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && { backgroundColor: colors.feeActive }]}
-  >
-    <View style={styles.feeModalRow}>
-      <Text style={[styles.feeModalLabel, { color: disabled ? colors.buttonDisabledTextColor : colors.successColor }]}>{label}</Text>
-      <View style={[styles.feeModalTime, { backgroundColor: disabled ? colors.buttonDisabledBackgroundColor : colors.successColor }]}>
-        <Text style={{ color: colors.background }}>~{time}</Text>
-      </View>
-    </View>
-    <View style={styles.feeModalRow}>
-      <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>{fee && formatFee(fee)}</Text>
-      <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>
-        {rate} {loc.units.sat_vbyte}
-      </Text>
-    </View>
-  </TouchableOpacity>
-));
+interface CustomFeeInputProps {
+  value: string;
+  onChangeText: (value: string) => void;
+  onSubmitEditing: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+}
 
-const CustomFeeInput = React.memo(({ value, onChangeText, onSubmitEditing, onFocus, onBlur, colors }: any) => (
-  <TextInput
-    style={[styles.customFeeInput, { color: colors.successColor, borderColor: colors.formBorder }]}
-    keyboardType="numeric"
-    placeholder={loc.send.insert_custom_fee}
-    value={value}
-    placeholderTextColor={colors.placeholderTextColor}
-    onChangeText={onChangeText}
-    onSubmitEditing={onSubmitEditing}
-    onFocus={onFocus}
-    onBlur={onBlur}
-    enablesReturnKeyAutomatically
-    returnKeyType="done"
-    accessibilityLabel={loc.send.create_fee}
-    testID="feeCustom"
-  />
-));
+interface FeeOptionProps {
+  label: string;
+  time: string;
+  fee: number | null;
+  rate: number;
+  active: boolean;
+  disabled?: boolean;
+  onPress: () => void;
+  formatFee: (fee: number) => string;
+  feeUnit: BitcoinUnit;
+}
+
+const FeeOption = React.memo<FeeOptionProps>(
+  ({ label, time, fee, rate, active, disabled, onPress, formatFee }) => {
+    const { colors } = useTheme();
+    return (
+      <TouchableOpacity
+        accessibilityRole="button"
+        disabled={disabled}
+        onPress={onPress}
+        style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && { backgroundColor: colors.feeActive }]}
+      >
+        <View style={styles.feeModalRow}>
+          <Text style={[styles.feeModalLabel, { color: disabled ? colors.buttonDisabledTextColor : colors.successColor }]}>{label}</Text>
+          <View style={[styles.feeModalTime, { backgroundColor: disabled ? colors.buttonDisabledBackgroundColor : colors.successColor }]}>
+            <Text style={{ color: colors.background }}>~{time}</Text>
+          </View>
+        </View>
+        <View style={styles.feeModalRow}>
+          <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>{fee && formatFee(fee)}</Text>
+          <Text style={{ color: disabled ? colors.buttonDisabledTextColor : colors.successColor }}>
+            {rate} {loc.units.sat_vbyte}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.label === nextProps.label &&
+      prevProps.time === nextProps.time &&
+      prevProps.fee === nextProps.fee &&
+      prevProps.rate === nextProps.rate &&
+      prevProps.active === nextProps.active &&
+      prevProps.disabled === nextProps.disabled &&
+      prevProps.onPress === nextProps.onPress &&
+      prevProps.formatFee === nextProps.formatFee &&
+      prevProps.feeUnit === nextProps.feeUnit
+    );
+  },
+);
+
+const CustomFeeInput = React.memo<CustomFeeInputProps>(
+  ({ value, onChangeText, onSubmitEditing, onFocus, onBlur }) => {
+    const { colors } = useTheme();
+    return (
+      <TextInput
+        style={[styles.customFeeInput, { color: colors.successColor, borderColor: colors.formBorder }]}
+        keyboardType="numeric"
+        placeholder={loc.send.insert_custom_fee}
+        value={value}
+        placeholderTextColor={colors.placeholderTextColor}
+        onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        enablesReturnKeyAutomatically
+        returnKeyType="done"
+        accessibilityLabel={loc.send.create_fee}
+        testID="feeCustom"
+      />
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.value === nextProps.value &&
+      prevProps.onChangeText === nextProps.onChangeText &&
+      prevProps.onSubmitEditing === nextProps.onSubmitEditing &&
+      prevProps.onFocus === nextProps.onFocus &&
+      prevProps.onBlur === nextProps.onBlur
+    );
+  },
+);
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
   ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit = BitcoinUnit.BTC }, ref) => {
@@ -76,8 +128,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
     const nf = networkTransactionFees;
 
     const { colors } = useTheme();
-    
-    const memoizedColors = useMemo(() => colors, [colors]);
 
     const stylesHook = StyleSheet.create({
       loading: {
@@ -278,7 +328,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
               active={active}
               disabled={disabled}
               onPress={handleFeeOptionPress(fee, rate)}
-              colors={colors}
               formatFee={formatFee}
               feeUnit={feeUnit}
             />
@@ -302,7 +351,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
                   onSubmitEditing={handleCustomFeeSubmit}
                   onFocus={handleCustomFocus}
                   onBlur={handleCustomFeeBlur}
-                  colors={memoizedColors}
                 />
                 {customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue.toString()) && Number(customFeeValue) > 0 && (
                   <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>
