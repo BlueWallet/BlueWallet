@@ -164,6 +164,13 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       [setFeePrecalc, setCustomFee],
     );
 
+    const handleFeeOptionPress = useCallback(
+      (fee: number | null, rate: number) => {
+        return () => handleSelectOption(fee, rate);
+      },
+      [handleSelectOption],
+    );
+
     const handleCustomFeeChange = useCallback(
       (value: string) => {
         const sanitizedValue = value.replace(/[^\d.,]/g, '').replace(/([.,].*?)[.,]/g, '$1');
@@ -243,6 +250,10 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       customFeeInputRef.current?.focus();
     };
 
+    const handleCustomFocus = useCallback(() => {
+      setIsCustomFeeFocused(true);
+    }, []);
+
     const isCustomFeeSelected = () => {
       if (isCustomFeeFocused) return true;
       const matchesPresetOption = options.some(option => Number(feeRate) === option.rate);
@@ -264,7 +275,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
               rate={rate}
               active={active}
               disabled={disabled}
-              onPress={() => handleSelectOption(fee, rate)}
+              onPress={handleFeeOptionPress(fee, rate)}
               colors={colors}
               formatFee={formatFee}
               feeUnit={feeUnit}
@@ -287,7 +298,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
                   value={customFeeValue}
                   onChangeText={handleCustomFeeChange}
                   onSubmitEditing={handleCustomFeeSubmit}
-                  onFocus={() => setIsCustomFeeFocused(true)}
+                  onFocus={handleCustomFocus}
                   onBlur={handleCustomFeeBlur}
                   colors={colors}
                 />
