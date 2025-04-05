@@ -214,7 +214,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
           {/* Custom Fee Option */}
           <TouchableOpacity
             accessibilityRole="button"
-            testID="feeCustom"
             onPress={handleCustomPress}
             style={[
               styles.feeModalItem,
@@ -237,7 +236,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
                   onSubmitEditing={handleCustomFeeSubmit}
                   returnKeyType="done"
                   accessibilityLabel={loc.send.create_fee}
-                  testID="customFeeInput"
+                  testID="feeCustom"
                 />
                 {customFeeValue && <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>}
               </View>

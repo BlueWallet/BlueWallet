@@ -68,9 +68,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).tapReturnKey();
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -235,9 +234,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).tapReturnKey();
 
     // Let's add another two outputs
     await element(by.id('HeaderMenuButton')).tap();
@@ -308,9 +306,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // set fee rate
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).tapReturnKey();
 
     // first send MAX output
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
@@ -509,9 +506,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText('1\n');
+    await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1000);
 
     await element(by.id('CreateTransactionButton')).tap();
@@ -597,9 +593,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).tapReturnKey();
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -669,11 +664,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).replaceText('1');
-    await element(by.type('android.widget.EditText')).tapReturnKey();
-    await element(by.text('OK')).tap();
-    await tapIfTextPresent('OK'); // in case it didnt work first time
+    await element(by.id('feeCustom')).replaceText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
     await sleep(3000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();
@@ -701,9 +693,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustom')).typeText('1\n');
+    await element(by.id('feeCustom')).tapReturnKey();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();

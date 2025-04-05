@@ -605,10 +605,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // setting fee rate:
     const feeRate = 3;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).typeText(feeRate + '\n');
+    await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1_000); // propagate
-    await element(by.text('OK')).tap();
 
     try {
       await element(by.id('CreateTransactionButton')).tap();
