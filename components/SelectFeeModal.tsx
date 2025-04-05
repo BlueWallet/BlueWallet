@@ -76,6 +76,8 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
     const nf = networkTransactionFees;
 
     const { colors } = useTheme();
+    
+    const memoizedColors = useMemo(() => colors, [colors]);
 
     const stylesHook = StyleSheet.create({
       loading: {
@@ -300,7 +302,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
                   onSubmitEditing={handleCustomFeeSubmit}
                   onFocus={handleCustomFocus}
                   onBlur={handleCustomFeeBlur}
-                  colors={colors}
+                  colors={memoizedColors}
                 />
                 {customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue.toString()) && Number(customFeeValue) > 0 && (
                   <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>
