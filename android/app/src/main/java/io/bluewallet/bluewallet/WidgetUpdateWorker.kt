@@ -101,7 +101,9 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
 
         val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = "android.intent.action.MAIN"
+            addCategory("android.intent.category.LAUNCHER")
         }
         val pendingIntent = PendingIntent.getActivity(
             applicationContext,
