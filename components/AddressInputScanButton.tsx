@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import * as fs from '../blue_modules/fs';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
-import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
 import { useTheme } from './themes';
 import RNQRGenerator from 'rn-qr-generator';
@@ -108,7 +108,7 @@ export const AddressInputScanButton = ({
           }
           break;
         case CommonToolTipActions.ChoosePhoto.id:
-          showImagePickerAndReadImage()
+          fs.showImagePickerAndReadImage()
             .then(value => {
               if (value) {
                 onChangeText(value);
@@ -119,9 +119,9 @@ export const AddressInputScanButton = ({
             });
           break;
         case CommonToolTipActions.ImportFile.id:
-          showFilePickerAndReadFile()
+          fs.showFilePickerAndReadFile()
             .then(value => {
-              if (value.data) {
+              if (value.data && typeof value.data === 'string') {
                 onChangeText(value.data);
               }
             })

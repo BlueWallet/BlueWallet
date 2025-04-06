@@ -4,7 +4,7 @@ import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowD
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
-import * as fs from '../../blue_modules/fs';
+import { showImagePickerAndReadImage, showFilePickerAndReadFile } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
@@ -234,9 +234,14 @@ const WalletsList: React.FC = () => {
   );
 
   useEffect(() => {
-    const data = route.params?.onBarScanned;
+    const data = route.params?.onBarScanned as { data?: string } | string | undefined;
+    console.debug('WalletsList received data:', data);
     if (data) {
-      onBarScanned(data);
+      if (typeof data === 'string') {
+        onBarScanned(data);
+      } else if (data?.data) {
+        onBarScanned(data.data);
+      }
       navigation.setParams({ onBarScanned: undefined });
     }
   }, [navigation, onBarScanned, route.params?.onBarScanned]);
@@ -409,12 +414,29 @@ const WalletsList: React.FC = () => {
   const onScanButtonPressed = useCallback(() => {
     navigation.navigate('ScanQRCode', {
       showFileImportButton: true,
+      onBarScanned: (data: string) => {
+        console.debug('ScanQRCode returned data:', data);
+        DeeplinkSchemaMatch.navigationRouteFor({ url: data }, completionValue => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          // @ts-ignore: for now
+          navigation.navigate(...completionValue);
+        });
+      },
     });
   }, [navigation]);
 
   const pasteFromClipboard = useCallback(async () => {
     onBarScanned(await getClipboardContent());
   }, [onBarScanned]);
+
+  const showFilePicker = async () => {
+    const result = await showFilePickerAndReadFile();
+    if (result?.data) {
+      
+        onBarScanned(result.data);
+      
+    }
+  };
 
   const sendButtonLongPress = useCallback(async () => {
     const isClipboardEmpty = (await getClipboardContent())?.trim().length === 0;
@@ -437,8 +459,7 @@ const WalletsList: React.FC = () => {
         case 0:
           break;
         case 1:
-          fs.showImagePickerAndReadImage()
-            .then(onBarScanned)
+          showFilePicker()
             .catch(error => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
               presentAlert({ title: loc.errors.error, message: error.message });

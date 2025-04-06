@@ -1276,7 +1276,7 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
-  - react-native-document-picker (9.3.1):
+  - react-native-document-picker (10.1.2):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1956,7 +1956,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
-  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
@@ -2110,7 +2110,7 @@ EXTERNAL SOURCES:
   react-native-bw-file-access:
     :path: "../blue_modules/react-native-bw-file-access"
   react-native-document-picker:
-    :path: "../node_modules/react-native-document-picker"
+    :path: "../node_modules/@react-native-documents/picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-menu:
@@ -2276,7 +2276,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
-  react-native-document-picker: 530879d9e89b490f0954bcc4ab697c5b5e35d659
+  react-native-document-picker: 3d8f32f7159fa7ec98e66927771ec5e0e01df763
   react-native-image-picker: 86f8954a0b8c0f85d56fa1d85ae87936ae74e615
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
   react-native-prevent-screenshot-ios-android: 490b2ae701658753e819ca215201f4aa8cab3d53
