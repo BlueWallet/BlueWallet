@@ -253,8 +253,9 @@ const WalletDetails: React.FC = () => {
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
         if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
-          if (wallet.getMasterFingerprintHex) {
-            const fingerprint = wallet.getMasterFingerprintHex();
+          const walletWithMFP = wallet as WatchOnlyWallet;
+          if (walletWithMFP.getMasterFingerprintHex) {
+            const fingerprint = walletWithMFP.getMasterFingerprintHex();
             setMasterFingerprint(fingerprint);
             setOriginalFingerprint(fingerprint);
           }
@@ -418,7 +419,7 @@ const WalletDetails: React.FC = () => {
           onPress={() => {
             setIsMasterFingerPrintVisible(true);
             setTimeout(() => {
-              setMasterFingerprint(wallet.getMasterFingerprintHex());
+              setMasterFingerprint((wallet as WatchOnlyWallet).getMasterFingerprintHex());
             }, 100);
           }}
         >
