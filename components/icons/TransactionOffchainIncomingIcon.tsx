@@ -12,15 +12,14 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
   } as ViewStyle,
-  icon: {
-    left: 0,
-    marginTop: 6,
-  },
 });
 
 const TransactionOffchainIncomingIcon: React.FC = () => {
   const { colors } = useTheme();
+
   const stylesHooks = StyleSheet.create({
     ballIncomingWithoutRotate: {
       backgroundColor: colors.ballReceive,
@@ -30,7 +29,7 @@ const TransactionOffchainIncomingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballIncomingWithoutRotate, stylesHooks.ballIncomingWithoutRotate]}>
-        <Icon name="bolt" size={16} type="font-awesome" color={colors.incomingForegroundColor} iconStyle={styles.icon} />
+        <Icon name="bolt" size={16} type="font-awesome" color={colors.incomingForegroundColor} />
       </View>
     </View>
   );
