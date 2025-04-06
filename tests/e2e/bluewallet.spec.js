@@ -606,7 +606,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     const feeRate = 3;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate);
+    await element(by.id('feeCustom')).typeText(feeRate.toString());
     await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1_000); // propagate
 
