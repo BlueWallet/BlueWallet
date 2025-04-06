@@ -172,8 +172,8 @@ export interface AbstractWalletInterface {
   allowXpub: () => boolean;
   allowSignVerifyMessage: () => boolean;
   getLastTxFetch: () => number;
-  allowMasterFingerprint?: () => boolean;
-  getMasterFingerprint?: () => number;
-  getMasterFingerprintHex?: () => string;
-  setMasterFingerprint?: (masterFingerprint: string) => void;
+  allowMasterFingerprint: () => boolean;
+  getMasterFingerprint: () => number;
+  getMasterFingerprintHex: () => string;
+  setMasterFingerprint: (masterFingerprint: string | number) => void;
 }

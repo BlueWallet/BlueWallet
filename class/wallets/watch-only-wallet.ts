@@ -228,6 +228,10 @@ export class WatchOnlyWallet extends LegacyWallet {
     );
   }
 
+  setMasterFingerprint(value: string | number) {
+    this.masterFingerprint = typeof value === 'string' ? parseInt(value, 16) : value;
+  }
+
   isHd() {
     return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
   }

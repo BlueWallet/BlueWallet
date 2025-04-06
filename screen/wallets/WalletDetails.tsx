@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { I18nManager, InteractionManager, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  I18nManager,
+  InteractionManager,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -418,7 +428,11 @@ const WalletDetails: React.FC = () => {
     }
 
     if (isLoading || masterFingerprint === undefined) {
-      return <BlueLoading />;
+      return (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator />
+        </View>
+      );
     }
 
     if (isEditingMasterFingerprint) {
@@ -427,32 +441,33 @@ const WalletDetails: React.FC = () => {
           value={masterFingerprint}
           onChangeText={setMasterFingerprint}
           onBlur={() => {
-            if (masterFingerprint) {
-              presentAlert({
-                title: loc.wallets.details_save_changes,
-                message: loc.wallets.details_confirm_save_master_fingerprint,
-                buttons: [
-                  {
-                    text: loc._.cancel,
-                    style: 'cancel',
-                    onPress: () => {
-                      setMasterFingerprint(originalFingerprint);
-                      setIsEditingMasterFingerprint(false);
-                    },
-                  },
-                  {
-                    text: loc._.ok,
-                    onPress: async () => {
-                      wallet.setMasterFingerprint(masterFingerprint);
-                      await saveToDisk();
-                      setIsEditingMasterFingerprint(false);
-                    },
-                  },
-                ],
-              });
-            } else {
-              setIsEditingMasterFingerprint(false);
+            let finalFingerprint = masterFingerprint;
+            if (!masterFingerprint || masterFingerprint.trim().length === 0) {
+              finalFingerprint = '00000000';
             }
+            presentAlert({
+              title: loc.wallets.details_save_changes,
+              message: loc.wallets.details_confirm_save_master_fingerprint,
+              buttons: [
+                {
+                  text: loc._.cancel,
+                  style: 'cancel',
+                  onPress: () => {
+                    setMasterFingerprint(originalFingerprint);
+                    setIsEditingMasterFingerprint(false);
+                  },
+                },
+                {
+                  text: loc._.ok,
+                  onPress: async () => {
+                    const mfp = Buffer.from(finalFingerprint, 'hex').reverse().toString('hex');
+                    wallet.setMasterFingerprint(parseInt(mfp, 16).toString());
+                    await saveToDisk();
+                    setIsEditingMasterFingerprint(false);
+                  },
+                },
+              ],
+            });
           }}
           style={[styles.fingerprintInput, stylesHook.fingerprintInput]}
           autoFocus
@@ -460,10 +475,15 @@ const WalletDetails: React.FC = () => {
       );
     }
 
+    const actions =
+      wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()
+        ? [CommonToolTipActions.Edit, CommonToolTipActions.CopyToClipboard]
+        : [CommonToolTipActions.CopyToClipboard];
+
     return (
       <ToolTipMenu
         isMenuPrimaryAction
-        actions={[CommonToolTipActions.Edit, CommonToolTipActions.CopyToClipboard]}
+        actions={actions}
         onPressMenuItem={id => {
           if (id === CommonToolTipActions.Edit.id) {
             setIsEditingMasterFingerprint(true);
@@ -481,7 +501,7 @@ const WalletDetails: React.FC = () => {
   };
 
   usePreventRemove(isEditingMasterFingerprint || walletName !== wallet.getLabel(), () => {
-    if (isEditingMasterFingerprint) {
+    if (wallet.type === WatchOnlyWallet.type && isEditingMasterFingerprint) {
       if (masterFingerprint && masterFingerprint !== originalFingerprint) {
         presentAlert({
           title: loc.wallets.details_save_changes,
@@ -799,6 +819,9 @@ const styles = StyleSheet.create({
 
   fingerprintInput: {
     borderBottomWidth: 1,
+  },
+  activityIndicator: {
+    alignItems: 'flex-start',
   },
 });
 
