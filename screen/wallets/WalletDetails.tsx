@@ -461,7 +461,7 @@ const WalletDetails: React.FC = () => {
                   text: loc._.ok,
                   onPress: async () => {
                     const mfp = Buffer.from(finalFingerprint, 'hex').reverse().toString('hex');
-                    wallet.setMasterFingerprint(parseInt(mfp, 16).toString());
+                    wallet.setMasterFingerprint(parseInt(mfp, 16));
                     await saveToDisk();
                     setIsEditingMasterFingerprint(false);
                   },
