@@ -111,7 +111,11 @@ export const AddressInputScanButton = ({
           fs.showImagePickerAndReadImage()
             .then(value => {
               if (value) {
-                onChangeText(value);
+                if (typeof value.data === 'string') {
+                  onChangeText(value.data);
+                } else {
+                  presentAlert({ message: 'Invalid data format' });
+                }
               }
             })
             .catch(error => {
@@ -121,7 +125,7 @@ export const AddressInputScanButton = ({
         case CommonToolTipActions.ImportFile.id:
           fs.showFilePickerAndReadFile()
             .then(value => {
-              if (value.data && typeof value.data === 'string') {
+              if (value.data) {
                 onChangeText(value.data);
               }
             })

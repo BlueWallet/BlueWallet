@@ -8,7 +8,6 @@ import loc from '../loc';
 import { isDesktop } from './environment';
 import RNQRGenerator from 'rn-qr-generator';
 
-
 const { BWFileAccess } = NativeModules;
 
 export const readFile = (path: string): Promise<string> => {
@@ -91,7 +90,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       await _shareOpen(filePath, showShareDialog);
     } else if (Platform.OS === 'android') {
       // Log all available paths to debug
-      console.log('Available paths:', { 
+      console.log('Available paths:', {
         DocumentDir: RNFS.DocumentDirectoryPath,
         DownloadDir: RNFS.DownloadDirectoryPath,
         CachesDir: RNFS.CachesDirectoryPath,
@@ -99,9 +98,9 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         TempDir: RNFS.TemporaryDirectoryPath,
         LibraryDir: RNFS.LibraryDirectoryPath,
         ExternalDir: RNFS.ExternalDirectoryPath,
-        ExternalStorageDir: RNFS.ExternalStorageDirectoryPath
+        ExternalStorageDir: RNFS.ExternalStorageDirectoryPath,
       });
-      
+
       // Use a reliable directory path that's always available
       const tempFilePath = `${RNFS.CachesDirectoryPath}/${sanitizedFileName}`;
       console.log('Writing temporary file on Android:', { tempFilePath });
@@ -115,7 +114,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
           const encodedPath = encodeURIComponent(encodeURI(sanitizedFileName));
           const contentUri = createContentUri(encodedPath);
           console.log('Using content URI:', contentUri);
-          
+
           const [{ uri: targetUri, name: savedFileName }] = await saveDocuments({
             sourceUris: [contentUri],
             copy: true,
@@ -204,7 +203,7 @@ const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | fa
       console.log('Processing Android content URI:', fileCopyUri);
       const result = await RNQRGenerator.detect({ uri: fileCopyUri });
       console.log('QR detection result:', { hasValues: !!result?.values?.length });
-      
+
       if (result?.values?.[0]) {
         return { data: result.values[0], uri: fileCopyUri };
       }
@@ -222,7 +221,7 @@ const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | fa
     console.log('Attempting QR detection on sanitized URI:', sanitizedUri);
     const result = await RNQRGenerator.detect({ uri: sanitizedUri });
     console.log('QR detection result:', { hasValues: !!result?.values?.length });
-    
+
     if (result?.values?.[0]) {
       return { data: result.values[0], uri: fileCopyUri };
     }
@@ -273,7 +272,6 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
       // Handle text files
       const file = await RNFS.readFile(fileUri, 'utf8');
       return { data: file, uri: fileUri };
-      
     } catch (error) {
       console.error('File processing error:', error);
       return { data: false, uri: false };
@@ -285,19 +283,17 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
   }
 };
 
-export const readFileOutsideSandbox = async (filePath: string): Promise<{ data: string | false; uri: string | false }> => {
+export const readFileOutsideSandbox = async (filePath: string): Promise<string> => {
   const sanitizedPath = sanitizeUri(filePath);
   try {
-    const fileContents = Platform.OS === 'ios' 
-      ? await readFile(sanitizedPath)
-      : await RNFS.readFile(sanitizedPath);
-    return { data: fileContents, uri: filePath };
+    const fileContents = Platform.OS === 'ios' ? await readFile(sanitizedPath) : await RNFS.readFile(sanitizedPath);
+    return fileContents;
   } catch (error: any) {
     console.error('Read file failed:', { error, filePath: sanitizedPath });
     if (error.code === 'ENOENT') {
       throw new Error(`File not found: ${filePath}`);
     }
-    return { data: false, uri: false };
+    throw error;
   }
 };
 
@@ -311,12 +307,12 @@ export const showImagePickerAndReadImage = async (): Promise<{ data: string | fa
       selectionLimit: 1,
     });
 
-    console.log('Image picker response:', { 
-      didCancel: response.didCancel, 
-      errorCode: response.errorCode, 
+    console.log('Image picker response:', {
+      didCancel: response.didCancel,
+      errorCode: response.errorCode,
       hasAssets: !!response.assets?.length,
       type: response.assets?.[0]?.type,
-      uri: response.assets?.[0]?.uri
+      uri: response.assets?.[0]?.uri,
     });
 
     if (response.didCancel) {
