@@ -298,7 +298,7 @@
     "network_broadcast": "Rozgłoś transakcję",
     "network_electrum": "Serwer Electrum",
     "electrum_suggested_description": "Gdy preferowany serwer nie jest ustawiony, sugerowany serwer zostanie wybrany losowo do użycia.",
-    "not_a_valid_uri": "Nieprawidłowy adres",
+    "not_a_valid_uri": "Adres nieprawidłowy",
     "notifications": "Powiadomienia",
     "open_link_in_explorer": "Otwórz link w eksploratorze bloków",
     "password": "Hasło",
