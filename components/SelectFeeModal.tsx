@@ -334,6 +334,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
           ))}
           <TouchableOpacity
             accessibilityRole="button"
+            testID='feeCustomContainerButton'
             onPress={handleCustomPress}
             style={[
               styles.feeModalItem,

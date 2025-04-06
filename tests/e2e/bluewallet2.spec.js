@@ -68,6 +68,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText(feeRate);
     await element(by.id('feeCustom')).tapReturnKey();
 
@@ -234,6 +235,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText(feeRate);
     await element(by.id('feeCustom')).tapReturnKey();
 
@@ -306,6 +308,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // set fee rate
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText(feeRate);
     await element(by.id('feeCustom')).tapReturnKey();
 
@@ -506,6 +509,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1000);
@@ -593,6 +597,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText(feeRate);
     await element(by.id('feeCustom')).tapReturnKey();
 
@@ -664,6 +669,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).replaceText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     await sleep(3000);
@@ -693,6 +699,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     if (process.env.TRAVIS) await sleep(5000);
