@@ -369,6 +369,8 @@ platform :ios do
     UI.message("Installing CocoaPods dependencies...")
     cocoapods(podfile: "ios/Podfile",
       try_repo_update_on_error: true,
+      repo_update: true,
+      
       clean_install: true)
   end
 
