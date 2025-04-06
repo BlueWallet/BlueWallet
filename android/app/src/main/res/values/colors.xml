@@ -1,11 +1,11 @@
 <resources>
-    <color name="white">#FFF</color>
-    <color name="background_color">#FFFFFF</color>
-    <color name="widget_background">#FFFFFF</color>
-    <color name="text_primary">#0C234F</color>
-    <color name="text_secondary">#949494</color>
-    <color name="widget_background_color">#121212</color>
-    <color name="widget_text_color">#FFFFFF</color>
-    <color name="container_green">#4ADCBA</color>
-    <color name="container_red">#F83661</color>
+    <color name="white">@android:color/white</color>
+    <color name="background_color">@android:color/white</color>
+    <color name="widget_background">@android:color/white</color>
+    <color name="text_primary">@android:color/primary_text_light</color>
+    <color name="text_secondary">@android:color/secondary_text_light</color>
+    <color name="widget_background_color">@android:color/background_dark</color>
+    <color name="widget_text_color">@android:color/white</color>
+    <color name="container_green">@android:color/holo_green_light</color>
+    <color name="container_red">@android:color/holo_red_light</color>
 </resources>

@@ -14,6 +14,75 @@ import {
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+const getAndroidColor = (colorName: string) => {
+  try {
+    return PlatformColor(colorName);
+  } catch {
+    // Fallback colors if PlatformColor fails
+    const fallbacks: { [key: string]: string } = {
+      '@android:color/primary_text_light': '#000000',
+      '@android:color/secondary_text_light': '#757575',
+      '@android:color/background_light': '#FFFFFF',
+      '@android:color/darker_gray': '#AAAAAA',
+      '@android:color/transparent': 'transparent',
+      '@android:color/holo_blue_light': '#33B5E5',
+    };
+    return fallbacks[colorName] || '#000000';
+  }
+};
+
+const stylesHook = StyleSheet.create({
+  title: {
+    color: Platform.select({
+      ios: PlatformColor('label'),
+      android: getAndroidColor('@android:color/primary_text_light'),
+    }),
+    fontSize: 17,
+    fontWeight: '400',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
+  subtitle: {
+    flexWrap: 'wrap',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+    color: Platform.select({
+      ios: PlatformColor('secondaryLabel'),
+      android: getAndroidColor('@android:color/secondary_text_light'),
+    }),
+    fontWeight: '400',
+    paddingVertical: 8,
+    lineHeight: 20,
+    fontSize: 15,
+  },
+  containerStyle: {
+    backgroundColor: Platform.select({
+      ios: PlatformColor('secondarySystemGroupedBackground'),
+      android: getAndroidColor('@android:color/background_light'),
+    }),
+    paddingVertical: 11,
+    minHeight: 44,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Platform.select({
+      ios: PlatformColor('separator'),
+      android: getAndroidColor('@android:color/darker_gray'),
+    }),
+  },
+  chevron: {
+    color: Platform.select({
+      ios: PlatformColor('tertiaryLabel'),
+      android: getAndroidColor('@android:color/darker_gray'),
+    }),
+    opacity: 0.7,
+  },
+});
+
+interface IconProps {
+  name: string;
+  type: string;
+  color?: string | number;
+  size?: number;
+  backgroundColor?: string | number;
+}
+
 interface ListItemProps {
   swipeable?: boolean;
   rightIcon?: any;
@@ -28,7 +97,7 @@ interface ListItemProps {
   onDeletePressed?: () => void;
   disabled?: boolean;
   switch?: object;
-  leftIcon?: any;
+  leftIcon?: IconProps;
   title: string;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
@@ -93,51 +162,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   checkmark,
   swipeableLeftContent,
   swipeableRightContent,
-  isFirst = false,
   isLast = false,
+  isFirst = false,
 }) => {
-  const stylesHook = StyleSheet.create({
-    title: {
-      color: disabled ? PlatformColor('tertiaryLabel') : PlatformColor('label'),
-      fontSize: 17,
-      fontWeight: '400',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    },
-    subtitle: {
-      flexWrap: 'wrap',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-      color: PlatformColor('secondaryLabel'),
-      fontWeight: '400',
-      paddingVertical: switchProps ? 8 : 0,
-      lineHeight: 20,
-      fontSize: 15,
-    },
-    containerStyle: {
-      backgroundColor: Platform.select({
-        ios: PlatformColor('secondarySystemGroupedBackground'),
-        android: PlatformColor('@android:color/background_light'),
-      }),
-      paddingVertical: 11,
-      minHeight: 44,
-      borderTopLeftRadius: isFirst ? 10 : 0,
-      borderTopRightRadius: isFirst ? 10 : 0,
-      borderBottomLeftRadius: isLast ? 10 : 0,
-      borderBottomRightRadius: isLast ? 10 : 0,
-      borderBottomWidth: isLast || !bottomDivider ? 0 : StyleSheet.hairlineWidth,
-      borderBottomColor: Platform.select({
-        ios: PlatformColor('separator'),
-        android: PlatformColor('@android:color/darker_gray'),
-      }),
-    },
-    chevron: {
-      color: Platform.select({
-        ios: PlatformColor('tertiaryLabel'),
-        android: PlatformColor('@android:color/tertiary_text_light'),
-      }),
-      opacity: 0.7,
-    },
-  });
-
   const memoizedSwitchProps = useMemo(
     () =>
       switchProps
@@ -146,7 +173,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             trackColor: {
               false: Platform.select({
                 ios: PlatformColor('systemFill'),
-                android: PlatformColor('@android:color/darker_gray'),
+                android: getAndroidColor('@android:color/darker_gray'),
               }),
               true: Platform.select({
                 ios: PlatformColor('systemGreen'),
@@ -162,13 +189,27 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   const renderContent = () => (
     <>
       {leftIcon && (
-        <View style={styles.leftIconContainer}>
+        <View
+          style={[
+            styles.leftIconContainer,
+            Platform.select({
+              ios: [styles.leftIconContainerIOS, styles.iconContainerIOS],
+              android: [styles.leftIconContainerAndroid, styles.iconContainerAndroid],
+            }),
+            leftIcon.backgroundColor
+              ? {
+                  backgroundColor:
+                    typeof leftIcon.backgroundColor === 'number' ? leftIcon.backgroundColor.toString() : leftIcon.backgroundColor,
+                }
+              : null,
+          ]}
+        >
           <Avatar
-            size={22}
+            size={Platform.select({ ios: 22, android: 28 })}
             icon={{
               name: leftIcon.name,
               type: leftIcon.type,
-              color: leftIcon.color,
+              color: typeof leftIcon.color === 'number' ? leftIcon.color.toString() : (leftIcon.color ?? 'black'),
               size: Platform.OS === 'ios' ? 18 : 24,
             }}
             containerStyle={styles.transparentBackground}
@@ -207,11 +248,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         <ActivityIndicator />
       ) : (
         <>
-          {chevron && (
-            <RNElementsListItem.Chevron
-              iconStyle={StyleSheet.flatten([{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }, stylesHook.chevron])}
-            />
-          )}
+          {chevron && <RNElementsListItem.Chevron iconStyle={StyleSheet.flatten([styles.transformRTL, stylesHook.chevron])} />}
           {rightIcon && <Avatar icon={rightIcon} />}
           {switchProps && (
             <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
@@ -237,7 +274,20 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 
   return swipeable ? (
     <RNElementsListItem.Swipeable
-      containerStyle={[stylesHook.containerStyle, containerStyle]}
+      containerStyle={[
+        stylesHook.containerStyle,
+        Platform.select({
+          ios: {
+            borderRadius: 0,
+            overflow: 'hidden',
+            ...(isFirst && styles.containerFirstIOS),
+            ...(isLast && styles.containerLastIOS),
+            ...(isFirst && isLast && styles.containerSingleIOS),
+          },
+          android: styles.swipeableAndroid,
+        }),
+        containerStyle,
+      ]}
       Component={Component}
       bottomDivider={bottomDivider && !isLast}
       topDivider={topDivider}
@@ -253,7 +303,19 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     </RNElementsListItem.Swipeable>
   ) : (
     <RNElementsListItem
-      containerStyle={[stylesHook.containerStyle, containerStyle]}
+      containerStyle={[
+        stylesHook.containerStyle,
+        Platform.select({
+          ios: {
+            borderRadius: 0,
+            ...(isFirst && styles.containerFirstIOS),
+            ...(isLast && styles.containerLastIOS),
+            ...(isFirst && isLast && styles.containerSingleIOS),
+          },
+          android: styles.containerAndroid,
+        }),
+        containerStyle,
+      ]}
       Component={Component}
       bottomDivider={bottomDivider && !isLast}
       topDivider={topDivider}
@@ -287,17 +349,47 @@ const styles = StyleSheet.create({
   leftIconContainer: {
     marginLeft: 12,
     marginRight: 16,
-    width: 28,
-    height: 28,
-    backgroundColor: Platform.select({
-      ios: PlatformColor('systemGray5'),
-      android: PlatformColor('transparent'),
-    }),
-    borderRadius: Platform.OS === 'ios' ? 6 : 0,
+    width: Platform.select({ ios: 28, android: 36 }),
+    height: Platform.select({ ios: 28, android: 36 }),
     alignItems: 'center',
     justifyContent: 'center',
   },
+  leftIconContainerIOS: {
+    borderRadius: 6,
+  },
+  leftIconContainerAndroid: {
+    borderRadius: 14,
+  },
+  transformRTL: {
+    transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],
+  },
   transparentBackground: {
+    backgroundColor: 'transparent',
+  },
+
+  containerAndroid: {
+    borderRadius: 8,
+  },
+  containerFirstIOS: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  containerLastIOS: {
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  containerSingleIOS: {
+    borderRadius: 10,
+  },
+
+  swipeableAndroid: {
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  iconContainerIOS: {
+    backgroundColor: 'transparent',
+  },
+  iconContainerAndroid: {
     backgroundColor: 'transparent',
   },
 });
