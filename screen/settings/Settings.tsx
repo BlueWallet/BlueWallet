@@ -52,6 +52,12 @@ const Settings = () => {
               android: 'rgba(51, 181, 229, 0.12)',
             }),
           }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
+            }),
+          }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
@@ -72,6 +78,12 @@ const Settings = () => {
               android: 'rgba(153, 204, 0, 0.12)',
             }),
           }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
+            }),
+          }}
           onPress={() => navigate('Currency')}
           testID="Currency"
           chevron
@@ -89,6 +101,12 @@ const Settings = () => {
             backgroundColor: Platform.select({
               ios: 'rgba(255, 149, 0, 0.12)',
               android: 'rgba(255, 187, 51, 0.12)',
+            }),
+          }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
             }),
           }}
           onPress={() => navigate('Language')}
@@ -113,6 +131,12 @@ const Settings = () => {
             backgroundColor: Platform.select({
               ios: 'rgba(255, 59, 48, 0.12)',
               android: 'rgba(255, 68, 68, 0.12)',
+            }),
+          }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
             }),
           }}
           onPress={() => navigate('EncryptStorage')}
@@ -140,6 +164,12 @@ const Settings = () => {
               android: 'rgba(170, 102, 204, 0.12)',
             }),
           }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
+            }),
+          }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
@@ -158,6 +188,12 @@ const Settings = () => {
             backgroundColor: Platform.select({
               ios: 'rgba(162, 132, 94, 0.12)',
               android: 'rgba(255, 140, 0, 0.12)',
+            }),
+          }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
             }),
           }}
           onPress={() => navigate('ToolsScreen')}
@@ -182,6 +218,12 @@ const Settings = () => {
             backgroundColor: Platform.select({
               ios: 'rgba(142, 142, 147, 0.12)',
               android: 'rgba(170, 170, 170, 0.12)',
+            }),
+          }}
+          containerStyle={{
+            backgroundColor: Platform.select({
+              ios: PlatformColor('secondarySystemGroupedBackground'),
+              android: PlatformColor('@android:color/background_light'),
             }),
           }}
           onPress={() => navigate('About')}

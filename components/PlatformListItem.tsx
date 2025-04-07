@@ -37,8 +37,8 @@ const stylesHook = StyleSheet.create({
       ios: PlatformColor('label'),
       android: getAndroidColor('@android:color/primary_text_light'),
     }),
-    fontSize: 17,
-    fontWeight: '400',
+    fontSize: Platform.select({ ios: 17, android: 16 }),
+    fontWeight: '500',
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   subtitle: {
@@ -49,22 +49,23 @@ const stylesHook = StyleSheet.create({
       android: getAndroidColor('@android:color/secondary_text_light'),
     }),
     fontWeight: '400',
-    paddingVertical: 8,
-    lineHeight: 20,
-    fontSize: 15,
+    paddingVertical: Platform.select({ ios: 2, android: 4 }),
+    lineHeight: Platform.select({ ios: 20, android: 18 }),
+    fontSize: Platform.select({ ios: 15, android: 14 }),
   },
   containerStyle: {
     backgroundColor: Platform.select({
-      ios: PlatformColor('secondarySystemGroupedBackground'),
+      ios: PlatformColor('systemBackground'),
       android: getAndroidColor('@android:color/background_light'),
     }),
-    paddingVertical: 11,
-    minHeight: 44,
+    paddingVertical: Platform.select({ ios: 12, android: 16 }),
+    minHeight: Platform.select({ ios: 44, android: 56 }),
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Platform.select({
       ios: PlatformColor('separator'),
       android: getAndroidColor('@android:color/darker_gray'),
     }),
+    borderRadius: 10,
   },
   chevron: {
     color: Platform.select({
@@ -72,6 +73,13 @@ const stylesHook = StyleSheet.create({
       android: getAndroidColor('@android:color/darker_gray'),
     }),
     opacity: 0.7,
+  },
+  iconContainer: {
+    marginRight: Platform.select({ ios: 16, android: 24 }),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: Platform.select({ ios: 28, android: 36 }),
+    height: Platform.select({ ios: 28, android: 36 }),
   },
 });
 
@@ -193,8 +201,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           style={[
             styles.leftIconContainer,
             Platform.select({
-              ios: [styles.leftIconContainerIOS, styles.iconContainerIOS],
-              android: [styles.leftIconContainerAndroid, styles.iconContainerAndroid],
+              ios: [styles.leftIconContainerIOS, stylesHook.iconContainer],
+              android: [styles.leftIconContainerAndroid, stylesHook.iconContainer],
             }),
             leftIcon.backgroundColor
               ? {
@@ -368,7 +376,7 @@ const styles = StyleSheet.create({
   },
 
   containerAndroid: {
-    borderRadius: 8,
+    borderRadius: 10,
   },
   containerFirstIOS: {
     borderTopLeftRadius: 10,
@@ -383,14 +391,8 @@ const styles = StyleSheet.create({
   },
 
   swipeableAndroid: {
-    borderRadius: 8,
+    borderRadius: 10,
     overflow: 'hidden',
-  },
-  iconContainerIOS: {
-    backgroundColor: 'transparent',
-  },
-  iconContainerAndroid: {
-    backgroundColor: 'transparent',
   },
 });
 
