@@ -1262,7 +1262,11 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
+              navigation.navigate('SelectWallet', {
+                chainType: Chain.ONCHAIN,
+                selectedWalletID: wallet?.getID(),
+                onChainRequireSend: true,
+              });
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -1274,7 +1278,11 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
+              navigation.navigate('SelectWallet', {
+                chainType: Chain.ONCHAIN,
+                selectedWalletID: wallet?.getID(),
+                onChainRequireSend: true,
+              });
             }}
             disabled={!isEditable || isLoading}
           >
