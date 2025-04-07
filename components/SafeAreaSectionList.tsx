@@ -35,6 +35,7 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
       style={componentStyle}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
+      automaticallyAdjustContentInsets
       automaticallyAdjustsScrollIndicatorInsets
       contentContainerStyle={contentStyle}
       {...otherProps}
