@@ -4,6 +4,7 @@ import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from './themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { IFee } from '../screen/send/SendDetails';
 
 interface NetworkTransactionFees {
   fastestFee: number;
@@ -11,19 +12,11 @@ interface NetworkTransactionFees {
   slowFee: number;
 }
 
-interface FeePrecalc {
-  fastestFee: number | null;
-  mediumFee: number | null;
-  slowFee: number | null;
-  current: number | null;
-}
-
 interface SelectFeeModalProps {
   networkTransactionFees: NetworkTransactionFees;
-  feePrecalc: FeePrecalc;
-  feeRate: number | string;
+  feePrecalc: IFee;
+  feeRate: string;
   setCustomFee: (fee: string) => void;
-  setFeePrecalc: (fn: (fp: FeePrecalc) => FeePrecalc) => void;
   feeUnit: BitcoinUnit;
 }
 
@@ -120,7 +113,7 @@ const CustomFeeInput = React.memo<CustomFeeInputProps>(
 );
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
-  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, setFeePrecalc, feeUnit = BitcoinUnit.BTC }, ref) => {
+  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, feeUnit }, ref) => {
     const [customFeeValue, setCustomFeeValue] = useState<string>('');
     const [isCustomFeeFocused, setIsCustomFeeFocused] = useState(false);
     const feeModalRef = useRef<BottomModalHandle>(null);
@@ -192,11 +185,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       customFeeInput: {
         color: colors.successColor,
         borderColor: colors.formBorder,
-        width: 70,
-        textAlign: 'right',
-        marginRight: 4,
-        padding: 0,
-        fontSize: 16,
       },
     });
 
@@ -207,20 +195,12 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
 
     const formatFee = useCallback((fee: number) => formatBalance(fee, feeUnit, true), [feeUnit]);
 
-    const handleSelectOption = useCallback(
-      async (fee: number | null, rate: number) => {
-        setFeePrecalc(fp => ({ ...fp, current: fee }));
-        setCustomFee(rate.toString());
-        await feeModalRef.current?.dismiss();
-      },
-      [setFeePrecalc, setCustomFee],
-    );
-
     const handleFeeOptionPress = useCallback(
-      (fee: number | null, rate: number) => {
-        return () => handleSelectOption(fee, rate);
+      (rate: number) => {
+        setCustomFee(rate.toString());
+        feeModalRef.current?.dismiss();
       },
-      [handleSelectOption],
+      [setCustomFee],
     );
 
     const handleCustomFeeChange = useCallback(
@@ -235,7 +215,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
 
         if (sanitizedValue === '') {
           setCustomFee(networkTransactionFees.fastestFee.toString());
-          setFeePrecalc(fp => ({ ...fp, current: feePrecalc.fastestFee }));
           return;
         }
 
@@ -243,21 +222,19 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
           const numericValue = sanitizedValue.replace(',', '.');
           if (Number(numericValue) > 0) {
             setCustomFee(numericValue);
-            setFeePrecalc(fp => ({ ...fp, current: null }));
           }
         }
       },
-      [networkTransactionFees.fastestFee, feePrecalc.fastestFee, setCustomFee, setFeePrecalc],
+      [networkTransactionFees.fastestFee, setCustomFee],
     );
 
     const handleCustomFeeSubmit = useCallback(async () => {
       const numericValue = customFeeValue.replace(',', '.');
       if (numericValue && Number(numericValue) > 0) {
         setCustomFee(numericValue);
-        setFeePrecalc(fp => ({ ...fp, current: null }));
         await feeModalRef.current?.dismiss();
       }
-    }, [customFeeValue, setCustomFee, setFeePrecalc]);
+    }, [customFeeValue, setCustomFee]);
 
     const options = useMemo(
       () => [
@@ -294,7 +271,6 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
       if (!customFeeValue || numericValue < 1) {
         setCustomFeeValue('');
         setCustomFee(networkTransactionFees.fastestFee.toString());
-        setFeePrecalc(fp => ({ ...fp, current: feePrecalc.fastestFee }));
       }
     };
 
@@ -327,7 +303,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
               rate={rate}
               active={active}
               disabled={disabled}
-              onPress={handleFeeOptionPress(fee, rate)}
+              onPress={() => handleFeeOptionPress(rate)}
               formatFee={formatFee}
               feeUnit={feeUnit}
             />
@@ -353,7 +329,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
                   onFocus={handleCustomFocus}
                   onBlur={handleCustomFeeBlur}
                 />
-                {customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue.toString()) && Number(customFeeValue) > 0 && (
+                {customFeeValue && /^\d+(\.\d+)?$/.test(customFeeValue) && Number(customFeeValue) > 0 && (
                   <Text style={stylesHook.feeModalValue}>{loc.units.sat_vbyte}</Text>
                 )}
               </View>
@@ -529,6 +505,8 @@ const styles = StyleSheet.create({
     height: 36,
     textAlign: 'right',
     padding: 0,
+    width: 70,
+    marginRight: 4,
   },
   customFeeContainer: {
     flexDirection: 'row',

@@ -1,6 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Icon } from '@rneui/themed';
+import assert from 'assert';
 import BigNumber from 'bignumber.js';
+import { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -22,42 +26,38 @@ import {
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { ContactList } from '../../class/contact-list';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
+import SafeArea from '../../components/SafeArea';
+import SelectFeeModal from '../../components/SelectFeeModal';
 import { useTheme } from '../../components/themes';
+import { Action } from '../../components/types';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useKeyboard } from '../../hooks/useKeyboard';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
-import { TOptions } from 'bip21';
-import assert from 'assert';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { ContactList } from '../../class/contact-list';
-import { useStorage } from '../../hooks/context/useStorage';
-import SelectFeeModal from '../../components/SelectFeeModal';
-import { useKeyboard } from '../../hooks/useKeyboard';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import ActionSheet from '../ActionSheet';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
-import { Action } from '../../components/types';
-import SafeArea from '../../components/SafeArea';
+import ActionSheet from '../ActionSheet';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -67,7 +67,7 @@ interface IPaymentDestinations {
   unit: BitcoinUnit;
 }
 
-interface IFee {
+export interface IFee {
   current: number | null;
   slowFee: number | null;
   mediumFee: number | null;
@@ -100,9 +100,7 @@ const SendDetails = () => {
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
-  const [addresses, setAddresses] = useState<IPaymentDestinations[]>([
-    { address: '', key: String(Math.random()), unit: amountUnit } as IPaymentDestinations,
-  ]);
+  const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
@@ -152,7 +150,7 @@ const SendDetails = () => {
             addrs[scrollIndex.current] = currentAddress;
             return [...addrs];
           } else {
-            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount!), key: String(Math.random()) } as IPaymentDestinations];
+            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount!), key: String(Math.random()), unit: amountUnit }];
           }
         });
 
@@ -171,10 +169,10 @@ const SendDetails = () => {
         const updatedAddresses = [...prevAddresses];
         updatedAddresses[0] = {
           ...updatedAddresses[0],
-          address: routeParams.address,
+          address: routeParams.address!,
           amount: 0,
           amountSats: 0,
-        } as IPaymentDestinations;
+        };
         return updatedAddresses;
       });
     } else if (routeParams.addRecipientParams) {
@@ -190,7 +188,7 @@ const SendDetails = () => {
             address,
             amount: amount ?? updatedAddresses[index].amount,
             amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[index].amountSats,
-          } as IPaymentDestinations;
+          };
         }
         return updatedAddresses;
       });
@@ -198,8 +196,9 @@ const SendDetails = () => {
       // @ts-ignore: Fix later
       setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else {
-      setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
+      setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }
+    // this effect only to run once when screen is mounted or params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
@@ -284,7 +283,7 @@ const SendDetails = () => {
       { key: 'slowFee', fee: fees.slowFee },
       { key: 'mediumFee', fee: fees.mediumFee },
       { key: 'fastestFee', fee: fees.fastestFee },
-    ];
+    ] as const;
 
     const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
@@ -324,19 +323,14 @@ const SendDetails = () => {
       while (true) {
         try {
           const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
-
-          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = fee;
           break;
         } catch (e: any) {
           if (e.message.includes('Not enough') && !flag) {
             flag = true;
-            // if we don't have enough funds, construct maximum possible transaction
             targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
             continue;
           }
-
-          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = null;
           break;
         }
@@ -345,7 +339,9 @@ const SendDetails = () => {
 
     setFeePrecalc(newFeePrecalc);
     setParams({ frozenBalance: frozen });
-  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]);
+
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
     useCallback(() => {
@@ -923,7 +919,7 @@ const SendDetails = () => {
       return;
     }
     // Add new recipient as usual if all recipients are complete
-    setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
+    setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()), unit: amountUnit }]);
     // Wait for the state to update before scrolling
     setTimeout(() => {
       scrollIndex.current = addresses.length; // New index at the end
@@ -932,11 +928,11 @@ const SendDetails = () => {
         animated: true,
       });
     }, 0);
-  }, [addresses]);
+  }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
-    setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]);
-  }, []);
+    setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
+  }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
     Alert.alert(loc.send.details_recipients_title, loc.send.details_add_recc_rem_all_alert_description, [
@@ -1228,7 +1224,7 @@ const SendDetails = () => {
       return (
         <View style={styles.select}>
           <CoinsSelected
-            number={utxos?.length}
+            number={utxos.length}
             onContainerPress={handleCoinControl}
             onClose={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -1428,7 +1424,6 @@ const SendDetails = () => {
           feePrecalc={feePrecalc}
           feeRate={feeRate}
           setCustomFee={setCustomFee}
-          setFeePrecalc={setFeePrecalc}
           feeUnit={addresses[scrollIndex.current]?.unit ?? BitcoinUnit.BTC}
         />
       </View>
