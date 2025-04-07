@@ -1,39 +1,87 @@
 import React from 'react';
-import { View, StyleSheet, Platform, PlatformColor } from 'react-native';
+import { View, StyleSheet, Platform, PlatformColor, useColorScheme } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Platform.select({
-      ios: PlatformColor('systemGroupedBackground'),
-      android: PlatformColor('@android:color/background_light'),
-    }),
-  },
-  sectionHeaderContainer: {
-    height: 32,
-    paddingHorizontal: 16,
-    justifyContent: 'flex-end',
-    paddingBottom: 8,
-  },
-  sectionContainer: {
-    marginHorizontal: 16,
-  },
-  firstSectionContainer: {
-    paddingTop: 16,
-    marginHorizontal: 16,
-  },
-});
-
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
-  // By simply having it here, it'll re-render the UI if language is changed
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const getIOSColors = () => {
+    return {
+      background: PlatformColor('systemGroupedBackground'),
+      cardBackground: PlatformColor('secondarySystemGroupedBackground'),
+      textColor: PlatformColor('label'),
+      blueIcon: PlatformColor('systemBlue'),
+      greenIcon: PlatformColor('systemGreen'),
+      yellowIcon: PlatformColor('systemOrange'),
+      redIcon: PlatformColor('systemRed'),
+      grayIcon: PlatformColor('systemGray'),
+    };
+  };
+
+  const getAndroidColors = (isDark: boolean) => {
+    const textColor = isDark ? '#FFFFFF' : '#202124';
+    return {
+      background: isDark ? '#1F1F1F' : '#F3F3F3',
+      cardBackground: 'transparent',
+      textColor,
+      blueIcon: textColor,
+      greenIcon: textColor,
+      yellowIcon: textColor,
+      redIcon: textColor,
+      grayIcon: textColor,
+    };
+  };
+
+  const iosColors = Platform.OS === 'ios' ? getIOSColors() : null;
+  const androidColors = Platform.OS === 'android' ? getAndroidColors(isDarkMode) : null;
+
+  const theme = {
+    background: Platform.OS === 'ios' ? iosColors!.background : androidColors!.background,
+    cardBackground: Platform.OS === 'ios' ? iosColors!.cardBackground : androidColors!.cardBackground,
+    textColor: Platform.OS === 'ios' ? iosColors!.textColor : androidColors!.textColor,
+
+    blueIcon: Platform.OS === 'ios' ? iosColors!.blueIcon : androidColors!.blueIcon,
+    greenIcon: Platform.OS === 'ios' ? iosColors!.greenIcon : androidColors!.greenIcon,
+    yellowIcon: Platform.OS === 'ios' ? iosColors!.yellowIcon : androidColors!.yellowIcon,
+    redIcon: Platform.OS === 'ios' ? iosColors!.redIcon : androidColors!.redIcon,
+    grayIcon: Platform.OS === 'ios' ? iosColors!.grayIcon : androidColors!.grayIcon,
+
+    blueIconBg: Platform.OS === 'ios' ? 'rgba(0, 122, 255, 0.12)' : 'transparent',
+    greenIconBg: Platform.OS === 'ios' ? 'rgba(52, 199, 89, 0.12)' : 'transparent',
+    yellowIconBg: Platform.OS === 'ios' ? 'rgba(255, 149, 0, 0.12)' : 'transparent',
+    redIconBg: Platform.OS === 'ios' ? 'rgba(255, 59, 48, 0.12)' : 'transparent',
+    grayIconBg: Platform.OS === 'ios' ? 'rgba(142, 142, 147, 0.12)' : 'transparent',
+  };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    sectionHeaderContainer: {
+      height: Platform.OS === 'ios' ? 48 : 32,
+      paddingHorizontal: 24,
+      justifyContent: 'flex-end',
+      paddingBottom: Platform.OS === 'ios' ? 12 : 8,
+    },
+    sectionContainer: {
+      marginHorizontal: 16,
+      marginBottom: Platform.OS === 'ios' ? 16 : 8,
+    },
+    firstSectionContainer: {
+      paddingTop: Platform.OS === 'ios' ? 24 : 16,
+      marginHorizontal: 16,
+      marginBottom: Platform.OS === 'ios' ? 16 : 8,
+    },
+  });
 
   return (
     <SafeAreaScrollView testID="SettingsRoot" style={styles.container}>
@@ -43,25 +91,16 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'settings-outline' : 'cog',
-            color: Platform.select({
-              ios: PlatformColor('systemBlue'),
-              android: PlatformColor('@android:color/holo_blue_light'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(0, 122, 255, 0.12)',
-              android: 'rgba(51, 181, 229, 0.12)',
-            }),
+            color: theme.blueIcon,
+            backgroundColor: theme.blueIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
-          bottomDivider
+          bottomDivider={Platform.OS === 'ios'}
           isFirst
         />
         <PlatformListItem
@@ -69,50 +108,32 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'cash-outline' : 'money-bill-alt',
-            color: Platform.select({
-              ios: PlatformColor('systemGreen'),
-              android: PlatformColor('@android:color/holo_green_light'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(52, 199, 89, 0.12)',
-              android: 'rgba(153, 204, 0, 0.12)',
-            }),
+            color: theme.greenIcon,
+            backgroundColor: theme.greenIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('Currency')}
           testID="Currency"
           chevron
-          bottomDivider
+          bottomDivider={Platform.OS === 'ios'}
         />
         <PlatformListItem
           title={loc.settings.language}
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'language-outline' : 'language',
-            color: Platform.select({
-              ios: PlatformColor('systemOrange'),
-              android: PlatformColor('@android:color/holo_orange_light'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(255, 149, 0, 0.12)',
-              android: 'rgba(255, 187, 51, 0.12)',
-            }),
+            color: theme.yellowIcon,
+            backgroundColor: theme.yellowIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('Language')}
           testID="Language"
           chevron
-          bottomDivider={false}
+          bottomDivider={Platform.OS === 'ios'}
           isLast
         />
       </View>
@@ -124,25 +145,16 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'lock-closed-outline' : 'lock',
-            color: Platform.select({
-              ios: PlatformColor('systemRed'),
-              android: PlatformColor('@android:color/holo_red_light'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(255, 59, 48, 0.12)',
-              android: 'rgba(255, 68, 68, 0.12)',
-            }),
+            color: theme.redIcon,
+            backgroundColor: theme.redIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
           chevron
-          bottomDivider={false}
+          bottomDivider={Platform.OS === 'ios'}
           isFirst
           isLast
         />
@@ -155,25 +167,16 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'globe-outline' : 'globe',
-            color: Platform.select({
-              ios: PlatformColor('systemIndigo'),
-              android: PlatformColor('@android:color/holo_purple'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(88, 86, 214, 0.12)',
-              android: 'rgba(170, 102, 204, 0.12)',
-            }),
+            color: theme.blueIcon,
+            backgroundColor: theme.blueIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
-          bottomDivider
+          bottomDivider={Platform.OS === 'ios'}
           isFirst
         />
         <PlatformListItem
@@ -181,25 +184,16 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'construct-outline' : 'tools',
-            color: Platform.select({
-              ios: PlatformColor('systemBrown'),
-              android: PlatformColor('@android:color/holo_orange_dark'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(162, 132, 94, 0.12)',
-              android: 'rgba(255, 140, 0, 0.12)',
-            }),
+            color: theme.yellowIcon,
+            backgroundColor: theme.yellowIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('ToolsScreen')}
           testID="Tools"
           chevron
-          bottomDivider={false}
+          bottomDivider={Platform.OS === 'ios'}
           isLast
         />
       </View>
@@ -211,25 +205,16 @@ const Settings = () => {
           leftIcon={{
             type: Platform.OS === 'ios' ? 'ionicon' : 'font-awesome-5',
             name: Platform.OS === 'ios' ? 'information-circle-outline' : 'info-circle',
-            color: Platform.select({
-              ios: PlatformColor('systemGray'),
-              android: PlatformColor('@android:color/darker_gray'),
-            }) as unknown as string,
-            backgroundColor: Platform.select({
-              ios: 'rgba(142, 142, 147, 0.12)',
-              android: 'rgba(170, 170, 170, 0.12)',
-            }),
+            color: theme.grayIcon,
+            backgroundColor: theme.grayIconBg,
           }}
           containerStyle={{
-            backgroundColor: Platform.select({
-              ios: PlatformColor('secondarySystemGroupedBackground'),
-              android: PlatformColor('@android:color/background_light'),
-            }),
+            backgroundColor: theme.cardBackground,
           }}
           onPress={() => navigate('About')}
           testID="AboutButton"
           chevron
-          bottomDivider={false}
+          bottomDivider={Platform.OS === 'ios'}
           isFirst
           isLast
         />

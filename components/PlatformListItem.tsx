@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
+  OpaqueColorValue,
   Platform,
   PlatformColor,
   Pressable,
@@ -10,6 +11,7 @@ import {
   Switch,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,62 +33,10 @@ const getAndroidColor = (colorName: string) => {
   }
 };
 
-const stylesHook = StyleSheet.create({
-  title: {
-    color: Platform.select({
-      ios: PlatformColor('label'),
-      android: getAndroidColor('@android:color/primary_text_light'),
-    }),
-    fontSize: Platform.select({ ios: 17, android: 16 }),
-    fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  subtitle: {
-    flexWrap: 'wrap',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    color: Platform.select({
-      ios: PlatformColor('secondaryLabel'),
-      android: getAndroidColor('@android:color/secondary_text_light'),
-    }),
-    fontWeight: '400',
-    paddingVertical: Platform.select({ ios: 2, android: 4 }),
-    lineHeight: Platform.select({ ios: 20, android: 18 }),
-    fontSize: Platform.select({ ios: 15, android: 14 }),
-  },
-  containerStyle: {
-    backgroundColor: Platform.select({
-      ios: PlatformColor('systemBackground'),
-      android: getAndroidColor('@android:color/background_light'),
-    }),
-    paddingVertical: Platform.select({ ios: 12, android: 16 }),
-    minHeight: Platform.select({ ios: 44, android: 56 }),
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Platform.select({
-      ios: PlatformColor('separator'),
-      android: getAndroidColor('@android:color/darker_gray'),
-    }),
-    borderRadius: 10,
-  },
-  chevron: {
-    color: Platform.select({
-      ios: PlatformColor('tertiaryLabel'),
-      android: getAndroidColor('@android:color/darker_gray'),
-    }),
-    opacity: 0.7,
-  },
-  iconContainer: {
-    marginRight: Platform.select({ ios: 16, android: 24 }),
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: Platform.select({ ios: 28, android: 36 }),
-    height: Platform.select({ ios: 28, android: 36 }),
-  },
-});
-
 interface IconProps {
   name: string;
   type: string;
-  color?: string | number;
+  color?: string | number | OpaqueColorValue;
   size?: number;
   backgroundColor?: string | number;
 }
@@ -173,20 +123,63 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   isLast = false,
   isFirst = false,
 }) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  // Define Android-specific colors
+  const androidTitleColor = isDarkMode ? '#FFFFFF' : '#202124';
+  const androidSubtitleColor = isDarkMode ? '#B3B3B3' : '#5F6368';
+  const androidChevronColor = isDarkMode ? '#9E9E9E' : '#757575';
+
+  const stylesHook = StyleSheet.create({
+    title: {
+      color: Platform.OS === 'ios' ? PlatformColor('label') : androidTitleColor,
+      fontSize: Platform.OS === 'ios' ? 17 : 20,
+      fontWeight: Platform.OS === 'ios' ? '500' : '700',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+    },
+    subtitle: {
+      flexWrap: 'wrap',
+      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      color: Platform.OS === 'ios' ? PlatformColor('secondaryLabel') : androidSubtitleColor,
+      fontWeight: Platform.OS === 'ios' ? '400' : '500',
+      paddingVertical: Platform.OS === 'ios' ? 2 : 4,
+      lineHeight: 20,
+      fontSize: Platform.OS === 'ios' ? 15 : 17,
+    },
+    containerStyle: {
+      backgroundColor: Platform.OS === 'ios' ? PlatformColor('secondarySystemGroupedBackground') : 'transparent',
+      paddingVertical: Platform.OS === 'ios' ? 12 : 16,
+      minHeight: Platform.OS === 'ios' ? 44 : 72,
+      borderBottomWidth: Platform.OS === 'ios' ? StyleSheet.hairlineWidth : 0,
+      borderBottomColor: Platform.OS === 'ios' ? PlatformColor('separator') : 'transparent',
+      borderRadius: Platform.OS === 'ios' ? 10 : 0,
+      elevation: 0,
+      marginVertical: Platform.OS === 'ios' ? 0 : 8,
+    },
+    chevron: {
+      color: Platform.OS === 'ios' ? PlatformColor('tertiaryLabel') : androidChevronColor,
+      opacity: Platform.OS === 'android' ? 1 : 0.7,
+    },
+    iconContainer: {
+      marginRight: Platform.OS === 'ios' ? 16 : 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: Platform.OS === 'ios' ? 28 : 24,
+      height: Platform.OS === 'ios' ? 28 : 24,
+      backgroundColor: Platform.OS === 'android' ? 'transparent' : undefined,
+      borderRadius: Platform.OS === 'ios' ? 6 : 0,
+    },
+  });
+
   const memoizedSwitchProps = useMemo(
     () =>
       switchProps
         ? {
             ...switchProps,
             trackColor: {
-              false: Platform.select({
-                ios: PlatformColor('systemFill'),
-                android: getAndroidColor('@android:color/darker_gray'),
-              }),
-              true: Platform.select({
-                ios: PlatformColor('systemGreen'),
-                android: PlatformColor('@android:color/holo_green_light'),
-              }),
+              false: Platform.OS === 'ios' ? PlatformColor('systemFill') : getAndroidColor('@android:color/darker_gray'),
+              true: Platform.OS === 'ios' ? PlatformColor('systemGreen') : PlatformColor('@android:color/holo_green_light'),
             },
             ios_backgroundColor: PlatformColor('systemFill'),
           }
@@ -200,11 +193,10 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         <View
           style={[
             styles.leftIconContainer,
-            Platform.select({
-              ios: [styles.leftIconContainerIOS, stylesHook.iconContainer],
-              android: [styles.leftIconContainerAndroid, stylesHook.iconContainer],
-            }),
-            leftIcon.backgroundColor
+            Platform.OS === 'ios'
+              ? [styles.leftIconContainerIOS, stylesHook.iconContainer]
+              : [styles.leftIconContainerAndroid, stylesHook.iconContainer],
+            leftIcon.backgroundColor && Platform.OS === 'ios'
               ? {
                   backgroundColor:
                     typeof leftIcon.backgroundColor === 'number' ? leftIcon.backgroundColor.toString() : leftIcon.backgroundColor,
@@ -213,12 +205,12 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           ]}
         >
           <Avatar
-            size={Platform.select({ ios: 22, android: 28 })}
+            size={Platform.OS === 'ios' ? 22 : 32}
             icon={{
               name: leftIcon.name,
               type: leftIcon.type,
-              color: typeof leftIcon.color === 'number' ? leftIcon.color.toString() : (leftIcon.color ?? 'black'),
-              size: Platform.OS === 'ios' ? 18 : 24,
+              color: leftIcon.color !== undefined ? String(leftIcon.color) : 'black',
+              size: Platform.OS === 'ios' ? 18 : 28,
             }}
             containerStyle={styles.transparentBackground}
           />
@@ -275,6 +267,15 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     </>
   );
 
+  const containerAndroidStyle = styles.containerAndroid;
+  const swipeableAndroidStyle = styles.swipeableAndroid;
+  const containerIOSStyle = {
+    ...styles.containerIOS,
+    ...(isFirst && styles.containerFirstIOS),
+    ...(isLast && styles.containerLastIOS),
+    ...(isFirst && isLast && styles.containerSingleIOS),
+  };
+
   if (swipeable && !Component) {
     console.warn('Component prop is required when swipeable is true.');
     return null;
@@ -282,22 +283,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 
   return swipeable ? (
     <RNElementsListItem.Swipeable
-      containerStyle={[
-        stylesHook.containerStyle,
-        Platform.select({
-          ios: {
-            borderRadius: 0,
-            overflow: 'hidden',
-            ...(isFirst && styles.containerFirstIOS),
-            ...(isLast && styles.containerLastIOS),
-            ...(isFirst && isLast && styles.containerSingleIOS),
-          },
-          android: styles.swipeableAndroid,
-        }),
-        containerStyle,
-      ]}
+      containerStyle={[stylesHook.containerStyle, Platform.OS === 'ios' ? containerIOSStyle : swipeableAndroidStyle, containerStyle]}
       Component={Component}
-      bottomDivider={bottomDivider && !isLast}
+      bottomDivider={Platform.OS === 'ios' ? bottomDivider && !isLast : false}
       topDivider={topDivider}
       testID={testID}
       onPress={onPress}
@@ -311,21 +299,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     </RNElementsListItem.Swipeable>
   ) : (
     <RNElementsListItem
-      containerStyle={[
-        stylesHook.containerStyle,
-        Platform.select({
-          ios: {
-            borderRadius: 0,
-            ...(isFirst && styles.containerFirstIOS),
-            ...(isLast && styles.containerLastIOS),
-            ...(isFirst && isLast && styles.containerSingleIOS),
-          },
-          android: styles.containerAndroid,
-        }),
-        containerStyle,
-      ]}
+      containerStyle={[stylesHook.containerStyle, Platform.OS === 'ios' ? containerIOSStyle : containerAndroidStyle, containerStyle]}
       Component={Component}
-      bottomDivider={bottomDivider && !isLast}
+      bottomDivider={Platform.OS === 'ios' ? bottomDivider && !isLast : false}
       topDivider={topDivider}
       testID={testID}
       onPress={onPress}
@@ -355,10 +331,10 @@ const styles = StyleSheet.create({
   },
   width16: { width: 16 },
   leftIconContainer: {
-    marginLeft: 12,
-    marginRight: 16,
-    width: Platform.select({ ios: 28, android: 36 }),
-    height: Platform.select({ ios: 28, android: 36 }),
+    marginLeft: Platform.OS === 'ios' ? 12 : 16,
+    marginRight: Platform.OS === 'ios' ? 16 : 32,
+    width: Platform.OS === 'ios' ? 28 : 32,
+    height: Platform.OS === 'ios' ? 28 : 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -366,7 +342,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   leftIconContainerAndroid: {
-    borderRadius: 14,
+    borderRadius: 0,
   },
   transformRTL: {
     transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],
@@ -374,9 +350,15 @@ const styles = StyleSheet.create({
   transparentBackground: {
     backgroundColor: 'transparent',
   },
-
   containerAndroid: {
-    borderRadius: 10,
+    borderRadius: 0,
+    elevation: 0,
+    marginVertical: 8,
+    backgroundColor: 'transparent',
+  },
+  containerIOS: {
+    borderRadius: 0,
+    overflow: 'hidden',
   },
   containerFirstIOS: {
     borderTopLeftRadius: 10,
@@ -389,10 +371,11 @@ const styles = StyleSheet.create({
   containerSingleIOS: {
     borderRadius: 10,
   },
-
   swipeableAndroid: {
-    borderRadius: 10,
+    borderRadius: 28,
     overflow: 'hidden',
+    elevation: 2,
+    marginVertical: 4,
   },
 });
 
