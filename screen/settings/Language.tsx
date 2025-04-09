@@ -1,24 +1,19 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 import presentAlert from '../../components/Alert';
-import ListItem from '../../components/ListItem';
-import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import PlatformListItem from '../../components/PlatformListItem';
+import { usePlatformTheme } from '../../components/platformThemes';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
-  const { colors } = useTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const [search, setSearch] = useState('');
-  const stylesHook = StyleSheet.create({
-    content: {
-      backgroundColor: colors.background,
-    },
-  });
 
   useLayoutEffect(() => {
     setOptions({
@@ -43,37 +38,56 @@ const Language = () => {
     });
   };
 
-  const renderItem = ({ item }: { item: TLanguage }) => {
-    return (
-      <ListItem
-        disabled={language === item.value}
-        title={item.label}
-        checkmark={language === item.value}
-        onPress={() => onLanguageSelect(item)}
-        containerStyle={[styles.row, stylesHook.content]}
-      />
-    );
-  };
+  const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
+    },
+    sectionContainer: {
+      marginHorizontal: 16,
+      marginBottom: sizing.sectionContainerMarginBottom,
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+    },
+    itemContainer: {
+      // Apply fixed height to ensure consistency
+      minHeight: sizing.itemMinHeight,
+      height: sizing.itemMinHeight,
+    },
+  });
 
   return (
-    <SafeAreaFlatList
-      style={styles.flex}
-      contentContainerStyle={stylesHook.content}
-      keyExtractor={(_item, index) => `${index}`}
-      data={AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()))}
-      renderItem={renderItem}
-      initialNumToRender={25}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-    />
+    <SafeAreaScrollView style={styles.container}>
+      <View style={styles.sectionContainer}>
+        {filteredLanguages.map((item, index) => {
+          const isSelected = language === item.value;
+          const isFirst = index === 0;
+          const isLast = index === filteredLanguages.length - 1;
+
+          return (
+            <PlatformListItem
+              key={item.value}
+              title={item.label}
+              containerStyle={[
+                {
+                  backgroundColor: platformColors.cardBackground,
+                },
+                styles.itemContainer,
+              ]}
+              checkmark={isSelected}
+              disabled={isSelected}
+              onPress={() => onLanguageSelect(item)}
+              isFirst={isFirst}
+              isLast={isLast}
+              chevron={false} // Don't show chevron to keep consistent height
+              bottomDivider={layout.showBorderBottom}
+            />
+          );
+        })}
+      </View>
+    </SafeAreaScrollView>
   );
 };
 
 export default Language;
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  row: { minHeight: 60 },
-});
