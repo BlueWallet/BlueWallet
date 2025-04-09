@@ -3,42 +3,23 @@ import {
   ActivityIndicator,
   I18nManager,
   OpaqueColorValue,
-  Platform,
-  PlatformColor,
   Pressable,
   PressableProps,
   StyleSheet,
   Switch,
   TouchableOpacity,
   View,
-  useColorScheme,
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
-const getAndroidColor = (colorName: string) => {
-  try {
-    return PlatformColor(colorName);
-  } catch {
-    // Fallback colors if PlatformColor fails
-    const fallbacks: { [key: string]: string } = {
-      '@android:color/primary_text_light': '#000000',
-      '@android:color/secondary_text_light': '#757575',
-      '@android:color/background_light': '#FFFFFF',
-      '@android:color/darker_gray': '#AAAAAA',
-      '@android:color/transparent': 'transparent',
-      '@android:color/holo_blue_light': '#33B5E5',
-    };
-    return fallbacks[colorName] || '#000000';
-  }
-};
+import { usePlatformTheme } from './platformThemes';
 
 interface IconProps {
   name: string;
   type: string;
   color?: string | number | OpaqueColorValue;
   size?: number;
-  backgroundColor?: string | number;
+  backgroundColor?: string | number | OpaqueColorValue;
 }
 
 interface ListItemProps {
@@ -123,52 +104,46 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   isLast = false,
   isFirst = false,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
-
-  // Define Android-specific colors
-  const androidTitleColor = isDarkMode ? '#FFFFFF' : '#202124';
-  const androidSubtitleColor = isDarkMode ? '#B3B3B3' : '#5F6368';
-  const androidChevronColor = isDarkMode ? '#9E9E9E' : '#757575';
+  const { sizing, colors, layout } = usePlatformTheme();
 
   const stylesHook = StyleSheet.create({
     title: {
-      color: Platform.OS === 'ios' ? PlatformColor('label') : androidTitleColor,
-      fontSize: Platform.OS === 'ios' ? 17 : 20,
-      fontWeight: Platform.OS === 'ios' ? '500' : '700',
+      color: colors.titleColor,
+      fontSize: sizing.titleFontSize,
+      fontWeight: sizing.titleFontWeight,
       writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     },
     subtitle: {
       flexWrap: 'wrap',
       writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-      color: Platform.OS === 'ios' ? PlatformColor('secondaryLabel') : androidSubtitleColor,
-      fontWeight: Platform.OS === 'ios' ? '400' : '500',
-      paddingVertical: Platform.OS === 'ios' ? 2 : 4,
-      lineHeight: 20,
-      fontSize: Platform.OS === 'ios' ? 15 : 17,
+      color: colors.subtitleColor,
+      fontWeight: sizing.subtitleFontWeight,
+      paddingVertical: sizing.subtitlePaddingVertical,
+      lineHeight: sizing.subtitleLineHeight,
+      fontSize: sizing.subtitleFontSize,
     },
     containerStyle: {
-      backgroundColor: Platform.OS === 'ios' ? PlatformColor('secondarySystemGroupedBackground') : 'transparent',
-      paddingVertical: Platform.OS === 'ios' ? 12 : 16,
-      minHeight: Platform.OS === 'ios' ? 44 : 72,
-      borderBottomWidth: Platform.OS === 'ios' ? StyleSheet.hairlineWidth : 0,
-      borderBottomColor: Platform.OS === 'ios' ? PlatformColor('separator') : 'transparent',
-      borderRadius: Platform.OS === 'ios' ? 10 : 0,
-      elevation: 0,
-      marginVertical: Platform.OS === 'ios' ? 0 : 8,
+      backgroundColor: colors.cardBackground,
+      paddingVertical: sizing.containerPaddingVertical,
+      minHeight: sizing.itemMinHeight,
+      borderBottomWidth: layout.showBorderBottom ? StyleSheet.hairlineWidth : 0,
+      borderBottomColor: layout.showBorderBottom ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
+      elevation: sizing.containerElevation,
+      marginVertical: sizing.containerMarginVertical,
     },
     chevron: {
-      color: Platform.OS === 'ios' ? PlatformColor('tertiaryLabel') : androidChevronColor,
-      opacity: Platform.OS === 'android' ? 1 : 0.7,
+      color: colors.chevronColor,
+      opacity: layout.showBorderRadius ? 0.7 : 1,
     },
     iconContainer: {
-      marginRight: Platform.OS === 'ios' ? 16 : 32,
+      marginRight: sizing.leftIconMarginRight,
       alignItems: 'center',
       justifyContent: 'center',
-      width: Platform.OS === 'ios' ? 28 : 24,
-      height: Platform.OS === 'ios' ? 28 : 24,
-      backgroundColor: Platform.OS === 'android' ? 'transparent' : undefined,
-      borderRadius: Platform.OS === 'ios' ? 6 : 0,
+      width: sizing.iconContainerSize,
+      height: sizing.iconContainerSize,
+      backgroundColor: layout.showIconBackground ? undefined : 'transparent',
+      borderRadius: sizing.iconContainerBorderRadius,
     },
   });
 
@@ -178,13 +153,13 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         ? {
             ...switchProps,
             trackColor: {
-              false: Platform.OS === 'ios' ? PlatformColor('systemFill') : getAndroidColor('@android:color/darker_gray'),
-              true: Platform.OS === 'ios' ? PlatformColor('systemGreen') : PlatformColor('@android:color/holo_green_light'),
+              false: colors.switchTrackColorFalse,
+              true: colors.switchTrackColorTrue,
             },
-            ios_backgroundColor: PlatformColor('systemFill'),
+            ios_backgroundColor: colors.switchIosBackgroundColor,
           }
         : undefined,
-    [switchProps],
+    [switchProps, colors],
   );
 
   const renderContent = () => (
@@ -192,11 +167,16 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       {leftIcon && (
         <View
           style={[
-            styles.leftIconContainer,
-            Platform.OS === 'ios'
-              ? [styles.leftIconContainerIOS, stylesHook.iconContainer]
-              : [styles.leftIconContainerAndroid, stylesHook.iconContainer],
-            leftIcon.backgroundColor && Platform.OS === 'ios'
+            styles.iconContainerBase,
+            {
+              marginLeft: sizing.leftIconMarginLeft,
+              marginRight: sizing.leftIconMarginRight,
+              width: sizing.leftIconWidth,
+              height: sizing.leftIconHeight,
+              borderRadius: sizing.iconContainerBorderRadius,
+            },
+            stylesHook.iconContainer,
+            leftIcon.backgroundColor && layout.showIconBackground
               ? {
                   backgroundColor:
                     typeof leftIcon.backgroundColor === 'number' ? leftIcon.backgroundColor.toString() : leftIcon.backgroundColor,
@@ -205,12 +185,12 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           ]}
         >
           <Avatar
-            size={Platform.OS === 'ios' ? 22 : 32}
+            size={sizing.iconSize}
             icon={{
               name: leftIcon.name,
               type: leftIcon.type,
               color: leftIcon.color !== undefined ? String(leftIcon.color) : 'black',
-              size: Platform.OS === 'ios' ? 18 : 28,
+              size: sizing.iconInnerSize,
             }}
             containerStyle={styles.transparentBackground}
           />
@@ -267,25 +247,55 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     </>
   );
 
-  const containerAndroidStyle = styles.containerAndroid;
-  const swipeableAndroidStyle = styles.swipeableAndroid;
-  const containerIOSStyle = {
-    ...styles.containerIOS,
-    ...(isFirst && styles.containerFirstIOS),
-    ...(isLast && styles.containerLastIOS),
-    ...(isFirst && isLast && styles.containerSingleIOS),
-  };
+  let dynamicContainerStyle = {};
+  if (layout.useRoundedListItems) {
+    dynamicContainerStyle = {
+      borderRadius: 0,
+      overflow: 'hidden',
+      ...(isFirst && {
+        borderTopLeftRadius: sizing.containerBorderRadius,
+        borderTopRightRadius: sizing.containerBorderRadius,
+      }),
+      ...(isLast && {
+        borderBottomLeftRadius: sizing.containerBorderRadius,
+        borderBottomRightRadius: sizing.containerBorderRadius,
+      }),
+      ...(isFirst &&
+        isLast && {
+          borderRadius: sizing.containerBorderRadius,
+        }),
+    };
+  } else {
+    // Android style
+    if (swipeable) {
+      dynamicContainerStyle = {
+        borderRadius: 28,
+        overflow: 'hidden',
+        elevation: 2,
+        marginVertical: 4,
+      };
+    } else {
+      dynamicContainerStyle = {
+        borderRadius: 0,
+        elevation: 0,
+        marginVertical: 8,
+        backgroundColor: 'transparent',
+      };
+    }
+  }
 
   if (swipeable && !Component) {
     console.warn('Component prop is required when swipeable is true.');
     return null;
   }
 
+  const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
+
   return swipeable ? (
     <RNElementsListItem.Swipeable
-      containerStyle={[stylesHook.containerStyle, Platform.OS === 'ios' ? containerIOSStyle : swipeableAndroidStyle, containerStyle]}
+      containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
       Component={Component}
-      bottomDivider={Platform.OS === 'ios' ? bottomDivider && !isLast : false}
+      bottomDivider={shouldShowBottomDivider}
       topDivider={topDivider}
       testID={testID}
       onPress={onPress}
@@ -299,9 +309,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     </RNElementsListItem.Swipeable>
   ) : (
     <RNElementsListItem
-      containerStyle={[stylesHook.containerStyle, Platform.OS === 'ios' ? containerIOSStyle : containerAndroidStyle, containerStyle]}
+      containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
       Component={Component}
-      bottomDivider={Platform.OS === 'ios' ? bottomDivider && !isLast : false}
+      bottomDivider={shouldShowBottomDivider}
       topDivider={topDivider}
       testID={testID}
       onPress={onPress}
@@ -330,52 +340,15 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   width16: { width: 16 },
-  leftIconContainer: {
-    marginLeft: Platform.OS === 'ios' ? 12 : 16,
-    marginRight: Platform.OS === 'ios' ? 16 : 32,
-    width: Platform.OS === 'ios' ? 28 : 32,
-    height: Platform.OS === 'ios' ? 28 : 32,
+  iconContainerBase: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  leftIconContainerIOS: {
-    borderRadius: 6,
-  },
-  leftIconContainerAndroid: {
-    borderRadius: 0,
   },
   transformRTL: {
     transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }],
   },
   transparentBackground: {
     backgroundColor: 'transparent',
-  },
-  containerAndroid: {
-    borderRadius: 0,
-    elevation: 0,
-    marginVertical: 8,
-    backgroundColor: 'transparent',
-  },
-  containerIOS: {
-    borderRadius: 0,
-    overflow: 'hidden',
-  },
-  containerFirstIOS: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  containerLastIOS: {
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-  },
-  containerSingleIOS: {
-    borderRadius: 10,
-  },
-  swipeableAndroid: {
-    borderRadius: 28,
-    overflow: 'hidden',
-    elevation: 2,
-    marginVertical: 4,
   },
 });
 
