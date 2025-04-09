@@ -32,11 +32,11 @@ const Settings = () => {
       background: isDark ? '#1F1F1F' : '#F3F3F3',
       cardBackground: 'transparent',
       textColor,
-      blueIcon: textColor,
-      greenIcon: textColor,
-      yellowIcon: textColor,
-      redIcon: textColor,
-      grayIcon: textColor,
+      blueIcon: isDark ? '#82B1FF' : '#1A73E8', // Blue
+      greenIcon: isDark ? '#69F0AE' : '#0F9D58', // Green
+      yellowIcon: isDark ? '#FFD600' : '#F4B400', // Yellow/Amber
+      redIcon: isDark ? '#FF5252' : '#DB4437', // Red
+      grayIcon: isDark ? '#BDBDBD' : '#5F6368', // Gray
     };
   };
 
