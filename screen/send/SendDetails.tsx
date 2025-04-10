@@ -21,7 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -713,49 +713,67 @@ const SendDetails = () => {
     }
 
     try {
-      const res = await DocumentPicker.pickSingle({
-        type:
-          Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.plainText, DocumentPicker.types.json]
-            : [DocumentPicker.types.allFiles],
+      const [res] = await pick({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.plainText, types.json] : [types.allFiles],
       });
 
-      if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
+      if (!res.uri) {
+        console.warn('no uri found', res);
+        return;
+      }
+
+      const sanitizedUri = res.uri.replace(/^file:\/\//, '').replace(/^content:\/\//, '');
+
+      if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(sanitizedUri)) {
         // we assume that transaction is already signed, so all we have to do is get txhex and pass it to next screen
         // so user can broadcast:
-        const file = await RNFS.readFile(res.uri, 'ascii');
+        const file = await RNFS.readFile(sanitizedUri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         const txhex = psbt.extractTransaction().toHex();
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
         setIsLoading(false);
-
         return;
       }
 
-      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(sanitizedUri)) {
         // looks like transaction is UNsigned, so we construct PSBT object and pass to next screen
         // so user can do smth with it:
-        const file = await RNFS.readFile(res.uri, 'ascii');
+        const file = await RNFS.readFile(sanitizedUri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt });
         setIsLoading(false);
-
         return;
       }
 
-      if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
+      if (DeeplinkSchemaMatch.isTXNFile(sanitizedUri)) {
         // plain text file with txhex ready to broadcast
-        const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
+        const file = (await RNFS.readFile(sanitizedUri, 'ascii')).replace('\n', '').replace('\r', '');
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
         setIsLoading(false);
-
         return;
       }
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
     } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
+      if (isErrorWithCode(err)) {
+        switch (err.code) {
+          case errorCodes.IN_PROGRESS:
+            console.warn('user attempted to present a picker, but a previous one was already presented');
+            break;
+          case errorCodes.UNABLE_TO_OPEN_FILE_TYPE:
+            console.warn('unable to open file type');
+            break;
+          case errorCodes.OPERATION_CANCELED:
+            console.log('cancelled');
+            break;
+          default:
+            console.error(err);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
+        }
+      } else {
+        console.warn(err);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
