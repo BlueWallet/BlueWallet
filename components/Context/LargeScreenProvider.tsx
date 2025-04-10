@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, AppStateStatus, Dimensions, Platform, useWindowDimensions } from 'react-native';
-import { isDesktop } from '../../blue_modules/environment';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 
 interface ILargeScreenContext {
   isLargeScreen: boolean;
@@ -86,6 +86,12 @@ const useLargeScreenDetection = () => {
   }, []);
 
   const isLargeScreen = useMemo(() => {
+    // Early return for Android non-tablet devices - needs different implementation. will deal with later
+    if (Platform.OS === 'android' && !isTablet) {
+      console.debug('[LargeScreen] Android non-tablet device detected, returning false');
+      return false;
+    }
+
     // Prioritize the state from dimension changes for more reliable rotation support
     const effectiveWidth =
       dimensionState.width > 0 ? dimensionState.width : dimensions.width > 0 ? dimensions.width : previousValidWidthRef.current;
