@@ -106,6 +106,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 }) => {
   const { sizing, colors, layout } = usePlatformTheme();
 
+  // Ensure minimum height of 44px for accessibility
+  const minHeight = Math.max(44, sizing.itemMinHeight);
+
   const stylesHook = StyleSheet.create({
     title: {
       color: colors.titleColor,
@@ -125,7 +128,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     containerStyle: {
       backgroundColor: colors.cardBackground,
       paddingVertical: sizing.containerPaddingVertical,
-      minHeight: sizing.itemMinHeight,
+      minHeight, // Updated to use the minimum of 44px
+      height: minHeight, // Fixed height to ensure consistency between all items
       borderBottomWidth: layout.showBorderBottom ? StyleSheet.hairlineWidth : 0,
       borderBottomColor: layout.showBorderBottom ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,

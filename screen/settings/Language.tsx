@@ -50,11 +50,6 @@ const Language = () => {
       marginBottom: sizing.sectionContainerMarginBottom,
       paddingTop: sizing.firstSectionContainerPaddingTop,
     },
-    itemContainer: {
-      // Apply fixed height to ensure consistency
-      minHeight: sizing.itemMinHeight,
-      height: sizing.itemMinHeight,
-    },
   });
 
   return (
@@ -69,18 +64,14 @@ const Language = () => {
             <PlatformListItem
               key={item.value}
               title={item.label}
-              containerStyle={[
-                {
-                  backgroundColor: platformColors.cardBackground,
-                },
-                styles.itemContainer,
-              ]}
+              containerStyle={{
+                backgroundColor: platformColors.cardBackground,
+              }}
               checkmark={isSelected}
               disabled={isSelected}
               onPress={() => onLanguageSelect(item)}
               isFirst={isFirst}
               isLast={isLast}
-              chevron={false} // Don't show chevron to keep consistent height
               bottomDivider={layout.showBorderBottom}
             />
           );

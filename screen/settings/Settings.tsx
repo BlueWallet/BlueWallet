@@ -6,9 +6,12 @@ import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformTheme } from '../../components/platformThemes';
 import { useTheme } from '../../components/themes';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { language } = useSettings();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const { colors } = useTheme();
 
