@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, ComponentType } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
@@ -30,7 +30,7 @@ interface ListItemProps {
   rightIcon?: any;
   leftAvatar?: React.JSX.Element;
   containerStyle?: object;
-  Component?: typeof React.Component | typeof PressableWrapper;
+  Component?: ComponentType<any> | React.ElementType;
   bottomDivider?: boolean;
   topDivider?: boolean;
   testID?: string;
@@ -168,14 +168,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       switchProps
         ? {
             ...switchProps,
-            trackColor: {
-              false: colors.switchTrackColorFalse,
-              true: colors.switchTrackColorTrue,
-            },
-            ios_backgroundColor: colors.switchIosBackgroundColor,
           }
         : undefined,
-    [switchProps, colors],
+    [switchProps],
   );
 
   const getAccessibilityProps = () => {
@@ -340,7 +335,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   return swipeable ? (
     <RNElementsListItem.Swipeable
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
-      Component={Component}
+      Component={Component as any}
       bottomDivider={shouldShowBottomDivider}
       topDivider={topDivider}
       testID={testID}
@@ -356,7 +351,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   ) : (
     <RNElementsListItem
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
-      Component={Component}
+      Component={Component as any}
       bottomDivider={shouldShowBottomDivider}
       topDivider={topDivider}
       testID={testID}

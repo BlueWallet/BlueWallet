@@ -37,6 +37,7 @@ const Language = () => {
     },
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
+      minHeight: 77,
     },
     headerOffset: {
       height: sizing.firstSectionContainerPaddingTop,

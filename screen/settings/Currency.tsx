@@ -44,6 +44,7 @@ const Currency: React.FC = () => {
     },
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
+      minHeight: 77,
     },
     infoContainer: {
       backgroundColor: platformColors.cardBackground,
@@ -64,9 +65,6 @@ const Currency: React.FC = () => {
     },
     infoWrapper: {
       marginBottom: 16,
-    },
-    flatListStyle: {
-      flex: 1,
     },
   });
 
@@ -213,7 +211,7 @@ const Currency: React.FC = () => {
   return (
     <View style={styles.container}>
       <SafeAreaFlatList
-        style={styles.flatListStyle}
+        style={styles.container}
         data={filteredCurrencies}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

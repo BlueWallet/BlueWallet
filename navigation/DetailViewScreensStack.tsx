@@ -96,6 +96,34 @@ const DetailViewStackScreensStack = () => {
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
+  // Create a reusable header blur style function
+  interface SettingsScreenOptions {
+    title: string;
+    headerBlur: boolean;
+    headerBlurEffect: 'regular';
+    headerStyle: {
+      backgroundColor: string;
+    };
+    headerTransparent: boolean;
+  }
+
+  interface GetSettingsScreenOptions {
+    (title: string): SettingsScreenOptions;
+  }
+
+  const getSettingsScreenOptions: GetSettingsScreenOptions = useCallback(
+    (title: string): SettingsScreenOptions => ({
+      title,
+      headerBlur: true,
+      headerBlurEffect: 'regular',
+      headerStyle: {
+        backgroundColor: 'transparent',
+      },
+      headerTransparent: true,
+    }),
+    [],
+  );
+
   return (
     <DetailViewStack.Navigator
       initialRouteName="WalletsList"
@@ -238,77 +266,101 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'default',
-          headerShadowVisible: false,
           headerLargeTitle: true,
+          headerShadowVisible: false,
           animationTypeForReplace: 'push',
+          headerBlurEffect: 'regular',
+          headerStyle: {
+            backgroundColor: 'transparent',
+          },
+          headerTransparent: true,
         })(theme)}
       />
-      <DetailViewStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
+      <DetailViewStack.Screen
+        name="Currency"
+        component={Currency}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.currency))(theme)}
+      />
       <DetailViewStack.Screen
         name="GeneralSettings"
         component={GeneralSettings}
-        options={navigationStyle({ title: loc.settings.general })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.general))(theme)}
       />
       <DetailViewStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.plausibledeniability.title))(theme)}
       />
-      <DetailViewStack.Screen name="Licensing" component={Licensing} options={navigationStyle({ title: loc.settings.license })(theme)} />
+      <DetailViewStack.Screen
+        name="Licensing"
+        component={Licensing}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.license))(theme)}
+      />
       <DetailViewStack.Screen
         name="NetworkSettings"
         component={NetworkSettings}
-        options={navigationStyle({ title: loc.settings.network })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.network))(theme)}
       />
       <DetailViewStack.Screen
         name="SettingsBlockExplorer"
         component={SettingsBlockExplorer}
-        options={navigationStyle({ title: loc.settings.block_explorer })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.block_explorer))(theme)}
       />
-
-      <DetailViewStack.Screen name="About" component={About} options={navigationStyle({ title: loc.settings.about })(theme)} />
+      <DetailViewStack.Screen
+        name="About"
+        component={About}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.about))(theme)}
+      />
       <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
-        options={navigationStyle({ title: loc.settings.default_title })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.default_title))(theme)}
       />
       <DetailViewStack.Screen
         name="ElectrumSettings"
         component={ElectrumSettings}
-        options={navigationStyle({ title: loc.settings.electrum_settings_server })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.electrum_settings_server))(theme)}
         initialParams={{ server: undefined }}
       />
       <DetailViewStack.Screen
         name="EncryptStorage"
         component={EncryptStorage}
-        options={navigationStyle({ title: loc.settings.encrypt_title })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.encrypt_title))(theme)}
       />
-      <DetailViewStack.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
+      <DetailViewStack.Screen
+        name="Language"
+        component={Language}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.language))(theme)}
+      />
       <DetailViewStack.Screen
         name="LightningSettings"
         component={LightningSettings}
-        options={navigationStyle({ title: loc.settings.lightning_settings })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.lightning_settings))(theme)}
       />
       <DetailViewStack.Screen
         name="NotificationSettings"
         component={NotificationSettings}
-        options={navigationStyle({ title: loc.settings.notifications })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.notifications))(theme)}
       />
-      <DetailViewStack.Screen name="SelfTest" component={SelfTest} options={navigationStyle({ title: loc.settings.selfTest })(theme)} />
+      <DetailViewStack.Screen
+        name="SelfTest"
+        component={SelfTest}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.selfTest))(theme)}
+      />
       <DetailViewStack.Screen
         name="ReleaseNotes"
         component={ReleaseNotes}
-        options={navigationStyle({ title: loc.settings.about_release_notes })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.about_release_notes))(theme)}
       />
       <DetailViewStack.Screen
         name="SettingsTools"
         component={SettingsTools}
-        options={navigationStyle({ title: loc.settings.tools })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.tools))(theme)}
       />
       <DetailViewStack.Screen
         name="SettingsPrivacy"
         component={SettingsPrivacy}
-        options={navigationStyle({ title: loc.settings.privacy })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.privacy))(theme)}
       />
     </DetailViewStack.Navigator>
   );
