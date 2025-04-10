@@ -80,6 +80,8 @@ export type SendDetailsStackParamList = {
     psbtBase64: string;
     fromWallet: string;
     launchedBy?: string;
+    isShowOpenScanner?: boolean;
+    onBarScanned?: string;
   };
   Success: {
     fee?: number;

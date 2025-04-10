@@ -1,4 +1,4 @@
-import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
@@ -11,15 +11,22 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import TipBox from '../../components/TipBox';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
-const PsbtMultisigQRCode = () => {
+interface BarcodeScanResult {
+  data?: string;
+}
+
+type RouteParams = RouteProp<SendDetailsStackParamList, 'PsbtMultisigQRCode'>;
+
+const PsbtMultisigQRCode: React.FC = () => {
   const navigation = useExtendedNavigation();
   const { colors } = useTheme();
-  const openScannerButton = useRef();
-  const { params } = useRoute();
+  const openScannerButton = useRef<any>(null);
+  const { params } = useRoute<RouteParams>();
   const { psbtBase64, isShowOpenScanner } = params;
-  const [isLoading, setIsLoading] = useState(false);
-  const dynamicQRCode = useRef();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const dynamicQRCode = useRef<DynamicQRCode>(null);
   const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
@@ -45,21 +52,23 @@ const PsbtMultisigQRCode = () => {
   }, [isFocused]);
 
   const onBarScanned = useCallback(
-    ret => {
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+    (ret: BarcodeScanResult | any) => {
+      const result = typeof ret === 'string' || ret instanceof String ? { data: ret } : ret;
+      const data = result.data || '';
+
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1) {
+      } else if (data.indexOf('+') === -1 && data.indexOf('=') === -1) {
         presentAlert({ message: loc.wallets.import_error });
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
       } else {
         // psbt base64?
-        const popToAction = StackActions.popTo('PsbtMultisig', { psbtBase64, receivedPSBTBase64: ret.data, ...params }, true);
+        const popToAction = StackActions.popTo('PsbtMultisig', { receivedPSBTBase64: data, ...params }, { merge: true });
         navigation.dispatch(popToAction);
       }
     },
-    [navigation, psbtBase64, params],
+    [navigation, params],
   );
 
   useEffect(() => {
@@ -76,7 +85,7 @@ const PsbtMultisigQRCode = () => {
     });
   };
 
-  const saveFileButtonBeforeOnPress = () => {
+  const saveFileButtonBeforeOnPress = async (): Promise<void> => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
   };
