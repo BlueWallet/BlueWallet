@@ -22,6 +22,7 @@
     "close": "Close",
     "change_input_currency": "Change input currency",
     "refresh": "Refresh",
+    "edit": "Edit",
     "pick_image": "Choose from library",
     "pick_file": "Choose file",
     "enter_amount": "Enter amount",
@@ -500,7 +501,9 @@
     "manage_wallets_search_placeholder": "Search wallets, memos",
     "more_info": "More Info",
     "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
-    "details_delete_anyway": "Delete anyway"
+    "details_delete_anyway": "Delete anyway",
+    "details_confirm_save_master_fingerprint": "Do you want to save changes to the master fingerprint?",
+    "details_save_changes": "Save Changes"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in Bitcoin",
