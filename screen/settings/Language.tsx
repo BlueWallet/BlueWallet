@@ -50,6 +50,10 @@ const Language = () => {
       marginBottom: sizing.sectionContainerMarginBottom,
       paddingTop: sizing.firstSectionContainerPaddingTop,
     },
+    listItemContainer: {
+      backgroundColor: platformColors.cardBackground,
+      minHeight: 77,
+    },
   });
 
   return (
@@ -64,15 +68,15 @@ const Language = () => {
             <PlatformListItem
               key={item.value}
               title={item.label}
-              containerStyle={{
-                backgroundColor: platformColors.cardBackground,
-              }}
+              containerStyle={styles.listItemContainer}
               checkmark={isSelected}
               disabled={isSelected}
               onPress={() => onLanguageSelect(item)}
               isFirst={isFirst}
               isLast={isLast}
               bottomDivider={layout.showBorderBottom}
+              accessibilityLabel={item.label}
+              accessibilityHint={isSelected ? language : loc.settings.tap_to_select_language}
             />
           );
         })}

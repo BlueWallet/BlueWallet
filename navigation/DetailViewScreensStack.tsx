@@ -300,7 +300,11 @@ const DetailViewStackScreensStack = () => {
         component={ReleaseNotes}
         options={navigationStyle({ title: loc.settings.about_release_notes })(theme)}
       />
-      <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={navigationStyle({ title: loc.settings.tools })(theme)} />
+      <DetailViewStack.Screen
+        name="SettingsTools"
+        component={SettingsTools}
+        options={navigationStyle({ title: loc.settings.tools })(theme)}
+      />
       <DetailViewStack.Screen
         name="SettingsPrivacy"
         component={SettingsPrivacy}

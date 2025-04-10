@@ -7,8 +7,12 @@ import {
   PressableProps,
   StyleSheet,
   Switch,
+  SwitchProps,
   TouchableOpacity,
   View,
+  AccessibilityState,
+  useWindowDimensions,
+  AccessibilityRole,
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,7 +25,6 @@ interface IconProps {
   size?: number;
   backgroundColor?: string | number | OpaqueColorValue;
 }
-
 interface ListItemProps {
   swipeable?: boolean;
   rightIcon?: any;
@@ -35,7 +38,7 @@ interface ListItemProps {
   onLongPress?: () => void;
   onDeletePressed?: () => void;
   disabled?: boolean;
-  switch?: object;
+  switch?: SwitchProps;
   leftIcon?: IconProps;
   title: string;
   subtitle?: string | React.ReactNode;
@@ -50,6 +53,9 @@ interface ListItemProps {
   swipeableRightContent?: React.ReactNode;
   isFirst?: boolean;
   isLast?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  accessibilityState?: AccessibilityState;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {
@@ -71,6 +77,10 @@ const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () =>
       reset();
       onDeletePressed?.();
     }}
+    accessible
+    accessibilityLabel="Delete"
+    accessibilityRole="button"
+    accessibilityHint="Deletes this item"
   >
     <Ionicons name="trash-outline" size={24} color="white" />
   </TouchableOpacity>
@@ -103,11 +113,14 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   swipeableRightContent,
   isLast = false,
   isFirst = false,
+  accessibilityLabel,
+  accessibilityHint,
+  accessibilityState,
 }) => {
   const { sizing, colors, layout } = usePlatformTheme();
+  const { fontScale } = useWindowDimensions();
 
-  // Ensure minimum height of 44px for accessibility
-  const minHeight = 44;
+  const minHeight = Math.max(46, 46 * fontScale);
 
   const stylesHook = StyleSheet.create({
     title: {
@@ -122,14 +135,13 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       color: colors.subtitleColor,
       fontWeight: sizing.subtitleFontWeight,
       paddingVertical: sizing.subtitlePaddingVertical,
-      lineHeight: sizing.subtitleLineHeight,
+      lineHeight: sizing.subtitleLineHeight * fontScale,
       fontSize: sizing.subtitleFontSize,
     },
     containerStyle: {
       backgroundColor: colors.cardBackground,
       paddingVertical: sizing.containerPaddingVertical,
-      minHeight, // Updated to use the minimum of 44px
-      height: minHeight, // Fixed height to ensure consistency between all items
+      minHeight,
       borderBottomWidth: layout.showBorderBottom ? StyleSheet.hairlineWidth : 0,
       borderBottomColor: layout.showBorderBottom ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
@@ -166,6 +178,22 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     [switchProps, colors],
   );
 
+  const getAccessibilityProps = () => {
+    const baseProps = {
+      accessible: true,
+      accessibilityRole: (switchProps ? 'switch' : 'button') as AccessibilityRole,
+      accessibilityLabel: accessibilityLabel || title,
+      accessibilityHint: accessibilityHint || (subtitle && typeof subtitle === 'string' ? subtitle : undefined),
+      accessibilityState: {
+        ...accessibilityState,
+        disabled,
+        checked: switchProps?.value,
+      },
+    };
+
+    return baseProps;
+  };
+
   const renderContent = () => (
     <>
       {leftIcon && (
@@ -187,6 +215,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
                 }
               : null,
           ]}
+          importantForAccessibility="no"
         >
           <Avatar
             size={sizing.iconSize}
@@ -203,17 +232,17 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       {leftAvatar && (
         <>
           {leftAvatar}
-          <View style={styles.width16} />
+          <View style={styles.width16} importantForAccessibility="no" />
         </>
       )}
       <RNElementsListItem.Content>
-        <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={switchProps === undefined}>
+        <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
           {title}
         </RNElementsListItem.Title>
         {subtitle && (
           <RNElementsListItem.Subtitle
-            numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)}
-            accessible={switchProps === undefined}
+            numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 0)}
+            accessibilityRole="text"
             style={stylesHook.subtitle}
           >
             {subtitle}
@@ -222,20 +251,31 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       </RNElementsListItem.Content>
 
       {rightTitle && (
-        <View style={styles.margin8}>
-          <RNElementsListItem.Title style={[stylesHook.subtitle, rightTitleStyle]} numberOfLines={0}>
+        <View style={styles.margin8} importantForAccessibility="no">
+          <RNElementsListItem.Title style={[stylesHook.subtitle, rightTitleStyle]} numberOfLines={0} accessibilityRole="text">
             {rightTitle}
           </RNElementsListItem.Title>
         </View>
       )}
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator accessibilityRole="progressbar" accessibilityLabel="Loading" />
       ) : (
         <>
-          {chevron && <RNElementsListItem.Chevron iconStyle={StyleSheet.flatten([styles.transformRTL, stylesHook.chevron])} />}
+          {chevron && (
+            <RNElementsListItem.Chevron
+              iconStyle={StyleSheet.flatten([styles.transformRTL, stylesHook.chevron])}
+              importantForAccessibility="no"
+            />
+          )}
           {rightIcon && <Avatar icon={rightIcon} />}
           {switchProps && (
-            <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+            <Switch
+              {...memoizedSwitchProps}
+              style={styles.margin16}
+              accessibilityLabel={accessibilityLabel || title}
+              accessible
+              accessibilityRole="switch"
+            />
           )}
           {checkmark && (
             <RNElementsListItem.CheckBox
@@ -244,6 +284,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
               iconType="octaicon"
               checkedIcon="check"
               checked
+              importantForAccessibility="no"
             />
           )}
         </>
@@ -294,6 +335,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   }
 
   const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
+  const accessibilityProps = getAccessibilityProps();
 
   return swipeable ? (
     <RNElementsListItem.Swipeable
@@ -307,7 +349,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       disabled={disabled}
       leftContent={swipeableLeftContent}
       rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
-      accessible={switchProps === undefined}
+      {...accessibilityProps}
     >
       {renderContent()}
     </RNElementsListItem.Swipeable>
@@ -321,8 +363,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={disabled}
-      accessible={switchProps === undefined}
       pad={16}
+      {...accessibilityProps}
     >
       {renderContent()}
     </RNElementsListItem>
