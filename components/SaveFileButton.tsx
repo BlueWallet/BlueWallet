@@ -13,7 +13,7 @@ interface SaveFileButtonProps extends TouchableOpacityProps {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
-  beforeOnPress?: () => Promise<void>;
+  beforeOnPress?: (() => Promise<void>) | (() => void);
   onMenuWillHide?: () => void;
   onMenuWillShow?: () => void;
 }
