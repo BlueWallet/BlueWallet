@@ -10,9 +10,9 @@ buildscript {
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "21.1.0"
-        ndkVersion = "26.1.10909125"
-        kotlin_version = '1.9.25'
-        kotlinVersion = '1.9.25'
+        ndkVersion = "27.1.12297006"
+        kotlin_version = '2.0.21'
+        kotlinVersion = '2.0.21'
     }
     repositories {
         google()

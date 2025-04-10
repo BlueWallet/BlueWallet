@@ -30,19 +30,6 @@ jobs:
         with:
           fetch-depth: 0 # Ensures the full Git history is available
       
-      - name: Setup Caching
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/Library/Caches/CocoaPods
-            ios/Pods
-            ~/.npm
-            node_modules
-            vendor/bundle
-          key: ${{ runner.os }}-ios-${{ hashFiles('**/package-lock.json', '**/Podfile.lock', '**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-ios-
-
       - name: Clear All Caches
         if: github.ref == 'refs/heads/master'
         run: |
@@ -120,7 +107,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -260,8 +246,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
-
+          
       - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
