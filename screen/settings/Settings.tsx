@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -14,6 +14,8 @@ const Settings = () => {
   const { language } = useSettings();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const { colors } = useTheme();
+
+  const isAndroid = Platform.OS === 'android';
 
   const iconColors = {
     settings: colors.foregroundColor,
@@ -31,21 +33,24 @@ const Settings = () => {
       backgroundColor: platformColors.background,
     },
     sectionHeaderContainer: {
-      height: sizing.sectionHeaderHeight,
+      height: isAndroid ? sizing.sectionHeaderHeight / 2 : sizing.sectionHeaderHeight,
       paddingHorizontal: 24,
       justifyContent: 'flex-end',
-      paddingBottom: sizing.sectionHeaderPaddingBottom,
+      paddingBottom: isAndroid ? sizing.sectionHeaderPaddingBottom / 2 : sizing.sectionHeaderPaddingBottom,
     },
     sectionContainer: {
       marginHorizontal: 16,
-      marginBottom: sizing.sectionContainerMarginBottom,
+      marginBottom: isAndroid ? sizing.sectionContainerMarginBottom / 2 : sizing.sectionContainerMarginBottom,
     },
     firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
+      paddingTop: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
       marginHorizontal: 16,
-      marginBottom: sizing.sectionContainerMarginBottom,
+      marginBottom: isAndroid ? sizing.sectionContainerMarginBottom / 2 : sizing.sectionContainerMarginBottom,
     },
   });
+
+  // Android-specific item height
+  const itemHeight = isAndroid ? { height: 50 } : {};
 
   return (
     <SafeAreaScrollView testID="SettingsRoot" style={styles.container}>
@@ -60,6 +65,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
@@ -77,6 +83,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('Currency')}
           testID="Currency"
@@ -93,6 +100,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('Language')}
           testID="Language"
@@ -114,6 +122,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
@@ -136,6 +145,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
@@ -153,6 +163,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('SettingsTools')}
           testID="Tools"
@@ -174,6 +185,7 @@ const Settings = () => {
           }}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...itemHeight,
           }}
           onPress={() => navigate('About')}
           testID="AboutButton"
