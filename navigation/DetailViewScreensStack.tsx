@@ -48,7 +48,7 @@ import LightningSettings from '../screen/settings/LightningSettings';
 import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
-import ToolsScreen from '../screen/settings/tools';
+import SettingsTools from '../screen/settings/SettingsTools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
@@ -300,7 +300,7 @@ const DetailViewStackScreensStack = () => {
         component={ReleaseNotes}
         options={navigationStyle({ title: loc.settings.about_release_notes })(theme)}
       />
-      <DetailViewStack.Screen name="ToolsScreen" component={ToolsScreen} options={navigationStyle({ title: loc.settings.tools })(theme)} />
+      <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={navigationStyle({ title: loc.settings.tools })(theme)} />
       <DetailViewStack.Screen
         name="SettingsPrivacy"
         component={SettingsPrivacy}

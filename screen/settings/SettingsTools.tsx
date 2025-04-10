@@ -4,7 +4,7 @@ import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
-const ToolsScreen = () => {
+const SettingsTools = () => {
   const { navigate } = useNavigation();
 
   const navigateToIsItMyAddress = () => {
@@ -28,4 +28,4 @@ const ToolsScreen = () => {
   );
 };
 
-export default ToolsScreen;
+export default SettingsTools;

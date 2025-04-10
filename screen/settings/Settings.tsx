@@ -154,7 +154,7 @@ const Settings = () => {
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
           }}
-          onPress={() => navigate('ToolsScreen')}
+          onPress={() => navigate('SettingsTools')}
           testID="Tools"
           chevron
           bottomDivider={layout.showBorderBottom}

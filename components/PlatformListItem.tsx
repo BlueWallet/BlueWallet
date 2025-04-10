@@ -107,7 +107,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   const { sizing, colors, layout } = usePlatformTheme();
 
   // Ensure minimum height of 44px for accessibility
-  const minHeight = Math.max(44, sizing.itemMinHeight);
+  const minHeight = 44;
 
   const stylesHook = StyleSheet.create({
     title: {
