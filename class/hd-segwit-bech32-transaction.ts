@@ -1,21 +1,30 @@
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
+import assert from 'assert';
 
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { CreateTransactionUtxo } from './wallets/types.ts';
+import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 
 /**
  * Represents transaction of a BIP84 wallet.
  * Helpers for RBF, CPFP etc.
  */
 export class HDSegwitBech32Transaction {
+  private _txhex: string | null;
+  private _txid: string | null;
+  private _wallet: HDSegwitBech32Wallet | undefined;
+  private _txDecoded: bitcoin.Transaction | undefined;
+  private _remoteTx: any;
+
   /**
    * @param txhex {string|null} Object is initialized with txhex
    * @param txid {string|null} If txhex not present - txid whould be present
    * @param wallet {HDSegwitBech32Wallet|null} If set - a wallet object to which transacton belongs
    */
-  constructor(txhex, txid, wallet) {
+  constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null) {
     if (!txhex && !txid) throw new Error('Bad arguments');
     this._txhex = txhex;
     this._txid = txid;
@@ -40,6 +49,7 @@ export class HDSegwitBech32Transaction {
    * @private
    */
   async _fetchTxhexAndDecode() {
+    assert(this._txid, 'this._txid must be a string');
     const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], false, 10);
     this._txhex = hexes[this._txid];
     if (!this._txhex) throw new Error("Transaction can't be found in mempool");
@@ -54,6 +64,7 @@ export class HDSegwitBech32Transaction {
    */
   async getMaxUsedSequence() {
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
+    assert(this._txDecoded, 'Could not fetch tx and decode');
 
     let max = 0;
     for (const inp of this._txDecoded.ins) {
@@ -81,7 +92,7 @@ export class HDSegwitBech32Transaction {
    * @private
    */
   async _fetchRemoteTx() {
-    const result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded.getId()], true);
+    const result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded!.getId()], true);
     this._remoteTx = Object.values(result)[0];
   }
 
@@ -106,9 +117,9 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     let found = false;
     for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded.getId())) {
+      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
         // its our transaction, and its spending transaction, which means we initiated it
-        if (tx.value < 0) found = true;
+        if (tx.value && tx.value < 0) found = true;
       }
     }
     return found;
@@ -125,8 +136,8 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     let found = false;
     for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded.getId())) {
-        if (tx.value > 0) found = true;
+      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
+        if (tx.value && tx.value > 0) found = true;
       }
     }
     return found;
@@ -147,27 +158,26 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
+    assert(this._txDecoded, 'could not fetch tx and decode');
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
-      let reversedHash = Buffer.from(inp.hash).reverse();
-      reversedHash = reversedHash.toString('hex');
-      prevInputs.push(reversedHash);
+      prevInputs.push(Buffer.from(inp.hash).reverse().toString('hex'));
     }
 
     const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs, true);
 
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
-    const utxos = [];
+    const utxos: CreateTransactionUtxo[] = [];
     for (const inp of this._txDecoded.ins) {
-      let reversedHash = Buffer.from(inp.hash).reverse();
-      reversedHash = reversedHash.toString('hex');
+      const reversedHash = Buffer.from(inp.hash).reverse().toString('hex');
       if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
         let value = prevTransactions[reversedHash].vout[inp.index].value;
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
-        const address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
+        const witness = inp.witness[inp.witness.length - 1];
+        const address = String(SegwitBech32Wallet.witnessToAddress(Buffer.isBuffer(witness) ? witness.toString('hex') : witness));
         utxos.push({ vout: inp.index, value, txid: reversedHash, address });
       }
     }
@@ -185,7 +195,7 @@ export class HDSegwitBech32Transaction {
 
     // lets take a look at change
     let changeAmount = 0;
-    const targets = [];
+    const targets: { value?: number; address: string }[] = [];
     for (const outp of this._remoteTx.vout) {
       const address = outp.scriptPubKey.addresses[0];
       const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
@@ -225,6 +235,7 @@ export class HDSegwitBech32Transaction {
   async thereAreUnknownInputsInTx() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
+    assert(this._txDecoded, 'could not fetch tx and decode');
 
     const spentUtxos = this._wallet.getDerivedUtxoFromOurTransaction(true);
     for (const inp of this._txDecoded.ins) {
@@ -250,12 +261,19 @@ export class HDSegwitBech32Transaction {
   async canCancelTx() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
+    assert(this._txDecoded, 'could not fetch tx and decode');
 
     if (await this.thereAreUnknownInputsInTx()) return false;
 
     // if theres at least one output we dont own - we can cancel this transaction!
     for (const outp of this._txDecoded.outs) {
-      if (!this._wallet.weOwnAddress(SegwitBech32Wallet.scriptPubKeyToAddress(outp.script))) return true;
+      const outpScript = outp.script;
+      if (
+        !this._wallet.weOwnAddress(
+          String(SegwitBech32Wallet.scriptPubKeyToAddress(Buffer.isBuffer(outpScript) ? outpScript.toString('hex') : outpScript)),
+        )
+      )
+        return true;
     }
 
     return false;
@@ -278,7 +296,7 @@ export class HDSegwitBech32Transaction {
    * @param newFeerate {number} Sat/byte. Should be greater than previous tx feerate
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
-  async createRBFcancelTx(newFeerate) {
+  async createRBFcancelTx(newFeerate: any) {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
@@ -303,7 +321,7 @@ export class HDSegwitBech32Transaction {
    * @param newFeerate {number} Sat/byte
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
-  async createRBFbumpFee(newFeerate) {
+  async createRBFbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
@@ -333,7 +351,7 @@ export class HDSegwitBech32Transaction {
    * @param newFeerate {number} sat/byte
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
-  async createCPFPbumpFee(newFeerate) {
+  async createCPFPbumpFee(newFeerate: number) {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
@@ -347,16 +365,21 @@ export class HDSegwitBech32Transaction {
     const targetFeeRate = 2 * newFeerate - feeRate;
 
     let add = 0;
+    let tx: bitcoin.Transaction | undefined, inputs: CoinSelectReturnInput[], outputs: CoinSelectOutput[], fee: number;
     while (add <= 128) {
-      // eslint-disable-next-line no-var
-      var { tx, inputs, outputs, fee } = this._wallet.createTransaction(
+      const createdTx = this._wallet.createTransaction(
         unconfirmedUtxos,
         [{ address: myAddress }],
         targetFeeRate + add,
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
       );
-      const combinedFeeRate = (oldFee + fee) / (this._txDecoded.virtualSize() + tx.virtualSize()); // avg
+      tx = createdTx.tx;
+      inputs = createdTx.inputs;
+      outputs = createdTx.outputs;
+      fee = createdTx.fee;
+      assert(tx, 'tx is createCPFPbumpFee() is undefined');
+      const combinedFeeRate = (oldFee + fee) / (this._txDecoded!.virtualSize() + tx.virtualSize()); // avg
       if (Math.round(combinedFeeRate) < newFeerate) {
         add *= 2;
         if (!add) add = 2;
@@ -366,6 +389,7 @@ export class HDSegwitBech32Transaction {
       }
     }
 
+    // @ts-ignore stfu
     return { tx, inputs, outputs, fee };
   }
 }

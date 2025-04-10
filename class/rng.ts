@@ -5,14 +5,14 @@
 
 import crypto from 'crypto';
 // uses `crypto` module under nodejs/cli and shim under RN
-// @see blue_modules/crypto.js
+// check out 'react-native-crypto' in package.json
 
 /**
  * Generate cryptographically secure random bytes using native api.
  * @param  {number}   size      The number of bytes of randomness
  * @return {Promise.<Buffer>}   The random bytes
  */
-export async function randomBytes(size) {
+export async function randomBytes(size: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, data) => {
       if (err) reject(err);

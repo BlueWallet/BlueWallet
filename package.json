@@ -23,6 +23,7 @@
     "@types/crypto-js": "^4.2.2",
     "@types/jest": "^29.5.2",
     "@types/react": "^18.2.16",
+    "@types/react-native-push-notification": "^8.1.4",
     "@types/react-test-renderer": "^19.0.0",
     "@types/wif": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
@@ -80,7 +81,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.25.8",
-    "@bugsnag/react-native": "8.3.0",
+    "@bugsnag/react-native": "8.3.1",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.0",
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#5945184a2fea9fe5ba8f5cfcdb20e3fc5eed6e37",

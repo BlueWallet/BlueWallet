@@ -4,6 +4,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
+// @ts-ignore theres no type declaration for this
 import BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
@@ -24,8 +25,21 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';
 import loc from '../../loc';
+import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 
 const bip32 = BIP32Factory(ecc);
+
+type TState = {
+  isLoading?: boolean;
+  isOk?: boolean;
+  errorMessage?: string;
+};
+
+function assertStrictEqual<T>(actual: T, expected: T, message?: string) {
+  if (expected !== actual) {
+    throw new Error(message || 'Assertion failed that ' + JSON.stringify(expected) + ' equals ' + JSON.stringify(actual));
+  }
+}
 
 const styles = StyleSheet.create({
   center: {
@@ -34,7 +48,9 @@ const styles = StyleSheet.create({
 });
 
 export default class SelfTest extends Component {
-  constructor(props) {
+  state: TState;
+
+  constructor(props: any) {
     super(props);
     this.state = {
       isLoading: true,
@@ -62,7 +78,7 @@ export default class SelfTest extends Component {
 
     try {
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        const uniqs = {};
+        const uniqs: Record<string, 1> = {};
         const w = new SegwitP2SHWallet();
         for (let c = 0; c < 1000; c++) {
           await w.generate();
@@ -102,10 +118,10 @@ export default class SelfTest extends Component {
         // skipping RN-specific test
       }
 
-      let l = new LegacyWallet();
+      let l: LegacyWallet | SegwitP2SHWallet = new LegacyWallet();
       l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
       assertStrictEqual(l.getAddress(), '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M');
-      let utxos = [
+      let utxos: CreateTransactionUtxo[] = [
         {
           txid: 'cc44e933a094296d9fe424ad7306f16916253a3d154d52e4f1a757c18242cec4',
           vout: 0,
@@ -115,10 +131,18 @@ export default class SelfTest extends Component {
         },
       ];
 
-      let txNew = l.createTransaction(utxos, [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }], 1, l.getAddress());
-      const txBitcoin = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+      let txNew = l.createTransaction(
+        utxos,
+        [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }],
+        1,
+        String(l.getAddress()),
+        0xffffffff,
+        false,
+        0,
+      );
+      const txBitcoin = bitcoin.Transaction.fromHex(txNew.tx!.toHex());
       assertStrictEqual(
-        txNew.tx.toHex(),
+        txNew.tx!.toHex(),
         '0200000001c4ce4282c157a7f1e4524d153d3a251669f10673ad24e49f6d2994a033e944cc000000006b48304502210091e58bd2021f2eeea8d39d7f7b053c9ccc52a747b60f1c3584ba33285e2d150602205b2d35a2536cbe157015e8c54a26f5fc350cc7c72b5ca80b9e548917993f652201210337c09b3cb889801638078fd4e6998218b28c92d338ea2602720a88847aedceb3ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac2e260000000000001976a91426e01119d265aa980390c49eece923976c218f1588ac00000000',
       );
       assertStrictEqual(txBitcoin.ins.length, 1);
@@ -148,10 +172,18 @@ export default class SelfTest extends Component {
         },
       ];
 
-      txNew = wallet.createTransaction(utxos, [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }], 1, wallet.getAddress());
-      const tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+      txNew = wallet.createTransaction(
+        utxos,
+        [{ value: 90000, address: '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB' }],
+        1,
+        String(wallet.getAddress()),
+        0xffffffff,
+        false,
+        0,
+      );
+      const tx = bitcoin.Transaction.fromHex(txNew.tx!.toHex());
       assertStrictEqual(
-        txNew.tx.toHex(),
+        txNew.tx!.toHex(),
         '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88aca73303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f4870248304502210080545d30e3d30dff272ab11c91fd6150170b603239b48c3d56a3fa66bf240085022003762404e1b45975adc89f61ec1569fa19d6d4a8d405e060897754c489ebeade012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
       );
       assertStrictEqual(tx.ins.length, 1);
@@ -192,7 +224,7 @@ export default class SelfTest extends Component {
       //
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const hd = new HDSegwitP2SHWallet();
-        const hashmap = {};
+        const hashmap: Record<string, 1> = {};
         for (let c = 0; c < 1000; c++) {
           await hd.generate();
           const secret = hd.getSecret();
@@ -321,12 +353,5 @@ export default class SelfTest extends Component {
         <Button title="Test File Import" onPress={this.onPressImportDocument} />
       </ScrollView>
     );
-  }
-}
-
-function assertStrictEqual(actual, expected, message) {
-  if (expected !== actual) {
-    if (message) throw new Error(message);
-    throw new Error('Assertion failed that ' + JSON.stringify(expected) + ' equals ' + JSON.stringify(actual));
   }
 }
