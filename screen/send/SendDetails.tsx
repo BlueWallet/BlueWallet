@@ -1433,7 +1433,7 @@ const SendDetails = () => {
       <View style={styles.spaceBetween}>
         <View onLayout={onContainerLayout}>
           <FlatList
-            keyboardShouldPersistTaps="always"
+            keyboardShouldPersistTaps="handled"
             scrollEnabled={addresses.length > 1}
             data={addresses}
             renderItem={renderBitcoinTransactionInfoFields}
@@ -1442,6 +1442,8 @@ const SendDetails = () => {
             automaticallyAdjustKeyboardInsets
             pagingEnabled
             onMomentumScrollBegin={Keyboard.dismiss}
+            onScrollBeginDrag={Keyboard.dismiss}
+            onMomentumScrollEnd={Keyboard.dismiss}
             onScroll={handleRecipientsScroll}
             scrollEventThrottle={16}
             scrollIndicatorInsets={styles.scrollViewIndicator}
