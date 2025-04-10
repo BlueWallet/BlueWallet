@@ -12,6 +12,7 @@ import {
   View,
   StyleProp,
   TextStyle,
+  Easing,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
@@ -34,7 +35,7 @@ const LAYOUT = {
   DEFAULT_BORDER_RADIUS: 8,
   MAX_BUTTON_FONT_SIZE: 24,
   SAFETY_MARGIN: 20,
-  ANIMATION_DURATION: 300,
+  ANIMATION_DURATION: 250,
 };
 
 const useFloatButtonAnimation = (height: number) => {
@@ -51,11 +52,11 @@ const useFloatButtonAnimation = (height: number) => {
       return;
     }
 
-    Animated.spring(slideAnimation, {
+    Animated.timing(slideAnimation, {
       toValue: 0,
+      duration: 300,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
-      speed: 100,
-      bounciness: 3,
     }).start();
   }, [height, slideAnimation]);
 
@@ -64,19 +65,9 @@ const useFloatButtonAnimation = (height: number) => {
 
     LayoutAnimation.configureNext({
       duration: LAYOUT.ANIMATION_DURATION,
-      create: {
-        type: LayoutAnimation.Types.spring,
-        property: LayoutAnimation.Properties.scaleXY,
-        springDamping: 0.7,
-      },
       update: {
-        type: LayoutAnimation.Types.spring,
-        springDamping: 0.7,
-      },
-      delete: {
-        type: LayoutAnimation.Types.spring,
-        property: LayoutAnimation.Properties.scaleXY,
-        springDamping: 0.7,
+        type: LayoutAnimation.Types.easeOut,
+        property: LayoutAnimation.Properties.opacity,
       },
     });
   }, []);
@@ -97,15 +88,19 @@ const useFloatButtonAnimation = (height: number) => {
           toValue: buttonRadius,
           duration: LAYOUT.ANIMATION_DURATION,
           useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
         }),
         Animated.timing(animatedSingleButtonRadius, {
           toValue: singleRadius,
           duration: LAYOUT.ANIMATION_DURATION,
           useNativeDriver: true,
+          easing: Easing.inOut(Easing.ease),
         }),
-      ]).start(() => {
-        setIsAnimating(false);
-        if (onComplete) onComplete();
+      ]).start(({ finished }) => {
+        if (finished) {
+          setIsAnimating(false);
+          if (onComplete) onComplete();
+        }
       });
     },
     [animatedButtonRadius, animatedSingleButtonRadius],

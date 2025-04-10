@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  UIManager,
   View,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
@@ -46,6 +47,10 @@ import { AddressInputScanButton } from '../../components/AddressInputScanButton'
 import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 
 const staticCache = {};
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
@@ -603,7 +608,7 @@ const WalletsAddMultisigStep2 = () => {
         isGrabberVisible={false}
         dismissible={false}
         showCloseButton={!isLoading}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
+        sizes={[Platform.OS === 'ios' ? 'auto' : '55%']}
         backgroundColor={colors.modal}
         footer={
           <View style={styles.modalFooterBottomPadding}>
