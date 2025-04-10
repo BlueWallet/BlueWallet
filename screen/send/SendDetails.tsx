@@ -58,7 +58,7 @@ import ActionSheet from '../ActionSheet';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import SafeArea from '../../components/SafeArea';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -1422,14 +1422,7 @@ const SendDetails = () => {
   );
 
   return (
-    <SafeAreaScrollView
-      testID="SendDetails"
-      style={stylesHook.root}
-      contentContainerStyle={styles.rootContainer}
-      keyboardShouldPersistTaps="handled"
-      automaticallyAdjustsScrollIndicatorInsets
-      automaticallyAdjustKeyboardInsets
-    >
+    <SafeArea style={[styles.rootContainer, stylesHook.root]}>
       <View style={styles.spaceBetween}>
         <View onLayout={onContainerLayout}>
           <FlatList
@@ -1508,7 +1501,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
-    </SafeAreaScrollView>
+    </SafeArea>
   );
 };
 
