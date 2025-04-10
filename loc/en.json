@@ -172,7 +172,7 @@
     "fee_1d": "1d",
     "fee_3h": "3h",
     "fee_custom": "Custom",
-    "insert_custom_fee": "Insert custom fee",
+    "insert_custom_fee": "Insert fee",
     "fee_fast": "Fast",
     "fee_medium": "Medium",
     "fee_replace_minvb": "The total fee rate (satoshi per vByte) you want to pay should be higher than {min} sat/vByte.",
