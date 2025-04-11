@@ -168,7 +168,6 @@ const DefaultView: React.FC = () => {
       const isFirst = items.indexOf(item) === 0;
       const isLast = items.indexOf(item) === items.length - 1;
 
-      // Apply greater corner radius to first and last items
       const containerStyle = {
         ...styles.listItemContainer,
         borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
