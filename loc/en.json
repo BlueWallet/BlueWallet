@@ -222,7 +222,6 @@
     "about_selftest_electrum_disabled": "Self-testing is not available with Electrum Offline Mode. Please disable offline mode and try again.",
     "about_selftest_ok": "All internal tests have passed successfully. The wallet works well.",
     "about_sm_github": "GitHub",
-    "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram channel",
     "about_sm_twitter": "Follow us on Twitter",
     "privacy_temporary_screenshots": "Allow Screenshots",

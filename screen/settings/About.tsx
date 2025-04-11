@@ -149,10 +149,6 @@ const About: React.FC = () => {
     Linking.openURL('https://twitter.com/bluewalletio');
   }, []);
 
-  const handleOnDiscordPress = useCallback(() => {
-    Linking.openURL('https://discord.gg/btWq2Aby2z');
-  }, []);
-
   const handleOnTelegramPress = useCallback(() => {
     Linking.openURL('https://t.me/bluewallethat');
   }, []);
@@ -240,17 +236,7 @@ const About: React.FC = () => {
         onPress: handleOnTelegramPress,
         section: 2,
       },
-      {
-        id: 'discord',
-        title: loc.settings.about_sm_discord,
-        leftIcon: {
-          name: 'discord',
-          type: 'font-awesome-5',
-          color: '#7289da',
-        },
-        onPress: handleOnDiscordPress,
-        section: 2,
-      },
+
       {
         id: 'github',
         title: loc.settings.about_sm_github,
@@ -381,7 +367,6 @@ const About: React.FC = () => {
     handleOnRatePress,
     handleOnTwitterPress,
     handleOnTelegramPress,
-    handleOnDiscordPress,
     handleOnGithubPress,
     handleOnReleaseNotesPress,
     handleOnLicensingPress,
@@ -410,7 +395,7 @@ const About: React.FC = () => {
 
       if (item.leftIcon && item.onPress) {
         const sectionMap: Record<number, string[]> = {
-          2: ['twitter', 'telegram', 'discord', 'github'], // Social section items
+          2: ['twitter', 'telegram', 'github'], // Social section items
           3: ['releaseNotes', 'licensing', 'selfTest', 'performanceTest'], // Tools section items
         };
 
