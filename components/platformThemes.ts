@@ -41,7 +41,13 @@ export interface PlatformColors {
   switchIosBackgroundColor: string | OpaqueColorValue;
 }
 
-type FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
+export interface IconColorSet {
+  [key: string]: string | OpaqueColorValue;
+}
+
+export interface PlatformIconColors {
+  getIconColors: (isDarkMode: boolean) => IconColorSet;
+}
 
 export interface PlatformSizing {
   titleFontSize: number;
@@ -89,7 +95,29 @@ export interface PlatformTheme {
   colors: PlatformColors;
   sizing: PlatformSizing;
   layout: PlatformLayout;
+  getIconColors: (isDarkMode: boolean) => IconColorSet;
 }
+
+type FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
+
+const getStandardIconColors = (isDarkMode: boolean): IconColorSet => ({
+  x: isDarkMode ? '#FFFFFF' : '#1da1f2',
+  twitter: isDarkMode ? '#FFFFFF' : '#1da1f2',
+  telegram: isDarkMode ? '#FFFFFF' : '#0088cc',
+  discord: isDarkMode ? '#FFFFFF' : '#7289da',
+  github: isDarkMode ? '#FFFFFF' : '#24292e',
+  releaseNotes: isDarkMode ? '#FFFFFF' : '#9AA0AA',
+  licensing: isDarkMode ? '#FFFFFF' : '#24292e',
+  selfTest: isDarkMode ? '#FFFFFF' : '#FC0D44',
+  performance: isDarkMode ? '#FFFFFF' : '#FC0D44',
+  settings: isDarkMode ? '#FFFFFF' : '#000000',
+  currency: isDarkMode ? '#FFFFFF' : '#008000',
+  language: isDarkMode ? '#FFFFFF' : '#FFA500',
+  security: isDarkMode ? '#FFFFFF' : '#FF0000',
+  network: isDarkMode ? '#FFFFFF' : '#0000FF',
+  tools: isDarkMode ? '#FFFFFF' : '#800080',
+  about: isDarkMode ? '#FFFFFF' : '#808080',
+});
 
 const getIOSColors = (): PlatformColors => {
   return {
@@ -238,19 +266,22 @@ const getAndroidLayout = (): PlatformLayout => ({
 });
 
 export const usePlatformTheme = (): PlatformTheme => {
-  useColorScheme();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   if (Platform.OS === 'ios') {
     return {
       colors: getIOSColors(),
       sizing: getIOSSizing(),
       layout: getIOSLayout(),
+      getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
     };
   } else {
     return {
       colors: getAndroidColors(),
       sizing: getAndroidSizing(),
       layout: getAndroidLayout(),
+      getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
     };
   }
 };
@@ -259,8 +290,11 @@ export class PlatformCurrentTheme {
   static colors: PlatformColors;
   static sizing: PlatformSizing;
   static layout: PlatformLayout;
+  static getIconColors: (isDarkMode: boolean) => IconColorSet;
 
   static updateColorScheme(): void {
+    const isDarkMode = Appearance.getColorScheme() === 'dark';
+    
     if (Platform.OS === 'ios') {
       PlatformCurrentTheme.colors = getIOSColors();
       PlatformCurrentTheme.sizing = getIOSSizing();
@@ -270,6 +304,9 @@ export class PlatformCurrentTheme {
       PlatformCurrentTheme.sizing = getAndroidSizing();
       PlatformCurrentTheme.layout = getAndroidLayout();
     }
+    
+    PlatformCurrentTheme.getIconColors = (forceDarkMode?: boolean) => 
+      getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
   }
 }
 

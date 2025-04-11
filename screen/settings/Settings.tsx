@@ -5,27 +5,16 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformTheme } from '../../components/platformThemes';
-import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useStandardIconProps } from '../../components/StandardIcons';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
-  const { colors } = useTheme();
 
   const isAndroid = Platform.OS === 'android';
-
-  const iconColors = {
-    settings: colors.foregroundColor,
-    currency: colors.successColor,
-    language: colors.lnborderColor,
-    security: colors.redText,
-    network: colors.buttonAlternativeTextColor,
-    tools: colors.changeText,
-    about: colors.cta2,
-  };
 
   const styles = StyleSheet.create({
     container: {
@@ -50,19 +39,14 @@ const Settings = () => {
   });
 
   // Android-specific item height
-  const itemHeight = isAndroid ? { height: 50 } : {};
+  const itemHeight = isAndroid ? { height: 66 } : {};
 
   return (
-    <SafeAreaScrollView testID="SettingsRoot" style={styles.container}>
+    <SafeAreaScrollView testID="SettingsRoot" style={styles.container} >
       <View style={styles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.settingsIconName,
-            color: iconColors.settings,
-            backgroundColor: platformColors.blueIconBg,
-          }}
+          leftIcon={useStandardIconProps('settings')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -75,12 +59,7 @@ const Settings = () => {
         />
         <PlatformListItem
           title={loc.settings.currency}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.currencyIconName,
-            color: iconColors.currency,
-            backgroundColor: platformColors.greenIconBg,
-          }}
+          leftIcon={useStandardIconProps('currency')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -92,12 +71,7 @@ const Settings = () => {
         />
         <PlatformListItem
           title={loc.settings.language}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.languageIconName,
-            color: iconColors.language,
-            backgroundColor: platformColors.yellowIconBg,
-          }}
+          leftIcon={useStandardIconProps('language')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -114,12 +88,7 @@ const Settings = () => {
       <View style={styles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.encrypt_title}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.securityIconName,
-            color: iconColors.security,
-            backgroundColor: platformColors.redIconBg,
-          }}
+          leftIcon={useStandardIconProps('security')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -137,12 +106,7 @@ const Settings = () => {
       <View style={styles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.network}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.networkIconName,
-            color: iconColors.network,
-            backgroundColor: platformColors.blueIconBg,
-          }}
+          leftIcon={useStandardIconProps('network')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -155,12 +119,7 @@ const Settings = () => {
         />
         <PlatformListItem
           title={loc.settings.tools}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.toolsIconName,
-            color: iconColors.tools,
-            backgroundColor: platformColors.yellowIconBg,
-          }}
+          leftIcon={useStandardIconProps('tools')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,
@@ -177,12 +136,7 @@ const Settings = () => {
       <View style={styles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
-          leftIcon={{
-            type: layout.iconType,
-            name: layout.aboutIconName,
-            color: iconColors.about,
-            backgroundColor: platformColors.grayIconBg,
-          }}
+          leftIcon={useStandardIconProps('about')}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...itemHeight,

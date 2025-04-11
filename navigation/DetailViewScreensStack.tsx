@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -103,6 +103,7 @@ const DetailViewStackScreensStack = () => {
     headerBlurEffect: 'regular';
     headerStyle: {
       backgroundColor: string;
+      height?: number;
     };
     headerTransparent: boolean;
   }
@@ -118,6 +119,8 @@ const DetailViewStackScreensStack = () => {
       headerBlurEffect: 'regular',
       headerStyle: {
         backgroundColor: 'transparent',
+        // Increase height for Android to push content down more
+        height: Platform.OS === 'android' ? 100 : undefined,
       },
       headerTransparent: true,
     }),
