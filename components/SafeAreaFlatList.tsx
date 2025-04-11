@@ -10,7 +10,7 @@ const SafeAreaFlatList = <ItemT,>(props: FlatListProps<ItemT>) => {
   const { style, contentContainerStyle, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   // Additional top padding for Android to prevent header overlap
   const androidTopPadding = Platform.OS === 'android' ? ANDROID_EXTRA_TOP_PADDING : 0;
 

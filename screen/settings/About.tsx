@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
@@ -11,21 +11,17 @@ import Button from '../../components/Button';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
-import { usePlatformTheme } from '../../components/platformThemes';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
-
-const branch = require('../../current-branch.json');
+import branch from '../../current-branch.json';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import { useStandardIcons } from '../../hooks/useStandardIcons';
 
 interface AboutItem {
   id: string;
   title: string;
   subtitle?: React.ReactNode;
-  leftIcon?: {
-    name: string;
-    type: string;
-    color: string;
-  };
+  leftIcon?: any;
   onPress?: () => void;
   chevron?: boolean;
   section?: number;
@@ -37,97 +33,8 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: 16,
-    },
-    center: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 24,
-      marginBottom: 24,
-    },
-    card: {
-      backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-      padding: 16,
-      marginVertical: 8,
-    },
-    copyToClipboard: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    copyToClipboardText: {
-      fontSize: 13,
-      fontWeight: '400',
-      color: '#68bbe1',
-    },
-    logo: {
-      width: 102,
-      height: 124,
-    },
-    textFree: {
-      maxWidth: 260,
-      marginVertical: 24,
-      color: platformColors.subtitleColor,
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
-    },
-    textBackup: {
-      maxWidth: 260,
-      marginBottom: 40,
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
-      color: platformColors.titleColor,
-    },
-    buildWith: {
-      padding: 16,
-      paddingTop: 0,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-      backgroundColor: platformColors.cardBackground,
-    },
-
-    sectionSpacing: {
-      height: 24,
-    },
-    sectionHeaderContainer: {
-      marginTop: 16,
-      marginBottom: 8,
-
-      paddingHorizontal: 16,
-    },
-    sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: platformColors.titleColor,
-    },
-    footerContainer: {
-      padding: 16,
-      alignItems: 'center',
-    },
-    footerText: {
-      color: platformColors.subtitleColor,
-      fontSize: 13,
-      marginBottom: 4,
-      textAlign: 'center',
-    },
-  });
+  const { styles } = useSettingsStyles();
+  const getIcon = useStandardIcons();
 
   const handleOnReleaseNotesPress = useCallback(() => {
     navigate('ReleaseNotes');
@@ -145,7 +52,7 @@ const About: React.FC = () => {
     navigate('Licensing');
   }, [navigate]);
 
-  const handleOnTwitterPress = useCallback(() => {
+  const handleOnXPress = useCallback(() => {
     Linking.openURL('https://twitter.com/bluewalletio');
   }, []);
 
@@ -173,7 +80,7 @@ const About: React.FC = () => {
     });
   }, []);
 
-  const handlePerfomanceTest = useCallback(async () => {
+  const handlePerformanceTest = useCallback(async () => {
     const secret = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const w = new HDSegwitBech32Wallet();
     w.setSecret(secret);
@@ -215,41 +122,28 @@ const About: React.FC = () => {
         section: 2,
       },
       {
-        id: 'twitter',
-        title: loc.settings.about_sm_twitter,
-        leftIcon: {
-          name: 'twitter',
-          type: 'font-awesome',
-          color: '#1da1f2',
-        },
-        onPress: handleOnTwitterPress,
+        id: 'x',
+        title: loc.settings.about_sm_x,
+        leftIcon: getIcon('twitter'),
+        onPress: handleOnXPress,
         section: 2,
       },
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: {
-          name: 'telegram',
-          type: 'font-awesome',
-          color: '#0088cc',
-        },
+        leftIcon: getIcon('telegram'),
         onPress: handleOnTelegramPress,
         section: 2,
       },
-
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: {
-          name: 'github',
-          type: 'font-awesome-5',
-          color: platformColors.titleColor as string,
-        },
+        leftIcon: getIcon('github'),
         onPress: handleOnGithubPress,
         section: 2,
       },
       {
-        id: 'buildWith',
+        id: 'builtWith',
         title: '',
         customContent: (
           <View style={styles.card}>
@@ -281,11 +175,7 @@ const About: React.FC = () => {
       {
         id: 'releaseNotes',
         title: loc.settings.about_release_notes,
-        leftIcon: {
-          name: 'book',
-          type: 'font-awesome',
-          color: '#9AA0AA',
-        },
+        leftIcon: getIcon('releaseNotes'),
         chevron: true,
         onPress: handleOnReleaseNotesPress,
         section: 3,
@@ -293,11 +183,7 @@ const About: React.FC = () => {
       {
         id: 'licensing',
         title: loc.settings.about_license,
-        leftIcon: {
-          name: 'balance-scale',
-          type: 'font-awesome',
-          color: platformColors.titleColor as string, // Fixed: changed 'z' to 'color'
-        },
+        leftIcon: getIcon('licensing'),
         chevron: true,
         onPress: handleOnLicensingPress,
         section: 3,
@@ -305,11 +191,7 @@ const About: React.FC = () => {
       {
         id: 'selfTest',
         title: loc.settings.about_selftest,
-        leftIcon: {
-          name: 'flask',
-          type: 'font-awesome',
-          color: '#FC0D44',
-        },
+        leftIcon: getIcon('selfTest'),
         chevron: true,
         onPress: handleOnSelfTestPress,
         testID: 'RunSelfTestButton',
@@ -318,13 +200,9 @@ const About: React.FC = () => {
       {
         id: 'performanceTest',
         title: loc.settings.run_performance_test,
-        leftIcon: {
-          name: 'flask',
-          type: 'font-awesome',
-          color: '#FC0D44',
-        },
+        leftIcon: getIcon('performance'),
         chevron: true,
-        onPress: handlePerfomanceTest,
+        onPress: handlePerformanceTest,
         section: 3,
       },
       {
@@ -360,19 +238,28 @@ const About: React.FC = () => {
         section: 4,
       },
     ];
-
     return items;
   }, [
-    styles,
+    styles.card,
+    styles.center,
+    styles.logo,
+    styles.textFree,
+    styles.textBackup,
+    styles.buildWith,
+    styles.sectionSpacing,
+    styles.footerContainer,
+    styles.footerText,
+    styles.copyToClipboard,
+    styles.copyToClipboardText,
     handleOnRatePress,
-    handleOnTwitterPress,
+    getIcon,
+    handleOnXPress,
     handleOnTelegramPress,
     handleOnGithubPress,
     handleOnReleaseNotesPress,
     handleOnLicensingPress,
     handleOnSelfTestPress,
-    handlePerfomanceTest,
-    platformColors.titleColor,
+    handlePerformanceTest,
     width,
     height,
   ]);
@@ -386,6 +273,7 @@ const About: React.FC = () => {
       }
 
       if (item.title && !item.leftIcon && !item.onPress && item.section) {
+        // Section header with platform-specific styling
         return (
           <View style={styles.sectionHeaderContainer}>
             <Text style={styles.sectionHeaderText}>{item.title}</Text>
@@ -394,44 +282,14 @@ const About: React.FC = () => {
       }
 
       if (item.leftIcon && item.onPress) {
-        const sectionMap: Record<number, string[]> = {
-          2: ['twitter', 'telegram', 'github'], // Social section items
-          3: ['releaseNotes', 'licensing', 'selfTest', 'performanceTest'], // Tools section items
-        };
+        const currentSection = Math.floor(item.section || 0);
+        const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection && i.leftIcon && i.onPress);
 
-        const sectionNumber = Math.floor(item.section || 0);
+        const indexInSection = sectionItems.findIndex(i => i.id === item.id);
 
-        if (sectionMap[sectionNumber] && sectionMap[sectionNumber].includes(item.id)) {
-          const sectionItems = sectionMap[sectionNumber];
-          const indexInVisualSection = sectionItems.indexOf(item.id);
-          const isFirstVisual = indexInVisualSection === 0;
-          const isLastVisual = indexInVisualSection === sectionItems.length - 1;
+        const isFirstInSection = indexInSection === 0;
+        const isLastInSection = indexInSection === sectionItems.length - 1;
 
-          const containerStyle = {
-            ...styles.listItemContainer,
-            borderTopLeftRadius: isFirstVisual ? sizing.containerBorderRadius : 0,
-            borderTopRightRadius: isFirstVisual ? sizing.containerBorderRadius : 0,
-            borderBottomLeftRadius: isLastVisual ? sizing.containerBorderRadius : 0,
-            borderBottomRightRadius: isLastVisual ? sizing.containerBorderRadius : 0,
-          };
-
-          return (
-            <PlatformListItem
-              title={item.title}
-              subtitle={item.subtitle}
-              containerStyle={containerStyle}
-              leftIcon={item.leftIcon}
-              onPress={item.onPress}
-              testID={item.testID}
-              chevron={item.chevron}
-              isFirst={isFirstVisual}
-              isLast={isLastVisual}
-              bottomDivider={layout.showBorderBottom && !isLastVisual}
-            />
-          );
-        }
-
-        // For other interactive items not in our explicit section maps
         return (
           <PlatformListItem
             title={item.title}
@@ -441,12 +299,13 @@ const About: React.FC = () => {
             onPress={item.onPress}
             testID={item.testID}
             chevron={item.chevron}
-            bottomDivider={layout.showBorderBottom}
+            bottomDivider={!isLastInSection}
+            isFirst={isFirstInSection}
+            isLast={isLastInSection}
           />
         );
       }
 
-      // For any other non-interactive items
       return (
         <PlatformListItem
           title={item.title}
@@ -455,17 +314,11 @@ const About: React.FC = () => {
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          bottomDivider={layout.showBorderBottom}
+          bottomDivider
         />
       );
     },
-    [
-      styles.listItemContainer,
-      styles.sectionHeaderContainer,
-      styles.sectionHeaderText,
-      layout.showBorderBottom,
-      sizing.containerBorderRadius,
-    ],
+    [styles.listItemContainer, styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems],
   );
 
   const keyExtractor = useCallback((item: AboutItem) => item.id, []);

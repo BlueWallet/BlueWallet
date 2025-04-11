@@ -18,7 +18,7 @@ interface IconCardProps {
  */
 const IconCard: React.FC<IconCardProps> = ({ iconName, iconType, iconKey, backgroundColor, customColor }) => {
   const { colors: platformColors, sizing, layout, getIconColors } = usePlatformTheme();
-  const { dark: isDarkMode} = useTheme();
+  const { dark: isDarkMode } = useTheme();
   const iconColors = getIconColors(isDarkMode);
 
   // Determine the icon color - either use custom color or get from standard colors

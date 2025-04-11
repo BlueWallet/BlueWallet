@@ -1,81 +1,59 @@
 import React from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformTheme } from '../../components/platformThemes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useStandardIconProps } from '../../components/StandardIcons';
+import { useStandardIcons } from '../../hooks/useStandardIcons';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { layout } = usePlatformTheme();
+  const { styles, isAndroid } = useSettingsStyles();
+  const getIcon = useStandardIcons();
+  const extendedStyles = { ...styles, sectionContainer: {} };
 
-  const isAndroid = Platform.OS === 'android';
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    sectionHeaderContainer: {
-      height: isAndroid ? sizing.sectionHeaderHeight / 2 : sizing.sectionHeaderHeight,
-      paddingHorizontal: 24,
-      justifyContent: 'flex-end',
-      paddingBottom: isAndroid ? sizing.sectionHeaderPaddingBottom / 2 : sizing.sectionHeaderPaddingBottom,
-    },
-    sectionContainer: {
-      marginHorizontal: 16,
-      marginBottom: isAndroid ? sizing.sectionContainerMarginBottom / 2 : sizing.sectionContainerMarginBottom,
-    },
-    firstSectionContainer: {
-      paddingTop: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
-      marginHorizontal: 16,
-      marginBottom: isAndroid ? sizing.sectionContainerMarginBottom / 2 : sizing.sectionContainerMarginBottom,
-    },
-  });
-
-  // Android-specific item height
-  const itemHeight = isAndroid ? { height: 66 } : {};
+  // Use platform-specific separator styling
+  const separatorStyle = { height: 1, backgroundColor: 'rgba(0,0,0,0.05)' };
+  const renderSeparator = isAndroid ? <View style={separatorStyle} /> : null;
 
   return (
-    <SafeAreaScrollView testID="SettingsRoot" style={styles.container} >
-      <View style={styles.firstSectionContainer}>
+    <SafeAreaScrollView>
+      <View style={extendedStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
-          leftIcon={useStandardIconProps('settings')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('settings')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
           bottomDivider={layout.showBorderBottom}
           isFirst
         />
+
+        {renderSeparator}
+
         <PlatformListItem
           title={loc.settings.currency}
-          leftIcon={useStandardIconProps('currency')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('currency')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('Currency')}
           testID="Currency"
           chevron
           bottomDivider={layout.showBorderBottom}
         />
+
+        {renderSeparator}
+
         <PlatformListItem
           title={loc.settings.language}
-          leftIcon={useStandardIconProps('language')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('language')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('Language')}
           testID="Language"
           chevron
@@ -84,15 +62,11 @@ const Settings = () => {
         />
       </View>
 
-      <View style={styles.sectionHeaderContainer} />
-      <View style={styles.sectionContainer}>
+      <View style={extendedStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.encrypt_title}
-          leftIcon={useStandardIconProps('security')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('security')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
           chevron
@@ -102,15 +76,11 @@ const Settings = () => {
         />
       </View>
 
-      <View style={styles.sectionHeaderContainer} />
-      <View style={styles.sectionContainer}>
+      <View style={extendedStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.network}
-          leftIcon={useStandardIconProps('network')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('network')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
@@ -119,11 +89,8 @@ const Settings = () => {
         />
         <PlatformListItem
           title={loc.settings.tools}
-          leftIcon={useStandardIconProps('tools')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('tools')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('SettingsTools')}
           testID="Tools"
           chevron
@@ -132,15 +99,11 @@ const Settings = () => {
         />
       </View>
 
-      <View style={styles.sectionHeaderContainer} />
-      <View style={styles.sectionContainer}>
+      <View style={extendedStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
-          leftIcon={useStandardIconProps('about')}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...itemHeight,
-          }}
+          leftIcon={getIcon('about')}
+          containerStyle={[styles.listItemContainer, styles.itemHeight]}
           onPress={() => navigate('About')}
           testID="AboutButton"
           chevron

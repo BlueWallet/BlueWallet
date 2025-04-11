@@ -96,7 +96,6 @@ const DetailViewStackScreensStack = () => {
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
-  // Create a reusable header blur style function
   interface SettingsScreenOptions {
     title: string;
     headerBlur: boolean;
@@ -115,16 +114,14 @@ const DetailViewStackScreensStack = () => {
   const getSettingsScreenOptions: GetSettingsScreenOptions = useCallback(
     (title: string): SettingsScreenOptions => ({
       title,
-      headerBlur: true,
+      headerBlur: Platform.OS === 'ios',
       headerBlurEffect: 'regular',
       headerStyle: {
-        backgroundColor: 'transparent',
-        // Increase height for Android to push content down more
-        height: Platform.OS === 'android' ? 100 : undefined,
+        backgroundColor: Platform.OS === 'ios' ? 'transparent' : theme.colors.customHeader,
       },
-      headerTransparent: true,
+      headerTransparent: Platform.OS === 'ios',
     }),
-    [],
+    [theme.colors.customHeader],
   );
 
   return (
@@ -270,12 +267,9 @@ const DetailViewStackScreensStack = () => {
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'default',
           headerLargeTitle: true,
-          headerShadowVisible: false,
           animationTypeForReplace: 'push',
           headerBlurEffect: 'regular',
-          headerStyle: {
-            backgroundColor: 'transparent',
-          },
+
           headerTransparent: true,
         })(theme)}
       />

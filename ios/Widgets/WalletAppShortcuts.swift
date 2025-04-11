@@ -25,3 +25,4 @@ struct WalletAppShortcuts: AppShortcutsProvider {
         
     }
 }
+

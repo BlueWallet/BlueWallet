@@ -13,6 +13,8 @@ import {
   AccessibilityState,
   useWindowDimensions,
   AccessibilityRole,
+  Platform,
+  TouchableNativeFeedback,
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -24,12 +26,6 @@ interface IconProps {
   color?: string | number | OpaqueColorValue;
   size?: number;
   backgroundColor?: string | number | OpaqueColorValue;
-}
-
-interface SectionMappingProps {
-  sectionMap?: Record<number, string[]>;
-  sectionId?: string;
-  sectionNumber?: number;
 }
 
 interface ListItemProps {
@@ -71,7 +67,7 @@ interface ListItemProps {
 export const determineSectionPosition = (
   sectionMap: Record<number, string[]> | undefined,
   id: string,
-  sectionNumber: number | undefined
+  sectionNumber: number | undefined,
 ): { isFirstInSection: boolean; isLastInSection: boolean } => {
   if (!sectionMap || !sectionNumber || !id) {
     return { isFirstInSection: false, isLastInSection: false };
@@ -119,7 +115,7 @@ const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () =>
 
 const PlatformListItem: React.FC<ListItemProps> = ({
   swipeable = false,
-  Component = TouchableOpacityWrapper,
+  Component,
   rightIcon,
   leftAvatar,
   containerStyle,
@@ -154,7 +150,26 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   const { sizing, colors, layout } = usePlatformTheme();
   const { fontScale } = useWindowDimensions();
 
-  const minHeight = Math.max(46, 46 * fontScale);
+  // Set default component based on platform
+  if (!Component) {
+    Component =
+      Platform.OS === 'ios'
+        ? TouchableOpacityWrapper
+        : layout.rippleEffect
+          ? (props: any) => (
+              <TouchableNativeFeedback
+                background={TouchableNativeFeedback.Ripple('#ccc', false)}
+                useForeground={true}
+                disabled={props.disabled}
+                {...props}
+              >
+                <View style={props.style}>{props.children}</View>
+              </TouchableNativeFeedback>
+            )
+          : TouchableOpacityWrapper;
+  }
+
+  const minHeight = Math.max(sizing.itemMinHeight, sizing.itemMinHeight * fontScale);
 
   const stylesHook = StyleSheet.create({
     title: {
@@ -176,10 +191,10 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       backgroundColor: colors.cardBackground,
       paddingVertical: sizing.containerPaddingVertical,
       minHeight,
-      borderBottomWidth: layout.showBorderBottom ? StyleSheet.hairlineWidth : 0,
-      borderBottomColor: layout.showBorderBottom ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
+      borderBottomWidth: layout.showBorderBottom && bottomDivider ? StyleSheet.hairlineWidth : 0,
+      borderBottomColor: layout.showBorderBottom && bottomDivider ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
-      elevation: sizing.containerElevation,
+      elevation: layout.showElevation ? sizing.containerElevation : 0,
       marginVertical: sizing.containerMarginVertical,
     },
     chevron: {
@@ -353,17 +368,17 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     // Android style
     if (swipeable) {
       dynamicContainerStyle = {
-        borderRadius: 28,
+        borderRadius: 0,
         overflow: 'hidden',
-        elevation: 2,
-        marginVertical: 4,
+        elevation: layout.showElevation ? 2 : 0,
+        marginVertical: 1,
       };
     } else {
       dynamicContainerStyle = {
         borderRadius: 0,
-        elevation: 0,
-        marginVertical: 8,
-        backgroundColor: 'transparent',
+        elevation: layout.showElevation ? sizing.containerElevation : 0,
+        marginVertical: 1,
+        backgroundColor: colors.cardBackground,
       };
     }
   }

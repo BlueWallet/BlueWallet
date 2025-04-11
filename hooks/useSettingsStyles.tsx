@@ -5,17 +5,19 @@ import { usePlatformTheme } from '../components/platformThemes';
  * A hook that provides consistent styles for settings screens with platform-specific adjustments
  */
 export const useSettingsStyles = () => {
-  const { colors: platformColors, sizing } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const isAndroid = Platform.OS === 'android';
 
   const styles = StyleSheet.create({
+    // Base container styles
     container: {
       flex: 1,
       backgroundColor: platformColors.background,
     },
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
+      elevation: layout.showElevation ? sizing.containerElevation : 0,
     },
     headerOffset: {
       // Adjust header offset for Android
@@ -26,31 +28,60 @@ export const useSettingsStyles = () => {
       // Add paddingTop for Android to prevent content overlap with header
       paddingTop: isAndroid ? 8 : 0,
     },
+    
+    // Section styles
     sectionHeaderContainer: {
       marginTop: 16,
       marginBottom: 8,
       paddingHorizontal: 16,
     },
     sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: platformColors.titleColor,
+      fontSize: isAndroid ? 14 : 18,
+      fontWeight: isAndroid ? '500' : 'bold',
+      color: isAndroid ? platformColors.subtitleColor : platformColors.titleColor,
+      textTransform: isAndroid ? 'uppercase' : 'none',
+      marginLeft: isAndroid ? 8 : 0,
     },
     sectionSpacing: {
       height: 24,
     },
+    
+    // Text styles
     subtitleText: {
       fontSize: 14,
       color: platformColors.subtitleColor,
       marginTop: 5,
     },
-    // Add missing styles for About screen
+    
+    // Card styles
     card: {
       backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 8,
       padding: 16,
       marginVertical: 8,
+      elevation: isAndroid ? 2 : 0,
     },
+    
+    // Info container styles
+    infoContainer: {
+      backgroundColor: platformColors.cardBackground,
+      margin: 16,
+      padding: 16,
+      borderRadius: sizing.containerBorderRadius * 1.5,
+    },
+    infoText: {
+      color: platformColors.titleColor,
+      fontSize: sizing.subtitleFontSize,
+      marginBottom: 8,
+    },
+    
+    // Item-specific styles
+    itemHeight: isAndroid ? { height: 56 } : {},
+    width24: {
+      width: 24,
+    },
+    
+    // About screen specific styles
     center: {
       justifyContent: 'center',
       alignItems: 'center',

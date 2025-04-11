@@ -13,7 +13,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
   const { style, contentContainerStyle, floatingButtonHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  
+
   const androidTopPadding = Platform.OS === 'android' ? insets.top + ANDROID_EXTRA_TOP_PADDING : 0;
 
   const componentStyle = useMemo(() => {

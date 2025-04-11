@@ -89,13 +89,53 @@ export interface PlatformLayout {
   networkIconName: string;
   toolsIconName: string;
   aboutIconName: string;
+  rippleEffect: boolean; // Add ripple effect for Android
 }
 
 export interface PlatformTheme {
   colors: PlatformColors;
   sizing: PlatformSizing;
   layout: PlatformLayout;
-  getIconColors: (isDarkMode: boolean) => IconColorSet;
+  getIconColors: (isDarkMode?: boolean) => IconColorSet;
+  getStandardIcons: (isDarkMode?: boolean) => StandardIconSet;
+}
+
+export interface StandardIconSet {
+  // Settings icons
+  settings: IconProps;
+  currency: IconProps;
+  language: IconProps;
+  security: IconProps;
+  network: IconProps;
+  lightning: IconProps;
+  privacy: IconProps;
+  tools: IconProps;
+  about: IconProps;
+
+  // About screen icons
+  x: IconProps;
+  twitter: IconProps;
+  telegram: IconProps;
+  github: IconProps;
+  releaseNotes: IconProps;
+  licensing: IconProps;
+  selfTest: IconProps;
+  performance: IconProps;
+
+  // Block explorer icons
+  blockExplorer: IconProps;
+
+  // Accessibility icons
+  qrCode: IconProps;
+  share: IconProps;
+  copy: IconProps;
+}
+
+export interface IconProps {
+  name: string;
+  type: string;
+  color: string | OpaqueColorValue;
+  backgroundColor?: string | OpaqueColorValue;
 }
 
 type FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
@@ -181,9 +221,9 @@ const getAndroidColors = (): PlatformColors => {
   };
 };
 
-const getIOSSizing = (): PlatformSizing => ({
+export const getIOSSizing = (): PlatformSizing => ({
   titleFontSize: 17,
-  titleFontWeight: '500',
+  titleFontWeight: '600',
   subtitleFontSize: 15,
   subtitleFontWeight: '400',
   subtitleLineHeight: 20,
@@ -207,25 +247,25 @@ const getIOSSizing = (): PlatformSizing => ({
   leftIconHeight: 28,
 });
 
-const getAndroidSizing = (): PlatformSizing => ({
-  titleFontSize: 20,
-  titleFontWeight: '700',
-  subtitleFontSize: 17,
-  subtitleFontWeight: '500',
+export const getAndroidSizing = (): PlatformSizing => ({
+  titleFontSize: 16,
+  titleFontWeight: '500',
+  subtitleFontSize: 14,
+  subtitleFontWeight: '400',
   subtitleLineHeight: 20,
   subtitlePaddingVertical: 2,
-  itemMinHeight: 60,
+  itemMinHeight: 56, // Material Design standard
   iconSize: 24,
   iconInnerSize: 20,
   iconContainerSize: 24,
   iconContainerBorderRadius: 0,
-  containerPaddingVertical: 10,
-  containerElevation: 0,
-  containerMarginVertical: 2,
+  containerPaddingVertical: 16,
+  containerElevation: 1, // More visible elevation
+  containerMarginVertical: 1,
   containerBorderRadius: 0,
-  sectionHeaderHeight: 24,
-  sectionHeaderPaddingBottom: 4,
-  sectionContainerMarginBottom: 2,
+  sectionHeaderHeight: 48,
+  sectionHeaderPaddingBottom: 8,
+  sectionContainerMarginBottom: 8,
   firstSectionContainerPaddingTop: 8,
   leftIconMarginLeft: 16,
   leftIconMarginRight: 32,
@@ -233,7 +273,7 @@ const getAndroidSizing = (): PlatformSizing => ({
   leftIconHeight: 24,
 });
 
-const getIOSLayout = (): PlatformLayout => ({
+export const getIOSLayout = (): PlatformLayout => ({
   showBorderBottom: true,
   showElevation: false,
   showBorderRadius: true,
@@ -247,10 +287,11 @@ const getIOSLayout = (): PlatformLayout => ({
   networkIconName: 'globe-outline',
   toolsIconName: 'construct-outline',
   aboutIconName: 'information-circle-outline',
+  rippleEffect: false,
 });
 
-const getAndroidLayout = (): PlatformLayout => ({
-  showBorderBottom: false,
+export const getAndroidLayout = (): PlatformLayout => ({
+  showBorderBottom: true,
   showElevation: true,
   showBorderRadius: false,
   useRoundedListItems: false,
@@ -263,7 +304,264 @@ const getAndroidLayout = (): PlatformLayout => ({
   networkIconName: 'globe',
   toolsIconName: 'tools',
   aboutIconName: 'info-circle',
+  rippleEffect: true,
 });
+
+const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
+  const colors = getStandardIconColors(isDarkMode);
+  const platformColors = getIOSColors();
+
+  return {
+    // Settings
+    settings: {
+      name: 'settings-outline',
+      type: 'ionicons',
+      color: colors.settings,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    currency: {
+      name: 'cash-outline',
+      type: 'ionicons',
+      color: colors.currency,
+      backgroundColor: platformColors.greenIconBg,
+    },
+    language: {
+      name: 'language-outline',
+      type: 'ionicons',
+      color: colors.language,
+      backgroundColor: platformColors.yellowIconBg,
+    },
+    security: {
+      name: 'shield-checkmark-outline',
+      type: 'ionicons',
+      color: colors.security,
+      backgroundColor: platformColors.redIconBg,
+    },
+    network: {
+      name: 'globe-outline',
+      type: 'ionicons',
+      color: colors.network,
+      backgroundColor: platformColors.blueIconBg,
+    },
+    lightning: {
+      name: 'flash-outline',
+      type: 'ionicons',
+      color: colors.lightning,
+      backgroundColor: platformColors.yellowIconBg,
+    },
+    privacy: {
+      name: 'lock-closed-outline',
+      type: 'ionicons',
+      color: colors.privacy,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    tools: {
+      name: 'construct-outline',
+      type: 'ionicons',
+      color: colors.tools,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    about: {
+      name: 'information-circle-outline',
+      type: 'ionicons',
+      color: colors.about,
+      backgroundColor: platformColors.grayIconBg,
+    },
+
+    // About screen
+    x: {
+      name: 'logo-twitter',
+      type: 'ionicons',
+      color: colors.x,
+      backgroundColor: 'rgba(29, 161, 242, 0.2)',
+    },
+    twitter: {
+      name: 'logo-twitter',
+      type: 'ionicons',
+      color: colors.twitter,
+      backgroundColor: 'rgba(29, 161, 242, 0.2)',
+    },
+    telegram: {
+      name: 'paper-plane-outline',
+      type: 'ionicons',
+      color: colors.telegram,
+      backgroundColor: 'rgba(0, 136, 204, 0.2)',
+    },
+    github: {
+      name: 'logo-github',
+      type: 'ionicons',
+      color: colors.github,
+      backgroundColor: 'rgba(24, 23, 23, 0.1)',
+    },
+    releaseNotes: {
+      name: 'document-text-outline',
+      type: 'ionicons',
+      color: colors.releaseNotes,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    licensing: {
+      name: 'shield-checkmark-outline',
+      type: 'ionicons',
+      color: colors.licensing,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    selfTest: {
+      name: 'flask-outline',
+      type: 'ionicons',
+      color: colors.selfTest,
+      backgroundColor: platformColors.redIconBg,
+    },
+    performance: {
+      name: 'speedometer-outline',
+      type: 'ionicons',
+      color: colors.performance,
+      backgroundColor: platformColors.redIconBg,
+    },
+
+    // Explorers and accessibility
+    blockExplorer: {
+      name: 'search-outline',
+      type: 'ionicons',
+      color: colors.network,
+      backgroundColor: platformColors.blueIconBg,
+    },
+    qrCode: {
+      name: 'qr-code-outline',
+      type: 'ionicons',
+      color: colors.settings,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    share: {
+      name: 'share-outline',
+      type: 'ionicons',
+      color: colors.settings,
+      backgroundColor: platformColors.grayIconBg,
+    },
+    copy: {
+      name: 'copy-outline',
+      type: 'ionicons',
+      color: colors.settings,
+      backgroundColor: platformColors.grayIconBg,
+    },
+  };
+};
+
+const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
+  const colors = getStandardIconColors(isDarkMode);
+
+  return {
+    // Settings
+    settings: {
+      name: 'cog',
+      type: 'font-awesome-5',
+      color: colors.settings,
+    },
+    currency: {
+      name: 'money-bill-alt',
+      type: 'font-awesome-5',
+      color: colors.currency,
+    },
+    language: {
+      name: 'language',
+      type: 'font-awesome-5',
+      color: colors.language,
+    },
+    security: {
+      name: 'shield-alt',
+      type: 'font-awesome-5',
+      color: colors.security,
+    },
+    network: {
+      name: 'globe',
+      type: 'font-awesome-5',
+      color: colors.network,
+    },
+    lightning: {
+      name: 'bolt',
+      type: 'font-awesome-5',
+      color: colors.lightning,
+    },
+    privacy: {
+      name: 'lock',
+      type: 'font-awesome-5',
+      color: colors.privacy,
+    },
+    tools: {
+      name: 'tools',
+      type: 'font-awesome-5',
+      color: colors.tools,
+    },
+    about: {
+      name: 'info-circle',
+      type: 'font-awesome-5',
+      color: colors.about,
+    },
+
+    // About screen
+    x: {
+      name: 'twitter',
+      type: 'font-awesome-5',
+      color: colors.x,
+    },
+    twitter: {
+      name: 'twitter',
+      type: 'font-awesome-5',
+      color: colors.twitter,
+    },
+    telegram: {
+      name: 'paper-plane',
+      type: 'font-awesome',
+      color: colors.telegram,
+    },
+    github: {
+      name: 'github',
+      type: 'font-awesome-5',
+      color: colors.github,
+    },
+    releaseNotes: {
+      name: 'file-alt',
+      type: 'font-awesome-5',
+      color: colors.releaseNotes,
+    },
+    licensing: {
+      name: 'shield-alt',
+      type: 'font-awesome-5',
+      color: colors.licensing,
+    },
+    selfTest: {
+      name: 'flask',
+      type: 'font-awesome-5',
+      color: colors.selfTest,
+    },
+    performance: {
+      name: 'tachometer-alt',
+      type: 'font-awesome-5',
+      color: colors.performance,
+    },
+
+    // Explorers and accessibility
+    blockExplorer: {
+      name: 'search',
+      type: 'font-awesome-5',
+      color: colors.network,
+    },
+    qrCode: {
+      name: 'qrcode',
+      type: 'font-awesome-5',
+      color: colors.settings,
+    },
+    share: {
+      name: 'share-alt',
+      type: 'font-awesome-5',
+      color: colors.settings,
+    },
+    copy: {
+      name: 'copy',
+      type: 'font-awesome-5',
+      color: colors.settings,
+    },
+  };
+};
 
 export const usePlatformTheme = (): PlatformTheme => {
   const colorScheme = useColorScheme();
@@ -275,6 +573,7 @@ export const usePlatformTheme = (): PlatformTheme => {
       sizing: getIOSSizing(),
       layout: getIOSLayout(),
       getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
+      getStandardIcons: (forceDarkMode?: boolean) => getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
     };
   } else {
     return {
@@ -282,6 +581,7 @@ export const usePlatformTheme = (): PlatformTheme => {
       sizing: getAndroidSizing(),
       layout: getAndroidLayout(),
       getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
+      getStandardIcons: (forceDarkMode?: boolean) => getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
     };
   }
 };
@@ -291,21 +591,26 @@ export class PlatformCurrentTheme {
   static sizing: PlatformSizing;
   static layout: PlatformLayout;
   static getIconColors: (isDarkMode: boolean) => IconColorSet;
+  static getStandardIcons: (isDarkMode: boolean) => StandardIconSet;
 
   static updateColorScheme(): void {
     const isDarkMode = Appearance.getColorScheme() === 'dark';
-    
+
     if (Platform.OS === 'ios') {
       PlatformCurrentTheme.colors = getIOSColors();
       PlatformCurrentTheme.sizing = getIOSSizing();
       PlatformCurrentTheme.layout = getIOSLayout();
+      PlatformCurrentTheme.getStandardIcons = (forceDarkMode?: boolean) =>
+        getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
     } else {
       PlatformCurrentTheme.colors = getAndroidColors();
       PlatformCurrentTheme.sizing = getAndroidSizing();
       PlatformCurrentTheme.layout = getAndroidLayout();
+      PlatformCurrentTheme.getStandardIcons = (forceDarkMode?: boolean) =>
+        getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
     }
-    
-    PlatformCurrentTheme.getIconColors = (forceDarkMode?: boolean) => 
+
+    PlatformCurrentTheme.getIconColors = (forceDarkMode?: boolean) =>
       getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
   }
 }
