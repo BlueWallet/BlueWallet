@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 
-const WORDLISTS = [
+const WORDLISTS: string[][] = [
   bip39.wordlists.english,
   bip39.wordlists.french,
   bip39.wordlists.spanish,
@@ -13,7 +13,7 @@ const WORDLISTS = [
   bip39.wordlists.portuguese,
 ];
 
-export function validateMnemonic(mnemonic) {
+export function validateMnemonic(mnemonic: string) {
   for (const wordlist of WORDLISTS) {
     const valid = bip39.validateMnemonic(mnemonic, wordlist);
     if (valid) return true;
