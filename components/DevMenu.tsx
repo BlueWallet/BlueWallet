@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
-import { HDSegwitBech32Wallet } from '../class';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 
@@ -150,11 +150,8 @@ const DevMenu: React.FC = () => {
             wallet._txs_by_internal_index = {};
           }
 
-          // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
-          if (wallet._hdWalletInstance) {
-            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
+          if (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance) {
             wallet._hdWalletInstance._txs_by_external_index = {};
-            // @ts-ignore: Property '_hdWalletInstance' does not exist on type 'Wallet'. Pls help
             wallet._hdWalletInstance._txs_by_internal_index = {};
           }
 
