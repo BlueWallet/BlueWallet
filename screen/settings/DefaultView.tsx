@@ -157,19 +157,32 @@ const DefaultView: React.FC = () => {
     return items;
   }, [state.isViewAllWalletsSwitchEnabled, state.defaultWalletLabel, wallets.length, onViewAllWalletsSwitchValueChanged, selectWallet]);
 
+  interface RenderItemProps {
+    item: SettingItem;
+  }
+
   const renderItem = useCallback(
-    (props) => {
-      const item = props.item; // Access without destructuring to avoid ESLint error
-      const items = settingsItems();
+    (props: RenderItemProps): JSX.Element => {
+      const item = props.item;
+      const items: SettingItem[] = settingsItems();
       const isFirst = items.indexOf(item) === 0;
       const isLast = items.indexOf(item) === items.length - 1;
+
+      // Apply greater corner radius to first and last items
+      const containerStyle = {
+        ...styles.listItemContainer,
+        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+      };
 
       if (item.isSwitch) {
         return (
           <PlatformListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={styles.listItemContainer}
+            containerStyle={containerStyle}
             isFirst={isFirst}
             isLast={isLast}
             Component={View}
@@ -187,7 +200,7 @@ const DefaultView: React.FC = () => {
         <PlatformListItem
           title={item.title}
           rightTitle={item.rightTitle}
-          containerStyle={styles.listItemContainer}
+          containerStyle={containerStyle}
           onPress={item.onPress}
           disabled={item.disabled}
           chevron
@@ -197,7 +210,7 @@ const DefaultView: React.FC = () => {
         />
       );
     },
-    [layout.showBorderBottom, styles.listItemContainer, settingsItems],
+    [layout.showBorderBottom, styles.listItemContainer, settingsItems, sizing.containerBorderRadius],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

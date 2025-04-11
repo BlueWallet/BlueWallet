@@ -287,6 +287,7 @@
     "header": "Settings",
     "language": "Language",
     "last_updated": "Last Updated",
+    "social": "Social",
     "tap_to_select_currency": "Tap to select currency",
     "tap_to_select_language": "Tap to select language",
     "language_isRTL": "Restarting BlueWallet is required for the language orientation to take effect.",

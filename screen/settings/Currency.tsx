@@ -50,7 +50,7 @@ const Currency: React.FC = () => {
       backgroundColor: platformColors.cardBackground,
       margin: 16,
       padding: 16,
-      borderRadius: sizing.containerBorderRadius,
+      borderRadius: sizing.containerBorderRadius * 1.5, // Increased border radius
     },
     infoText: {
       color: platformColors.titleColor,

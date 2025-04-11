@@ -284,10 +284,20 @@ const SettingsPrivacy: React.FC = () => {
     openApplicationSettings,
   ]);
 
+  interface RenderItemProps {
+    item: SettingItem;
+    index: number;
+    separators: {
+      highlight: () => void;
+      unhighlight: () => void;
+      updateProps: (select: 'leading' | 'trailing', newProps: object) => void;
+    };
+  }
+
   const renderItem = useCallback(
-    (props) => {
-      const item = props.item; // Access without destructuring to avoid ESLint error
-      const items = settingsItems();
+    (props: RenderItemProps): JSX.Element => {
+      const item: SettingItem = props.item;
+      const items: SettingItem[] = settingsItems();
 
       // Handle section headers
       if (item.section) {
@@ -299,21 +309,30 @@ const SettingsPrivacy: React.FC = () => {
       }
 
       // Find next non-section item to determine isLast
-      const index = items.findIndex(i => i.id === item.id);
+      const index: number = items.findIndex(i => i.id === item.id);
       let nextRegularItemIndex = index + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
         nextRegularItemIndex++;
       }
 
-      const isFirst = index === 0 || !!items[index - 1].section;
-      const isLast = nextRegularItemIndex >= items.length || !!items[nextRegularItemIndex].section;
+      const isFirst: boolean = index === 0 || !!items[index - 1].section;
+      const isLast: boolean = nextRegularItemIndex >= items.length || !!items[nextRegularItemIndex].section;
+
+      // Apply greater corner radius to first and last items
+      const containerStyle = {
+        ...styles.listItemContainer,
+        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+      };
 
       if (item.isSwitch) {
         return (
           <PlatformListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={styles.listItemContainer}
+            containerStyle={containerStyle}
             isFirst={isFirst}
             isLast={isLast}
             Component={item.Component}
@@ -332,7 +351,7 @@ const SettingsPrivacy: React.FC = () => {
         <PlatformListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={styles.listItemContainer}
+          containerStyle={containerStyle}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
@@ -342,7 +361,14 @@ const SettingsPrivacy: React.FC = () => {
         />
       );
     },
-    [layout.showBorderBottom, styles.listItemContainer, styles.sectionHeaderContainer, styles.sectionHeaderText, settingsItems],
+    [
+      layout.showBorderBottom,
+      styles.listItemContainer,
+      styles.sectionHeaderContainer,
+      styles.sectionHeaderText,
+      settingsItems,
+      sizing.containerBorderRadius,
+    ],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

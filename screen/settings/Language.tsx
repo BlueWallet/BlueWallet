@@ -67,10 +67,19 @@ const Language = () => {
       const isFirst = index === 0;
       const isLast = index === filteredLanguages.length - 1;
 
+      // Create a container style that applies corner radius only to first and last items
+      const containerStyle = {
+        ...styles.listItemContainer,
+        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+      };
+
       return (
         <PlatformListItem
           title={item.label}
-          containerStyle={styles.listItemContainer}
+          containerStyle={containerStyle}
           checkmark={isSelected}
           disabled={isSelected}
           onPress={() => onLanguageSelect(item)}
@@ -82,7 +91,7 @@ const Language = () => {
         />
       );
     },
-    [language, filteredLanguages.length, layout.showBorderBottom, styles.listItemContainer, onLanguageSelect],
+    [language, filteredLanguages.length, layout.showBorderBottom, styles.listItemContainer, onLanguageSelect, sizing.containerBorderRadius],
   );
 
   const keyExtractor = useCallback((item: TLanguage) => item.value, []);

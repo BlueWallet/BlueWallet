@@ -293,23 +293,23 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       borderRadius: 0,
       overflow: 'hidden',
       ...(isFirst && {
-        borderTopLeftRadius: sizing.containerBorderRadius,
-        borderTopRightRadius: sizing.containerBorderRadius,
+        borderTopLeftRadius: sizing.containerBorderRadius * 1.5, // Increase corner radius by 50%
+        borderTopRightRadius: sizing.containerBorderRadius * 1.5, // Increase corner radius by 50%
       }),
       ...(isLast && {
-        borderBottomLeftRadius: sizing.containerBorderRadius,
-        borderBottomRightRadius: sizing.containerBorderRadius,
+        borderBottomLeftRadius: sizing.containerBorderRadius * 1.5, // Increase corner radius by 50%
+        borderBottomRightRadius: sizing.containerBorderRadius * 1.5, // Increase corner radius by 50%
       }),
       ...(isFirst &&
         isLast && {
-          borderRadius: sizing.containerBorderRadius,
+          borderRadius: sizing.containerBorderRadius * 1.5, // Increase corner radius by 50%
         }),
     };
   } else {
     // Android style
     if (swipeable) {
       dynamicContainerStyle = {
-        borderRadius: 28,
+        borderRadius: 28, // Increased from previous value
         overflow: 'hidden',
         elevation: 2,
         marginVertical: 4,
