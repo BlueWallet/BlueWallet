@@ -52,6 +52,7 @@ import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import { isDesktop } from '../blue_modules/environment';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -90,7 +91,7 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: () => RightBarButtons,
+      headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
   }, [RightBarButtons, isLargeScreen, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 

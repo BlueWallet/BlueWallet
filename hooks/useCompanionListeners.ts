@@ -1,6 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking } from 'react-native';
+import { AppState, AppStateStatus, Linking, Platform, NativeModules } from 'react-native';
 import A from '../blue_modules/analytics';
 import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
@@ -27,6 +27,7 @@ import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
+
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',

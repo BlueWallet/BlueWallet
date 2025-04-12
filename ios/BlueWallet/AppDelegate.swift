@@ -13,14 +13,23 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         clearFilesIfNeeded()
-        userDefaultsGroup = UserDefaults(suiteName: "group.io.bluewallet.bluewallet")
+        
+        // Fix app group UserDefaults initialization
+        let suiteName = "group.io.bluewallet.bluewallet"
+        userDefaultsGroup = UserDefaults(suiteName: suiteName)
+        
+        // Ensure the suite exists and is accessible
+        if userDefaultsGroup == nil {
+            NSLog("[AppDelegate] Warning: Could not access shared UserDefaults with suite: \(suiteName)")
+            // Fall back to standard user defaults if group container is inaccessible
+            userDefaultsGroup = UserDefaults.standard
+        }
 
         if let isDoNotTrackEnabled = userDefaultsGroup?.string(forKey: "donottrack"), isDoNotTrackEnabled != "1" {
             #if targetEnvironment(macCatalyst)
-            if let config = BugsnagConfiguration.loadConfig() {
-                config.appType = "macOS"
-                Bugsnag.start(with: config)
-            }
+            let config = BugsnagConfiguration.loadConfig()
+            config.appType = "macOS"
+            Bugsnag.start(with: config)
             copyDeviceUID()
             #else
             Bugsnag.start()
@@ -41,7 +50,11 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         setupUserDefaultsListener()
         registerNotificationCategories()
-
+        
+        // Access the singleton via the class method
+        _ = MenuElementsEmitter.sharedInstance()
+        NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
+        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 
@@ -81,6 +94,11 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     private func setupUserDefaultsListener() {
+        guard let defaults = userDefaultsGroup else {
+            NSLog("[AppDelegate] Cannot setup UserDefaults listeners: group defaults not available")
+            return
+        }
+        
         let keys = [
             "WidgetCommunicationAllWalletsSatoshiBalance",
             "WidgetCommunicationAllWalletsLatestTransactionTime",
@@ -93,8 +111,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             "electrum_ssl_port"
         ]
 
-        keys.forEach { key in
-            userDefaultsGroup?.addObserver(self, forKeyPath: key, options: .new, context: nil)
+        for key in keys {
+            defaults.addObserver(self, forKeyPath: key, options: .new, context: nil)
         }
     }
 
@@ -177,7 +195,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
-      guard activityType.isEmpty else {
+      guard !activityType.isEmpty else {
             print("[Handoff] Invalid or missing userActivity")
             return false
         }
@@ -236,5 +254,125 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         RNCPushNotificationIOS.didReceive(response)
         completionHandler()
+    }
+    
+    // MARK: - Menu Building (macOS Catalyst)
+    
+    override func buildMenu(with builder: UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        
+        // Remove unnecessary menus
+        builder.remove(menu: .services)
+        builder.remove(menu: .format)
+        builder.remove(menu: .toolbar)
+        
+        // Remove the original Settings menu item
+        builder.remove(menu: .preferences)
+        
+        // File -> Add Wallet (Command + Shift + A)
+        let addWalletCommand = UIKeyCommand(
+            title: "Add Wallet",
+            action: #selector(addWalletAction),
+            input: "A",
+            modifierFlags: [.command, .shift]
+        )
+        
+        // All menu items enabled by default
+        
+        // File -> Import Wallet (Command + I)
+        let importWalletCommand = UIKeyCommand(
+            title: "Import Wallet",
+            action: #selector(importWalletAction),
+            input: "I",
+            modifierFlags: .command
+        )
+        
+        // Group Add Wallet and Import Wallet in a displayInline menu
+        let walletOperationsMenu = UIMenu(
+            title: "",
+            image: nil,
+            identifier: nil,
+            options: .displayInline,
+            children: [addWalletCommand, importWalletCommand]
+        )
+        
+        // Modify the existing File menu to include Wallet Operations
+        if let fileMenu = builder.menu(for: .file) {
+            // Add "Reload Transactions" (Command + R)
+            let reloadTransactionsCommand = UIKeyCommand(
+                title: "Reload Transactions",
+                action: #selector(reloadTransactionsAction),
+                input: "R",
+                modifierFlags: .command
+            )
+            
+            // Combine wallet operations and Reload Transactions into the new File menu
+            let newFileMenu = UIMenu(
+                title: fileMenu.title,
+                image: fileMenu.image,
+                identifier: fileMenu.identifier,
+                options: fileMenu.options,
+                children: [walletOperationsMenu, reloadTransactionsCommand]
+            )
+            
+            builder.replace(menu: .file, with: newFileMenu)
+        }
+        
+        // BlueWallet -> Settings (Command + ,)
+        let settingsCommand = UIKeyCommand(
+            title: "Settings...",
+            action: #selector(openSettings),
+            input: ",",
+            modifierFlags: .command
+        )
+        
+        let settingsMenu = UIMenu(
+            title: "",
+            image: nil,
+            identifier: nil,
+            options: .displayInline,
+            children: [settingsCommand]
+        )
+        
+        // Insert the new Settings menu after the About menu
+        builder.insertSibling(settingsMenu, afterMenu: .about)
+    }
+    
+    @objc func openSettings(_ keyCommand: UIKeyCommand) {
+        DispatchQueue.main.async {
+            MenuElementsEmitter.sharedInstance().openSettings()
+        }
+    }
+    
+    @objc func addWalletAction(_ keyCommand: UIKeyCommand) {
+        DispatchQueue.main.async {
+            MenuElementsEmitter.sharedInstance().addWalletMenuAction()
+        }
+    }
+    
+    @objc func importWalletAction(_ keyCommand: UIKeyCommand) {
+        DispatchQueue.main.async {
+            MenuElementsEmitter.sharedInstance().importWalletMenuAction()
+        }
+    }
+    
+    @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
+        DispatchQueue.main.async {
+            MenuElementsEmitter.sharedInstance().reloadTransactionsMenuAction()
+        }
+    }
+    
+    @objc func showHelp(_ sender: Any) {
+        if let url = URL(string: "https://bluewallet.io/docs") {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+    }
+    
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(showHelp(_:)) {
+            return true
+        } else {
+            return super.canPerformAction(action, withSender: sender)
+        }
     }
 }
