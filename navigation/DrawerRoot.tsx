@@ -1,7 +1,7 @@
 import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
 import React, { useEffect, useMemo } from 'react';
 import { I18nManager, Animated, Easing } from 'react-native';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { DrawerParamList } from './DrawerParamList';
@@ -9,7 +9,7 @@ import { DrawerParamList } from './DrawerParamList';
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
-  const { isLargeScreen } = useIsLargeScreen();
+  const { isLargeScreen } = useSizeClass();
 
   if (!isLargeScreen) {
     return null;
@@ -32,11 +32,19 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 };
 
 const DrawerRoot = () => {
-  const { isLargeScreen } = useIsLargeScreen();
+  const { sizeClass, isLargeScreen } = useSizeClass();
 
   const getDrawerWidth = useMemo(() => {
-    return isLargeScreen ? 320 : 0;
-  }, [isLargeScreen]);
+    // Use size class for more flexible drawer width
+    switch (sizeClass) {
+      case SizeClass.Large:
+        return 320;
+      case SizeClass.Regular:
+        return 280;
+      default:
+        return 0;
+    }
+  }, [sizeClass]);
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
@@ -55,8 +63,8 @@ const DrawerRoot = () => {
   );
 
   useEffect(() => {
-    console.debug('[DrawerRoot] isLargeScreen changed:', isLargeScreen);
-  }, [isLargeScreen]);
+    console.debug('[DrawerRoot] Size class changed:', SizeClass[sizeClass]);
+  }, [sizeClass]);
 
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerContent} initialRouteName="DetailViewStackScreensStack">
