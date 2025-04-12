@@ -188,8 +188,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             ) : (
               <View>
                 <Text
-                  // @ts-ignore: // force component recreation on balance change. To fix right-to-left languages, like Farsis
-                  key={balance}
+                  key={String(balance)} // force component recreation on balance change. To fix right-to-left languages, like Farsis
                   testID="WalletBalance"
                   numberOfLines={1}
                   minimumFontScale={0.5}

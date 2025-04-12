@@ -152,12 +152,14 @@ const WalletAddresses: React.FC = () => {
   const getAddresses = useMemo(() => {
     if (!walletInstance) return [];
     const newAddresses: Address[] = [];
-    // @ts-ignore: idk what to do
-    for (let index = 0; index <= (walletInstance?.next_free_change_address_index ?? 0); index++) {
+    const changeMaxIndex = 'next_free_change_address_index' in walletInstance ? walletInstance.next_free_change_address_index : 0;
+    for (let index = 0; index <= changeMaxIndex; index++) {
       newAddresses.push(getAddress(walletInstance, index, true));
     }
-    // @ts-ignore: idk what to do
-    for (let index = 0; index < (walletInstance?.next_free_address_index ?? 0) + (walletInstance?.gap_limit ?? 0); index++) {
+
+    const gapLimit = 'gap_limit' in walletInstance ? walletInstance.gap_limit : 0;
+    const addressMaxIndex = 'next_free_address_index' in walletInstance ? walletInstance.next_free_address_index : 0;
+    for (let index = 0; index < addressMaxIndex + gapLimit; index++) {
       newAddresses.push(getAddress(walletInstance, index, false));
     }
     return newAddresses;
