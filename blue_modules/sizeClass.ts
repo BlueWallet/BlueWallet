@@ -30,16 +30,13 @@ export interface SizeClassInfo {
 }
 
 /**
- * Get current size class information based on iOS size class conventions
- * This function does not require a React context or hooks - can be used anywhere.
+ * Get current size class information based on device dimensions
  */
 export function getSizeClass(): SizeClassInfo {
   // Get device dimensions
   const { width, height } = Dimensions.get('window');
   const isLandscape = width > height;
   const orientation = isLandscape ? 'landscape' : 'portrait';
-
-  // Get density for more accurate sizing
 
   // Determine horizontal size class (following iOS conventions)
   let horizontalSizeClass: SizeClass;
@@ -76,18 +73,19 @@ export function getSizeClass(): SizeClassInfo {
     verticalSizeClass = SizeClass.Regular;
   }
 
-  // Derive overall size class based on the user's specification:
-  // Regular width + any height = Large screen
+  // Derive overall size class - simplified logic to avoid redundant comparisons
   let sizeClass: SizeClass;
 
   if (horizontalSizeClass === SizeClass.Compact) {
+    // If width is compact, overall is compact
     sizeClass = SizeClass.Compact;
   } else {
-    // If width is Regular or Large, overall size class is Large
+    // Otherwise, width is Regular or Large, so overall is Large
+    // (per requirements that any non-Compact width device is considered Large)
     sizeClass = SizeClass.Large;
   }
 
-  // Determine isLargeScreen based on horizontal size class being at least Regular
+  // Determine isLargeScreen property (true for Regular and Large widths)
   const isLargeScreen = horizontalSizeClass !== SizeClass.Compact;
 
   return {
@@ -95,12 +93,8 @@ export function getSizeClass(): SizeClassInfo {
     verticalSizeClass,
     sizeClass,
     orientation,
-
-    // Helper properties
     isCompact: sizeClass === SizeClass.Compact,
     isLarge: sizeClass === SizeClass.Large,
-
-    // Legacy support
     isLargeScreen,
   };
 }
