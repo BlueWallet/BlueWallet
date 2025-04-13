@@ -35,7 +35,6 @@ const DrawerRoot = () => {
   const { sizeClass, isLargeScreen } = useSizeClass();
 
   const getDrawerWidth = useMemo(() => {
-    // Use size class for more flexible drawer width
     switch (sizeClass) {
       case SizeClass.Large:
         return 320;

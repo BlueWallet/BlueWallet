@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
-import { AppState, AppStateStatus, Dimensions, Platform, useWindowDimensions } from 'react-native';
+import { Dimensions, Platform, useWindowDimensions } from 'react-native';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
+import useAppState from '../../hooks/useAppState';
 
 export enum SizeClass {
   Compact,
@@ -70,30 +71,12 @@ const useSizeClassDetection = () => {
     };
   }, []);
 
+  const { currentAppState } = useAppState();
   useEffect(() => {
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'active') {
-        determineSize();
-      }
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    handleAppStateChange(AppState.currentState);
-
-    return () => {
-      console.debug('[SizeClass] Cleaning up AppState subscription');
-      try {
-        subscription.remove();
-      } catch (error) {
-        console.warn('[SizeClass] Error cleaning up AppState subscription:', error);
-        try {
-          AppState.removeEventListener?.('change', handleAppStateChange);
-        } catch (fallbackError) {
-          console.error('[SizeClass] Failed to clean up with fallback:', fallbackError);
-        }
-      }
-    };
-  }, []);
+    if (currentAppState === 'active') {
+      determineSize();
+    }
+  }, [currentAppState]);
 
   const sizeClass = useMemo(() => {
     if (

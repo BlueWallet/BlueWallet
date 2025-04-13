@@ -6,6 +6,7 @@ import { useTheme } from './themes';
 
 interface SafeAreaProps extends ViewProps {
   floatingButtonHeight?: number;
+  orientation?: 'portrait' | 'landscape';
 }
 
 const SafeArea = (props: SafeAreaProps) => {
@@ -13,19 +14,32 @@ const SafeArea = (props: SafeAreaProps) => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
+  const padding = useMemo(
+    () =>
+      props.orientation === 'portrait'
+        ? {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          }
+        : {
+            paddingTop: insets.left,
+            paddingBottom: insets.right + (floatingButtonHeight ?? 0),
+            paddingLeft: insets.top,
+            paddingRight: insets.bottom,
+          },
+    [insets, props.orientation, floatingButtonHeight],
+  );
+
   const componentStyle = useMemo(() => {
     return StyleSheet.compose(
       {
         flex: 1,
         backgroundColor: colors.background,
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom + (floatingButtonHeight ?? 0),
-        paddingLeft: insets.left,
-        paddingRight: insets.right,
+        ...padding,
       },
       style,
     );
-  }, [colors.background, style, insets, floatingButtonHeight]);
+  }, [colors.background, padding, style]);
 
   return <View style={componentStyle} {...otherProps} />;
 };

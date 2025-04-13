@@ -12,6 +12,7 @@ export type ScanQRCodeParamList = {
   onBarScanned?: (data: string) => void;
   showFileImportButton?: boolean;
   backdoorVisible?: boolean;
+  orientation?: 'portrait';
   animatedQRCodeData?: Record<string, any>;
 };
 

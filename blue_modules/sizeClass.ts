@@ -1,4 +1,4 @@
-import { Dimensions, Platform, PixelRatio, AppState, AppStateStatus } from 'react-native';
+import { Dimensions, Platform, AppState, AppStateStatus } from 'react-native';
 import { useState, useEffect } from 'react';
 import { isDesktop } from './environment';
 
@@ -6,7 +6,7 @@ import { isDesktop } from './environment';
 export enum SizeClass {
   Compact, // Small size (iPhone width or height in landscape)
   Regular, // Standard size (iPad, or iPhone height in portrait)
-  Large,   // Additional size for larger screens (not in iOS, but useful for our app)
+  Large, // Additional size for larger screens (not in iOS, but useful for our app)
 }
 
 // Interface for the result of getSizeClass
@@ -14,17 +14,17 @@ export interface SizeClassInfo {
   // Size classes
   horizontalSizeClass: SizeClass;
   verticalSizeClass: SizeClass;
-  
+
   // Overall size class (derived from horizontal and vertical)
   sizeClass: SizeClass;
-  
+
   // Orientation
   orientation: 'portrait' | 'landscape';
-  
+
   // Helper properties
   isCompact: boolean;
   isLarge: boolean;
-  
+
   // Legacy support
   isLargeScreen: boolean;
 }
@@ -38,13 +38,12 @@ export function getSizeClass(): SizeClassInfo {
   const { width, height } = Dimensions.get('window');
   const isLandscape = width > height;
   const orientation = isLandscape ? 'landscape' : 'portrait';
-  
+
   // Get density for more accurate sizing
-  const pixelDensity = PixelRatio.get();
-  
+
   // Determine horizontal size class (following iOS conventions)
   let horizontalSizeClass: SizeClass;
-  
+
   if (Platform.OS === 'ios' && Platform.isPad) {
     // iPads always have Regular width
     horizontalSizeClass = SizeClass.Regular;
@@ -59,10 +58,10 @@ export function getSizeClass(): SizeClassInfo {
     // Regular iPhones: Compact width
     horizontalSizeClass = SizeClass.Compact;
   }
-  
+
   // Determine vertical size class (following iOS conventions)
   let verticalSizeClass: SizeClass;
-  
+
   if (Platform.OS === 'ios' && Platform.isPad) {
     // iPads always have Regular height
     verticalSizeClass = SizeClass.Regular;
@@ -76,31 +75,31 @@ export function getSizeClass(): SizeClassInfo {
     // iPhones in portrait: Regular height
     verticalSizeClass = SizeClass.Regular;
   }
-  
+
   // Derive overall size class based on the user's specification:
   // Regular width + any height = Large screen
   let sizeClass: SizeClass;
-  
+
   if (horizontalSizeClass === SizeClass.Compact) {
     sizeClass = SizeClass.Compact;
   } else {
     // If width is Regular or Large, overall size class is Large
     sizeClass = SizeClass.Large;
   }
-  
+
   // Determine isLargeScreen based on horizontal size class being at least Regular
   const isLargeScreen = horizontalSizeClass !== SizeClass.Compact;
-  
+
   return {
     horizontalSizeClass,
     verticalSizeClass,
     sizeClass,
     orientation,
-    
+
     // Helper properties
     isCompact: sizeClass === SizeClass.Compact,
     isLarge: sizeClass === SizeClass.Large,
-    
+
     // Legacy support
     isLargeScreen,
   };
@@ -111,7 +110,7 @@ export function getSizeClass(): SizeClassInfo {
  */
 export function useSizeClass(): SizeClassInfo {
   const [sizeClassInfo, setSizeClassInfo] = useState<SizeClassInfo>(getSizeClass());
-  
+
   useEffect(() => {
     // Update size class when dimensions change
     const updateSizeClass = () => {
@@ -122,12 +121,12 @@ export function useSizeClass(): SizeClassInfo {
         `horizontal=${SizeClass[newInfo.horizontalSizeClass]}`,
         `vertical=${SizeClass[newInfo.verticalSizeClass]}`,
         `orientation=${newInfo.orientation}`,
-        `isLargeScreen=${newInfo.isLargeScreen}`
+        `isLargeScreen=${newInfo.isLargeScreen}`,
       );
     };
-    
+
     const dimensionSubscription = Dimensions.addEventListener('change', updateSizeClass);
-    
+
     // Also update when app becomes active
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
@@ -136,16 +135,13 @@ export function useSizeClass(): SizeClassInfo {
     };
 
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     // Clean up
     return () => {
       dimensionSubscription.remove();
       appStateSubscription.remove();
     };
   }, []);
-  
+
   return sizeClassInfo;
 }
-
-// For backward compatibility
-export const useIsLargeScreen = useSizeClass;
