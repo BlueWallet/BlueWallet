@@ -4,7 +4,7 @@ import createHash from 'create-hash';
 import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
-import * as fs from '../../blue_modules/fs';
+import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
 import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
@@ -167,6 +167,11 @@ const ScanQRCode = () => {
   };
 
   const onBarCodeRead = (ret: { data: string }) => {
+    if (!ret?.data) {
+      console.warn('QR code data is undefined');
+      return;
+    }
+
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
@@ -202,10 +207,10 @@ const ScanQRCode = () => {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
-
       if (launchedBy) {
         const merge = true;
-        const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
+        const params = { onBarScanned: data };
+        const popToAction = StackActions.popTo(launchedBy, params, { merge });
         if (onBarScanned) {
           onBarScanned(data);
         }
@@ -213,19 +218,18 @@ const ScanQRCode = () => {
       }
       return;
     } catch (_) {
-      if (!isLoading && launchedBy) {
-        setIsLoading(true);
-        try {
-          const merge = true;
-
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge });
-          if (onBarScanned) {
-            onBarScanned(ret.data);
+      if (ret.data) {
+        if (!isLoading && launchedBy) {
+          setIsLoading(true);
+          try {
+            const merge = true;
+            navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge }));
+            if (onBarScanned) {
+              onBarScanned(ret.data);
+            }
+          } catch (e) {
+            console.error('Navigation error:', e);
           }
-
-          navigation.dispatch(popToAction);
-        } catch (e) {
-          console.log(e);
         }
       }
     }
@@ -234,17 +238,17 @@ const ScanQRCode = () => {
 
   const showFilePicker = async () => {
     setIsLoading(true);
-    const { data } = await fs.showFilePickerAndReadFile();
-    if (data) onBarCodeRead({ data });
+    const result = await showFilePickerAndReadFile();
+    if (result?.data) onBarCodeRead({ data: result.data });
     setIsLoading(false);
   };
 
   const onShowImagePickerButtonPress = () => {
     if (!isLoading) {
       setIsLoading(true);
-      fs.showImagePickerAndReadImage()
-        .then(data => {
-          if (data) onBarCodeRead({ data });
+      showImagePickerAndReadImage()
+        .then(result => {
+          if (result?.data) onBarCodeRead({ data: result.data });
         })
         .finally(() => setIsLoading(false));
     }
@@ -255,7 +259,11 @@ const ScanQRCode = () => {
   };
 
   const handleReadCode = (event: any) => {
-    onBarCodeRead({ data: event?.nativeEvent?.codeStringValue });
+    if (!event?.nativeEvent?.codeStringValue) {
+      console.warn('Invalid QR code read event');
+      return;
+    }
+    onBarCodeRead({ data: event.nativeEvent.codeStringValue });
   };
 
   const handleBackdoorOkPress = () => {
