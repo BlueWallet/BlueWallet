@@ -129,7 +129,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
     (totalWidthNeeded: number, availableWidth: number, totalChildren: number) => {
       if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
 
-      const minWidthPerButton = sizeClass === SizeClass.Large ? 130 : 110;
+      const minWidthPerButton = 130;
       const totalButtonsWidth = minWidthPerButton * totalChildren;
       const totalSpacing = LAYOUT.BUTTON_MARGIN * (totalChildren - 1);
       const minRequiredWidth = totalButtonsWidth + totalSpacing;
