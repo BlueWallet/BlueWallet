@@ -22,10 +22,10 @@ const SafeArea = (props: SafeAreaProps) => {
             paddingBottom: insets.bottom,
           }
         : {
-            paddingTop: insets.left,
-            paddingBottom: insets.right + (floatingButtonHeight ?? 0),
-            paddingLeft: insets.top,
-            paddingRight: insets.bottom,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom + (floatingButtonHeight ?? 0),
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
           },
     [insets, props.orientation, floatingButtonHeight],
   );
