@@ -5,26 +5,22 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformTheme } from '../../components/platformThemes';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStandardIcons } from '../../hooks/useStandardIcons';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
-import { useTheme } from '../../components/themes';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
-  const { language } = useSettings();
   const { layout, colors: platformColors, sizing } = usePlatformTheme();
   const { styles, isAndroid } = useSettingsStyles();
-  const { dark: isDarkMode } = useTheme();
   const getIcon = useStandardIcons();
 
-  const settingsIcon = useMemo(() => getIcon('settings'), [getIcon, isDarkMode]);
-  const currencyIcon = useMemo(() => getIcon('currency'), [getIcon, isDarkMode]);
-  const languageIcon = useMemo(() => getIcon('language'), [getIcon, isDarkMode]);
-  const securityIcon = useMemo(() => getIcon('security'), [getIcon, isDarkMode]);
-  const networkIcon = useMemo(() => getIcon('network'), [getIcon, isDarkMode]);
-  const toolsIcon = useMemo(() => getIcon('tools'), [getIcon, isDarkMode]);
-  const aboutIcon = useMemo(() => getIcon('about'), [getIcon, isDarkMode]);
+  const settingsIcon = useMemo(() => getIcon('settings'), [getIcon]);
+  const currencyIcon = useMemo(() => getIcon('currency'), [getIcon]);
+  const languageIcon = useMemo(() => getIcon('language'), [getIcon]);
+  const securityIcon = useMemo(() => getIcon('security'), [getIcon]);
+  const networkIcon = useMemo(() => getIcon('network'), [getIcon]);
+  const toolsIcon = useMemo(() => getIcon('tools'), [getIcon]);
+  const aboutIcon = useMemo(() => getIcon('about'), [getIcon]);
 
   const localStyles = StyleSheet.create({
     sectionContainer: {

@@ -39,18 +39,6 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-interface SettingItem {
-  id: string;
-  title: string;
-  onPress?: () => void;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  subtitle?: string;
-  rightTitle?: string;
-  disabled?: boolean;
-}
-
 const DefaultView: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, {
     defaultWalletLabel: '',
@@ -94,7 +82,7 @@ const DefaultView: React.FC = () => {
       dispatch({ type: ActionType.SetDefaultWalletLabel, payload: newDefaultWalletLabel });
       dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: newViewAllWalletsEnabled });
     })();
-  }, []);
+  }, [isViewAllWalletsEnabled, getSelectedDefaultWallet, wallets]);
 
   const onWalletSelectValueChanged = useCallback(
     async (wallet: TWallet) => {
