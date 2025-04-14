@@ -12,14 +12,12 @@ import { useTheme } from '../../components/themes';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
   const { layout, colors: platformColors, sizing } = usePlatformTheme();
   const { styles, isAndroid } = useSettingsStyles();
   const { dark: isDarkMode } = useTheme();
   const getIcon = useStandardIcons();
 
-  // Memoize icons to ensure consistent colors across renders
   const settingsIcon = useMemo(() => getIcon('settings'), [getIcon, isDarkMode]);
   const currencyIcon = useMemo(() => getIcon('currency'), [getIcon, isDarkMode]);
   const languageIcon = useMemo(() => getIcon('language'), [getIcon, isDarkMode]);
@@ -47,7 +45,6 @@ const Settings = () => {
 
   return (
     <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {/* First section - General, Currency, Language, Security, Network */}
       <View style={localStyles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
@@ -120,7 +117,6 @@ const Settings = () => {
         />
       </View>
 
-      {/* Second section - Tools */}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.tools}
@@ -137,7 +133,6 @@ const Settings = () => {
         />
       </View>
 
-      {/* Third section - About */}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}

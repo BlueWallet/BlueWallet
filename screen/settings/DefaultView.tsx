@@ -39,6 +39,18 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+interface SettingItem {
+  id: string;
+  title: string;
+  onPress?: () => void;
+  isSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchValueChange?: (value: boolean) => void;
+  subtitle?: string;
+  rightTitle?: string;
+  disabled?: boolean;
+}
+
 const DefaultView: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, {
     defaultWalletLabel: '',
@@ -82,7 +94,6 @@ const DefaultView: React.FC = () => {
       dispatch({ type: ActionType.SetDefaultWalletLabel, payload: newDefaultWalletLabel });
       dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: newViewAllWalletsEnabled });
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onWalletSelectValueChanged = useCallback(
@@ -102,7 +113,6 @@ const DefaultView: React.FC = () => {
       dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
 
       if (!value && wallets.length === 1) {
-        // Automatically select the wallet if there is only one
         const selectedWallet = wallets[0];
         await setSelectedDefaultWallet(selectedWallet.getID());
         dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
