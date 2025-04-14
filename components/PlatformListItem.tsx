@@ -383,31 +383,30 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     }
   }
 
-  if (swipeable && !Component) {
-    console.warn('Component prop is required when swipeable is true.');
-    return null;
-  }
-
   const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
   const accessibilityProps = getAccessibilityProps();
 
-  return swipeable ? (
-    <RNElementsListItem.Swipeable
-      containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
-      Component={Component as any}
-      bottomDivider={shouldShowBottomDivider}
-      topDivider={topDivider}
-      testID={testID}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      disabled={disabled}
-      leftContent={swipeableLeftContent}
-      rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
-      {...accessibilityProps}
-    >
-      {renderContent()}
-    </RNElementsListItem.Swipeable>
-  ) : (
+  if (swipeable) {
+    return (
+      <RNElementsListItem.Swipeable
+        containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
+        Component={Component as any}
+        bottomDivider={shouldShowBottomDivider}
+        topDivider={topDivider}
+        testID={testID}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        disabled={disabled}
+        leftContent={swipeableLeftContent}
+        rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
+        {...accessibilityProps}
+      >
+        {renderContent()}
+      </RNElementsListItem.Swipeable>
+    );
+  }
+
+  return (
     <RNElementsListItem
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
       Component={Component as any}

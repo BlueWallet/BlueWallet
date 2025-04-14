@@ -316,30 +316,12 @@ const About: React.FC = () => {
         );
       }
 
-      if (item.section) {
-        const currentSection = Math.floor(item.section || 0);
-        const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection);
+      const currentSection = Math.floor(item.section || 0);
+      const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection);
 
-        const indexInSection = sectionItems.findIndex(i => i.id === item.id);
-        const isLastInSection = indexInSection === sectionItems.length - 1;
-        const isFirstInSection = indexInSection === 0;
-
-        return (
-          <PlatformListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            containerStyle={{
-              backgroundColor: platformColors.cardBackground,
-            }}
-            onPress={item.onPress}
-            testID={item.testID}
-            chevron={item.chevron}
-            bottomDivider={!isLastInSection}
-            isFirst={isFirstInSection}
-            isLast={isLastInSection}
-          />
-        );
-      }
+      const indexInSection = sectionItems.findIndex(i => i.id === item.id);
+      const isLastInSection = indexInSection === sectionItems.length - 1;
+      const isFirstInSection = indexInSection === 0;
 
       return (
         <PlatformListItem
@@ -351,7 +333,9 @@ const About: React.FC = () => {
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          bottomDivider={false}
+          bottomDivider={!isLastInSection}
+          isFirst={isFirstInSection}
+          isLast={isLastInSection}
         />
       );
     },
