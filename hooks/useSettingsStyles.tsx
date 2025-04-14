@@ -1,11 +1,11 @@
 import { Platform, StyleSheet } from 'react-native';
-import { usePlatformTheme } from '../components/platformThemes';
+import { usePlatformTheme, PlatformTheme } from '../components/platformThemes';
 
 /**
  * A hook that provides consistent styles for settings screens with platform-specific adjustments
  */
 export const useSettingsStyles = () => {
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout }: PlatformTheme = usePlatformTheme();
   const isAndroid = Platform.OS === 'android';
 
   const styles = StyleSheet.create({

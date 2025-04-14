@@ -6,7 +6,7 @@ import { TWallet } from '../../class/wallets/types';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformTheme } from '../../components/platformThemes';
 import PlatformListItem from '../../components/PlatformListItem';
 
@@ -39,18 +39,6 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-interface SettingItem {
-  id: string;
-  title: string;
-  onPress?: () => void;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  subtitle?: string;
-  rightTitle?: string;
-  disabled?: boolean;
-}
-
 const DefaultView: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, {
     defaultWalletLabel: '',
@@ -60,22 +48,24 @@ const DefaultView: React.FC = () => {
   const { navigate, pop } = useNavigation<DefaultViewNavigationProp>();
   const { wallets } = useStorage();
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet, setSelectedDefaultWallet, setViewAllWalletsEnabled } = useOnAppLaunch();
-  const { colors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing } = usePlatformTheme();
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.background,
-    },
-    listItemContainer: {
-      backgroundColor: colors.cardBackground,
-      minHeight: 77,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
+      backgroundColor: platformColors.background,
     },
     contentContainer: {
       marginHorizontal: 16,
+    },
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginBottom: 16,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      marginLeft: 16,
     },
   });
 
@@ -106,10 +96,6 @@ const DefaultView: React.FC = () => {
     [setViewAllWalletsEnabled, setSelectedDefaultWallet, pop],
   );
 
-  const selectWallet = useCallback(() => {
-    navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false });
-  }, [navigate, onWalletSelectValueChanged]);
-
   const onViewAllWalletsSwitchValueChanged = useCallback(
     async (value: boolean) => {
       await setViewAllWalletsEnabled(value);
@@ -131,103 +117,46 @@ const DefaultView: React.FC = () => {
     [setViewAllWalletsEnabled, wallets, setSelectedDefaultWallet, getSelectedDefaultWallet],
   );
 
-  const settingsItems = useCallback((): SettingItem[] => {
-    const items: SettingItem[] = [
-      {
-        id: 'viewAllWallets',
-        title: loc.settings.default_wallets,
-        subtitle: loc.settings.default_desc,
-        isSwitch: true,
-        switchValue: state.isViewAllWalletsSwitchEnabled,
-        onSwitchValueChange: onViewAllWalletsSwitchValueChanged,
-        disabled: wallets.length <= 0,
-      },
-    ];
-
-    if (!state.isViewAllWalletsSwitchEnabled) {
-      items.push({
-        id: 'selectDefaultWallet',
-        title: loc.settings.default_info,
-        onPress: selectWallet,
-        rightTitle: state.defaultWalletLabel,
-        disabled: wallets.length <= 1,
-      });
-    }
-
-    return items;
-  }, [state.isViewAllWalletsSwitchEnabled, state.defaultWalletLabel, wallets.length, onViewAllWalletsSwitchValueChanged, selectWallet]);
-
-  interface RenderItemProps {
-    item: SettingItem;
-  }
-
-  const renderItem = useCallback(
-    (props: RenderItemProps): JSX.Element => {
-      const item = props.item;
-      const items: SettingItem[] = settingsItems();
-      const isFirst = items.indexOf(item) === 0;
-      const isLast = items.indexOf(item) === items.length - 1;
-
-      const containerStyle = {
-        ...styles.listItemContainer,
-        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-      };
-
-      if (item.isSwitch) {
-        return (
-          <PlatformListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            containerStyle={containerStyle}
-            isFirst={isFirst}
-            isLast={isLast}
-            Component={View}
-            bottomDivider={layout.showBorderBottom && !isLast}
-            switch={{
-              value: item.switchValue || false,
-              onValueChange: item.onSwitchValueChange,
-              disabled: item.disabled,
-            }}
-          />
-        );
-      }
-
-      return (
-        <PlatformListItem
-          title={item.title}
-          rightTitle={item.rightTitle}
-          containerStyle={containerStyle}
-          onPress={item.onPress}
-          disabled={item.disabled}
-          chevron
-          isFirst={isFirst}
-          isLast={isLast}
-          bottomDivider={layout.showBorderBottom && !isLast}
-        />
-      );
-    },
-    [layout.showBorderBottom, styles.listItemContainer, settingsItems, sizing.containerBorderRadius],
-  );
-
-  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
-
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
+  const renderSeparator = <View style={styles.separator} />;
 
   return (
-    <SafeAreaFlatList
-      style={styles.container}
-      data={settingsItems()}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      removeClippedSubviews
-    />
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.firstSectionContainer}>
+        <PlatformListItem
+          title={loc.settings.default_wallets}
+          subtitle={loc.settings.default_desc}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
+          Component={View}
+          isFirst
+          isLast={state.isViewAllWalletsSwitchEnabled}
+          bottomDivider={!state.isViewAllWalletsSwitchEnabled}
+          switch={{
+            value: state.isViewAllWalletsSwitchEnabled,
+            onValueChange: onViewAllWalletsSwitchValueChanged,
+            disabled: wallets.length <= 0,
+          }}
+        />
+
+        {!state.isViewAllWalletsSwitchEnabled && renderSeparator}
+
+        {!state.isViewAllWalletsSwitchEnabled && (
+          <PlatformListItem
+            title={loc.settings.default_info}
+            rightTitle={state.defaultWalletLabel}
+            containerStyle={{
+              backgroundColor: platformColors.cardBackground,
+            }}
+            onPress={() => navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false })}
+            disabled={wallets.length <= 1}
+            isLast
+            chevron
+            bottomDivider={false}
+          />
+        )}
+      </View>
+    </SafeAreaScrollView>
   );
 };
 

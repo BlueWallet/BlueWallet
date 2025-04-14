@@ -81,7 +81,7 @@ export interface PlatformLayout {
   showBorderRadius: boolean;
   useRoundedListItems: boolean;
   showIconBackground: boolean;
-  iconType: 'ionicon' | 'font-awesome-5';
+  iconType: 'ionicon' | 'font-awesome-5' | 'font-awesome-6';
   settingsIconName: string;
   currencyIconName: string;
   languageIconName: string;

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
@@ -16,6 +16,7 @@ import PlatformListItem from '../../components/PlatformListItem';
 import branch from '../../current-branch.json';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import { useStandardIcons } from '../../hooks/useStandardIcons';
+import { usePlatformTheme } from '../../components/platformThemes';
 
 interface AboutItem {
   id: string;
@@ -35,6 +36,13 @@ const About: React.FC = () => {
   const { isElectrumDisabled } = useSettings();
   const { styles } = useSettingsStyles();
   const getIcon = useStandardIcons();
+  const { colors: platformColors } = usePlatformTheme();
+
+  const localStyles = StyleSheet.create({
+    sectionSpacing: {
+      height: 16,
+    },
+  });
 
   const handleOnReleaseNotesPress = useCallback(() => {
     navigate('ReleaseNotes');
@@ -124,7 +132,8 @@ const About: React.FC = () => {
       {
         id: 'x',
         title: loc.settings.about_sm_x,
-        leftIcon: getIcon('twitter'),
+        leftIcon: getIcon('x-twitter'),
+
         onPress: handleOnXPress,
         section: 2,
       },
@@ -273,7 +282,6 @@ const About: React.FC = () => {
       }
 
       if (item.title && !item.leftIcon && !item.onPress && item.section) {
-        // Section header with platform-specific styling
         return (
           <View style={styles.sectionHeaderContainer}>
             <Text style={styles.sectionHeaderText}>{item.title}</Text>
@@ -294,8 +302,35 @@ const About: React.FC = () => {
           <PlatformListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={styles.listItemContainer}
+            containerStyle={{
+              backgroundColor: platformColors.cardBackground,
+            }}
             leftIcon={item.leftIcon}
+            onPress={item.onPress}
+            testID={item.testID}
+            chevron={item.chevron}
+            bottomDivider={!isLastInSection}
+            isFirst={isFirstInSection}
+            isLast={isLastInSection}
+          />
+        );
+      }
+
+      if (item.section) {
+        const currentSection = Math.floor(item.section || 0);
+        const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection);
+
+        const indexInSection = sectionItems.findIndex(i => i.id === item.id);
+        const isLastInSection = indexInSection === sectionItems.length - 1;
+        const isFirstInSection = indexInSection === 0;
+
+        return (
+          <PlatformListItem
+            title={item.title}
+            subtitle={item.subtitle}
+            containerStyle={{
+              backgroundColor: platformColors.cardBackground,
+            }}
             onPress={item.onPress}
             testID={item.testID}
             chevron={item.chevron}
@@ -310,20 +345,24 @@ const About: React.FC = () => {
         <PlatformListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={styles.listItemContainer}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          bottomDivider
+          bottomDivider={false}
         />
       );
     },
-    [styles.listItemContainer, styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems],
+    [styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems, platformColors.cardBackground],
   );
 
   const keyExtractor = useCallback((item: AboutItem) => item.id, []);
 
   const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
+
+  const ListFooterComponent = useCallback(() => <View style={localStyles.sectionSpacing} />, [localStyles.sectionSpacing]);
 
   return (
     <SafeAreaFlatList
@@ -332,6 +371,7 @@ const About: React.FC = () => {
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       ListHeaderComponent={ListHeaderComponent}
+      ListFooterComponent={ListFooterComponent}
       contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets

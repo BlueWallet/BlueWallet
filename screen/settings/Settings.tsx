@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -13,22 +13,39 @@ const Settings = () => {
   const { navigate } = useExtendedNavigation();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
-  const { layout } = usePlatformTheme();
+  const { layout, colors: platformColors, sizing } = usePlatformTheme();
   const { styles, isAndroid } = useSettingsStyles();
-  const getIcon = useStandardIcons();
-  const extendedStyles = { ...styles, sectionContainer: {} };
 
-  // Use platform-specific separator styling
-  const separatorStyle = { height: 1, backgroundColor: 'rgba(0,0,0,0.05)' };
-  const renderSeparator = isAndroid ? <View style={separatorStyle} /> : null;
+  const getIcon = useStandardIcons();
+
+  const localStyles = StyleSheet.create({
+    sectionContainer: {
+      marginBottom: 16,
+    },
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginBottom: 16,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      marginLeft: 16, // Add 16px padding to the left
+    },
+  });
+
+  // Use platform-specific separator styling with left padding
+  const renderSeparator = isAndroid ? <View style={localStyles.separator} /> : null;
 
   return (
-    <SafeAreaScrollView>
-      <View style={extendedStyles.sectionContainer}>
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      {/* First section - General, Currency, Language, Security, Network */}
+      <View style={localStyles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
           leftIcon={getIcon('settings')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
@@ -41,7 +58,9 @@ const Settings = () => {
         <PlatformListItem
           title={loc.settings.currency}
           leftIcon={getIcon('currency')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('Currency')}
           testID="Currency"
           chevron
@@ -53,61 +72,74 @@ const Settings = () => {
         <PlatformListItem
           title={loc.settings.language}
           leftIcon={getIcon('language')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('Language')}
           testID="Language"
           chevron
           bottomDivider={layout.showBorderBottom}
-          isLast
         />
-      </View>
 
-      <View style={extendedStyles.sectionContainer}>
+        {renderSeparator}
+
         <PlatformListItem
           title={loc.settings.encrypt_title}
           leftIcon={getIcon('security')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
           chevron
           bottomDivider={layout.showBorderBottom}
-          isFirst
-          isLast
         />
-      </View>
 
-      <View style={extendedStyles.sectionContainer}>
+        {renderSeparator}
+
         <PlatformListItem
           title={loc.settings.network}
           leftIcon={getIcon('network')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
-          bottomDivider={layout.showBorderBottom}
-          isFirst
-        />
-        <PlatformListItem
-          title={loc.settings.tools}
-          leftIcon={getIcon('tools')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
-          onPress={() => navigate('SettingsTools')}
-          testID="Tools"
-          chevron
-          bottomDivider={layout.showBorderBottom}
+          bottomDivider={false} // Last item should not have a bottom divider
           isLast
         />
       </View>
 
-      <View style={extendedStyles.sectionContainer}>
+      {/* Second section - Tools */}
+      <View style={localStyles.sectionContainer}>
+        <PlatformListItem
+          title={loc.settings.tools}
+          leftIcon={getIcon('tools')}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
+          onPress={() => navigate('SettingsTools')}
+          testID="Tools"
+          chevron
+          bottomDivider={false} // Single item section should not have a bottom divider
+          isFirst
+          isLast
+        />
+      </View>
+
+      {/* Third section - About */}
+      <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
           leftIcon={getIcon('about')}
-          containerStyle={[styles.listItemContainer, styles.itemHeight]}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
           onPress={() => navigate('About')}
           testID="AboutButton"
           chevron
-          bottomDivider={layout.showBorderBottom}
+          bottomDivider={false} // Single item section should not have a bottom divider
           isFirst
           isLast
         />
