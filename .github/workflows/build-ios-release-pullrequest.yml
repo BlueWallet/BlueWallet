@@ -28,21 +28,7 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensures the full Git history is available
-      
-      - name: Clear All Caches
-        if: github.ref == 'refs/heads/master'
-        run: |
-          echo "Clearing Xcode DerivedData..."
-          rm -rf ~/Library/Developer/Xcode/DerivedData
-          echo "Clearing CocoaPods Cache..."
-          rm -rf ~/Library/Caches/CocoaPods
-          echo "Clearing npm Cache..."
-          npm cache clean --force
-          echo "Clearing Ruby Gems Cache..."
-          rm -rf ~/.gem
-          echo "Clearing Bundler Cache..."
-          rm -rf ~/.bundle/cache
+          fetch-depth: 0 # Ensures the full Git history is 
 
       - name: Ensure Correct Branch
         if: github.ref != 'refs/heads/master'
