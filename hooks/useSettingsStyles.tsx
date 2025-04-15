@@ -34,7 +34,7 @@ export const useSettingsStyles = () => {
     sectionHeaderContainer: {
       marginTop: isAndroid ? 24 : 16,
       marginBottom: isAndroid ? 0 : 8,
-      paddingHorizontal: isAndroid ? 16 : 16,
+      paddingHorizontal: 16, 
       ...(isAndroid && {
         height: 48,
         justifyContent: 'center',

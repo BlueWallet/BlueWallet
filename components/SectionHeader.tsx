@@ -15,7 +15,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title, marginTop, marginB
 
   const styles = StyleSheet.create({
     container: {
-      paddingHorizontal: isAndroid ? 16 : 16,
+      paddingHorizontal: 16,
       marginTop: marginTop !== undefined ? marginTop : isAndroid ? 24 : 16,
       marginBottom: marginBottom !== undefined ? marginBottom : isAndroid ? 0 : 8,
       height: isAndroid ? sizing.sectionHeaderHeight : undefined,
