@@ -62,7 +62,7 @@ const Settings = () => {
   };
 
   return (
-    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <SafeAreaScrollView testID="SettingsRoot" style={styles.container} contentContainerStyle={styles.contentContainer}>
       {isAndroid && renderSectionHeader(loc.settings.header)}
 
       <View style={localStyles.firstSectionContainer}>
