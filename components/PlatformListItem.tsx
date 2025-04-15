@@ -149,6 +149,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 }) => {
   const { sizing, colors, layout } = usePlatformTheme();
   const { fontScale } = useWindowDimensions();
+  const isAndroid = Platform.OS === 'android';
 
   // Set default component based on platform
   if (!Component) {
@@ -189,20 +190,20 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     },
     containerStyle: {
       backgroundColor: colors.cardBackground,
-      paddingVertical: sizing.containerPaddingVertical,
+      paddingVertical: isAndroid ? 8 : sizing.containerPaddingVertical, // Less padding for Android
       minHeight,
       borderBottomWidth: layout.showBorderBottom && bottomDivider ? StyleSheet.hairlineWidth : 0,
       borderBottomColor: layout.showBorderBottom && bottomDivider ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
       elevation: layout.showElevation ? sizing.containerElevation : 0,
-      marginVertical: sizing.containerMarginVertical,
+      marginVertical: isAndroid ? 0 : sizing.containerMarginVertical,
     },
     chevron: {
       color: colors.chevronColor,
       opacity: layout.showBorderRadius ? 0.7 : 1,
     },
     iconContainer: {
-      marginRight: sizing.leftIconMarginRight,
+      marginRight: isAndroid ? sizing.leftIconMarginRight * 1.5 : sizing.leftIconMarginRight, // More space between icon and text for Android
       alignItems: 'center',
       justifyContent: 'center',
       width: sizing.iconContainerSize,
@@ -217,9 +218,21 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       switchProps
         ? {
             ...switchProps,
+            // Use Android-specific styles for switch when on Android
+            ...(isAndroid && {
+              trackColor: {
+                false: colors.switchTrackColorFalse,
+                true: colors.switchTrackColorTrue,
+              },
+              // Calculate the thumbColor immediately instead of passing a function
+              thumbColor:
+                typeof colors.switchThumbColor === 'function'
+                  ? colors.switchThumbColor(switchProps.value || false)
+                  : colors.switchThumbColor,
+            }),
           }
         : undefined,
-    [switchProps],
+    [switchProps, isAndroid, colors],
   );
 
   const getAccessibilityProps = () => {
@@ -245,8 +258,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           style={[
             styles.iconContainerBase,
             {
-              marginLeft: sizing.leftIconMarginLeft,
-              marginRight: sizing.leftIconMarginRight,
+              marginLeft: isAndroid ? sizing.leftIconMarginLeft * 1.5 : sizing.leftIconMarginLeft, // More left margin for Android
+              marginRight: isAndroid ? sizing.leftIconMarginRight * 1.5 : sizing.leftIconMarginRight,
               width: sizing.leftIconWidth,
               height: sizing.leftIconHeight,
               borderRadius: sizing.iconContainerBorderRadius,
@@ -307,7 +320,11 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         <>
           {chevron && (
             <RNElementsListItem.Chevron
-              iconStyle={StyleSheet.flatten([styles.transformRTL, stylesHook.chevron])}
+              iconStyle={StyleSheet.flatten([
+                styles.transformRTL,
+                stylesHook.chevron,
+                isAndroid && { marginRight: 8 }, // Add margin for Android
+              ])}
               importantForAccessibility="no"
             />
           )}
@@ -315,7 +332,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           {switchProps && (
             <Switch
               {...memoizedSwitchProps}
-              style={styles.margin16}
+              style={[styles.margin16, isAndroid && { transform: [{ scaleX: 1.0 }, { scaleY: 1.0 }] }]}
               accessibilityLabel={accessibilityLabel || title}
               accessible
               accessibilityRole="switch"
@@ -377,7 +394,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       dynamicContainerStyle = {
         borderRadius: 0,
         elevation: layout.showElevation ? sizing.containerElevation : 0,
-        marginVertical: 1,
+        marginVertical: isAndroid ? 0 : 1, // No vertical margin for Android settings items
         backgroundColor: colors.cardBackground,
       };
     }
@@ -416,7 +433,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={disabled}
-      pad={16}
+      pad={isAndroid ? 0 : 16} // No padding for Android
       {...accessibilityProps}
     >
       {renderContent()}

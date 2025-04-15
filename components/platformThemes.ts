@@ -37,7 +37,7 @@ export interface PlatformColors {
   grayIconBg: string | OpaqueColorValue;
   switchTrackColorFalse: string | OpaqueColorValue;
   switchTrackColorTrue: string | OpaqueColorValue;
-  switchThumbColor?: string | OpaqueColorValue;
+  switchThumbColor?: string | OpaqueColorValue | ((value: boolean) => string | OpaqueColorValue);
   switchIosBackgroundColor: string | OpaqueColorValue;
 }
 
@@ -81,7 +81,7 @@ export interface PlatformLayout {
   showBorderRadius: boolean;
   useRoundedListItems: boolean;
   showIconBackground: boolean;
-  iconType: 'ionicon' | 'font-awesome-5' | 'font-awesome-6';
+  iconType: 'ionicon' | 'font-awesome-5' | 'font-awesome-6' | 'material-community';
   settingsIconName: string;
   currencyIconName: string;
   languageIconName: string;
@@ -190,33 +190,42 @@ const getIOSColors = (): PlatformColors => {
 
 const getAndroidColors = (): PlatformColors => {
   const isDark = Appearance.getColorScheme() === 'dark';
+
+  // Material Design colors for Android
   const textColor = isDark ? '#FFFFFF' : '#202124';
   const subtitleColor = isDark ? '#B3B3B3' : '#5F6368';
   const chevronColor = isDark ? '#9E9E9E' : '#757575';
+
+  // Material Design background and accent colors
+  const backgroundColor = isDark ? '#121212' : '#F8F9FA';
+  const cardBackground = isDark ? '#1E1E1E' : '#FFFFFF';
 
   return {
     titleColor: textColor,
     subtitleColor,
     chevronColor,
 
-    background: isDark ? '#1F1F1F' : '#F3F3F3',
-    cardBackground: 'transparent',
+    background: backgroundColor,
+    cardBackground,
     textColor,
 
-    blueIcon: isDark ? '#82B1FF' : '#1A73E8',
-    greenIcon: isDark ? '#69F0AE' : '#0F9D58',
-    yellowIcon: isDark ? '#FFD600' : '#F4B400',
-    redIcon: isDark ? '#FF5252' : '#DB4437',
-    grayIcon: isDark ? '#BDBDBD' : '#5F6368',
+    blueIcon: isDark ? '#82B1FF' : '#1A73E8', // Google blue
+    greenIcon: isDark ? '#69F0AE' : '#0F9D58', // Google green
+    yellowIcon: isDark ? '#FFD600' : '#F4B400', // Google yellow
+    redIcon: isDark ? '#FF5252' : '#DB4437', // Google red
+    grayIcon: isDark ? '#BDBDBD' : '#5F6368', // Material gray
 
+    // No background colors for icons in Android (flat design)
     blueIconBg: 'transparent',
     greenIconBg: 'transparent',
     yellowIconBg: 'transparent',
     redIconBg: 'transparent',
     grayIconBg: 'transparent',
 
-    switchTrackColorFalse: getAndroidColor('@android:color/darker_gray'),
-    switchTrackColorTrue: PlatformColor('@android:color/holo_green_light'),
+    // Material Design switch colors
+    switchTrackColorFalse: isDark ? '#6E6E6E' : '#E0E0E0',
+    switchTrackColorTrue: isDark ? 'rgba(187, 134, 252, 0.5)' : 'rgba(98, 0, 238, 0.5)',
+    switchThumbColor: isDark ? (value: boolean) => (value ? '#BB86FC' : '#BDBDBD') : (value: boolean) => (value ? '#6200EE' : '#FFFFFF'),
     switchIosBackgroundColor: 'transparent',
   };
 };
@@ -291,20 +300,20 @@ export const getIOSLayout = (): PlatformLayout => ({
 });
 
 export const getAndroidLayout = (): PlatformLayout => ({
-  showBorderBottom: true,
+  showBorderBottom: false, // Change to false for Android's flat design
   showElevation: true,
   showBorderRadius: false,
   useRoundedListItems: false,
   showIconBackground: false,
-  iconType: 'font-awesome-5',
+  iconType: 'material-community', // Using material-community icons for better Android styling
   settingsIconName: 'cog',
-  currencyIconName: 'money-bill-alt',
-  languageIconName: 'language',
-  securityIconName: 'lock',
-  networkIconName: 'globe',
+  currencyIconName: 'currency-usd',
+  languageIconName: 'translate',
+  securityIconName: 'shield',
+  networkIconName: 'web',
   toolsIconName: 'tools',
-  aboutIconName: 'info-circle',
-  rippleEffect: true,
+  aboutIconName: 'information',
+  rippleEffect: true, // Make sure ripple effect is enabled
 });
 
 const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {

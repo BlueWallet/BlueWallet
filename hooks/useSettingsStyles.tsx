@@ -15,25 +15,30 @@ export const useSettingsStyles = () => {
       backgroundColor: platformColors.background,
     },
     listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
+      backgroundColor: isAndroid ? 'transparent' : platformColors.cardBackground,
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      elevation: layout.showElevation ? sizing.containerElevation : 0,
+      elevation: isAndroid ? 0 : layout.showElevation ? sizing.containerElevation : 0,
+      marginBottom: isAndroid ? 0 : 8,
     },
     headerOffset: {
       // Adjust header offset for Android
       height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: isAndroid ? 0 : 16, // No margin for Android settings
       // Add paddingTop for Android to prevent content overlap with header
       paddingTop: isAndroid ? 8 : 0,
     },
-    
+
     // Section styles
     sectionHeaderContainer: {
-      marginTop: 16,
-      marginBottom: 8,
-      paddingHorizontal: 16,
+      marginTop: isAndroid ? 24 : 16,
+      marginBottom: isAndroid ? 0 : 8,
+      paddingHorizontal: isAndroid ? 16 : 16,
+      ...(isAndroid && {
+        height: 48,
+        justifyContent: 'center',
+      }),
     },
     sectionHeaderText: {
       fontSize: isAndroid ? 14 : 18,
@@ -41,46 +46,48 @@ export const useSettingsStyles = () => {
       color: isAndroid ? platformColors.subtitleColor : platformColors.titleColor,
       textTransform: isAndroid ? 'uppercase' : 'none',
       marginLeft: isAndroid ? 8 : 0,
+      letterSpacing: isAndroid ? 0.25 : 0,
     },
     sectionSpacing: {
-      height: 24,
+      height: isAndroid ? 8 : 24, // Less spacing for Android
     },
-    
+
     // Text styles
     subtitleText: {
       fontSize: 14,
       color: platformColors.subtitleColor,
       marginTop: 5,
     },
-    
+
     // Card styles
     card: {
       backgroundColor: platformColors.cardBackground,
-      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 8,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
       padding: 16,
       marginVertical: 8,
-      elevation: isAndroid ? 2 : 0,
+      elevation: isAndroid ? 1 : 0,
     },
-    
+
     // Info container styles
     infoContainer: {
       backgroundColor: platformColors.cardBackground,
-      margin: 16,
+      margin: isAndroid ? 8 : 16,
       padding: 16,
-      borderRadius: sizing.containerBorderRadius * 1.5,
+      borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
+      elevation: isAndroid ? 1 : 0,
     },
     infoText: {
       color: platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
       marginBottom: 8,
     },
-    
+
     // Item-specific styles
-    itemHeight: isAndroid ? { height: 56 } : {},
+    itemHeight: isAndroid ? { height: 56 } : {}, // Material Design standard height
     width24: {
       width: 24,
     },
-    
+
     // About screen specific styles
     center: {
       justifyContent: 'center',
@@ -111,8 +118,9 @@ export const useSettingsStyles = () => {
     buildWith: {
       padding: 16,
       paddingTop: 0,
-      borderRadius: sizing.containerBorderRadius * 1.5,
+      borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
       backgroundColor: platformColors.cardBackground,
+      elevation: isAndroid ? 1 : 0,
     },
     footerContainer: {
       padding: 16,

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -24,29 +24,54 @@ const Settings = () => {
 
   const localStyles = StyleSheet.create({
     sectionContainer: {
-      marginBottom: 16,
+      marginBottom: isAndroid ? 0 : 16,
     },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginBottom: 16,
+      marginBottom: isAndroid ? 0 : 16,
     },
     separator: {
       height: 1,
       backgroundColor: 'rgba(0,0,0,0.05)',
       marginLeft: 16,
     },
+    sectionHeader: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      height: 48,
+      justifyContent: 'center',
+    },
+    sectionHeaderText: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: platformColors.subtitleColor,
+      textTransform: 'uppercase',
+    },
   });
 
   const renderSeparator = isAndroid ? <View style={localStyles.separator} /> : null;
 
+  const renderSectionHeader = (title: string) => {
+    if (!isAndroid) return null;
+
+    return (
+      <View style={localStyles.sectionHeader}>
+        <Text style={localStyles.sectionHeaderText}>{title}</Text>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      {isAndroid && renderSectionHeader(loc.settings.header)}
+
       <View style={localStyles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
           leftIcon={settingsIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
@@ -62,6 +87,7 @@ const Settings = () => {
           leftIcon={currencyIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('Currency')}
           testID="Currency"
@@ -76,6 +102,7 @@ const Settings = () => {
           leftIcon={languageIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('Language')}
           testID="Language"
@@ -90,6 +117,7 @@ const Settings = () => {
           leftIcon={securityIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
@@ -104,6 +132,7 @@ const Settings = () => {
           leftIcon={networkIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
@@ -113,12 +142,14 @@ const Settings = () => {
         />
       </View>
 
+      {isAndroid && renderSectionHeader(loc.settings.tools)}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.tools}
           leftIcon={toolsIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('SettingsTools')}
           testID="Tools"
@@ -129,12 +160,14 @@ const Settings = () => {
         />
       </View>
 
+      {isAndroid && renderSectionHeader(loc.settings.about)}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
           leftIcon={aboutIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
+            ...(isAndroid && { height: 56 }),
           }}
           onPress={() => navigate('About')}
           testID="AboutButton"
