@@ -1,17 +1,18 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
-
-import { BlueCard, BlueText } from '../../BlueComponents';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { View, Text } from 'react-native';
 
 const ReleaseNotes: React.FC = () => {
   const notes = require('../../release-notes');
+  const { styles } = useSettingsStyles();
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      <BlueCard>
-        <BlueText>{notes}</BlueText>
-      </BlueCard>
-    </ScrollView>
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.card}>
+        <Text style={styles.infoText}>{notes}</Text>
+      </View>
+    </SafeAreaScrollView>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -12,6 +12,7 @@ import presentAlert from '../../components/Alert';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { usePlatformTheme } from '../../components/platformThemes';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import PlatformListItem from '../../components/PlatformListItem';
 
 enum ActionType {
@@ -82,43 +83,9 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { layout } = usePlatformTheme();
+  const { styles } = useSettingsStyles();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: 16,
-    },
-    subtitleText: {
-      fontSize: 14,
-      color: platformColors.subtitleColor,
-      marginTop: 5,
-    },
-    sectionHeaderContainer: {
-      marginTop: 16,
-      marginBottom: 8,
-      paddingHorizontal: 16,
-    },
-    sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: platformColors.titleColor,
-    },
-    sectionSpacing: {
-      height: 24,
-    },
-  });
 
   const initializeState = useCallback(async () => {
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
@@ -306,11 +273,20 @@ const EncryptStorage = () => {
       const isLastInSection = indexInSection === currentSectionItems.length - 1;
 
       if (item.isSwitch) {
+        // Determine if this is the encrypt storage switch and if plausible deniability is visible
+        const isEncryptSwitch = item.id === 'encryptStorage';
+        const showPlausibleDeniability = state.storageIsEncryptedSwitchEnabled;
+        
+        // If this is the encrypt switch and plausible deniability is shown, adjust corner style
+        const containerStyle = isEncryptSwitch && showPlausibleDeniability
+          ? { ...styles.encryptListItemContainer, ...styles.topRoundedItem }
+          : styles.encryptListItemContainer;
+
         return (
           <PlatformListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={styles.listItemContainer}
+            containerStyle={containerStyle}
             Component={item.Component}
             switch={{
               value: item.switchValue || false,
@@ -326,11 +302,17 @@ const EncryptStorage = () => {
         );
       }
 
+      // For plausible deniability button, adjust corner style
+      let containerStyle = styles.encryptListItemContainer;
+      if (item.id === 'plausibleDeniability') {
+        containerStyle = { ...styles.encryptListItemContainer, ...styles.bottomRoundedItem };
+      }
+
       return (
         <PlatformListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={styles.listItemContainer}
+          containerStyle={containerStyle}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
@@ -340,7 +322,7 @@ const EncryptStorage = () => {
         />
       );
     },
-    [styles.listItemContainer, styles.sectionHeaderContainer, styles.sectionHeaderText, layout.showBorderBottom, settingsItems],
+    [styles, layout.showBorderBottom, settingsItems, state.storageIsEncryptedSwitchEnabled],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

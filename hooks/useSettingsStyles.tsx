@@ -13,6 +13,7 @@ export const useSettingsStyles = () => {
     container: {
       flex: 1,
       backgroundColor: platformColors.background,
+      paddingHorizontal: 16,
     },
     listItemContainer: {
       backgroundColor: isAndroid ? 'transparent' : platformColors.cardBackground,
@@ -25,7 +26,6 @@ export const useSettingsStyles = () => {
       height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: isAndroid ? 0 : 16, // No margin for Android settings
       // Add paddingTop for Android to prevent content overlap with header
       paddingTop: isAndroid ? 8 : 0,
     },
@@ -142,7 +142,54 @@ export const useSettingsStyles = () => {
       fontWeight: '400',
       color: '#68bbe1',
     },
+    
+    // Encryption settings specific styles
+    encryptListItemContainer: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: sizing.containerBorderRadius * 1.5,
+    },
+    topRoundedItem: {
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+      backgroundColor: platformColors.cardBackground,
+    },
+    bottomRoundedItem: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+      backgroundColor: platformColors.cardBackground,
+    },
   });
 
-  return { styles, isAndroid };
+  // Additional utility functions for conditionally applying corner styling
+  const getConditionalCornerRadius = (isFirstInGroup: boolean, isLastInGroup: boolean) => {
+    if (isFirstInGroup && !isLastInGroup) {
+      return {
+        ...styles.topRoundedItem,
+      };
+    } else if (!isFirstInGroup && isLastInGroup) {
+      return {
+        ...styles.bottomRoundedItem,
+      };
+    } else if (isFirstInGroup && isLastInGroup) {
+      return {
+        borderRadius: sizing.containerBorderRadius * 1.5,
+        backgroundColor: platformColors.cardBackground,
+      };
+    } else {
+      return {
+        borderRadius: 0,
+        backgroundColor: platformColors.cardBackground,
+      };
+    }
+  };
+
+  return { 
+    styles, 
+    isAndroid, 
+    getConditionalCornerRadius 
+  };
 };
