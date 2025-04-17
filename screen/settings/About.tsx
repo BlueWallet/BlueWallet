@@ -13,10 +13,11 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
-import branch from '../../current-branch.json';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import { useStandardIcons } from '../../hooks/useStandardIcons';
 import { usePlatformTheme } from '../../components/platformThemes';
+
+const branch = require('../../current-branch.json');
 
 interface AboutItem {
   id: string;
