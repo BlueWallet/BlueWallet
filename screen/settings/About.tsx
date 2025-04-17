@@ -355,6 +355,7 @@ const About: React.FC = () => {
       data={aboutItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
+      testID="AboutScrollView"
       ListHeaderComponent={ListHeaderComponent}
       ListFooterComponent={ListFooterComponent}
       contentContainerStyle={styles.contentContainer}
