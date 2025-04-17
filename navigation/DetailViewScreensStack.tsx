@@ -208,18 +208,18 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="Broadcast"
         component={Broadcast}
-        options={navigationStyle({ title: loc.send.create_broadcast })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.send.create_broadcast))(theme)}
       />
       <DetailViewStack.Screen
         name="IsItMyAddress"
         component={IsItMyAddress}
         initialParams={{ address: undefined }}
-        options={navigationStyle({ title: loc.is_it_my_address.title })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.is_it_my_address.title))(theme)}
       />
       <DetailViewStack.Screen
         name="GenerateWord"
         component={GenerateWord}
-        options={navigationStyle({ title: loc.autofill_word.title })(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.autofill_word.title))(theme)}
       />
       <DetailViewStack.Screen
         name="LnurlPay"

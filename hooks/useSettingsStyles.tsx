@@ -13,7 +13,6 @@ export const useSettingsStyles = () => {
     container: {
       flex: 1,
       backgroundColor: platformColors.background,
-      paddingHorizontal: 16,
     },
     listItemContainer: {
       backgroundColor: isAndroid ? 'transparent' : platformColors.cardBackground,
@@ -26,6 +25,7 @@ export const useSettingsStyles = () => {
       height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
+      marginHorizontal: isAndroid ? 0 : 16, // No margin for Android settings
       // Add paddingTop for Android to prevent content overlap with header
       paddingTop: isAndroid ? 8 : 0,
     },
@@ -80,6 +80,12 @@ export const useSettingsStyles = () => {
       color: platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
       marginBottom: 8,
+    },
+    infoTextCentered: {
+      color: platformColors.titleColor,
+      fontSize: sizing.subtitleFontSize,
+      marginBottom: 8,
+      textAlign: 'center',
     },
 
     // Item-specific styles
@@ -162,6 +168,89 @@ export const useSettingsStyles = () => {
       borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
       backgroundColor: platformColors.cardBackground,
     },
+    
+    // Spacing styles
+    spacingSmall: {
+      height: 10,
+    },
+    spacingMedium: {
+      height: 20,
+    },
+    spacingLarge: {
+      height: 40,
+    },
+    
+    // Input field styles
+    textInputContainer: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: '#d2d2d2',
+      borderBottomWidth: 0.5,
+      borderBottomColor: '#d2d2d2',
+      alignItems: 'center',
+      borderRadius: 4,
+      backgroundColor: '#f5f5f5',
+      width: '100%',
+    },
+    textInput: {
+      flex: 1,
+      padding: 8,
+      minHeight: 100,
+      color: platformColors.subtitleColor,
+    },
+    clearButton: {
+      padding: 8,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    
+    // Result display styles
+    resultText: {
+      textAlign: 'center',
+      color: platformColors.titleColor,
+    },
+    
+    // Broadcasting styles
+    broadcastWrapper: {
+      marginTop: 16,
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+    },
+    broadcastResultWrapper: {
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100%',
+      width: '100%',
+    },
+    topFormRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: 10,
+      paddingTop: 0,
+      paddingRight: 100,
+    },
+    broadcastText: {
+      padding: 8,
+      color: platformColors.subtitleColor,
+      maxHeight: 100,
+      minHeight: 100,
+      maxWidth: '100%',
+      minWidth: '100%',
+    },
+    
+    // Wallet address check styles
+    addressCheckContainer: {
+      width: '100%',
+      alignItems: 'center',
+    },
+    addressOwnershipText: {
+      marginVertical: 10,
+      textAlign: 'center',
+      color: platformColors.titleColor,
+    }
   });
 
   // Additional utility functions for conditionally applying corner styling

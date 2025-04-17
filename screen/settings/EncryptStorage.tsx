@@ -276,11 +276,12 @@ const EncryptStorage = () => {
         // Determine if this is the encrypt storage switch and if plausible deniability is visible
         const isEncryptSwitch = item.id === 'encryptStorage';
         const showPlausibleDeniability = state.storageIsEncryptedSwitchEnabled;
-        
+
         // If this is the encrypt switch and plausible deniability is shown, adjust corner style
-        const containerStyle = isEncryptSwitch && showPlausibleDeniability
-          ? { ...styles.encryptListItemContainer, ...styles.topRoundedItem }
-          : styles.encryptListItemContainer;
+        const containerStyle =
+          isEncryptSwitch && showPlausibleDeniability
+            ? { ...styles.encryptListItemContainer, ...styles.topRoundedItem }
+            : styles.encryptListItemContainer;
 
         return (
           <PlatformListItem
