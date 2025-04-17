@@ -4,7 +4,7 @@ import { usePlatformTheme, IconProps } from '../components/platformThemes';
 export const useStandardIcons = () => {
   const { dark: isDarkMode } = useTheme();
   const { layout, colors: platformColors } = usePlatformTheme();
-  
+
   const icons: Record<string, IconProps> = {
     settings: {
       type: layout.iconType,
@@ -14,7 +14,7 @@ export const useStandardIcons = () => {
     },
     currency: {
       type: layout.iconType,
-      name: layout.currencyIconName, 
+      name: layout.currencyIconName,
       color: isDarkMode ? '#7EE0A4' : '#0D682B',
       backgroundColor: isDarkMode ? 'rgba(126,224,164,0.12)' : 'rgba(13,104,43,0.15)',
     },
@@ -48,7 +48,7 @@ export const useStandardIcons = () => {
       color: isDarkMode ? '#FFFFFF' : '#444444',
       backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(68,68,68,0.15)',
     },
-    
+
     'x-twitter': {
       type: 'font-awesome-6',
       name: 'x-twitter',
@@ -73,7 +73,7 @@ export const useStandardIcons = () => {
       color: isDarkMode ? '#FFFFFF' : '#121212',
       backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(18,18,18,0.15)',
     },
-    
+
     releaseNotes: {
       type: layout.iconType,
       name: 'document-text-outline',
@@ -98,7 +98,7 @@ export const useStandardIcons = () => {
       color: isDarkMode ? '#FF8E8E' : '#FC0D44',
       backgroundColor: isDarkMode ? 'rgba(255,142,142,0.12)' : platformColors.redIconBg,
     },
-    
+
     qrCode: {
       type: layout.iconType,
       name: 'qr-code-outline',
@@ -118,12 +118,12 @@ export const useStandardIcons = () => {
       backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : platformColors.grayIconBg,
     },
   };
-  
+
   return (iconName: string): IconProps => {
     if (icons[iconName]) {
       return icons[iconName];
     }
-    
+
     return {
       name: iconName || 'alert-circle-outline',
       type: layout.iconType,

@@ -269,7 +269,6 @@ const DetailViewStackScreensStack = () => {
           headerLargeTitle: true,
           animationTypeForReplace: 'push',
           headerBlurEffect: 'regular',
-
           headerTransparent: true,
         })(theme)}
       />

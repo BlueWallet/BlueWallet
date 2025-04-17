@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -35,36 +35,12 @@ const Settings = () => {
       backgroundColor: 'rgba(0,0,0,0.05)',
       marginLeft: 16,
     },
-    sectionHeader: {
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      height: 48,
-      justifyContent: 'center',
-    },
-    sectionHeaderText: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: platformColors.subtitleColor,
-      textTransform: 'uppercase',
-    },
   });
 
   const renderSeparator = isAndroid ? <View style={localStyles.separator} /> : null;
 
-  const renderSectionHeader = (title: string) => {
-    if (!isAndroid) return null;
-
-    return (
-      <View style={localStyles.sectionHeader}>
-        <Text style={localStyles.sectionHeaderText}>{title}</Text>
-      </View>
-    );
-  };
-
   return (
     <SafeAreaScrollView testID="SettingsRoot" style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {isAndroid && renderSectionHeader(loc.settings.header)}
-
       <View style={localStyles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
@@ -142,7 +118,6 @@ const Settings = () => {
         />
       </View>
 
-      {isAndroid && renderSectionHeader(loc.settings.tools)}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.tools}
@@ -160,7 +135,6 @@ const Settings = () => {
         />
       </View>
 
-      {isAndroid && renderSectionHeader(loc.settings.about)}
       <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
