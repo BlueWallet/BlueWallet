@@ -1,4 +1,4 @@
-import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { StackActions, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
@@ -20,7 +20,6 @@ const PsbtMultisigQRCode = () => {
   const { psbtBase64, isShowOpenScanner } = params;
   const [isLoading, setIsLoading] = useState(false);
   const dynamicQRCode = useRef();
-  const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
@@ -35,14 +34,6 @@ const PsbtMultisigQRCode = () => {
     },
   });
   const fileName = `${Date.now()}.psbt`;
-
-  useEffect(() => {
-    if (isFocused) {
-      dynamicQRCode.current?.startAutoMove();
-    } else {
-      dynamicQRCode.current?.stopAutoMove();
-    }
-  }, [isFocused]);
 
   const onBarScanned = useCallback(
     ret => {

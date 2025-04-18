@@ -62,6 +62,7 @@ const LNDCreateInvoiceRoot = () => {
           headerShown: false,
           statusBarHidden: true,
           presentation: 'fullScreenModal',
+          freezeOnBlur: true,
           headerShadowVisible: false,
         })(theme)}
       />
