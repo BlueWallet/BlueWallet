@@ -15,14 +15,11 @@ const WalletsAddMultisig = lazy(() => import('../screen/wallets/WalletsAddMultis
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
 
-export const AddComponent: React.FC = () => {
-  console.log('Rendering AddComponent wrapper');
-  return (
-    <Suspense fallback={<LazyLoadingIndicator />}>
-      <WalletsAdd />
-    </Suspense>
-  );
-};
+export const AddComponent: React.FC = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <WalletsAdd />
+  </Suspense>
+);
 
 export const ImportWalletDiscoveryComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
