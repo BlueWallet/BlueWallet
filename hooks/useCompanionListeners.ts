@@ -28,6 +28,7 @@ import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 
+
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',

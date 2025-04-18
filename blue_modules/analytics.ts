@@ -13,21 +13,22 @@ const BlueApp = BlueAppClass.getInstance();
 let userHasOptedOut: boolean = false;
 
 (async () => {
+  // Don't try to start Bugsnag again as it's already initialized in native code
+  // Just configure the existing instance if tracking is allowed
   const uniqueID = await getUniqueId();
   const doNotTrack = await BlueApp.isDoNotTrackEnabled();
 
   if (doNotTrack) {
-    // dont start Bugsnag at all
+    userHasOptedOut = true;
     return;
   }
 
-  Bugsnag.start({
-    user: {
-      id: uniqueID,
-    },
-    onError: function (event) {
-      return !userHasOptedOut;
-    },
+  // Configure the existing Bugsnag instance instead of starting a new one
+  Bugsnag.setUser(uniqueID);
+
+  // Add additional configuration if needed
+  Bugsnag.addOnError(function (event) {
+    return !userHasOptedOut;
   });
 })();
 

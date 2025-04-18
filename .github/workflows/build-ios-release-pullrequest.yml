@@ -93,7 +93,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -233,8 +232,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
-
+          
       - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
@@ -45,7 +44,6 @@
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		849047CA2702A32A008EE567 /* Handoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849047C92702A32A008EE567 /* Handoff.swift */; };
 		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
-		B409AB042D71DFAA00BA06F8 /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */; };
 		B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */; };
 		B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E32225841EC00428FCC /* Interface.storyboard */; };
 		B40D4E36225841ED00428FCC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
@@ -111,12 +109,11 @@
 		B440340F2BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B44034102BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B44034112BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
-		B44305BC2D6A04B2004675CC /* CustomSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B44305BB2D6A04B2004675CC /* CustomSegmentedControl.m */; };
 		B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
-		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
+		B461B852299599F800E431AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.swift */; };
 		B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E982CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E992CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
@@ -146,9 +143,8 @@
 		B49A28BC2CD18999006B08E4 /* CompactPriceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */; };
 		B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
 		B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */; };
-		B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
-		B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033E82BCC371A00162242 /* MarketData.swift */; };
+		B4AA75242DAA339E00CF5CBE /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */; };
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
@@ -166,7 +162,7 @@
 		B4D59C272D8C5D6F00B7025B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C262D8C5D6E00B7025B /* main.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -227,20 +223,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BlueWallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BlueWallet/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BlueWallet/main.m; sourceTree = "<group>"; };
 		1AE7FA8B4A18928E917F42D1 /* Pods-BlueWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet.debug.xcconfig"; path = "Target Support Files/Pods-BlueWallet/Pods-BlueWallet.debug.xcconfig"; sourceTree = "<group>"; };
 		1DD63E4B5C8344BB9880C9EC /* libReactNativePermissions.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativePermissions.a; sourceTree = "<group>"; };
 		253243E162CE4822BF3A3B7D /* libRNRandomBytes-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNRandomBytes-tvOS.a"; sourceTree = "<group>"; };
 		2654894D4DE44A4C8F71773D /* CoreData.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3271B0AA236E2E0700DA766F /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
-		32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BlueWallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		32B5A3292334450100F8D608 /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
 		32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BlueWalletRelease.entitlements; path = BlueWallet/BlueWalletRelease.entitlements; sourceTree = "<group>"; };
 		32F0A2502310B0910095C559 /* BlueWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BlueWallet.entitlements; path = BlueWallet/BlueWallet.entitlements; sourceTree = "<group>"; };
@@ -319,7 +312,6 @@
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
-		B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MenuElementsEmitter.m; path = MenuElementsEmitter/MenuElementsEmitter.m; sourceTree = SOURCE_ROOT; };
 		B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuElementsEmitter.swift; path = MenuElementsEmitter/MenuElementsEmitter.swift; sourceTree = SOURCE_ROOT; };
 		B40D4E30225841EC00428FCC /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B40D4E33225841EC00428FCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -354,11 +346,9 @@
 		B44033F82BCC379200162242 /* WidgetDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataStore.swift; sourceTree = "<group>"; };
 		B44033FF2BCC37F800162242 /* Bundle+decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+decode.swift"; sourceTree = "<group>"; };
 		B440340E2BCC40A400162242 /* fiatUnits.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnits.json; path = ../../../models/fiatUnits.json; sourceTree = "<group>"; };
-		B44305BB2D6A04B2004675CC /* CustomSegmentedControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomSegmentedControl.m; sourceTree = "<group>"; };
 		B450109B2C0FCD8A00619044 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		B4549F352B82B10D002E3153 /* ci_post_clone.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
-		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
-		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
+		B461B851299599F800E431AA /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = BlueWallet/AppDelegate.swift; sourceTree = "<group>"; };
 		B4742E962CCDBE8300380EEE /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B4742E9C2CCDC31300380EEE /* en_US */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en_US; path = en_US.lproj/Interface.strings; sourceTree = "<group>"; };
 		B4793DBA2CEDACBD00C92C2E /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
@@ -366,6 +356,7 @@
 		B4793DC02CEDACE700C92C2E /* WalletType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletType.swift; sourceTree = "<group>"; };
 		B4793DC22CEDAD4400C92C2E /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
+		B48283572DA0DE02007EEC62 /* BlueWallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BlueWallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		B48630D02CCEE3B300A8425C /* PriceIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceIntent.swift; sourceTree = "<group>"; };
 		B48630D52CCEE67100A8425C /* PriceWidgetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetProvider.swift; sourceTree = "<group>"; };
 		B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceWidgetEntry.swift; sourceTree = "<group>"; };
@@ -374,10 +365,11 @@
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B49A28BA2CD18999006B08E4 /* CompactPriceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompactPriceView.swift; sourceTree = "<group>"; };
 		B49A28BD2CD189B0006B08E4 /* FiatUnitEnum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnitEnum.swift; sourceTree = "<group>"; };
+		B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MenuElementsEmitter.m; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
-		B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegmentedControl.swift; sourceTree = "<group>"; };
+		B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomSegmentedControl.swift; path = SegmentedControl/CustomSegmentedControl.swift; sourceTree = "<group>"; };
 		B4B3EC232D69FF8700327F3D /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
 		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
 		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
@@ -410,7 +402,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -468,19 +460,16 @@
 		13B07FAE1A68108700A75B9A /* BlueWallet */ = {
 			isa = PBXGroup;
 			children = (
-				B461B850299599F800E431AA /* AppDelegate.h */,
-				B461B851299599F800E431AA /* AppDelegate.mm */,
+				B461B851299599F800E431AA /* AppDelegate.swift */,
 				32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */,
 				32F0A2502310B0910095C559 /* BlueWallet.entitlements */,
-				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				13B07FB71A68108700A75B9A /* main.m */,
 				32B5A3292334450100F8D608 /* Bridge.swift */,
-				32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */,
 				6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */,
 				84E05A832721191B001A0D3A /* Settings.bundle */,
 				B4742E962CCDBE8300380EEE /* Localizable.xcstrings */,
+				B48283572DA0DE02007EEC62 /* BlueWallet-Bridging-Header.h */,
 			);
 			name = BlueWallet;
 			sourceTree = "<group>";
@@ -650,15 +639,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B409AB072D71E07C00BA06F8 /* MenuElementsEmitter */ = {
-			isa = PBXGroup;
-			children = (
-				B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */,
-				B409AB032D71DFAA00BA06F8 /* MenuElementsEmitter.m */,
-			);
-			path = MenuElementsEmitter;
-			sourceTree = "<group>";
-		};
 		B40D4E31225841EC00428FCC /* BlueWalletWatch */ = {
 			isa = PBXGroup;
 			children = (
@@ -761,15 +741,6 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		B44305BD2D6A04B9004675CC /* SegmentedControl */ = {
-			isa = PBXGroup;
-			children = (
-				B44305BB2D6A04B2004675CC /* CustomSegmentedControl.m */,
-				B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */,
-			);
-			path = SegmentedControl;
-			sourceTree = "<group>";
-		};
 		B450109A2C0FCD7E00619044 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -782,9 +753,10 @@
 		B45010A12C1504E900619044 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				B409AB072D71E07C00BA06F8 /* MenuElementsEmitter */,
-				B44305BD2D6A04B9004675CC /* SegmentedControl */,
+				B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */,
 				B4B3EC232D69FF8700327F3D /* EventEmitter.swift */,
+				B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */,
+				B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */,
 				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
 			);
 			path = Components;
@@ -1110,9 +1082,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1148,9 +1124,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1168,23 +1148,19 @@
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B48630E82CCEE92400A8425C /* PriceWidget.swift in Sources */,
 				B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */,
-				B49A28C12CD199FC006B08E4 /* SwiftTCPClient.swift in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
-				B409AB042D71DFAA00BA06F8 /* MenuElementsEmitter.m in Sources */,
 				B48630E52CCEE8B800A8425C /* PriceView.swift in Sources */,
 				B48630E72CCEE91900A8425C /* PriceWidgetProvider.swift in Sources */,
 				B4B3EC252D69FF8700327F3D /* EventEmitter.swift in Sources */,
-				B49A28C02CD199C7006B08E4 /* MarketAPI+Electrum.swift in Sources */,
 				B48630ED2CCEEEB000A8425C /* WalletAppShortcuts.swift in Sources */,
 				B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
-				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
+				B461B852299599F800E431AA /* AppDelegate.swift in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
 				B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */,
+				B4AA75242DAA339E00CF5CBE /* MenuElementsEmitter.m in Sources */,
 				B49A28BF2CD18A9A006B08E4 /* FiatUnitEnum.swift in Sources */,
-				B44305BC2D6A04B2004675CC /* CustomSegmentedControl.m in Sources */,
 				B44033C42BCC332400162242 /* Balance.swift in Sources */,
 				B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,

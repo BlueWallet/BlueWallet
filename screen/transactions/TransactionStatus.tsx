@@ -293,16 +293,14 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
-  const handleBackButton = () => {
-    goBack();
-    return true;
-  };
-
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      goBack();
+      return true;
+    });
 
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      subscription.remove();
       clearInterval(fetchTxInterval.current);
       fetchTxInterval.current = undefined;
     };
