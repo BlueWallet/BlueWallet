@@ -522,4 +522,12 @@ export class AbstractWallet {
 
     return parseInt(hexValue, 16);
   }
+
+  getMasterFingerprint(): number {
+    return this.masterFingerprint;
+  }
+
+  setMasterFingerprint(mfp: number): void {
+    this.masterFingerprint = mfp;
+  }
 }
