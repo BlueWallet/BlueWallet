@@ -266,10 +266,10 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'default',
-          headerLargeTitle: true,
+          headerLargeTitle: Platform.OS === 'ios',
           animationTypeForReplace: 'push',
           headerBlurEffect: 'regular',
-          headerTransparent: true,
+          headerTransparent: Platform.OS === 'ios',
         })(theme)}
       />
       <DetailViewStack.Screen
