@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
+import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
@@ -16,7 +16,7 @@ const App = () => {
   useLogger(navigationRef);
 
   return (
-    <LargeScreenProvider>
+    <SizeClassProvider>
       <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
         <SafeAreaProvider>
           <StorageProvider>
@@ -26,7 +26,7 @@ const App = () => {
           </StorageProvider>
         </SafeAreaProvider>
       </NavigationContainer>
-    </LargeScreenProvider>
+    </SizeClassProvider>
   );
 };
 

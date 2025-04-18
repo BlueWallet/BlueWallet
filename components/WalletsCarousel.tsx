@@ -20,7 +20,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { BlueSpacing10 } from '../BlueComponents';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
@@ -67,9 +67,9 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const { isLargeScreen } = useIsLargeScreen();
+  const { isLarge } = useSizeClass();
   const nStylesHooks = StyleSheet.create({
-    container: isLargeScreen
+    container: isLarge
       ? {
           paddingHorizontal: 24,
           marginVertical: 16,
@@ -102,7 +102,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       onPress={onPress}
       testID="CreateAWallet"
       style={({ pressed }) => [
-        isLargeScreen ? {} : { width: itemWidth * 1.2 },
+        isLarge ? {} : { width: itemWidth * 1.2 },
         {
           opacity: pressed ? 0.9 : 1.0,
         },
@@ -115,7 +115,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
           nStyles.container,
           nStylesHooks.container,
           { backgroundColor: WalletGradient.createWallet() },
-          isLargeScreen ? {} : { width: itemWidth },
+          isLarge ? {} : { width: itemWidth },
           { transform: [{ scale }] },
         ]}
       >
@@ -229,7 +229,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-    const { isLargeScreen } = useIsLargeScreen();
+    const { sizeClass } = useSizeClass();
 
     const springConfig = useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
     const animateScale = useCallback(
@@ -330,7 +330,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     return (
       <Animated.View
         style={[
-          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
+          sizeClass === SizeClass.Large || !horizontal
+            ? [iStyles.rootLargeDevice, customStyle]
+            : (customStyle ?? { ...iStyles.root, width: itemWidth }),
           {
             opacity: opacityValue,
             transform: [{ scale: scaleValue }, { translateY: translateYValue }],
@@ -416,20 +418,14 @@ type FlatListRefType = FlatList<any> & {
   getNativeScrollRef(): View;
 };
 
-const cStyles = StyleSheet.create({
-  content: {
-    paddingTop: 16,
-  },
-  contentLargeScreen: {
-    paddingHorizontal: 16,
-  },
-  separatorStyle: {
+const styles = StyleSheet.create({
+  listHeaderSeparator: {
     width: 16,
     height: 20,
   },
 });
 
-const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
+const ListHeaderSeparator = () => <View style={styles.listHeaderSeparator} />;
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
   const {
@@ -459,6 +455,8 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const flatListRef = useRef<FlatList<any>>(null);
   const walletRefs = useRef<Record<string, React.RefObject<View>>>({});
+
+  const { sizeClass } = useSizeClass();
 
   useImperativeHandle(ref, (): any => {
     if (isFlatList) {
@@ -706,11 +704,20 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     }
   }, [isFlatList, scrollToWalletById]); // Remove ref.current values from dependency array
 
+  const cStyles = StyleSheet.create({
+    content: {
+      paddingTop: 16,
+    },
+    contentLargeScreen: {
+      paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
+    },
+  });
+
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]} // Include lastAddedWalletId in extraData
+      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={horizontal}
@@ -723,7 +730,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       initialNumToRender={10}
       scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
-      ListHeaderComponent={ListHeaderComponent}
+      ListHeaderComponent={ListHeaderSeparator}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
