@@ -1,17 +1,21 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { isNotificationsCapable } from '../../blue_modules/notifications';
-import PlatformListItem from '../../components/PlatformListItem';
-import loc from '../../loc';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Switch, Text, TouchableOpacity, View, Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useSettings } from '../../hooks/context/useSettings';
+import { BlueStorageContext } from '../../class/storage-context';
+import loc from '../../loc';
+import PlatformListItem from '../../components/PlatformListItem';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../components/platformThemes';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
 import { useTheme } from '../../components/themes';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 
 const NetworkSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const { colors } = useTheme();
+  const isNotificationsCapable = Platform.OS !== 'web';
 
   const styles = StyleSheet.create({
     container: {

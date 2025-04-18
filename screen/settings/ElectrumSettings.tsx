@@ -13,6 +13,8 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import DefaultPreference from 'react-native-default-preference';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
 import { useTheme } from '../../components/themes';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';

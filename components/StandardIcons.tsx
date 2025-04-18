@@ -1,5 +1,5 @@
-import { usePlatformTheme } from './platformThemes';
-import { useTheme } from './themes';
+import { usePlatformTheme } from '../theme';
+import { useTheme } from '../theme';
 
 /**
  * Return standard icon configuration for a given icon key based on platform and theme

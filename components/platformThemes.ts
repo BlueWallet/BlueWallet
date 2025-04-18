@@ -73,6 +73,8 @@ export interface PlatformSizing {
   leftIconMarginRight: number;
   leftIconWidth: number;
   leftIconHeight: number;
+  contentContainerMarginHorizontal: number;
+  contentContainerPaddingHorizontal: number;
 }
 
 export interface PlatformLayout {
@@ -254,6 +256,8 @@ export const getIOSSizing = (): PlatformSizing => ({
   leftIconMarginRight: 16,
   leftIconWidth: 28,
   leftIconHeight: 28,
+  contentContainerMarginHorizontal: 16,
+  contentContainerPaddingHorizontal: 0,
 });
 
 export const getAndroidSizing = (): PlatformSizing => ({
@@ -263,23 +267,25 @@ export const getAndroidSizing = (): PlatformSizing => ({
   subtitleFontWeight: '400',
   subtitleLineHeight: 20,
   subtitlePaddingVertical: 2,
-  itemMinHeight: 56, // Material Design standard
-  iconSize: 24,
-  iconInnerSize: 20,
+  itemMinHeight: 56, // Material Design standard for single-line items
+  iconSize: 24, // Material Design standard icon size
+  iconInnerSize: 22,
   iconContainerSize: 24,
-  iconContainerBorderRadius: 0,
-  containerPaddingVertical: 16,
-  containerElevation: 1, // More visible elevation
-  containerMarginVertical: 1,
-  containerBorderRadius: 0,
-  sectionHeaderHeight: 48,
+  iconContainerBorderRadius: 0, // Flat design for Android
+  containerPaddingVertical: 8, // Reduced padding for tighter layout
+  containerElevation: 1, // Light elevation for card-like appearance
+  containerMarginVertical: 0, // No margin between items in the same section
+  containerBorderRadius: 0, // Square corners for Android
+  sectionHeaderHeight: 48, // Standard Material Design section header height
   sectionHeaderPaddingBottom: 8,
-  sectionContainerMarginBottom: 8,
+  sectionContainerMarginBottom: 16, // Space between sections
   firstSectionContainerPaddingTop: 8,
-  leftIconMarginLeft: 16,
-  leftIconMarginRight: 32,
+  leftIconMarginLeft: 16, // Material Design standard margins
+  leftIconMarginRight: 32, // More space between icon and text
   leftIconWidth: 24,
   leftIconHeight: 24,
+  contentContainerMarginHorizontal: 0, // Material Design standard horizontal margin
+  contentContainerPaddingHorizontal: 16, // Material Design standard padding
 });
 
 export const getIOSLayout = (): PlatformLayout => ({
@@ -300,20 +306,20 @@ export const getIOSLayout = (): PlatformLayout => ({
 });
 
 export const getAndroidLayout = (): PlatformLayout => ({
-  showBorderBottom: false, // Change to false for Android's flat design
-  showElevation: true,
-  showBorderRadius: false,
-  useRoundedListItems: false,
-  showIconBackground: false,
-  iconType: 'material-community', // Using material-community icons for better Android styling
-  settingsIconName: 'cog',
-  currencyIconName: 'currency-usd',
-  languageIconName: 'translate',
-  securityIconName: 'shield',
-  networkIconName: 'web',
-  toolsIconName: 'tools',
-  aboutIconName: 'information',
-  rippleEffect: true, // Make sure ripple effect is enabled
+  showBorderBottom: false, // Remove borders between items
+  showElevation: true, // Use elevation for section cards
+  showBorderRadius: false, // No rounded corners for Android
+  useRoundedListItems: false, // Flat list items for Android 
+  showIconBackground: false, // No icon backgrounds for Android's flat design
+  iconType: 'ionicon', // Using Ionicons for better compatibility
+  settingsIconName: 'settings-outline',
+  currencyIconName: 'cash-outline',
+  languageIconName: 'language-outline',
+  securityIconName: 'shield-outline', 
+  networkIconName: 'globe-outline',
+  toolsIconName: 'construct-outline',
+  aboutIconName: 'information-circle-outline',
+  rippleEffect: true, // Enable touch ripple effect
 });
 
 const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {

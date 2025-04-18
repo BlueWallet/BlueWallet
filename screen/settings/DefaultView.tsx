@@ -7,7 +7,7 @@ import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../components/platformThemes';
+import { usePlatformTheme } from '../../theme';
 import PlatformListItem from '../../components/PlatformListItem';
 
 type RootStackParamList = {

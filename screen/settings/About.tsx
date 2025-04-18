@@ -3,6 +3,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
+import { Icon } from '@rneui/themed';
 import A from '../../blue_modules/analytics';
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
@@ -14,8 +15,8 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
-import { useStandardIcons } from '../../hooks/useStandardIcons';
-import { usePlatformTheme } from '../../components/platformThemes';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
 
 const branch = require('../../current-branch.json');
 
@@ -36,7 +37,6 @@ const About: React.FC = () => {
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
   const { styles } = useSettingsStyles();
-  const getIcon = useStandardIcons();
   const { colors: platformColors } = usePlatformTheme();
 
   const localStyles = StyleSheet.create({
@@ -133,22 +133,21 @@ const About: React.FC = () => {
       {
         id: 'x',
         title: loc.settings.about_sm_x,
-        leftIcon: getIcon('x-twitter'),
-
+        leftIcon: <Icon name="x-twitter" type="fontisto" size={24} color={platformColors.textColor} />,
         onPress: handleOnXPress,
         section: 2,
       },
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: getIcon('telegram'),
+        leftIcon: <Icon name="telegram" type="fontisto" size={24} color={platformColors.textColor} />,
         onPress: handleOnTelegramPress,
         section: 2,
       },
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: getIcon('github'),
+        leftIcon: <Icon name="github" type="antdesign" size={24} color={platformColors.textColor} />,
         onPress: handleOnGithubPress,
         section: 2,
       },
@@ -185,7 +184,7 @@ const About: React.FC = () => {
       {
         id: 'releaseNotes',
         title: loc.settings.about_release_notes,
-        leftIcon: getIcon('releaseNotes'),
+        leftIcon: <Icon name="document-text-outline" type="ionicon" size={24} color={platformColors.textColor} />,
         chevron: true,
         onPress: handleOnReleaseNotesPress,
         section: 3,
@@ -193,7 +192,7 @@ const About: React.FC = () => {
       {
         id: 'licensing',
         title: loc.settings.about_license,
-        leftIcon: getIcon('licensing'),
+        leftIcon: <Icon name="shield-checkmark-outline" type="ionicon" size={24} color={platformColors.textColor} />,
         chevron: true,
         onPress: handleOnLicensingPress,
         section: 3,
@@ -201,7 +200,7 @@ const About: React.FC = () => {
       {
         id: 'selfTest',
         title: loc.settings.about_selftest,
-        leftIcon: getIcon('selfTest'),
+        leftIcon: <Icon name="flask-outline" type="ionicon" size={24} color={platformColors.textColor} />,
         chevron: true,
         onPress: handleOnSelfTestPress,
         testID: 'RunSelfTestButton',
@@ -210,7 +209,7 @@ const About: React.FC = () => {
       {
         id: 'performanceTest',
         title: loc.settings.run_performance_test,
-        leftIcon: getIcon('performance'),
+        leftIcon: <Icon name="speedometer-outline" type="ionicon" size={24} color={platformColors.textColor} />,
         chevron: true,
         onPress: handlePerformanceTest,
         section: 3,
@@ -249,30 +248,7 @@ const About: React.FC = () => {
       },
     ];
     return items;
-  }, [
-    styles.card,
-    styles.center,
-    styles.logo,
-    styles.textFree,
-    styles.textBackup,
-    styles.buildWith,
-    styles.sectionSpacing,
-    styles.footerContainer,
-    styles.footerText,
-    styles.copyToClipboard,
-    styles.copyToClipboardText,
-    handleOnRatePress,
-    getIcon,
-    handleOnXPress,
-    handleOnTelegramPress,
-    handleOnGithubPress,
-    handleOnReleaseNotesPress,
-    handleOnLicensingPress,
-    handleOnSelfTestPress,
-    handlePerformanceTest,
-    width,
-    height,
-  ]);
+  }, [styles.card, styles.center, styles.logo, styles.textFree, styles.textBackup, styles.buildWith, styles.sectionSpacing, styles.footerContainer, styles.footerText, styles.copyToClipboard, styles.copyToClipboardText, handleOnRatePress, platformColors.textColor, handleOnXPress, handleOnTelegramPress, handleOnGithubPress, handleOnReleaseNotesPress, handleOnLicensingPress, handleOnSelfTestPress, handlePerformanceTest, width, height]);
 
   const renderItem = useCallback(
     (props: { item: AboutItem }) => {

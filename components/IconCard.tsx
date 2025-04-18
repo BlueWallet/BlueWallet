@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar } from '@rneui/themed';
-import { usePlatformTheme } from './platformThemes';
+import { usePlatformTheme } from '../theme';
 import { useTheme } from './themes';
+import { VectorIcon } from './icons/VectorIcons';
 
 interface IconCardProps {
   iconName: string;
@@ -43,14 +43,11 @@ const IconCard: React.FC<IconCardProps> = ({ iconName, iconType, iconKey, backgr
 
   return (
     <View style={styles.iconContainer}>
-      <Avatar
-        size={sizing.iconSize}
-        icon={{
-          name: iconName,
-          type: iconType,
-          color: String(iconColor),
-          size: sizing.iconInnerSize,
-        }}
+      <VectorIcon
+        name={iconName}
+        type={iconType}
+        size={sizing.iconInnerSize}
+        color={String(iconColor)}
       />
     </View>
   );

@@ -6,7 +6,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
-import { usePlatformTheme } from '../../components/platformThemes';
+import { usePlatformTheme } from '../../theme';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
 

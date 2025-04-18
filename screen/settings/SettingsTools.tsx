@@ -1,32 +1,26 @@
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import PlatformListItem from '../../components/PlatformListItem';
+import React, { useCallback, useContext, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { BlueStorageContext } from '../../class/storage-context';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import PlatformListItem from '../../components/PlatformListItem';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { usePlatformTheme } from '../../components/platformThemes';
 import { useTheme } from '../../components/themes';
+import { useNavigation } from '@react-navigation/native';
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'SettingsTools'>;
 
 const SettingsTools = () => {
   const { navigate } = useNavigation<NavigationProps>();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, layout } = usePlatformTheme();
   const { colors } = useTheme();
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginHorizontal: 16,
-      marginBottom: sizing.sectionContainerMarginBottom,
-    },
-  });
+  const { styles } = useSettingsStyles();
 
   const navigateToIsItMyAddress = () => {
     navigate({ name: 'IsItMyAddress', params: {} });
@@ -47,7 +41,7 @@ const SettingsTools = () => {
           title={loc.is_it_my_address.title}
           leftIcon={{
             type: layout.iconType,
-            name: 'search',
+            name: 'search-outline',
             color: colors.lnborderColor,
             backgroundColor: platformColors.yellowIconBg,
           }}
@@ -64,7 +58,7 @@ const SettingsTools = () => {
           title={loc.settings.network_broadcast}
           leftIcon={{
             type: layout.iconType,
-            name: 'paper-plane',
+            name: 'paper-plane-outline',
             color: colors.buttonAlternativeTextColor,
             backgroundColor: platformColors.blueIconBg,
           }}
@@ -80,7 +74,7 @@ const SettingsTools = () => {
           title={loc.autofill_word.title}
           leftIcon={{
             type: layout.iconType,
-            name: 'key',
+            name: 'key-outline',
             color: colors.successColor,
             backgroundColor: platformColors.greenIconBg,
           }}

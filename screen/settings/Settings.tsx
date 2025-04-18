@@ -24,11 +24,11 @@ const Settings = () => {
 
   const localStyles = StyleSheet.create({
     sectionContainer: {
-      marginBottom: isAndroid ? 0 : 16,
+      marginBottom: isAndroid ? 16 : 16, // Added 16px margin for Android
     },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginBottom: isAndroid ? 0 : 16,
+      marginBottom: isAndroid ? 16 : 16, // Added 16px margin for Android
     },
     separator: {
       height: 1,

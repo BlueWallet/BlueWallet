@@ -45,6 +45,9 @@ const Currency: React.FC = () => {
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
       minHeight: 77,
+      ...(Platform.OS === 'android' && {
+        paddingHorizontal: 16,
+      }),
     },
     infoContainer: {
       backgroundColor: platformColors.cardBackground,
@@ -61,7 +64,8 @@ const Currency: React.FC = () => {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal,
     },
     infoWrapper: {
       marginBottom: 16,

@@ -1,5 +1,6 @@
+import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { usePlatformTheme, PlatformTheme } from '../components/platformThemes';
+import { usePlatformTheme, PlatformTheme } from '../theme';
 
 /**
  * A hook that provides consistent styles for settings screens with platform-specific adjustments
@@ -12,12 +13,12 @@ export const useSettingsStyles = () => {
     // Base container styles
     container: {
       flex: 1,
-      backgroundColor: platformColors.background,
+      backgroundColor: isAndroid ? '#F1F3F4' : platformColors.background, // Android settings background color
     },
     listItemContainer: {
       backgroundColor: isAndroid ? 'transparent' : platformColors.cardBackground,
       borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      elevation: isAndroid ? 0 : layout.showElevation ? sizing.containerElevation : 0,
+      elevation: isAndroid ? 1 : layout.showElevation ? sizing.containerElevation : 0,
       marginBottom: isAndroid ? 0 : 8,
     },
     headerOffset: {
@@ -26,14 +27,21 @@ export const useSettingsStyles = () => {
     },
     contentContainer: {
       marginHorizontal: isAndroid ? 0 : 16, // No margin for Android settings
-      // Add paddingTop for Android to prevent content overlap with header
-      paddingTop: isAndroid ? 8 : 0,
+      paddingTop: isAndroid ? 0 : 0, // No padding for Android
+      paddingBottom: 16,
+    },
+    
+    // First section container - used in multiple settings screens
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginHorizontal: isAndroid ? 0 : 16,
+      marginBottom: isAndroid ? 16 : sizing.sectionContainerMarginBottom || 16,
     },
 
     // Section styles
     sectionHeaderContainer: {
       marginTop: isAndroid ? 24 : 16,
-      marginBottom: isAndroid ? 0 : 8,
+      marginBottom: isAndroid ? 8 : 8,
       paddingHorizontal: 16, 
       ...(isAndroid && {
         height: 48,
@@ -43,20 +51,13 @@ export const useSettingsStyles = () => {
     sectionHeaderText: {
       fontSize: isAndroid ? 14 : 18,
       fontWeight: isAndroid ? '500' : 'bold',
-      color: isAndroid ? platformColors.subtitleColor : platformColors.titleColor,
+      color: isAndroid ? '#5F6368' : platformColors.titleColor, // Material Design section header color
       textTransform: isAndroid ? 'uppercase' : 'none',
       marginLeft: isAndroid ? 8 : 0,
       letterSpacing: isAndroid ? 0.25 : 0,
     },
     sectionSpacing: {
       height: isAndroid ? 8 : 24, // Less spacing for Android
-    },
-
-    // Text styles
-    subtitleText: {
-      fontSize: 14,
-      color: platformColors.subtitleColor,
-      marginTop: 5,
     },
 
     // Card styles
@@ -68,30 +69,74 @@ export const useSettingsStyles = () => {
       elevation: isAndroid ? 1 : 0,
     },
 
+    // Android-specific styles
+    androidCardContainer: {
+      backgroundColor: '#FFFFFF',
+      elevation: 1,
+      marginVertical: 4,
+      marginHorizontal: 0,
+    },
+    androidSectionTitle: {
+      color: '#5F6368',
+      fontSize: 14,
+      fontWeight: '500',
+      textTransform: 'uppercase',
+      letterSpacing: 0.25,
+      marginLeft: 16,
+      marginTop: 24,
+      marginBottom: 8,
+    },
+    androidListItem: {
+      height: 56, // Material Design standard height
+      paddingHorizontal: 16,
+    },
+    androidItemSeparator: {
+      height: 1,
+      backgroundColor: '#E1E3E5', // Light gray separator
+      marginLeft: 72, // Align with text (icon width + margins)
+    },
+    androidItemTitle: {
+      fontSize: 16,
+      fontWeight: '400', // Regular weight for Android
+      color: '#202124', // Material Design primary text color
+    },
+    androidItemSubtitle: {
+      fontSize: 14,
+      fontWeight: '400',
+      color: '#5F6368', // Material Design secondary text color
+      marginTop: 2,
+    },
+    androidRippleIcon: {
+      borderRadius: 28,
+      overflow: 'hidden',
+      marginRight: 32, // More space between icon and text in Material Design
+    },
+
+    // Text styles
+    subtitleText: {
+      fontSize: 14,
+      color: isAndroid ? '#5F6368' : platformColors.subtitleColor,
+      marginTop: 5,
+    },
+
     // Info container styles
     infoContainer: {
       backgroundColor: platformColors.cardBackground,
-      margin: isAndroid ? 8 : 16,
+      margin: isAndroid ? 16 : 16,
       padding: 16,
       borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
       elevation: isAndroid ? 1 : 0,
     },
     infoText: {
-      color: platformColors.titleColor,
+      color: isAndroid ? '#202124' : platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
       marginBottom: 8,
     },
     infoTextCentered: {
-      color: platformColors.titleColor,
+      color: isAndroid ? '#202124' : platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
       marginBottom: 8,
       textAlign: 'center',
-    },
-
-    // Item-specific styles
-    itemHeight: isAndroid ? { height: 56 } : {}, // Material Design standard height
-    width24: {
-      width: 24,
     },
 
     // About screen specific styles
@@ -108,7 +153,7 @@ export const useSettingsStyles = () => {
     textFree: {
       maxWidth: 260,
       marginVertical: 24,
-      color: platformColors.subtitleColor,
+      color: isAndroid ? '#5F6368' : platformColors.subtitleColor,
       fontSize: 15,
       textAlign: 'center',
       fontWeight: '500',
@@ -119,7 +164,7 @@ export const useSettingsStyles = () => {
       fontSize: 15,
       textAlign: 'center',
       fontWeight: '500',
-      color: platformColors.titleColor,
+      color: isAndroid ? '#202124' : platformColors.titleColor,
     },
     buildWith: {
       padding: 16,
@@ -133,7 +178,7 @@ export const useSettingsStyles = () => {
       alignItems: 'center',
     },
     footerText: {
-      color: platformColors.subtitleColor,
+      color: isAndroid ? '#5F6368' : platformColors.subtitleColor,
       fontSize: 13,
       marginBottom: 4,
       textAlign: 'center',
@@ -146,115 +191,20 @@ export const useSettingsStyles = () => {
     copyToClipboardText: {
       fontSize: 13,
       fontWeight: '400',
-      color: '#68bbe1',
+      color: isAndroid ? '#1A73E8' : '#68bbe1', // Material blue for Android
     },
-    
-    // Encryption settings specific styles
-    encryptListItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-    },
-    topRoundedItem: {
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
-      backgroundColor: platformColors.cardBackground,
-    },
-    bottomRoundedItem: {
-      borderTopLeftRadius: 0,
-      borderTopRightRadius: 0,
-      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-      backgroundColor: platformColors.cardBackground,
-    },
-    
-    // Spacing styles
-    spacingSmall: {
-      height: 10,
-    },
-    spacingMedium: {
-      height: 20,
-    },
-    spacingLarge: {
-      height: 40,
-    },
-    
-    // Input field styles
-    textInputContainer: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderColor: '#d2d2d2',
-      borderBottomWidth: 0.5,
-      borderBottomColor: '#d2d2d2',
-      alignItems: 'center',
-      borderRadius: 4,
-      backgroundColor: '#f5f5f5',
-      width: '100%',
-    },
-    textInput: {
-      flex: 1,
-      padding: 8,
-      minHeight: 100,
-      color: platformColors.subtitleColor,
-    },
-    clearButton: {
-      padding: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    
-    // Result display styles
-    resultText: {
-      textAlign: 'center',
-      color: platformColors.titleColor,
-    },
-    
-    // Broadcasting styles
-    broadcastWrapper: {
-      marginTop: 16,
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-    },
-    broadcastResultWrapper: {
-      flex: 1,
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100%',
-      width: '100%',
-    },
-    topFormRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingBottom: 10,
-      paddingTop: 0,
-      paddingRight: 100,
-    },
-    broadcastText: {
-      padding: 8,
-      color: platformColors.subtitleColor,
-      maxHeight: 100,
-      minHeight: 100,
-      maxWidth: '100%',
-      minWidth: '100%',
-    },
-    
-    // Wallet address check styles
-    addressCheckContainer: {
-      width: '100%',
-      alignItems: 'center',
-    },
-    addressOwnershipText: {
-      marginVertical: 10,
-      textAlign: 'center',
-      color: platformColors.titleColor,
-    }
   });
 
   // Additional utility functions for conditionally applying corner styling
   const getConditionalCornerRadius = (isFirstInGroup: boolean, isLastInGroup: boolean) => {
+    if (isAndroid) {
+      // Android doesn't use rounded corners in settings
+      return {
+        borderRadius: 0,
+        backgroundColor: platformColors.cardBackground,
+      };
+    }
+    
     if (isFirstInGroup && !isLastInGroup) {
       return {
         ...styles.topRoundedItem,

@@ -1,12 +1,13 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Platform, StyleSheet, View, ListRenderItem } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { usePlatformTheme } from '../../components/platformThemes';
 import PlatformListItem from '../../components/PlatformListItem';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
 
 interface SettingItem {
   id: string;

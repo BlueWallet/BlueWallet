@@ -2,7 +2,6 @@ import React, { useMemo, ComponentType } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
-  OpaqueColorValue,
   Pressable,
   PressableProps,
   StyleSheet,
@@ -18,15 +17,15 @@ import {
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { usePlatformTheme } from './platformThemes';
+// Import from the new theme directory instead of components
+import { usePlatformTheme } from '../theme';
+import type { IconProps } from '../theme';
 
-interface IconProps {
-  name: string;
-  type: string;
-  color?: string | number | OpaqueColorValue;
-  size?: number;
-  backgroundColor?: string | number | OpaqueColorValue;
-}
+// Platform-specific horizontal padding constants
+const HORIZONTAL_PADDING = {
+  ios: 16,
+  android: 20,
+};
 
 interface ListItemProps {
   swipeable?: boolean;
@@ -147,9 +146,11 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   sectionId,
   sectionNumber,
 }) => {
-  const { sizing, colors, layout } = usePlatformTheme();
-  const { fontScale } = useWindowDimensions();
+  // Use the compatibility layer hook
+  const theme = usePlatformTheme();
+  const { sizing, colors, layout } = theme;
   const isAndroid = Platform.OS === 'android';
+  const { fontScale } = useWindowDimensions();
 
   // Set default component based on platform
   if (!Component) {
@@ -191,6 +192,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     containerStyle: {
       backgroundColor: colors.cardBackground,
       paddingVertical: isAndroid ? 8 : sizing.containerPaddingVertical, // Less padding for Android
+      paddingHorizontal: isAndroid ? HORIZONTAL_PADDING.android : HORIZONTAL_PADDING.ios, // Platform-specific horizontal padding
       minHeight,
       borderBottomWidth: layout.showBorderBottom && bottomDivider ? StyleSheet.hairlineWidth : 0,
       borderBottomColor: layout.showBorderBottom && bottomDivider ? colors.separatorColor || 'rgba(0,0,0,0.1)' : 'transparent',
@@ -203,7 +205,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       opacity: layout.showBorderRadius ? 0.7 : 1,
     },
     iconContainer: {
-      marginRight: isAndroid ? sizing.leftIconMarginRight * 1.5 : sizing.leftIconMarginRight, // More space between icon and text for Android
+      marginRight: isAndroid ? sizing.leftIconMarginRight : sizing.leftIconMarginRight,
       alignItems: 'center',
       justifyContent: 'center',
       width: sizing.iconContainerSize,
@@ -258,8 +260,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           style={[
             styles.iconContainerBase,
             {
-              marginLeft: isAndroid ? sizing.leftIconMarginLeft * 1.5 : sizing.leftIconMarginLeft, // More left margin for Android
-              marginRight: isAndroid ? sizing.leftIconMarginRight * 1.5 : sizing.leftIconMarginRight,
+              marginLeft: isAndroid ? sizing.leftIconMarginLeft : sizing.leftIconMarginLeft,
               width: sizing.leftIconWidth,
               height: sizing.leftIconHeight,
               borderRadius: sizing.iconContainerBorderRadius,
@@ -267,8 +268,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             stylesHook.iconContainer,
             leftIcon.backgroundColor && layout.showIconBackground
               ? {
-                  backgroundColor:
-                    typeof leftIcon.backgroundColor === 'number' ? leftIcon.backgroundColor.toString() : leftIcon.backgroundColor,
+                  backgroundColor: leftIcon.backgroundColor as string,
                 }
               : null,
           ]}
@@ -278,7 +278,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             size={sizing.iconSize}
             icon={{
               name: leftIcon.name,
-              type: leftIcon.type,
+              type: leftIcon.type || 'ionicon',
               color: leftIcon.color !== undefined ? String(leftIcon.color) : 'black',
               size: sizing.iconInnerSize,
             }}
@@ -292,7 +292,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           <View style={styles.width16} importantForAccessibility="no" />
         </>
       )}
-      <RNElementsListItem.Content>
+      <RNElementsListItem.Content style={styles.flexGrow}>
         <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
           {title}
         </RNElementsListItem.Title>
@@ -339,14 +339,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             />
           )}
           {checkmark && (
-            <RNElementsListItem.CheckBox
-              iconRight
-              containerStyle={stylesHook.containerStyle}
-              iconType="octaicon"
-              checkedIcon="check"
-              checked
-              importantForAccessibility="no"
-            />
+            <RNElementsListItem.CheckBox iconRight iconType="octaicon" checkedIcon="check" checked importantForAccessibility="no" />
           )}
         </>
       )}
@@ -402,6 +395,39 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 
   const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
   const accessibilityProps = getAccessibilityProps();
+
+  if (isAndroid && layout.rippleEffect && onPress) {
+    const androidRippleConfig = {
+      color: typeof colors.rippleColor === 'string' ? colors.rippleColor : '#CCCCCC',
+      borderless: false,
+      foreground: true,
+    };
+
+    return (
+      <TouchableNativeFeedback
+        background={TouchableNativeFeedback.Ripple(androidRippleConfig.color, androidRippleConfig.borderless)}
+        useForeground={androidRippleConfig.foreground}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        disabled={disabled}
+        accessibilityLabel={accessibilityLabel || title}
+        accessibilityRole="button"
+        accessibilityHint={accessibilityHint || (subtitle && typeof subtitle === 'string' ? subtitle : undefined)}
+        testID={testID}
+      >
+        <View
+          style={[
+            stylesHook.containerStyle,
+            dynamicContainerStyle,
+            containerStyle,
+            styles.androidRippleContainer,
+          ]}
+        >
+          {renderContent()}
+        </View>
+      </TouchableNativeFeedback>
+    );
+  }
 
   if (swipeable) {
     return (
@@ -465,6 +491,15 @@ const styles = StyleSheet.create({
   },
   transparentBackground: {
     backgroundColor: 'transparent',
+  },
+  flexGrow: {
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  androidRippleContainer: {
+    overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

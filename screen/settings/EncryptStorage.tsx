@@ -11,7 +11,8 @@ import PromptPasswordConfirmationModal, {
 import presentAlert from '../../components/Alert';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { usePlatformTheme } from '../../components/platformThemes';
+// Update to use new theme directory
+import { usePlatformTheme } from '../../theme';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import PlatformListItem from '../../components/PlatformListItem';
 

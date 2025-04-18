@@ -8,6 +8,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
 import { usePlatformTheme } from '../../components/platformThemes';
+// Update to use new theme directory
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
@@ -38,13 +39,14 @@ const Language = () => {
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
       minHeight: 77,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+      marginHorizontal: sizing.contentContainerMarginHorizontal,
     },
+
     headerOffset: {
       height: sizing.firstSectionContainerPaddingTop,
     },
-    contentContainer: {
-      marginHorizontal: 16,
-    },
+
   });
 
   const onLanguageSelect = useCallback(
@@ -74,6 +76,8 @@ const Language = () => {
         borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
         borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
         borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        paddingHorizontal: 16,
+        
       };
 
       return (
@@ -107,7 +111,6 @@ const Language = () => {
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
       removeClippedSubviews
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
