@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # You may use http://rbenv.org/ or https://rvm.io/ to install and use this version
-ruby "3.1.6"
+ruby "3.4.3"
 gem 'rubyzip', '2.4.1'
 gem 'cocoapods', '~> 1.14.3'
 gem 'activesupport', '>= 6.1.7.5', '!= 7.1.0'
