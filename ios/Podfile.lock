@@ -1985,27 +1985,6 @@ PODS:
     - Yoga
   - RNSVG (15.11.2):
     - React-Core
-  - RNVectorIcons (10.2.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.10.14.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.7.1)
@@ -2118,7 +2097,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2333,8 +2311,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
   Yoga:
@@ -2444,7 +2420,6 @@ SPEC CHECKSUMS:
   RNScreens: 5cac36d8f7b3d92fb4304abcb44c5de336413df8
   RNShare: 00cd4a8167ab0755a7645c052f4637c74d709476
   RNSVG: a07e14363aa208062c6483bad24a438d5986d490
-  RNVectorIcons: 4330d8f8f8f4184f436e0c08ae9950431ffe466e
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: feb4910aba9742cfedc059e2b2902e22ffe9954a
