@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RouteProp, useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import { BackHandler, I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueLoading, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
@@ -236,11 +236,7 @@ const LNDViewInvoice = () => {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-                  <FontAwesome
-                    name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
-                    size={18}
-                    color={colors.alternativeTextColor}
-                  />
+                  <FontAwesome5Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color={colors.alternativeTextColor} />
                 </TouchableOpacity>
               ) : undefined}
             </View>
@@ -251,7 +247,7 @@ const LNDViewInvoice = () => {
         return (
           <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
             <View style={[styles.expired, stylesHook.expired]}>
-              <FontAwesome name="times" size={50} color={colors.successCheck} />
+              <FontAwesome5Icon name="times" size={50} color={colors.successCheck} />
             </View>
             <BlueTextCentered>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueTextCentered>
           </View>

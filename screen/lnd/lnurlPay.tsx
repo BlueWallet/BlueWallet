@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -176,7 +176,7 @@ const LnurlPay: React.FC = () => {
           onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
         >
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>

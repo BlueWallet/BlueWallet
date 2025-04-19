@@ -1,7 +1,7 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import URL from 'url';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
@@ -73,7 +73,7 @@ const LnurlAuth = () => {
       {authState !== AuthState.IN_PROGRESS && (
         <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>

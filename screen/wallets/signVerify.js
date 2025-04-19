@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
@@ -184,7 +184,7 @@ const SignVerify = () => {
               text={loc.multisig.share}
               icon={
                 <View style={styles.buttonsIcon}>
-                  <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                  <FontAwesome6Icon name="external-link" size={16} color={colors.buttonAlternativeTextColor} />
                 </View>
               }
             />

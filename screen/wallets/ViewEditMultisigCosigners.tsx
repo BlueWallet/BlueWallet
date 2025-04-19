@@ -15,7 +15,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Badge, Icon } from '@rneui/themed';
+import { Badge } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {
@@ -227,7 +228,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+              <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -557,7 +558,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             actions={toolTipActions}
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+            <FontAwesome6Icon size={16} name="ellipsis-h" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
         footer={

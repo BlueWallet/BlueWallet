@@ -13,7 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -351,7 +351,7 @@ const LNDCreateInvoice = () => {
         {!isLoading && (
           <TouchableOpacity accessibilityRole="button" style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
             <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+            <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>

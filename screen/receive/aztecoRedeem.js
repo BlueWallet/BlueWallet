@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { I18nManager, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 import Azteco from '../../class/azteco';
 import presentAlert from '../../components/Alert';
@@ -120,7 +120,7 @@ export default class AztecoRedeem extends Component {
             }
           >
             <Text style={styles.selectText}>{loc.azteco.redeem}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+            <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.selectWallet2}>

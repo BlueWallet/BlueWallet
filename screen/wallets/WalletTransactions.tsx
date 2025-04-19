@@ -15,7 +15,6 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -46,6 +45,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -619,7 +619,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             }}
             icon={
               <View style={styles.receiveIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />
@@ -632,7 +632,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             testID="SendButton"
             icon={
               <View style={styles.sendIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

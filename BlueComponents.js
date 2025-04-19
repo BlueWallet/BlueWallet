@@ -1,8 +1,8 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Icon, Text } from '@rneui/themed';
+import { ActivityIndicator, Text, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from './components/themes';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -153,7 +153,7 @@ export function BlueBigCheckmark({ style = {} }) {
   const mergedStyles = { ...defaultStyles, ...style };
   return (
     <View style={mergedStyles}>
-      <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+      <FontAwesome6Icon name="check" size={50} color="#0f5cc0" />
     </View>
   );
 }

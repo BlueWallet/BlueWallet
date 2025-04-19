@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
@@ -613,7 +613,7 @@ const WalletsAddMultisigStep2 = () => {
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
           <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
           </View>
           <View style={styles.vaultKeyTextWrapper}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -692,7 +692,7 @@ const WalletsAddMultisigStep2 = () => {
             actions={toolTipActions}
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+            <FontAwesome6Icon size={16} name="ellipsis-h" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
       >
@@ -760,7 +760,7 @@ const WalletsAddMultisigStep2 = () => {
           onPress={handleOnHelpPress}
           disabled={isLoading}
         >
-          <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
+          <FontAwesome6Icon size={20} name="question-circle" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>

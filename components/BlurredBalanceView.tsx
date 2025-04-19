@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 export const BlurredBalanceView = () => {
   return (
     <View style={styles.container}>
       <View style={styles.background} />
-      <FontAwesome name="eye-slash" size={16} color="#FFFFFF" />
+      <FontAwesome6Icon name="eye-slash" size={16} color="#FFFFFF" />
     </View>
   );
 };

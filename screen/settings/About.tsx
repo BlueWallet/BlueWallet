@@ -2,8 +2,7 @@ import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
 import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
@@ -56,8 +55,8 @@ const About: React.FC = () => {
     navigate('Licensing');
   };
 
-  const handleOnTwitterPress = () => {
-    Linking.openURL('https://twitter.com/bluewalletio');
+  const handleOnXPress = () => {
+    Linking.openURL('https://x.com/bluewalletio');
   };
 
   const handleOnDiscordPress = () => {
@@ -102,12 +101,12 @@ const About: React.FC = () => {
       </BlueCard>
       <ListItem
         leftIcon={{
-          name: 'twitter',
+          name: 'x',
           type: 'font-awesome',
           color: '#1da1f2',
         }}
-        onPress={handleOnTwitterPress}
-        title={loc.settings.about_sm_twitter}
+        onPress={handleOnXPress}
+        title={loc.settings.about_sm_x}
       />
       <ListItem
         leftIcon={{
@@ -138,7 +137,7 @@ const About: React.FC = () => {
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
-            <FontAwesome5 size={22} name="github" color={colors.foregroundColor} />
+            <FontAwesome6Icon size={16} name="github" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>

@@ -10,7 +10,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import ActionSheet from '../screen/ActionSheet';
 import { useTheme } from './themes';
 import { ActionSheetOptions } from '../screen/ActionSheet.common';
@@ -156,7 +156,7 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
         <View style={styles.itemKeyUnprovidedWrapper}>
           {checked ? (
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+              <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
             </View>
           ) : circledText.length > 0 ? (
             <View style={styles.itemKeyUnprovidedWrapper}>

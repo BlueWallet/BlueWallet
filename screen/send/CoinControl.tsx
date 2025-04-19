@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
+import { Avatar, Badge, ListItem as RNElementsListItem } from '@rneui/themed';
 import {
   ActivityIndicator,
   Keyboard,
@@ -36,6 +36,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import TipBox from '../../components/TipBox';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -549,14 +550,18 @@ const CoinControl: React.FC = () => {
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
-            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-5" color={colors.buttonAlternativeTextColor} />}
+            icon={
+              <View style={styles.sendIcon}>
+                <FontAwesome6Icon name="snowflake" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+              </View>
+            }
           />
           <FButton
             onPress={handleMassUse}
             text={selected.length > 1 ? loc.cc.use_coins : loc.cc.use_coin}
             icon={
               <View style={styles.sendIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

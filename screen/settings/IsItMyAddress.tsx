@@ -7,13 +7,13 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -158,7 +158,7 @@ const IsItMyAddress: React.FC = () => {
           />
           {address.length > 0 && (
             <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-              <MaterialIcons name="close" size={20} color="#81868e" />
+              <FontAwesome6Icon name="close" size={20} color="#81868e" />
             </TouchableOpacity>
           )}
         </View>

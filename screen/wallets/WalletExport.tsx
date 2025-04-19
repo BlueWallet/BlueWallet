@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Icon } from '@rneui/themed';
 import { LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -37,7 +37,7 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
         </BlueText>
       </View>
       <View style={styles.copyRight}>
-        <Icon name="copy" type="font-awesome-5" color={colors.foregroundColor} />
+        <FontAwesome6Icon name="copy" color={colors.foregroundColor} />
       </View>
     </TouchableOpacity>
   );
@@ -48,7 +48,7 @@ const DoNotDisclose: React.FC = () => {
 
   return (
     <View style={[styles.warningBox, { backgroundColor: colors.changeText }]}>
-      <Icon type="font-awesome-5" name="exclamation-circle" color="white" />
+      <FontAwesome6Icon name="exclamation-circle" color="white" />
       <BlueText style={styles.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>
     </View>
   );

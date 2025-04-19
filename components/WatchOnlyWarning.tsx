@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+
 import loc from '../loc';
 
 interface Props {
@@ -12,9 +13,9 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss}>
-          <Icon name="close" color="white" size={20} />
+          <FontAwesome6Icon name="close" color="white" size={20} />
         </TouchableOpacity>
-        <Icon name="warning" color="#FFFF" />
+        <FontAwesome6Icon name="warning" color="#FFFF" />
         <Text style={styles.title}>{loc.transactions.watchOnlyWarningTitle}</Text>
         <Text style={styles.description}>{loc.transactions.watchOnlyWarningDescription}</Text>
       </View>
