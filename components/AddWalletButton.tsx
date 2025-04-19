@@ -5,7 +5,7 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import loc from '../loc';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 type AddWalletButtonProps = {
   onPress?: (event: GestureResponderEvent) => void;

@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import BN from 'bignumber.js';
 import {
   Alert,

@@ -13,7 +13,7 @@ import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();

@@ -3,7 +3,7 @@ import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, 
 import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
 
 import { useTheme } from './themes';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 // Update the type for the props
 interface ListItemProps {

@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, Text, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from './components/themes';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;

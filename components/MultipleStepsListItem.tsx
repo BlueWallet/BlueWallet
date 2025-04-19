@@ -10,7 +10,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import ActionSheet from '../screen/ActionSheet';
 import { useTheme } from './themes';
 import { ActionSheetOptions } from '../screen/ActionSheet.common';

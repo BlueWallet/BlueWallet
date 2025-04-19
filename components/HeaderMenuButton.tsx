@@ -3,7 +3,7 @@ import { Pressable, Platform } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
 import { Action } from './types';
-import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
