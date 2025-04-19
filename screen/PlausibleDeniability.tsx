@@ -1,6 +1,7 @@
 import React, { useReducer, useRef } from 'react';
+import { View, Text } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
+import { BlueLoading, BlueSpacing20 } from '../BlueComponents';
 import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
@@ -10,6 +11,7 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
 } from '../components/PromptPasswordConfirmationModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { useSettingsStyles } from '../hooks/useSettingsStyles';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
 
@@ -49,6 +51,7 @@ const PlausibleDeniability: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
+  const { styles } = useSettingsStyles();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
@@ -91,14 +94,14 @@ const PlausibleDeniability: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView centerContent={state.isLoading}>
+    <SafeAreaScrollView style={styles.container} centerContent={state.isLoading}>
       {state.isLoading ? (
         <BlueLoading />
       ) : (
-        <BlueCard>
-          <BlueText>{loc.plausibledeniability.help}</BlueText>
-          <BlueText />
-          <BlueText>{loc.plausibledeniability.help2}</BlueText>
+        <View style={styles.card}>
+          <Text style={styles.infoText}>{loc.plausibledeniability.help}</Text>
+          <Text />
+          <Text style={styles.infoText}>{loc.plausibledeniability.help2}</Text>
           <BlueSpacing20 />
           <Button
             testID="CreateFakeStorageButton"
@@ -106,7 +109,7 @@ const PlausibleDeniability: React.FC = () => {
             onPress={handleOnCreateFakeStorageButtonPressed}
             disabled={state.isLoading}
           />
-        </BlueCard>
+        </View>
       )}
       <PromptPasswordConfirmationModal
         ref={promptRef}

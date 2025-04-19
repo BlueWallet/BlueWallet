@@ -40,6 +40,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
+    await element(by.id('SettingsRoot')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('AboutButton')).tap();
     await element(by.id('AboutScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
@@ -182,6 +183,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.pressBack();
     await device.pressBack();
 
+    await element(by.id('SettingsRoot')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     // about
     await element(by.id('AboutButton')).tap();
     await device.pressBack();

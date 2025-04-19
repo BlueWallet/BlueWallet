@@ -72,11 +72,11 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       present: async () => {
         resetState();
         modalRef.current?.present();
-        if (modalType === MODAL_TYPES.CREATE_PASSWORD || (modalType === MODAL_TYPES.CREATE_FAKE_STORAGE && !showExplanation)) {
-          passwordInputRef.current?.focus();
-        } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
-          passwordInputRef.current?.focus();
-        }
+        // if (modalType === MODAL_TYPES.CREATE_PASSWORD || (modalType === MODAL_TYPES.CREATE_FAKE_STORAGE && !showExplanation)) {
+        //   passwordInputRef.current?.focus();
+        // } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
+        //   passwordInputRef.current?.focus();
+        // }
       },
       dismiss: async () => {
         await modalRef.current?.dismiss();
@@ -225,7 +225,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       }).start(() => {
         setShowExplanation(false);
         explanationOpacity.setValue(1); // Reset opacity for when transitioning back
-        passwordInputRef.current?.focus();
+        //   passwordInputRef.current?.focus();
       });
     };
 
@@ -328,7 +328,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       style={[styles.input, stylesHook.input]}
                       clearTextOnFocus
                       clearButtonMode="while-editing"
-                      autoFocus
                     />
                   </Animated.View>
                   {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
