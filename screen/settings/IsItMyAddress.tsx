@@ -7,7 +7,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
@@ -158,7 +158,7 @@ const IsItMyAddress: React.FC = () => {
           />
           {address.length > 0 && (
             <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-              <Icon name="close" size={20} color="#81868e" />
+              <MaterialIcons name="close" size={20} color="#81868e" />
             </TouchableOpacity>
           )}
         </View>

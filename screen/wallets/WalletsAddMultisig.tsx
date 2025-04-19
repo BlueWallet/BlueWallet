@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
@@ -100,16 +100,15 @@ const WalletsAddMultisig: React.FC = () => {
         <View style={styles.rowCenter}>
           <View style={styles.column}>
             <TouchableOpacity accessibilityRole="button" onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
-              <Icon
+              <FontAwesome5
                 name="chevron-up"
                 size={22}
-                type="font-awesome-5"
                 color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
               />
             </TouchableOpacity>
             <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
-              <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+              <FontAwesome5 name="chevron-down" size={22} color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
             </TouchableOpacity>
           </View>
 
@@ -119,11 +118,11 @@ const WalletsAddMultisig: React.FC = () => {
 
           <View style={styles.column}>
             <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
-              <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+              <FontAwesome5 name="chevron-up" size={22} color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
             </TouchableOpacity>
             <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron} testID="DecreaseN">
-              <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+              <FontAwesome5 name="chevron-down" size={22} color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
             </TouchableOpacity>
           </View>
         </View>

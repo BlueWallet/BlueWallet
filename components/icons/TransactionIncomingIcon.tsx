@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import { useTheme } from '../themes';
 
@@ -30,7 +30,7 @@ const TransactionIncomingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballIncoming, stylesHooks.ballIncoming]}>
-        <Icon name="arrow-down" size={16} type="font-awesome" color={colors.incomingForegroundColor} />
+        <FontAwesome name="arrow-down" size={16} color={colors.incomingForegroundColor} />
       </View>
     </View>
   );

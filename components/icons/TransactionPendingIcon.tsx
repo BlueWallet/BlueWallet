@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { useTheme } from '../themes';
 
@@ -29,7 +29,7 @@ const TransactionPendingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ball, stylesHook.ball]}>
-        <Icon name="more-horiz" type="material" size={16} color={colors.foregroundColor} />
+        <MaterialIcons name="more-horiz" size={16} color={colors.foregroundColor} />
       </View>
     </View>
   );

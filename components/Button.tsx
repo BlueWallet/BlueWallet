@@ -1,6 +1,10 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { useTheme } from './themes';
 
@@ -45,10 +49,32 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
     <ActivityIndicator size="small" color={textStyle.color} />
   ) : (
     <>
-      {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+      {props.icon && renderIcon(props.icon)}
       {props.title && <Text style={textStyle}>{props.title}</Text>}
     </>
   );
+
+  // Helper function to render the appropriate icon based on type
+  function renderIcon(iconProps: { name: string; type: string; color: string }) {
+    const { name, type, color } = iconProps;
+    const size = 20;
+
+    switch (type) {
+      case 'font-awesome':
+        return <FontAwesome name={name} size={size} color={color} />;
+      case 'font-awesome-5':
+        return <FontAwesome5 name={name} size={size} color={color} />;
+      case 'ionicon':
+      case 'ionicons':
+        return <Ionicons name={name} size={size} color={color} />;
+      case 'material':
+        return <MaterialIcons name={name} size={size} color={color} />;
+      case 'material-community':
+        return <MaterialCommunityIcons name={name} size={size} color={color} />;
+      default:
+        return <FontAwesome name={name} size={size} color={color} />;
+    }
+  }
 
   return props.onPress ? (
     <TouchableOpacity

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { useTheme } from '../themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -37,7 +37,7 @@ const SettingsButton = () => {
         style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         onPress={onPress}
       >
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+        <FontAwesome6 size={22} name="more-horiz" color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

@@ -3,7 +3,10 @@ import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-na
 // @ts-ignore: no declaration file yet
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
-import { Icon } from '@rneui/base';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import { isDesktop } from '../blue_modules/environment';
 // @ts-ignore: no declaration file yet
@@ -104,9 +107,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
               {Platform.OS === 'ios' ? (
-                <Icon name={torchMode ? 'flashlight-on' : 'flashlight-off'} type="font-awesome-6" color={torchMode ? '#000' : '#fff'} />
+                <FontAwesome6 name={torchMode ? 'flashlight-on' : 'flashlight-off'} color={torchMode ? '#000' : '#fff'} />
               ) : (
-                <Icon name={torchMode ? 'flash-on' : 'flash-off'} type="ionicons" color={torchMode ? '#000' : '#fff'} />
+                <Ionicons name={torchMode ? 'flash-on' : 'flash-off'} color={torchMode ? '#000' : '#fff'} />
               )}
             </Animated.View>
           </TouchableOpacity>
@@ -119,7 +122,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                  <FontAwesome name="image" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -131,7 +134,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                  <FontAwesome5 name="file-import" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -168,7 +171,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="image" type="font-awesome" color="#ffffff" />
+                  <FontAwesome name="image" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -180,7 +183,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                  <FontAwesome5 name="file-import" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -189,9 +192,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
             <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
               {Platform.OS === 'ios' ? (
-                <Icon name="cameraswitch" type="font-awesome-6" color="#ffffff" />
+                <FontAwesome6 name="cameraswitch" color="#ffffff" />
               ) : (
-                <Icon name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} type="ionicons" color="#ffffff" />
+                <Ionicons name={cameraType === CameraType.Back ? 'camera-rear' : 'camera-front'} color="#ffffff" />
               )}
             </Animated.View>
           </TouchableOpacity>
