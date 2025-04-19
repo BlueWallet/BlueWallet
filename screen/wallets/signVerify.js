@@ -184,7 +184,7 @@ const SignVerify = () => {
               text={loc.multisig.share}
               icon={
                 <View style={styles.buttonsIcon}>
-                  <FontAwesome6Icon name="external-link" size={16} color={colors.buttonAlternativeTextColor} />
+                  <FontAwesome6 name="external-link" size={16} color={colors.buttonAlternativeTextColor} />
                 </View>
               }
             />

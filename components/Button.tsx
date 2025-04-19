@@ -23,7 +23,7 @@ interface ButtonProps extends TouchableOpacityProps {
 function renderIcon(iconProps: { name: string; type: string; color: string }) {
   const { name, color } = iconProps;
   const size = 20;
-  return <FontAwesome6Icon name={name} size={size} color={color} />;
+  return <FontAwesome6 name={name} size={size} color={color} />;
 }
 
 export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, ButtonProps>((props, ref) => {

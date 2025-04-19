@@ -29,7 +29,7 @@ const TransactionOffchainIncomingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballIncomingWithoutRotate, stylesHooks.ballIncomingWithoutRotate]}>
-        <FontAwesome6Icon name="bolt" size={16} color={colors.incomingForegroundColor} />
+        <FontAwesome6 name="bolt" size={16} color={colors.incomingForegroundColor} />
       </View>
     </View>
   );

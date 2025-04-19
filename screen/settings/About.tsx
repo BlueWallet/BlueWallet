@@ -134,7 +134,7 @@ const About: React.FC = () => {
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
-            <FontAwesome6Icon size={16} name="github" color={colors.foregroundColor} />
+            <FontAwesome6 size={16} name="github" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>

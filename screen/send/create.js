@@ -104,7 +104,7 @@ const SendCreate = () => {
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity accessibilityRole="button" onPress={exportTXN}>
-          <FontAwesome6Icon size={16} name="share-alternative" type="entypo" color={colors.foregroundColor} />
+          <FontAwesome6 size={16} name="share-alternative" type="entypo" color={colors.foregroundColor} />
         </TouchableOpacity>
       ),
     });

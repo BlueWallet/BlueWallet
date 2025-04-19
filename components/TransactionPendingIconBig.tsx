@@ -17,7 +17,7 @@ export const TransactionPendingIconBig: React.FC = () => {
     <View>
       <View style={styles.boxIncoming}>
         <View style={[styles.ball, hookStyles.ball]}>
-          <FontAwesome6Icon name="more-horiz" size={100} color={colors.foregroundColor} style={styles.iconStyle} />
+          <FontAwesome6 name="more-horiz" size={100} color={colors.foregroundColor} style={styles.iconStyle} />
         </View>
       </View>
     </View>

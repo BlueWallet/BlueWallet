@@ -619,7 +619,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             }}
             icon={
               <View style={styles.receiveIcon}>
-                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6 name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />
@@ -632,7 +632,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             testID="SendButton"
             icon={
               <View style={styles.sendIcon}>
-                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6 name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

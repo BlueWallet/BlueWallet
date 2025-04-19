@@ -582,7 +582,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
 
               <View style={[styles.iconRoot, stylesHook.iconRoot]}>
                 <View style={styles.checkIcon}>
-                  <FontAwesome6Icon name="check" size={50} color={colors.successCheck} />
+                  <FontAwesome6 name="check" size={50} color={colors.successCheck} />
                 </View>
                 <View style={[styles.iconWrap, styles.margin]}>
                   {(() => {

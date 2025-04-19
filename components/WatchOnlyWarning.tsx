@@ -13,9 +13,9 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss}>
-          <FontAwesome6Icon name="close" color="white" size={20} />
+          <FontAwesome6 name="close" color="white" size={20} />
         </TouchableOpacity>
-        <FontAwesome6Icon name="warning" color="#FFFF" />
+        <FontAwesome6 name="warning" color="#FFFF" />
         <Text style={styles.title}>{loc.transactions.watchOnlyWarningTitle}</Text>
         <Text style={styles.description}>{loc.transactions.watchOnlyWarningDescription}</Text>
       </View>

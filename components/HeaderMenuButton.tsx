@@ -24,7 +24,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
         android_ripple={{ color: colors.lightButton }}
         style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
       >
-        <FontAwesome6Icon size={16} name="ellipsis" color={colors.foregroundColor} {...styleProps} />
+        <FontAwesome6 size={16} name="ellipsis" color={colors.foregroundColor} {...styleProps} />
       </Pressable>
     );
   }
@@ -41,7 +41,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       actions={menuActions}
       title={title}
     >
-      <FontAwesome6Icon size={16} name="ellipsis" color={colors.foregroundColor} {...styleProps} />
+      <FontAwesome6 size={16} name="ellipsis" color={colors.foregroundColor} {...styleProps} />
     </ToolTipMenu>
   );
 };

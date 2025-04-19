@@ -48,7 +48,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   return (
     <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity style={[styles.ball, stylesHook.ball]} onPress={onPress}>
-        <FontAwesome6Icon name="add" size={16} color={colors.foregroundColor} />
+        <FontAwesome6 name="add" size={16} color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

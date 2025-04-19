@@ -552,7 +552,7 @@ const CoinControl: React.FC = () => {
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
             icon={
               <View style={styles.sendIcon}>
-                <FontAwesome6Icon name="snowflake" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6 name="snowflake" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />
@@ -561,7 +561,7 @@ const CoinControl: React.FC = () => {
             text={selected.length > 1 ? loc.cc.use_coins : loc.cc.use_coin}
             icon={
               <View style={styles.sendIcon}>
-                <FontAwesome6Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <FontAwesome6 name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

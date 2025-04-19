@@ -30,7 +30,7 @@ const TransactionOutgoingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoing, stylesBlueIconHooks.ballOutgoing]}>
-        <FontAwesome6Icon name="arrow-down" size={16} color={colors.outgoingForegroundColor} />
+        <FontAwesome6 name="arrow-down" size={16} color={colors.outgoingForegroundColor} />
       </View>
     </View>
   );

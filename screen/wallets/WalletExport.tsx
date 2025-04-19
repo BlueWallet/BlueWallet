@@ -37,7 +37,7 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
         </BlueText>
       </View>
       <View style={styles.copyRight}>
-        <FontAwesome6Icon name="copy" color={colors.foregroundColor} />
+        <FontAwesome6 name="copy" color={colors.foregroundColor} />
       </View>
     </TouchableOpacity>
   );
@@ -48,7 +48,7 @@ const DoNotDisclose: React.FC = () => {
 
   return (
     <View style={[styles.warningBox, { backgroundColor: colors.changeText }]}>
-      <FontAwesome6Icon name="exclamation-circle" color="white" />
+      <FontAwesome6 name="exclamation-circle" color="white" />
       <BlueText style={styles.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>
     </View>
   );

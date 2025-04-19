@@ -156,7 +156,7 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
         <View style={styles.itemKeyUnprovidedWrapper}>
           {checked ? (
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
+              <FontAwesome6 size={24} name="check" color={colors.msSuccessCheck} />
             </View>
           ) : circledText.length > 0 ? (
             <View style={styles.itemKeyUnprovidedWrapper}>

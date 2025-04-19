@@ -20,7 +20,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
 
   const RightButton = (
     <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
-      <FontAwesome6Icon name="ellipsis" size={16} color="#FFFFFF" />
+      <FontAwesome6 name="ellipsis" size={16} color="#FFFFFF" />
     </TouchableOpacity>
   );
 

@@ -118,7 +118,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {leftIcon && (
           <>
             <View style={styles.width16} />
-            <FontAwesome6Icon name={leftIcon.name} size={22} color={leftIcon.color} />
+            <FontAwesome6 name={leftIcon.name} size={22} color={leftIcon.color} />
             <View style={styles.width16} />
           </>
         )}

@@ -6,7 +6,7 @@ export const BlurredBalanceView = () => {
   return (
     <View style={styles.container}>
       <View style={styles.background} />
-      <FontAwesome6Icon name="eye-slash" size={16} color="#FFFFFF" />
+      <FontAwesome6 name="eye-slash" size={16} color="#FFFFFF" />
     </View>
   );
 };

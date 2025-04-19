@@ -37,7 +37,7 @@ const SettingsButton = () => {
         style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         onPress={onPress}
       >
-        <FontAwesome6Icon size={16} name="ellipsis" color={colors.foregroundColor} />
+        <FontAwesome6 size={16} name="ellipsis" color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

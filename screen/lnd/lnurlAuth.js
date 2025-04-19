@@ -73,7 +73,7 @@ const LnurlAuth = () => {
       {authState !== AuthState.IN_PROGRESS && (
         <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
+          <FontAwesome6 name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>

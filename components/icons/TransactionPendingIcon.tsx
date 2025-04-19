@@ -29,7 +29,7 @@ const TransactionPendingIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ball, stylesHook.ball]}>
-        <FontAwesome6Icon name="ellipsis" size={16} color={colors.foregroundColor} />
+        <FontAwesome6 name="ellipsis" size={16} color={colors.foregroundColor} />
       </View>
     </View>
   );

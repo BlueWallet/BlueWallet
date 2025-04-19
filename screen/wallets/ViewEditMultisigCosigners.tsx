@@ -228,7 +228,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
+              <FontAwesome6 size={24} name="check" color={colors.msSuccessCheck} />
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -558,7 +558,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             actions={toolTipActions}
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
-            <FontAwesome6Icon size={16} name="ellipsis-h" color={colors.foregroundColor} />
+            <FontAwesome6 size={16} name="ellipsis-h" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
         footer={

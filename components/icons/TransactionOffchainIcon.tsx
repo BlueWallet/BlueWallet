@@ -29,7 +29,7 @@ const TransactionOffchainIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingWithoutRotate, stylesHooks.ballOutgoingWithoutRotate]}>
-        <FontAwesome6Icon name="bolt" size={16} color={colors.outgoingForegroundColor} />
+        <FontAwesome6 name="bolt" size={16} color={colors.outgoingForegroundColor} />
       </View>
     </View>
   );

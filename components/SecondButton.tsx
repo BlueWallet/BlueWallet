@@ -33,7 +33,7 @@ export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>
     <ActivityIndicator size="small" color={colors.buttonTextColor} />
   ) : (
     <View style={styles.view}>
-      {props.icon && <FontAwesome6Icon name={props.icon.name} color={props.icon.color} />}
+      {props.icon && <FontAwesome6 name={props.icon.name} color={props.icon.color} />}
       {props.title && <Text style={[styles.text, { color: fontColor }]}>{props.title}</Text>}
     </View>
   );

@@ -158,7 +158,7 @@ const IsItMyAddress: React.FC = () => {
           />
           {address.length > 0 && (
             <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-              <FontAwesome6Icon name="close" size={20} color="#81868e" />
+              <FontAwesome6 name="close" size={20} color="#81868e" />
             </TouchableOpacity>
           )}
         </View>

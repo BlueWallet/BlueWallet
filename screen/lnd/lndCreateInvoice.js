@@ -351,7 +351,7 @@ const LNDCreateInvoice = () => {
         {!isLoading && (
           <TouchableOpacity accessibilityRole="button" style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
             <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <FontAwesome6Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
+            <FontAwesome6 name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>

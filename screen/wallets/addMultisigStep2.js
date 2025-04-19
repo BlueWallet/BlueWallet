@@ -613,7 +613,7 @@ const WalletsAddMultisigStep2 = () => {
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
           <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <FontAwesome6Icon size={24} name="check" color={colors.msSuccessCheck} />
+            <FontAwesome6 size={24} name="check" color={colors.msSuccessCheck} />
           </View>
           <View style={styles.vaultKeyTextWrapper}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -692,7 +692,7 @@ const WalletsAddMultisigStep2 = () => {
             actions={toolTipActions}
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
-            <FontAwesome6Icon size={16} name="ellipsis-h" color={colors.foregroundColor} />
+            <FontAwesome6 size={16} name="ellipsis-h" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
       >
@@ -760,7 +760,7 @@ const WalletsAddMultisigStep2 = () => {
           onPress={handleOnHelpPress}
           disabled={isLoading}
         >
-          <FontAwesome6Icon size={20} name="question-circle" color={colors.foregroundColor} />
+          <FontAwesome6 size={20} name="question-circle" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>

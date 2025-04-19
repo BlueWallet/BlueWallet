@@ -103,7 +103,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         <View style={styles.topButtons}>
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
-              <FontAwesome6Icon size={22} name="bolt" color={torchMode ? '#000' : '#fff'} />
+              <FontAwesome6 size={22} name="bolt" color={torchMode ? '#000' : '#fff'} />
             </Animated.View>
           </TouchableOpacity>
           <View style={styles.rightButtonsContainer}>
@@ -115,7 +115,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6Icon name="image" color="#ffffff" size={22} />
+                  <FontAwesome6 name="image" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -127,7 +127,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6Icon name="file-import" color="#ffffff" size={22} />
+                  <FontAwesome6 name="file-import" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -164,7 +164,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6Icon name="image" color="#ffffff" size={22} />
+                  <FontAwesome6 name="image" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -176,7 +176,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6Icon name="file-import" color="#ffffff" size={22} />
+                  <FontAwesome6 name="file-import" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -184,7 +184,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         ) : (
           <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
             <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-              <FontAwesome6Icon name="camera-rotate" color="#ffffff" size={22} />
+              <FontAwesome6 name="camera-rotate" color="#ffffff" size={22} />
             </Animated.View>
           </TouchableOpacity>
         )}

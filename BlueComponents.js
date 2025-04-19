@@ -153,7 +153,7 @@ export function BlueBigCheckmark({ style = {} }) {
   const mergedStyles = { ...defaultStyles, ...style };
   return (
     <View style={mergedStyles}>
-      <FontAwesome6Icon name="check" size={50} color="#0f5cc0" />
+      <FontAwesome6 name="check" size={50} color="#0f5cc0" />
     </View>
   );
 }
