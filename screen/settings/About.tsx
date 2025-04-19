@@ -101,9 +101,8 @@ const About: React.FC = () => {
       </BlueCard>
       <ListItem
         leftIcon={{
-          name: 'x',
-          type: 'font-awesome',
-          color: '#1da1f2',
+          name: 'x-twitter',
+          color: '#000000',
         }}
         onPress={handleOnXPress}
         title={loc.settings.about_sm_x}
@@ -111,7 +110,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'telegram',
-          type: 'font-awesome',
           color: '#0088cc',
         }}
         onPress={handleOnTelegramPress}
@@ -120,7 +118,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'discord',
-          type: 'font-awesome-5',
           color: '#7289da',
         }}
         onPress={handleOnDiscordPress}
@@ -145,7 +142,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'book',
-          type: 'font-awesome',
           color: '#9AA0AA',
         }}
         chevron
@@ -154,8 +150,7 @@ const About: React.FC = () => {
       />
       <ListItem
         leftIcon={{
-          name: 'balance-scale',
-          type: 'font-awesome',
+          name: 'id-card',
           color: colors.foregroundColor,
         }}
         chevron
@@ -165,7 +160,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'flask',
-          type: 'font-awesome',
           color: '#FC0D44',
         }}
         chevron
@@ -176,7 +170,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'flask',
-          type: 'font-awesome',
           color: '#FC0D44',
         }}
         chevron
