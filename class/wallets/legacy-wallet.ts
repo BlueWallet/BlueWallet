@@ -470,7 +470,7 @@ export class LegacyWallet extends AbstractWallet {
     sanitizedOutputs.forEach(output => {
       const outputData = {
         address: output.address,
-        value: output.value,
+        value: BigInt(output.value),
       };
 
       psbt.addOutput(outputData);

@@ -2,6 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDSegwitBech32Wallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Bech32 Segwit HD (BIP84)', () => {
   it('can create', async function () {
@@ -243,7 +244,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     assert.strictEqual(outputs.length, 2);
 
-    const actualFeerate = psbt.getFee() / tx.virtualSize();
+    const actualFeerate = Number(psbt.getFee()) / tx.virtualSize();
     assert.strictEqual(
       Math.round(actualFeerate) >= 10 && actualFeerate <= 11,
       true,
@@ -286,15 +287,15 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     const decodedTx = bitcoin.Transaction.fromHex(tx.toHex());
     // console.log(decodedTx.outs);
 
-    assert.strictEqual(decodedTx.outs[0].value, 546); // first output - destination
-    assert.strictEqual(decodedTx.outs[1].value, 0); // second output - op_return
+    assert.strictEqual(decodedTx.outs[0].value, 546n); // first output - destination
+    assert.strictEqual(decodedTx.outs[1].value, 0n); // second output - op_return
     assert.ok(decodedTx.outs[2].value > 0); // third output - change
 
-    assert.strictEqual(decodedTx.outs[1].script.toString('hex'), '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'); // custom script that we are passing
+    assert.strictEqual(uint8ArrayToHex(decodedTx.outs[1].script), '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'); // custom script that we are passing
 
     // console.log(outputs);
 
-    const actualFeerate = psbt.getFee() / tx.virtualSize();
+    const actualFeerate = Number(psbt.getFee()) / tx.virtualSize();
     assert.strictEqual(
       Math.round(actualFeerate) >= 150 && actualFeerate < 151,
       true,

@@ -1244,7 +1244,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         address: output.address,
         // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
         script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
-        value: output.value,
+        value: BigInt(output.value),
         bip32Derivation:
           change && path && pubkey
             ? [
@@ -1299,7 +1299,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ],
       witnessUtxo: {
         script: p2wpkh.output,
-        value: input.value,
+        value: BigInt(input.value),
       },
     });
 
