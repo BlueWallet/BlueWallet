@@ -6,7 +6,7 @@ gem 'rubyzip', '2.4.1'
 gem 'cocoapods', '~> 1.14.3'
 gem 'activesupport', '>= 6.1.7.5', '!= 7.1.0'
 gem "fastlane", "~> 2.227.0"
-gem 'xcodeproj', '< 1.26.0'
+gem 'xcodeproj', '< 1.27.1'
 gem 'concurrent-ruby', '< 1.3.4'
 
 # Required for App Store Connect API
