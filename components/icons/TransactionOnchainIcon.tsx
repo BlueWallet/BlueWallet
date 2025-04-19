@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
 
 import { useTheme } from '../themes';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 const styles = StyleSheet.create({
   boxIncoming: {
@@ -30,7 +30,7 @@ const TransactionOnchainIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballIncoming, stylesBlueIconHooks.ballIncoming]}>
-        <Icon name="link" size={16} type="font-awesome" color={colors.incomingForegroundColor} />
+        <FontAwesome6 name="link" size={16} color={colors.incomingForegroundColor} />
       </View>
     </View>
   );

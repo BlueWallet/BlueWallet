@@ -3,7 +3,7 @@ import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/
 import { Keyboard, Image, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Icon } from '@rneui/base';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -106,12 +106,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               testID="ModalShareButton"
               key="ModalShareButton"
             >
-              <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
-                size={20}
-                color={colors.buttonTextColor}
-              />
+              <FontAwesome6 name={Platform.OS === 'android' ? 'share' : 'file-upload'} size={20} color={colors.buttonTextColor} />
             </SaveFileButton>,
           );
         } else if (shareButtonOnPress) {
@@ -122,12 +117,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               style={[styles.topRightButton, stylesHook.barButton]}
               onPress={shareButtonOnPress}
             >
-              <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
-                size={20}
-                color={colors.buttonTextColor}
-              />
+              <FontAwesome6 name={Platform.OS === 'android' ? 'share' : 'file-upload'} size={20} color={colors.buttonTextColor} />
             </TouchableOpacity>,
           );
         }

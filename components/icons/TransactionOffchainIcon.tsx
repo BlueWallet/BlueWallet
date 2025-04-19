@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 import { useTheme } from '../themes';
 
@@ -29,7 +29,7 @@ const TransactionOffchainIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingWithoutRotate, stylesHooks.ballOutgoingWithoutRotate]}>
-        <Icon name="bolt" size={16} type="font-awesome" color={colors.outgoingForegroundColor} />
+        <FontAwesome6 name="bolt" size={16} color={colors.outgoingForegroundColor} />
       </View>
     </View>
   );

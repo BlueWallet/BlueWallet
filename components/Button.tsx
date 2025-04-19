@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
-
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { useTheme } from './themes';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -18,6 +17,13 @@ interface ButtonProps extends TouchableOpacityProps {
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
   showActivityIndicator?: boolean;
+}
+
+// Helper function to render the appropriate icon based on type
+function renderIcon(iconProps: { name: string; type: string; color: string }) {
+  const { name, color } = iconProps;
+  const size = 20;
+  return <FontAwesome6 name={name} size={size} color={color} />;
 }
 
 export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, ButtonProps>((props, ref) => {
@@ -45,7 +51,7 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
     <ActivityIndicator size="small" color={textStyle.color} />
   ) : (
     <>
-      {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+      {props.icon && renderIcon(props.icon)}
       {props.title && <Text style={textStyle}>{props.title}</Text>}
     </>
   );

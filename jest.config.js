@@ -10,4 +10,7 @@ module.exports = {
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],
   setupFilesAfterEnv: ['./tests/setupAfterEnv.js'],
+  moduleNameMapper: {
+    '\\.(ttf)$': '<rootDir>/__mocks__/file-mock.js',
+  },
 };

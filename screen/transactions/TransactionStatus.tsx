@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'reac
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -581,8 +581,8 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
               {renderTXCounterparty()}
 
               <View style={[styles.iconRoot, stylesHook.iconRoot]}>
-                <View>
-                  <Icon name="check" size={50} type="font-awesome" color={colors.successCheck} />
+                <View style={styles.checkIcon}>
+                  <FontAwesome6 name="check" size={50} color={colors.successCheck} />
                 </View>
                 <View style={[styles.iconWrap, styles.margin]}>
                   {(() => {
@@ -716,6 +716,10 @@ const styles = StyleSheet.create({
   },
   eta: {
     alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkIcon: {
     alignItems: 'center',
     justifyContent: 'center',
   },

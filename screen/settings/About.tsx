@@ -2,7 +2,7 @@ import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import { Icon } from '@rneui/themed';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
 import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
@@ -55,8 +55,8 @@ const About: React.FC = () => {
     navigate('Licensing');
   };
 
-  const handleOnTwitterPress = () => {
-    Linking.openURL('https://twitter.com/bluewalletio');
+  const handleOnXPress = () => {
+    Linking.openURL('https://x.com/bluewalletio');
   };
 
   const handleOnDiscordPress = () => {
@@ -101,17 +101,15 @@ const About: React.FC = () => {
       </BlueCard>
       <ListItem
         leftIcon={{
-          name: 'twitter',
-          type: 'font-awesome',
-          color: '#1da1f2',
+          name: 'x-twitter',
+          color: '#000000',
         }}
-        onPress={handleOnTwitterPress}
-        title={loc.settings.about_sm_twitter}
+        onPress={handleOnXPress}
+        title={loc.settings.about_sm_x}
       />
       <ListItem
         leftIcon={{
           name: 'telegram',
-          type: 'font-awesome',
           color: '#0088cc',
         }}
         onPress={handleOnTelegramPress}
@@ -120,7 +118,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'discord',
-          type: 'font-awesome-5',
           color: '#7289da',
         }}
         onPress={handleOnDiscordPress}
@@ -137,7 +134,7 @@ const About: React.FC = () => {
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
-            <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
+            <FontAwesome6 size={16} name="github" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>
@@ -145,7 +142,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'book',
-          type: 'font-awesome',
           color: '#9AA0AA',
         }}
         chevron
@@ -154,8 +150,7 @@ const About: React.FC = () => {
       />
       <ListItem
         leftIcon={{
-          name: 'balance-scale',
-          type: 'font-awesome',
+          name: 'id-card',
           color: colors.foregroundColor,
         }}
         chevron
@@ -165,7 +160,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'flask',
-          type: 'font-awesome',
           color: '#FC0D44',
         }}
         chevron
@@ -176,7 +170,6 @@ const About: React.FC = () => {
       <ListItem
         leftIcon={{
           name: 'flask',
-          type: 'font-awesome',
           color: '#FC0D44',
         }}
         chevron
