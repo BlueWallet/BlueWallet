@@ -11,10 +11,8 @@ import PromptPasswordConfirmationModal, {
 import presentAlert from '../../components/Alert';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-// Update to use new theme directory
-import { usePlatformTheme } from '../../theme';
-import { useSettingsStyles } from '../../hooks/useSettingsStyles';
 import PlatformListItem from '../../components/PlatformListItem';
+import { useNativePlatformTheme } from '../../theme';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -84,8 +82,7 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const { layout } = usePlatformTheme();
-  const { styles } = useSettingsStyles();
+  const { layout, styles } = useNativePlatformTheme();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const initializeState = useCallback(async () => {
@@ -273,17 +270,31 @@ const EncryptStorage = () => {
       const isFirstInSection = indexInSection === 0;
       const isLastInSection = indexInSection === currentSectionItems.length - 1;
 
+      // Apply corner radius styles for first and last items in a section
+      const containerStyle = [
+        styles.listItemContainer,
+        isFirstInSection && styles.topRoundedItem,
+        isLastInSection && styles.bottomRoundedItem,
+      ];
+
+      // Adjust styles dynamically based on plausible deniability visibility
+      if (item.id === 'encryptStorage' || item.id === 'plausibleDeniability') {
+        const isPlausibleDeniabilityVisible = items.some(i => i.id === 'plausibleDeniability');
+        if (item.id === 'encryptStorage') {
+          if (!isPlausibleDeniabilityVisible) {
+            containerStyle.push(styles.bottomRoundedItem);
+          } else {
+            containerStyle.push(styles.topRoundedItem);
+          }
+        }
+        if (item.id === 'plausibleDeniability') {
+          if (isPlausibleDeniabilityVisible) {
+            containerStyle.push(styles.bottomRoundedItem);
+          }
+        }
+      }
+
       if (item.isSwitch) {
-        // Determine if this is the encrypt storage switch and if plausible deniability is visible
-        const isEncryptSwitch = item.id === 'encryptStorage';
-        const showPlausibleDeniability = state.storageIsEncryptedSwitchEnabled;
-
-        // If this is the encrypt switch and plausible deniability is shown, adjust corner style
-        const containerStyle =
-          isEncryptSwitch && showPlausibleDeniability
-            ? { ...styles.encryptListItemContainer, ...styles.topRoundedItem }
-            : styles.encryptListItemContainer;
-
         return (
           <PlatformListItem
             title={item.title}
@@ -304,12 +315,6 @@ const EncryptStorage = () => {
         );
       }
 
-      // For plausible deniability button, adjust corner style
-      let containerStyle = styles.encryptListItemContainer;
-      if (item.id === 'plausibleDeniability') {
-        containerStyle = { ...styles.encryptListItemContainer, ...styles.bottomRoundedItem };
-      }
-
       return (
         <PlatformListItem
           title={item.title}
@@ -324,7 +329,7 @@ const EncryptStorage = () => {
         />
       );
     },
-    [styles, layout.showBorderBottom, settingsItems, state.storageIsEncryptedSwitchEnabled],
+    [styles, layout.showBorderBottom, settingsItems],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

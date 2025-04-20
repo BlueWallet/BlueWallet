@@ -11,9 +11,9 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
 } from '../components/PromptPasswordConfirmationModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import { useSettingsStyles } from '../hooks/useSettingsStyles';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
+import { useNativePlatformTheme } from '../theme';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -51,7 +51,7 @@ const PlausibleDeniability: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
-  const { styles } = useSettingsStyles();
+  const { styles } = useNativePlatformTheme();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });

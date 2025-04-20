@@ -1,12 +1,12 @@
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { usePlatformTheme, PlatformTheme } from '../theme';
+import { NativePlatformTheme, useNativePlatformTheme } from '../theme';
 
 /**
  * A hook that provides consistent styles for settings screens with platform-specific adjustments
  */
 export const useSettingsStyles = () => {
-  const { colors: platformColors, sizing, layout }: PlatformTheme = usePlatformTheme();
+  const { colors: platformColors, sizing, layout }: NativePlatformTheme = useNativePlatformTheme();
   const isAndroid = Platform.OS === 'android';
 
   const styles = StyleSheet.create({
@@ -14,6 +14,7 @@ export const useSettingsStyles = () => {
     container: {
       flex: 1,
       backgroundColor: isAndroid ? '#F1F3F4' : platformColors.background, // Android settings background color
+      marginHorizontal: sizing.containerMarginHorizontal,
     },
     listItemContainer: {
       backgroundColor: isAndroid ? 'transparent' : platformColors.cardBackground,
