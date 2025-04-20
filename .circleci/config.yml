@@ -3,7 +3,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/node:20.17.0
+      - image: cimg/node:22.14.0
 
     working_directory: ~/repo
 
@@ -13,7 +13,7 @@ jobs:
       - restore_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || npm ci
 
       - save_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
@@ -26,7 +26,7 @@ jobs:
 
   unit:
     docker:
-      - image: cimg/node:20.17.0
+      - image: cimg/node:22.14.0
 
     working_directory: ~/repo
 
@@ -36,7 +36,7 @@ jobs:
       - restore_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || npm ci
 
       - save_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
@@ -50,7 +50,7 @@ jobs:
 
   integration:
     docker:
-      - image: cimg/node:20.17.0
+      - image: cimg/node:22.14.0
 
     environment:
       RETRY: "1"
@@ -65,7 +65,7 @@ jobs:
       - restore_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || npm ci
 
       - save_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
