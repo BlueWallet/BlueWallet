@@ -20,18 +20,11 @@ jobs:
     - name: Specify node version
       uses: actions/setup-node@v4
       with:
-        node-version: 20
-
-    - name: Use npm caches
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-npm-
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
 
     - name: Install node_modules
-      if: steps.cache-nm.outputs.cache-hit != 'true'
       run: npm ci
 
     - name: Run tests
@@ -47,9 +40,6 @@ jobs:
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
         RETRY: 1
-
-    - name: Prune devDependencies
-      run: npm prune --omit=dev
 
   e2e:
     runs-on: ubuntu-latest
@@ -89,7 +79,10 @@ jobs:
     - name: Specify node version
       uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
 
     - name: Use gradle caches
       uses: actions/cache@v4
@@ -101,16 +94,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Use npm caches
-      uses: actions/cache@v4
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-npm-
-
     - name: Install node_modules
-      run: npm install || npm install
+      run: npm ci --omit=dev --yes
 
     - name: Use specific Java version for sdkmanager to work
       uses: actions/setup-java@v4
@@ -126,6 +111,9 @@ jobs:
 
     - name: Build
       run: npm run e2e:release-build
+
+    - name: Install dev deps needed for tests
+      run: npm i
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
