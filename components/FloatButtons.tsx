@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -122,12 +122,12 @@ const useFloatButtonAnimation = (height: number) => {
   };
 };
 
-const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
+const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
     (totalWidthNeeded: number, availableWidth: number, totalChildren: number) => {
-      if (!isLargeScreen || totalChildren <= 1) return false;
+      if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
 
       const minWidthPerButton = 130;
       const totalButtonsWidth = minWidthPerButton * totalChildren;
@@ -150,14 +150,14 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
 
       return lastVerticalDecision.current;
     },
-    [isLargeScreen],
+    [sizeClass],
   );
 
   const calculateButtonWidth = useCallback(
     (containerWidth: number, totalChildren: number): number => {
       if (containerWidth <= 0) return 0;
 
-      const drawerOffset = isLargeScreen ? LAYOUT.DRAWER_WIDTH : 0;
+      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
       const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
 
       const contentWidth = Math.ceil(containerWidth);
@@ -166,13 +166,19 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
       const totalSpacersWidth = (totalChildren - 1) * LAYOUT.BUTTON_MARGIN;
       const totalWidthNeeded = totalButtonWidth + totalSpacersWidth + LAYOUT.SAFETY_MARGIN;
 
-      const effectiveMinButtonWidth = isLargeScreen ? LAYOUT.MIN_BUTTON_WIDTH_LARGE : LAYOUT.MIN_BUTTON_WIDTH;
+      const effectiveMinButtonWidth =
+        sizeClass === SizeClass.Large
+          ? LAYOUT.MIN_BUTTON_WIDTH_LARGE
+          : sizeClass === SizeClass.Regular
+            ? LAYOUT.MIN_BUTTON_WIDTH
+            : LAYOUT.MIN_BUTTON_WIDTH * 0.85;
+
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
 
       let calculatedWidth;
 
       if (shouldBeVertical) {
-        calculatedWidth = isLargeScreen ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
+        calculatedWidth = sizeClass === SizeClass.Large ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
       } else {
         if (totalWidthNeeded > availableWidth) {
           const availableWidthPerButton = (availableWidth - totalSpacersWidth) / totalChildren;
@@ -183,8 +189,9 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
       }
 
       if (totalChildren === 1 && !shouldBeVertical) {
-        const singleButtonMaxWidth = availableWidth * 0.5;
-        const effectiveSingleMinWidth = isLargeScreen ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
+        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : 0.5);
+        const effectiveSingleMinWidth = sizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
+
         calculatedWidth = Math.max(
           effectiveSingleMinWidth - LAYOUT.PADDINGS * 2,
           Math.min(calculatedWidth, singleButtonMaxWidth - LAYOUT.PADDINGS * 2),
@@ -193,12 +200,12 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
 
       return Math.floor(calculatedWidth);
     },
-    [width, isLargeScreen, shouldUseVerticalLayout],
+    [width, sizeClass, shouldUseVerticalLayout],
   );
 
   const calculateVisualParameters = useCallback(
     (calculatedWidth: number, totalChildren: number) => {
-      const drawerOffset = isLargeScreen ? LAYOUT.DRAWER_WIDTH : 0;
+      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
       const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
 
       const buttonWidth = Math.max(calculatedWidth, LAYOUT.MIN_BUTTON_WIDTH_LARGE) + LAYOUT.PADDINGS * 2;
@@ -220,7 +227,7 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
 
       return { buttonRadius: multiButtonRadius, singleButtonRadius, shouldBeVertical };
     },
-    [width, isLargeScreen, shouldUseVerticalLayout],
+    [width, sizeClass, shouldUseVerticalLayout],
   );
 
   const calculateContainerHeight = useCallback((childrenCount: number, isVerticalLayout: boolean) => {
@@ -234,10 +241,10 @@ const useFloatButtonLayout = (width: number, isLargeScreen: boolean) => {
   }, []);
 
   const calculateButtonFontSize = useMemo(() => {
-    const divisor = isLargeScreen ? 22 : 24;
+    const divisor = sizeClass === SizeClass.Large ? 22 : sizeClass === SizeClass.Regular ? 24 : 28;
     const baseSize = PixelRatio.roundToNearestPixel(width / divisor);
     return Math.min(LAYOUT.MAX_BUTTON_FONT_SIZE, baseSize);
-  }, [width, isLargeScreen]);
+  }, [width, sizeClass]);
 
   return {
     calculateButtonWidth,
@@ -430,7 +437,7 @@ export const FButton = ({
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
-  const { isLargeScreen } = useIsLargeScreen();
+  const { sizeClass } = useSizeClass();
 
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const [isVertical, setIsVertical] = useState(false);
@@ -456,7 +463,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
-    isLargeScreen,
+    sizeClass,
   );
 
   const handleBorderRadiusAnimation = useCallback(
@@ -540,7 +547,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     width,
     height,
     props.children,
-    isLargeScreen,
+    sizeClass,
     calculateButtonWidth,
     calculateVisualParameters,
     handleBorderRadiusAnimation,

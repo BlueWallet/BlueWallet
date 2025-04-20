@@ -38,9 +38,7 @@ const LNDViewAdditionalInvoiceInformation: React.FC = () => {
         .fetchInfo()
         .then(() => {
           const info = wallet.info_raw;
-          // @ts-ignore: idk
-          if (info?.uris?.[0]) {
-            // @ts-ignore: idk
+          if (info && info?.uris?.[0]) {
             setWalletInfo(info);
           } else {
             presentAlert({ message: loc.errors.network });

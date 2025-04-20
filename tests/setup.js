@@ -15,10 +15,11 @@ console.warn = (...args) => {
 };
 
 const consoleLogOrig = console.log;
-console.log = (...args) => {
+console.debug = console.log = (...args) => {
   if (
     typeof args[0] === 'string' &&
     (args[0].startsWith('updating exchange rate') ||
+      args[0].startsWith('Created new currency formatter for') ||
       args[0].startsWith('begin connection') ||
       args[0].startsWith('TLS Connected to') ||
       args[0].startsWith('connected to'))
