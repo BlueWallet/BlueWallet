@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import { useTheme } from './themes';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -23,7 +23,7 @@ interface ButtonProps extends TouchableOpacityProps {
 function renderIcon(iconProps: { name: string; type: string; color: string }) {
   const { name, color } = iconProps;
   const size = 20;
-  return <FontAwesome6 name={name} size={size} color={color} />;
+  return <Icon name={name} size={size} color={color} />;
 }
 
 export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, ButtonProps>((props, ref) => {

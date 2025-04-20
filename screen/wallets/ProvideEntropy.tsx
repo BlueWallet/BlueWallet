@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import BN from 'bignumber.js';
 import {
   Alert,
@@ -200,7 +200,7 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
         <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
-              <FontAwesome6 style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" />
+              <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" />
             ) : (
               <View style={[styles.dice, stylesHook.dice]}>
                 <Text style={stylesHook.diceText}>{i + 1}</Text>
@@ -225,7 +225,7 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
       text={loc.entropy.undo}
       icon={
         <View style={styles.buttonsIcon}>
-          <FontAwesome6 name="rotate-left" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+          <Icon name="rotate-left" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
         </View>
       }
     />
@@ -234,7 +234,7 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
       text={loc.entropy.save}
       icon={
         <View style={styles.buttonsIcon}>
-          <FontAwesome6 name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+          <Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
         </View>
       }
     />
@@ -243,17 +243,17 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
 
 const TollTab = ({ active }: { active: boolean }) => {
   const { colors } = useTheme();
-  return <FontAwesome6 name="circle-notch" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
+  return <Icon name="circle-notch" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
 const D6Tab = ({ active }: { active: boolean }) => {
   const { colors } = useTheme();
-  return <FontAwesome6 name="dice" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
+  return <Icon name="dice" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
 const D20Tab = ({ active }: { active: boolean }) => {
   const { colors } = useTheme();
-  return <FontAwesome6 name="dice-d20" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
+  return <Icon name="dice-d20" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
 const ProvideEntropy = () => {

@@ -36,7 +36,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import TipBox from '../../components/TipBox';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -552,7 +552,7 @@ const CoinControl: React.FC = () => {
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
             icon={
               <View style={styles.sendIcon}>
-                <FontAwesome6 name="snowflake" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <Icon name="snowflake" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />
@@ -561,7 +561,7 @@ const CoinControl: React.FC = () => {
             text={selected.length > 1 ? loc.cc.use_coins : loc.cc.use_coin}
             icon={
               <View style={styles.sendIcon}>
-                <FontAwesome6 name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
+                <Icon name="arrow-down" size={buttonFontSize} color={colors.buttonAlternativeTextColor} />
               </View>
             }
           />

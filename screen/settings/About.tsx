@@ -2,7 +2,7 @@ import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
 import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
@@ -134,7 +134,7 @@ const About: React.FC = () => {
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
           <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
-            <FontAwesome6 size={16} name="github" color={colors.foregroundColor} />
+            <Icon size={16} name="github" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>

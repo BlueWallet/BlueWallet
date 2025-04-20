@@ -3,7 +3,7 @@ import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 // @ts-ignore: no declaration file yet
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import { isDesktop } from '../blue_modules/environment';
 // @ts-ignore: no declaration file yet
@@ -103,7 +103,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         <View style={styles.topButtons}>
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
-              <FontAwesome6 size={22} name="bolt" color={torchMode ? '#000' : '#fff'} />
+              <Icon size={22} name="bolt" color={torchMode ? '#000' : '#fff'} />
             </Animated.View>
           </TouchableOpacity>
           <View style={styles.rightButtonsContainer}>
@@ -115,7 +115,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6 name="image" color="#ffffff" size={22} />
+                  <Icon name="image" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -127,7 +127,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6 name="file-import" color="#ffffff" size={22} />
+                  <Icon name="file-import" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -164,7 +164,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onImagePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6 name="image" color="#ffffff" size={22} />
+                  <Icon name="image" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -176,7 +176,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <FontAwesome6 name="file-import" color="#ffffff" size={22} />
+                  <Icon name="file-import" color="#ffffff" size={22} />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -184,7 +184,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
         ) : (
           <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
             <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
-              <FontAwesome6 name="camera-rotate" color="#ffffff" size={22} />
+              <Icon name="camera-rotate" color="#ffffff" size={22} />
             </Animated.View>
           </TouchableOpacity>
         )}

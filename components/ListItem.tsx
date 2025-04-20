@@ -3,7 +3,7 @@ import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, 
 import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
 
 import { useTheme } from './themes';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 
 // Update the type for the props
 interface ListItemProps {
@@ -118,7 +118,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {leftIcon && (
           <>
             <View style={styles.width16} />
-            <FontAwesome6 name={leftIcon.name} size={22} color={leftIcon.color} />
+            <FontAwesome6Icon name={leftIcon.name} size={22} color={leftIcon.color} />
             <View style={styles.width16} />
           </>
         )}

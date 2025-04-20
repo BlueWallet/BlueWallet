@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import Octicons from 'react-native-vector-icons/Octicons';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 import { useTheme } from '../themes';
 
@@ -29,7 +29,7 @@ const TransactionExpiredIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingExpired, stylesHooks.ballOutgoingExpired]}>
-        <Octicons name="clock" size={16} color="#9AA0AA" />
+        <Icon name="clock" size={16} color="#9AA0AA" />
       </View>
     </View>
   );

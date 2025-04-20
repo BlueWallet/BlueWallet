@@ -95,7 +95,7 @@
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-menu/menu": "https://github.com/BlueWallet/menu.git#09a142f",
     "@react-native-vector-icons/common": "11.0.0",
-    "@react-native-vector-icons/fontawesome6": "6.7.1",
+    "@react-native-vector-icons/Icon": "6.7.1",
     "@react-native-vector-icons/material-icons": "0.0.1",
     "@react-native/gradle-plugin": "0.76.9",
     "@react-native/metro-config": "0.78.2",

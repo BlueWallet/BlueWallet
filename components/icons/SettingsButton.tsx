@@ -5,7 +5,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 const SettingsButton = () => {
   const { colors } = useTheme();
@@ -37,7 +37,7 @@ const SettingsButton = () => {
         style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
         onPress={onPress}
       >
-        <FontAwesome6 size={16} name="ellipsis" color={colors.foregroundColor} />
+        <Icon size={16} name="ellipsis" color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

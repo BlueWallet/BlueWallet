@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated } from 'react-native';
-import { Icon, ListItem } from '@rneui/base';
+import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import { ListItem } from '@rneui/base';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
@@ -56,7 +57,7 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} />
   </TouchableOpacity>
 );
 
@@ -67,7 +68,7 @@ const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) =>
     accessibilityRole="button"
     accessibilityLabel="Delete Wallet"
   >
-    <Icon name={Platform.OS === 'android' ? 'delete' : 'delete-outline'} color="#FFFFFF" />
+    <Icon name='delete-left' color="#FFFFFF" iconStyle="solid" />
   </TouchableOpacity>
 );
 

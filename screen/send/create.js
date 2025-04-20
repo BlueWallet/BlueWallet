@@ -5,7 +5,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
 import { Alert, FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import Share from 'react-native-share';
@@ -104,7 +104,7 @@ const SendCreate = () => {
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity accessibilityRole="button" onPress={exportTXN}>
-          <FontAwesome6 size={16} name="share-alternative" type="entypo" color={colors.foregroundColor} />
+          <Icon size={16} name="share-alternative" type="entypo" color={colors.foregroundColor} />
         </TouchableOpacity>
       ),
     });

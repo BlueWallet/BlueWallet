@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 import { useTheme } from './themes';
 
@@ -33,7 +33,7 @@ export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>
     <ActivityIndicator size="small" color={colors.buttonTextColor} />
   ) : (
     <View style={styles.view}>
-      {props.icon && <FontAwesome6 name={props.icon.name} color={props.icon.color} />}
+      {props.icon && <Icon name={props.icon.name} color={props.icon.color} />}
       {props.title && <Text style={[styles.text, { color: fontColor }]}>{props.title}</Text>}
     </View>
   );

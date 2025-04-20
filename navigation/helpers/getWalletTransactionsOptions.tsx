@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 import WalletGradient from '../../class/wallet-gradient';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
@@ -20,7 +20,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
 
   const RightButton = (
     <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
-      <FontAwesome6 name="ellipsis" size={16} color="#FFFFFF" />
+      <Icon name="ellipsis" size={16} color="#FFFFFF" />
     </TouchableOpacity>
   );
 

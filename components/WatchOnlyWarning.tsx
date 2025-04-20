@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 import loc from '../loc';
 
@@ -13,9 +13,9 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss }) => {
     <View style={styles.container}>
       <View style={styles.content}>
         <TouchableOpacity style={styles.dismissButton} onPress={handleDismiss}>
-          <FontAwesome6 name="close" color="white" size={20} />
+          <Icon name="close" color="white" size={20} />
         </TouchableOpacity>
-        <FontAwesome6 name="warning" color="#FFFF" />
+        <Icon name="warning" color="#FFFF" />
         <Text style={styles.title}>{loc.transactions.watchOnlyWarningTitle}</Text>
         <Text style={styles.description}>{loc.transactions.watchOnlyWarningDescription}</Text>
       </View>

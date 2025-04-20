@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, Text, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from './components/themes';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -153,7 +153,7 @@ export function BlueBigCheckmark({ style = {} }) {
   const mergedStyles = { ...defaultStyles, ...style };
   return (
     <View style={mergedStyles}>
-      <FontAwesome6 name="check" size={50} color="#0f5cc0" />
+      <Icon name="check" size={50} color="#0f5cc0" />
     </View>
   );
 }

@@ -5,7 +5,7 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import loc from '../loc';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 type AddWalletButtonProps = {
   onPress?: (event: GestureResponderEvent) => void;
@@ -48,7 +48,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   return (
     <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity style={[styles.ball, stylesHook.ball]} onPress={onPress}>
-        <FontAwesome6 name="add" size={16} color={colors.foregroundColor} />
+        <Icon name="add" size={16} color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

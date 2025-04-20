@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
+import Icon from '@react-native-vector-icons/fontawesome6';
 
 import { useTheme } from './themes';
 
@@ -17,7 +17,7 @@ export const TransactionPendingIconBig: React.FC = () => {
     <View>
       <View style={styles.boxIncoming}>
         <View style={[styles.ball, hookStyles.ball]}>
-          <FontAwesome6 name="more-horiz" size={100} color={colors.foregroundColor} style={styles.iconStyle} />
+          <Icon name="more-horiz" size={100} color={colors.foregroundColor} style={styles.iconStyle} />
         </View>
       </View>
     </View>
