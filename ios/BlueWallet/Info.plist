@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSMinimumSystemVersion</key>
-	<string>11</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>io.bluewallet.bluewallet.fetchTxsForWallet</string>
@@ -96,8 +94,6 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
-	<key>WKCompanionAppBundleIdentifier</key>
-	<string>io.bluewallet.bluewallet</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -121,6 +117,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>
+	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationCategoryType</key>
@@ -130,10 +130,23 @@
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>11</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
+	<key>NSAppIntents</key>
+	<array>
+		<dict>
+			<key>INIntentClassName</key>
+			<string>PriceView</string>
+			<key>IntentDescription</key>
+			<string>Quickly view the current Bitcoin market rate.</string>
+			<key>IntentName</key>
+			<string>Bitcoin Price</string>
+		</dict>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -171,7 +184,7 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
+	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to use FaceID please confirm your permission.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -204,37 +217,20 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>NSAppIntents</key>
-	<array>
-		<dict>
-			<key>INIntentClassName</key>
-			<string>PriceView</string>
-			<key>IntentName</key>
-			<string>Bitcoin Price</string>
-			<key>IntentDescription</key>
-			<string>Quickly view the current Bitcoin market rate.</string>
-		</dict>
-	</array>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~iphone</key>
-	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
@@ -317,6 +313,8 @@
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.text</string>
@@ -336,18 +334,14 @@
 					<string>application/json</string>
 				</array>
 			</dict>
-			<key>LSHandlerRank</key>
-			<string>Alternate</string>
 		</dict>
 	</array>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>io.bluewallet.bluewallet</string>
 	<key>bugsnag</key>
 	<dict>
 		<key>apiKey</key>
 		<string>17ba9059f676f1cc4f45d98182388b01</string>
 	</dict>
-	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
-	<false/>
-	<key>FIREBASE_MESSAGING_AUTO_INIT_ENABLED</key>
-	<false/>
 </dict>
 </plist>
