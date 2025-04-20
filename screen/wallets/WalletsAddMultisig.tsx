@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
