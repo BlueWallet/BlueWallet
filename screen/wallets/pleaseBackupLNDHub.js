@@ -24,10 +24,6 @@ const PleaseBackupLNDHub = () => {
   const dismiss = useCallback(() => {
     navigation.getParent().goBack();
   }, [navigation]);
-  const handleBackButton = useCallback(() => {
-    dismiss();
-    return true;
-  }, [dismiss]);
   const styles = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -46,12 +42,16 @@ const PleaseBackupLNDHub = () => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
     }
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      dismiss();
+      return true;
+    });
+
     return () => {
       disableScreenProtect();
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      subscription.remove();
     };
-  }, [handleBackButton, isPrivacyBlurEnabled]);
+  }, [dismiss, isPrivacyBlurEnabled]);
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
