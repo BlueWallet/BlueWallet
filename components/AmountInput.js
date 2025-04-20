@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Badge, Text } from '@rneui/themed';
+import { Image, Text, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Badge, Icon } from '@rneui/themed';
 
 import {
   fiatToBTC,
@@ -341,7 +341,7 @@ class AmountInput extends Component {
                 disabled={this.state.isRateBeingUpdated}
                 style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
               >
-                {/* <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} /> */}
+                <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
               </TouchableOpacity>
             </View>
           )}

@@ -1,5 +1,6 @@
-import { Platform, StyleSheet, PlatformColor, useColorScheme, Appearance, OpaqueColorValue, View, Text } from 'react-native';
-import { useTheme } from '../theme';
+import React from 'react';
+import { Platform, StyleSheet, PlatformColor, Appearance, OpaqueColorValue, View, Text } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 // ===============================================
 // Types & Interfaces from platformThemes
@@ -193,7 +194,7 @@ const getIOSColors = (): PlatformColors => {
     yellowIconBg: 'rgba(255, 149, 0, 0.12)',
     redIconBg: 'rgba(255, 59, 48, 0.12)',
     grayIconBg: 'rgba(142, 142, 147, 0.12)',
-    
+
     rippleColor: 'rgba(0, 0, 0, 0.2)',
     switchTrackColorFalse: PlatformColor('systemFill'),
     switchTrackColorTrue: PlatformColor('systemGreen'),
@@ -237,7 +238,7 @@ const getAndroidColors = (): PlatformColors => {
 
     // Material Design ripple color
     rippleColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
-    
+
     // Material Design switch colors
     switchTrackColorFalse: isDark ? '#6E6E6E' : '#E0E0E0',
     switchTrackColorTrue: isDark ? 'rgba(187, 134, 252, 0.5)' : 'rgba(98, 0, 238, 0.5)',
@@ -327,13 +328,13 @@ export const getAndroidLayout = (): PlatformLayout => ({
   showBorderBottom: false, // Remove borders between items
   showElevation: true, // Use elevation for section cards
   showBorderRadius: false, // No rounded corners for Android
-  useRoundedListItems: false, // Flat list items for Android 
+  useRoundedListItems: false, // Flat list items for Android
   showIconBackground: false, // No icon backgrounds for Android's flat design
   iconType: 'ionicon', // Using Ionicons for better compatibility
   settingsIconName: 'settings-outline',
   currencyIconName: 'cash-outline',
   languageIconName: 'language-outline',
-  securityIconName: 'shield-outline', 
+  securityIconName: 'shield-outline',
   networkIconName: 'globe-outline',
   toolsIconName: 'construct-outline',
   aboutIconName: 'information-circle-outline',
@@ -609,8 +610,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
  * Merges functionality from platformThemes, useStandardIcons, and useSettingsStyles
  */
 export const usePlatformStyles = () => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
   const { dark } = useTheme();
   const isAndroid = Platform.OS === 'android';
 
@@ -636,37 +635,13 @@ export const usePlatformStyles = () => {
   // StyleSheet from useSettingsStyles
   const styles = StyleSheet.create({
     // Base container styles
-    container: {
-      flex: 1,
-      backgroundColor: isAndroid ? '#F1F3F4' : colors.background,
-    },
-    listItemContainer: {
-      backgroundColor: isAndroid ? 'transparent' : colors.cardBackground,
-      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      elevation: isAndroid ? 1 : layout.showElevation ? sizing.containerElevation : 0,
-      marginBottom: isAndroid ? 0 : 8,
-    },
-    headerOffset: {
-      height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: isAndroid ? 0 : 16,
-      paddingTop: isAndroid ? 0 : 0,
-      paddingBottom: 16,
-    },
-    
-    // First section container - used in multiple settings screens
-    firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginHorizontal: isAndroid ? 0 : 16,
-      marginBottom: sizing.sectionContainerMarginBottom || 16,
-    },
+   
 
     // Section styles
     sectionHeaderContainer: {
       marginTop: isAndroid ? 24 : 16,
       marginBottom: isAndroid ? 8 : 8,
-      paddingHorizontal: 16, 
+      paddingHorizontal: 16,
       ...(isAndroid && {
         height: 48,
         justifyContent: 'center',
@@ -680,144 +655,9 @@ export const usePlatformStyles = () => {
       marginLeft: isAndroid ? 8 : 0,
       letterSpacing: isAndroid ? 0.25 : 0,
     },
-    sectionSpacing: {
-      height: isAndroid ? 8 : 24,
-    },
 
-    // Card styles
-    card: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      padding: 16,
-      marginVertical: 8,
-      elevation: isAndroid ? 1 : 0,
-    },
+ 
 
-    // Android-specific styles
-    androidCardContainer: {
-      backgroundColor: '#FFFFFF',
-      elevation: 1,
-      marginVertical: 4,
-      marginHorizontal: 0,
-    },
-    androidSectionTitle: {
-      color: '#5F6368',
-      fontSize: 14,
-      fontWeight: '500',
-      textTransform: 'uppercase',
-      letterSpacing: 0.25,
-      marginLeft: 16,
-      marginTop: 24,
-      marginBottom: 8,
-    },
-    androidListItem: {
-      height: 56,
-      paddingHorizontal: 16,
-    },
-    androidItemSeparator: {
-      height: 1,
-      backgroundColor: '#E1E3E5',
-      marginLeft: 72,
-    },
-    androidItemTitle: {
-      fontSize: 16,
-      fontWeight: '400',
-      color: '#202124',
-    },
-    androidItemSubtitle: {
-      fontSize: 14,
-      fontWeight: '400',
-      color: '#5F6368',
-      marginTop: 2,
-    },
-    androidRippleIcon: {
-      borderRadius: 28,
-      overflow: 'hidden',
-      marginRight: 32,
-    },
-
-    // Text styles
-    subtitleText: {
-      fontSize: 14,
-      color: isAndroid ? '#5F6368' : colors.subtitleColor,
-      marginTop: 5,
-    },
-
-    // Info container styles
-    infoContainer: {
-      backgroundColor: colors.cardBackground,
-      margin: isAndroid ? 16 : 16,
-      padding: 16,
-      borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
-      elevation: isAndroid ? 1 : 0,
-    },
-    infoText: {
-      color: isAndroid ? '#202124' : colors.titleColor,
-      fontSize: sizing.subtitleFontSize,
-      marginBottom: 8,
-    },
-    infoTextCentered: {
-      color: isAndroid ? '#202124' : colors.titleColor,
-      fontSize: sizing.subtitleFontSize,
-      marginBottom: 8,
-      textAlign: 'center',
-    },
-
-    // About screen specific styles
-    center: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 24,
-      marginBottom: 24,
-    },
-    logo: {
-      width: 102,
-      height: 124,
-    },
-    textFree: {
-      maxWidth: 260,
-      marginVertical: 24,
-      color: isAndroid ? '#5F6368' : colors.subtitleColor,
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
-    },
-    textBackup: {
-      maxWidth: 260,
-      marginBottom: 40,
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
-      color: isAndroid ? '#202124' : colors.titleColor,
-    },
-    buildWith: {
-      padding: 16,
-      paddingTop: 0,
-      borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
-      backgroundColor: colors.cardBackground,
-      elevation: isAndroid ? 1 : 0,
-    },
-    footerContainer: {
-      padding: 16,
-      alignItems: 'center',
-    },
-    footerText: {
-      color: isAndroid ? '#5F6368' : colors.subtitleColor,
-      fontSize: 13,
-      marginBottom: 4,
-      textAlign: 'center',
-    },
-    copyToClipboard: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    copyToClipboardText: {
-      fontSize: 13,
-      fontWeight: '400',
-      color: isAndroid ? '#1A73E8' : '#68bbe1',
-    },
-    
     // Rounded item styles
     topRoundedItem: {
       borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
@@ -833,46 +673,32 @@ export const usePlatformStyles = () => {
       borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
       backgroundColor: colors.cardBackground,
     },
-    
+
     // Item separator
     separator: {
       height: 1,
       backgroundColor: 'rgba(0,0,0,0.1)',
       marginLeft: isAndroid ? 72 : 16,
     },
-    
-    // Section container
-    sectionContainer: {
-      marginBottom: isAndroid ? 16 : 16,
-      marginTop: isAndroid ? 8 : 0,
-    },
-    
-    // Item container
-    itemContainer: {
-      backgroundColor: colors.cardBackground,
-      marginHorizontal: isAndroid ? 0 : 16,
-      borderRadius: isAndroid ? 0 : sizing.containerBorderRadius,
-      elevation: isAndroid ? 1 : 0,
-      marginBottom: isAndroid ? 0 : 1,
-      overflow: 'hidden',
-    },
+
+  
   });
 
   /**
    * Get icon props for a specific icon key
    */
-  const getIcon = (iconName: string): IconProps => {
+  const getIcon = (iconName: keyof StandardIconSet): IconProps => {
     const icons = platformTheme.getStandardIcons(dark);
-    
-    if (icons[iconName]) {
+
+    if (iconName in icons) {
       return icons[iconName];
     }
 
     return {
-      name: iconName || 'information-circle-outline',
+      name: 'information-circle-outline',
       type: 'ionicon',
-      color: dark ? '#FFFFFF' : (isAndroid ? '#5F6368' : colors.grayIcon),
-      backgroundColor: isAndroid ? 'transparent' : (dark ? 'rgba(255,255,255,0.12)' : colors.grayIconBg),
+      color: dark ? '#FFFFFF' : isAndroid ? '#5F6368' : colors.grayIcon,
+      backgroundColor: isAndroid ? 'transparent' : dark ? 'rgba(255,255,255,0.12)' : colors.grayIconBg,
     };
   };
 
@@ -886,7 +712,7 @@ export const usePlatformStyles = () => {
         backgroundColor: colors.cardBackground,
       };
     }
-    
+
     if (isFirstInGroup && !isLastInGroup) {
       return styles.topRoundedItem;
     } else if (!isFirstInGroup && isLastInGroup) {
@@ -909,7 +735,7 @@ export const usePlatformStyles = () => {
    */
   const renderSectionHeader = (title: string) => {
     if (!isAndroid) return null;
-    
+
     return (
       <View style={styles.sectionHeaderContainer}>
         <Text style={styles.sectionHeaderText}>{title}</Text>
@@ -928,16 +754,16 @@ export const usePlatformStyles = () => {
     sizing,
     layout,
     platformTheme,
-    
+
     // Styles
     styles,
-    
+
     // Utility functions
     getIcon,
     getConditionalCornerRadius,
     renderSectionHeader,
     renderSeparator,
-    
+
     // Platform info
     isAndroid,
     isDarkMode: dark,

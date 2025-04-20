@@ -3,7 +3,7 @@ import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-na
 // @ts-ignore: no declaration file yet
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit';
 import loc from '../loc';
-// import { Icon } from '@rneui/base';
+import { Icon } from '@rneui/base';
 import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import { isDesktop } from '../blue_modules/environment';
 // @ts-ignore: no declaration file yet
