@@ -104,21 +104,21 @@ const Settings = () => {
         {renderSeparator}
 
         <PlatformListItem
-          title={loc.settings.plausible_deniability}
-          leftIcon={securityIcon}
+          title={loc.settings.network}
+          leftIcon={networkIcon}
           containerStyle={{
             backgroundColor: platformColors.cardBackground,
             ...(isAndroid && { height: 56 }),
           }}
-          onPress={() => navigate('PlausibleDeniability')}
-          testID="PlausibleDeniabilityButton"
+          onPress={() => navigate('NetworkSettings')}
+          testID="NetworkSettings"
           chevron
           bottomDivider={false}
           isLast
         />
       </View>
 
-      <View style={[localStyles.sectionContainer, { borderRadius: sizing.containerBorderRadius * 1.5 }]}>
+      <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.tools}
           leftIcon={toolsIcon}
