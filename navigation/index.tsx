@@ -195,6 +195,7 @@ const MainRoot = () => {
             options={{
               headerShown: false,
               statusBarHidden: true,
+              orientation: 'portrait',
               presentation: 'fullScreenModal',
             }}
           />

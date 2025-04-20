@@ -13,7 +13,7 @@ import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel from '../../components/WalletsCarousel';
-import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -96,7 +96,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
-  const { isLargeScreen } = useIsLargeScreen();
+  const { sizeClass, isLarge } = useSizeClass();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
@@ -117,7 +117,7 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
-      paddingTop: isLargeScreen ? 8 : 0,
+      paddingTop: sizeClass === SizeClass.Large ? 8 : 0,
     },
     listHeaderText: {
       color: colors.foregroundColor,
@@ -215,11 +215,11 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     // new wallet added - no longer auto-scrolls
-    if (!isLargeScreen) {
+    if (!isLarge) {
       // Just update the count, no scrolling
       walletsCount.current = wallets.length;
     }
-  }, [isLargeScreen, wallets]);
+  }, [isLarge, wallets]);
 
   const onBarScanned = useCallback(
     (value: any) => {
@@ -330,19 +330,19 @@ const WalletsList: React.FC = () => {
     (item: { section: any; item: ExtendedTransaction }) => {
       switch (item.section.key) {
         case WalletsListSections.CAROUSEL:
-          return isLargeScreen ? null : renderWalletsCarousel();
+          return sizeClass === SizeClass.Large ? null : renderWalletsCarousel();
         case WalletsListSections.TRANSACTIONS:
           return renderTransactionListsRow(item.item);
         default:
           return null;
       }
     },
-    [isLargeScreen, renderTransactionListsRow, renderWalletsCarousel],
+    [sizeClass, renderTransactionListsRow, renderWalletsCarousel],
   );
 
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
-      if (isLargeScreen) {
+      if (sizeClass === SizeClass.Large) {
         return null;
       }
 
@@ -360,7 +360,7 @@ const WalletsList: React.FC = () => {
           return null;
       }
     },
-    [isLargeScreen, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
+    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
   );
 
   const renderSectionFooter = useCallback(
@@ -462,16 +462,16 @@ const WalletsList: React.FC = () => {
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section
-    if (isLargeScreen) {
+    if (sizeClass === SizeClass.Large) {
       return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
     }
 
-    // On small screens, show both carousel and transactions
+    // On smaller screens, show both carousel and transactions
     return [
       { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
       { key: WalletsListSections.TRANSACTIONS, data: dataSource },
     ];
-  }, [isLargeScreen, dataSource]);
+  }, [sizeClass, dataSource]);
 
   // Constants for layout calculations
   const TRANSACTION_ITEM_HEIGHT = 80;
@@ -480,14 +480,14 @@ const WalletsList: React.FC = () => {
   const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
 
   const getSectionHeaderHeight = useCallback(() => {
-    return SECTION_HEADER_HEIGHT + (isLargeScreen ? LARGE_TITLE_EXTRA_HEIGHT : 0);
-  }, [isLargeScreen]);
+    return SECTION_HEADER_HEIGHT + (sizeClass === SizeClass.Large ? LARGE_TITLE_EXTRA_HEIGHT : 0);
+  }, [sizeClass]);
 
   const getItemLayout = useCallback(
     (data: any, index: number) => {
       const headerHeight = getSectionHeaderHeight();
 
-      if (isLargeScreen) {
+      if (sizeClass === SizeClass.Large) {
         // On large screens: only transaction items, no carousel
         return {
           length: TRANSACTION_ITEM_HEIGHT,
@@ -495,7 +495,7 @@ const WalletsList: React.FC = () => {
           index,
         };
       } else {
-        // On small screens: first item is carousel, rest are transactions
+        // On smaller screens: first item is carousel, rest are transactions
         // First section: Carousel
         if (index === 0) {
           return {
@@ -518,7 +518,7 @@ const WalletsList: React.FC = () => {
         };
       }
     },
-    [isLargeScreen, getSectionHeaderHeight],
+    [sizeClass, getSectionHeaderHeight],
   );
 
   return (

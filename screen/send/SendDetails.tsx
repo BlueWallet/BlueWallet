@@ -95,7 +95,7 @@ const SendDetails = () => {
   const { colors } = useTheme();
 
   // state
-  const [width, setWidth] = useState(Dimensions.get('window').width);
+  const [dimensions, setDimensions] = useState({ width: Dimensions.get('window').width, height: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
@@ -350,6 +350,11 @@ const SendDetails = () => {
       return () => {};
     }, []),
   );
+
+  const handleLayout = (event: any) => {
+    const { width, height } = event.nativeEvent.layout;
+    setDimensions({ width, height });
+  };
 
   const getChangeAddressAsync = async () => {
     if (changeAddress) return changeAddress; // cache
@@ -1022,6 +1027,7 @@ const SendDetails = () => {
 
   const headerRightOnPress = useCallback(
     (id: string) => {
+      Keyboard.dismiss();
       if (id === CommonToolTipActions.AddRecipient.id) {
         handleAddRecipient();
       } else if (id === CommonToolTipActions.RemoveRecipient.id) {
@@ -1268,59 +1274,61 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={{ width }} testID={'Transaction' + index}>
-        <AmountInput
-          isLoading={isLoading}
-          amount={item.amount ? item.amount.toString() : null}
-          onAmountUnitChange={(unit: BitcoinUnit) => {
-            setAddresses(addrs => {
-              const addr = addrs[index];
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
+        <View style={styles.amountInputContainer}>
+          <AmountInput
+            isLoading={isLoading}
+            amount={item.amount ? item.amount.toString() : null}
+            onAmountUnitChange={(unit: BitcoinUnit) => {
+              setAddresses(addrs => {
+                const addr = addrs[index];
 
-              switch (unit) {
-                case BitcoinUnit.SATS:
-                  addr.amountSats = parseInt(String(addr.amount), 10);
-                  break;
-                case BitcoinUnit.BTC:
-                  addr.amountSats = btcToSatoshi(String(addr.amount));
-                  break;
-                case BitcoinUnit.LOCAL_CURRENCY:
-                  // also accounting for cached fiat->sat conversion to avoid rounding error
-                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
-                  break;
-              }
+                switch (unit) {
+                  case BitcoinUnit.SATS:
+                    addr.amountSats = parseInt(String(addr.amount), 10);
+                    break;
+                  case BitcoinUnit.BTC:
+                    addr.amountSats = btcToSatoshi(String(addr.amount));
+                    break;
+                  case BitcoinUnit.LOCAL_CURRENCY:
+                    // also accounting for cached fiat->sat conversion to avoid rounding error
+                    addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
+                    break;
+                }
 
-              addrs[index] = addr;
-              return [...addrs];
-            });
-            setAddresses(addrs => {
-              addrs[index].unit = unit;
-              return [...addrs];
-            });
-          }}
-          onChangeText={(text: string) => {
-            setAddresses(addrs => {
-              item.amount = text;
-              switch (item.unit || amountUnit) {
-                case BitcoinUnit.BTC:
-                  item.amountSats = btcToSatoshi(item.amount);
-                  break;
-                case BitcoinUnit.LOCAL_CURRENCY:
-                  item.amountSats = btcToSatoshi(fiatToBTC(Number(item.amount)));
-                  break;
-                case BitcoinUnit.SATS:
-                default:
-                  item.amountSats = parseInt(text, 10);
-                  break;
-              }
-              addrs[index] = item;
-              return [...addrs];
-            });
-          }}
-          unit={item.unit || amountUnit}
-          editable={isEditable}
-          disabled={!isEditable}
-          inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
-        />
+                addrs[index] = addr;
+                return [...addrs];
+              });
+              setAddresses(addrs => {
+                addrs[index].unit = unit;
+                return [...addrs];
+              });
+            }}
+            onChangeText={(text: string) => {
+              setAddresses(addrs => {
+                item.amount = text;
+                switch (item.unit || amountUnit) {
+                  case BitcoinUnit.BTC:
+                    item.amountSats = btcToSatoshi(item.amount);
+                    break;
+                  case BitcoinUnit.LOCAL_CURRENCY:
+                    item.amountSats = btcToSatoshi(fiatToBTC(Number(item.amount)));
+                    break;
+                  case BitcoinUnit.SATS:
+                  default:
+                    item.amountSats = parseInt(text, 10);
+                    break;
+                }
+                addrs[index] = item;
+                return [...addrs];
+              });
+            }}
+            unit={item.unit || amountUnit}
+            editable={isEditable}
+            disabled={!isEditable}
+            inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
+          />
+        </View>
 
         {frozenBalance > 0 && (
           <TouchableOpacity accessibilityRole="button" style={styles.frozenContainer} onPress={handleCoinControl}>
@@ -1330,45 +1338,50 @@ const SendDetails = () => {
           </TouchableOpacity>
         )}
 
-        <AddressInput
-          onChangeText={text => {
-            text = text.trim();
-            const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text);
-            setAddresses(addrs => {
-              item.address = address || text;
-              item.amount = amount || item.amount;
-              addrs[index] = item;
-              return [...addrs];
-            });
-            if (memo) {
-              setParams({ transactionMemo: memo });
-            }
-            setIsLoading(false);
-            setParams({ payjoinUrl: pjUrl });
-          }}
-          address={item.address}
-          isLoading={isLoading}
-          inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
-          editable={isEditable}
-          style={styles.addressInput}
-        />
+        <View style={styles.addressInputContainer}>
+          <AddressInput
+            onChangeText={text => {
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
+              setAddresses(addrs => {
+                item.address = address || text.trim();
+                item.amount = amount || item.amount;
+                addrs[index] = item;
+                return [...addrs];
+              });
+              if (memo) {
+                setParams({ transactionMemo: memo });
+              }
+              setIsLoading(false);
+              setParams({ payjoinUrl: pjUrl });
+            }}
+            address={item.address}
+            isLoading={isLoading}
+            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+            editable={isEditable}
+            style={styles.fullWidthInput}
+          />
+        </View>
+
         {addresses.length > 1 && (
-          <Text style={[styles.of, stylesHook.of]}>{loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}</Text>
+          <Text style={[styles.of, stylesHook.of, styles.ofMargin]}>
+            {loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}
+          </Text>
         )}
       </View>
     );
   };
 
   const getItemLayout = (_: any, index: number) => ({
-    length: width,
-    offset: width * index,
+    length: dimensions.width,
+    offset: dimensions.width * index,
     index,
   });
 
   return (
-    <SafeArea style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <View>
         <FlatList
+          onLayout={handleLayout}
           keyboardShouldPersistTaps="always"
           scrollEnabled={addresses.length > 1}
           data={addresses}
@@ -1489,7 +1502,9 @@ const styles = StyleSheet.create({
     marginRight: 18,
     marginVertical: 8,
   },
-
+  ofMargin: {
+    marginTop: 4,
+  },
   memo: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -1529,10 +1544,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 4,
   },
-  addressInput: {
-    marginHorizontal: 16,
-    marginVertical: 8,
+  transactionItemContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  amountInputContainer: {
+    marginBottom: 8,
+  },
+  addressInputContainer: {
+    marginTop: 8,
+  },
+  fullWidthInput: {
+    width: '100%',
   },
 });

@@ -2,7 +2,7 @@ import * as bip39 from 'bip39';
 import createHash from 'create-hash';
 
 // partial (11 or 23 word) seed phrase
-export function generateChecksumWords(stringSeedPhrase) {
+export function generateChecksumWords(stringSeedPhrase: string) {
   const seedPhrase = stringSeedPhrase.toLowerCase().trim().split(' ');
 
   if ((seedPhrase.length + 1) % 3 > 0) {
