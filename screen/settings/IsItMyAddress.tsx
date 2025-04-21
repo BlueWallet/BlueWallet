@@ -141,7 +141,7 @@ const IsItMyAddress: React.FC = () => {
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View style={styles.card}>
+      <View style={styles.isItMyAddressCard}>
         <View style={styles.textInputContainer}>
           <TextInput
             style={styles.textInput}
@@ -160,17 +160,20 @@ const IsItMyAddress: React.FC = () => {
           )}
         </View>
 
-        <View style={styles.spacingSmall} />
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-        <View style={styles.spacingMedium} />
+
+        <View style={styles.buttonSpacing} />
+
         {resultCleanAddress && (
           <>
             <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-            <View style={styles.spacingMedium} />
+            <View style={styles.buttonSpacingSmall} />
           </>
         )}
+
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
-        <View style={styles.spacingLarge} />
+
+        <View style={styles.buttonSpacing} />
 
         {matchingWallets !== undefined && matchingWallets.length > 0 && (
           <>

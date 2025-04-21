@@ -1,4 +1,17 @@
-import { Platform, StyleSheet, PlatformColor, useColorScheme, Appearance, OpaqueColorValue } from 'react-native';
+/**
+ * platformStyles.ts - Consolidated platform styling system for BlueWallet
+ * 
+ * This file serves as the single source of truth for platform-specific styling
+ * across the entire application, replacing the previous distributed system:
+ * - theme/NativePlatformTheme.ts
+ * - components/platformThemes.ts
+ * - hooks/platformHooks.ts
+ * - styles/platformStyles.tsx
+ */
+
+import React from 'react';
+import { Platform, StyleSheet, PlatformColor, Appearance, OpaqueColorValue, View, Text } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 // ===============================================
 // Types & Interfaces
@@ -43,6 +56,8 @@ export interface PlatformColors {
 }
 
 export interface PlatformSizing {
+  basePadding?: number;
+  baseMargin?: number;
   titleFontSize: number;
   titleFontWeight: FontWeight;
   subtitleFontSize: number;
@@ -66,6 +81,8 @@ export interface PlatformSizing {
   leftIconMarginRight: number;
   leftIconWidth: number;
   leftIconHeight: number;
+  contentContainerMarginHorizontal?: number;
+  contentContainerPaddingHorizontal?: number;
 }
 
 export interface PlatformLayout {
@@ -83,6 +100,7 @@ export interface PlatformLayout {
   toolsIconName: string;
   aboutIconName: string;
   rippleEffect: boolean;
+  cardShadow?: object;
 }
 
 export interface StandardIconSet {
@@ -116,7 +134,7 @@ export interface StandardIconSet {
   copy: IconProps;
 }
 
-export interface NativePlatformTheme {
+export interface PlatformTheme {
   colors: PlatformColors;
   sizing: PlatformSizing;
   layout: PlatformLayout;
@@ -192,7 +210,7 @@ const getIOSColors = (): PlatformColors => {
     yellowIconBg: 'rgba(255, 149, 0, 0.12)',
     redIconBg: 'rgba(255, 59, 48, 0.12)',
     grayIconBg: 'rgba(142, 142, 147, 0.12)',
-    
+
     rippleColor: 'rgba(0, 0, 0, 0.2)',
     switchTrackColorFalse: PlatformColor('systemFill'),
     switchTrackColorTrue: PlatformColor('systemGreen'),
@@ -236,7 +254,7 @@ const getAndroidColors = (): PlatformColors => {
 
     // Material Design ripple color
     rippleColor: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
-    
+
     // Material Design switch colors
     switchTrackColorFalse: isDark ? '#6E6E6E' : '#E0E0E0',
     switchTrackColorTrue: isDark ? 'rgba(187, 134, 252, 0.5)' : 'rgba(98, 0, 238, 0.5)',
@@ -250,6 +268,8 @@ const getAndroidColors = (): PlatformColors => {
 // ===============================================
 
 export const getIOSSizing = (): PlatformSizing => ({
+  basePadding: 16,
+  baseMargin: 16,
   titleFontSize: 17,
   titleFontWeight: '600',
   subtitleFontSize: 15,
@@ -273,9 +293,13 @@ export const getIOSSizing = (): PlatformSizing => ({
   leftIconMarginRight: 16,
   leftIconWidth: 28,
   leftIconHeight: 28,
+  contentContainerMarginHorizontal: 16,
+  contentContainerPaddingHorizontal: 0,
 });
 
 export const getAndroidSizing = (): PlatformSizing => ({
+  basePadding: 16,
+  baseMargin: 16,
   titleFontSize: 16,
   titleFontWeight: '500',
   subtitleFontSize: 14,
@@ -288,17 +312,19 @@ export const getAndroidSizing = (): PlatformSizing => ({
   iconContainerSize: 24,
   iconContainerBorderRadius: 0, // Flat design for Android
   containerPaddingVertical: 8, // Reduced padding for tighter layout
-  containerElevation: 2, // Slightly more elevation for better section visibility
-  containerMarginVertical: 8, // Add margin to separate items visually
-  containerBorderRadius: 4, // Slight border radius for Android
+  containerElevation: 1, // Light elevation for card-like appearance
+  containerMarginVertical: 0, // No margin between items in the same section
+  containerBorderRadius: 4, // Light rounding for Android
   sectionHeaderHeight: 48, // Standard Material Design section header height
   sectionHeaderPaddingBottom: 8,
-  sectionContainerMarginBottom: 24, // Increased space between sections
-  firstSectionContainerPaddingTop: 16, // Match iOS padding
+  sectionContainerMarginBottom: 16, // Space between sections
+  firstSectionContainerPaddingTop: 8,
   leftIconMarginLeft: 16, // Material Design standard margins
   leftIconMarginRight: 32, // More space between icon and text
   leftIconWidth: 24,
   leftIconHeight: 24,
+  contentContainerMarginHorizontal: 0,
+  contentContainerPaddingHorizontal: 16,
 });
 
 // ===============================================
@@ -320,13 +346,19 @@ export const getIOSLayout = (): PlatformLayout => ({
   toolsIconName: 'construct-outline',
   aboutIconName: 'information-circle-outline',
   rippleEffect: false,
+  cardShadow: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
 });
 
 export const getAndroidLayout = (): PlatformLayout => ({
   showBorderBottom: false, // Remove borders between items
   showElevation: true, // Use elevation for section cards
   showBorderRadius: true, // Add slight border radius for better visual separation
-  useRoundedListItems: true, // Use rounded list items for Android (similar to iOS)
+  useRoundedListItems: false, // Flat list items for Android
   showIconBackground: false, // No icon backgrounds for Android's flat design
   iconType: 'ionicon', // Using Ionicons for better compatibility
   settingsIconName: 'settings-outline',
@@ -337,6 +369,7 @@ export const getAndroidLayout = (): PlatformLayout => ({
   toolsIconName: 'construct-outline',
   aboutIconName: 'information-circle-outline',
   rippleEffect: true, // Enable touch ripple effect
+  cardShadow: {}, // No shadow - using elevation instead
 });
 
 // ===============================================
@@ -403,7 +436,6 @@ const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       color: colors.about,
       backgroundColor: platformColors.grayIconBg,
     },
-
     // About screen
     x: {
       name: 'logo-twitter',
@@ -453,7 +485,6 @@ const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       color: colors.performance,
       backgroundColor: platformColors.redIconBg,
     },
-
     // Explorers and accessibility
     blockExplorer: {
       name: 'search-outline',
@@ -532,7 +563,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       type: 'ionicon',
       color: colors.about,
     },
-
     // About screen
     x: {
       name: 'close',
@@ -574,7 +604,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       type: 'ionicon',
       color: colors.performance,
     },
-
     // Explorers and accessibility
     blockExplorer: {
       name: 'search-outline',
@@ -600,78 +629,84 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
 };
 
 // ===============================================
-// Main Hook: useNativePlatformTheme
+// Main Hook: usePlatformStyles
 // ===============================================
 
 /**
- * A hook that provides native platform-specific styling, icons, and layout
- * Consolidates styling functionality for consistent native UI across platforms
+ * The primary hook for accessing platform-specific styles, colors, icons, and layout
+ * 
+ * This hook consolidates all platform-specific styling functionality into a single API,
+ * replacing the previous hooks:
+ * - usePlatformTheme
+ * - useSettingsStyles 
+ * - useStandardIcons
+ * - useNativePlatformTheme
+ * 
+ * @returns An object containing platform-specific styles, colors, icons, and utility functions
  */
-export const useNativePlatformTheme = () => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+export const usePlatformStyles = () => {
+  const { dark } = useTheme();
   const isAndroid = Platform.OS === 'android';
 
   // Get the platform theme data
-  const nativeTheme: NativePlatformTheme = isAndroid
+  const platformTheme: PlatformTheme = isAndroid
     ? {
         colors: getAndroidColors(),
         sizing: getAndroidSizing(),
         layout: getAndroidLayout(),
-        getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
-        getStandardIcons: (forceDarkMode?: boolean) => getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
+        getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : dark),
+        getStandardIcons: (forceDarkMode?: boolean) => getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : dark)
       }
     : {
         colors: getIOSColors(),
         sizing: getIOSSizing(),
         layout: getIOSLayout(),
-        getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
-        getStandardIcons: (forceDarkMode?: boolean) => getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode),
+        getIconColors: (forceDarkMode?: boolean) => getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : dark),
+        getStandardIcons: (forceDarkMode?: boolean) => getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : dark)
       };
 
-  const { colors, sizing, layout } = nativeTheme;
+  const { colors, sizing, layout } = platformTheme;
 
-  // StyleSheet from useSettingsStyles
+  // Common styles for both platforms
   const styles = StyleSheet.create({
-    // Base container styles
+    // Main container styles
     container: {
       flex: 1,
       backgroundColor: isAndroid ? '#F1F3F4' : colors.background,
     },
-    listItemContainer: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      elevation: layout.showElevation ? sizing.containerElevation : 0,
-      marginBottom: isAndroid ? 8 : 8,
-      marginHorizontal: isAndroid ? 0 : 16,
-      overflow: 'hidden',
-      ...(isAndroid && {
-        paddingHorizontal: 16,
-      }),
-    },
-    headerOffset: {
-      height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
-    },
     contentContainer: {
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+      paddingTop: sizing.baseMargin || 16,
       marginHorizontal: isAndroid ? 0 : 16,
-      paddingHorizontal: isAndroid ? 0 : 16,
-      paddingBottom: 16,
     },
     
-    // First section container - used in multiple settings screens
+    // Card and section styles
+    card: {
+      backgroundColor: colors.cardBackground,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
+      padding: sizing.basePadding || 16,
+      marginVertical: 8,
+      marginHorizontal: isAndroid ? 16 : 0,
+      ...(isAndroid && { elevation: sizing.containerElevation }),
+      ...(!isAndroid && layout.cardShadow),
+    },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginHorizontal: isAndroid ? 0 : 16,
+      marginHorizontal: isAndroid ? 0 : sizing.contentContainerMarginHorizontal || 16,
+      marginBottom: sizing.sectionContainerMarginBottom || 16,
+      marginTop: isAndroid ? 8 : 12,
+    },
+    sectionContainer: {
+      marginTop: isAndroid ? 16 : 8,
+      marginHorizontal: isAndroid ? 0 : sizing.contentContainerMarginHorizontal || 16,
       marginBottom: sizing.sectionContainerMarginBottom || 16,
     },
-
-    // Section styles
     sectionHeaderContainer: {
       marginTop: isAndroid ? 24 : 16,
       marginBottom: isAndroid ? 8 : 8,
-      paddingHorizontal: 16, 
+      paddingHorizontal: 16,
       ...(isAndroid && {
-        height: 48,
+        height: sizing.sectionHeaderHeight,
         justifyContent: 'center',
       }),
     },
@@ -683,82 +718,67 @@ export const useNativePlatformTheme = () => {
       marginLeft: isAndroid ? 8 : 0,
       letterSpacing: isAndroid ? 0.25 : 0,
     },
-    sectionSpacing: {
-      height: isAndroid ? 8 : 24,
-    },
-
-    // Card styles
-    card: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
-      padding: 16,
-      marginVertical: 8,
-      marginHorizontal: isAndroid ? 16 : 0,
-      elevation: isAndroid ? 2 : 0,
-    },
-
-    // Android-specific styles
-    androidCardContainer: {
-      backgroundColor: '#FFFFFF',
-      elevation: 1,
-      marginVertical: 4,
-      marginHorizontal: 0,
-    },
-    androidSectionTitle: {
-      color: '#5F6368',
-      fontSize: 14,
-      fontWeight: '500',
-      textTransform: 'uppercase',
-      letterSpacing: 0.25,
-      marginLeft: 16,
-      marginTop: 24,
-      marginBottom: 8,
-    },
-    androidListItem: {
-      height: 56,
-      paddingHorizontal: 16,
-    },
-    androidItemSeparator: {
-      height: 1,
-      backgroundColor: '#E1E3E5',
-      marginLeft: 72,
-    },
-    androidItemTitle: {
-      fontSize: 16,
-      fontWeight: '400',
-      color: '#202124',
-    },
-    androidItemSubtitle: {
-      fontSize: 14,
-      fontWeight: '400',
-      color: '#5F6368',
-      marginTop: 2,
-    },
-    androidRippleIcon: {
-      borderRadius: 28,
+    
+    // Item styles
+    listItemContainer: {
+      backgroundColor: isAndroid ? 'transparent' : colors.cardBackground,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius : 0,
+      elevation: isAndroid ? sizing.containerElevation : layout.showElevation ? sizing.containerElevation : 0,
+      marginBottom: isAndroid ? 0 : 8,
+      paddingVertical: isAndroid ? 12 : 14,
+      paddingHorizontal: isAndroid ? 16 : 16,
+      marginHorizontal: isAndroid ? 0 : 16,
       overflow: 'hidden',
-      marginRight: 32,
     },
-
-    // Text styles
-    subtitleText: {
-      fontSize: 14,
-      color: isAndroid ? '#5F6368' : colors.subtitleColor,
-      marginTop: 5,
+    itemContainer: {
+      backgroundColor: colors.cardBackground,
+      marginHorizontal: isAndroid ? 0 : 16,
+      borderRadius: isAndroid ? 0 : sizing.containerBorderRadius,
+      elevation: isAndroid ? 1 : 0,
+      marginBottom: isAndroid ? 0 : 1,
+      overflow: 'hidden',
+      marginVertical: isAndroid ? 1 : 0,
     },
-
-    // Info container styles
+    
+    // Item rounded styles (for iOS grouped appearance)
+    topRoundedItem: {
+      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      backgroundColor: colors.cardBackground,
+      paddingTop: isAndroid ? 0 : 4,
+    },
+    bottomRoundedItem: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+      backgroundColor: colors.cardBackground,
+      paddingBottom: isAndroid ? 0 : 4,
+    },
+    
+    // Separator
+    separator: {
+      height: 1,
+      backgroundColor: isAndroid ? 'rgba(0,0,0,0.08)' : colors.separatorColor || 'rgba(0,0,0,0.1)',
+      marginLeft: isAndroid ? 72 : 16,
+    },
+    
+    // Info styles
+    infoText: {
+      color: colors.subtitleColor,
+      fontSize: isAndroid ? 14 : 15,
+      lineHeight: isAndroid ? 20 : 22,
+      marginBottom: 16,
+    },
     infoContainer: {
       backgroundColor: colors.cardBackground,
-      margin: isAndroid ? 16 : 16,
+      margin: 16,
       padding: 16,
       borderRadius: isAndroid ? 4 : sizing.containerBorderRadius * 1.5,
       elevation: isAndroid ? 1 : 0,
-    },
-    infoText: {
-      color: isAndroid ? '#202124' : colors.titleColor,
-      fontSize: sizing.subtitleFontSize,
-      marginBottom: 8,
+      ...(!isAndroid && layout.cardShadow),
     },
     infoTextCentered: {
       color: isAndroid ? '#202124' : colors.titleColor,
@@ -766,7 +786,25 @@ export const useNativePlatformTheme = () => {
       marginBottom: 8,
       textAlign: 'center',
     },
-
+    
+    // Input styles
+    textInputContainer: {
+      marginBottom: isAndroid ? 16 : 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(0,0,0,0.2)',
+      borderRadius: 4,
+      backgroundColor: colors.cardBackground,
+    },
+    textInput: {
+      flex: 1,
+      paddingVertical: isAndroid ? 12 : 8,
+      paddingHorizontal: 8,
+      color: colors.titleColor,
+      fontSize: 14,
+    },
+    
     // About screen specific styles
     center: {
       justifyContent: 'center',
@@ -822,86 +860,109 @@ export const useNativePlatformTheme = () => {
       color: isAndroid ? '#1A73E8' : '#68bbe1',
     },
     
-    // Rounded item styles
-    topRoundedItem: {
-      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      backgroundColor: colors.cardBackground,
+    // Android-specific styles
+    androidCardContainer: {
+      backgroundColor: '#FFFFFF',
+      elevation: 1,
+      marginVertical: 4,
+      marginHorizontal: 0,
     },
-    bottomRoundedItem: {
-      borderTopLeftRadius: 0,
-      borderTopRightRadius: 0,
-      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-      backgroundColor: colors.cardBackground,
+    androidSectionTitle: {
+      color: '#5F6368',
+      fontSize: 14,
+      fontWeight: '500',
+      textTransform: 'uppercase',
+      letterSpacing: 0.25,
+      marginLeft: 16,
+      marginTop: 24,
+      marginBottom: 8,
     },
-    
-    // Item separator
-    separator: {
+    androidListItem: {
+      height: 56,
+      paddingHorizontal: 16,
+    },
+    androidItemSeparator: {
       height: 1,
-      backgroundColor: 'rgba(0,0,0,0.1)',
-      marginLeft: isAndroid ? 72 : 16,
+      backgroundColor: '#E1E3E5',
+      marginLeft: 72,
     },
-    
-    // Section container
-    sectionContainer: {
-      marginBottom: isAndroid ? 16 : 16,
-      marginTop: isAndroid ? 8 : 0,
+    androidItemTitle: {
+      fontSize: 16,
+      fontWeight: '400',
+      color: '#202124',
     },
-    
-    // Item container
-    itemContainer: {
-      backgroundColor: colors.cardBackground,
-      marginHorizontal: isAndroid ? 0 : 16,
-      borderRadius: isAndroid ? 0 : sizing.containerBorderRadius,
-      elevation: isAndroid ? 1 : 0,
-      marginBottom: isAndroid ? 0 : 1,
+    androidItemSubtitle: {
+      fontSize: 14,
+      fontWeight: '400',
+      color: '#5F6368',
+      marginTop: 2,
+    },
+    androidRippleIcon: {
+      borderRadius: 28,
       overflow: 'hidden',
+      marginRight: 32,
+    },
+    
+    // Spacing utilities
+    spacingLarge: {
+      height: 24,
+    },
+    spacingMedium: {
+      height: 16,
+    },
+    spacingSmall: {
+      height: 8,
+    },
+    sectionSpacing: {
+      height: isAndroid ? 8 : 24,
+    },
+    headerOffset: {
+      height: isAndroid ? sizing.firstSectionContainerPaddingTop / 2 : sizing.firstSectionContainerPaddingTop,
     },
   });
 
   /**
-   * Get icon props for a specific icon key
-   * This function replaces the older useStandardIcons hook functionality
-   * 
-   * @param iconName - Name of the icon in the StandardIconSet or a custom icon name
-   * @param forceDarkMode - Optional parameter to force dark mode icons regardless of system appearance
+   * Gets icon props for a specific icon key
+   * @param iconName The name of the icon to retrieve
+   * @returns IconProps object for the specified icon
    */
-  const getIcon = (iconName: string, forceDarkMode?: boolean): IconProps => {
-    const icons = nativeTheme.getStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
-    
+  const getIcon = (iconName: keyof StandardIconSet): IconProps => {
+    const icons = platformTheme.getStandardIcons(dark);
+
     if (iconName in icons) {
-      return icons[iconName as keyof StandardIconSet];
+      return icons[iconName];
     }
 
+    // Fallback icon
     return {
-      name: iconName || 'information-circle-outline',
+      name: 'information-circle-outline',
       type: 'ionicon',
-      color: isDarkMode ? '#FFFFFF' : isAndroid ? '#5F6368' : colors.grayIcon,
-      backgroundColor: isAndroid ? 'transparent' : isDarkMode ? 'rgba(255,255,255,0.12)' : colors.grayIconBg,
+      color: dark ? '#FFFFFF' : isAndroid ? '#5F6368' : colors.grayIcon,
+      backgroundColor: isAndroid ? 'transparent' : dark ? 'rgba(255,255,255,0.12)' : colors.grayIconBg,
     };
   };
 
   /**
-   * Utility function for conditionally applying corner styling
+   * Returns style objects for conditional corner radius application
+   * @param isFirstInGroup Whether the item is first in a group
+   * @param isLastInGroup Whether the item is last in a group
+   * @returns Style object with appropriate border radius
    */
   const getConditionalCornerRadius = (isFirstInGroup: boolean, isLastInGroup: boolean) => {
-    if (isAndroid) {
+    if (isAndroid || !layout.useRoundedListItems) {
       return {
         borderRadius: 0,
         backgroundColor: colors.cardBackground,
       };
     }
-    
+
     if (isFirstInGroup && !isLastInGroup) {
       return styles.topRoundedItem;
     } else if (!isFirstInGroup && isLastInGroup) {
       return styles.bottomRoundedItem;
     } else if (isFirstInGroup && isLastInGroup) {
       return {
-        borderRadius: sizing.containerBorderRadius * 1.5,
+        borderRadius: sizing.containerBorderRadius,
         backgroundColor: colors.cardBackground,
       };
     } else {
@@ -913,12 +974,11 @@ export const useNativePlatformTheme = () => {
   };
 
   /**
-   * Render a section header (primarily for Android)
+   * Renders a section header component (primarily for Android)
+   * @param title The title of the section
+   * @returns A configuration object for the section header
    */
   const renderSectionHeader = (title: string) => {
-    if (!isAndroid) return null;
-    
-    // Return a configuration object instead of JSX
     return {
       type: 'sectionHeader',
       title,
@@ -928,36 +988,41 @@ export const useNativePlatformTheme = () => {
   };
 
   /**
-   * Create a separator component for list items (primarily for Android)
+   * A separator component for list items
    */
-  const createSeparator = () => {
-    return isAndroid ? { type: 'separator', style: styles.separator } : null;
-  };
+  const renderSeparator = isAndroid ? { type: 'separator', style: styles.separator } : null;
 
   return {
     // Theme data
     colors,
     sizing,
     layout,
-    nativeTheme,
-    
+    platformTheme,
+
     // Styles
     styles,
-    
+
     // Utility functions
     getIcon,
     getConditionalCornerRadius,
     renderSectionHeader,
-    createSeparator,
-    
+    renderSeparator,
+
     // Platform info
     isAndroid,
-    isDarkMode,
+    isDarkMode: dark,
   };
 };
 
-// For static access to the theme
-export class NativePlatformThemeManager {
+// ===============================================
+// Static Manager for Non-Hook Access
+// ===============================================
+
+/**
+ * Static manager for accessing theme properties without hooks
+ * Useful for files that can't use hooks or need theme access outside of components
+ */
+export class PlatformStylesManager {
   static colors: PlatformColors;
   static sizing: PlatformSizing;
   static layout: PlatformLayout;
@@ -966,30 +1031,62 @@ export class NativePlatformThemeManager {
 
   static updateColorScheme(): void {
     const isDarkMode = Appearance.getColorScheme() === 'dark';
+    const isAndroid = Platform.OS === 'android';
 
-    if (Platform.OS === 'ios') {
-      NativePlatformThemeManager.colors = getIOSColors();
-      NativePlatformThemeManager.sizing = getIOSSizing();
-      NativePlatformThemeManager.layout = getIOSLayout();
-      NativePlatformThemeManager.getStandardIcons = (forceDarkMode?: boolean) =>
-        getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
-    } else {
-      NativePlatformThemeManager.colors = getAndroidColors();
-      NativePlatformThemeManager.sizing = getAndroidSizing();
-      NativePlatformThemeManager.layout = getAndroidLayout();
-      NativePlatformThemeManager.getStandardIcons = (forceDarkMode?: boolean) =>
+    if (isAndroid) {
+      PlatformStylesManager.colors = getAndroidColors();
+      PlatformStylesManager.sizing = getAndroidSizing();
+      PlatformStylesManager.layout = getAndroidLayout();
+      PlatformStylesManager.getStandardIcons = (forceDarkMode?: boolean) =>
         getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
+    } else {
+      PlatformStylesManager.colors = getIOSColors();
+      PlatformStylesManager.sizing = getIOSSizing();
+      PlatformStylesManager.layout = getIOSLayout();
+      PlatformStylesManager.getStandardIcons = (forceDarkMode?: boolean) =>
+        getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
     }
 
-    NativePlatformThemeManager.getIconColors = (forceDarkMode?: boolean) =>
+    PlatformStylesManager.getIconColors = (forceDarkMode?: boolean) =>
       getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
   }
 }
 
 // Initialize the static theme manager
-NativePlatformThemeManager.updateColorScheme();
+PlatformStylesManager.updateColorScheme();
 
 // Listen for appearance changes
 Appearance.addChangeListener(() => {
-  NativePlatformThemeManager.updateColorScheme();
+  PlatformStylesManager.updateColorScheme();
 });
+
+// ===============================================
+// Backwards Compatibility Layer
+// ===============================================
+
+/**
+ * Compatibility hook for previous useSettingsStyles
+ * @deprecated Use usePlatformStyles instead
+ */
+export const useSettingsStyles = () => {
+  const { styles, isAndroid, getConditionalCornerRadius, renderSeparator } = usePlatformStyles();
+  return { styles, isAndroid, getConditionalCornerRadius, renderSeparator };
+};
+
+/**
+ * Compatibility hook for previous usePlatformTheme
+ * @deprecated Use usePlatformStyles instead
+ */
+export const usePlatformTheme = () => {
+  const { colors, sizing, layout, platformTheme } = usePlatformStyles();
+  return platformTheme;
+};
+
+/**
+ * Compatibility hook for previous useStandardIcons
+ * @deprecated Use usePlatformStyles().getIcon instead
+ */
+export const useStandardIcons = () => {
+  const { getIcon } = usePlatformStyles();
+  return getIcon;
+};

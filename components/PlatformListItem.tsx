@@ -1,4 +1,4 @@
-import React, { useMemo, ComponentType } from 'react';
+import React, { useMemo, ComponentType, ReactElement } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
@@ -16,10 +16,9 @@ import {
   TouchableNativeFeedback,
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-// Import from the new theme directory instead of components
-import { usePlatformTheme } from '../theme';
-import type { IconProps } from '../theme';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import type { IconProps } from '../theme/platformStyles';
+import { usePlatformStyles } from '../theme/platformStyles';
 
 // Platform-specific horizontal padding constants
 const HORIZONTAL_PADDING = {
@@ -41,7 +40,7 @@ interface ListItemProps {
   onDeletePressed?: () => void;
   disabled?: boolean;
   switch?: SwitchProps;
-  leftIcon?: IconProps;
+  leftIcon?: IconProps | ReactElement;
   title: string;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
@@ -108,7 +107,7 @@ const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () =>
     accessibilityRole="button"
     accessibilityHint="Deletes this item"
   >
-    <Ionicons name="trash-outline" size={24} color="white" />
+    <Icon name="trash-outline" size={24} color="white" />
   </TouchableOpacity>
 );
 
@@ -146,10 +145,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   sectionId,
   sectionNumber,
 }) => {
-  // Use the compatibility layer hook
-  const theme = usePlatformTheme();
-  const { sizing, colors, layout } = theme;
-  const isAndroid = Platform.OS === 'android';
+  // Use the consolidated styling hook
+  const { colors, sizing, layout, isAndroid } = usePlatformStyles();
   const { fontScale } = useWindowDimensions();
 
   // Set default component based on platform
@@ -256,35 +253,54 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   const renderContent = () => (
     <>
       {leftIcon && (
-        <View
-          style={[
-            styles.iconContainerBase,
-            {
-              marginLeft: isAndroid ? sizing.leftIconMarginLeft : sizing.leftIconMarginLeft,
-              width: sizing.leftIconWidth,
-              height: sizing.leftIconHeight,
-              borderRadius: sizing.iconContainerBorderRadius,
-            },
-            stylesHook.iconContainer,
-            leftIcon.backgroundColor && layout.showIconBackground
-              ? {
-                  backgroundColor: leftIcon.backgroundColor as string,
+        <>
+          {React.isValidElement(leftIcon) ? (
+            // If leftIcon is a React element, render it directly with some margin
+            <View 
+              style={[
+                styles.iconContainerBase,
+                {
+                  marginLeft: isAndroid ? sizing.leftIconMarginLeft : sizing.leftIconMarginLeft,
+                  marginRight: isAndroid ? sizing.leftIconMarginRight : sizing.leftIconMarginRight,
                 }
-              : null,
-          ]}
-          importantForAccessibility="no"
-        >
-          <Avatar
-            size={sizing.iconSize}
-            icon={{
-              name: leftIcon.name,
-              type: leftIcon.type || 'ionicon',
-              color: leftIcon.color !== undefined ? String(leftIcon.color) : 'black',
-              size: sizing.iconInnerSize,
-            }}
-            containerStyle={styles.transparentBackground}
-          />
-        </View>
+              ]} 
+              importantForAccessibility="no"
+            >
+              {leftIcon}
+            </View>
+          ) : (
+            // Otherwise treat it as an IconProps object
+            <View
+              style={[
+                styles.iconContainerBase,
+                {
+                  marginLeft: isAndroid ? sizing.leftIconMarginLeft : sizing.leftIconMarginLeft,
+                  width: sizing.leftIconWidth,
+                  height: sizing.leftIconHeight,
+                  borderRadius: sizing.iconContainerBorderRadius,
+                },
+                stylesHook.iconContainer,
+                (leftIcon as IconProps).backgroundColor && layout.showIconBackground
+                  ? {
+                      backgroundColor: (leftIcon as IconProps).backgroundColor as string,
+                    }
+                  : null,
+              ]}
+              importantForAccessibility="no"
+            >
+              <Avatar
+                size={sizing.iconSize}
+                icon={{
+                  name: (leftIcon as IconProps).name,
+                  type: (leftIcon as IconProps).type || 'font-awesome-5',
+                  color: (leftIcon as IconProps).color !== undefined ? String((leftIcon as IconProps).color) : 'black',
+                  size: sizing.iconInnerSize,
+                }}
+                containerStyle={styles.transparentBackground}
+              />
+            </View>
+          )}
+        </>
       )}
       {leftAvatar && (
         <>
@@ -339,7 +355,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             />
           )}
           {checkmark && (
-            <RNElementsListItem.CheckBox iconRight iconType="octaicon" checkedIcon="check" checked importantForAccessibility="no" />
+            <RNElementsListItem.CheckBox iconRight iconType="font-awesome-5" checkedIcon="check" checked importantForAccessibility="no" />
           )}
         </>
       )}
@@ -398,7 +414,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 
   if (isAndroid && layout.rippleEffect && onPress) {
     const androidRippleConfig = {
-      color: typeof colors.rippleColor === 'string' ? colors.rippleColor : '#CCCCCC',
+      color: '#CCCCCC',
       borderless: false,
       foreground: true,
     };

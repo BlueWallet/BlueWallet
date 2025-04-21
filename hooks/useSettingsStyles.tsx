@@ -194,6 +194,98 @@ export const useSettingsStyles = () => {
       fontWeight: '400',
       color: isAndroid ? '#1A73E8' : '#68bbe1', // Material blue for Android
     },
+
+    // IsItMyAddress screen styles
+    isItMyAddressCard: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: layout.showBorderRadius ? sizing.containerBorderRadius * 1.5 : 0,
+      padding: isAndroid ? 20 : 16,
+      marginVertical: isAndroid ? 12 : 8,
+      elevation: isAndroid ? 1 : 0,
+    },
+    // Text input styles - platform-specific to look native
+    textInputContainer: {
+      marginBottom: isAndroid ? 16 : 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: isAndroid ? 0 : 1,
+      borderColor: isAndroid ? 'transparent' : platformColors.separatorColor || 'rgba(0,0,0,0.2)',
+      borderRadius: isAndroid ? 4 : 8,
+      backgroundColor: isAndroid ? 'rgba(0,0,0,0.04)' : platformColors.cardBackground,
+      ...(isAndroid && {
+        elevation: 0,
+        paddingHorizontal: 2,
+      }),
+    },
+    textInput: {
+      flex: 1,
+      paddingVertical: isAndroid ? 10 : 12,
+      paddingHorizontal: isAndroid ? 12 : 10,
+      color: platformColors.titleColor,
+      fontSize: isAndroid ? 16 : 17,
+      minHeight: 120,
+      fontWeight: isAndroid ? '400' : '400',
+      ...(isAndroid && {
+        letterSpacing: 0.15,
+      }),
+    },
+    clearButton: {
+      padding: isAndroid ? 10 : 8,
+      margin: isAndroid ? 4 : 2,
+    },
+    buttonSpacing: {
+      height: isAndroid ? 24 : 20,
+    },
+    buttonSpacingSmall: {
+      height: isAndroid ? 16 : 12,
+    },
+    addressCheckContainer: {
+      marginTop: 16,
+    },
+    addressOwnershipText: {
+      color: platformColors.titleColor,
+      fontSize: isAndroid ? 14 : 15,
+      lineHeight: isAndroid ? 20 : 22,
+    },
+    // Success screen text style
+    addressOwnershipTextCentered: {
+      color: platformColors.titleColor,
+      fontSize: isAndroid ? 14 : 15,
+      lineHeight: isAndroid ? 20 : 22,
+      textAlign: 'center',
+    },
+    spacingLarge: {
+      height: 24,
+    },
+    spacingMedium: {
+      height: 20,
+    },
+    topFormRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    },
+
+    // Rounded item styles
+    topRoundedItem: {
+      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      backgroundColor: platformColors.cardBackground,
+      // Add padding for iOS grouped appearance
+      paddingTop: isAndroid ? 0 : 4,
+    },
+    bottomRoundedItem: {
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+      backgroundColor: platformColors.cardBackground,
+      // Add padding for iOS grouped appearance
+      paddingBottom: isAndroid ? 0 : 4,
+    },
   });
 
   // Additional utility functions for conditionally applying corner styling

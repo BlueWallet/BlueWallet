@@ -1,45 +1,80 @@
 // This file provides backwards compatibility with the previous styling hooks
-// while redirecting them to the new NativePlatformTheme system
+// while redirecting them to the new consolidated styling system
 
 import { 
-  useNativePlatformTheme, 
-  NativePlatformThemeManager, 
+  usePlatformStyles, 
+  PlatformStylesManager, 
   IconProps,
-  NativePlatformTheme,
+  PlatformTheme,
   StandardIconSet
-} from './NativePlatformTheme';
+} from './platformStyles';
 
-// Export the new hook as the primary API
-export { useNativePlatformTheme };
+// Export the new hooks as the primary API
+export { usePlatformStyles };
 
 // Re-export types and interfaces for backwards compatibility
-export type { IconProps, NativePlatformTheme, StandardIconSet };
+export type { IconProps, PlatformTheme, StandardIconSet };
 
 // Re-export the static manager
-export { NativePlatformThemeManager };
+export { PlatformStylesManager };
 
 /**
  * Compatibility hook for useSettingsStyles
- * @deprecated Use useNativePlatformTheme instead
+ * @deprecated Use usePlatformStyles instead
  */
 export const useSettingsStyles = () => {
-  const { styles, isAndroid, getConditionalCornerRadius } = useNativePlatformTheme();
+  const { styles, isAndroid, getConditionalCornerRadius, renderSeparator } = usePlatformStyles();
   
   return {
     styles,
     isAndroid,
-    getConditionalCornerRadius
+    getConditionalCornerRadius,
+    renderSeparator
   };
 };
 
 /**
  * Compatibility hook for usePlatformTheme
- * @deprecated Use useNativePlatformTheme instead
+ * @deprecated Use usePlatformStyles instead
  */
-export const usePlatformTheme = (): NativePlatformTheme => {
-  const { nativeTheme } = useNativePlatformTheme();
+export const usePlatformTheme = () => {
+  const { colors, sizing, layout, platformTheme } = usePlatformStyles();
   
-  return nativeTheme;
+  return platformTheme;
+};
+
+/**
+ * Compatibility hook for useNativePlatformTheme
+ * @deprecated Use usePlatformStyles instead
+ */
+export const useNativePlatformTheme = () => {
+  const {
+    colors,
+    sizing,
+    layout,
+    platformTheme,
+    styles,
+    getIcon,
+    getConditionalCornerRadius,
+    renderSectionHeader,
+    renderSeparator,
+    isAndroid,
+    isDarkMode
+  } = usePlatformStyles();
+
+  return {
+    colors,
+    sizing,
+    layout,
+    nativeTheme: platformTheme,
+    styles,
+    getIcon,
+    getConditionalCornerRadius,
+    renderSectionHeader,
+    createSeparator: () => renderSeparator,
+    isAndroid,
+    isDarkMode
+  };
 };
 
 /**
@@ -47,7 +82,10 @@ export const usePlatformTheme = (): NativePlatformTheme => {
  * This is the preferred way to get standardized icon props by name
  */
 export const useStandardIcons = () => {
-  const { getIcon } = useNativePlatformTheme();
+  const { getIcon } = usePlatformStyles();
   
   return getIcon;
 };
+
+// Alias for backward compatibility
+export const NativePlatformThemeManager = PlatformStylesManager;

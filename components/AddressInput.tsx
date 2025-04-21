@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
     minHeight: 44,
-    height: 44,
+    height: 'auto',  // Changed from fixed height to auto to accommodate the scan button
     alignItems: 'center',
     borderRadius: 4,
   },
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 8,
     minHeight: 33,
+    height: 'auto',  // Changed from fixed height to auto
   },
 });
 

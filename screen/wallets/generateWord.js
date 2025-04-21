@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Keyboard, TextInput, View, Text } from 'react-native';
+import { Keyboard, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
@@ -7,16 +8,18 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import { usePlatformTheme } from '../../components/platformThemes';
 
 const GenerateWord = () => {
   const { styles } = useSettingsStyles();
+  const { colors } = usePlatformTheme();
 
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
 
   const handleUpdateMnemonic = nextValue => {
     setMnemonic(nextValue);
-    setResult();
+    setResult('');
   };
 
   const checkMnemonic = async () => {
@@ -40,7 +43,7 @@ const GenerateWord = () => {
 
   const clearMnemonicInput = () => {
     setMnemonic('');
-    setResult();
+    setResult('');
   };
 
   return (
@@ -53,26 +56,34 @@ const GenerateWord = () => {
     >
       <View style={styles.contentContainer}>
         <View style={styles.card}>
-          <View style={styles.infoContainer}>
+          <View style={styles.textInputContainer}>
             <TextInput
               style={styles.textInput}
               multiline
               editable
               placeholder={loc.autofill_word.enter}
-              placeholderTextColor="#81868e"
+              placeholderTextColor={colors.subtitleColor}
               value={mnemonic}
               onChangeText={handleUpdateMnemonic}
               testID="MnemonicInput"
             />
+            {mnemonic.length > 0 && (
+              <TouchableOpacity onPress={clearMnemonicInput} style={styles.clearButton}>
+                <Icon name="close" size={20} color={colors.subtitleColor} />
+              </TouchableOpacity>
+            )}
           </View>
 
-          <View style={styles.spacingSmall} />
-          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-          <View style={styles.spacingMedium} />
-          <Text style={styles.infoTextCentered} testID="Result">
-            {result}
-          </Text>
-          <View style={styles.spacingMedium} />
+          <View style={styles.buttonSpacingSmall} />
+          
+          <View style={styles.buttonSpacing} />
+          {result ? (
+            <Text style={styles.addressOwnershipText} testID="Result">
+              {result}
+            </Text>
+          ) : null}
+          {result ? <View style={styles.buttonSpacing} /> : null}
+          
           <View>
             <Button
               disabled={mnemonic.trim().length === 0}
@@ -81,7 +92,7 @@ const GenerateWord = () => {
               testID="GenerateWord"
             />
           </View>
-          <View style={styles.spacingMedium} />
+          <View style={styles.buttonSpacing} />
         </View>
       </View>
     </SafeAreaScrollView>

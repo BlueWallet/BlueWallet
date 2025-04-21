@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, TextInput, View, Text } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -8,8 +9,9 @@ import { BlueBigCheckmark, BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import { usePlatformTheme } from '../../components/platformThemes';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -26,6 +28,7 @@ const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { styles } = useSettingsStyles();
+  const { colors } = usePlatformTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
 
@@ -43,6 +46,11 @@ const Broadcast: React.FC = () => {
   }, []);
 
   const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
+
+  const clearTxHexInput = () => {
+    setTxHex('');
+    setBroadcastResult(BROADCAST_RESULT.none);
+  };
 
   const handleBroadcast = async () => {
     Keyboard.dismiss();
@@ -98,44 +106,51 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeArea>
-      <View style={styles.broadcastWrapper} testID="BroadcastView">
-        {BROADCAST_RESULT.success !== broadcastResult && (
-          <View style={styles.card}>
-            <View style={styles.topFormRow}>
-              <Text style={styles.infoText}>{status}</Text>
-              {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
-            </View>
-
-            <View style={styles.infoContainer}>
-              <TextInput
-                style={styles.broadcastText}
-                multiline
-                editable
-                placeholderTextColor="#81868e"
-                value={txHex}
-                onChangeText={handleUpdateTxHex}
-                onSubmitEditing={Keyboard.dismiss}
-                testID="TxHex"
-              />
-            </View>
-            <View style={styles.spacingMedium} />
-
-            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
-            <View style={styles.spacingMedium} />
-
-            <Button
-              title={loc.send.broadcastButton}
-              onPress={handleBroadcast}
-              disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
-              testID="BroadcastButton"
-            />
-            <View style={styles.spacingMedium} />
+    <SafeAreaScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      {BROADCAST_RESULT.success !== broadcastResult && (
+        <View style={styles.isItMyAddressCard}>
+          <View style={styles.topFormRow}>
+            <Text style={styles.addressOwnershipText}>{status}</Text>
+            {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
           </View>
-        )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
-      </View>
-    </SafeArea>
+
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={styles.textInput}
+              multiline
+              editable
+              placeholderTextColor={colors.subtitleColor}
+              value={txHex}
+              onChangeText={handleUpdateTxHex}
+              onSubmitEditing={Keyboard.dismiss}
+              testID="TxHex"
+            />
+            {txHex && txHex.length > 0 && (
+              <TouchableOpacity onPress={clearTxHexInput} style={styles.clearButton}>
+                <Icon name="close" size={20} color={colors.subtitleColor} />
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          <BlueButtonLink title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+          <View style={styles.buttonSpacing} />
+          
+          <Button
+            title={loc.send.broadcastButton}
+            onPress={handleBroadcast}
+            disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
+            testID="BroadcastButton"
+          />
+        </View>
+      )}
+      {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
+    </SafeAreaScrollView>
   );
 };
 
@@ -147,14 +162,12 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
   }
 
   return (
-    <View style={styles.broadcastWrapper}>
-      <View style={styles.broadcastResultWrapper}>
-        <BlueBigCheckmark />
-        <View style={styles.spacingMedium} />
-        <Text style={styles.infoTextCentered}>{loc.settings.success_transaction_broadcasted}</Text>
-        <View style={styles.spacingSmall} />
-        <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
-      </View>
+    <View style={styles.isItMyAddressCard}>
+      <BlueBigCheckmark />
+      <View style={styles.spacingMedium} />
+      <Text style={styles.addressOwnershipTextCentered}>{loc.settings.success_transaction_broadcasted}</Text>
+      <View style={styles.buttonSpacingSmall} />
+      <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
     </View>
   );
 };

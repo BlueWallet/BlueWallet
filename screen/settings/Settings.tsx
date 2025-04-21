@@ -1,18 +1,22 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../components/platformThemes';
-import { useStandardIcons } from '../../hooks/useStandardIcons';
-import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import { usePlatformStyles } from '../../theme/platformStyles';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
-  const { layout, colors: platformColors, sizing } = usePlatformTheme();
-  const { styles, isAndroid } = useSettingsStyles();
-  const getIcon = useStandardIcons();
+  const { 
+    colors, 
+    styles, 
+    layout, 
+    isAndroid, 
+    getIcon,
+    renderSeparator,
+    sizing
+  } = usePlatformStyles();
 
   const settingsIcon = useMemo(() => getIcon('settings'), [getIcon]);
   const currencyIcon = useMemo(() => getIcon('currency'), [getIcon]);
@@ -22,32 +26,15 @@ const Settings = () => {
   const toolsIcon = useMemo(() => getIcon('tools'), [getIcon]);
   const aboutIcon = useMemo(() => getIcon('about'), [getIcon]);
 
-  const localStyles = StyleSheet.create({
-    sectionContainer: {
-      marginBottom: isAndroid ? 16 : 16, // Added 16px margin for Android
-    },
-    firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginBottom: isAndroid ? 16 : 16, // Added 16px margin for Android
-    },
-    separator: {
-      height: 1,
-      backgroundColor: 'rgba(0,0,0,0.05)',
-      marginLeft: 16,
-    },
-  });
-
-  const renderSeparator = isAndroid ? <View style={localStyles.separator} /> : null;
-
   return (
     <SafeAreaScrollView testID="SettingsRoot" style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={localStyles.firstSectionContainer}>
+      <View style={styles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
           leftIcon={settingsIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
@@ -62,8 +49,8 @@ const Settings = () => {
           title={loc.settings.currency}
           leftIcon={currencyIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('Currency')}
           testID="Currency"
@@ -77,8 +64,8 @@ const Settings = () => {
           title={loc.settings.language}
           leftIcon={languageIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('Language')}
           testID="Language"
@@ -92,8 +79,8 @@ const Settings = () => {
           title={loc.settings.encrypt_title}
           leftIcon={securityIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
@@ -107,8 +94,8 @@ const Settings = () => {
           title={loc.settings.network}
           leftIcon={networkIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
@@ -118,13 +105,13 @@ const Settings = () => {
         />
       </View>
 
-      <View style={localStyles.sectionContainer}>
+      <View style={styles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.tools}
           leftIcon={toolsIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('SettingsTools')}
           testID="Tools"
@@ -135,13 +122,13 @@ const Settings = () => {
         />
       </View>
 
-      <View style={localStyles.sectionContainer}>
+      <View style={styles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.about}
           leftIcon={aboutIcon}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-            ...(isAndroid && { height: 56 }),
+            backgroundColor: colors.cardBackground,
+            ...(isAndroid && { height: sizing.itemMinHeight }),
           }}
           onPress={() => navigate('About')}
           testID="AboutButton"

@@ -3,7 +3,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-import { Icon } from '@rneui/themed';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import A from '../../blue_modules/analytics';
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
@@ -14,9 +14,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
-import { useSettingsStyles } from '../../hooks/useSettingsStyles';
-// Update to use new theme directory
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 
 const branch = require('../../current-branch.json');
 
@@ -36,8 +34,7 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
-  const { styles } = useSettingsStyles();
-  const { colors: platformColors } = usePlatformTheme();
+  const { styles, colors } = usePlatformStyles();
 
   const localStyles = StyleSheet.create({
     sectionSpacing: {
@@ -131,23 +128,23 @@ const About: React.FC = () => {
         section: 2,
       },
       {
-        id: 'x',
+        id: 'twitter',
         title: loc.settings.about_sm_x,
-        leftIcon: <Icon name="x-twitter" type="fontisto" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="twitter" size={24} color={colors.textColor} />,
         onPress: handleOnXPress,
         section: 2,
       },
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: <Icon name="telegram" type="fontisto" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="telegram-plane" size={24} color={colors.textColor} />,
         onPress: handleOnTelegramPress,
         section: 2,
       },
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: <Icon name="github" type="antdesign" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="github" size={24} color={colors.textColor} />,
         onPress: handleOnGithubPress,
         section: 2,
       },
@@ -184,7 +181,7 @@ const About: React.FC = () => {
       {
         id: 'releaseNotes',
         title: loc.settings.about_release_notes,
-        leftIcon: <Icon name="document-text-outline" type="ionicon" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="book-open" size={24} color={colors.textColor} />,
         chevron: true,
         onPress: handleOnReleaseNotesPress,
         section: 3,
@@ -192,7 +189,7 @@ const About: React.FC = () => {
       {
         id: 'licensing',
         title: loc.settings.about_license,
-        leftIcon: <Icon name="shield-checkmark-outline" type="ionicon" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="shield-alt" size={24} color={colors.textColor} />,
         chevron: true,
         onPress: handleOnLicensingPress,
         section: 3,
@@ -200,7 +197,7 @@ const About: React.FC = () => {
       {
         id: 'selfTest',
         title: loc.settings.about_selftest,
-        leftIcon: <Icon name="flask-outline" type="ionicon" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="flask" size={24} color={colors.textColor} />,
         chevron: true,
         onPress: handleOnSelfTestPress,
         testID: 'RunSelfTestButton',
@@ -209,7 +206,7 @@ const About: React.FC = () => {
       {
         id: 'performanceTest',
         title: loc.settings.run_performance_test,
-        leftIcon: <Icon name="speedometer-outline" type="ionicon" size={24} color={platformColors.textColor} />,
+        leftIcon: <Icon name="tachometer-alt" size={24} color={colors.textColor} />,
         chevron: true,
         onPress: handlePerformanceTest,
         section: 3,
@@ -248,7 +245,30 @@ const About: React.FC = () => {
       },
     ];
     return items;
-  }, [styles.card, styles.center, styles.logo, styles.textFree, styles.textBackup, styles.buildWith, styles.sectionSpacing, styles.footerContainer, styles.footerText, styles.copyToClipboard, styles.copyToClipboardText, handleOnRatePress, platformColors.textColor, handleOnXPress, handleOnTelegramPress, handleOnGithubPress, handleOnReleaseNotesPress, handleOnLicensingPress, handleOnSelfTestPress, handlePerformanceTest, width, height]);
+  }, [
+    styles.card,
+    styles.center,
+    styles.logo,
+    styles.textFree,
+    styles.textBackup,
+    styles.buildWith,
+    styles.sectionSpacing,
+    styles.footerContainer,
+    styles.footerText,
+    styles.copyToClipboard,
+    styles.copyToClipboardText,
+    handleOnRatePress,
+    colors.textColor,
+    handleOnXPress,
+    handleOnTelegramPress,
+    handleOnGithubPress,
+    handleOnReleaseNotesPress,
+    handleOnLicensingPress,
+    handleOnSelfTestPress,
+    handlePerformanceTest,
+    width,
+    height,
+  ]);
 
   const renderItem = useCallback(
     (props: { item: AboutItem }) => {
@@ -280,7 +300,7 @@ const About: React.FC = () => {
             title={item.title}
             subtitle={item.subtitle}
             containerStyle={{
-              backgroundColor: platformColors.cardBackground,
+              backgroundColor: colors.cardBackground,
             }}
             leftIcon={item.leftIcon}
             onPress={item.onPress}
@@ -305,7 +325,7 @@ const About: React.FC = () => {
           title={item.title}
           subtitle={item.subtitle}
           containerStyle={{
-            backgroundColor: platformColors.cardBackground,
+            backgroundColor: colors.cardBackground,
           }}
           onPress={item.onPress}
           testID={item.testID}
@@ -316,7 +336,7 @@ const About: React.FC = () => {
         />
       );
     },
-    [styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems, platformColors.cardBackground],
+    [styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems, colors.cardBackground],
   );
 
   const keyExtractor = useCallback((item: AboutItem) => item.id, []);
