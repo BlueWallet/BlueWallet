@@ -7,6 +7,7 @@ import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import ManageWallets from '../screen/wallets/ManageWallets';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -20,7 +21,6 @@ const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisig
 const WalletXpubStackRoot = lazy(() => import('./WalletXpubStack'));
 const SignVerifyStackRoot = lazy(() => import('./SignVerifyStack'));
 const ReceiveDetailsStackRoot = lazy(() => import('./ReceiveDetailsStack'));
-const ManageWallets = lazy(() => import('../screen/wallets/ManageWallets'));
 const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
 const ViewEditMultisigCosigners = lazy(() => import('../screen/wallets/ViewEditMultisigCosigners'));
 
@@ -117,12 +117,6 @@ const LazyReceiveDetailsStackRoot = () => (
   </Suspense>
 );
 
-const LazyManageWallets = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ManageWallets />
-  </Suspense>
-);
-
 const LazyScanQRCodeComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <ScanQRCode />
@@ -181,7 +175,7 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="ReceiveDetailsRoot" component={LazyReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen
             name="ManageWallets"
-            component={LazyManageWallets}
+            component={ManageWallets}
             options={{
               presentation: 'fullScreenModal',
               title: loc.wallets.manage_title,
