@@ -24,11 +24,12 @@ interface AddressItemProps {
   balanceUnit: BitcoinUnit;
   walletID: string;
   allowSignVerifyMessage: boolean;
+  onPress?: () => void; // example: ManageWallets uses this
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
+const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage, onPress }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -55,14 +56,18 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   const { navigate } = useExtendedNavigation<NavigationProps>();
 
   const navigateToReceive = useCallback(() => {
-    navigate('ReceiveDetailsRoot', {
-      screen: 'ReceiveDetails',
-      params: {
-        walletID,
-        address: item.address,
-      },
-    });
-  }, [navigate, walletID, item.address]);
+    if (onPress) {
+      onPress();
+    } else {
+      navigate('ReceiveDetailsRoot', {
+        screen: 'ReceiveDetails',
+        params: {
+          walletID,
+          address: item.address,
+        },
+      });
+    }
+  }, [navigate, walletID, item.address, onPress]);
 
   const navigateToSignVerify = useCallback(() => {
     navigate('SignVerifyRoot', {

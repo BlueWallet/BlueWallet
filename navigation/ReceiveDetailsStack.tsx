@@ -1,28 +1,29 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
+import ReceiveDetails from '../screen/receive/details';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 
 const Stack = createNativeStackNavigator();
 
-const ReceiveDetailsStackRoot = () => {
+const ReceiveDetailsStack = () => {
   const theme = useTheme();
 
   return (
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }} initialRouteName="ReceiveDetails">
       <Stack.Screen
         name="ReceiveDetails"
-        component={ReceiveDetailsComponent}
+        component={ReceiveDetails}
         options={navigationStyle({
-          closeButtonPosition: CloseButtonPosition.Left,
           title: loc.receive.header,
+          closeButtonPosition: CloseButtonPosition.Left,
           statusBarStyle: 'light',
+          headerShown: true,
         })(theme)}
       />
     </Stack.Navigator>
   );
 };
 
-export default ReceiveDetailsStackRoot;
+export default ReceiveDetailsStack;

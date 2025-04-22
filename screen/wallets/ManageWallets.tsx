@@ -12,6 +12,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { usePreventRemove } from '@react-navigation/native';
@@ -25,13 +26,9 @@ import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
+import { ItemType, AddressItemData } from '../../models/itemTypes';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
-
-enum ItemType {
-  WalletSection = 'wallet',
-  TransactionSection = 'transaction',
-}
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -43,7 +40,12 @@ interface TransactionItem {
   data: ExtendedTransaction & LightningTransaction;
 }
 
-type Item = WalletItem | TransactionItem;
+interface AddressItem {
+  type: ItemType.AddressSection;
+  data: AddressItemData;
+}
+
+type Item = WalletItem | TransactionItem | AddressItem;
 
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
@@ -158,11 +160,108 @@ const reducer = (state: State, action: Action): State => {
           .map((tx: Transaction) => ({ type: ItemType.TransactionSection, data: tx as ExtendedTransaction & LightningTransaction })),
       );
 
-      const filteredOrder = [...filteredWallets, ...filteredTransactions];
+      // Search for addresses in wallets
+      const addressResults: AddressItem[] = [];
+      state.availableWallets.forEach(wallet => {
+        // Check if wallet supports HD address methods
+        if ('_getExternalAddressByIndex' in wallet && '_getInternalAddressByIndex' in wallet) {
+          // External addresses (receive)
+          const externalLimit = wallet.getNextFreeAddressIndex ? wallet.getNextFreeAddressIndex() + 20 : 20;
+          for (let i = 0; i < externalLimit; i++) {
+            try {
+              const address = wallet._getExternalAddressByIndex(i);
+              if (address.toLowerCase().includes(query)) {
+                addressResults.push({
+                  type: ItemType.AddressSection,
+                  data: {
+                    address,
+                    walletID: wallet.getID(),
+                    index: i,
+                    isInternal: false,
+                  },
+                });
+              }
+            } catch (e) {
+              // Skip if can't get address
+            }
+          }
+
+          // Internal addresses (change)
+          const internalLimit = wallet.getNextFreeChangeAddressIndex ? wallet.getNextFreeChangeAddressIndex() + 20 : 20;
+          for (let i = 0; i < internalLimit; i++) {
+            try {
+              const address = wallet._getInternalAddressByIndex(i);
+              if (address.toLowerCase().includes(query)) {
+                addressResults.push({
+                  type: ItemType.AddressSection,
+                  data: {
+                    address,
+                    walletID: wallet.getID(),
+                    index: i,
+                    isInternal: true,
+                  },
+                });
+              }
+            } catch (e) {
+              // Skip if can't get address
+            }
+          }
+        } else if ('getAddress' in wallet) {
+          // For single-address wallets
+          const address = wallet.getAddress();
+          if (address && typeof address === 'string' && address.toLowerCase().includes(query)) {
+            addressResults.push({
+              type: ItemType.AddressSection,
+              data: {
+                address,
+                walletID: wallet.getID(),
+                index: 0,
+                isInternal: false,
+              },
+            });
+          }
+        }
+      });
+
+      // Group address results by wallet ID
+      const groupedAddressResults: Record<string, AddressItem[]> = {};
+      addressResults.forEach(item => {
+        const { walletID } = item.data;
+        if (!groupedAddressResults[walletID]) {
+          groupedAddressResults[walletID] = [];
+        }
+        groupedAddressResults[walletID].push(item);
+      });
+
+      // Create final order with wallets followed by their addresses
+      const finalOrder: Item[] = filteredWallets.map(wallet => ({
+        type: ItemType.WalletSection,
+        data: wallet.data,
+      }));
+
+      // For each wallet with matching addresses, add the wallet first if not already added, then add the addresses
+      Object.entries(groupedAddressResults).forEach(([walletID, addresses]) => {
+        // Check if wallet is already in the filtered list, if not add it
+        if (!finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID)) {
+          const wallet = state.availableWallets.find(w => w.getID() === walletID);
+          if (wallet) {
+            finalOrder.push({
+              type: ItemType.WalletSection,
+              data: wallet,
+            });
+          }
+        }
+
+        // Add the addresses
+        finalOrder.push(...addresses);
+      });
+
+      // Add transactions at the end
+      finalOrder.push(...filteredTransactions);
 
       return {
         ...state,
-        currentWalletsOrder: filteredOrder,
+        currentWalletsOrder: finalOrder,
       };
     }
     case SAVE_CHANGES: {
@@ -237,22 +336,32 @@ const ManageWallets: React.FC = () => {
   }, [debouncedSearchQuery, state.originalWalletsOrder]);
 
   const hasUnsavedChanges = useMemo(() => {
+    // Don't consider changes when search is active
+    if (state.searchQuery.length > 0 || state.isSearchFocused) {
+      return false;
+    }
+
+    // Only proceed with checking changes when not in search mode
+    // Extract wallet IDs from current order (only considering wallet sections)
     const currentWalletIds = state.currentWalletsOrder
       .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
       .map(item => item.data.getID());
 
     const originalWalletIds = state.initialWalletsBackup.map(wallet => wallet.getID());
 
+    // If the number of wallets changed, something was added or removed
     if (currentWalletIds.length !== originalWalletIds.length) {
       return true;
     }
 
+    // Check if the order has changed
     for (let i = 0; i < currentWalletIds.length; i++) {
       if (currentWalletIds[i] !== originalWalletIds[i]) {
         return true;
       }
     }
 
+    // Check if any wallet property (like hideBalance) has changed
     const modifiedWallets = state.currentWalletsOrder
       .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
       .map(item => item.data);
@@ -265,7 +374,7 @@ const ManageWallets: React.FC = () => {
     }
 
     return false;
-  }, [state.currentWalletsOrder, state.initialWalletsBackup]);
+  }, [state.currentWalletsOrder, state.initialWalletsBackup, state.searchQuery, state.isSearchFocused]);
 
   usePreventRemove(hasUnsavedChanges && !saveInProgress, ({ data: preventRemoveData }) => {
     Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
@@ -418,11 +527,24 @@ const ManageWallets: React.FC = () => {
 
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
+      Keyboard.dismiss();
       const walletID = wallet.getID();
       goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
+      });
+    },
+    [goBack, navigate],
+  );
+
+  const navigateToAddress = useCallback(
+    (address: string, walletID: string) => {
+      Keyboard.dismiss();
+      goBack();
+      navigate('ReceiveDetails', {
+        walletID,
+        address,
       });
     },
     [goBack, navigate],
@@ -445,6 +567,7 @@ const ManageWallets: React.FC = () => {
           isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
+          navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
           handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
@@ -458,6 +581,7 @@ const ManageWallets: React.FC = () => {
       state.searchQuery,
       state.isSearchFocused,
       navigateToWallet,
+      navigateToAddress,
       renderHighlightedText,
       handleDeleteWallet,
       handleToggleHideBalance,

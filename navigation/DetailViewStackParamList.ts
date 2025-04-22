@@ -97,6 +97,10 @@ export type DetailViewStackParamList = {
       address: string;
     };
   };
+  ReceiveDetails: {
+    walletID?: string;
+    address: string;
+  };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {
     paymentCode: string;

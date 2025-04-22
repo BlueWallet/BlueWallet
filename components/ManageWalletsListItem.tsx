@@ -8,11 +8,8 @@ import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import loc from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-
-enum ItemType {
-  WalletSection = 'wallet',
-  TransactionSection = 'transaction',
-}
+import { AddressItem } from './addresses/AddressItem';
+import { ItemType, AddressItemData } from '../models/itemTypes';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -24,7 +21,12 @@ interface TransactionItem {
   data: ExtendedTransaction & LightningTransaction;
 }
 
-type Item = WalletItem | TransactionItem;
+interface AddressItem {
+  type: ItemType.AddressSection;
+  data: AddressItemData;
+}
+
+type Item = WalletItem | TransactionItem | AddressItem;
 
 interface ManageWalletsListItemProps {
   item: Item;
@@ -35,6 +37,7 @@ interface ManageWalletsListItemProps {
   onPressOut?: () => void;
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
+  navigateToAddress?: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
   handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
@@ -78,6 +81,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   state,
   isPlaceHolder = false,
   navigateToWallet,
+  navigateToAddress,
   renderHighlightedText,
   handleDeleteWallet,
   handleToggleHideBalance,
@@ -119,8 +123,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
+    } else if (item.type === ItemType.AddressSection && navigateToAddress) {
+      navigateToAddress(item.data.address, item.data.walletID);
     }
-  }, [item, navigateToWallet]);
+  }, [item, navigateToWallet, navigateToAddress]);
 
   const handleLeftPress = (reset: () => void) => {
     handleToggleHideBalance(item.data as TWallet);
@@ -230,6 +236,26 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         renderHighlightedText={renderHighlightedText}
       />
     );
+  } else if (item.type === ItemType.AddressSection) {
+    const wallet = state.wallets.find(w => w.getID() === item.data.walletID);
+    if (!wallet) return null;
+
+    const addressItemProps = {
+      item: {
+        key: item.data.address,
+        index: item.data.index,
+        address: item.data.address,
+        isInternal: item.data.isInternal,
+        balance: 0,
+        transactions: 0,
+      },
+      balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+      walletID: item.data.walletID,
+      allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
+      onPress: () => navigateToAddress && navigateToAddress(item.data.address, item.data.walletID),
+    };
+
+    return <AddressItem {...addressItemProps} />;
   }
 
   return null;

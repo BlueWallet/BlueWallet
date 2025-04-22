@@ -497,7 +497,7 @@
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
-    "manage_wallets_search_placeholder": "Search wallets, memos",
+    "manage_wallets_search_placeholder": "Search wallets, addresses, memos",
     "more_info": "More Info",
     "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
     "details_delete_anyway": "Delete anyway"
