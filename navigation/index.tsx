@@ -7,7 +7,6 @@ import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import ManageWallets from '../screen/wallets/ManageWallets';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -173,16 +172,7 @@ const MainRoot = () => {
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
           <DetailViewStack.Screen name="ReceiveDetailsRoot" component={LazyReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen
-            name="ManageWallets"
-            component={ManageWallets}
-            options={{
-              presentation: 'fullScreenModal',
-              title: loc.wallets.manage_title,
-              statusBarStyle: 'auto',
-              headerShown: true,
-            }}
-          />
+
           <DetailViewStack.Screen
             name="ScanQRCode"
             component={LazyScanQRCodeComponent}
