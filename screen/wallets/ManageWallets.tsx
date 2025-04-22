@@ -147,83 +147,127 @@ const reducer = (state: State, action: Action): State => {
       const query = action.payload.toLowerCase();
       const filteredWallets = state.availableWallets
         .filter(wallet => wallet.getLabel()?.toLowerCase().includes(query))
-        .map(wallet => ({ type: ItemType.WalletSection, data: wallet }));
+        .map(wallet => ({ type: ItemType.WalletSection, data: wallet }) as WalletItem);
 
-      const filteredTxMetadata = Object.entries(state.txMetadata).filter(([_, tx]) => tx.memo?.toLowerCase().includes(query));
+      const finalOrder: Item[] = [...filteredWallets];
 
-      const filteredTransactions = state.availableWallets.flatMap(wallet =>
-        wallet
-          .getTransactions()
-          .filter((tx: Transaction) =>
-            filteredTxMetadata.some(([txid, txMeta]) => tx.hash === txid && txMeta.memo?.toLowerCase().includes(query)),
-          )
-          .map((tx: Transaction) => ({ type: ItemType.TransactionSection, data: tx as ExtendedTransaction & LightningTransaction })),
-      );
+      const walletToTransactionsMap: Record<string, Item[]> = {};
 
-      // Search for addresses in wallets
-      const addressResults: AddressItem[] = [];
       state.availableWallets.forEach(wallet => {
-        // Check if wallet supports HD address methods
-        if ('_getExternalAddressByIndex' in wallet && '_getInternalAddressByIndex' in wallet) {
-          // External addresses (receive)
-          const externalLimit = wallet.getNextFreeAddressIndex ? wallet.getNextFreeAddressIndex() + 20 : 20;
-          for (let i = 0; i < externalLimit; i++) {
-            try {
-              const address = wallet._getExternalAddressByIndex(i);
-              if (address.toLowerCase().includes(query)) {
-                addressResults.push({
-                  type: ItemType.AddressSection,
-                  data: {
-                    address,
-                    walletID: wallet.getID(),
-                    index: i,
-                    isInternal: false,
-                  },
-                });
-              }
-            } catch (e) {
-              // Skip if can't get address
-            }
-          }
+        try {
+          const walletTransactions = wallet.getTransactions() || [];
+          const matchingTransactions = walletTransactions
+            .filter((tx: Transaction) => {
+              try {
+                if (!tx) return false;
 
-          // Internal addresses (change)
-          const internalLimit = wallet.getNextFreeChangeAddressIndex ? wallet.getNextFreeChangeAddressIndex() + 20 : 20;
-          for (let i = 0; i < internalLimit; i++) {
-            try {
-              const address = wallet._getInternalAddressByIndex(i);
-              if (address.toLowerCase().includes(query)) {
-                addressResults.push({
-                  type: ItemType.AddressSection,
-                  data: {
-                    address,
-                    walletID: wallet.getID(),
-                    index: i,
-                    isInternal: true,
-                  },
-                });
+                const hasMemoMatch =
+                  tx.hash &&
+                  Object.entries(state.txMetadata).some(([txid, meta]) => tx.hash === txid && meta?.memo?.toLowerCase().includes(query));
+
+                const hashMatch = tx.hash?.toLowerCase().includes(query);
+
+                const valueMatch = tx.value !== undefined && tx.value.toString().includes(query);
+
+                return hasMemoMatch || hashMatch || valueMatch;
+              } catch (e) {
+                console.warn('Error filtering transaction:', e);
+                return false;
               }
-            } catch (e) {
-              // Skip if can't get address
+            })
+            .map((tx: Transaction) => {
+              try {
+                return {
+                  type: ItemType.TransactionSection,
+                  data: tx as ExtendedTransaction & LightningTransaction,
+                } as TransactionItem;
+              } catch (e) {
+                console.warn('Error mapping transaction:', e);
+                return null;
+              }
+            })
+            .filter(Boolean) as TransactionItem[];
+
+          if (matchingTransactions.length > 0) {
+            const walletID = wallet.getID();
+            if (!walletToTransactionsMap[walletID]) {
+              walletToTransactionsMap[walletID] = [];
             }
+
+            const walletAlreadyInList = finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID);
+
+            if (!walletAlreadyInList) {
+              walletToTransactionsMap[walletID].push({
+                type: ItemType.WalletSection,
+                data: wallet,
+              } as WalletItem);
+            }
+
+            walletToTransactionsMap[walletID].push(...matchingTransactions);
           }
-        } else if ('getAddress' in wallet) {
-          // For single-address wallets
-          const address = wallet.getAddress();
-          if (address && typeof address === 'string' && address.toLowerCase().includes(query)) {
-            addressResults.push({
-              type: ItemType.AddressSection,
-              data: {
-                address,
-                walletID: wallet.getID(),
-                index: 0,
-                isInternal: false,
-              },
-            });
-          }
+        } catch (e) {
+          console.warn('Error processing wallet transactions:', e);
         }
       });
 
-      // Group address results by wallet ID
+      const addressResults: AddressItem[] = [];
+      state.availableWallets.forEach(wallet => {
+        try {
+          if ('_getExternalAddressByIndex' in wallet && '_getInternalAddressByIndex' in wallet) {
+            const externalLimit = wallet.getNextFreeAddressIndex ? wallet.getNextFreeAddressIndex() + 20 : 20;
+            for (let i = 0; i < externalLimit; i++) {
+              try {
+                const address = wallet._getExternalAddressByIndex(i);
+                if (address?.toLowerCase().includes(query)) {
+                  addressResults.push({
+                    type: ItemType.AddressSection,
+                    data: {
+                      address,
+                      walletID: wallet.getID(),
+                      index: i,
+                      isInternal: false,
+                    },
+                  });
+                }
+              } catch (e) {}
+            }
+
+            const internalLimit = wallet.getNextFreeChangeAddressIndex ? wallet.getNextFreeChangeAddressIndex() + 20 : 20;
+            for (let i = 0; i < internalLimit; i++) {
+              try {
+                const address = wallet._getInternalAddressByIndex(i);
+                if (address?.toLowerCase().includes(query)) {
+                  addressResults.push({
+                    type: ItemType.AddressSection,
+                    data: {
+                      address,
+                      walletID: wallet.getID(),
+                      index: i,
+                      isInternal: true,
+                    },
+                  });
+                }
+              } catch (e) {}
+            }
+          } else if ('getAddress' in wallet) {
+            const address = wallet.getAddress();
+            if (address && typeof address === 'string' && address.toLowerCase().includes(query)) {
+              addressResults.push({
+                type: ItemType.AddressSection,
+                data: {
+                  address,
+                  walletID: wallet.getID(),
+                  index: 0,
+                  isInternal: false,
+                },
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Error processing wallet addresses:', e);
+        }
+      });
+
       const groupedAddressResults: Record<string, AddressItem[]> = {};
       addressResults.forEach(item => {
         const { walletID } = item.data;
@@ -233,31 +277,29 @@ const reducer = (state: State, action: Action): State => {
         groupedAddressResults[walletID].push(item);
       });
 
-      // Create final order with wallets followed by their addresses
-      const finalOrder: Item[] = filteredWallets.map(wallet => ({
-        type: ItemType.WalletSection,
-        data: wallet.data,
-      }));
-
-      // For each wallet with matching addresses, add the wallet first if not already added, then add the addresses
       Object.entries(groupedAddressResults).forEach(([walletID, addresses]) => {
-        // Check if wallet is already in the filtered list, if not add it
-        if (!finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID)) {
+        const walletAlreadyInList =
+          finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID) ||
+          (walletToTransactionsMap[walletID] && walletToTransactionsMap[walletID].length > 0);
+
+        if (!walletAlreadyInList) {
           const wallet = state.availableWallets.find(w => w.getID() === walletID);
           if (wallet) {
             finalOrder.push({
               type: ItemType.WalletSection,
               data: wallet,
-            });
+            } as WalletItem);
           }
         }
 
-        // Add the addresses
         finalOrder.push(...addresses);
       });
 
-      // Add transactions at the end
-      finalOrder.push(...filteredTransactions);
+      Object.values(walletToTransactionsMap).forEach(items => {
+        if (items.length > 0) {
+          finalOrder.push(...items);
+        }
+      });
 
       return {
         ...state,
@@ -336,32 +378,26 @@ const ManageWallets: React.FC = () => {
   }, [debouncedSearchQuery, state.originalWalletsOrder]);
 
   const hasUnsavedChanges = useMemo(() => {
-    // Don't consider changes when search is active
     if (state.searchQuery.length > 0 || state.isSearchFocused) {
       return false;
     }
 
-    // Only proceed with checking changes when not in search mode
-    // Extract wallet IDs from current order (only considering wallet sections)
     const currentWalletIds = state.currentWalletsOrder
       .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
       .map(item => item.data.getID());
 
     const originalWalletIds = state.initialWalletsBackup.map(wallet => wallet.getID());
 
-    // If the number of wallets changed, something was added or removed
     if (currentWalletIds.length !== originalWalletIds.length) {
       return true;
     }
 
-    // Check if the order has changed
     for (let i = 0; i < currentWalletIds.length; i++) {
       if (currentWalletIds[i] !== originalWalletIds[i]) {
         return true;
       }
     }
 
-    // Check if any wallet property (like hideBalance) has changed
     const modifiedWallets = state.currentWalletsOrder
       .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
       .map(item => item.data);
@@ -603,17 +639,11 @@ const ManageWallets: React.FC = () => {
 
   const renderHeader = useMemo(() => {
     if (!state.searchQuery) return null;
-    const hasWallets = state.availableWallets.length > 0;
-    const filteredTxMetadata = Object.entries(state.txMetadata).filter(([_, tx]) =>
-      tx.memo?.toLowerCase().includes(state.searchQuery.toLowerCase()),
-    );
-    const hasTransactions = filteredTxMetadata.length > 0;
 
-    return (
-      !hasWallets &&
-      !hasTransactions && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
-    );
-  }, [state.searchQuery, state.availableWallets.length, state.txMetadata, stylesHook.noResultsText]);
+    const hasResults = state.currentWalletsOrder.length > 0;
+
+    return !hasResults && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>;
+  }, [state.searchQuery, state.currentWalletsOrder.length, stylesHook.noResultsText]);
 
   return (
     <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>

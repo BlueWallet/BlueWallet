@@ -224,18 +224,32 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       </Animated.View>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
-    const w = state.wallets.find(wallet => wallet.getTransactions().some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
-    const walletID = w ? w.getID() : '';
+    try {
+      const w = state.wallets.find(wallet => wallet.getTransactions()?.some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
 
-    return (
-      <TransactionListItem
-        item={item.data}
-        itemPriceUnit={item.data.walletPreferredBalanceUnit || BitcoinUnit.BTC}
-        walletID={walletID}
-        searchQuery={state.searchQuery}
-        renderHighlightedText={renderHighlightedText}
-      />
-    );
+      const walletID = w ? w.getID() : '';
+
+      const transactionStyle = {
+        marginLeft: 16,
+        borderLeftWidth: 2,
+        borderLeftColor: colors.brandingColor,
+        backgroundColor: colors.inputBackgroundColor,
+      };
+
+      return (
+        <TransactionListItem
+          item={item.data}
+          itemPriceUnit={w?.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+          walletID={walletID}
+          searchQuery={state.searchQuery}
+          renderHighlightedText={renderHighlightedText}
+          style={transactionStyle}
+        />
+      );
+    } catch (e) {
+      console.warn('Error rendering transaction item:', e);
+      return null;
+    }
   } else if (item.type === ItemType.AddressSection) {
     const wallet = state.wallets.find(w => w.getID() === item.data.walletID);
     if (!wallet) return null;
