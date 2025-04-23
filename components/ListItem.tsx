@@ -161,7 +161,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
               <RNElementsListItem.CheckBox
                 iconRight
                 containerStyle={stylesHook.containerStyle}
-                iconType="octaicon"
+                iconType="font-awesome-5"
                 checkedIcon="check"
                 checked
               />

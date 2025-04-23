@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated } from 'react-native';
-import { Icon, ListItem } from '@rneui/base';
+import { ListItem , Icon} from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';

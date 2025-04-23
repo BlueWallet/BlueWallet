@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
-    alignContent: 'center',
+    alignItems: 'center',
   },
 });
 
@@ -48,7 +48,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   return (
     <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity style={[styles.ball, stylesHook.ball]} onPress={onPress}>
-        <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} />
+        <Icon name="plus" size={16}  color={colors.foregroundColor} />
       </TouchableOpacity>
     </ToolTipMenu>
   );

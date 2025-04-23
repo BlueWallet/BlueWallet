@@ -12,6 +12,14 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>BlueWallet</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>Ionicons.ttf</string>
+	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -195,17 +203,6 @@
 	<array>
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Entypo.ttf</string>
-		<string>FontAwesome.ttf</string>
-		<string>FontAwesome5_Brands.ttf</string>
-		<string>FontAwesome5_Regular.ttf</string>
-		<string>FontAwesome5_Solid.ttf</string>
-		<string>Ionicons.ttf</string>
-		<string>MaterialIcons.ttf</string>
-		<string>Octicons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

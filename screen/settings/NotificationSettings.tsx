@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
+import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState, Text } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import {
   getDefaultUri,
@@ -16,17 +16,34 @@ import {
   checkNotificationPermissionStatus,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
-import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { Divider } from '@rneui/base';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { usePlatformTheme } from '../../components/platformThemes';
+import PlatformListItem from '../../components/PlatformListItem';
+
+interface SettingItem {
+  id: string;
+  title: string;
+  subtitle?: React.ReactNode;
+  isSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchValueChange?: (value: boolean) => void;
+  switchDisabled?: boolean;
+  isLoading?: boolean;
+  onPress?: () => void;
+  testID?: string;
+  chevron?: boolean;
+  Component?: React.ElementType;
+  customContent?: React.ReactNode;
+  section?: number;
+}
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -35,28 +52,96 @@ const NotificationSettings: React.FC = () => {
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
-  const stylesWithThemeHook = {
-    root: {
-      backgroundColor: colors.background,
+  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
     },
-    scroll: {
-      backgroundColor: colors.background,
+    listItemContainer: {
+      backgroundColor: platformColors.cardBackground,
     },
-    scrollBody: {
-      backgroundColor: colors.background,
+    headerOffset: {
+      height: sizing.firstSectionContainerPaddingTop,
+    },
+    contentContainer: {
+      marginHorizontal: 16,
+    },
+    card: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: sizing.containerBorderRadius,
+      padding: 16,
+      marginVertical: 8,
+    },
+    multilineText: {
+      color: platformColors.titleColor,
+      lineHeight: 20,
+      paddingBottom: 10,
+    },
+    centered: {
+      textAlign: 'center',
+      color: platformColors.titleColor,
+      marginVertical: 4,
     },
     uri: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderBottomWidth: 0.5,
+      minHeight: 44,
+      height: 44,
+      alignItems: 'center',
+      borderRadius: 4,
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
-  };
+    uriText: {
+      flex: 1,
+      color: platformColors.subtitleColor,
+      marginHorizontal: 8,
+      minHeight: 36,
+      height: 36,
+    },
+    buttonStyle: {
+      backgroundColor: 'transparent',
+      flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+    },
+    divider: {
+      marginVertical: 16,
+      height: 0.5,
+      backgroundColor: platformColors.separatorColor,
+    },
+    sectionSpacing: {
+      height: 24,
+    },
+
+    explanationContainer: {
+      paddingTop: 12,
+      paddingHorizontal: 16,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: platformColors.separatorColor,
+      backgroundColor: platformColors.cardBackground,
+      borderBottomLeftRadius: sizing.containerBorderRadius,
+      borderBottomRightRadius: sizing.containerBorderRadius,
+    },
+    explanationText: {
+      color: platformColors.subtitleColor,
+      fontSize: sizing.subtitleFontSize,
+      lineHeight: 20,
+      paddingBottom: 16,
+    },
+  });
 
   const handleTap = () => {
     setTapCount(prevCount => prevCount + 1);
   };
 
-  const showNotificationPermissionAlert = () => {
+  const onSystemSettings = useCallback(() => {
+    openSettings('notifications');
+  }, []);
+
+  const showNotificationPermissionAlert = useCallback(() => {
     presentAlert({
       title: loc.settings.notifications,
       message: loc.notifications.permission_denied_message,
@@ -72,44 +157,47 @@ const NotificationSettings: React.FC = () => {
         },
       ],
     });
-  };
+  }, [onSystemSettings]);
 
-  const onNotificationsSwitch = async (value: boolean) => {
-    if (value) {
-      const currentStatus = await checkNotificationPermissionStatus();
-      if (currentStatus === 'blocked') {
-        // If permissions are denied/blocked, show alert and reset the toggle
-        showNotificationPermissionAlert();
-        setNotificationsEnabledState(false);
-        return;
-      }
-    }
-
-    try {
-      setNotificationsEnabledState(value);
+  const onNotificationsSwitch = useCallback(
+    async (value: boolean) => {
       if (value) {
-        await cleanUserOptOutFlag();
-        const permissionsGranted = await tryToObtainPermissions();
-        if (permissionsGranted) {
-          await setLevels(true);
-          await AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
-        } else {
+        const currentStatus = await checkNotificationPermissionStatus();
+        if (currentStatus === 'blocked') {
+          // If permissions are denied/blocked, show alert and reset the toggle
           showNotificationPermissionAlert();
           setNotificationsEnabledState(false);
+          return;
         }
-      } else {
-        await setLevels(false);
-        await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
-        setNotificationsEnabledState(false);
       }
 
-      setNotificationsEnabledState(await isNotificationsEnabled());
-    } catch (error) {
-      console.error(error);
-      presentAlert({ message: (error as Error).message });
-      setNotificationsEnabledState(false);
-    }
-  };
+      try {
+        setNotificationsEnabledState(value);
+        if (value) {
+          await cleanUserOptOutFlag();
+          const permissionsGranted = await tryToObtainPermissions();
+          if (permissionsGranted) {
+            await setLevels(true);
+            await AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
+          } else {
+            showNotificationPermissionAlert();
+            setNotificationsEnabledState(false);
+          }
+        } else {
+          await setLevels(false);
+          await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
+          setNotificationsEnabledState(false);
+        }
+
+        setNotificationsEnabledState(await isNotificationsEnabled());
+      } catch (error) {
+        console.error(error);
+        presentAlert({ message: (error as Error).message });
+        setNotificationsEnabledState(false);
+      }
+    },
+    [showNotificationPermissionAlert, setNotificationsEnabledState],
+  );
 
   const updateNotificationStatus = async () => {
     try {
@@ -192,115 +280,223 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
-  const onSystemSettings = () => {
-    openSettings('notifications');
-  };
+  const renderDeveloperSettings = useCallback(() => {
+    if (tapCount < 10) return null;
+
+    return (
+      <View>
+        <View style={styles.divider} />
+        <View style={styles.card}>
+          <Pressable onPress={handleTap}>
+            <Text style={styles.multilineText}>{loc.settings.groundcontrol_explanation}</Text>
+          </Pressable>
+        </View>
+
+        <ButtonRNElements
+          icon={{
+            name: 'github',
+            type: 'font-awesome',
+            color: colors.foregroundColor,
+          }}
+          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
+          titleStyle={{ color: colors.buttonAlternativeTextColor }}
+          title="github.com/BlueWallet/GroundControl"
+          color={colors.buttonTextColor}
+          buttonStyle={styles.buttonStyle}
+        />
+
+        <View style={styles.card}>
+          <View style={styles.uri}>
+            <TextInput
+              placeholder={getDefaultUri()}
+              value={URI}
+              onChangeText={setURI}
+              numberOfLines={1}
+              style={styles.uriText}
+              placeholderTextColor="#81868e"
+              editable={!isLoading}
+              textContentType="URL"
+              autoCapitalize="none"
+              underlineColorAndroid="transparent"
+            />
+          </View>
+
+          <BlueSpacing20 />
+          <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+            ♪ Ground Control to Major Tom ♪
+          </Text>
+          <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+            ♪ Commencing countdown, engines on ♪
+          </Text>
+
+          <View>
+            <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+          </View>
+
+          <BlueSpacing20 />
+          <Button onPress={save} title={loc.settings.save} />
+        </View>
+      </View>
+    );
+  }, [
+    tapCount,
+    colors.foregroundColor,
+    colors.buttonAlternativeTextColor,
+    colors.buttonTextColor,
+    styles.divider,
+    styles.card,
+    styles.multilineText,
+    styles.buttonStyle,
+    styles.uri,
+    styles.uriText,
+    styles.centered,
+    isLoading,
+    URI,
+    tokenInfo,
+    save,
+    setTapCount,
+  ]);
+
+  const settingsItems = useCallback((): SettingItem[] => {
+    const items: SettingItem[] = [
+      {
+        id: 'notificationsToggle',
+        title: loc.settings.notifications,
+        subtitle: loc.notifications.notifications_subtitle,
+        isSwitch: true,
+        switchValue: isNotificationsEnabledState,
+        onSwitchValueChange: onNotificationsSwitch,
+        switchDisabled: isLoading,
+        isLoading: isNotificationsEnabledState === undefined,
+        testID: 'NotificationsSwitch',
+        Component: View,
+        section: 1,
+      },
+      {
+        id: 'notificationsExplanation',
+        title: '',
+        customContent: (
+          <View style={styles.explanationContainer}>
+            <Text style={styles.explanationText}>{loc.settings.push_notifications_explanation}</Text>
+          </View>
+        ),
+        section: 1,
+      },
+      {
+        id: 'section1Spacing',
+        title: '',
+        customContent: <View style={styles.sectionSpacing} />,
+        section: 1.5,
+      },
+      {
+        id: 'developerSettings',
+        title: '',
+        customContent: renderDeveloperSettings(),
+        section: 2,
+      },
+      {
+        id: 'section2Spacing',
+        title: '',
+        customContent: <View style={styles.sectionSpacing} />,
+        section: 2.5,
+      },
+      {
+        id: 'privacySystemSettings',
+        title: loc.settings.privacy_system_settings,
+        onPress: onSystemSettings,
+        chevron: true,
+        section: 3,
+      },
+    ];
+
+    return items.filter(item => item.title !== '' || item.customContent);
+  }, [
+    isNotificationsEnabledState,
+    onNotificationsSwitch,
+    isLoading,
+    styles.explanationContainer,
+    styles.explanationText,
+    styles.sectionSpacing,
+    renderDeveloperSettings,
+    onSystemSettings,
+  ]);
+
+  const renderItem = useCallback(
+    (props: { item: SettingItem }) => {
+      const item = props.item;
+      const items = settingsItems();
+
+      if (item.customContent) {
+        return <>{item.customContent}</>;
+      }
+
+      const isStandaloneItem = item.id === 'privacySystemSettings';
+
+      const currentSectionItems = items.filter(i => i.section === item.section);
+      const indexInSection = currentSectionItems.indexOf(item);
+      const isFirstInSection = indexInSection === 0;
+
+      if (item.isSwitch) {
+        return (
+          <PlatformListItem
+            title={item.title}
+            subtitle={item.subtitle}
+            containerStyle={[
+              styles.listItemContainer,
+              {
+                borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+                borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+              },
+            ]}
+            Component={item.Component}
+            switch={{
+              value: item.switchValue || false,
+              onValueChange: item.onSwitchValueChange,
+              disabled: item.switchDisabled,
+            }}
+            isLoading={item.isLoading}
+            testID={item.testID}
+            isFirst={isFirstInSection}
+            isLast={false}
+            bottomDivider={false}
+          />
+        );
+      }
+
+      return (
+        <PlatformListItem
+          title={item.title}
+          subtitle={item.subtitle}
+          containerStyle={styles.listItemContainer}
+          onPress={item.onPress}
+          testID={item.testID}
+          chevron={item.chevron}
+          isFirst={isStandaloneItem}
+          isLast={isStandaloneItem}
+          bottomDivider={layout.showBorderBottom && !isStandaloneItem}
+        />
+      );
+    },
+    [styles.listItemContainer, layout.showBorderBottom, settingsItems, sizing.containerBorderRadius],
+  );
+
+  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
+
+  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
 
   return (
-    <SafeAreaScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <ListItem
-        Component={PressableWrapper}
-        title={loc.settings.notifications}
-        subtitle={loc.notifications.notifications_subtitle}
-        disabled={isLoading}
-        isLoading={isNotificationsEnabledState === undefined}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledState, testID: 'NotificationsSwitch' }}
-      />
-
-      <Pressable onPress={handleTap}>
-        <BlueCard>
-          <BlueText style={styles.multilineText}>{loc.settings.push_notifications_explanation}</BlueText>
-        </BlueCard>
-      </Pressable>
-
-      {tapCount >= 10 && (
-        <>
-          <Divider />
-          <BlueCard>
-            <BlueText>{loc.settings.groundcontrol_explanation}</BlueText>
-          </BlueCard>
-
-          <ButtonRNElements
-            icon={{
-              name: 'github',
-              type: 'font-awesome',
-              color: colors.foregroundColor,
-            }}
-            onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-            titleStyle={{ color: colors.buttonAlternativeTextColor }}
-            title="github.com/BlueWallet/GroundControl"
-            color={colors.buttonTextColor}
-            buttonStyle={styles.buttonStyle}
-          />
-
-          <BlueCard>
-            <View style={[styles.uri, stylesWithThemeHook.uri]}>
-              <TextInput
-                placeholder={getDefaultUri()}
-                value={URI}
-                onChangeText={setURI}
-                numberOfLines={1}
-                style={styles.uriText}
-                placeholderTextColor="#81868e"
-                editable={!isLoading}
-                textContentType="URL"
-                autoCapitalize="none"
-                underlineColorAndroid="transparent"
-              />
-            </View>
-
-            <BlueSpacing20 />
-            <BlueText style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
-              ♪ Ground Control to Major Tom ♪
-            </BlueText>
-            <BlueText style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
-              ♪ Commencing countdown, engines on ♪
-            </BlueText>
-
-            <View>
-              <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
-            </View>
-
-            <BlueSpacing20 />
-            <Button onPress={save} title={loc.settings.save} />
-          </BlueCard>
-        </>
-      )}
-      <BlueSpacing40 />
-      <ListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron />
-    </SafeAreaScrollView>
+    <SafeAreaFlatList
+      style={styles.container}
+      data={settingsItems()}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeaderComponent}
+      contentContainerStyle={styles.contentContainer}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      removeClippedSubviews
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  uri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-  uriText: {
-    flex: 1,
-    color: '#81868e',
-    marginHorizontal: 8,
-    minHeight: 36,
-    height: 36,
-  },
-  buttonStyle: {
-    backgroundColor: 'transparent',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
-  multilineText: {
-    textAlign: 'left',
-    lineHeight: 20,
-    paddingBottom: 10,
-  },
-});
 
 export default NotificationSettings;

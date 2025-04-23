@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
-import { useTheme } from '../../components/themes';
+import { Alert, Platform, Text, View } from 'react-native';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -11,10 +9,10 @@ import PromptPasswordConfirmationModal, {
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
 import presentAlert from '../../components/Alert';
-import { Header } from '../../components/Header';
-import { BlueSpacing20 } from '../../BlueComponents';
 import { StackActions } from '@react-navigation/native';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import PlatformListItem from '../../components/PlatformListItem';
+import { useNativePlatformTheme } from '../../theme';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -35,6 +33,23 @@ interface State {
   deviceBiometricCapable: boolean;
   currentLoadingSwitch: string | null;
   modalType: keyof typeof MODAL_TYPES;
+}
+
+interface SettingItem {
+  id: string;
+  title: string;
+  subtitle?: React.ReactNode;
+  isSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchValueChange?: (value: boolean) => void;
+  switchDisabled?: boolean;
+  onPress?: () => void;
+  testID?: string;
+  chevron?: boolean;
+  isLoading?: boolean;
+  Component?: React.ElementType;
+  section?: number;
+  customContent?: React.ReactNode;
 }
 
 const initialState: State = {
@@ -67,14 +82,8 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const { colors } = useTheme();
+  const { layout, styles } = useNativePlatformTheme();
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
-
-  const styleHooks = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
-  });
 
   const initializeState = useCallback(async () => {
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
@@ -88,113 +97,258 @@ const EncryptStorage = () => {
     initializeState();
   }, [initializeState]);
 
-  const handleDecryptStorage = async () => {
+  const handleDecryptStorage = useCallback(async () => {
     dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
     promptRef.current?.present();
-  };
+  }, []);
 
-  const onEncryptStorageSwitch = async (value: boolean) => {
-    dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'encrypt' });
-    dispatch({ type: ActionType.SetLoading, payload: true });
+  const onEncryptStorageSwitch = useCallback(
+    async (value: boolean) => {
+      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'encrypt' });
+      dispatch({ type: ActionType.SetLoading, payload: true });
 
-    if (value) {
-      dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
-      promptRef.current?.present();
-    } else {
-      Alert.alert(
-        loc.settings.encrypt_decrypt,
-        loc.settings.encrypt_decrypt_q,
-        [
-          {
-            text: loc._.cancel,
-            style: 'cancel',
-            onPress: () => {
-              dispatch({ type: ActionType.SetLoading, payload: false });
-              dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+      if (value) {
+        dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
+        promptRef.current?.present();
+      } else {
+        Alert.alert(
+          loc.settings.encrypt_decrypt,
+          loc.settings.encrypt_decrypt_q,
+          [
+            {
+              text: loc._.cancel,
+              style: 'cancel',
+              onPress: () => {
+                dispatch({ type: ActionType.SetLoading, payload: false });
+                dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+              },
             },
-          },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            onPress: handleDecryptStorage,
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              onPress: handleDecryptStorage,
+            },
+          ],
+          { cancelable: false },
+        );
+      }
+    },
+    [handleDecryptStorage],
+  );
 
-  const onUseBiometricSwitch = async (value: boolean) => {
-    dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'biometric' });
-    if (await unlockWithBiometrics()) {
-      setBiometricUseEnabled(value);
-      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-    } else {
-      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-    }
-  };
+  const onUseBiometricSwitch = useCallback(
+    async (value: boolean) => {
+      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'biometric' });
+      if (await unlockWithBiometrics()) {
+        setBiometricUseEnabled(value);
+        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+      } else {
+        dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+      }
+    },
+    [setBiometricUseEnabled],
+  );
 
-  const navigateToPlausibleDeniability = () => {
+  const navigateToPlausibleDeniability = useCallback(() => {
     navigation.navigate('PlausibleDeniability');
-  };
+  }, [navigation]);
 
-  const popToTop = () => {
+  const popToTop = useCallback(() => {
     const action = StackActions.popToTop();
     navigation.dispatch(action);
-  };
+  }, [navigation]);
+
+  const settingsItems = useCallback((): SettingItem[] => {
+    const items: SettingItem[] = [];
+
+    // Biometric section
+    if (state.deviceBiometricCapable) {
+      items.push({
+        id: 'biometricsHeader',
+        title: loc.settings.biometrics,
+        section: 1,
+      });
+
+      items.push({
+        id: 'biometricUse',
+        title: loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! }),
+        subtitle: (
+          <>
+            <Text style={styles.subtitleText}>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</Text>
+            {Platform.OS === 'android' && Platform.Version >= 30 && (
+              <Text style={styles.subtitleText}>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</Text>
+            )}
+          </>
+        ),
+        isSwitch: true,
+        switchValue: biometricEnabled,
+        onSwitchValueChange: onUseBiometricSwitch,
+        switchDisabled: state.currentLoadingSwitch !== null,
+        isLoading: state.currentLoadingSwitch === 'biometric' && state.isLoading,
+        testID: 'BiometricUseSwitch',
+        Component: View,
+        section: 1,
+      });
+
+      // Add spacing between sections
+      items.push({
+        id: 'section1Spacing',
+        title: '',
+        customContent: <View style={styles.sectionSpacing} />,
+        section: 1.5,
+      });
+    }
+
+    // Encryption section
+    items.push({
+      id: 'encryptionHeader',
+      title: loc.settings.encrypt_tstorage,
+      section: 2,
+    });
+
+    items.push({
+      id: 'encryptStorage',
+      title: loc.settings.encrypt_enc_and_pass,
+      isSwitch: true,
+      switchValue: state.storageIsEncryptedSwitchEnabled,
+      onSwitchValueChange: onEncryptStorageSwitch,
+      switchDisabled: state.currentLoadingSwitch !== null,
+      isLoading: state.currentLoadingSwitch === 'encrypt' && state.isLoading,
+      testID: 'EncyptedAndPasswordProtectedSwitch',
+      Component: View,
+      section: 2,
+    });
+
+    // Only show plausible deniability when storage is encrypted
+    if (state.storageIsEncryptedSwitchEnabled) {
+      items.push({
+        id: 'plausibleDeniability',
+        title: loc.settings.plausible_deniability,
+        onPress: navigateToPlausibleDeniability,
+        chevron: true,
+        testID: 'PlausibleDeniabilityButton',
+        section: 2,
+      });
+    }
+
+    return items;
+  }, [
+    state.deviceBiometricCapable,
+    state.storageIsEncryptedSwitchEnabled,
+    state.currentLoadingSwitch,
+    state.isLoading,
+    deviceBiometricType,
+    biometricEnabled,
+    onUseBiometricSwitch,
+    onEncryptStorageSwitch,
+    styles.subtitleText,
+    styles.sectionSpacing,
+    navigateToPlausibleDeniability,
+  ]);
+
+  const renderItem = useCallback(
+    (props: { item: SettingItem }) => {
+      const item = props.item;
+      const items = settingsItems();
+
+      if (item.customContent) {
+        return <>{item.customContent}</>;
+      }
+
+      // Handle section headers
+      if (item.title && !item.isSwitch && !item.onPress && item.section) {
+        return (
+          <View style={styles.sectionHeaderContainer}>
+            <Text style={styles.sectionHeaderText}>{item.title}</Text>
+          </View>
+        );
+      }
+
+      // Determine section grouping
+      const currentSectionItems = items.filter(i => i.section === item.section && (i.isSwitch || i.onPress || i.customContent));
+      const indexInSection = currentSectionItems.indexOf(item);
+      const isFirstInSection = indexInSection === 0;
+      const isLastInSection = indexInSection === currentSectionItems.length - 1;
+
+      // Apply corner radius styles for first and last items in a section
+      const containerStyle = [
+        styles.listItemContainer,
+        isFirstInSection && styles.topRoundedItem,
+        isLastInSection && styles.bottomRoundedItem,
+      ];
+
+      // Adjust styles dynamically based on plausible deniability visibility
+      if (item.id === 'encryptStorage' || item.id === 'plausibleDeniability') {
+        const isPlausibleDeniabilityVisible = items.some(i => i.id === 'plausibleDeniability');
+        if (item.id === 'encryptStorage') {
+          if (!isPlausibleDeniabilityVisible) {
+            containerStyle.push(styles.bottomRoundedItem);
+          } else {
+            containerStyle.push(styles.topRoundedItem);
+          }
+        }
+        if (item.id === 'plausibleDeniability') {
+          if (isPlausibleDeniabilityVisible) {
+            containerStyle.push(styles.bottomRoundedItem);
+          }
+        }
+      }
+
+      if (item.isSwitch) {
+        return (
+          <PlatformListItem
+            title={item.title}
+            subtitle={item.subtitle}
+            containerStyle={containerStyle}
+            Component={item.Component}
+            switch={{
+              value: item.switchValue || false,
+              onValueChange: item.onSwitchValueChange,
+              disabled: item.switchDisabled,
+            }}
+            isLoading={item.isLoading}
+            testID={item.testID}
+            isFirst={isFirstInSection}
+            isLast={isLastInSection}
+            bottomDivider={layout.showBorderBottom && !isLastInSection}
+          />
+        );
+      }
+
+      return (
+        <PlatformListItem
+          title={item.title}
+          subtitle={item.subtitle}
+          containerStyle={containerStyle}
+          onPress={item.onPress}
+          testID={item.testID}
+          chevron={item.chevron}
+          isFirst={isFirstInSection}
+          isLast={isLastInSection}
+          bottomDivider={layout.showBorderBottom && !isLastInSection}
+        />
+      );
+    },
+    [styles, layout.showBorderBottom, settingsItems],
+  );
+
+  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
+
+  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
 
   return (
-    <SafeAreaScrollView>
-      <View style={styles.paddingTop} />
-      {state.deviceBiometricCapable && (
-        <>
-          <Header leftText={loc.settings.biometrics} />
-          <ListItem
-            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
-            Component={TouchableWithoutFeedback}
-            switch={{
-              value: biometricEnabled,
-              onValueChange: onUseBiometricSwitch,
-              disabled: state.currentLoadingSwitch !== null,
-            }}
-            isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
-            containerStyle={[styles.row, styleHooks.root]}
-            subtitle={
-              <>
-                <Text style={styles.subtitleText}>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</Text>
-                {Platform.OS === 'android' && Platform.Version >= 30 && (
-                  <Text style={styles.subtitleText}>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</Text>
-                )}
-              </>
-            }
-          />
-        </>
-      )}
-      <BlueSpacing20 />
-      <Header leftText={loc.settings.encrypt_tstorage} />
-      <ListItem
-        testID="EncyptedAndPasswordProtected"
-        title={loc.settings.encrypt_enc_and_pass}
-        Component={TouchableWithoutFeedback}
-        switch={{
-          onValueChange: onEncryptStorageSwitch,
-          value: state.storageIsEncryptedSwitchEnabled,
-          disabled: state.currentLoadingSwitch !== null,
-          testID: 'EncyptedAndPasswordProtectedSwitch',
-        }}
-        isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
-        containerStyle={[styles.row, styleHooks.root]}
+    <>
+      <SafeAreaFlatList
+        style={styles.container}
+        data={settingsItems()}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeaderComponent}
+        contentContainerStyle={styles.contentContainer}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        removeClippedSubviews
       />
-      {state.storageIsEncryptedSwitchEnabled && (
-        <ListItem
-          onPress={navigateToPlausibleDeniability}
-          title={loc.settings.plausible_deniability}
-          chevron
-          testID="PlausibleDeniabilityButton"
-          Component={TouchableOpacityWrapper}
-          containerStyle={[styles.row, styleHooks.root]}
-        />
-      )}
       <PromptPasswordConfirmationModal
         ref={promptRef}
         modalType={state.modalType}
@@ -230,17 +384,8 @@ const EncryptStorage = () => {
           dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
         }}
       />
-    </SafeAreaScrollView>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  paddingTop: { paddingTop: 19 },
-  row: { minHeight: 60 },
-  subtitleText: {
-    fontSize: 14,
-    marginTop: 5,
-  },
-});
 
 export default EncryptStorage;

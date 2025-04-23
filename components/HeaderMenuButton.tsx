@@ -2,8 +2,8 @@ import React from 'react';
 import { Pressable, Platform } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
-import { Icon } from '@rneui/themed';
 import { Action } from './types';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 
 interface HeaderMenuButtonProps {
   onPressMenuItem: (id: string) => void;
@@ -24,7 +24,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
         android_ripple={{ color: colors.lightButton }}
         style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
       >
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
+        <Icon size={18} light name="ellipsis-h" color={colors.foregroundColor} {...styleProps} />
       </Pressable>
     );
   }
@@ -41,7 +41,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       actions={menuActions}
       title={title}
     >
-      <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
+      <Icon size={18} light name="ellipsis-h" color={colors.foregroundColor} {...styleProps} />
     </ToolTipMenu>
   );
 };

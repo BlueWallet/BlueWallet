@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Badge, Icon, Text } from '@rneui/themed';
+import { Image, Text, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Badge, Icon } from '@rneui/themed';
 
 import {
   fiatToBTC,

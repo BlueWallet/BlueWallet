@@ -1,23 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, TextInput, View, Text, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import {
-  BlueBigCheckmark,
-  BlueButtonLink,
-  BlueCard,
-  BlueFormLabel,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueBigCheckmark, BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
-import { useTheme } from '../../components/themes';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useSettingsStyles } from '../../hooks/useSettingsStyles';
+import { usePlatformTheme } from '../../components/platformThemes';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -33,17 +27,10 @@ const BROADCAST_RESULT = Object.freeze({
 const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
-  const { colors } = useTheme();
+  const { styles } = useSettingsStyles();
+  const { colors } = usePlatformTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
-
-  const stylesHooks = StyleSheet.create({
-    input: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-  });
 
   const handleScannedData = useCallback((scannedData: string) => {
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
@@ -59,6 +46,11 @@ const Broadcast: React.FC = () => {
   }, []);
 
   const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
+
+  const clearTxHexInput = () => {
+    setTxHex('');
+    setBroadcastResult(BROADCAST_RESULT.none);
+  };
 
   const handleBroadcast = async () => {
     Keyboard.dismiss();
@@ -114,111 +106,70 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeArea>
-      <View style={styles.wrapper} testID="BroadcastView">
-        {BROADCAST_RESULT.success !== broadcastResult && (
-          <BlueCard style={styles.mainCard}>
-            <View style={styles.topFormRow}>
-              <BlueFormLabel>{status}</BlueFormLabel>
-              {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
-            </View>
+    <SafeAreaScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      {BROADCAST_RESULT.success !== broadcastResult && (
+        <View style={styles.isItMyAddressCard}>
+          <View style={styles.topFormRow}>
+            <Text style={styles.addressOwnershipText}>{status}</Text>
+            {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
+          </View>
 
-            <View style={[styles.input, stylesHooks.input]}>
-              <TextInput
-                style={styles.text}
-                multiline
-                editable
-                placeholderTextColor="#81868e"
-                value={txHex}
-                onChangeText={handleUpdateTxHex}
-                onSubmitEditing={Keyboard.dismiss}
-                testID="TxHex"
-              />
-            </View>
-            <BlueSpacing20 />
-
-            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
-            <BlueSpacing20 />
-
-            <Button
-              title={loc.send.broadcastButton}
-              onPress={handleBroadcast}
-              disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
-              testID="BroadcastButton"
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={styles.textInput}
+              multiline
+              editable
+              placeholderTextColor={colors.subtitleColor}
+              value={txHex}
+              onChangeText={handleUpdateTxHex}
+              onSubmitEditing={Keyboard.dismiss}
+              testID="TxHex"
             />
-            <BlueSpacing20 />
-          </BlueCard>
-        )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
-      </View>
-    </SafeArea>
+            {txHex && txHex.length > 0 && (
+              <TouchableOpacity onPress={clearTxHexInput} style={styles.clearButton}>
+                <Icon name="close" size={20} color={colors.subtitleColor} />
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          <BlueButtonLink title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+          <View style={styles.buttonSpacing} />
+          
+          <Button
+            title={loc.send.broadcastButton}
+            onPress={handleBroadcast}
+            disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
+            testID="BroadcastButton"
+          />
+        </View>
+      )}
+      {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
+    </SafeAreaScrollView>
   );
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
+  const { styles } = useSettingsStyles();
+
   if (!tx) {
     return null;
   }
 
   return (
-    <View style={styles.wrapper}>
-      <BlueCard>
-        <View style={styles.broadcastResultWrapper}>
-          <BlueBigCheckmark />
-          <BlueSpacing20 />
-          <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
-          <BlueSpacing10 />
-          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
-        </View>
-      </BlueCard>
+    <View style={styles.isItMyAddressCard}>
+      <BlueBigCheckmark />
+      <View style={styles.spacingMedium} />
+      <Text style={styles.addressOwnershipTextCentered}>{loc.settings.success_transaction_broadcasted}</Text>
+      <View style={styles.buttonSpacingSmall} />
+      <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
     </View>
   );
 };
 
 export default Broadcast;
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  broadcastResultWrapper: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-  },
-  mainCard: {
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  topFormRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingTop: 0,
-    paddingRight: 100,
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  text: {
-    padding: 8,
-    color: '#81868e',
-    maxHeight: 100,
-    minHeight: 100,
-    maxWidth: '100%',
-    minWidth: '100%',
-  },
-});

@@ -141,3 +141,9 @@ dependencies {
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 apply plugin: "com.bugsnag.android.gradle"
+
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialIcons.ttf', 'FontAwesome5.ttf' ] // Specify font files
+]
+
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
