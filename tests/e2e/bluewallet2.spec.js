@@ -613,6 +613,50 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
+  
+  it('can access Manage Wallets and find transactions by memo', async () => {
+  const lockFile = '/tmp/travislock.' + hashIt('t_manage_wallets_search');
+  if (process.env.TRAVIS) {
+    if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+  }
+  if (!process.env.HD_MNEMONIC_BIP84) {
+    console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+    return;
+  }
+
+  await device.launchApp({ newInstance: true });
+
+  // Go inside the wallet and set a memo
+  await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+  await waitFor(element(by.text('0.00069909')).atIndex(0)).toBeVisible().withTimeout(300000);
+  await element(by.text('0.00069909')).atIndex(0).tap();
+  await element(by.text('Details')).tap();
+  await element(by.type('android.widget.EditText')).replaceText('test1');
+  await element(by.type('android.widget.EditText')).tapReturnKey();
+  await device.pressBack();
+
+  // In WalletsList, we need to long press to access Manage Wallets
+  await waitForId('WalletsList');
+  await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).longPress();
+  await sleep(1000); // Wait for animation
+
+  // Use the search bar to find our transaction with "test1" note
+  if (device.getPlatform() === 'ios') {
+    await element(by.traits(['searchField'])).atIndex(0).typeText('test1');
+  } else {
+    try {
+      await element(by.id('action_search')).tap();
+    } catch (e) {
+      console.log('Search action not found, trying direct input');
+    }
+    await element(by.type('android.widget.EditText')).typeText('test1');
+  }
+
+  await sleep(2000); // Allow time for search results
+  await expect(element(by.text('test1'))).toBeVisible();
+
+  process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+});
 
   it('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t23');
@@ -638,42 +682,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
     await element(by.type('android.widget.EditText')).replaceText('test1');
     await element(by.type('android.widget.EditText')).tapReturnKey();
-
-    // Confirm we can search for test1 in Manage Wallets
-    await device.pressBack();
-
-    // In WalletsList, we need to long press to access Manage Wallets
-    await waitForId('WalletsList');
-
-    // Long press on the wallet item to enter Manage Wallets
-    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).longPress();
-    await sleep(1000); // Wait for animation
-
-    // Now we're in the Manage Wallets screen
-    // Use the search bar to find our transaction with "test1" note
-    if (device.getPlatform() === 'ios') {
-      // iOS uses the React Navigation search bar
-      await element(by.traits(['searchField']))
-        .atIndex(0)
-        .typeText('test1');
-    } else {
-      // For Android
-      // Find the search icon in the header and tap it
-      try {
-        await element(by.id('action_search')).tap();
-      } catch (e) {
-        // If action_search isn't found, the search bar might already be visible
-        console.log('Search action not found, trying direct input');
-      }
-
-      // Type in the search query
-      await element(by.type('android.widget.EditText')).typeText('test1');
-    }
-
-    await sleep(2000); // Allow time for search results
-
-    // Verify that the search results include our transaction with "test1"
-    await expect(element(by.text('test1'))).toBeVisible();
 
     // Terminate and reopen the app to confirm the note is persisted
     await device.launchApp({ newInstance: true });
