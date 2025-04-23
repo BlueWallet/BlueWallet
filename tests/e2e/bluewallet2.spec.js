@@ -639,6 +639,42 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.type('android.widget.EditText')).replaceText('test1');
     await element(by.type('android.widget.EditText')).tapReturnKey();
 
+    // Confirm we can search for test1 in Manage Wallets
+    await device.pressBack();
+
+    // In WalletsList, we need to long press to access Manage Wallets
+    await waitForId('WalletsList');
+
+    // Long press on the wallet item to enter Manage Wallets
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).longPress();
+    await sleep(1000); // Wait for animation
+
+    // Now we're in the Manage Wallets screen
+    // Use the search bar to find our transaction with "test1" note
+    if (device.getPlatform() === 'ios') {
+      // iOS uses the React Navigation search bar
+      await element(by.traits(['searchField']))
+        .atIndex(0)
+        .typeText('test1');
+    } else {
+      // For Android
+      // Find the search icon in the header and tap it
+      try {
+        await element(by.id('action_search')).tap();
+      } catch (e) {
+        // If action_search isn't found, the search bar might already be visible
+        console.log('Search action not found, trying direct input');
+      }
+
+      // Type in the search query
+      await element(by.type('android.widget.EditText')).typeText('test1');
+    }
+
+    await sleep(2000); // Allow time for search results
+
+    // Verify that the search results include our transaction with "test1"
+    await expect(element(by.text('test1'))).toBeVisible();
+
     // Terminate and reopen the app to confirm the note is persisted
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
