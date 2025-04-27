@@ -196,7 +196,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
-            if (err instanceof Error) {
+            if (err) {
               presentAlert({ message: (err as Error).message, type: AlertType.Toast });
             }
           }
