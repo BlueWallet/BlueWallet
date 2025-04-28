@@ -384,7 +384,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     borderColor: primaryColor + '20',
   };
 
-  const childItemStyle = () => ({
+  const childItemStyle = (index: number): ViewStyle => ({
     marginHorizontal: 10,
     marginVertical: 4,
     borderLeftWidth: 3,
