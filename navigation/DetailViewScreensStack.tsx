@@ -53,6 +53,7 @@ import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
+import ManageWallets from '../screen/wallets/ManageWallets';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -306,6 +307,16 @@ const DetailViewStackScreensStack = () => {
         name="SettingsPrivacy"
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ManageWallets"
+        component={ManageWallets}
+        options={{
+          presentation: 'fullScreenModal',
+          title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
+          headerShown: true,
+        }}
       />
     </DetailViewStack.Navigator>
   );
