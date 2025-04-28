@@ -12,6 +12,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { usePreventRemove } from '@react-navigation/native';
@@ -25,13 +26,9 @@ import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
+import { ItemType, AddressItemData } from '../../models/itemTypes';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
-
-enum ItemType {
-  WalletSection = 'wallet',
-  TransactionSection = 'transaction',
-}
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -43,7 +40,12 @@ interface TransactionItem {
   data: ExtendedTransaction & LightningTransaction;
 }
 
-type Item = WalletItem | TransactionItem;
+interface AddressItem {
+  type: ItemType.AddressSection;
+  data: AddressItemData;
+}
+
+type Item = WalletItem | TransactionItem | AddressItem;
 
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
@@ -145,24 +147,163 @@ const reducer = (state: State, action: Action): State => {
       const query = action.payload.toLowerCase();
       const filteredWallets = state.availableWallets
         .filter(wallet => wallet.getLabel()?.toLowerCase().includes(query))
-        .map(wallet => ({ type: ItemType.WalletSection, data: wallet }));
+        .map(wallet => ({ type: ItemType.WalletSection, data: wallet }) as WalletItem);
 
-      const filteredTxMetadata = Object.entries(state.txMetadata).filter(([_, tx]) => tx.memo?.toLowerCase().includes(query));
+      const finalOrder: Item[] = [...filteredWallets];
 
-      const filteredTransactions = state.availableWallets.flatMap(wallet =>
-        wallet
-          .getTransactions()
-          .filter((tx: Transaction) =>
-            filteredTxMetadata.some(([txid, txMeta]) => tx.hash === txid && txMeta.memo?.toLowerCase().includes(query)),
-          )
-          .map((tx: Transaction) => ({ type: ItemType.TransactionSection, data: tx as ExtendedTransaction & LightningTransaction })),
-      );
+      const walletToTransactionsMap: Record<string, Item[]> = {};
 
-      const filteredOrder = [...filteredWallets, ...filteredTransactions];
+      state.availableWallets.forEach(wallet => {
+        try {
+          const walletTransactions = wallet.getTransactions() || [];
+          const matchingTransactions = walletTransactions
+            .filter((tx: Transaction) => {
+              try {
+                if (!tx) return false;
+
+                const hasMemoMatch =
+                  tx.hash &&
+                  Object.entries(state.txMetadata).some(([txid, meta]) => tx.hash === txid && meta?.memo?.toLowerCase().includes(query));
+
+                const hashMatch = tx.hash?.toLowerCase().includes(query);
+
+                const valueMatch = tx.value !== undefined && tx.value.toString().includes(query);
+
+                return hasMemoMatch || hashMatch || valueMatch;
+              } catch (e) {
+                console.warn('Error filtering transaction:', e);
+                return false;
+              }
+            })
+            .map((tx: Transaction) => {
+              try {
+                return {
+                  type: ItemType.TransactionSection,
+                  data: tx as ExtendedTransaction & LightningTransaction,
+                } as TransactionItem;
+              } catch (e) {
+                console.warn('Error mapping transaction:', e);
+                return null;
+              }
+            })
+            .filter(Boolean) as TransactionItem[];
+
+          if (matchingTransactions.length > 0) {
+            const walletID = wallet.getID();
+            if (!walletToTransactionsMap[walletID]) {
+              walletToTransactionsMap[walletID] = [];
+            }
+
+            const walletAlreadyInList = finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID);
+
+            if (!walletAlreadyInList) {
+              walletToTransactionsMap[walletID].push({
+                type: ItemType.WalletSection,
+                data: wallet,
+              } as WalletItem);
+            }
+
+            walletToTransactionsMap[walletID].push(...matchingTransactions);
+          }
+        } catch (e) {
+          console.warn('Error processing wallet transactions:', e);
+        }
+      });
+
+      const addressResults: AddressItem[] = [];
+      state.availableWallets.forEach(wallet => {
+        try {
+          if ('_getExternalAddressByIndex' in wallet && '_getInternalAddressByIndex' in wallet) {
+            const externalLimit = wallet.getNextFreeAddressIndex ? wallet.getNextFreeAddressIndex() + 20 : 20;
+            for (let i = 0; i < externalLimit; i++) {
+              try {
+                const address = wallet._getExternalAddressByIndex(i);
+                if (address?.toLowerCase().includes(query)) {
+                  addressResults.push({
+                    type: ItemType.AddressSection,
+                    data: {
+                      address,
+                      walletID: wallet.getID(),
+                      index: i,
+                      isInternal: false,
+                    },
+                  });
+                }
+              } catch (e) {}
+            }
+
+            const internalLimit = wallet.getNextFreeChangeAddressIndex ? wallet.getNextFreeChangeAddressIndex() + 20 : 20;
+            for (let i = 0; i < internalLimit; i++) {
+              try {
+                const address = wallet._getInternalAddressByIndex(i);
+                if (address?.toLowerCase().includes(query)) {
+                  addressResults.push({
+                    type: ItemType.AddressSection,
+                    data: {
+                      address,
+                      walletID: wallet.getID(),
+                      index: i,
+                      isInternal: true,
+                    },
+                  });
+                }
+              } catch (e) {}
+            }
+          } else if ('getAddress' in wallet) {
+            const address = wallet.getAddress();
+            if (address && typeof address === 'string' && address.toLowerCase().includes(query)) {
+              addressResults.push({
+                type: ItemType.AddressSection,
+                data: {
+                  address,
+                  walletID: wallet.getID(),
+                  index: 0,
+                  isInternal: false,
+                },
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Error processing wallet addresses:', e);
+        }
+      });
+
+      const groupedAddressResults: Record<string, AddressItem[]> = {};
+      addressResults.forEach(item => {
+        const { walletID } = item.data;
+        if (!groupedAddressResults[walletID]) {
+          groupedAddressResults[walletID] = [];
+        }
+        groupedAddressResults[walletID].push(item);
+      });
+
+      Object.entries(groupedAddressResults).forEach(([walletID, addresses]) => {
+        const walletAlreadyInList =
+          finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID) ||
+          (walletToTransactionsMap[walletID] && walletToTransactionsMap[walletID].length > 0);
+
+        if (!walletAlreadyInList) {
+          const wallet = state.availableWallets.find(w => w.getID() === walletID);
+          if (wallet) {
+            finalOrder.push({
+              type: ItemType.WalletSection,
+              data: wallet,
+            } as WalletItem);
+          }
+        }
+
+        finalOrder.push(...addresses);
+      });
+
+      Object.values(walletToTransactionsMap).forEach(items => {
+        if (items.length > 0) {
+          finalOrder.push(...items);
+        }
+      });
 
       return {
         ...state,
-        currentWalletsOrder: filteredOrder,
+        currentWalletsOrder: finalOrder,
       };
     }
     case SAVE_CHANGES: {
@@ -237,6 +378,10 @@ const ManageWallets: React.FC = () => {
   }, [debouncedSearchQuery, state.originalWalletsOrder]);
 
   const hasUnsavedChanges = useMemo(() => {
+    if (state.searchQuery.length > 0 || state.isSearchFocused) {
+      return false;
+    }
+
     const currentWalletIds = state.currentWalletsOrder
       .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
       .map(item => item.data.getID());
@@ -265,7 +410,7 @@ const ManageWallets: React.FC = () => {
     }
 
     return false;
-  }, [state.currentWalletsOrder, state.initialWalletsBackup]);
+  }, [state.currentWalletsOrder, state.initialWalletsBackup, state.searchQuery, state.isSearchFocused]);
 
   usePreventRemove(hasUnsavedChanges && !saveInProgress, ({ data: preventRemoveData }) => {
     Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
@@ -418,11 +563,24 @@ const ManageWallets: React.FC = () => {
 
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
+      Keyboard.dismiss();
       const walletID = wallet.getID();
       goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
+      });
+    },
+    [goBack, navigate],
+  );
+
+  const navigateToAddress = useCallback(
+    (address: string, walletID: string) => {
+      Keyboard.dismiss();
+      goBack();
+      navigate('ReceiveDetails', {
+        walletID,
+        address,
       });
     },
     [goBack, navigate],
@@ -445,6 +603,7 @@ const ManageWallets: React.FC = () => {
           isDraggingDisabled={state.searchQuery.length > 0 || state.isSearchFocused}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
+          navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
           handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
@@ -458,6 +617,7 @@ const ManageWallets: React.FC = () => {
       state.searchQuery,
       state.isSearchFocused,
       navigateToWallet,
+      navigateToAddress,
       renderHighlightedText,
       handleDeleteWallet,
       handleToggleHideBalance,
@@ -479,17 +639,11 @@ const ManageWallets: React.FC = () => {
 
   const renderHeader = useMemo(() => {
     if (!state.searchQuery) return null;
-    const hasWallets = state.availableWallets.length > 0;
-    const filteredTxMetadata = Object.entries(state.txMetadata).filter(([_, tx]) =>
-      tx.memo?.toLowerCase().includes(state.searchQuery.toLowerCase()),
-    );
-    const hasTransactions = filteredTxMetadata.length > 0;
 
-    return (
-      !hasWallets &&
-      !hasTransactions && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
-    );
-  }, [state.searchQuery, state.availableWallets.length, state.txMetadata, stylesHook.noResultsText]);
+    const hasResults = state.currentWalletsOrder.length > 0;
+
+    return !hasResults && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>;
+  }, [state.searchQuery, state.currentWalletsOrder.length, stylesHook.noResultsText]);
 
   return (
     <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
