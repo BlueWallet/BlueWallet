@@ -54,7 +54,6 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
-import { ReceiveDetailsComponent } from './LazyLoadReceiveDetailsStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -309,19 +308,6 @@ const DetailViewStackScreensStack = () => {
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
-
-      <DetailViewStack.Screen
-        name="ReceiveDetails"
-        component={ReceiveDetailsComponent}
-        options={navigationStyle({
-          closeButtonPosition: CloseButtonPosition.Left,
-          title: loc.receive.header,
-          statusBarStyle: 'light',
-          headerShown: true,
-          presentation: 'modal',
-        })(theme)}
-      />
-
       <DetailViewStack.Screen
         name="ManageWallets"
         component={ManageWallets}
