@@ -1630,7 +1630,7 @@ PODS:
     - React-logger (= 0.77.2)
     - React-perflogger (= 0.77.2)
     - React-utils (= 0.77.2)
-  - ReactNativeCameraKit (14.2.0):
+  - ReactNativeCameraKit (15.0.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2347,7 +2347,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: f334cebc0beed0a72490492e978007082c03d533
   ReactCodegen: 6f764a42662ad6379fd3fbb9c09baff6e4797b20
   ReactCommon: 7763e59534d58e15f8f22121cdfe319040e08888
-  ReactNativeCameraKit: b8f892326f100d3fce71e99df80e6aad670177ed
+  ReactNativeCameraKit: c7cec02191d24b6607c002dff403d349a61f5e49
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: b9f5f78da5d16a853fe3dc22e8268d932fc45a83
   RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade

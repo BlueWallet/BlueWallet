@@ -2,6 +2,7 @@ export enum ItemType {
   WalletSection = 'wallet',
   TransactionSection = 'transaction',
   AddressSection = 'address',
+  WalletGroupSection = 'walletGroup',
 }
 
 export interface AddressItemData {
