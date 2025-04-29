@@ -3,7 +3,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Text,
   Alert,
   I18nManager,
   Animated,
@@ -28,6 +27,7 @@ import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
 import { WalletGroupComponent } from '../../components/ManageWalletsListItem';
+import HighlightedText from '../../components/HighlightedText';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -558,30 +558,9 @@ const ManageWallets: React.FC = () => {
   // Platform-specific highlight animation
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
-      const parts = text.split(new RegExp(`(${query})`, 'gi'));
-      return (
-        <Text>
-          {parts.map((part, index) =>
-            query && part.toLowerCase().includes(query.toLowerCase()) ? (
-              <Animated.View
-                key={`${index}-${query}`}
-                style={[
-                  styles.highlightedContainer,
-                  Platform.OS === 'ios' ? { transform: [{ scale: bounceAnim }] } : { backgroundColor: colors.brandingColor + '30' },
-                ]}
-              >
-                <Text style={[styles.highlighted, Platform.OS === 'ios' ? styles.iOSHighlight : styles.androidHighlight]}>{part}</Text>
-              </Animated.View>
-            ) : (
-              <Text key={`${index}-${query}`} style={query ? styles.dimmedText : styles.defaultText}>
-                {part}
-              </Text>
-            ),
-          )}
-        </Text>
-      );
+      return <HighlightedText text={text} query={query} bounceAnim={bounceAnim} />;
     },
-    [bounceAnim, colors.brandingColor],
+    [bounceAnim],
   );
 
   const handleDeleteWallet = useCallback(async (wallet: TWallet) => {
@@ -673,6 +652,7 @@ const ManageWallets: React.FC = () => {
       const compatibleState = {
         wallets: state.availableWallets,
         searchQuery: state.searchQuery,
+        isSearchFocused: state.isSearchFocused,
       };
 
       if (item.type === ItemType.WalletGroupSection) {
@@ -721,13 +701,18 @@ const ManageWallets: React.FC = () => {
 
   const onReordered = useCallback(
     (fromIndex: number, toIndex: number) => {
+      // Prevent reordering when search query is active or search bar is focused
+      if (state.searchQuery.length > 0 || state.isSearchFocused) {
+        return;
+      }
+
       const updatedOrder = [...state.currentWalletsOrder];
       const removed = updatedOrder.splice(fromIndex, 1);
       updatedOrder.splice(toIndex, 0, removed[0]);
 
       dispatch({ type: SET_TEMP_ORDER, payload: updatedOrder });
     },
-    [state.currentWalletsOrder],
+    [state.currentWalletsOrder, state.searchQuery, state.isSearchFocused],
   );
 
   const keyExtractor = useCallback((item: Item, index: number) => index.toString(), []);
@@ -780,47 +765,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-  },
-  dimmedText: {
-    opacity: 0.8,
-  },
-  defaultText: {
-    fontSize: 19,
-    fontWeight: '600',
-  },
-  highlighted: {
-    fontSize: 19,
-    fontWeight: '600',
-    color: 'black',
-    textShadowRadius: 1,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowColor: '#000',
-    textDecorationStyle: 'double',
-    textDecorationLine: 'underline',
-    alignSelf: 'flex-start',
-    padding: 2,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'white',
-  },
-  highlightedContainer: {
-    alignSelf: 'flex-start',
-  },
-  iOSHighlight: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'black',
-    textShadowRadius: 1,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowColor: '#000',
-  },
-  androidHighlight: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    color: 'black',
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-    textShadowRadius: 0,
   },
 });

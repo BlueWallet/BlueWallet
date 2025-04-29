@@ -25,6 +25,7 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HighlightedText from './HighlightedText';
 
 interface TransactionListItemProps {
   itemPriceUnit?: BitcoinUnit;
@@ -372,7 +373,20 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={subtitle ? (renderHighlightedText ? renderHighlightedText(subtitle, searchQuery ?? '') : subtitle) : undefined}
+          subtitle={
+            subtitle ? (
+              renderHighlightedText ? (
+                renderHighlightedText(subtitle, searchQuery ?? '')
+              ) : (
+                <HighlightedText
+                  text={subtitle}
+                  query={searchQuery ?? ''}
+                  caseSensitive={true}
+                  highlightOnlyFirstMatch={searchQuery ? searchQuery.length === 1 : false}
+                />
+              )
+            ) : undefined
+          }
           Component={View}
           subtitleProps={subtitleProps}
           chevron={false}

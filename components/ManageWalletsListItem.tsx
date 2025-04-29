@@ -36,7 +36,7 @@ interface ManageWalletsListItemProps {
   isPlaceHolder?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
-  state: { wallets: TWallet[]; searchQuery: string };
+  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
@@ -193,7 +193,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
     const backgroundColor = isActive || globalDragActive ? colors.brandingColor : colors.background;
 
-    const swipeDisabled = isActive || globalDragActive;
+    // Disable swiping only when search bar is focused or during active dragging
+    const swipeDisabled = isActive || globalDragActive || state.isSearchFocused === true;
 
     return (
       <Animated.View style={animatedStyle}>
