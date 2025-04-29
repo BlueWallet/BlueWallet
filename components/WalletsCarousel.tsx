@@ -27,6 +27,7 @@ import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
+import HighlightedText from './HighlightedText';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -358,7 +359,11 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
               {!isPlaceHolder && (
                 <>
                   <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-                    {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
+                    {renderHighlightedText && searchQuery ? (
+                      <HighlightedText text={item.getLabel()} query={searchQuery} />
+                    ) : (
+                      item.getLabel()
+                    )}
                   </Text>
                   <View style={iStyles.balanceContainer}>
                     {item.hideBalance ? (

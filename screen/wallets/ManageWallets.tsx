@@ -3,7 +3,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Text,
   Alert,
   I18nManager,
   Animated,
@@ -27,6 +26,8 @@ import HeaderRightButton from '../../components/HeaderRightButton';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 import useDebounce from '../../hooks/useDebounce';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { WalletGroupComponent } from '../../components/ManageWalletsListItem';
+import HighlightedText from '../../components/HighlightedText';
 
 const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
 
@@ -45,7 +46,14 @@ interface AddressItem {
   data: AddressItemData;
 }
 
-type Item = WalletItem | TransactionItem | AddressItem;
+interface WalletGroupItem {
+  type: ItemType.WalletGroupSection;
+  wallet: TWallet;
+  transactions: TransactionItem[];
+  addresses: AddressItem[];
+}
+
+type Item = WalletItem | TransactionItem | AddressItem | WalletGroupItem;
 
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
@@ -145,18 +153,37 @@ const reducer = (state: State, action: Action): State => {
     }
     case SET_FILTERED_ORDER: {
       const query = action.payload.toLowerCase();
-      const filteredWallets = state.availableWallets
-        .filter(wallet => wallet.getLabel()?.toLowerCase().includes(query))
-        .map(wallet => ({ type: ItemType.WalletSection, data: wallet }) as WalletItem);
 
-      const finalOrder: Item[] = [...filteredWallets];
+      // For tracking unique results across all categories
+      const finalOrder: Item[] = [];
+      const walletGroups: Record<string, WalletGroupItem> = {};
+      const processedWalletIds = new Set<string>();
 
-      const walletToTransactionsMap: Record<string, Item[]> = {};
-
+      // First pass: Find direct wallet matches
       state.availableWallets.forEach(wallet => {
+        const walletLabel = wallet.getLabel()?.toLowerCase() || '';
+        const walletId = wallet.getID();
+
+        // Direct wallet match - will be shown as standalone wallet
+        if (walletLabel.includes(query)) {
+          processedWalletIds.add(walletId);
+          finalOrder.push({
+            type: ItemType.WalletSection,
+            data: wallet,
+          } as WalletItem);
+        }
+      });
+
+      // Second pass: Find matching transactions and addresses
+      state.availableWallets.forEach(wallet => {
+        const walletId = wallet.getID();
+        const matchingTransactions: TransactionItem[] = [];
+        const matchingAddresses: AddressItem[] = [];
+
+        // Process transactions
         try {
           const walletTransactions = wallet.getTransactions() || [];
-          const matchingTransactions = walletTransactions
+          walletTransactions
             .filter((tx: Transaction) => {
               try {
                 if (!tx) return false;
@@ -166,7 +193,6 @@ const reducer = (state: State, action: Action): State => {
                   Object.entries(state.txMetadata).some(([txid, meta]) => tx.hash === txid && meta?.memo?.toLowerCase().includes(query));
 
                 const hashMatch = tx.hash?.toLowerCase().includes(query);
-
                 const valueMatch = tx.value !== undefined && tx.value.toString().includes(query);
 
                 return hasMemoMatch || hashMatch || valueMatch;
@@ -175,43 +201,21 @@ const reducer = (state: State, action: Action): State => {
                 return false;
               }
             })
-            .map((tx: Transaction) => {
+            .forEach((tx: Transaction) => {
               try {
-                return {
+                matchingTransactions.push({
                   type: ItemType.TransactionSection,
                   data: tx as ExtendedTransaction & LightningTransaction,
-                } as TransactionItem;
+                } as TransactionItem);
               } catch (e) {
                 console.warn('Error mapping transaction:', e);
-                return null;
               }
-            })
-            .filter(Boolean) as TransactionItem[];
-
-          if (matchingTransactions.length > 0) {
-            const walletID = wallet.getID();
-            if (!walletToTransactionsMap[walletID]) {
-              walletToTransactionsMap[walletID] = [];
-            }
-
-            const walletAlreadyInList = finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID);
-
-            if (!walletAlreadyInList) {
-              walletToTransactionsMap[walletID].push({
-                type: ItemType.WalletSection,
-                data: wallet,
-              } as WalletItem);
-            }
-
-            walletToTransactionsMap[walletID].push(...matchingTransactions);
-          }
+            });
         } catch (e) {
           console.warn('Error processing wallet transactions:', e);
         }
-      });
 
-      const addressResults: AddressItem[] = [];
-      state.availableWallets.forEach(wallet => {
+        // Process addresses
         try {
           if ('_getExternalAddressByIndex' in wallet && '_getInternalAddressByIndex' in wallet) {
             const externalLimit = wallet.getNextFreeAddressIndex ? wallet.getNextFreeAddressIndex() + 20 : 20;
@@ -219,7 +223,7 @@ const reducer = (state: State, action: Action): State => {
               try {
                 const address = wallet._getExternalAddressByIndex(i);
                 if (address?.toLowerCase().includes(query)) {
-                  addressResults.push({
+                  matchingAddresses.push({
                     type: ItemType.AddressSection,
                     data: {
                       address,
@@ -237,7 +241,7 @@ const reducer = (state: State, action: Action): State => {
               try {
                 const address = wallet._getInternalAddressByIndex(i);
                 if (address?.toLowerCase().includes(query)) {
-                  addressResults.push({
+                  matchingAddresses.push({
                     type: ItemType.AddressSection,
                     data: {
                       address,
@@ -252,7 +256,7 @@ const reducer = (state: State, action: Action): State => {
           } else if ('getAddress' in wallet) {
             const address = wallet.getAddress();
             if (address && typeof address === 'string' && address.toLowerCase().includes(query)) {
-              addressResults.push({
+              matchingAddresses.push({
                 type: ItemType.AddressSection,
                 data: {
                   address,
@@ -266,39 +270,24 @@ const reducer = (state: State, action: Action): State => {
         } catch (e) {
           console.warn('Error processing wallet addresses:', e);
         }
-      });
 
-      const groupedAddressResults: Record<string, AddressItem[]> = {};
-      addressResults.forEach(item => {
-        const { walletID } = item.data;
-        if (!groupedAddressResults[walletID]) {
-          groupedAddressResults[walletID] = [];
-        }
-        groupedAddressResults[walletID].push(item);
-      });
-
-      Object.entries(groupedAddressResults).forEach(([walletID, addresses]) => {
-        const walletAlreadyInList =
-          finalOrder.some(item => item.type === ItemType.WalletSection && item.data.getID() === walletID) ||
-          (walletToTransactionsMap[walletID] && walletToTransactionsMap[walletID].length > 0);
-
-        if (!walletAlreadyInList) {
-          const wallet = state.availableWallets.find(w => w.getID() === walletID);
-          if (wallet) {
-            finalOrder.push({
-              type: ItemType.WalletSection,
-              data: wallet,
-            } as WalletItem);
+        // If we have matching transactions or addresses, create a wallet group
+        if (matchingTransactions.length > 0 || matchingAddresses.length > 0) {
+          // Only add a wallet group if the wallet isn't already shown as a direct match
+          if (!processedWalletIds.has(walletId)) {
+            walletGroups[walletId] = {
+              type: ItemType.WalletGroupSection,
+              wallet,
+              transactions: matchingTransactions,
+              addresses: matchingAddresses,
+            };
           }
         }
-
-        finalOrder.push(...addresses);
       });
 
-      Object.values(walletToTransactionsMap).forEach(items => {
-        if (items.length > 0) {
-          finalOrder.push(...items);
-        }
+      // Add all wallet groups to the final results
+      Object.values(walletGroups).forEach(group => {
+        finalOrder.push(group);
       });
 
       return {
@@ -357,6 +346,7 @@ const ManageWallets: React.FC = () => {
     },
   };
   const [uiData, setUiData] = useState(state.currentWalletsOrder);
+  const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const listRef = useRef<FlatList<Item> | null>(null);
   const [saveInProgress, setSaveInProgress] = useState(false);
@@ -371,11 +361,76 @@ const ManageWallets: React.FC = () => {
 
   useEffect(() => {
     if (debouncedSearchQuery) {
+      if (Platform.OS === 'ios') {
+        LayoutAnimation.configureNext({
+          duration: 300,
+          create: {
+            type: LayoutAnimation.Types.spring,
+            property: LayoutAnimation.Properties.opacity,
+            springDamping: 0.85,
+          },
+          update: {
+            type: LayoutAnimation.Types.spring,
+            springDamping: 0.85,
+          },
+          delete: {
+            type: LayoutAnimation.Types.spring,
+            property: LayoutAnimation.Properties.opacity,
+            springDamping: 0.85,
+          },
+        });
+      } else {
+        LayoutAnimation.configureNext({
+          duration: 250,
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          update: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+          },
+          delete: {
+            duration: 200,
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+        });
+      }
       dispatch({ type: SET_FILTERED_ORDER, payload: debouncedSearchQuery });
     } else {
+      if (Platform.OS === 'ios') {
+        LayoutAnimation.configureNext({
+          duration: 250,
+          create: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+          update: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+          },
+          delete: {
+            type: LayoutAnimation.Types.easeInEaseOut,
+            property: LayoutAnimation.Properties.opacity,
+          },
+        });
+      } else {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      }
       dispatch({ type: SET_TEMP_ORDER, payload: state.originalWalletsOrder });
     }
   }, [debouncedSearchQuery, state.originalWalletsOrder]);
+
+  useEffect(() => {
+    if (state.searchQuery && state.currentWalletsOrder.length === 0) {
+      Animated.timing(noResultsOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      noResultsOpacity.setValue(0);
+    }
+  }, [state.searchQuery, state.currentWalletsOrder.length, noResultsOpacity]);
 
   const hasUnsavedChanges = useMemo(() => {
     if (state.searchQuery.length > 0 || state.isSearchFocused) {
@@ -500,45 +555,49 @@ const ManageWallets: React.FC = () => {
     });
   }, [setOptions, HeaderLeftButton, SaveButton]);
 
+  // Platform-specific highlight animation
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
-      const parts = text.split(new RegExp(`(${query})`, 'gi'));
-      return (
-        <Text>
-          {parts.map((part, index) =>
-            query && part.toLowerCase().includes(query.toLowerCase()) ? (
-              <Animated.View key={`${index}-${query}`} style={[styles.highlightedContainer, { transform: [{ scale: bounceAnim }] }]}>
-                <Text style={styles.highlighted}>{part}</Text>
-              </Animated.View>
-            ) : (
-              <Text key={`${index}-${query}`} style={query ? styles.dimmedText : styles.defaultText}>
-                {part}
-              </Text>
-            ),
-          )}
-        </Text>
-      );
+      return <HighlightedText text={text} query={query} bounceAnim={bounceAnim} />;
     },
     [bounceAnim],
   );
 
   const handleDeleteWallet = useCallback(async (wallet: TWallet) => {
-    LayoutAnimation.configureNext({
-      duration: 300,
-      create: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-        duration: 200,
-      },
-    });
+    if (Platform.OS === 'ios') {
+      LayoutAnimation.configureNext({
+        duration: 300,
+        create: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+        },
+        delete: {
+          type: LayoutAnimation.Types.spring,
+          property: LayoutAnimation.Properties.scaleXY,
+          springDamping: 0.9,
+          duration: 300,
+        },
+      });
+    } else {
+      LayoutAnimation.configureNext({
+        duration: 250,
+        create: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: {
+          type: LayoutAnimation.Types.easeInEaseOut,
+        },
+        delete: {
+          type: LayoutAnimation.Types.easeOut,
+          property: LayoutAnimation.Properties.opacity,
+          duration: 200,
+        },
+      });
+    }
 
     dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
   }, []);
@@ -593,7 +652,23 @@ const ManageWallets: React.FC = () => {
       const compatibleState = {
         wallets: state.availableWallets,
         searchQuery: state.searchQuery,
+        isSearchFocused: state.isSearchFocused,
       };
+
+      if (item.type === ItemType.WalletGroupSection) {
+        return (
+          <WalletGroupComponent
+            wallet={item.wallet}
+            transactions={item.transactions}
+            addresses={item.addresses}
+            state={compatibleState}
+            navigateToWallet={navigateToWallet}
+            navigateToAddress={navigateToAddress}
+            renderHighlightedText={renderHighlightedText}
+            isSearching={state.searchQuery.length > 0}
+          />
+        );
+      }
 
       return (
         <ManageWalletsListItem
@@ -626,30 +701,30 @@ const ManageWallets: React.FC = () => {
 
   const onReordered = useCallback(
     (fromIndex: number, toIndex: number) => {
+      // Prevent reordering when search query is active or search bar is focused
+      if (state.searchQuery.length > 0 || state.isSearchFocused) {
+        return;
+      }
+
       const updatedOrder = [...state.currentWalletsOrder];
       const removed = updatedOrder.splice(fromIndex, 1);
       updatedOrder.splice(toIndex, 0, removed[0]);
 
       dispatch({ type: SET_TEMP_ORDER, payload: updatedOrder });
     },
-    [state.currentWalletsOrder],
+    [state.currentWalletsOrder, state.searchQuery, state.isSearchFocused],
   );
 
   const keyExtractor = useCallback((item: Item, index: number) => index.toString(), []);
 
-  const renderHeader = useMemo(() => {
-    if (!state.searchQuery) return null;
-
-    const hasResults = state.currentWalletsOrder.length > 0;
-
-    return !hasResults && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>;
-  }, [state.searchQuery, state.currentWalletsOrder.length, stylesHook.noResultsText]);
-
   return (
     <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
       <GestureHandlerRootView style={[{ backgroundColor: colors.background }, styles.root]}>
-        <>
-          {renderHeader}
+        {state.searchQuery && state.currentWalletsOrder.length === 0 ? (
+          <Animated.View style={[styles.noResultsContainer, { opacity: noResultsOpacity }]}>
+            <Animated.Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Animated.Text>
+          </Animated.View>
+        ) : (
           <DragList
             automaticallyAdjustContentInsets
             automaticallyAdjustKeyboardInsets
@@ -662,7 +737,7 @@ const ManageWallets: React.FC = () => {
             renderItem={renderItem}
             ref={listRef}
           />
-        </>
+        )}
       </GestureHandlerRootView>
     </Suspense>
   );
@@ -685,30 +760,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 19,
   },
-  dimmedText: {
-    opacity: 0.8,
-  },
-  defaultText: {
-    fontSize: 19,
-    fontWeight: '600',
-  },
-  highlighted: {
-    fontSize: 19,
-    fontWeight: '600',
-    color: 'black',
-    textShadowRadius: 1,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowColor: '#000',
-    textDecorationStyle: 'double',
-    textDecorationLine: 'underline',
-    alignSelf: 'flex-start',
-    padding: 2,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'white',
-  },
-  highlightedContainer: {
-    alignSelf: 'flex-start',
+  noResultsContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
   },
 });
