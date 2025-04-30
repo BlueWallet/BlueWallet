@@ -410,8 +410,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       prevProps.item.hash === nextProps.item.hash &&
       prevProps.item.received === nextProps.item.received &&
       prevProps.itemPriceUnit === nextProps.itemPriceUnit &&
-      prevProps.walletID === nextProps.walletID &&
-      prevProps.searchQuery === nextProps.searchQuery
+      prevProps.walletID === nextProps.walletID
     );
   },
 );

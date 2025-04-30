@@ -32,14 +32,14 @@ interface AddressItemProps {
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-const AddressItem = ({ 
-  item, 
-  balanceUnit, 
-  walletID, 
-  allowSignVerifyMessage, 
+const AddressItem = ({
+  item,
+  balanceUnit,
+  walletID,
+  allowSignVerifyMessage,
   onPress,
   searchQuery = '',
-  renderHighlightedText
+  renderHighlightedText,
 }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
@@ -173,7 +173,7 @@ const AddressItem = ({
         />
       );
     }
-    
+
     return (
       <Text style={[stylesHook.address, styles.address]} numberOfLines={1} ellipsizeMode="middle">
         {item.address}
