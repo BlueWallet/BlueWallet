@@ -27,18 +27,23 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
         | [string, object | undefined, { merge?: boolean }]
         | [{ name: string; params?: object; path?: string; merge?: boolean }]
     ) => {
-      let screenName: string;
+      let screenOrOptions: any;
       let params: any;
       let options: { merge?: boolean } | undefined;
 
       if (typeof args[0] === 'string') {
-        screenName = args[0];
+        screenOrOptions = args[0];
         params = args[1];
         options = args[2];
-      } else if (typeof args[0] === 'object' && 'name' in args[0]) {
-        screenName = args[0].name;
-        params = args[0].params;
-        options = { merge: args[0].merge };
+      } else {
+        screenOrOptions = args[0];
+      }
+      let screenName: string;
+      if (typeof screenOrOptions === 'string') {
+        screenName = screenOrOptions;
+      } else if (typeof screenOrOptions === 'object' && 'name' in screenOrOptions) {
+        screenName = screenOrOptions.name;
+        params = screenOrOptions.params; // Assign params from object if present
       } else {
         throw new Error('Invalid navigation options');
       }
@@ -49,15 +54,30 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
       const proceedWithNavigation = () => {
         console.log('Proceeding with navigation to', screenName);
 
-        // Normal navigation handling
-        if (typeof args[0] === 'string') {
-          originalNavigation.navigate(screenName, params, options);
-        } else {
-          originalNavigation.navigate({
-            name: screenName,
-            params,
-            merge: options?.merge,
-          });
+        // Navigation logic based on current route and target screen
+        if (navigationRef.current?.isReady()) {
+          // Get the current route - we need to know which navigator we're in
+          const currentRoute = navigationRef.current.getCurrentRoute();
+          const currentRouteName = currentRoute?.name;
+
+          // Handle specific cases for nested navigation
+          if (currentRouteName === 'DrawerRoot') {
+            // If we're in DrawerRoot and trying to navigate to a screen that exists in DetailViewStackScreensStack
+            originalNavigation.navigate('DrawerRoot', {
+              screen: 'DetailViewStackScreensStack',
+              params: {
+                screen: screenName,
+                params,
+              },
+            });
+          } else {
+            // Normal navigation
+            if (typeof screenOrOptions === 'string') {
+              originalNavigation.navigate({ name: screenOrOptions, params, merge: options?.merge });
+            } else {
+              originalNavigation.navigate({ ...screenOrOptions, params, merge: options?.merge });
+            }
+          }
         }
       };
 
@@ -82,7 +102,6 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
             }
           }
         }
-        
         if (isRequiresWalletExportIsSaved) {
           console.log('Checking if wallet export is saved');
           let walletID: string | undefined;
