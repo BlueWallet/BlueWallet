@@ -120,7 +120,6 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
         lastIndex = matchIndex + searchQueryText.length;
         searchStartIndex = lastIndex;
 
-        // If we only want the first match, break
         if (highlightOnlyFirstMatch) {
           break;
         }
