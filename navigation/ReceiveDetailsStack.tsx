@@ -2,10 +2,11 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import ReceiveDetails from '../screen/receive/details';
+import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<ReceiveDetailsStackParamList>();
 
 const ReceiveDetailsStack = () => {
   const theme = useTheme();

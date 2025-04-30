@@ -38,7 +38,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
-import AmountInput from '../../components/AmountInput';
+import * as AmountInput from '../../components/AmountInput';
 import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
@@ -1276,9 +1276,9 @@ const SendDetails = () => {
     return (
       <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
         <View style={styles.amountInputContainer}>
-          <AmountInput
+          <AmountInput.AmountInput
             isLoading={isLoading}
-            amount={item.amount ? item.amount.toString() : null}
+            amount={item.amount ? item.amount.toString() : undefined}
             onAmountUnitChange={(unit: BitcoinUnit) => {
               setAddresses(addrs => {
                 const addr = addrs[index];
@@ -1292,7 +1292,7 @@ const SendDetails = () => {
                     break;
                   case BitcoinUnit.LOCAL_CURRENCY:
                     // also accounting for cached fiat->sat conversion to avoid rounding error
-                    addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
+                    addr.amountSats = AmountInput.getCachedSatoshis(String(addr.amount)) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
                     break;
                 }
 
