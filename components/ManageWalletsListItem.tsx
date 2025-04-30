@@ -291,7 +291,9 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
       walletID: item.data.walletID,
       allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-      onPress: () => navigateToAddress && navigateToAddress(item.data.address, item.data.walletID),
+      onPress: navigateToAddress ? () => navigateToAddress(item.data.address, item.data.walletID) : undefined,
+      searchQuery: state.searchQuery,
+      renderHighlightedText: renderHighlightedText,
     };
 
     return (
@@ -478,7 +480,10 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                     balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
                     walletID: address.data.walletID,
                     allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-                    onPress: () => navigateToAddress && navigateToAddress(address.data.address, address.data.walletID),
+                    // Use the onPress function returned by navigateToAddress instead of calling it directly
+                    onPress: navigateToAddress ? () => navigateToAddress(address.data.address, address.data.walletID) : undefined,
+                    searchQuery: state.searchQuery,
+                    renderHighlightedText: renderHighlightedText,
                   };
 
                   return (

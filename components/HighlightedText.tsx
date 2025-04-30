@@ -1,6 +1,7 @@
-import React, { useCallback, useRef, useEffect } from 'react';
-import { Text, Animated, StyleSheet, Platform, TextStyle } from 'react-native';
+import React, { useCallback, useMemo, useEffect } from 'react';
+import { Text, Animated, StyleSheet, Platform, TextStyle, View } from 'react-native';
 import { useTheme } from './themes';
+import useBounceAnimation from '../hooks/useBounceAnimation';
 
 interface HighlightedTextProps {
   text: string;
@@ -11,6 +12,11 @@ interface HighlightedTextProps {
   bounceAnim?: Animated.Value;
   caseSensitive?: boolean;
   highlightOnlyFirstMatch?: boolean;
+}
+
+interface TextPart {
+  text: string;
+  isMatch: boolean;
 }
 
 const HighlightedText: React.FC<HighlightedTextProps> = ({
@@ -24,244 +30,171 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
   highlightOnlyFirstMatch = false,
 }) => {
   const { colors } = useTheme();
-  const internalBounceAnim = useRef(new Animated.Value(1)).current;
-
+  const internalBounceAnim = useBounceAnimation(query);
   const bounceAnim = externalBounceAnim || internalBounceAnim;
 
-  useEffect(() => {
-    if (!externalBounceAnim && Platform.OS === 'ios' && query) {
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: 1.07,
-          duration: 100,
-          useNativeDriver: true,
-        }),
-        Animated.spring(bounceAnim, {
-          toValue: 1,
-          friction: 4,
-          tension: 20,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [query, bounceAnim, externalBounceAnim]);
+  // Create the highlighted style object
+  const highlightedStyle = useMemo(() => [
+    styles.highlight,
+    { 
+      backgroundColor: '#FFF5C0',
+      color: colors.foregroundColor,
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+      transform: Platform.OS === 'ios' ? [{ scale: bounceAnim }] : undefined,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.2,
+      shadowRadius: 1,
+      elevation: 2,
+    },
+    highlightStyle
+  ], [colors.foregroundColor, bounceAnim, highlightStyle]);
 
-  const renderHighlightedText = useCallback(() => {
-    if (!query) {
+  // Render an individual text part (highlighted or plain)
+  const renderTextPart = useCallback((part: TextPart, index: number) => {
+    if (part.isMatch) {
       return (
-        <Text style={[styles.defaultText, style]} numberOfLines={numberOfLines}>
-          {text}
+        <Animated.View
+          key={`highlight-container-${index}-${query}`} // Add query to key to force re-render when query changes
+          style={[
+            styles.highlightContainer,
+            {
+              transform: [{ scale: bounceAnim }],
+            }
+          ]}
+        >
+          <Animated.Text 
+            key={`highlight-${index}-${query}`} // Add query to key to force re-render when query changes
+            style={highlightedStyle}
+          >
+            {part.text}
+          </Animated.Text>
+        </Animated.View>
+      );
+    } else {
+      return (
+        <Text 
+          key={`text-${index}-${query}`} // Add query to key to force re-render when query changes
+          style={query ? styles.nonHighlightedText : undefined}
+        >
+          {part.text}
         </Text>
       );
     }
+  }, [query, highlightedStyle, bounceAnim]);
 
-    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim();
-
-    if (escapedQuery === '') {
-      return (
-        <Text style={[styles.defaultText, style]} numberOfLines={numberOfLines}>
-          {text}
-        </Text>
-      );
+  // Process the text to find parts that should be highlighted
+  const textParts = useMemo((): TextPart[] => {
+    // If no query, return the full text as a single non-matched part
+    if (!query || query.trim() === '') {
+      return [{ text, isMatch: false }];
     }
 
     try {
-      if (escapedQuery.length === 1 && highlightOnlyFirstMatch) {
-        const searchChar = caseSensitive ? escapedQuery : escapedQuery.toLowerCase();
-        const processedText = caseSensitive ? text : text.toLowerCase();
-
-        const index = processedText.indexOf(searchChar);
-
-        if (index === -1) {
-          return (
-            <Text style={[styles.defaultText, style]} numberOfLines={numberOfLines}>
-              {text}
-            </Text>
-          );
-        }
-
-        const before = text.substring(0, index);
-        const match = text.substring(index, index + 1);
-        const after = text.substring(index + 1);
-
-        return (
-          <Text numberOfLines={numberOfLines} style={style || styles.defaultText}>
-            {before}
-            <Animated.View style={[styles.highlightedContainer, styles.singleCharacterContainer, { transform: [{ scale: bounceAnim }] }]}>
-              <Text
-                style={[
-                  styles.highlighted,
-                  Platform.OS === 'ios' ? styles.iOSHighlight : styles.androidHighlight,
-                  styles.singleCharacterText,
-                  highlightStyle,
-                ]}
-              >
-                {match}
-              </Text>
-            </Animated.View>
-            {after}
-          </Text>
-        );
+      const trimmedQuery = query.trim();
+      if (trimmedQuery === '') {
+        return [{ text, isMatch: false }];
       }
-
-      const queryWithFlexibleWhitespace = escapedQuery.replace(/\s+/g, '\\s+');
-
-      let regex: RegExp;
-      try {
-        regex = new RegExp(`(${queryWithFlexibleWhitespace})`, caseSensitive ? 'g' : 'gi');
-      } catch (error) {
-        return (
-          <Text style={[styles.defaultText, style]} numberOfLines={numberOfLines}>
-            {text}
-          </Text>
-        );
-      }
-
-      const parts = text.split(regex).filter(Boolean);
-
-      const isExactMatch = (part: string): boolean => {
-        if (caseSensitive) {
-          regex.lastIndex = 0;
-          return regex.test(part);
-        } else {
-          return part.toLowerCase().includes(escapedQuery.toLowerCase());
+      
+      const searchQuery = caseSensitive ? trimmedQuery : trimmedQuery.toLowerCase();
+      const processedText = caseSensitive ? text : text.toLowerCase();
+      
+      const parts: TextPart[] = [];
+      let lastIndex = 0;
+      let searchStartIndex = 0;
+      
+      // Find all occurrences of the query
+      while (true) {
+        const matchIndex = processedText.indexOf(searchQuery, searchStartIndex);
+        
+        // If no more matches, break out of the loop
+        if (matchIndex === -1) {
+          break;
         }
-      };
-
-      return (
-        <Text numberOfLines={numberOfLines} style={style}>
-          {parts.map((part, index) => {
-            const isMatch = isExactMatch(part);
-
-            if (isMatch) {
-              const isFirstHighlight = index === 0 || !isExactMatch(parts[index - 1]);
-              const isLastHighlight = index === parts.length - 1 || !isExactMatch(parts[index + 1]);
-
-              const highlightContainerStyle = [
-                styles.highlightedContainer,
-                isFirstHighlight && styles.firstHighlightContainer,
-                isLastHighlight && styles.lastHighlightContainer,
-                !isFirstHighlight && !isLastHighlight && styles.middleHighlightContainer,
-                Platform.OS === 'ios' ? { transform: [{ scale: bounceAnim }] } : { backgroundColor: colors.brandingColor + '30' },
-              ];
-
-              const highlightTextStyle = [
-                styles.highlighted,
-                Platform.OS === 'ios' ? styles.iOSHighlight : styles.androidHighlight,
-                isFirstHighlight && styles.firstHighlightText,
-                isLastHighlight && styles.lastHighlightText,
-                !isFirstHighlight && !isLastHighlight && styles.middleHighlightText,
-                highlightStyle,
-              ];
-
-              return (
-                <Animated.View key={`${index}-${part}`} style={highlightContainerStyle}>
-                  <Text style={highlightTextStyle}>{part}</Text>
-                </Animated.View>
-              );
-            } else {
-              return (
-                <Text key={`${index}-${part}`} style={[query ? styles.dimmedText : styles.defaultText, style]}>
-                  {part}
-                </Text>
-              );
-            }
-          })}
-        </Text>
-      );
+        
+        // Add the text before the match
+        if (matchIndex > lastIndex) {
+          parts.push({
+            text: text.substring(lastIndex, matchIndex),
+            isMatch: false
+          });
+        }
+        
+        // Add the exact matching text portion (using the original casing)
+        parts.push({
+          text: text.substring(matchIndex, matchIndex + searchQuery.length),
+          isMatch: true
+        });
+        
+        // Update indices
+        lastIndex = matchIndex + searchQuery.length;
+        searchStartIndex = lastIndex;
+        
+        // If we only want the first match, break
+        if (highlightOnlyFirstMatch) {
+          break;
+        }
+      }
+      
+      // Add any remaining text
+      if (lastIndex < text.length) {
+        parts.push({
+          text: text.substring(lastIndex),
+          isMatch: false
+        });
+      }
+      
+      return parts.length > 0 ? parts : [{ text, isMatch: false }];
     } catch (e) {
-      console.warn('Error in HighlightedText:', e);
-      return (
-        <Text style={[styles.defaultText, style]} numberOfLines={numberOfLines}>
-          {text}
-        </Text>
-      );
+      console.warn('Error processing text for highlighting:', e);
+      return [{ text, isMatch: false }];
     }
-  }, [query, text, bounceAnim, colors.brandingColor, numberOfLines, style, highlightStyle, caseSensitive, highlightOnlyFirstMatch]);
+  }, [text, query, caseSensitive, highlightOnlyFirstMatch]);
 
-  return renderHighlightedText();
+  // If only one part and it's not a match, render a simple Text component
+  if (textParts.length === 1 && !textParts[0].isMatch) {
+    return (
+      <Text style={[styles.text, style]} numberOfLines={numberOfLines}>
+        {text}
+      </Text>
+    );
+  }
+
+  // Render the text with highlighted parts
+  return (
+    <Text 
+      numberOfLines={numberOfLines} 
+      style={[styles.text, style]}
+      key={`highlighted-wrapper-${query}`} // Add query to key to force re-render when query changes
+    >
+      {textParts.map(renderTextPart)}
+    </Text>
+  );
 };
 
 const styles = StyleSheet.create({
-  dimmedText: {
+  text: {
+    fontSize: 16,
+  },
+  nonHighlightedText: {
     opacity: 0.8,
   },
-  defaultText: {
-    fontSize: 19,
+  highlightContainer: {
+    display: 'inline',
+    overflow: 'hidden',
+    margin: 0,
+    padding: 0,
+  },
+  highlight: {
     fontWeight: '600',
-  },
-  highlighted: {
-    fontSize: 19,
-    fontWeight: '600',
-    color: 'black',
-    textShadowRadius: 1,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowColor: '#000',
-    textDecorationStyle: 'double',
-    textDecorationLine: 'underline',
-    alignSelf: 'flex-start',
-    padding: 2,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: 'white',
-  },
-  highlightedContainer: {
-    alignSelf: 'flex-start',
-  },
-  iOSHighlight: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'black',
-    textShadowRadius: 1,
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowColor: '#000',
-  },
-  androidHighlight: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    color: 'black',
-    fontWeight: '700',
-    textDecorationLine: 'underline',
-    textShadowRadius: 0,
-  },
-  singleCharacterContainer: {
-    borderRadius: 5,
-  },
-  singleCharacterText: {
-    borderRadius: 5,
-  },
-  firstHighlightContainer: {
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-  },
-  lastHighlightContainer: {
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  middleHighlightContainer: {
-    borderRadius: 0,
-  },
-  firstHighlightText: {
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-    borderLeftWidth: 1,
-    marginLeft: 0,
-    borderRadius: 0,
-  },
-  lastHighlightText: {
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
-    borderRightWidth: 1,
-    marginRight: 0,
-    borderRadius: 0,
-  },
-  middleHighlightText: {
-    borderRadius: 0,
-    borderLeftWidth: 0,
-    borderRightWidth: 0,
-    marginLeft: -1,
-    marginRight: -1,
-  },
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+    marginHorizontal: 1,
+    overflow: 'hidden',
+    textDecorationLine: Platform.OS === 'android' ? 'underline' : 'none',
+  }
 });
 
 export default HighlightedText;
