@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import { Text, Animated, StyleSheet, Platform, TextStyle } from 'react-native';
 import useBounceAnimation from '../hooks/useBounceAnimation';
 
@@ -30,34 +30,53 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
 }) => {
   const internalBounceAnim = useBounceAnimation(query);
   const bounceAnim = externalBounceAnim || internalBounceAnim;
+  const [queryKey, setQueryKey] = useState<string>('');
+
+  useEffect(() => {
+    setQueryKey(query);
+  }, [query]);
+
+  const baseTextStyle = useMemo(() => {
+    if (!style) return {};
+
+    if (Array.isArray(style)) {
+      return style.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    }
+
+    return style;
+  }, [style]);
 
   const highlightedStyle = useMemo(
     () => ({
       ...styles.highlight,
-      backgroundColor: '#FFF5C0',
-      color: '#000000',
-      borderColor: 'rgba(255, 255, 255, 0.5)',
-      transform: Platform.OS === 'ios' ? [{ scale: bounceAnim }] : undefined,
-      shadowColor: '#000000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.2,
-      shadowRadius: 1,
-      elevation: 2,
       ...(highlightStyle || {}),
+      fontSize: baseTextStyle.fontSize,
+      fontFamily: baseTextStyle.fontFamily,
+      fontWeight: baseTextStyle.fontWeight || '600',
+      lineHeight: baseTextStyle.lineHeight,
+      letterSpacing: baseTextStyle.letterSpacing,
+      transform: Platform.OS === 'ios' ? [{ scale: bounceAnim }] : undefined,
     }),
-    [bounceAnim, highlightStyle],
+    [bounceAnim, highlightStyle, baseTextStyle],
   );
 
-  // Render an individual text part (highlighted or plain)
+  // Create a style for non-highlighted text parts that ensures it looks the same as original text
+  const nonHighlightedStyle = useMemo(
+    () => ({
+      ...baseTextStyle, // Copy all original text properties
+    }),
+    [baseTextStyle],
+  );
+
   const renderTextPart = useCallback(
     (part: TextPart, index: number) => {
       if (part.isMatch) {
         return (
           <Animated.View
-            key={`highlight-container-${index}-${query}`}
+            key={`highlight-container-${index}-${queryKey}`}
             style={[styles.highlightContainer, { transform: [{ scale: bounceAnim }] }]}
           >
-            <Animated.Text key={`highlight-${index}-${query}`} style={highlightedStyle}>
+            <Animated.Text key={`highlight-${index}-${queryKey}`} style={highlightedStyle}>
               {part.text}
             </Animated.Text>
           </Animated.View>
@@ -65,44 +84,38 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
       }
 
       return (
-        <Text key={`text-${index}-${query}`} style={query ? styles.nonHighlightedText : undefined}>
+        <Text key={`text-${index}-${queryKey}`} style={nonHighlightedStyle}>
           {part.text}
         </Text>
       );
     },
-    [query, highlightedStyle, bounceAnim],
+    [queryKey, highlightedStyle, bounceAnim, nonHighlightedStyle],
   );
 
-  // Process the text to find parts that should be highlighted
   const textParts = useMemo((): TextPart[] => {
-    // If no query, return the full text as a single non-matched part
-    if (!query || query.trim() === '') {
+    if (!query) {
       return [{ text, isMatch: false }];
     }
 
     try {
-      const trimmedQuery = query.trim();
-      if (trimmedQuery === '') {
+      const searchQueryText = caseSensitive ? query : query.toLowerCase();
+      const processedText = caseSensitive ? text : text.toLowerCase();
+
+      if (searchQueryText.trim() === '') {
         return [{ text, isMatch: false }];
       }
-
-      const searchQueryText = caseSensitive ? trimmedQuery : trimmedQuery.toLowerCase();
-      const processedText = caseSensitive ? text : text.toLowerCase();
 
       const parts: TextPart[] = [];
       let lastIndex = 0;
       let searchStartIndex = 0;
 
-      // Find all occurrences of the query
       while (true) {
         const matchIndex = processedText.indexOf(searchQueryText, searchStartIndex);
 
-        // If no more matches, break out of the loop
         if (matchIndex === -1) {
           break;
         }
 
-        // Add the text before the match
         if (matchIndex > lastIndex) {
           parts.push({
             text: text.substring(lastIndex, matchIndex),
@@ -110,13 +123,11 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
           });
         }
 
-        // Add the exact matching text portion (using the original casing)
         parts.push({
           text: text.substring(matchIndex, matchIndex + searchQueryText.length),
           isMatch: true,
         });
 
-        // Update indices
         lastIndex = matchIndex + searchQueryText.length;
         searchStartIndex = lastIndex;
 
@@ -125,7 +136,6 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
         }
       }
 
-      // Add any remaining text
       if (lastIndex < text.length) {
         parts.push({
           text: text.substring(lastIndex),
@@ -139,7 +149,6 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
     }
   }, [text, query, caseSensitive, highlightOnlyFirstMatch]);
 
-  // If only one part and it's not a match, render a simple Text component
   if (textParts.length === 1 && !textParts[0].isMatch) {
     return (
       <Text style={[styles.text, style]} numberOfLines={numberOfLines}>
@@ -148,9 +157,8 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
     );
   }
 
-  // Render the text with highlighted parts
   return (
-    <Text numberOfLines={numberOfLines} style={[styles.text, style]} key={`highlighted-wrapper-${query}`}>
+    <Text numberOfLines={numberOfLines} style={[styles.text, style]} key={`highlighted-wrapper-${queryKey}`}>
       {textParts.map(renderTextPart)}
     </Text>
   );
@@ -159,9 +167,6 @@ const HighlightedText: React.FC<HighlightedTextProps> = ({
 const styles = StyleSheet.create({
   text: {
     fontSize: 16,
-  },
-  nonHighlightedText: {
-    opacity: 0.8,
   },
   highlightContainer: {
     overflow: 'hidden',
@@ -177,6 +182,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 1,
     overflow: 'hidden',
     textDecorationLine: Platform.OS === 'android' ? 'underline' : 'none',
+    backgroundColor: '#FFF5C0',
+    color: '#000000',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2,
   },
 });
 

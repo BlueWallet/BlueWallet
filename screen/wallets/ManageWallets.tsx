@@ -103,7 +103,8 @@ type Action =
 interface State {
   searchQuery: string;
   isSearchFocused: boolean;
-  originalWallets: TWallet[];
+  originalWallets: TWallet[]; // Only used for verifying unsaved changes
+  walletsCopy: TWallet[]; // Copy used for display and filtering
   managedWalletsData: Item[];
   txMetadata: TTXMetadata;
 }
@@ -112,6 +113,7 @@ const initialState: State = {
   searchQuery: '',
   isSearchFocused: false,
   originalWallets: [],
+  walletsCopy: [],
   managedWalletsData: [],
   txMetadata: {},
 };
@@ -127,20 +129,28 @@ const reducer = (state: State, action: Action): State => {
     case SET_IS_SEARCH_FOCUSED:
       return { ...state, isSearchFocused: action.payload };
     case SET_INITIAL_DATA: {
-      const managedWalletsData: WalletItem[] = deepCopyWallets(action.payload.wallets).map(wallet => ({
+      const walletsCopy = deepCopyWallets(action.payload.wallets);
+      const managedWalletsData: WalletItem[] = walletsCopy.map(wallet => ({
         type: ItemType.WalletSection,
         data: wallet,
       }));
+
       return {
         ...state,
         originalWallets: deepCopyWallets(action.payload.wallets),
+        walletsCopy,
         txMetadata: action.payload.txMetadata,
         managedWalletsData,
       };
     }
     case SET_MANAGED_DATA: {
+      const updatedWalletsCopy = action.payload
+        .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+        .map(item => item.data);
+
       return {
         ...state,
+        walletsCopy: updatedWalletsCopy.length > 0 ? updatedWalletsCopy : state.walletsCopy,
         managedWalletsData: action.payload,
       };
     }
@@ -148,15 +158,18 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         originalWallets: deepCopyWallets(action.payload),
+        walletsCopy: deepCopyWallets(action.payload),
       };
     }
     case REMOVE_WALLET: {
-      const updatedOrder = state.managedWalletsData.filter(
-        item => item.type !== ItemType.WalletSection || item.data.getID() !== action.payload,
-      );
+      const walletId = action.payload;
+      const updatedOrder = state.managedWalletsData.filter(item => item.type !== ItemType.WalletSection || item.data.getID() !== walletId);
+      const updatedWalletsCopy = state.walletsCopy.filter(wallet => wallet.getID() !== walletId);
+
       return {
         ...state,
         managedWalletsData: updatedOrder,
+        walletsCopy: updatedWalletsCopy,
       };
     }
     default:
@@ -193,7 +206,6 @@ const ManageWallets: React.FC = () => {
     if (debouncedSearchQuery) {
       const lowerQuery = debouncedSearchQuery.toLowerCase();
 
-      // Track which wallets have matching items (transactions, addresses, or memos)
       const walletsWithMatches = new Map<
         string,
         {
@@ -203,171 +215,191 @@ const ManageWallets: React.FC = () => {
         }
       >();
 
-      // First check for transaction memos in txMetadata
-      Object.entries(state.txMetadata).forEach(([txid, metadata]) => {
-        if (metadata.memo && metadata.memo.toLowerCase().includes(lowerQuery)) {
-          // Find which wallet has this transaction
-          state.originalWallets.forEach(wallet => {
-            try {
-              // Check if the wallet contains this transaction
-              const tx = wallet.getTransactions().find((t: Transaction) => t.hash === txid || t.txid === txid);
-              if (tx) {
-                const walletID = wallet.getID();
+      const walletIdSet = new Set(state.walletsCopy.map(wallet => wallet.getID()));
 
-                if (!walletsWithMatches.has(walletID)) {
-                  walletsWithMatches.set(walletID, {
-                    wallet,
-                    transactions: [],
-                    addresses: [],
-                  });
+      const matchingTxids = Object.entries(state.txMetadata).filter(
+        ([_, metadata]) => metadata.memo && metadata.memo.toLowerCase().includes(lowerQuery),
+      );
+
+      if (matchingTxids.length > 0) {
+        const txidToWalletMap = new Map<string, string>();
+
+        state.walletsCopy.forEach(wallet => {
+          try {
+            const transactions = wallet.getTransactions();
+            if (transactions && transactions.length) {
+              const walletID = wallet.getID();
+              transactions.forEach((tx: Transaction) => {
+                const txid = tx.hash || tx.txid;
+                if (txid) {
+                  txidToWalletMap.set(txid, walletID);
                 }
-
-                // Add the transaction to the matching group
-                const group = walletsWithMatches.get(walletID)!;
-
-                // Only add if it's not already in the array
-                const alreadyAdded = group.transactions.some(item => item.data.hash === txid || item.data.txid === txid);
-
-                if (!alreadyAdded) {
-                  group.transactions.push({
-                    type: ItemType.TransactionSection,
-                    data: tx as ExtendedTransaction & LightningTransaction,
-                  });
-                }
-              }
-            } catch (e) {
-              // Skip if the wallet doesn't have getTransactions method or other errors
+              });
             }
-          });
-        }
-      });
+          } catch (e) {}
+        });
 
-      // Search through all wallets for addresses and additional transactions
-      state.originalWallets.forEach(wallet => {
+        matchingTxids.forEach(([txid]) => {
+          const walletID = txidToWalletMap.get(txid);
+          if (walletID && walletIdSet.has(walletID)) {
+            const wallet = state.walletsCopy.find(w => w.getID() === walletID);
+            if (wallet) {
+              if (!walletsWithMatches.has(walletID)) {
+                walletsWithMatches.set(walletID, {
+                  wallet,
+                  transactions: [],
+                  addresses: [],
+                });
+              }
+
+              try {
+                const tx = wallet.getTransactions().find((t: Transaction) => t.hash === txid || t.txid === txid);
+                if (tx) {
+                  const group = walletsWithMatches.get(walletID)!;
+                  const txExists = group.transactions.some(item => item.data.hash === txid || item.data.txid === txid);
+
+                  if (!txExists) {
+                    group.transactions.push({
+                      type: ItemType.TransactionSection,
+                      data: tx as ExtendedTransaction & LightningTransaction,
+                    });
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+        });
+      }
+
+      state.walletsCopy.forEach(wallet => {
         const walletID = wallet.getID();
         const walletLabel = wallet.getLabel() || '';
 
-        // Check if wallet label matches
-        const walletLabelMatches = walletLabel.toLowerCase().includes(lowerQuery);
-
-        // If wallet label matches, make sure it's in our map
-        if (walletLabelMatches && !walletsWithMatches.has(walletID)) {
+        if (walletLabel.toLowerCase().includes(lowerQuery) && !walletsWithMatches.has(walletID)) {
           walletsWithMatches.set(walletID, {
             wallet,
             transactions: [],
             addresses: [],
           });
         }
-
-        // Search through transactions
-        try {
-          const transactions = wallet.getTransactions() || [];
-
-          transactions.forEach((tx: Transaction) => {
-            const txid = tx.hash || tx.txid;
-            // Using value instead of amount since that's what the Transaction type has
-            const txAmount = tx.value?.toString() || '';
-            const txDate = tx.received?.toString() || '';
-
-            // Check if any transaction data matches the search query
-            const txMemoMatches =
-              txid &&
-              state.txMetadata[txid] &&
-              state.txMetadata[txid].memo &&
-              state.txMetadata[txid].memo.toLowerCase().includes(lowerQuery);
-
-            // Check if the transaction ID matches the search query
-            const txIdMatches = txid && txid.toLowerCase().includes(lowerQuery);
-
-            const txDataMatches = txAmount.includes(lowerQuery) || txDate.includes(lowerQuery);
-
-            if (txMemoMatches || txDataMatches || txIdMatches) {
-              if (!walletsWithMatches.has(walletID)) {
-                walletsWithMatches.set(walletID, {
-                  wallet,
-                  transactions: [],
-                  addresses: [],
-                });
-              }
-
-              const group = walletsWithMatches.get(walletID)!;
-
-              // Only add if it's not already in the array
-              const alreadyAdded = group.transactions.some(item => item.data.hash === txid || item.data.txid === txid);
-
-              if (!alreadyAdded) {
-                group.transactions.push({
-                  type: ItemType.TransactionSection,
-                  data: tx as ExtendedTransaction & LightningTransaction,
-                });
-              }
-            }
-          });
-        } catch (e) {
-          // Skip if wallet doesn't support getTransactions
-        }
-
-        // Search through addresses
-        try {
-          const addresses = wallet.getAllExternalAddresses() || [];
-
-          // Check if any address matches
-          addresses.forEach((address: any, index: number) => {
-            const addressValue = typeof address === 'string' ? address : address.address;
-            const addressLabel = typeof address === 'string' ? '' : address.label || '';
-
-            if (addressValue.toLowerCase().includes(lowerQuery) || addressLabel.toLowerCase().includes(lowerQuery)) {
-              if (!walletsWithMatches.has(walletID)) {
-                walletsWithMatches.set(walletID, {
-                  wallet,
-                  transactions: [],
-                  addresses: [],
-                });
-              }
-
-              const group = walletsWithMatches.get(walletID)!;
-
-              const addressItem: AddressItem = {
-                type: ItemType.AddressSection,
-                data: {
-                  address: addressValue,
-                  walletID,
-                  index,
-                  isInternal: false,
-                },
-              };
-
-              // Check if this address is already in the array
-              const alreadyAdded = group.addresses.some(item => item.data.address === addressValue);
-
-              if (!alreadyAdded) {
-                group.addresses.push(addressItem);
-              }
-            }
-          });
-        } catch (e) {
-          // Skip if wallet doesn't support getAllExternalAddresses
-        }
       });
 
-      // Now convert the map to the data format needed for the list
+      if (walletsWithMatches.size < 10) {
+        state.walletsCopy.forEach(wallet => {
+          const walletID = wallet.getID();
+
+          if (walletsWithMatches.has(walletID)) return;
+
+          try {
+            const transactions = wallet.getTransactions();
+            if (transactions && transactions.length) {
+              const txToProcess = Math.min(transactions.length, 100);
+
+              for (let i = 0; i < txToProcess; i++) {
+                const tx = transactions[i];
+                const txid = tx.hash || tx.txid;
+                if (!txid) continue;
+
+                const txAmount = tx.value?.toString() || '';
+                const txIdMatches = txid && txid.toLowerCase().includes(lowerQuery);
+                const txDataMatches = txAmount.includes(lowerQuery);
+
+                if (txIdMatches || txDataMatches) {
+                  if (!walletsWithMatches.has(walletID)) {
+                    walletsWithMatches.set(walletID, {
+                      wallet,
+                      transactions: [],
+                      addresses: [],
+                    });
+                  }
+
+                  const group = walletsWithMatches.get(walletID)!;
+                  if (!group.transactions.some(item => item.data.hash === txid || item.data.txid === txid)) {
+                    group.transactions.push({
+                      type: ItemType.TransactionSection,
+                      data: tx as ExtendedTransaction & LightningTransaction,
+                    });
+                  }
+
+                  break;
+                }
+              }
+            }
+          } catch (e) {}
+
+          if (walletsWithMatches.size < 20) {
+            try {
+              const addresses = wallet.getAllExternalAddresses();
+              if (addresses && addresses.length) {
+                const addressLimit = Math.min(addresses.length, 50);
+
+                for (let i = 0; i < addressLimit; i++) {
+                  const address = addresses[i];
+                  const addressValue = typeof address === 'string' ? address : (address as { address: string }).address || '';
+
+                  if (addressValue.toLowerCase().includes(lowerQuery)) {
+                    if (!walletsWithMatches.has(walletID)) {
+                      walletsWithMatches.set(walletID, {
+                        wallet,
+                        transactions: [],
+                        addresses: [],
+                      });
+                    }
+
+                    const group = walletsWithMatches.get(walletID)!;
+                    const addressItem: AddressItem = {
+                      type: ItemType.AddressSection,
+                      data: {
+                        address: addressValue,
+                        walletID,
+                        index: i,
+                        isInternal: false,
+                      },
+                    };
+
+                    if (!group.addresses.some(item => item.data.address === addressValue)) {
+                      group.addresses.push(addressItem);
+                    }
+
+                    break;
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        });
+      }
+
+      const resultItems = Array.from(walletsWithMatches.values());
       const result: Item[] = [];
 
-      // Process matches by wallet
-      walletsWithMatches.forEach((matchData, walletID) => {
+      resultItems.sort((a, b) => {
+        const aMatches = a.transactions.length + a.addresses.length;
+        const bMatches = b.transactions.length + b.addresses.length;
+        return bMatches - aMatches;
+      });
+
+      resultItems.forEach(matchData => {
         const { wallet, transactions, addresses } = matchData;
 
-        // If this wallet has transactions or addresses that match, create a group
         if (transactions.length > 0 || addresses.length > 0) {
-          // Add a wallet group item
+          transactions.sort((a, b) => {
+            if (a.data.received && b.data.received) {
+              return b.data.received - a.data.received;
+            }
+            return 0;
+          });
+
+          const limitedTransactions = transactions.slice(0, 15);
+          const limitedAddresses = addresses.slice(0, 10);
+
           result.push({
             type: ItemType.WalletGroupSection,
             wallet,
-            transactions,
-            addresses,
+            transactions: limitedTransactions,
+            addresses: limitedAddresses,
           });
         } else {
-          // If it's just the wallet label that matched, add a regular wallet item
           result.push({
             type: ItemType.WalletSection,
             data: wallet,
@@ -378,15 +410,13 @@ const ManageWallets: React.FC = () => {
       return result;
     }
 
-    // When not searching, return the original managed data
     return state.managedWalletsData;
-  }, [debouncedSearchQuery, state.managedWalletsData, state.originalWallets, state.txMetadata]);
+  }, [debouncedSearchQuery, state.managedWalletsData, state.walletsCopy, state.txMetadata]);
 
   useEffect(() => {
     dispatch({ type: SET_INITIAL_DATA, payload: { wallets: initialWalletsRef.current, txMetadata } });
   }, [txMetadata]);
 
-  // Handle no results animation
   useEffect(() => {
     if (state.searchQuery && getFilteredWalletsData().length === 0) {
       Animated.timing(noResultsOpacity, {
@@ -522,7 +552,6 @@ const ManageWallets: React.FC = () => {
     });
   }, [setOptions, HeaderLeftButton, SaveButton]);
 
-  // Platform-specific highlight animation
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
       return <HighlightedText text={text} query={query} bounceAnim={bounceAnim} />;
@@ -602,17 +631,15 @@ const ManageWallets: React.FC = () => {
 
   const navigateToAddress = useCallback(
     (address: string, walletID: string) => {
-      // First dismiss the modal and then navigate with a slight delay
       Keyboard.dismiss();
       goBack();
 
-      // Use setTimeout to ensure the modal is fully dismissed before navigation
       setTimeout(() => {
         navigate('ReceiveDetails', {
           walletID,
           address,
         });
-      }, 300);
+      }, 500);
     },
     [goBack, navigate],
   );
@@ -622,7 +649,7 @@ const ManageWallets: React.FC = () => {
       const { item, onDragStart, isActive } = info;
 
       const compatibleState = {
-        wallets: state.originalWallets,
+        wallets: state.walletsCopy,
         searchQuery: state.searchQuery,
         isSearchFocused: state.isSearchFocused,
       };
@@ -660,7 +687,7 @@ const ManageWallets: React.FC = () => {
       );
     },
     [
-      state.originalWallets,
+      state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
       navigateToWallet,
@@ -673,7 +700,6 @@ const ManageWallets: React.FC = () => {
 
   const onReordered = useCallback(
     (fromIndex: number, toIndex: number) => {
-      // Prevent reordering when search query is active or search bar is focused
       if (state.searchQuery.length > 0 || state.isSearchFocused) {
         return;
       }
@@ -699,7 +725,6 @@ const ManageWallets: React.FC = () => {
         ) : (
           <DragList
             automaticallyAdjustContentInsets
-            automaticallyAdjustKeyboardInsets
             automaticallyAdjustsScrollIndicatorInsets
             contentInsetAdjustmentBehavior="automatic"
             data={getFilteredWalletsData()}
@@ -708,7 +733,7 @@ const ManageWallets: React.FC = () => {
             onReordered={onReordered}
             renderItem={renderItem}
             ref={listRef}
-            extraData={debouncedSearchQuery} // Use extraData instead of key for re-renders
+            extraData={debouncedSearchQuery}
           />
         )}
       </GestureHandlerRootView>
