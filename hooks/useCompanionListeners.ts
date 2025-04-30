@@ -112,13 +112,18 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 }),
               );
             } else {
-              navigationRef.navigate('ReceiveDetailsRoot', {
-                screen: 'ReceiveDetails',
-                params: {
-                  walletID,
-                  address: payload.address,
-                },
-              });
+              navigationRef.dispatch(
+                CommonActions.navigate({
+                  name: 'ReceiveDetails',
+                  params: {
+                    walletID,
+                    address: payload.address,
+                  },
+                }),
+              );
+
+
+              
             }
 
             return true;
@@ -160,13 +165,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                   }),
                 );
               } else {
-                navigationRef.navigate('ReceiveDetailsRoot', {
-                  screen: 'ReceiveDetails',
-                  params: {
-                    walletID,
-                    address: payload.address,
-                  },
-                });
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'ReceiveDetails',
+                    params: {
+                      walletID,
+                      address: payload.address,
+                    },
+                  }),
+                );
               }
 
               return true;

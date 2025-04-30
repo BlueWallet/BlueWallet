@@ -290,9 +290,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
         }
       } else if (id === actionKeys.RefillWithExternalWallet) {
-        navigate('ReceiveDetails', {
-          walletID,
-        });
+        navigate('ReceiveDetails', { walletID });
       }
     },
     [name, navigate, onWalletSelect, walletID, wallets],
@@ -614,9 +612,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
               if (wallet.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID } });
               } else {
-                navigate('ReceiveDetails', {
-                  walletID,
-                });
+                navigate('ReceiveDetails', { walletID });
               }
             }}
             icon={
