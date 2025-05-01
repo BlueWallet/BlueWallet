@@ -360,7 +360,11 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                 <>
                   <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
                     {renderHighlightedText && searchQuery ? (
-                      <HighlightedText text={item.getLabel()} query={searchQuery} />
+                      <HighlightedText
+                        text={item.getLabel()}
+                        query={searchQuery}
+                        style={[iStyles.label, { color: colors.inverseForegroundColor }]}
+                      />
                     ) : (
                       item.getLabel()
                     )}

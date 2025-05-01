@@ -19,7 +19,6 @@ const WalletExportStack = lazy(() => import('./WalletExportStack'));
 const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisigCoordinationSetupStack'));
 const WalletXpubStackRoot = lazy(() => import('./WalletXpubStack'));
 const SignVerifyStackRoot = lazy(() => import('./SignVerifyStack'));
-const ReceiveDetailsStackRoot = lazy(() => import('./ReceiveDetailsStack'));
 const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
 const ViewEditMultisigCosigners = lazy(() => import('../screen/wallets/ViewEditMultisigCosigners'));
 
@@ -110,12 +109,6 @@ const LazySignVerifyStackRoot = () => (
   </Suspense>
 );
 
-const LazyReceiveDetailsStackRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ReceiveDetailsStackRoot />
-  </Suspense>
-);
-
 const LazyScanQRCodeComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <ScanQRCode />
@@ -171,7 +164,6 @@ const MainRoot = () => {
             component={LazySignVerifyStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
-          <DetailViewStack.Screen name="ReceiveDetailsRoot" component={LazyReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
 
           <DetailViewStack.Screen
             name="ScanQRCode"

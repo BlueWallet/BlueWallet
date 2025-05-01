@@ -18,6 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import HighlightedText from '../HighlightedText';
 
 interface AddressItemProps {
   item: any;
@@ -25,11 +26,21 @@ interface AddressItemProps {
   walletID: string;
   allowSignVerifyMessage: boolean;
   onPress?: () => void; // example: ManageWallets uses this
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage, onPress }: AddressItemProps) => {
+const AddressItem = ({
+  item,
+  balanceUnit,
+  walletID,
+  allowSignVerifyMessage,
+  onPress,
+  searchQuery = '',
+  renderHighlightedText,
+}: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -59,12 +70,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage, onPr
     if (onPress) {
       onPress();
     } else {
-      navigate('ReceiveDetailsRoot', {
-        screen: 'ReceiveDetails',
-        params: {
-          walletID,
-          address: item.address,
-        },
+      navigate('ReceiveDetails', {
+        walletID,
+        address: item.address,
       });
     }
   }, [navigate, walletID, item.address, onPress]);
@@ -149,6 +157,30 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage, onPr
 
   const renderPreview = useCallback(() => <QRCodeComponent value={item.address} isMenuAvailable={false} />, [item.address]);
 
+  // Render address with highlighting if a search query is provided
+  const renderAddressContent = () => {
+    if (searchQuery && searchQuery.length > 0) {
+      if (renderHighlightedText) {
+        return renderHighlightedText(item.address, searchQuery);
+      }
+      return (
+        <HighlightedText
+          text={item.address}
+          query={searchQuery}
+          caseSensitive={false}
+          highlightOnlyFirstMatch={searchQuery.length === 1}
+          style={[stylesHook.address, styles.address]}
+        />
+      );
+    }
+
+    return (
+      <Text style={[stylesHook.address, styles.address]} numberOfLines={1} ellipsizeMode="middle">
+        {item.address}
+      </Text>
+    );
+  };
+
   return (
     <ToolTipMenu
       title={item.address}
@@ -166,9 +198,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage, onPr
               <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
             </View>
             <View style={styles.middleSection}>
-              <Text style={[stylesHook.address, styles.address]} numberOfLines={1} ellipsizeMode="middle">
-                {item.address}
-              </Text>
+              {renderAddressContent()}
               <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
             </View>
           </View>

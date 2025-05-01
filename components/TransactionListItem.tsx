@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, View, ViewStyle } from 'react-native';
+import { Linking, View, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -27,6 +27,19 @@ import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HighlightedText from './HighlightedText';
 
+const styles = StyleSheet.create({
+  subtitle: {
+    color: 'colors.foregroundColor',
+    fontSize: 13,
+  },
+  highlight: {
+    backgroundColor: '#FFF5C0',
+    color: '#000000',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+});
+
 interface TransactionListItemProps {
   itemPriceUnit?: BitcoinUnit;
   walletID: string;
@@ -34,12 +47,13 @@ interface TransactionListItemProps {
   searchQuery?: string;
   style?: ViewStyle;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  onPress?: () => void;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
-  ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style, renderHighlightedText }) => {
+  ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style, renderHighlightedText, onPress: customOnPress }) => {
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
@@ -221,6 +235,12 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const onPress = useCallback(async () => {
       menuRef?.current?.dismissMenu?.();
+      // If a custom onPress handler was provided, use it and return
+      if (customOnPress) {
+        customOnPress();
+        return;
+      }
+
       if (item.hash) {
         if (renderHighlightedText) {
           pop();
@@ -258,7 +278,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           });
         }
       }
-    }, [item, renderHighlightedText, navigate, walletID, wallets]);
+    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress]);
 
     const handleOnExpandNote = useCallback(() => {
       setSubtitleNumberOfLines(0);
@@ -381,8 +401,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
                 <HighlightedText
                   text={subtitle}
                   query={searchQuery ?? ''}
-                  caseSensitive={true}
+                  caseSensitive={false}
                   highlightOnlyFirstMatch={searchQuery ? searchQuery.length === 1 : false}
+                  style={styles.subtitle}
                 />
               )
             ) : undefined
@@ -403,7 +424,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       prevProps.item.hash === nextProps.item.hash &&
       prevProps.item.received === nextProps.item.received &&
       prevProps.itemPriceUnit === nextProps.itemPriceUnit &&
-      prevProps.walletID === nextProps.walletID
+      prevProps.walletID === nextProps.walletID &&
+      prevProps.searchQuery === nextProps.searchQuery
     );
   },
 );

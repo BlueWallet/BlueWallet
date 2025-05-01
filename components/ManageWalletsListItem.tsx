@@ -60,7 +60,7 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
   </TouchableOpacity>
 );
 
@@ -291,7 +291,9 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
       walletID: item.data.walletID,
       allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-      onPress: () => navigateToAddress && navigateToAddress(item.data.address, item.data.walletID),
+      onPress: navigateToAddress ? () => navigateToAddress(item.data.address, item.data.walletID) : undefined,
+      searchQuery: state.searchQuery,
+      renderHighlightedText,
     };
 
     return (
@@ -365,17 +367,16 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   };
 
   const headerStyle: ViewStyle = {
-    padding: 8,
+    padding: 12,
     backgroundColor: primaryColor + '15', // Using translucent primary color as background
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderTopWidth: Platform.OS === 'ios' ? 4 : 2,
     borderTopColor: primaryColor,
-    paddingVertical: 8,
+    paddingVertical: 12,
   };
 
   const childItemsContainerStyle = {
-    paddingBottom: 8,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     backgroundColor: colors.elevated,
@@ -386,12 +387,9 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   };
 
   const childItemStyle = (): ViewStyle => ({
-    marginHorizontal: 10,
-    marginVertical: 4,
     borderLeftWidth: 3,
     borderLeftColor: primaryColor,
     backgroundColor: colors.inputBackgroundColor,
-    borderRadius: 4,
   });
 
   const sectionHeaderStyle: ViewStyle = {
@@ -401,8 +399,6 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: primaryColor + '30',
-
-    marginBottom: 2,
   };
 
   const sectionHeaderTextStyle: TextStyle = {
@@ -410,6 +406,8 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     fontWeight: '600' as const,
     fontSize: 14,
   };
+
+  const dividerStyle = [styles.itemDivider, { backgroundColor: primaryColor + '20' }];
 
   const onWalletPress = useCallback(() => {
     navigateToWallet(wallet);
@@ -433,7 +431,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
         </View>
 
         {/* Search results container */}
-        {expanded && (transactions.length > 0 || addresses.length > 0) && (
+        {expanded && (
           <View style={childItemsContainerStyle}>
             {/* Transactions section */}
             {transactions.length > 0 && (
@@ -444,14 +442,17 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                   </Text>
                 </View>
                 {transactions.map((transaction, index) => (
-                  <View key={`tx-${index}`} style={childItemStyle()}>
-                    <TransactionListItem
-                      item={transaction.data}
-                      itemPriceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
-                      walletID={wallet.getID()}
-                      searchQuery={state.searchQuery}
-                      renderHighlightedText={renderHighlightedText}
-                    />
+                  <View key={`tx-${index}`}>
+                    <View style={childItemStyle()}>
+                      <TransactionListItem
+                        item={transaction.data}
+                        itemPriceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+                        walletID={wallet.getID()}
+                        searchQuery={state.searchQuery}
+                        renderHighlightedText={renderHighlightedText}
+                      />
+                    </View>
+                    {index < transactions.length - 1 && <View style={dividerStyle} />}
                   </View>
                 ))}
               </>
@@ -478,12 +479,18 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                     balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
                     walletID: address.data.walletID,
                     allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-                    onPress: () => navigateToAddress && navigateToAddress(address.data.address, address.data.walletID),
+                    // Use the onPress function returned by navigateToAddress instead of calling it directly
+                    onPress: navigateToAddress ? () => navigateToAddress(address.data.address, address.data.walletID) : undefined,
+                    searchQuery: state.searchQuery,
+                    renderHighlightedText,
                   };
 
                   return (
-                    <View key={`addr-${index}`} style={childItemStyle()}>
-                      <AddressItem {...addressItemProps} />
+                    <View key={`addr-${index}`}>
+                      <View style={childItemStyle()}>
+                        <AddressItem {...addressItemProps} />
+                      </View>
+                      {index < addresses.length - 1 && <View style={dividerStyle} />}
                     </View>
                   );
                 })}
@@ -513,6 +520,10 @@ const styles = StyleSheet.create({
   },
   transparentBackground: {
     backgroundColor: 'transparent',
+  },
+  itemDivider: {
+    height: 1,
+    width: '100%',
   },
 });
 
