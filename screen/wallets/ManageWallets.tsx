@@ -298,10 +298,9 @@ const ManageWallets: React.FC = () => {
               for (let i = 0; i < txToProcess; i++) {
                 const tx = transactions[i];
                 const txid = tx.hash || tx.txid;
-                if (!txid) continue;
 
                 const txAmount = tx.value?.toString() || '';
-                const txIdMatches = txid && txid.toLowerCase().includes(lowerQuery);
+                const txIdMatches = txid.toLowerCase().includes(lowerQuery);
                 const txDataMatches = txAmount.includes(lowerQuery);
 
                 if (txIdMatches || txDataMatches) {
