@@ -222,7 +222,12 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
 
   const handleLongPress = useCallback(() => {
     drawerNavigation.closeDrawer();
-    navigation.navigate('ManageWallets');
+    navigation.navigate('DrawerRoot', {
+      screen: 'DetailViewStackScreensStack',
+      params: {
+        screen: 'ManageWallets',
+      },
+    });
   }, [navigation, drawerNavigation]);
 
   const onNewWalletPress = useCallback(() => {
