@@ -17,10 +17,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
+import debounce from '../blue_modules/debounce';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+const scheduleInNextFrame = (callback: () => void): number => {
+  return requestAnimationFrame(() => {
+    // Use a second requestAnimationFrame to ensure we're not in the same frame
+    requestAnimationFrame(callback);
+  });
+};
 
 const LAYOUT = {
   PADDINGS: 30,
@@ -30,18 +38,31 @@ const LAYOUT = {
   MIN_BUTTON_WIDTH_LARGE: 130,
   DRAWER_WIDTH: 320,
   BUTTON_HEIGHT: 52,
+  SINGLE_BUTTON_HEIGHT: 58,
   CONTAINER_SIDE_MARGIN: 20,
   DEFAULT_BORDER_RADIUS: 8,
+  SINGLE_BUTTON_RADIUS: 29,
+  SINGLE_BUTTON_WIDTH_FACTOR: 0.625,
   MAX_BUTTON_FONT_SIZE: 24,
   SAFETY_MARGIN: 20,
   ANIMATION_DURATION: 300,
+  SPRING_CONFIG: {
+    speed: 12,
+    bounciness: 4,
+    useNativeDriver: true,
+  },
+  TIMING_CONFIG: {
+    duration: 300,
+    useNativeDriver: true,
+  },
 };
 
 const useFloatButtonAnimation = (height: number) => {
   const slideAnimation = useRef(new Animated.Value(height)).current;
   const animatedButtonRadius = useRef(new Animated.Value(LAYOUT.DEFAULT_BORDER_RADIUS)).current;
-  const animatedSingleButtonRadius = useRef(new Animated.Value(LAYOUT.BUTTON_HEIGHT / 2)).current;
+  const animatedSingleButtonRadius = useRef(new Animated.Value(LAYOUT.SINGLE_BUTTON_RADIUS)).current;
   const [isAnimating, setIsAnimating] = useState(false);
+  const animationInterrupted = useRef(false);
 
   useEffect(() => {
     slideAnimation.setValue(height);
@@ -53,9 +74,9 @@ const useFloatButtonAnimation = (height: number) => {
 
     Animated.spring(slideAnimation, {
       toValue: 0,
+      friction: 7,
+      tension: 40,
       useNativeDriver: true,
-      speed: 100,
-      bounciness: 3,
     }).start();
   }, [height, slideAnimation]);
 
@@ -63,20 +84,18 @@ const useFloatButtonAnimation = (height: number) => {
     if (isDesktop) return;
 
     LayoutAnimation.configureNext({
-      duration: LAYOUT.ANIMATION_DURATION,
+      duration: 250,
       create: {
-        type: LayoutAnimation.Types.spring,
-        property: LayoutAnimation.Properties.scaleXY,
-        springDamping: 0.7,
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
       },
       update: {
         type: LayoutAnimation.Types.spring,
-        springDamping: 0.7,
+        springDamping: 0.85,
       },
       delete: {
-        type: LayoutAnimation.Types.spring,
-        property: LayoutAnimation.Properties.scaleXY,
-        springDamping: 0.7,
+        type: LayoutAnimation.Types.easeInEaseOut,
+        property: LayoutAnimation.Properties.opacity,
       },
     });
   }, []);
@@ -90,25 +109,33 @@ const useFloatButtonAnimation = (height: number) => {
         return;
       }
 
+      if (isAnimating) {
+        animationInterrupted.current = true;
+        return;
+      }
+
       setIsAnimating(true);
+      animationInterrupted.current = false;
 
       Animated.parallel([
         Animated.timing(animatedButtonRadius, {
           toValue: buttonRadius,
-          duration: LAYOUT.ANIMATION_DURATION,
-          useNativeDriver: true,
+          duration: 250,
+          useNativeDriver: false,
         }),
         Animated.timing(animatedSingleButtonRadius, {
           toValue: singleRadius,
-          duration: LAYOUT.ANIMATION_DURATION,
-          useNativeDriver: true,
+          duration: 250,
+          useNativeDriver: false,
         }),
-      ]).start(() => {
+      ]).start(({ finished }) => {
         setIsAnimating(false);
-        if (onComplete) onComplete();
+        if (finished && !animationInterrupted.current && onComplete) {
+          onComplete();
+        }
       });
     },
-    [animatedButtonRadius, animatedSingleButtonRadius],
+    [animatedButtonRadius, animatedSingleButtonRadius, isAnimating],
   );
 
   return {
@@ -189,7 +216,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
       }
 
       if (totalChildren === 1 && !shouldBeVertical) {
-        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : 0.5);
+        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
         const effectiveSingleMinWidth = sizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
 
         calculatedWidth = Math.max(
@@ -217,13 +244,13 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       let buttonRadius;
       if (totalChildren === 1) {
-        buttonRadius = LAYOUT.BUTTON_HEIGHT / 2;
+        buttonRadius = LAYOUT.SINGLE_BUTTON_RADIUS;
       } else {
         buttonRadius = Math.min(LAYOUT.DEFAULT_BORDER_RADIUS * 1.5, calculatedWidth / 12);
       }
 
       const multiButtonRadius = Math.max(LAYOUT.DEFAULT_BORDER_RADIUS, Math.floor(buttonRadius));
-      const singleButtonRadius = LAYOUT.BUTTON_HEIGHT / 2;
+      const singleButtonRadius = LAYOUT.SINGLE_BUTTON_RADIUS;
 
       return { buttonRadius: multiButtonRadius, singleButtonRadius, shouldBeVertical };
     },
@@ -291,10 +318,26 @@ const buttonStyles = StyleSheet.create({
   },
   icon: {
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 24,
+    minHeight: 24,
+    overflow: 'visible',
+    alignSelf: 'center',
   },
   touchContainer: {
     width: '100%',
     height: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centeredText: {
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 });
 
@@ -302,6 +345,12 @@ const buttonContentStaticStyles = StyleSheet.create({
   root: {
     height: LAYOUT.BUTTON_HEIGHT,
     overflow: 'hidden',
+    justifyContent: 'center',
+  },
+  rootSingle: {
+    height: LAYOUT.SINGLE_BUTTON_HEIGHT,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
   marginRight: {
     marginRight: LAYOUT.BUTTON_MARGIN,
@@ -313,24 +362,16 @@ const buttonContentStaticStyles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: LAYOUT.ICON_MARGIN,
     backgroundColor: 'transparent',
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
-});
-
-const getButtonContentStyles = (colors: any, fontSize: number) => ({
-  root: {
-    ...buttonContentStaticStyles.root,
-    backgroundColor: colors.buttonBackgroundColor,
+  contentContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
-  text: {
-    color: colors.buttonAlternativeTextColor,
-    fontSize,
-  },
-  textDisabled: {
-    color: colors.formBorder,
-  },
-  marginRight: buttonContentStaticStyles.marginRight,
-  marginBottom: buttonContentStaticStyles.marginBottom,
-  textBase: buttonContentStaticStyles.textBase,
 });
 
 interface FContainerProps {
@@ -362,14 +403,39 @@ interface ButtonContentProps {
   iconStyle: StyleProp<any>;
 }
 
-const ButtonContent = ({ icon, text, textStyle, iconStyle }: ButtonContentProps) => (
-  <>
-    <View style={iconStyle}>{icon}</View>
-    <Text numberOfLines={1} adjustsFontSizeToFit style={textStyle}>
-      {text}
-    </Text>
-  </>
-);
+const getScaledIconSize = (fontSize: number): number => {
+  return Math.max(Math.round(fontSize * 1.2), 16);
+};
+
+const ButtonContent = ({ icon, text, textStyle, iconStyle }: ButtonContentProps) => {
+  const computedStyle = StyleSheet.flatten(textStyle);
+  const fontSize = computedStyle.fontSize || LAYOUT.MAX_BUTTON_FONT_SIZE;
+  const iconSize = getScaledIconSize(Number(fontSize));
+
+  let scaledIcon;
+
+  if (React.isValidElement(icon)) {
+    const iconElement = icon as React.ReactElement;
+
+    scaledIcon = React.cloneElement(iconElement, {
+      ...iconElement.props,
+      size: iconSize,
+      width: iconSize,
+      height: iconSize,
+    });
+  } else {
+    scaledIcon = icon;
+  }
+
+  return (
+    <View style={buttonContentStaticStyles.contentContainer}>
+      <View style={buttonStyles.iconContainer}>{scaledIcon}</View>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={[textStyle, buttonStyles.centeredText, { lineHeight: fontSize * 1.2 }]}>
+        {text}
+      </Text>
+    </View>
+  );
+};
 
 export const FButton = ({
   text,
@@ -387,14 +453,36 @@ export const FButton = ({
 }: FButtonProps) => {
   const { colors } = useTheme();
 
-  const customButtonStyles = useMemo(() => getButtonContentStyles(colors, fontSize), [colors, fontSize]);
+  const customButtonStyles = useMemo(() => {
+    const baseStyles = singleChild ? { ...buttonContentStaticStyles.rootSingle } : { ...buttonContentStaticStyles.root };
+    return {
+      root: {
+        ...baseStyles,
+        backgroundColor: colors.buttonBackgroundColor,
+      },
+      text: {
+        color: colors.buttonAlternativeTextColor,
+        fontSize,
+      },
+      textDisabled: {
+        color: colors.formBorder,
+      },
+      marginRight: buttonContentStaticStyles.marginRight,
+      marginBottom: buttonContentStaticStyles.marginBottom,
+      textBase: buttonContentStaticStyles.textBase,
+    };
+  }, [colors, fontSize, singleChild]);
 
   const style: Record<string, any> = {};
   const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
 
   if (width) {
     style.paddingHorizontal = LAYOUT.PADDINGS;
-    style.width = isVertical ? '100%' : width + LAYOUT.PADDINGS * 2;
+    if (singleChild && !isVertical) {
+      style.width = width * LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR + LAYOUT.PADDINGS * 2;
+    } else {
+      style.width = isVertical ? '100%' : width + LAYOUT.PADDINGS * 2;
+    }
   }
 
   const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
@@ -443,7 +531,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [isVertical, setIsVertical] = useState(false);
   const [layoutReady, setLayoutReady] = useState(false);
   const [buttonBorderRadius, setButtonBorderRadius] = useState<number>(LAYOUT.DEFAULT_BORDER_RADIUS);
-  const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(LAYOUT.BUTTON_HEIGHT / 2);
+  const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(LAYOUT.SINGLE_BUTTON_RADIUS);
 
   const layoutWidth = useRef<number>(0);
   const layoutCalculated = useRef(false);
@@ -525,35 +613,44 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     [animateBorderRadius, configureLayoutAnimation, height, width, isVertical],
   );
 
-  useEffect(() => {
+  const calculateLayout = useCallback(() => {
     if (!layoutReady || layoutWidth.current <= 0) return;
 
-    const totalChildren = React.Children.toArray(props.children).filter(Boolean).length;
-    const calculatedWidth = calculateButtonWidth(layoutWidth.current, totalChildren);
-    const { buttonRadius, singleButtonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, totalChildren);
+    scheduleInNextFrame(() => {
+      const totalChildren = React.Children.toArray(props.children).filter(Boolean).length;
+      const calculatedWidth = calculateButtonWidth(layoutWidth.current, totalChildren);
+      const { buttonRadius, singleButtonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, totalChildren);
 
-    if (shouldBeVertical !== isVertical || newWidth !== calculatedWidth) {
-      handleBorderRadiusAnimation(buttonRadius, singleButtonRadius, shouldBeVertical, calculatedWidth);
-    } else {
-      setNewWidth(calculatedWidth);
-      setIsVertical(shouldBeVertical);
-      setButtonBorderRadius(buttonRadius);
-      setSingleButtonBorderRadius(singleButtonRadius);
-    }
+      if (shouldBeVertical !== isVertical || newWidth !== calculatedWidth) {
+        handleBorderRadiusAnimation(buttonRadius, singleButtonRadius, shouldBeVertical, calculatedWidth);
+      } else {
+        setNewWidth(calculatedWidth);
+        setIsVertical(shouldBeVertical);
+        setButtonBorderRadius(buttonRadius);
+        setSingleButtonBorderRadius(singleButtonRadius);
+      }
 
-    layoutCalculated.current = true;
+      layoutCalculated.current = true;
+    });
   }, [
     layoutReady,
-    width,
-    height,
-    props.children,
-    sizeClass,
     calculateButtonWidth,
     calculateVisualParameters,
     handleBorderRadiusAnimation,
     isVertical,
     newWidth,
+    props.children,
+    setNewWidth,
+    setIsVertical,
+    setButtonBorderRadius,
+    setSingleButtonBorderRadius,
   ]);
+
+  const debouncedCalculateLayout = useMemo(() => debounce(calculateLayout, 16), [calculateLayout]);
+
+  useEffect(() => {
+    debouncedCalculateLayout();
+  }, [debouncedCalculateLayout, width, height, props.children, sizeClass]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     const { width: currentLayoutWidth } = event.nativeEvent.layout;
