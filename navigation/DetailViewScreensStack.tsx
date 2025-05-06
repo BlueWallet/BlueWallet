@@ -54,7 +54,7 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
-import ReceiveDetails from '../screen/receive/details';
+import ReceiveDetails from '../screen/receive/ReceiveDetails';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
