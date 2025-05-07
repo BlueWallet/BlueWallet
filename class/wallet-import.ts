@@ -18,6 +18,7 @@ import {
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
   SLIP39SegwitP2SHWallet,
+  TaprootWallet,
   WatchOnlyWallet,
 } from '.';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
@@ -108,6 +109,7 @@ const startImport = (
     // 3.2 check if its AEZEED
     // 3.3 check if its SLIP39
     // 4. check if its Segwit WIF (P2SH)
+    // 4.5 check if its Taproot WIF
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
     // 7. check if its private key (segwit address P2SH) TODO
@@ -308,6 +310,16 @@ const startImport = (
         await fetch(segwitBech32Wallet, true);
         walletFound = true;
         yield { wallet: segwitBech32Wallet };
+      }
+
+      yield { progress: 'wif p2tr' };
+      const taprootWallet = new TaprootWallet();
+      taprootWallet.setSecret(text);
+      if (await wasUsed(taprootWallet)) {
+        // yep, its single-address taproot wallet
+        await fetch(taprootWallet, true);
+        walletFound = true;
+        yield { wallet: taprootWallet };
       }
 
       yield { progress: 'wif p2wpkh-p2sh' };
