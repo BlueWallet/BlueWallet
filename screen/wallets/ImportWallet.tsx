@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, Platform, ScrollView, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
+import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
 import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import Button from '../../components/Button';
 import {
@@ -19,6 +19,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -202,14 +203,7 @@ const ImportWallet = () => {
   );
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.root}
-      automaticallyAdjustContentInsets
-      automaticallyAdjustsScrollIndicatorInsets
-      keyboardShouldPersistTaps="always"
-      automaticallyAdjustKeyboardInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <SafeAreaScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always" automaticallyAdjustKeyboardInsets>
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -238,7 +232,7 @@ const ImportWallet = () => {
         ),
         default: null,
       })}
-    </ScrollView>
+    </SafeAreaScrollView>
   );
 };
 

@@ -1311,13 +1311,13 @@ PODS:
     - Yoga
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (5.3.0):
+  - react-native-safe-area-context (5.4.0):
     - React-Core
   - react-native-screen-capture (0.2.3):
     - React
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.2.0):
+  - react-native-tcp-socket (6.3.0):
     - CocoaAsyncSocket
     - React-Core
   - react-native-true-sheet (2.0.0):
@@ -1630,7 +1630,7 @@ PODS:
     - React-logger (= 0.77.2)
     - React-perflogger (= 0.77.2)
     - React-utils (= 0.77.2)
-  - ReactNativeCameraKit (14.2.0):
+  - ReactNativeCameraKit (15.0.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1711,7 +1711,7 @@ PODS:
     - Yoga
   - RNLocalize (3.4.1):
     - React-Core
-  - RNPermissions (5.3.0):
+  - RNPermissions (5.4.0):
     - React-Core
   - RNQrGenerator (1.4.3):
     - React
@@ -1741,7 +1741,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.17.3):
+  - RNReanimated (3.17.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1763,10 +1763,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.17.3)
-    - RNReanimated/worklets (= 3.17.3)
+    - RNReanimated/reanimated (= 3.17.4)
+    - RNReanimated/worklets (= 3.17.4)
     - Yoga
-  - RNReanimated/reanimated (3.17.3):
+  - RNReanimated/reanimated (3.17.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1788,9 +1788,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.17.3)
+    - RNReanimated/reanimated/apple (= 3.17.4)
     - Yoga
-  - RNReanimated/reanimated/apple (3.17.3):
+  - RNReanimated/reanimated/apple (3.17.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1813,7 +1813,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.17.3):
+  - RNReanimated/worklets (3.17.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1835,9 +1835,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/worklets/apple (= 3.17.3)
+    - RNReanimated/worklets/apple (= 3.17.4)
     - Yoga
-  - RNReanimated/worklets/apple (3.17.3):
+  - RNReanimated/worklets/apple (3.17.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2313,10 +2313,10 @@ SPEC CHECKSUMS:
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
   react-native-prevent-screenshot-ios-android: a68950fb82df86d47922cfd4206c2d6a31008623
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
-  react-native-safe-area-context: fdb0a66feac038cb6eb1edafcf2ccee2b5cf0284
+  react-native-safe-area-context: 9d72abf6d8473da73033b597090a80b709c0b2f1
   react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
-  react-native-tcp-socket: 61379457d7e702e83e28c213b6e085ac079e480f
+  react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
   React-nativeconfig: ecf4dc92c40b97e2b3f0c619938f78bfd6507b08
   React-NativeModulesApple: f457bbfb30fb3bc41979b1a87b99d292d7340d39
@@ -2347,7 +2347,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: f334cebc0beed0a72490492e978007082c03d533
   ReactCodegen: 6f764a42662ad6379fd3fbb9c09baff6e4797b20
   ReactCommon: 7763e59534d58e15f8f22121cdfe319040e08888
-  ReactNativeCameraKit: b8f892326f100d3fce71e99df80e6aad670177ed
+  ReactNativeCameraKit: c7cec02191d24b6607c002dff403d349a61f5e49
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: b9f5f78da5d16a853fe3dc22e8268d932fc45a83
   RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade
@@ -2359,12 +2359,12 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
   RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
-  RNPermissions: c1cb88c759efe268349ddb87cf1843847815ec4b
+  RNPermissions: 7d7e6ec2b989d39511b01cb7fe383ecbae4433c8
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
-  RNReanimated: 96899306ebcf78adc928eb4ff47809ca9ab050b5
+  RNReanimated: 25f8323d0b1e61177838e3ddf626b467f9e80772
   RNScreens: cfb34cc4609bb92bd4fad6583be815075705a912
   RNShare: b1660f26d8bc57cbf9acf11872a8eb2f3ecf4825
   RNSVG: 67de7abef81f367387b708ba6d2acefe7d4f5895

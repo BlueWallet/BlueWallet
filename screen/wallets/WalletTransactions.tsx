@@ -196,8 +196,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
-            presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+            if (err) {
+              presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+            }
           }
+          setIsLoading(true);
           return newFailures;
         });
       } finally {
@@ -287,12 +290,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
           selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
         }
       } else if (id === actionKeys.RefillWithExternalWallet) {
-        navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: {
-            walletID,
-          },
-        });
+        navigate('ReceiveDetails', { walletID });
       }
     },
     [name, navigate, onWalletSelect, walletID, wallets],
@@ -614,12 +612,18 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
               if (wallet.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID } });
               } else {
-                navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID } });
+                navigate('ReceiveDetails', { walletID });
               }
             }}
             icon={
-              <View style={styles.receiveIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+              <View style={styles.iconContainer}>
+                <Icon
+                  name="arrow-down"
+                  size={buttonFontSize}
+                  type="font-awesome"
+                  color={colors.buttonAlternativeTextColor}
+                  style={styles.receiveIcon}
+                />
               </View>
             }
           />
@@ -631,8 +635,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
             text={loc.send.header}
             testID="SendButton"
             icon={
-              <View style={styles.sendIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+              <View style={styles.iconContainer}>
+                <Icon
+                  name="arrow-down"
+                  size={buttonFontSize}
+                  type="font-awesome"
+                  color={colors.buttonAlternativeTextColor}
+                  style={styles.sendIcon}
+                />
               </View>
             }
           />
@@ -667,5 +677,12 @@ const styles = StyleSheet.create({
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
   sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
-  receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }] },
+  receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '-45deg' : '45deg' }] },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: buttonFontSize * 1.5,
+    height: buttonFontSize * 1.5,
+    overflow: 'visible',
+  },
 });

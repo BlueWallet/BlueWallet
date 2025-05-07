@@ -91,11 +91,8 @@ const IsItMyAddress: React.FC = () => {
 
   const viewQRCode = () => {
     if (!resultCleanAddress) return;
-    navigate('ReceiveDetailsRoot', {
-      screen: 'ReceiveDetails',
-      params: {
-        address: resultCleanAddress,
-      },
+    navigate('ReceiveDetails', {
+      address: resultCleanAddress,
     });
   };
 

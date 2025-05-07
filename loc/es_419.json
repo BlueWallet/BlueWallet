@@ -172,7 +172,7 @@
     "fee_1d": "1d",
     "fee_3h": "3h",
     "fee_custom": "Personalizado",
-    "insert_custom_fee": "Insertar tarifa personalizada",
+    "insert_custom_fee": "Insertar tasa",
     "fee_fast": "Rápido",
     "fee_medium": "Medio",
     "fee_replace_minvb": "La tasa de tarifa total (satoshi por vByte) que deseas pagar debe ser superior a {min} sat/vByte.",
@@ -497,7 +497,7 @@
     "add_ln_wallet_first": "Primero debes agregar una billetera Lightning.",
     "identity_pubkey": "Identidad Pubkey",
     "xpub_title": "XPUB de la billetera",
-    "manage_wallets_search_placeholder": "Buscar billeteras, notas",
+    "manage_wallets_search_placeholder": "Búsqueda de billeteras, direcciones, transacciones y memos",
     "more_info": "Más información",
     "details_delete_wallet_error_message": "Hubo un problema al confirmar si esta billetera se eliminó de las notificaciones, lo que podría deberse a un problema de red o a una mala conexión. Si continúas, es posible que aún recibas notificaciones de transacciones relacionadas con esta billetera, incluso después de que se elimine.",
     "details_delete_anyway": "Borrar de todos modos"
@@ -680,7 +680,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
