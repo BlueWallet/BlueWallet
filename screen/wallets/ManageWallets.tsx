@@ -619,28 +619,23 @@ const ManageWallets: React.FC = () => {
     (wallet: TWallet) => {
       Keyboard.dismiss();
       const walletID = wallet.getID();
-      goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
       });
     },
-    [goBack, navigate],
+    [navigate],
   );
 
   const navigateToAddress = useCallback(
-    (address: string, walletID: string) => {
+    (address: string) => {
       Keyboard.dismiss();
-      goBack();
 
-      setTimeout(() => {
-        navigate('ReceiveDetails', {
-          walletID,
-          address,
-        });
-      }, 500);
+      navigate('ReceiveDetails', {
+        address,
+      });
     },
-    [goBack, navigate],
+    [navigate],
   );
 
   const renderItem = useCallback(

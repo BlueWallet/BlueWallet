@@ -160,9 +160,10 @@
 		B4D59C1E2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B4D59C1D2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin */; };
 		B4D59C212D8BB42100B7025B /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C202D8BB41F00B7025B /* File.swift */; };
 		B4D59C272D8C5D6F00B7025B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C262D8C5D6E00B7025B /* main.swift */; };
+		B4D899942DCAE67700B959AA /* CustomSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -378,6 +379,7 @@
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4D59C202D8BB41F00B7025B /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		B4D59C262D8C5D6E00B7025B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomSegmentedControl.m; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -402,7 +404,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -753,6 +755,7 @@
 		B45010A12C1504E900619044 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */,
 				B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */,
 				B4B3EC232D69FF8700327F3D /* EventEmitter.swift */,
 				B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */,
@@ -1082,9 +1085,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1120,9 +1127,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1157,6 +1168,7 @@
 				B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
 				B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */,
+				B4D899942DCAE67700B959AA /* CustomSegmentedControl.m in Sources */,
 				B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */,
 				B4793DBB2CEDACBD00C92C2E /* Chain.swift in Sources */,
 				B4B3EC222D69FF6C00327F3D /* CustomSegmentedControl.swift in Sources */,
