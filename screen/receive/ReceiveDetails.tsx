@@ -382,9 +382,7 @@ const ReceiveDetails = () => {
     } else if (wallet && isBIP47Enabled) {
       // wallet is always defined here
       const qrValue =
-        wallet && 'getBIP47PaymentCode' in wallet && typeof wallet.getBIP47PaymentCode === 'function'
-          ? wallet.getBIP47PaymentCode()
-          : undefined;
+        'getBIP47PaymentCode' in wallet && typeof wallet.getBIP47PaymentCode === 'function' ? wallet.getBIP47PaymentCode() : undefined;
       return (
         <View style={styles.container}>
           {qrValue ? (
