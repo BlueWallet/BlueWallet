@@ -146,7 +146,7 @@
     "react-native-gesture-handler": "2.25.0",
     "react-native-handoff": "github:BlueWallet/react-native-handoff#v0.0.4",
     "react-native-haptic-feedback": "2.3.3",
-    "react-native-image-picker": "8.2.0",
+    "react-native-image-picker": "8.2.1",
     "react-native-keychain": "9.1.0",
     "react-native-linear-gradient": "2.8.3",
     "react-native-localize": "3.4.1",
