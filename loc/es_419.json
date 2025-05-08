@@ -101,6 +101,7 @@
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
     "details_share": "Compartir…",
+    "address_not_found": "No es posible generar la dirección de recepción.",
     "header": "Recibir",
     "reset": "Reiniciar",
     "maxSats": "La cantidad máxima es {max} sats",
