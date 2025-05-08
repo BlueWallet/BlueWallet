@@ -59,7 +59,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       }
       const xOnlyPubkey = keyPair.publicKey.subarray(1, 33);
       address = bitcoin.payments.p2tr({
-        pubkey: xOnlyPubkey,
+        pubkey: Buffer.from(xOnlyPubkey),
       }).address;
     } catch (err: any) {
       console.log(err.message);
