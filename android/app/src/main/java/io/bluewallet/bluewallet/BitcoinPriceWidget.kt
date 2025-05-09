@@ -3,6 +3,7 @@ package io.bluewallet.bluewallet
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -81,6 +82,7 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             Log.d(TAG, "Updating widget with ID: $widgetId")
             refreshWidget(context, widgetId)
         }
+        Log.d("BitcoinPriceWidget", "BitcoinPriceWidget updated. Confirming interaction with MainActivity.")
     }
 
     override fun onEnabled(context: Context) {
@@ -115,5 +117,14 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
         // Update this specific widget with full refresh to ensure theme is applied
         refreshWidget(context, appWidgetId)
+    }
+
+    private fun launchMainActivity(context: Context) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        context.startActivity(intent)
     }
 }

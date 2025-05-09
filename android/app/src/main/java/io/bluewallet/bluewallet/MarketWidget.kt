@@ -10,8 +10,10 @@ import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.WorkManager
+import kotlinx.coroutines.delay
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
+import io.bluewallet.bluewallet.ElectrumClient.ElectrumServer
 
 class MarketWidget : AppWidgetProvider() {
 
@@ -20,6 +22,31 @@ class MarketWidget : AppWidgetProvider() {
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         private const val DEFAULT_CURRENCY = "USD"
         private const val KEY_LAST_ONLINE_STATUS = "market_widget_last_online_status"
+
+        private val hardcodedPeers = listOf(
+            ElectrumServer("mainnet.foundationdevices.com", 50002, true),
+            ElectrumServer("electrum1.bluewallet.io", 443, true),
+            ElectrumServer("electrum.acinq.co", 50002, true),
+            ElectrumServer("electrum.bitaroo.net", 50002, true)
+        )
+
+        private suspend fun connectToElectrumServer(): Boolean {
+            for (peer in hardcodedPeers) {
+                repeat(3) { attempt ->
+                    Log.d(TAG, "Attempting to connect to Electrum server: ${peer.host}:${peer.port}, Attempt: ${attempt + 1}")
+                    val success = ElectrumClient().connect(peer, validateCertificates = true)
+                    if (success) {
+                        Log.i(TAG, "Successfully connected to Electrum server: ${peer.host}:${peer.port}")
+                        return true
+                    } else {
+                        Log.w(TAG, "Failed to connect to Electrum server: ${peer.host}:${peer.port}, Attempt: ${attempt + 1}")
+                    }
+                }
+            }
+            Log.e(TAG, "Failed to connect to any Electrum server from the hardcoded list after 3 attempts each. Waiting 10 minutes before retrying.")
+            delay(10 * 60 * 1000) // Wait for 10 minutes
+            return false
+        }
 
         fun updateWidget(context: Context, appWidgetId: Int) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -165,12 +192,14 @@ class MarketWidget : AppWidgetProvider() {
         
         private fun getPreferredCurrency(context: Context): String {
             val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            return sharedPrefs.getString("preferredCurrency", DEFAULT_CURRENCY) ?: DEFAULT_CURRENCY
+            val preferredCurrency = sharedPrefs.getString("preferredCurrency", null)
+            return preferredCurrency ?: DEFAULT_CURRENCY // Default to USD if no currency is saved
         }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+        Log.d("MarketWidget", "MarketWidget updated. Confirming interaction with MainActivity.")
         
         // First update widgets with existing data
         for (appWidgetId in appWidgetIds) {

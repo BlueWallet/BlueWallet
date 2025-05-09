@@ -2,6 +2,7 @@ package io.bluewallet.bluewallet
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
@@ -19,10 +20,15 @@ class MainActivity : ReactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(null)
         if (resources.getBoolean(R.bool.portrait_only)) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("MainActivity", "MainActivity resumed. Confirming single instance is active.")
     }
 
     /**
