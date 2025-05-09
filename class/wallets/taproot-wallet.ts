@@ -90,7 +90,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
 
     // Precompute the P2TR payment (to rebuild scriptPubKey)
     const p2tr = bitcoin.payments.p2tr({
-      pubkey: xOnlyPub,
+      pubkey: Buffer.from(xOnlyPub),
     });
     if (!p2tr.output) throw new Error('Could not build p2tr.output');
 
@@ -107,7 +107,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
           value: input.value,
         },
         // tell PSBT it’s a key-path Taproot spend
-        tapInternalKey: xOnlyPub,
+        tapInternalKey: Buffer.from(xOnlyPub),
       });
     });
 

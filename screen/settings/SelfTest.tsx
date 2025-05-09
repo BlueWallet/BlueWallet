@@ -202,6 +202,28 @@ export default class SelfTest extends Component {
 
       //
 
+      const txNewTaproot = l.createTransaction(
+        [
+          {
+            value: 9778,
+            address: 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf',
+            txid: '511e007f9c96b6d713a72b730506198f61dd96046edee72f0dc636bfe1f3a9cf',
+            vout: 0,
+          },
+        ],
+        [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }],
+        1,
+        String(l.getAddress()),
+        0xffffffff,
+        false,
+        0,
+      );
+      if (!txNewTaproot.tx) {
+        throw new Error('failed to create Taproot tx');
+      }
+
+      //
+
       const data2encrypt = 'really long data string';
       const crypted = encryption.encrypt(data2encrypt, 'password');
       const decrypted = encryption.decrypt(crypted, 'password');
