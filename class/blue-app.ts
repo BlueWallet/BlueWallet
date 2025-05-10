@@ -901,7 +901,6 @@ export class BlueApp {
       if (keyExists !== null) {
         const doNotTrackValue = !!keyExists;
         if (doNotTrackValue) {
-          await DefaultPreference.setName('group.io.bluewallet.bluewallet');
           await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
           AsyncStorage.removeItem(BlueApp.DO_NOT_TRACK);
         } else {
@@ -914,7 +913,6 @@ export class BlueApp {
   };
 
   setDoNotTrack = async (value: boolean) => {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
     if (value) {
       await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
     } else {
