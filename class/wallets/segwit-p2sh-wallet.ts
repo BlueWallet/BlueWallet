@@ -69,7 +69,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
         console.warn('only compressed public keys are good for segwit');
         return false;
       }
-      address = pubkeyToP2shSegwitAddress(pubKey);
+      address = pubkeyToP2shSegwitAddress(Buffer.from(pubKey));
     } catch (err) {
       return false;
     }

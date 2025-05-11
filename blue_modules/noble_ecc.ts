@@ -10,7 +10,7 @@ import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32/typ
 import { XOnlyPointAddTweakResult } from 'bitcoinjs-lib/src/types';
 import createHash from 'create-hash';
 import { createHmac } from 'crypto';
-import { TinySecp256k1Interface } from 'ecpair/src/ecpair';
+import { TinySecp256k1Interface } from 'ecpair';
 
 export interface TinySecp256k1InterfaceExtended {
   pointMultiply(p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null;
