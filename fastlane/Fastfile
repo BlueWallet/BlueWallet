@@ -672,7 +672,8 @@ lane :update_release_notes do |options|
     'it' => release_notes_text, # Italian
     'ja' => release_notes_text, # Japanese
     'ms' => release_notes_text, # Malay
-    'nb' => release_notes_text, # Norwegian
+    'nb' => release_notes_text, # Norwegian (Bokmål)
+    'no' => release_notes_text, # Norwegian
     'pl' => release_notes_text, # Polish
     'pt-BR' => release_notes_text, # Portuguese (Brazil)
     'pt-PT' => release_notes_text, # Portuguese (Portugal)
