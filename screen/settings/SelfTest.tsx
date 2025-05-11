@@ -20,6 +20,7 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
+  TaprootWallet,
 } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -118,7 +119,7 @@ export default class SelfTest extends Component {
         // skipping RN-specific test
       }
 
-      let l: LegacyWallet | SegwitP2SHWallet = new LegacyWallet();
+      let l: LegacyWallet | SegwitP2SHWallet | TaprootWallet = new LegacyWallet();
       l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
       assertStrictEqual(l.getAddress(), '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M');
       let utxos: CreateTransactionUtxo[] = [
@@ -190,6 +191,14 @@ export default class SelfTest extends Component {
       assertStrictEqual(tx.outs.length, 2);
       assertStrictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
       assertStrictEqual(bitcoin.address.fromOutputScript(tx.outs[1].script), wallet.getAddress()); // change address
+
+      //
+
+      l = new TaprootWallet();
+      l.setSecret('L4PKRVk1Peaar5WuH5LiKfkTygWtFfGrFeH2g2t3YVVqiwpJjMoF');
+      if (l.getAddress() !== 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf') {
+        throw new Error('failed to generate Taproot address from WIF');
+      }
 
       //
 

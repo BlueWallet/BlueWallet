@@ -8,7 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
-import AmountInput from '../../components/AmountInput';
+import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -200,12 +200,12 @@ const LnurlPay: React.FC = () => {
       <SafeArea>
         <ScrollView contentContainerStyle={styles.scrollviewContainer}>
           <BlueCard>
-            <AmountInput
+            <AmountInput.AmountInput
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
               onChangeText={setAmount}
-              disabled={payload && payload.fixed}
+              disabled={payload?.fixed}
               unit={unit}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />

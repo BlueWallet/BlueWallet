@@ -20,7 +20,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
-import AmountInput from '../../components/AmountInput';
+import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
@@ -384,7 +384,7 @@ const LNDCreateInvoice = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, styleHooks.root]}>
         <View style={[styles.amount, styleHooks.amount]}>
-          <AmountInput
+          <AmountInput.AmountInput
             isLoading={isLoading}
             amount={amount}
             onAmountUnitChange={setUnit}

@@ -50,15 +50,18 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import { isDesktop } from '../blue_modules/environment';
+import ManageWallets from '../screen/wallets/ManageWallets';
+import ReceiveDetails from '../screen/receive/ReceiveDetails';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
-  const { isLargeScreen } = useIsLargeScreen();
+  const { sizeClass } = useSizeClass();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -68,7 +71,7 @@ const DetailViewStackScreensStack = () => {
 
   const RightBarButtons = useMemo(
     () =>
-      isLargeScreen ? (
+      sizeClass === SizeClass.Large ? (
         <SettingsButton />
       ) : (
         <>
@@ -77,22 +80,22 @@ const DetailViewStackScreensStack = () => {
           <SettingsButton />
         </>
       ),
-    [isLargeScreen, navigateToAddWallet],
+    [sizeClass, navigateToAddWallet],
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: isLargeScreen ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
+      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
       headerLargeTitle: !isTotalBalanceEnabled,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: () => RightBarButtons,
+      headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, isLargeScreen, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
+  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets.length]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
@@ -305,6 +308,27 @@ const DetailViewStackScreensStack = () => {
         name="SettingsPrivacy"
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ManageWallets"
+        component={ManageWallets}
+        options={{
+          presentation: 'fullScreenModal',
+          title: loc.wallets.manage_title,
+          statusBarStyle: 'auto',
+          headerShown: true,
+        }}
+      />
+      <DetailViewStack.Screen
+        name="ReceiveDetails"
+        component={ReceiveDetails}
+        options={navigationStyle({
+          title: loc.receive.header,
+          closeButtonPosition: CloseButtonPosition.Left,
+          statusBarStyle: 'light',
+          headerShown: true,
+          presentation: 'modal',
+        })(theme)}
       />
     </DetailViewStack.Navigator>
   );

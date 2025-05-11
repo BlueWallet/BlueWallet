@@ -28,6 +28,7 @@ import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 
+
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
@@ -111,13 +112,18 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 }),
               );
             } else {
-              navigationRef.navigate('ReceiveDetailsRoot', {
-                screen: 'ReceiveDetails',
-                params: {
-                  walletID,
-                  address: payload.address,
-                },
-              });
+              navigationRef.dispatch(
+                CommonActions.navigate({
+                  name: 'ReceiveDetails',
+                  params: {
+                    walletID,
+                    address: payload.address,
+                  },
+                }),
+              );
+
+
+              
             }
 
             return true;
@@ -159,13 +165,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                   }),
                 );
               } else {
-                navigationRef.navigate('ReceiveDetailsRoot', {
-                  screen: 'ReceiveDetails',
-                  params: {
-                    walletID,
-                    address: payload.address,
-                  },
-                });
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'ReceiveDetails',
+                    params: {
+                      walletID,
+                      address: payload.address,
+                    },
+                  }),
+                );
               }
 
               return true;

@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated } from 'react-native';
+import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
@@ -8,11 +8,9 @@ import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import loc from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-
-enum ItemType {
-  WalletSection = 'wallet',
-  TransactionSection = 'transaction',
-}
+import { AddressItem } from './addresses/AddressItem';
+import { ItemType, AddressItemData } from '../models/itemTypes';
+import WalletGradient from '../class/wallet-gradient';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -24,7 +22,12 @@ interface TransactionItem {
   data: ExtendedTransaction & LightningTransaction;
 }
 
-type Item = WalletItem | TransactionItem;
+interface AddressItem {
+  type: ItemType.AddressSection;
+  data: AddressItemData;
+}
+
+type Item = WalletItem | TransactionItem | AddressItem;
 
 interface ManageWalletsListItemProps {
   item: Item;
@@ -33,8 +36,9 @@ interface ManageWalletsListItemProps {
   isPlaceHolder?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
-  state: { wallets: TWallet[]; searchQuery: string };
+  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
+  navigateToAddress?: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
   handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
@@ -56,7 +60,7 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye-slash' : 'eye'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
   </TouchableOpacity>
 );
 
@@ -78,6 +82,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   state,
   isPlaceHolder = false,
   navigateToWallet,
+  navigateToAddress,
   renderHighlightedText,
   handleDeleteWallet,
   handleToggleHideBalance,
@@ -101,26 +106,41 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const DEFAULT_VERTICAL_MARGIN = -10;
   const REDUCED_VERTICAL_MARGIN = -50;
 
+  const animateItemIn = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      Animated.spring(scaleValue, {
+        toValue: isActive ? CARD_SORT_ACTIVE : globalDragActive ? INACTIVE_SCALE_WHEN_ACTIVE : 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(scaleValue, {
+        toValue: isActive ? CARD_SORT_ACTIVE : globalDragActive ? INACTIVE_SCALE_WHEN_ACTIVE : 1,
+        duration: SCALE_DURATION,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isActive, globalDragActive, scaleValue, CARD_SORT_ACTIVE, INACTIVE_SCALE_WHEN_ACTIVE, SCALE_DURATION]);
+
   useEffect(() => {
     if (isActive !== prevIsActive.current) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     }
     prevIsActive.current = isActive;
 
-    Animated.timing(scaleValue, {
-      toValue: isActive ? CARD_SORT_ACTIVE : globalDragActive ? INACTIVE_SCALE_WHEN_ACTIVE : 1,
-      duration: SCALE_DURATION,
-      useNativeDriver: true,
-    }).start();
-  }, [isActive, globalDragActive, scaleValue]);
+    animateItemIn();
+  }, [isActive, globalDragActive, animateItemIn]);
 
   const onPress = useCallback(() => {
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
+    } else if (item.type === ItemType.AddressSection && navigateToAddress) {
+      navigateToAddress(item.data.address, item.data.walletID);
     }
-  }, [item, navigateToWallet]);
+  }, [item, navigateToWallet, navigateToAddress]);
 
   const handleLeftPress = (reset: () => void) => {
     handleToggleHideBalance(item.data as TWallet);
@@ -173,7 +193,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
     const backgroundColor = isActive || globalDragActive ? colors.brandingColor : colors.background;
 
-    const swipeDisabled = isActive || globalDragActive;
+    // Disable swiping only when search bar is focused or during active dragging
+    const swipeDisabled = isActive || globalDragActive || state.isSearchFocused === true;
 
     return (
       <Animated.View style={animatedStyle}>
@@ -218,21 +239,268 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       </Animated.View>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
-    const w = state.wallets.find(wallet => wallet.getTransactions().some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
-    const walletID = w ? w.getID() : '';
+    try {
+      const w = state.wallets.find(wallet => wallet.getTransactions()?.some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
+
+      const walletID = w ? w.getID() : '';
+
+      const transactionStyle = {
+        borderLeftWidth: 2,
+        borderLeftColor: colors.brandingColor,
+        backgroundColor: colors.background,
+        background: colors.background,
+      };
+
+      return (
+        <Animated.View
+          style={{
+            transform: [{ scale: scaleValue }],
+            opacity: scaleValue.interpolate({
+              inputRange: [0.9, 1],
+              outputRange: [0.7, 1],
+            }),
+          }}
+        >
+          <TransactionListItem
+            item={item.data}
+            itemPriceUnit={w?.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+            walletID={walletID}
+            searchQuery={state.searchQuery}
+            renderHighlightedText={renderHighlightedText}
+            style={transactionStyle}
+          />
+        </Animated.View>
+      );
+    } catch (e) {
+      console.warn('Error rendering transaction item:', e);
+      return null;
+    }
+  } else if (item.type === ItemType.AddressSection) {
+    const wallet = state.wallets.find(w => w.getID() === item.data.walletID);
+    if (!wallet) return null;
+
+    const addressItemProps = {
+      item: {
+        key: item.data.address,
+        index: item.data.index,
+        address: item.data.address,
+        isInternal: item.data.isInternal,
+        balance: 0,
+        transactions: 0,
+      },
+      balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+      walletID: item.data.walletID,
+      allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
+      onPress: navigateToAddress ? () => navigateToAddress(item.data.address, item.data.walletID) : undefined,
+      searchQuery: state.searchQuery,
+      renderHighlightedText,
+    };
 
     return (
-      <TransactionListItem
-        item={item.data}
-        itemPriceUnit={item.data.walletPreferredBalanceUnit || BitcoinUnit.BTC}
-        walletID={walletID}
-        searchQuery={state.searchQuery}
-        renderHighlightedText={renderHighlightedText}
-      />
+      <Animated.View
+        style={{
+          transform: [{ scale: scaleValue }],
+          opacity: scaleValue.interpolate({
+            inputRange: [0.9, 1],
+            outputRange: [0.7, 1],
+          }),
+        }}
+      >
+        <AddressItem {...addressItemProps} />
+      </Animated.View>
     );
   }
 
   return null;
+};
+
+// WalletGroupItem component to handle displaying wallet and related search results
+interface WalletGroupProps {
+  wallet: TWallet;
+  transactions: TransactionItem[];
+  addresses: AddressItem[];
+  state: { wallets: TWallet[]; searchQuery: string };
+  navigateToWallet: (wallet: TWallet) => void;
+  navigateToAddress?: (address: string, walletID: string) => void;
+  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  isSearching: boolean;
+}
+
+const WalletGroupComponent: React.FC<WalletGroupProps> = ({
+  wallet,
+  transactions,
+  addresses,
+  state,
+  navigateToWallet,
+  navigateToAddress,
+  renderHighlightedText,
+  isSearching,
+}) => {
+  const { colors } = useTheme();
+  const [expanded] = useState(true); // Always show child items when searching
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  const walletGradientColors = WalletGradient.gradientsFor(wallet.type);
+  const primaryColor = walletGradientColors[0];
+
+  const containerStyle: ViewStyle = {
+    marginHorizontal: 10,
+    marginVertical: 16,
+    borderRadius: 10,
+    overflow: 'hidden' as const,
+    backgroundColor: colors.elevated,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: primaryColor + '30',
+  };
+
+  const headerStyle: ViewStyle = {
+    padding: 12,
+    backgroundColor: primaryColor + '15', // Using translucent primary color as background
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderTopWidth: Platform.OS === 'ios' ? 4 : 2,
+    borderTopColor: primaryColor,
+    paddingVertical: 12,
+  };
+
+  const childItemsContainerStyle = {
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    backgroundColor: colors.elevated,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: primaryColor + '20',
+  };
+
+  const childItemStyle = (): ViewStyle => ({
+    borderLeftWidth: 3,
+    borderLeftColor: primaryColor,
+    backgroundColor: colors.inputBackgroundColor,
+  });
+
+  const sectionHeaderStyle: ViewStyle = {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: primaryColor + '10',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: primaryColor + '30',
+  };
+
+  const sectionHeaderTextStyle: TextStyle = {
+    color: colors.foregroundColor,
+    fontWeight: '600' as const,
+    fontSize: 14,
+  };
+
+  const dividerStyle = [styles.itemDivider, { backgroundColor: primaryColor + '20' }];
+
+  const onWalletPress = useCallback(() => {
+    navigateToWallet(wallet);
+  }, [navigateToWallet, wallet]);
+
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <View style={containerStyle}>
+        {/* Wallet Header */}
+        <View style={headerStyle}>
+          <WalletCarouselItem
+            item={wallet}
+            handleLongPress={undefined}
+            onPress={onWalletPress}
+            animationsEnabled={false}
+            searchQuery={state.searchQuery}
+            isPlaceHolder={false}
+            renderHighlightedText={renderHighlightedText}
+            customStyle={styles.carouselItem}
+          />
+        </View>
+
+        {/* Search results container */}
+        {expanded && (
+          <View style={childItemsContainerStyle}>
+            {/* Transactions section */}
+            {transactions.length > 0 && (
+              <>
+                <View style={sectionHeaderStyle}>
+                  <Text style={sectionHeaderTextStyle}>
+                    {loc.addresses.transactions} ({transactions.length})
+                  </Text>
+                </View>
+                {transactions.map((transaction, index) => (
+                  <View key={`tx-${index}`}>
+                    <View style={childItemStyle()}>
+                      <TransactionListItem
+                        item={transaction.data}
+                        itemPriceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+                        walletID={wallet.getID()}
+                        searchQuery={state.searchQuery}
+                        renderHighlightedText={renderHighlightedText}
+                      />
+                    </View>
+                    {index < transactions.length - 1 && <View style={dividerStyle} />}
+                  </View>
+                ))}
+              </>
+            )}
+
+            {/* Addresses section */}
+            {addresses.length > 0 && (
+              <>
+                <View style={sectionHeaderStyle}>
+                  <Text style={sectionHeaderTextStyle}>
+                    {loc.addresses.addresses_title} ({addresses.length})
+                  </Text>
+                </View>
+                {addresses.map((address, index) => {
+                  const addressItemProps = {
+                    item: {
+                      key: address.data.address,
+                      index: address.data.index,
+                      address: address.data.address,
+                      isInternal: address.data.isInternal,
+                      balance: 0,
+                      transactions: 0,
+                    },
+                    balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+                    walletID: address.data.walletID,
+                    allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
+                    // Use the onPress function returned by navigateToAddress instead of calling it directly
+                    onPress: navigateToAddress ? () => navigateToAddress(address.data.address, address.data.walletID) : undefined,
+                    searchQuery: state.searchQuery,
+                    renderHighlightedText,
+                  };
+
+                  return (
+                    <View key={`addr-${index}`}>
+                      <View style={childItemStyle()}>
+                        <AddressItem {...addressItemProps} />
+                      </View>
+                      {index < addresses.length - 1 && <View style={dividerStyle} />}
+                    </View>
+                  );
+                })}
+              </>
+            )}
+          </View>
+        )}
+      </View>
+    </Animated.View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -253,7 +521,11 @@ const styles = StyleSheet.create({
   transparentBackground: {
     backgroundColor: 'transparent',
   },
+  itemDivider: {
+    height: 1,
+    width: '100%',
+  },
 });
 
-export { LeftSwipeContent, RightSwipeContent };
+export { LeftSwipeContent, RightSwipeContent, WalletGroupComponent };
 export default ManageWalletsListItem;

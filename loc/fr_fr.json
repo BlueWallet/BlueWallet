@@ -172,7 +172,7 @@
     "fee_1d": "1j",
     "fee_3h": "3h",
     "fee_custom": "Personnalisé ",
-    "insert_custom_fee": "Insérez frais personalisé",
+    "insert_custom_fee": "Insérez frais",
     "fee_fast": "Rapide",
     "fee_medium": "Moyen",
     "fee_replace_minvb": "Le taux de frais total (satoshi par vbyte) que vous voulez payer devrais être plus grand que  {min} sat/vbyte.",
@@ -497,7 +497,7 @@
     "add_ln_wallet_first": "Vous devez d'abord ajouter un portefeuille Lightning.",
     "identity_pubkey": "Clé publique identité",
     "xpub_title": "XPUB portefeuille",
-    "manage_wallets_search_placeholder": "Rechercher des portefeuilles, des mémos",
+    "manage_wallets_search_placeholder": "Chercher portefeuilles, adresses, transactions et memos",
     "more_info": "Plus d'information",
     "details_delete_wallet_error_message": "Un problème est survenu lors de la confirmation de la suppression de ce portefeuille des notifications. Cela pourrait être dû à un problème de réseau ou à une mauvaise connexion. Si vous continuez, vous pourriez continuer à recevoir des notifications pour les transactions liées à ce portefeuille, même après sa suppression.",
     "details_delete_anyway": "Supprimer quand même"
@@ -680,7 +680,7 @@
     "notification_tx_unconfirmed": "La transaction de notification n'est pas encore confirmée, veuillez patienter",
     "failed_create_notif_tx": "Échec de la création d'une transaction on-chain",
     "onchain_tx_needed": "Transaction on-chain nécessaire",
-    "notif_tx_sent": "Transaction de notification envoyée. Veuillez attendre qu'elle soit confirmée",
+    "notif_tx_sent" : "Transaction de notification envoyée. Veuillez attendre qu'elle soit confirmée",
     "notif_tx": "Transaction de notification ",
     "not_found": "Code de paiement introuvable"
   }

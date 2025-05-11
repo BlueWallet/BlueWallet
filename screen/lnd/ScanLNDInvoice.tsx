@@ -9,7 +9,7 @@ import { BlueCard, BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
-import AmountInput from '../../components/AmountInput';
+import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -335,7 +335,7 @@ const ScanLNDInvoice = () => {
           contentInsetAdjustmentBehavior="automatic"
         >
           <View style={styles.scrollMargin}>
-            <AmountInput
+            <AmountInput.AmountInput
               pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
               isLoading={isLoading}
               amount={amount}

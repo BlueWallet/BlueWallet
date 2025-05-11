@@ -67,8 +67,9 @@ jobs:
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -93,7 +94,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
 
       - name: Install Dependencies with Bundler
         run: |
@@ -101,7 +101,7 @@ jobs:
           bundle install --jobs 4 --retry 3 --quiet
 
       - name: Install Node Modules
-        run: npm install --omit=dev --yes
+        run: npm ci --omit=dev --yes
 
       - name: Install CocoaPods Dependencies
         run: |
@@ -233,8 +233,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: true
-
+          
       - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
