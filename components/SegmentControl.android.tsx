@@ -21,7 +21,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
     Animated.timing(animatedValue, {
       toValue: selectedIndex,
       duration: 300,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start();
   }, [animatedValue, selectedIndex]);
 
@@ -46,7 +46,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
     Animated.timing(animatedValue, {
       toValue: index,
       duration: 300,
-      useNativeDriver: false,
+      useNativeDriver: true,
     }).start(() => {
       onChange(index);
     });
