@@ -618,11 +618,19 @@ lane :update_release_notes do |options|
     prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
     
     if prepare_version.nil?
-      UI.message("No version in 'Prepare for Submission' found. Creating a new version...")
-      latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
-      new_version_number = (latest_version.version_string.to_f + 0.1).to_s
-      prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
-      UI.message("Created new version: #{new_version_number}")
+      UI.message("No version in 'Prepare for Submission' found.")
+      
+      # Ask user if they want to create a new version
+      create_new_version = UI.confirm("Would you like to create a new version?")
+      
+      if create_new_version
+        latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+        new_version_number = (latest_version.version_string.to_f + 0.1).to_s
+        prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
+        UI.message("Created new version: #{new_version_number}")
+      else
+        UI.user_error!("No version in 'Prepare for Submission' found and user chose not to create one. Aborting.")
+      end
     else
       UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
     end
@@ -646,13 +654,72 @@ lane :update_release_notes do |options|
 
   # Define release notes
   release_notes_text = options[:release_notes]
+  
   if release_notes_text.nil? || release_notes_text.strip.empty?
-    release_notes_path = "../release-notes.txt"
-    unless File.exist?(release_notes_path)
-      UI.error("Release notes file does not exist at path: #{release_notes_path}")
-      UI.user_error!("No release notes provided and no file found. Failing the lane.")
+    # Prompt the user to select an option for release notes
+    selection = UI.select("Select a source for release notes:", [
+      "Enter manually",
+      "Use clipboard content", 
+      "Use release-notes.txt file"
+    ])
+    
+    case selection
+    when "Enter manually"
+      # Option 1: Enter manually
+      release_notes_text = UI.input("Enter the release notes:")
+      if release_notes_text.nil? || release_notes_text.strip.empty?
+        UI.user_error!("No release notes provided. Aborting.")
+      end
+      
+    when "Use clipboard content"
+      # Option 2: Use clipboard content
+      require 'open3'
+      stdout, stderr, status = Open3.capture3("pbpaste")
+      
+      if !status.success? || stdout.strip.empty?
+        UI.user_error!("Failed to get clipboard content or clipboard is empty")
+      end
+      
+      # Show preview of clipboard content
+      UI.message("Clipboard content preview:")
+      UI.message("-" * 50)
+      UI.message(stdout.length > 500 ? "#{stdout[0..500]}..." : stdout)
+      UI.message("-" * 50)
+      
+      # Confirm clipboard content
+      unless UI.confirm("Use this clipboard content for release notes?")
+        UI.user_error!("User canceled clipboard content usage. Aborting.")
+      end
+      
+      release_notes_text = stdout
+      
+    when "Use release-notes.txt file"
+      # Option 3: Use release-notes.txt file
+      release_notes_path = "../release-notes.txt"
+      
+      unless File.exist?(release_notes_path)
+        UI.error("Release notes file does not exist at path: #{release_notes_path}")
+        UI.user_error!("No release-notes.txt file found. Aborting.")
+      end
+      
+      # Read release notes from file
+      release_notes_text = File.read(release_notes_path)
+      
+      # Show preview of file content
+      UI.message("release-notes.txt content preview:")
+      UI.message("-" * 50)
+      UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+      UI.message("-" * 50)
+      
+      # Confirm file content
+      unless UI.confirm("Use this content from release-notes.txt?")
+        UI.user_error!("User canceled file content usage. Aborting.")
+      end
     end
-    release_notes_text = File.read(release_notes_path)
+  end
+  
+  if release_notes_text.nil? || release_notes_text.strip.empty?
+    UI.user_error!("No release notes content available. Aborting.")
   end
 
   # Define localized release notes
