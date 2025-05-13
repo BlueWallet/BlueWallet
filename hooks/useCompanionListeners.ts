@@ -27,7 +27,7 @@ import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
-
+import { useExtendedNavigation } from './useExtendedNavigation';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -49,6 +49,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
+  const navigation = useExtendedNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic
@@ -102,28 +103,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           fetchAndSaveWalletTransactions(walletID);
           if (wasTapped) {
             if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-              navigationRef.dispatch(
-                CommonActions.navigate({
-                  name: 'WalletTransactions',
-                  params: {
-                    walletID,
-                    walletType: wallet.type,
-                  },
-                }),
-              );
+              navigation.navigate('WalletTransactions', {
+                walletID,
+                walletType: wallet.type,
+              });
             } else {
-              navigationRef.dispatch(
-                CommonActions.navigate({
-                  name: 'ReceiveDetails',
-                  params: {
-                    walletID,
-                    address: payload.address,
-                  },
-                }),
-              );
-
-
-              
+              navigation.navigate('ReceiveDetails', {
+                walletID,
+                address: payload.address,
+              });
             }
 
             return true;
@@ -191,7 +179,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets, shouldActivateListeners]);
+  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, navigation, refreshAllWalletTransactions]);
 
   useEffect(() => {
     if (!shouldActivateListeners) return;
