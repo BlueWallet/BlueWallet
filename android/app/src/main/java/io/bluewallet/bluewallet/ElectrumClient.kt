@@ -154,6 +154,13 @@ class ElectrumClient {
     }
     
     /**
+     * Log the server details upon successful connection
+     */
+    private fun logServerDetails(server: ElectrumServer) {
+        Log.i(TAG, "Connected to Electrum server: ${server.host}:${server.port} (SSL: ${server.isSsl})")
+    }
+
+    /**
      * Connect to a specific Electrum server with network check
      */
     suspend fun connect(
@@ -162,40 +169,41 @@ class ElectrumClient {
     ): Boolean = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         Log.d(TAG, "Attempting direct connection to ${server.host}:${server.port} (SSL: ${server.isSsl})")
-        
+
         var result = false
-        
+
         if (!isNetworkAvailable()) {
             Log.e(TAG, "Cannot connect to ${server.host}: No network connection available")
             networkStatusListener?.onNetworkStatusChanged(false)
             return@withContext false
         }
-        
+
         try {
             close() // Close any existing connection
             Log.d(TAG, "Creating ${if (server.isSsl) "SSL " else ""}socket to ${server.host}:${server.port}")
-            
+
             socket = if (server.isSsl) {
                 createSslSocket(server.host, server.port, validateCertificates)
             } else {
                 Socket(server.host, server.port)
             }
-            
+
             Log.d(TAG, "Socket created successfully. Setting timeout and getting streams.")
             socket?.soTimeout = 10000 // 10 seconds read timeout
             outputStream = socket?.getOutputStream()
             inputReader = BufferedReader(InputStreamReader(socket?.getInputStream()))
-            
+
             // Testing the connection with simple version request
             val versionRequest = "{\"id\": 0, \"method\": \"server.version\", \"params\": [\"BlueWallet\", \"1.4\"]}\n"
             Log.d(TAG, "Sending version request to verify connection")
             send(versionRequest.toByteArray())
-            
+
             val response = receive()
             if (response.isNotEmpty()) {
                 val responseStr = String(response)
                 Log.d(TAG, "Received server version response: $responseStr")
                 networkStatusListener?.onNetworkStatusChanged(true)
+                logServerDetails(server) // Log server details here
                 result = true
             } else {
                 Log.w(TAG, "Empty response from server when verifying connection")
@@ -207,10 +215,10 @@ class ElectrumClient {
             networkStatusListener?.onConnectionError("Error connecting: ${e.message}")
             close()
         }
-        
+
         val duration = System.currentTimeMillis() - startTime
         Log.d(TAG, "Connection attempt to ${server.host}:${server.port} completed in ${duration}ms, result: $result")
-        
+
         result
     }
     
@@ -319,5 +327,22 @@ class ElectrumClient {
         
         val factory: SSLSocketFactory = sslContext.socketFactory
         return factory.createSocket(host, port) as SSLSocket
+    }
+
+    private fun getNextPeer(): ElectrumServer {
+        val savedPeer = getSavedPeer()
+        return if (savedPeer != null) {
+            Log.d(TAG, "Using saved peer: ${savedPeer.host}:${savedPeer.port} (SSL: ${savedPeer.isSsl})")
+            savedPeer
+        } else {
+            Log.d(TAG, "No saved peer found. Using default hardcoded peers.")
+            hardcodedPeers.random()
+        }
+    }
+
+ 
+    private fun getSavedPeer(): ElectrumServer? {
+        // implement later
+        return null
     }
 }
