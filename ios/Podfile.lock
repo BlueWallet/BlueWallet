@@ -1402,8 +1402,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-screen-capture (0.2.3):
-    - React
   - react-native-secure-key-store (2.0.10):
     - React-Core
   - react-native-tcp-socket (6.3.0):
@@ -2214,7 +2212,6 @@ DEPENDENCIES:
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-screen-capture (from `../node_modules/react-native-screen-capture`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
@@ -2378,8 +2375,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-screen-capture:
-    :path: "../node_modules/react-native-screen-capture"
   react-native-secure-key-store:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
@@ -2545,7 +2540,6 @@ SPEC CHECKSUMS:
   react-native-menu: baad9f9dac594eb8eddf46c0428b0fb99801c108
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: afcc2e2b3e78ae8ef90d81e658aacee34ebc27ea
-  react-native-screen-capture: 7b6121f529681ed2fde36cdedadd0bb39e9a3796
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: 96e139efc1345fb996543135a8ab4609f3a45b77
