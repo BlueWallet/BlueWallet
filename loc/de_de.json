@@ -169,7 +169,6 @@
     "fee_1d": "1T",
     "fee_3h": "3h",
     "fee_custom": "Benutzerdefiniert",
-    "insert_custom_fee": "Individuelle Gebühr einfügen",
     "fee_fast": "Schnell",
     "fee_medium": "Durchschnitt",
     "fee_replace_minvb": "Die gewählte Transaktionsgebühr (Satoshi per vByte), sollte höher sein als {min} sat/vByte.",
@@ -491,7 +490,6 @@
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
     "identity_pubkey": "Pubkey-Identität",
     "xpub_title": "Wallet xPub",
-    "manage_wallets_search_placeholder": "Suche in Wallets, Notizen",
     "more_info": "Mehr Infos",
     "details_delete_wallet_error_message": "Bei der Bestätigung, ob diese Wallet aus den Benachrichtigungen entfernt wurde, trat ein Fehler auf – möglicherweise wegen Netzwerkproblemen oder schlechter Verbindung. Falls du fortfährst, erhältst du möglicherweise weiterhin Benachrichtigungen für Transaktionen dieser Wallet, auch nachdem sie gelöscht wurde.",
     "details_delete_anyway": "Trotzdem löschen"

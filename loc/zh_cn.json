@@ -172,7 +172,6 @@
     "fee_1d": "1日",
     "fee_3h": "3小时",
     "fee_custom": "自选",
-    "insert_custom_fee": "输入自定义矿工费率",
     "fee_fast": "快速",
     "fee_medium": "中等",
     "fee_replace_minvb": "您希望支付的总费率 (聪 / vByte) 应高于 {min} 聪 / vByte。",
@@ -497,7 +496,6 @@
     "add_ln_wallet_first": "您必须先添加一个闪电钱包。",
     "identity_pubkey": "身份公钥",
     "xpub_title": "钱包公钥",
-    "manage_wallets_search_placeholder": "搜索钱包、备忘录",
     "more_info": "更多信息",
     "details_delete_wallet_error_message": "此钱包在确认是否从通知中删除时出现了问题，这可能是由于网络问题或连接不畅造成的。如果您继续使用，即使钱包已删除，您可能仍会收到与之相关的交易通知。",
     "details_delete_anyway": "继续删除"

@@ -166,7 +166,6 @@
     "fee_1d": "1일",
     "fee_3h": "3시간",
     "fee_custom": "맞춤형",
-    "insert_custom_fee": "임의 거래 수수료 지정하기",
     "fee_fast": "빠름",
     "fee_medium": "중간",
     "fee_replace_minvb": "지불하기 원하시는 총 수수료율 (가상바이트 당 사토시)은 반드시 {min} 가상바이트당 사토시보다 높아야 합니다",

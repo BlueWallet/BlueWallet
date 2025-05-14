@@ -6,7 +6,7 @@
     "of": "{number} د {total}",
     "ok": "خو",
     "yes": "ٱ",
-    "no": "نه",
+    "no": "ن",
     "success": "مۏوفق بی",
     "wallet_key": "کلٛیل کیف پیلٛ",
     "refresh": "وانۊ کردن",
@@ -14,7 +14,7 @@
   },
   "azteco": {
     "codeIs": "کود تخفیف شما",
-    "redeem": "ازاف کردن وه کیف پیلٛ",
+    "redeem": "ازاف کردن و کیف پیلٛ",
     "success": "مۏوفق بی"
   },
   "entropy": {
@@ -44,10 +44,10 @@
     "wasnt_paid_and_expired": "اؽ سۊرت هساو پرداخت نبیه ۉ مونقزی بیه."
   },
   "plausibledeniability": {
-    "password_should_not_match": "رزم ها وه کار مؽره. یه رزم هنی نه وه کار بیر."
+    "password_should_not_match": "رزم ها و کار مؽره. ی رزم هنی ن و کار بیر."
   },
   "pleasebackup": {
-    "ask_no": "نه، مه نارم.",
+    "ask_no": "ن، م نارم.",
     "ask_yes": "ٱ، مه دارم."
   },
   "receive": {
@@ -64,12 +64,12 @@
     "create_fee": "کارمزد",
     "create_memo": "ویرداشت",
     "create_satoshi_per_vbyte": "ساتۊشی سی هر بایت مجازی",
-    "create_to": "وه",
+    "create_to": "و",
     "details_address": "آدرس",
-    "details_note_placeholder": "ویرداشت وه خوت",
+    "details_note_placeholder": "ویرداشت و خوت",
     "details_scan": "اسکن",
     "details_unrecognized_file_format": "قالو فایل نشناخته",
-    "dynamic_init": "ها ره موفته",
+    "dynamic_init": "ها ر موفته",
     "fee_10m": "10 دیقه",
     "fee_1d": "1 رۊز",
     "fee_3h": "3 ساعت",
@@ -79,7 +79,7 @@
     "psbt_sign": "امزا کردن تراکونش"
   },
   "settings": {
-    "about_selftest": "ره ونن خوش آزمایی",
+    "about_selftest": "ر ونن خوش آزمایی",
     "about_selftest_electrum_disabled": "خوش آزمایی د هالت آفلاین د دسرس نؽ. هالت آفلاینن قیر فعال بکو ۉ دۏورته تفره بکو.",
     "about_sm_github": "گیت هاب",
     "about_sm_discord": "سرور دیسکورد",
@@ -88,14 +88,14 @@
     "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",
     "currency": "واهد پیلٛ",
     "default_info": "دونسمنیا پؽش فرز",
-    "default_title": "موقه ره ونن",
+    "default_title": "مجال ر ونن",
     "electrum_offline_mode": "هالت آفلاین",
-    "use_ssl": "SSL نه وه کار بییر",
+    "use_ssl": "SSL ن و کار بییر",
     "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموݩ بۊئه؟",
     "electrum_settings_server": "سرور الکترام",
     "electrum_status": "وزیت",
-    "encrypt_title": "امنیت",
-    "encrypt_use": "{type} نه وه کار بییر",
+    "encrypt_title": "ٱمنیت",
+    "encrypt_use": "{type} ن و کار بییر",
     "header": "سامونیا",
     "language": "زوݩ",
     "lightning_settings": "سامونیا لایتنینگ",
