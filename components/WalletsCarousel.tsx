@@ -151,9 +151,11 @@ const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
   rootLargeDevice: { marginVertical: 20 },
   grad: {
-    padding: 15,
     borderRadius: 12,
     minHeight: 164,
+  },
+  container: {
+    padding: 15,
   },
   balanceContainer: {
     height: 40,
@@ -351,9 +353,10 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           onPress={handlePress}
           delayHoverIn={0}
           delayHoverOut={0}
+          style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}
         >
-          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
+          <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
+            <View style={iStyles.container}>
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
               {!isPlaceHolder && (
@@ -395,8 +398,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                   </Text>
                 </>
               )}
-            </LinearGradient>
-          </View>
+            </View>
+          </LinearGradient>
         </Pressable>
       </Animated.View>
     );
