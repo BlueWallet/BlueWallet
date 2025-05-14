@@ -9,6 +9,7 @@
     "never": "mai",
     "of": "{number} de {total}",
     "ok": "OK",
+    "enter_url": "Entrar URL",
     "storage_is_encrypted": "L'informació està xifrada. Es requereix la contrasenya per a desxifrar-la.",
     "yes": "Si",
     "no": "No",
@@ -38,7 +39,7 @@
   "errors": {
     "broadcast": "La transmissió ha fallat",
     "error": "Error",
-    "network": "Error de red"
+    "network": "Error de xarxa"
   },
   "lnd": {
     "expired": "Caducat",

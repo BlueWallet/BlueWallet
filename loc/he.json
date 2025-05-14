@@ -165,7 +165,6 @@
     "fee_1d": "1 י'",
     "fee_3h": "3 ש'",
     "fee_custom": "אחר",
-    "insert_custom_fee": "הכנסת עמלה מותאמת",
     "fee_fast": "מהיר",
     "fee_medium": "בינוני",
     "fee_replace_minvb": "שעור העמלה הכולל (סאטושי עבור vByte) שברצונך לשלם צריך להיות גבוה יותר מאשר {min} sat/vByte.",
@@ -468,7 +467,6 @@
     "add_ln_wallet_first": "עלייך להוסיף ארנק ברק קודם.",
     "identity_pubkey": "מפתח זהות ציבורי",
     "xpub_title": "מפתח צפייה של הארנק",
-    "manage_wallets_search_placeholder": "חיפוש ארנקים, תזכירים",
     "more_info": "מידע נוסף"
   },
   "total_balance_view": {
