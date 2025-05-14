@@ -12,7 +12,7 @@ import SegmentedControl from '../../components/SegmentControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
-import { disableScreenProtect, enableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -132,6 +132,7 @@ const WalletAddresses: React.FC = () => {
 
   const { colors } = useTheme();
   const { isPrivacyBlurEnabled } = useSettings();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { setOptions } = useExtendedNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
@@ -146,7 +147,7 @@ const WalletAddresses: React.FC = () => {
       return () => {
         disableScreenProtect();
       };
-    }, [isPrivacyBlurEnabled]),
+    }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
   );
 
   const getAddresses = useMemo(() => {

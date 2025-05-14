@@ -94,6 +94,7 @@ PODS:
     - React-RCTText (= 0.77.2)
     - React-RCTVibration (= 0.77.2)
   - React-callinvoker (0.77.2)
+  - React-Codegen (0.1.0)
   - React-Core (0.77.2):
     - glog
     - hermes-engine
@@ -1263,6 +1264,13 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
+  - react-native-capture-protection (2.0.7):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - ReactCommon/turbomodule/core
   - react-native-document-picker (9.3.1):
     - DoubleConversion
     - glog
@@ -2083,7 +2091,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.11.2):
+  - RNSVG (15.12.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2103,9 +2111,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNSVG/common (= 15.11.2)
+    - RNSVG/common (= 15.12.0)
     - Yoga
-  - RNSVG/common (15.11.2):
+  - RNSVG/common (15.12.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2200,6 +2208,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
+  - react-native-capture-protection (from `../node_modules/react-native-capture-protection`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
@@ -2267,6 +2276,7 @@ SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
     - lottie-ios
+    - React-Codegen
     - SocketRocket
     - ZXingObjC
 
@@ -2356,6 +2366,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blue-crypto"
   react-native-bw-file-access:
     :path: "../blue_modules/react-native-bw-file-access"
+  react-native-capture-protection:
+    :path: "../node_modules/react-native-capture-protection"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-picker:
@@ -2500,6 +2512,7 @@ SPEC CHECKSUMS:
   RCTTypeSafety: 5e57924492a5e0a762654f814dd018953274eca9
   React: 53c9bd6f974c5dd019ee466e46477eb679149c38
   React-callinvoker: d6484472c1c742917b51338525336d6a74ab8a9f
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: 4ddb741e08144902ce4e0e66b7c67c6f2dc5bfc7
   React-CoreModules: 0a31ca662ac169edd0c210efd324e19b3012d7ed
   React-cxxreact: f8ecc64ebf8b795c550ae8b65ba4908ffe7350d0
@@ -2526,6 +2539,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
+  react-native-capture-protection: 9bcc879e5d577b55050dc12ff0f283595c9e5873
   react-native-document-picker: bfe9c7d72908d2faba56a4765373c6367090ae2e
   react-native-image-picker: 84b261e109faa7312bca59f1f65c8f2b22865496
   react-native-menu: baad9f9dac594eb8eddf46c0428b0fb99801c108
@@ -2584,7 +2598,7 @@ SPEC CHECKSUMS:
   RNReanimated: 4ab125a1b0451725bb07b2ef9d567e03b2a85b3f
   RNScreens: 790123c4a28783d80a342ce42e8c7381bed62db1
   RNShare: a815fbfde647a32be594372d60d4c1079e3cb512
-  RNSVG: 877cd57c2db63dc9f1fd1bbb5e95506ccd481df6
+  RNSVG: 85f373e6a24cf79a882d4809f3633946ed9facb8
   RNVectorIcons: bd818296a51dc2bb8c3bd97a3ca399df1afe216d
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
