@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Platform, Pressable, TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -105,22 +105,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     [onPressMenuItem],
   );
 
-  const getPressableStyle = useCallback(
-    ({ pressed }: { pressed: boolean }) => [
-      buttonStyle,
-      {
-        opacity: pressed ? 0.7 : 1,
-        ...(Platform.OS === 'ios' && {
-          backgroundColor: pressed ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
-        }),
-        ...(Platform.OS === 'android' && {
-          backgroundColor: pressed ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
-        }),
-      },
-    ],
-    [buttonStyle],
-  );
-
   const renderMenuView = () => {
     return (
       <MenuView
@@ -136,15 +120,9 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         accessibilityLanguage={language}
       >
         {isMenuPrimaryAction || isButton ? (
-          <Pressable
-            style={getPressableStyle}
-            disabled={disabled}
-            onPress={onPress}
-            android_ripple={Platform.OS === 'android' ? { color: 'rgba(0, 0, 0, 0.1)' } : undefined}
-            {...restProps}
-          >
+          <TouchableOpacity style={buttonStyle} disabled={disabled} onPress={onPress} {...restProps}>
             {children}
-          </Pressable>
+          </TouchableOpacity>
         ) : (
           children
         )}
