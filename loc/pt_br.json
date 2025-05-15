@@ -169,7 +169,6 @@
     "fee_1d": "1d",
     "fee_3h": "3h",
     "fee_custom": "Personalizada",
-    "insert_custom_fee": "Insira taxa personalizada",
     "fee_fast": "Rápida",
     "fee_medium": "Normal",
     "fee_replace_minvb": "A taxa total (satoshi per vByte) que você deseja pagar deve ser maior que {min} sat/vByte.",
@@ -491,7 +490,6 @@
     "add_ln_wallet_first": "Primeiro você deve adicionar uma carteira Lightning.",
     "identity_pubkey": "Identificar chave pública",
     "xpub_title": "XPUB da Carteira",
-    "manage_wallets_search_placeholder": "Procurar carteiras, memos",
     "more_info": "Mais informações",
     "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isso pode ser devido a um problema de rede ou conexão ruim. Se você continuar, ainda poderá receber notificações de transações relacionadas a esta carteira, mesmo depois que ela for excluída.",
     "details_delete_anyway": "Apagar mesmo assim"
