@@ -8,7 +8,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -29,6 +29,7 @@ const WalletXpub: React.FC = () => {
   const { walletID, xpub } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID);
   const { isPrivacyBlurEnabled } = useSettings();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
@@ -60,7 +61,7 @@ const WalletXpub: React.FC = () => {
         disableScreenProtect();
         task.cancel();
       };
-    }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation]),
+    }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation, enableScreenProtect, disableScreenProtect]),
   );
 
   useEffect(() => {

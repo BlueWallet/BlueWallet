@@ -18,7 +18,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -37,6 +37,7 @@ const ImportWallet = () => {
   const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
   const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
   const { isPrivacyBlurEnabled } = useSettings();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const styles = StyleSheet.create({
     root: {
       paddingTop: 10,
@@ -162,7 +163,7 @@ const ImportWallet = () => {
     return () => {
       disableScreenProtect();
     };
-  }, [isPrivacyBlurEnabled]);
+  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   useEffect(() => {
     if (triggerImport) handleImport();

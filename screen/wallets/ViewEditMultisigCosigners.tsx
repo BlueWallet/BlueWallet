@@ -41,7 +41,7 @@ import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -63,6 +63,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { dispatch, setParams, setOptions } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;

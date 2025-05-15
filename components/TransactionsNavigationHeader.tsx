@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { I18nManager, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
@@ -168,70 +168,73 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       style={styles.lineaderGradient}
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
-      <Image source={imageSource} style={styles.chainIcon} />
-
-      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
-        {wallet.getLabel()}
-      </Text>
-      <View style={styles.walletBalanceAndUnitContainer}>
-        <ToolTipMenu
-          isMenuPrimaryAction
-          isButton
-          enableAndroidRipple={false}
-          buttonStyle={styles.walletBalance}
-          onPressMenuItem={onPressMenuItem}
-          actions={toolTipWalletBalanceActions}
-        >
-          <View style={styles.walletBalance}>
-            {hideBalance ? (
-              <BlurredBalanceView />
-            ) : (
-              <View>
-                <Text
-                  key={String(balance)} // force component recreation on balance change. To fix right-to-left languages, like Farsis
-                  testID="WalletBalance"
-                  numberOfLines={1}
-                  minimumFontScale={0.5}
-                  adjustsFontSizeToFit
-                  style={styles.walletBalanceText}
-                >
-                  {balance}
-                </Text>
-              </View>
-            )}
-          </View>
-        </ToolTipMenu>
-        <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
-          <Text style={styles.walletPreferredUnitText}>
-            {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
-          </Text>
-        </TouchableOpacity>
+      <ImageBackground source={imageSource} style={styles.chainIcon} />
+      <View style={styles.container}>
+        <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
+          {wallet.getLabel()}
+        </Text>
+        <View style={styles.walletBalanceAndUnitContainer}>
+          <ToolTipMenu
+            isMenuPrimaryAction
+            isButton
+            enableAndroidRipple={false}
+            buttonStyle={styles.walletBalance}
+            onPressMenuItem={onPressMenuItem}
+            actions={toolTipWalletBalanceActions}
+          >
+            <View style={styles.walletBalance}>
+              {hideBalance ? (
+                <BlurredBalanceView />
+              ) : (
+                <View>
+                  <Text
+                    key={String(balance)} // force component recreation on balance change. To fix right-to-left languages, like Farsis
+                    testID="WalletBalance"
+                    numberOfLines={1}
+                    minimumFontScale={0.5}
+                    adjustsFontSizeToFit
+                    style={styles.walletBalanceText}
+                  >
+                    {balance}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </ToolTipMenu>
+          <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
+            <Text style={styles.walletPreferredUnitText}>
+              {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {wallet.type === LightningCustodianWallet.type && allowOnchainAddress && (
+          <ToolTipMenu
+            isMenuPrimaryAction
+            isButton
+            onPressMenuItem={handleManageFundsPressed}
+            actions={toolTipActions}
+            buttonStyle={styles.manageFundsButton}
+          >
+            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+          </ToolTipMenu>
+        )}
+        {wallet.type === MultisigHDWallet.type && (
+          <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
+            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+          </TouchableOpacity>
+        )}
       </View>
-      {wallet.type === LightningCustodianWallet.type && allowOnchainAddress && (
-        <ToolTipMenu
-          isMenuPrimaryAction
-          isButton
-          onPressMenuItem={handleManageFundsPressed}
-          actions={toolTipActions}
-          buttonStyle={styles.manageFundsButton}
-        >
-          <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-        </ToolTipMenu>
-      )}
-      {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
-          <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
-        </TouchableOpacity>
-      )}
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   lineaderGradient: {
-    padding: 15,
     minHeight: 140,
     justifyContent: 'center',
+  },
+  container: {
+    padding: 15,
   },
   chainIcon: {
     width: 99,

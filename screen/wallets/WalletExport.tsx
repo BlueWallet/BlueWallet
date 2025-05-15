@@ -3,7 +3,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
 import { LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
@@ -81,6 +81,8 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
       const timer = setTimeout(() => navigation.goBack(), 500);
@@ -95,7 +97,7 @@ const WalletExport: React.FC = () => {
     return () => {
       disableScreenProtect();
     };
-  }, [isPrivacyBlurEnabled]);
+  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;

@@ -10,7 +10,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();
@@ -20,6 +20,7 @@ const PleaseBackupLNDHub = () => {
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { isPrivacyBlurEnabled } = useSettings();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const dismiss = useCallback(() => {
     navigation.getParent().goBack();
@@ -51,7 +52,7 @@ const PleaseBackupLNDHub = () => {
       disableScreenProtect();
       subscription.remove();
     };
-  }, [dismiss, isPrivacyBlurEnabled]);
+  }, [dismiss, isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;

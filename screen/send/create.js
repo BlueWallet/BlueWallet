@@ -18,7 +18,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
@@ -46,6 +46,8 @@ const SendCreate = () => {
     },
   });
 
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+
   useEffect(() => {
     console.log('send/create - useEffect');
     if (isPrivacyBlurEnabled) {
@@ -54,7 +56,7 @@ const SendCreate = () => {
     return () => {
       disableScreenProtect();
     };
-  }, [isPrivacyBlurEnabled]);
+  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;
