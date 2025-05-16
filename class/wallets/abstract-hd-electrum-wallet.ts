@@ -367,6 +367,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // then we combine all this data (we need inputs to see source addresses and amounts)
     const vinTxids = [];
     for (const txdata of Object.values(txdatas)) {
+      if (txdata.vin.length > 99) continue;
+      // ^^^ cutoff, some transactions have thousands of inputs, so the resulting array of txs for inputs to fetch
+      // might be dozens of thousands. too much to handle, so we skip such transactions
       for (const vin of txdata.vin) {
         vin.txid && vinTxids.push(vin.txid);
         // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
