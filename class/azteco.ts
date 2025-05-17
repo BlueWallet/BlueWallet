@@ -1,6 +1,13 @@
 import URL from 'url';
 import { fetch } from '../util/fetch';
 
+export type AztecoVoucher = {
+  c1: string;
+  c2: string;
+  c3: string;
+  c4: string;
+};
+
 export default class Azteco {
   /**
    * Redeems an Azteco bitcoin voucher.
