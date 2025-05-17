@@ -8,8 +8,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
-import { ECPairFactory } from 'ecpair';
-import { ECPairInterface } from 'ecpair/src/ecpair';
+import { ECPairFactory, ECPairInterface } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
@@ -1247,7 +1246,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         address: output.address,
         // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
         script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
-        value: output.value,
+        value: BigInt(output.value),
         bip32Derivation:
           change && path && pubkey
             ? [
@@ -1302,7 +1301,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ],
       witnessUtxo: {
         script: p2wpkh.output,
-        value: input.value,
+        value: BigInt(input.value),
       },
     });
 
