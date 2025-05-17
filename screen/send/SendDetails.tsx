@@ -863,7 +863,7 @@ const SendDetails = () => {
         .map(recipient => ({ ...recipient, value: Number(recipient.value) }));
 
       navigation.navigate('CreateTransaction', {
-        fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
+        fee: Number(new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber()),
         feeSatoshi: Number(psbt.getFee()),
         tx: tx.toHex(),
         recipients,
