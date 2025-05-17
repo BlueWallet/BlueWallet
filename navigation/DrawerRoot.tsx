@@ -5,6 +5,7 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { DrawerParamList } from './DrawerParamList';
+import useCompanionListeners from '../hooks/useCompanionListeners';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
@@ -33,6 +34,7 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 
 const DrawerRoot = () => {
   const { sizeClass, isLargeScreen } = useSizeClass();
+  useCompanionListeners();
 
   const getDrawerWidth = useMemo(() => {
     switch (sizeClass) {
