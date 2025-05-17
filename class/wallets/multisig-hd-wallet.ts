@@ -80,7 +80,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   private _isNativeSegwit: boolean = false;
   private _isWrappedSegwit: boolean = false;
   private _isLegacy: boolean = false;
-  private _nodes: BIP32Interface[][] = [];
+  private _nodes: Record<number, Record<number, BIP32Interface>> = {}; // nodeIndex -> cosignerIndex -> BIP32Interface
   public _derivationPath: string = '';
   public gap_limit: number = 20;
 
@@ -265,6 +265,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @private
    */
   protected _getXpubFromCosignerIndex(index: number) {
+    if (!this._cosigners || !this._cosigners[index]) {
+      throw new Error('Invalid cosigner index or cosigners not initialized');
+    }
     let cosigner: string = this._cosigners[index];
     if (MultisigHDWallet.isXprvString(cosigner)) cosigner = MultisigHDWallet.convertXprvToXpub(cosigner);
     let xpub = cosigner;
@@ -289,9 +292,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getAddressFromNode(nodeIndex: number, index: number) {
+    this._nodes = this._nodes || {};
     const pubkeys = [];
     for (const [cosignerIndex] of this._cosigners.entries()) {
-      this._nodes[nodeIndex] = this._nodes[nodeIndex] || [];
+      this._nodes[nodeIndex] = this._nodes[nodeIndex] || {};
       let _node;
 
       if (!this._nodes[nodeIndex][cosignerIndex]) {

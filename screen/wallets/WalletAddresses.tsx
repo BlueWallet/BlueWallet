@@ -154,13 +154,21 @@ const WalletAddresses: React.FC = () => {
     const newAddresses: Address[] = [];
     const changeMaxIndex = 'next_free_change_address_index' in walletInstance ? walletInstance.next_free_change_address_index : 0;
     for (let index = 0; index <= changeMaxIndex; index++) {
-      newAddresses.push(getAddress(walletInstance, index, true));
+      try {
+        newAddresses.push(getAddress(walletInstance, index, true));
+      } catch (error: any) {
+        console.error('error', error);
+      }
     }
 
     const gapLimit = 'gap_limit' in walletInstance ? walletInstance.gap_limit : 0;
     const addressMaxIndex = 'next_free_address_index' in walletInstance ? walletInstance.next_free_address_index : 0;
     for (let index = 0; index < addressMaxIndex + gapLimit; index++) {
-      newAddresses.push(getAddress(walletInstance, index, false));
+      try {
+        newAddresses.push(getAddress(walletInstance, index, false));
+      } catch (error: any) {
+        console.error('error', error);
+      }
     }
     return newAddresses;
   }, [walletInstance]);
