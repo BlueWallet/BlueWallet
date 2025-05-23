@@ -226,8 +226,8 @@
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
     "about_sm_twitter": "Siguenos en Twitter",
-    "privacy_temporary_screenshots": "Permitir capturas de pantalla",
-    "privacy_temporary_screenshots_instructions": "La protección contra capturas de pantalla se desactivará para esta sesión, permitiéndote hacer capturas de pantalla. Cuando cierres y vuelvas a abrir la aplicación, la protección volverá a activarse automáticamente.",
+    "privacy_temporary_screenshots": "Permitir captura de pantalla",
+    "privacy_temporary_screenshots_instructions": "La protección contra capturas de pantalla se desactivará temporalmente, lo que permitirá realizar capturas y grabaciones de pantalla. La protección se reactivará automáticamente cuando cierre y vuelva a abrir BlueWallet.",
     "biometrics": "Biometría",
     "biometrics_no_longer_available": "La configuración de tu dispositivo cambió y ya no coincide con la configuración de seguridad seleccionada en la aplicación. Vuelve a habilitar los datos biométricos o el código de acceso, luego reinicia la aplicación para aplicar estos cambios.",
     "biom_10times": "Has intentado ingresar tu contraseña 10 veces. ¿Te gustaría restablecer tu almacenamiento? Esto eliminará todas las billeteras y descifrará tu almacenamiento.",
@@ -681,7 +681,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
