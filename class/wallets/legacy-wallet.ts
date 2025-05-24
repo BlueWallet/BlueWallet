@@ -470,7 +470,7 @@ export class LegacyWallet extends AbstractWallet {
     sanitizedOutputs.forEach(output => {
       const outputData = {
         address: output.address,
-        value: output.value,
+        value: BigInt(output.value),
       };
 
       psbt.addOutput(outputData);
@@ -607,7 +607,7 @@ export class LegacyWallet extends AbstractWallet {
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
     const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
-    const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed, options);
+    const signature = bitcoinMessage.sign(message, Buffer.from(privateKey), keyPair.compressed, options);
     return signature.toString('base64');
   }
 

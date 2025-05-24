@@ -6,6 +6,7 @@ import { ECPairFactory } from 'ecpair';
 import ecc from '../../blue_modules/noble_ecc';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import { CreateTransactionUtxo } from '../../class/wallets/types';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -169,7 +170,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.strictEqual(walletSender.getBIP47PaymentCode(), recoveredPaymentCode); // accepted!
 
     assert.strictEqual(
-      tx.outs[1].script.toString('hex'),
+      uint8ArrayToHex(tx.outs[1].script),
       '6a4c500100031c9282bd392ee9700a50d7161c5f76f7b89e7a6fb551bfd5660e79cc7c8d8e7f7676b25ab4db90a96fadfa1254741e09b35e27c7dc1abcd2dc93c4c32732f45400000000000000000000000000',
     );
 
@@ -229,13 +230,13 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
     assert(tx);
 
-    assert.strictEqual(tx.outs[0].value, 10234);
+    assert.strictEqual(tx.outs[0].value, 10234n);
     assert.strictEqual(
       bitcoin.address.fromOutputScript(tx.outs[0].script),
       walletSender._getBIP47AddressSend(bip47instanceReceiver.getSerializedPaymentCode(), 0),
     );
 
-    assert.strictEqual(tx.outs[1].value, 22000);
+    assert.strictEqual(tx.outs[1].value, 22000n);
     assert.strictEqual(bitcoin.address.fromOutputScript(tx.outs[1].script), '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
 
     const actualFeerate = fee / tx.virtualSize();
@@ -298,9 +299,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert(tx);
 
     const legacyAddressDestination = tx.outs.find(o => bitcoin.address.fromOutputScript(o.script) === '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
-    assert.strictEqual(legacyAddressDestination?.value, 22000);
+    assert.strictEqual(legacyAddressDestination?.value, 22000n);
 
-    const spDestinatiob = tx.outs.find(o => o.value === 10234);
+    const spDestinatiob = tx.outs.find(o => Number(o.value) === 10234);
     assert.strictEqual(
       bitcoin.address.fromOutputScript(spDestinatiob!.script!),
       'bc1pu7dwaehvur4lpc7cqmynnjgx5ngthk574p05mgwxf9lecv4r6j5s02nhxq',
@@ -310,7 +311,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
       o => bitcoin.address.fromOutputScript(o.script) === 'bc1q7vraw79vcf7qhnefeaul578h7vjc7tr95ywfuq',
     );
 
-    const calculatedFee = 195928 - changeDestination!.value - spDestinatiob!.value - legacyAddressDestination!.value;
+    const calculatedFee =
+      195928 - Number(changeDestination!.value) - Number(spDestinatiob!.value) - Number(legacyAddressDestination!.value);
 
     assert.strictEqual(fee, calculatedFee);
 

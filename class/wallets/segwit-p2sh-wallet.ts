@@ -69,7 +69,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
         console.warn('only compressed public keys are good for segwit');
         return false;
       }
-      address = pubkeyToP2shSegwitAddress(pubKey);
+      address = pubkeyToP2shSegwitAddress(Buffer.from(pubKey));
     } catch (err) {
       return false;
     }
@@ -123,7 +123,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
         sequence,
         witnessUtxo: {
           script: p2sh.output,
-          value: input.value,
+          value: BigInt(input.value),
         },
         redeemScript: p2wpkh.output,
       });
@@ -137,7 +137,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
 
       const outputData = {
         address: output.address,
-        value: output.value,
+        value: BigInt(output.value),
       };
 
       psbt.addOutput(outputData);

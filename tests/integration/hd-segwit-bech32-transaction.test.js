@@ -121,7 +121,7 @@ describe('HDSegwitBech32Transaction', () => {
     const addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
     assert.ok(hd.weOwnAddress(addr));
 
-    const actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / tx.virtualSize();
+    const actualFeerate = (108150 + 200000 - Number(createdTx.outs[0].value)) / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 25);
 
     const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
@@ -152,7 +152,7 @@ describe('HDSegwitBech32Transaction', () => {
     const addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
     assert.ok(hd.weOwnAddress(addr1));
 
-    const actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / tx.virtualSize();
+    const actualFeerate = (108150 + 200000 - Number(createdTx.outs[0].value + createdTx.outs[1].value)) / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 28);
 
     const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
