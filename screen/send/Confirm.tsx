@@ -26,6 +26,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../../class';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -163,7 +164,7 @@ const Confirm: React.FC = () => {
     });
   }, [HeaderRightButton, colors, fee, feeSatoshi, memo, recipients, satoshiPerByte, setOptions, tx, wallet]);
 
-  const getPaymentScript = (): Buffer | undefined => {
+  const getPaymentScript = (): Uint8Array | undefined => {
     if (!(recipients.length > 0) || !recipients[0].address) {
       return undefined;
     }
@@ -200,7 +201,7 @@ const Confirm: React.FC = () => {
           throw new Error('Invalid payment script');
         }
         const payjoinClient = new PayjoinClient({
-          paymentScript,
+          paymentScript: Buffer.from(uint8ArrayToHex(paymentScript), 'hex'),
           wallet: payJoinWallet.getPayjoinPsbt(),
           payjoinUrl: payjoinUrl as string,
         });

@@ -105,8 +105,8 @@ describe('Legacy HD (BIP44)', () => {
     let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
     assert.strictEqual(tx.ins.length, 3);
     assert.strictEqual(tx.outs.length, 2);
-    assert.strictEqual(tx.outs[0].value, 80000); // payee
-    assert.strictEqual(tx.outs[1].value, 9478); // change
+    assert.strictEqual(tx.outs[0].value, 80000n); // payee
+    assert.strictEqual(tx.outs[1].value, 9478n); // change
     let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
     const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
     assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
