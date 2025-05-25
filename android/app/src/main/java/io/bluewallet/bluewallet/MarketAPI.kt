@@ -201,6 +201,12 @@ object MarketAPI {
             // First try connecting directly for fee histogram
             Log.d(TAG, "Attempting to connect directly to Electrum server for fee")
             var success = electrumClient.connectToNextAvailable(validateCertificates = false)
+
+            if (success) {
+                Log.i(TAG, "Connected to Electrum server: ${ElectrumClient.hardcodedPeers}")
+            } else {
+                Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")
+            }
             
             if (!success) {
                 Log.e(TAG, "Failed to connect to any Electrum server on first attempt. Retrying once more.")

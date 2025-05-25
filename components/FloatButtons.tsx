@@ -121,12 +121,12 @@ const useFloatButtonAnimation = (height: number) => {
         Animated.timing(animatedButtonRadius, {
           toValue: buttonRadius,
           duration: 250,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
         Animated.timing(animatedSingleButtonRadius, {
           toValue: singleRadius,
           duration: 250,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]).start(({ finished }) => {
         setIsAnimating(false);

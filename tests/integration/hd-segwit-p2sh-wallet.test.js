@@ -79,8 +79,8 @@ it('HD (BIP49) can create TX', async () => {
   );
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 2);
-  assert.strictEqual(tx.outs[0].value, 500);
-  assert.strictEqual(tx.outs[1].value, 25331);
+  assert.strictEqual(tx.outs[0].value, 500n);
+  assert.strictEqual(tx.outs[1].value, 25331n);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
@@ -157,8 +157,8 @@ it('HD (BIP49) can create TX', async () => {
   );
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(tx.outs.length, 2);
-  assert.ok(tx.outs[0].value > 50000);
-  assert.strictEqual(tx.outs[1].value, 25000);
+  assert.ok(Number(tx.outs[0].value) > 50000);
+  assert.strictEqual(tx.outs[1].value, 25000n);
 });
 
 // skpped because its slow

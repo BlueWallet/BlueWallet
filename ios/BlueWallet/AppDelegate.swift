@@ -15,28 +15,33 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
-        let suiteName = "group.io.bluewallet.bluewallet"
-        userDefaultsGroup = UserDefaults(suiteName: suiteName)
+        userDefaultsGroup = UserDefaults.standard
         
-        // Ensure the suite exists and is accessible
-        if userDefaultsGroup == nil {
-            NSLog("[AppDelegate] Warning: Could not access shared UserDefaults with suite: \(suiteName)")
-            // Fall back to standard user defaults if group container is inaccessible
-            userDefaultsGroup = UserDefaults.standard
-        }
+        // Set up device UID observers early
+        setupDeviceUIDObservers()
+        
+        let doNotTrackValue = userDefaultsGroup?.string(forKey: "donottrack") ?? "0"
+        NSLog("[AppDelegate] Initial Do Not Track value: '\(doNotTrackValue)'")
 
-        if let isDoNotTrackEnabled = userDefaultsGroup?.string(forKey: "donottrack"), isDoNotTrackEnabled != "1" {
-            #if targetEnvironment(macCatalyst)
-            let config = BugsnagConfiguration.loadConfig()
-            config.appType = "macOS"
-            Bugsnag.start(with: config)
-            copyDeviceUID()
-            #else
-            Bugsnag.start()
-            copyDeviceUID()
-            #endif
+        if let isDoNotTrackEnabled = userDefaultsGroup?.string(forKey: "donottrack"), isDoNotTrackEnabled == "1" {
+            let isEnabled = userDefaultsGroup?.string(forKey: "donottrack") ?? "0"
+            NSLog("[AppDelegate] Do Not Track setting: \(isEnabled), expected to be '1'")
+          
+            userDefaultsGroup?.set("Disabled", forKey: "deviceUIDCopy")
+            userDefaultsGroup?.synchronize()
+          
+            NSLog("[AppDelegate] Do Not Track enabled: set deviceUIDCopy to 'Disabled'")
+          
         } else {
-            UserDefaults.standard.setValue("", forKey: "deviceUIDCopy")
+      #if targetEnvironment(macCatalyst)
+      let config = BugsnagConfiguration.loadConfig()
+      config.appType = "macOS"
+      Bugsnag.start(with: config)
+      copyDeviceUID()
+      #else
+      Bugsnag.start()
+      copyDeviceUID()
+      #endif
         }
 
         self.moduleName = "BlueWallet"
@@ -117,12 +122,82 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     private func copyDeviceUID() {
-        UserDefaults.standard.addObserver(self, forKeyPath: "deviceUID", options: .new, context: nil)
-        UserDefaults.standard.addObserver(self, forKeyPath: "deviceUIDCopy", options: .new, context: nil)
-
-        if let deviceUID = UserDefaults.standard.string(forKey: "deviceUID"), !deviceUID.isEmpty {
-            UserDefaults.standard.setValue(deviceUID, forKey: "deviceUIDCopy")
+        let isDoNotTrackEnabled = userDefaultsGroup?.string(forKey: "donottrack") == "1"
+        
+        let deviceUID = UserDefaults.standard.string(forKey: "deviceUID") ?? ""
+        let currentCopy = userDefaultsGroup?.string(forKey: "deviceUIDCopy") ?? ""
+        
+        if isDoNotTrackEnabled {
+            if currentCopy != "Disabled" {
+                userDefaultsGroup?.set("Disabled", forKey: "deviceUIDCopy")
+                userDefaultsGroup?.synchronize()
+                NSLog("[AppDelegate] Do Not Track enabled - set deviceUIDCopy to 'Disabled'")
+            }
+            return
         }
+        
+        let hasCorrectFormat = deviceUID.count == 36 && deviceUID.components(separatedBy: "-").count == 5
+        if deviceUID.isEmpty || !hasCorrectFormat {
+            let uuid = UUID().uuidString
+            UserDefaults.standard.setValue(uuid, forKey: "deviceUID")
+            copyDeviceUID()
+            return
+        }
+        if deviceUID != currentCopy {
+            userDefaultsGroup?.set(deviceUID, forKey: "deviceUIDCopy")
+            userDefaultsGroup?.synchronize()
+            
+            NSLog("[AppDelegate] Synced deviceUID to shared group: \(deviceUID)")
+            
+            let updatedCopy = userDefaultsGroup?.string(forKey: "deviceUIDCopy") ?? ""
+            NSLog("[AppDelegate] Verification - deviceUIDCopy is now: \(updatedCopy)")
+        }
+    }
+
+
+    private func setupDeviceUIDObservers() {
+        UserDefaults.standard.addObserver(self, forKeyPath: "deviceUID", options: .new, context: nil)
+        
+        if userDefaultsGroup != nil {
+            userDefaultsGroup?.addObserver(self, forKeyPath: "donottrack", options: .new, context: nil)
+            NSLog("[AppDelegate] Registered observer for donottrack changes")
+        }
+        
+        // Check if Do Not Track is enabled
+        let isDoNotTrackEnabled = userDefaultsGroup?.string(forKey: "donottrack") == "1"
+        NSLog("[AppDelegate] Do Not Track enabled: \(isDoNotTrackEnabled)")
+        
+        let currentDeviceUID = UserDefaults.standard.string(forKey: "deviceUID")
+        
+        if !isDoNotTrackEnabled {
+            var shouldSetUUID = false
+            
+            if currentDeviceUID == nil {
+                shouldSetUUID = true
+                NSLog("[AppDelegate] No deviceUID exists, will create a new one")
+            } else if let currentUID = currentDeviceUID {
+                let hasCorrectFormat = currentUID.count == 36 && currentUID.components(separatedBy: "-").count == 5
+                if !hasCorrectFormat {
+                    shouldSetUUID = true
+                    NSLog("[AppDelegate] Current deviceUID doesn't match UUID format, will replace it")
+                }
+            }
+            
+            if shouldSetUUID {
+                let uuid = UUID().uuidString
+                UserDefaults.standard.setValue(uuid, forKey: "deviceUID")
+                NSLog("[AppDelegate] Set deviceUID to: \(uuid)")
+            }
+        } else {
+            NSLog("[AppDelegate] Do Not Track enabled - not setting UUID")
+        }
+        
+        if userDefaultsGroup != nil {
+            UserDefaults.standard.addSuite(named: UserDefaultsGroupKey.GroupName.rawValue)
+            NSLog("[AppDelegate] Registered app group UserDefaults with standard UserDefaults")
+        }
+        
+        copyDeviceUID()
     }
 
     private func clearFilesIfNeeded() {
@@ -168,11 +243,33 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             print("Error clearing directory: \(error.localizedDescription)")
         }
     }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+    
+    // MARK: - Key-Value Observing
+  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         guard let keyPath = keyPath else { return }
 
-        if keyPath == "deviceUID" || keyPath == "deviceUIDCopy" {
+        // Handle deviceUID change
+        if keyPath == "deviceUID" {
+            NSLog("[AppDelegate] deviceUID changed, calling copyDeviceUID")
+            copyDeviceUID()
+        }
+        
+        // Handle donottrack changes
+        if keyPath == "donottrack" {
+            let newValue = userDefaultsGroup?.string(forKey: "donottrack") ?? "0"
+            NSLog("[AppDelegate] donottrack changed to: \(newValue)")
+            
+            if newValue != "1" {
+                let deviceUID = UserDefaults.standard.string(forKey: "deviceUID") ?? ""
+                let hasCorrectFormat = deviceUID.count == 36 && deviceUID.components(separatedBy: "-").count == 5
+                
+                if deviceUID.isEmpty || !hasCorrectFormat {
+                    let uuid = UUID().uuidString
+                    UserDefaults.standard.setValue(uuid, forKey: "deviceUID")
+                    NSLog("[AppDelegate] Do Not Track disabled - setting new deviceUID: \(uuid)")
+                }
+            }
+            
             copyDeviceUID()
         }
 
@@ -226,6 +323,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     override func applicationWillTerminate(_ application: UIApplication) {
         userDefaultsGroup?.removeObject(forKey: "onUserActivityOpen")
+        
+        UserDefaults.standard.removeObserver(self, forKeyPath: "deviceUID")
     }
 
     override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {

@@ -43,12 +43,13 @@ import MultipleStepsListItem, {
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
   const navigation = useExtendedNavigation();
@@ -77,7 +78,7 @@ const WalletsAddMultisigStep2 = () => {
       return () => {
         disableScreenProtect();
       };
-    }, [isPrivacyBlurEnabled]),
+    }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]),
   );
 
   useEffect(() => {

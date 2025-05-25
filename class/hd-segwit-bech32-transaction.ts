@@ -7,6 +7,7 @@ import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
+import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -177,7 +178,7 @@ export class HDSegwitBech32Transaction {
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
         const witness = inp.witness[inp.witness.length - 1];
-        const address = String(SegwitBech32Wallet.witnessToAddress(Buffer.isBuffer(witness) ? witness.toString('hex') : witness));
+        const address = String(SegwitBech32Wallet.witnessToAddress(isUint8Array(witness) ? uint8ArrayToHex(witness) : witness));
         utxos.push({ vout: inp.index, value, txid: reversedHash, address });
       }
     }
@@ -186,7 +187,7 @@ export class HDSegwitBech32Transaction {
 
     let wasSpent = 0;
     for (const outp of this._txDecoded.outs) {
-      wasSpent += +outp.value;
+      wasSpent += Number(outp.value);
     }
 
     const fee = wentIn - wasSpent;
@@ -270,7 +271,7 @@ export class HDSegwitBech32Transaction {
       const outpScript = outp.script;
       if (
         !this._wallet.weOwnAddress(
-          String(SegwitBech32Wallet.scriptPubKeyToAddress(Buffer.isBuffer(outpScript) ? outpScript.toString('hex') : outpScript)),
+          String(SegwitBech32Wallet.scriptPubKeyToAddress(isUint8Array(outpScript) ? uint8ArrayToHex(outpScript) : outpScript)),
         )
       )
         return true;

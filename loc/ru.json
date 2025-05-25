@@ -172,7 +172,6 @@
     "fee_1d": "1д",
     "fee_3h": "3ч",
     "fee_custom": "Другое",
-    "insert_custom_fee": "Введите свою комиссию",
     "fee_fast": "Быстро",
     "fee_medium": "Средне",
     "fee_replace_minvb": "Комиссия должна быть выше {min} сат/вБайт.",
@@ -497,7 +496,6 @@
     "add_ln_wallet_first": "Сначала добавьте Лайтнинг-кошелёк.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB кошелька",
-    "manage_wallets_search_placeholder": "Поиск кошельков или заметок",
     "more_info": "Подробнее",
     "details_delete_wallet_error_message": "Ошибка при удалении уведомлений. Возможно, проблемы с сетью.",
     "details_delete_anyway": "Удалить всё равно"
@@ -680,7 +678,7 @@
     "notification_tx_unconfirmed": "Транзакция уведомления не подтверждена, подождите",
     "failed_create_notif_tx": "Не удалось создать on-chain транзакцию",
     "onchain_tx_needed": "Необходима on-chain транзакция",
-    "notif_tx_sent" : "Транзакция уведомления отправлена. Ожидайте подтверждения",
+    "notif_tx_sent": "Транзакция уведомления отправлена. Ожидайте подтверждения",
     "notif_tx": "Транзакция уведомления",
     "not_found": "Код оплаты не найден"
   }

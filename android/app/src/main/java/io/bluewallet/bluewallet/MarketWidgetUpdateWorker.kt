@@ -109,37 +109,10 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
     }
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Market widget update worker running")
-
-        // Check network connectivity first
-        if (!NetworkUtils.isNetworkAvailable(applicationContext)) {
-            Log.d(TAG, "No network connection available")
-            
-            // Update widgets to show offline status
-            val widgetIds = inputData.getIntArray(KEY_WIDGET_IDS)
-            if (widgetIds != null && widgetIds.isNotEmpty()) {
-                val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
-                for (widgetId in widgetIds) {
-                    MarketWidget.updateWidget(applicationContext, widgetId)
-                }
-            } else {
-                // Update all market widgets to show offline status
-                val marketComponent = ComponentName(applicationContext, MarketWidget::class.java)
-                val marketWidgetIds = AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(marketComponent)
-                for (widgetId in marketWidgetIds) {
-                    MarketWidget.updateWidget(applicationContext, widgetId)
-                }
-            }
-            
-            // Schedule retry with network constraint
-            scheduleRetryOnNetworkAvailable(applicationContext, widgetIds ?: intArrayOf())
-            
-            return Result.retry()
-        }
-
+        Log.d(TAG, "MarketWidgetUpdateWorker running. Confirming interaction with MainActivity.")
         return updateMarketWidgets(inputData.getIntArray(KEY_WIDGET_IDS) ?: intArrayOf())
     }
-    
+
     /**
      * Update market widgets with latest data
      */
