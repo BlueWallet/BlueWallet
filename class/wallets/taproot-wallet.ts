@@ -6,6 +6,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types.ts';
 import { CoinSelectTarget } from 'coinselect';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
@@ -25,7 +26,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
    */
   static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
-      const publicKey = Buffer.from(scriptPubKey, 'hex');
+      const publicKey = hexToUint8Array(scriptPubKey);
       return bitcoin.address.fromOutputScript(publicKey, bitcoin.networks.bitcoin);
     } catch (_) {
       return false;
