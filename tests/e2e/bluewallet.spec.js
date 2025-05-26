@@ -2,6 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import {
+  scanText,
   expectToBeVisible,
   extractTextFromElementById,
   hashIt,
@@ -743,6 +744,22 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.pressBack();
     await device.pressBack();
     await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create wallet, and use main screen SCAN button to scan address', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t8');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+    }
+    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await waitForId('WalletsList');
+
+    await helperCreateWallet();
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

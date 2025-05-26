@@ -241,3 +241,13 @@ export async function countElements(testId) {
   }
   return count;
 }
+
+export async function scanText(text) {
+  await sleep(5000); // wait for camera screen to initialize
+  await waitForId('ScanQrBackdoorButton');
+  for (let c = 0; c <= 5; c++) {
+    await element(by.id('ScanQrBackdoorButton')).tap();
+  }
+  await element(by.id('scanQrBackdoorInput')).replaceText(text);
+  await element(by.id('scanQrBackdoorOkButton')).tap();
+}

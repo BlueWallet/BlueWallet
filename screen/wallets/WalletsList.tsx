@@ -24,6 +24,7 @@ import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
+import { scanQrHelper } from '../../helpers/scan-qr.ts';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -234,14 +235,6 @@ const WalletsList: React.FC = () => {
   );
 
   useEffect(() => {
-    const data = route.params?.onBarScanned;
-    if (data) {
-      onBarScanned(data);
-      navigation.setParams({ onBarScanned: undefined });
-    }
-  }, [navigation, onBarScanned, route.params?.onBarScanned]);
-
-  useEffect(() => {
     refreshTransactions();
     // es-lint-disable-next-line react-hooks/exhaustive-deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -393,6 +386,7 @@ const WalletsList: React.FC = () => {
             onLongPress={sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
+            testID="HomeScreenScanButton"
           />
         </FContainer>
       );
@@ -407,10 +401,8 @@ const WalletsList: React.FC = () => {
   }, []);
 
   const onScanButtonPressed = useCallback(() => {
-    navigation.navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-  }, [navigation]);
+    scanQrHelper().then(onBarScanned);
+  }, [onBarScanned]);
 
   const pasteFromClipboard = useCallback(async () => {
     onBarScanned(await getClipboardContent());
@@ -445,9 +437,7 @@ const WalletsList: React.FC = () => {
             });
           break;
         case 2:
-          navigation.navigate('ScanQRCode', {
-            showFileImportButton: true,
-          });
+          scanQrHelper().then(onBarScanned);
           break;
         case 3:
           if (!isClipboardEmpty) {
@@ -456,7 +446,7 @@ const WalletsList: React.FC = () => {
           break;
       }
     });
-  }, [onBarScanned, navigation, pasteFromClipboard]);
+  }, [onBarScanned, pasteFromClipboard]);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
