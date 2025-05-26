@@ -107,13 +107,8 @@ const SelectWallet: React.FC = () => {
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
     if (onWalletSelect) {
-      // Create a dummy navigate function with proper type compatibility
-      const dummyNavigate = (..._args: any[]) => {
-        // This function intentionally does nothing
-        console.log('Dummy navigate called');
-      };
-
-      onWalletSelect(item, { navigation: { pop, navigate: dummyNavigate } });
+      // @ts-ignore idk how to fix
+      onWalletSelect(item, { navigation: { pop, navigate: navigation.navigate } });
     } else {
       // @ts-ignore: fix later
       navigation.popTo(previousRouteName, { walletID: item.getID(), merge: true });
@@ -146,7 +141,7 @@ const SelectWallet: React.FC = () => {
       scrollEnabled
       onPress={onPress}
       ref={walletsCarousel}
-      testID="WalletsList"
+      testID="SelectWalletsList"
       horizontal={false}
       style={styles.walletsCarousel}
       animateChanges={true}
