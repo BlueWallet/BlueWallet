@@ -224,9 +224,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('BitcoinAddressQRCodeContainer');
     await waitForId('CopyTextToClipboard');
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet('cr34t3d');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -386,8 +384,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // in case it didnt work first time
     await sleep(3000); // propagate
-
-    await helperDeleteWallet('fake_wallet');
+    await expect(element(by.text('fake_wallet'))).toBeVisible();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -470,7 +467,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await waitForId('cr34t3d'); // success
-    await helperDeleteWallet('cr34t3d');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -548,8 +545,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletDetails')).tap();
     await waitForText('2 / 2 (native segwit)');
 
-    await device.pressBack();
-    await helperDeleteWallet('Multisig Vault');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -679,12 +674,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 50000n);
 
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet(expectedWalletLabel, '108880');
-
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -740,10 +729,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
     await element(by.id('WalletDetails')).tap();
     await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
-
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -814,6 +799,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
 
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create wallet and delete wallet', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t9');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+    }
+    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await waitForId('WalletsList');
+    await helperCreateWallet();
+    // nop
+    await helperDeleteWallet('cr34t3d');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });
