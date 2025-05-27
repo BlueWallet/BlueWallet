@@ -13,6 +13,7 @@ import {
   tapIfTextPresent,
   waitForId,
   countElements,
+  scanText,
 } from './helperz';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
@@ -112,15 +113,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    const bip21 = 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj';
-    await element(by.id('scanQrBackdoorInput')).replaceText(bip21);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -144,14 +137,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('1.1');
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -159,7 +145,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     } catch (_) {}
     // created. verifying:
     await waitForId('TransactionValue');
-    await waitForId('PayjoinSwitch');
+    // dont verify payjoin since we scanned different address that didnt have `&pj=xxxxxx`
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
