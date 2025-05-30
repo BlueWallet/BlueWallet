@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
+import { BlueSpacing10, BlueSpacing20, BlueSpacing30, BlueSpacing40, BlueSpacing50, BlueSpacing } from './components/BlueSpacing';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -108,28 +109,14 @@ export const BlueFormMultiInput = props => {
   );
 };
 
-export const BlueSpacing = props => {
-  return <View {...props} style={{ height: 60 }} />;
-};
-
-export const BlueSpacing40 = props => {
-  return <View {...props} style={{ height: 50 }} />;
-};
+// Re-export BlueSpacing components
+export { BlueSpacing10, BlueSpacing20, BlueSpacing30, BlueSpacing40, BlueSpacing50, BlueSpacing };
 
 export class is {
   static ipad() {
     return isIpad;
   }
 }
-
-export const BlueSpacing20 = props => {
-  const { horizontal = false } = props;
-  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
-};
-
-export const BlueSpacing10 = props => {
-  return <View {...props} style={{ height: 10, opacity: 0 }} />;
-};
 
 export const BlueLoading = props => {
   return (
