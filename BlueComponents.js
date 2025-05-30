@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
-import { BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueSpacing } from './components/BlueSpacing';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -109,8 +108,6 @@ export const BlueFormMultiInput = props => {
   );
 };
 
-// Re-export BlueSpacing components
-export { BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueSpacing };
 
 export class is {
   static ipad() {
@@ -144,3 +141,5 @@ export function BlueBigCheckmark({ style = {} }) {
     </View>
   );
 }
+
+export { BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueSpacing } from './components/BlueSpacing';
