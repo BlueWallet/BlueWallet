@@ -3,10 +3,10 @@ import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 
 import { Text } from '@rneui/themed';
 
 import { encodeUR } from '../blue_modules/ur';
-import { BlueSpacing20 } from '../BlueComponents';
 import { BlueCurrentTheme } from '../components/themes';
 import loc from '../loc';
 import QRCodeComponent from './QRCodeComponent';
+import { BlueSpacing20 } from './BlueSpacing';
 
 const { height, width } = Dimensions.get('window');
 

@@ -142,4 +142,3 @@ export function BlueBigCheckmark({ style = {} }) {
   );
 }
 
-export { BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueSpacing } from './components/BlueSpacing';

@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
-import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 const GenerateWord = () => {
   const { colors } = useTheme();

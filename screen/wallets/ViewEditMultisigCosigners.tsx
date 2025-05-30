@@ -18,15 +18,7 @@ import {
 import { Badge, Icon } from '@rneui/themed';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import {
-  BlueCard,
-  BlueFormMultiInput,
-  BlueLoading,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueCard, BlueFormMultiInput, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
@@ -53,6 +45,7 @@ import SafeArea from '../../components/SafeArea';
 import { TWallet } from '../../class/wallets/types';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -84,7 +77,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [walletData, setWalletData] = useState<TWallet[]>([]);
-  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
+  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a
     user tries to leave the screen with unsaved changes.
     Why the container view ? It was the easiest to get the ref for. No other reason.
   */

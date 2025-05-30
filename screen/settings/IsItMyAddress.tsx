@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Text } from 'react-native';
-import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -14,6 +14,7 @@ import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
+import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
