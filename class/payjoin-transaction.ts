@@ -6,6 +6,7 @@ import ecc from '../blue_modules/noble_ecc';
 import presentAlert from '../components/Alert';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import assert from 'assert';
+import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 const ECPair = ECPairFactory(ecc);
 
 const delay = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -38,6 +39,26 @@ export default class PayjoinTransaction {
 
       unfinalized.signInput(index, keyPair);
     }
+
+    // now, since payjoin lib expects an older version of Psbt object (from bitcoinjs-lib v6),
+    // it expects `script` to be Buffer, and in v7 its actually uint8 array.
+    // lets monkey patch the cloned PSBT so it returns buffers, as expected:
+    const origclone = unfinalized.clone;
+    unfinalized.clone = () => {
+      const newPsbt = origclone.apply(unfinalized);
+      const original = newPsbt.txOutputs;
+
+      Object.defineProperty(newPsbt, 'txOutputs', {
+        get() {
+          return original.map(o => ({
+            ...o,
+            script: Buffer.from(uint8ArrayToHex(o.script), 'hex'),
+          }));
+        },
+      });
+
+      return newPsbt;
+    };
 
     return unfinalized;
   }

@@ -11,7 +11,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
 import { useSettings } from '../../hooks/context/useSettings';
-import { enableScreenProtect, disableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 
 const enum ActionType {
@@ -78,6 +78,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const navigation = useNavigation();
   const stylesHook = StyleSheet.create({
@@ -140,7 +141,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       return () => {
         disableScreenProtect();
       };
-    }, [isPrivacyBlurEnabled]),
+    }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]),
   );
 
   useFocusEffect(

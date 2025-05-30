@@ -13,7 +13,9 @@ import {
   tapIfTextPresent,
   waitForId,
   countElements,
+  scanText,
 } from './helperz';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 // if loglevel is set to `error`, this kind of logging will still get through
 console.warn = console.log = (...args) => {
@@ -68,9 +70,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate.toString());
+    await element(by.id('feeCustom')).tapReturnKey();
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -90,11 +92,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    assert.strictEqual(transaction.outs[0].value, 10000);
+    assert.strictEqual(transaction.outs[0].value, 10000n);
 
     // checking fee rate:
     const totalIns = 69909; // we hardcode it since we know it in advance
-    const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
+    const totalOuts = transaction.outs.map(el => Number(el.value)).reduce((a, b) => a + b, 0);
     const tx = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
@@ -111,15 +113,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    const bip21 = 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj';
-    await element(by.id('scanQrBackdoorInput')).replaceText(bip21);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -132,7 +126,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.strictEqual(transaction.outs[0].value, 15000);
+    assert.strictEqual(transaction.outs[0].value, 15000n);
 
     // now, testing scanQR with just address after amount set to 1.1 USD. Denomination should not change after qrcode scan
 
@@ -143,14 +137,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('1.1');
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -158,13 +145,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     } catch (_) {}
     // created. verifying:
     await waitForId('TransactionValue');
-    await waitForId('PayjoinSwitch');
+    // dont verify payjoin since we scanned different address that didnt have `&pj=xxxxxx`
     await element(by.id('TransactionDetailsButton')).tap();
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.notEqual(transaction.outs[0].value, 110000000); // check that it is 1.1 USD, not 1 BTC
-    assert.ok(transaction.outs[0].value < 10000); // 1.1 USD ~ 0,00001964 sats in march 2021
+    assert.notEqual(transaction.outs[0].value, 110000000n); // check that it is 1.1 USD, not 1 BTC
+    assert.ok(Number(transaction.outs[0].value) < 10000); // 1.1 USD ~ 0,00001964 sats in march 2021
 
     // now, testing units switching, and then creating tx with SATS:
 
@@ -190,7 +177,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     txhex = await extractTextFromElementById('TxhexInput');
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2);
-    assert.strictEqual(transaction.outs[0].value, 50000);
+    assert.strictEqual(transaction.outs[0].value, 50000n);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -235,9 +222,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate.toString());
+    await element(by.id('feeCustom')).tapReturnKey();
 
     // Let's add another two outputs
     await element(by.id('HeaderMenuButton')).tap();
@@ -281,9 +268,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 3);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.strictEqual(transaction.outs[0].value, 10000);
+    assert.strictEqual(transaction.outs[0].value, 10000n);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
-    assert.strictEqual(transaction.outs[1].value, 30000, `got txhex ${txhex}`);
+    assert.strictEqual(transaction.outs[1].value, 30000n, `got txhex ${txhex}`);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -308,9 +295,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // set fee rate
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate.toString());
+    await element(by.id('feeCustom')).tapReturnKey();
 
     // first send MAX output
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
@@ -329,7 +316,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     let txhex = await extractTextFromElementById('TxhexInput');
     let transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
-    assert.ok(transaction.outs[0].value > 100000);
+    assert.ok(Number(transaction.outs[0].value) > 100000);
 
     // add second output with amount
     await device.pressBack();
@@ -351,9 +338,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.ok(transaction.outs[0].value > 50000);
+    assert.ok(transaction.outs[0].value > 50000n);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(transaction.outs[1].value, 10000);
+    assert.strictEqual(transaction.outs[1].value, 10000n);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -398,7 +385,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(transaction.ins.length, 1);
     assert.strictEqual(transaction.outs.length, 1);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw'); // to address
-    assert.strictEqual(transaction.outs[0].value, 1000);
+    assert.strictEqual(transaction.outs[0].value, 1000n);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -509,9 +496,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await sleep(1000);
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1000);
 
     await element(by.id('CreateTransactionButton')).tap();
@@ -520,10 +507,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const txhex1 = await extractTextFromElementById('TxhexInput');
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
     assert.strictEqual(tx1.outs.length, 3);
-    assert.strictEqual(tx1.outs[0].script.toString('hex'), '76a91419129d53e6319baf19dba059bead166df90ab8f588ac');
-    assert.strictEqual(tx1.outs[0].value, 10000);
-    assert.strictEqual(tx1.outs[1].script.toString('hex'), '5120b81959cd9a4954cd525916cd636b4ffe9466600412ccd162653a0f464489f1a8');
-    assert.strictEqual(tx1.outs[1].value, 20000);
+    assert.strictEqual(uint8ArrayToHex(tx1.outs[0].script), '76a91419129d53e6319baf19dba059bead166df90ab8f588ac');
+    assert.strictEqual(tx1.outs[0].value, 10000n);
+    assert.strictEqual(uint8ArrayToHex(tx1.outs[1].script), '5120b81959cd9a4954cd525916cd636b4ffe9466600412ccd162653a0f464489f1a8');
+    assert.strictEqual(tx1.outs[1].value, 20000n);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -597,9 +584,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText(feeRate.toString());
+    await element(by.id('feeCustom')).tapReturnKey();
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -669,11 +656,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).replaceText('1');
-    await element(by.type('android.widget.EditText')).tapReturnKey();
-    await element(by.text('OK')).tap();
-    await tapIfTextPresent('OK'); // in case it didnt work first time
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).replaceText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
     await sleep(3000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();
@@ -681,10 +666,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const txhex1 = await extractTextFromElementById('TxhexInput');
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
     assert.strictEqual(tx1.outs.length, 1);
-    assert.strictEqual(tx1.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
-    assert.strictEqual(tx1.outs[0].value, 69797);
+    assert.strictEqual(uint8ArrayToHex(tx1.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
+    assert.strictEqual(tx1.outs[0].value, 69797n);
     assert.strictEqual(tx1.ins.length, 1);
-    assert.strictEqual(tx1.ins[0].hash.toString('hex'), '20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b');
+    assert.strictEqual(uint8ArrayToHex(tx1.ins[0].hash), '20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b');
     assert.strictEqual(tx1.ins[0].index, 0);
 
     // back to wallet screen
@@ -701,9 +686,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1\n');
-    await element(by.text('OK')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();
@@ -712,10 +697,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const tx2 = bitcoin.Transaction.fromHex(txhex2);
 
     assert.strictEqual(tx2.outs.length, 1);
-    assert.strictEqual(tx2.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
-    assert.strictEqual(tx2.outs[0].value, 35369);
+    assert.strictEqual(uint8ArrayToHex(tx2.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
+    assert.strictEqual(tx2.outs[0].value, 35369n);
     assert.strictEqual(tx2.ins.length, 3);
-    assert.strictEqual(tx2.ins[0].hash.toString('hex'), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
+    assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
     assert.strictEqual(tx2.ins[0].index, 0);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');

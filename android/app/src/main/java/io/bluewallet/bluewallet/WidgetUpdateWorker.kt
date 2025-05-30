@@ -71,6 +71,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
     private lateinit var sharedPref: SharedPreferences
 
     override suspend fun doWork(): Result {
+        Log.d(TAG, "WidgetUpdateWorker running. Confirming interaction with MainActivity.")
         Log.d(TAG, "Bitcoin price widget update worker running")
         
         sharedPref = applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)

@@ -12,6 +12,7 @@ import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
+import { TaprootWallet } from './wallets/taproot-wallet.ts';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet: string[] = ['#007AFF', '#0040FF'];
@@ -19,6 +20,7 @@ export default class WalletGradient {
   static segwitBech32Wallet: string[] = ['#6CD9FC', '#44BEE5'];
   static watchOnlyWallet: string[] = ['#474646', '#282828'];
   static legacyWallet: string[] = ['#37E8C0', '#15BE98'];
+  static taprootWallet: string[] = ['#4DA337', '#326D28'];
   static hdLegacyP2PKHWallet: string[] = ['#FD7478', '#E73B40'];
   static hdLegacyBreadWallet: string[] = ['#fe6381', '#f99c42'];
   static multisigHdWallet: string[] = ['#1ce6eb', '#296fc5', '#3500A2'];
@@ -39,6 +41,9 @@ export default class WalletGradient {
         break;
       case LegacyWallet.type:
         gradient = WalletGradient.legacyWallet;
+        break;
+      case TaprootWallet.type:
+        gradient = WalletGradient.taprootWallet;
         break;
       case HDLegacyP2PKHWallet.type:
       case HDLegacyElectrumSeedP2PKHWallet.type:
@@ -99,6 +104,9 @@ export default class WalletGradient {
         break;
       case LegacyWallet.type:
         gradient = WalletGradient.legacyWallet;
+        break;
+      case TaprootWallet.type:
+        gradient = WalletGradient.taprootWallet;
         break;
       case HDLegacyP2PKHWallet.type:
       case HDLegacyElectrumSeedP2PKHWallet.type:

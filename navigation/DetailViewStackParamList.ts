@@ -90,12 +90,9 @@ export type DetailViewStackParamList = {
       address: string;
     };
   };
-  ReceiveDetailsRoot: {
-    screen: 'ReceiveDetails';
-    params: {
-      walletID?: string;
-      address: string;
-    };
+  ReceiveDetails: {
+    walletID?: string;
+    address: string;
   };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {

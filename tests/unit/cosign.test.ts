@@ -3,6 +3,8 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
+import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
+import { Transaction } from 'bitcoinjs-lib';
 
 describe('AbstractHDElectrumWallet.cosign', () => {
   it('different descendants of AbstractHDElectrumWallet can cosign one transaction', async () => {
@@ -76,6 +78,8 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       const input = w1Utxo[0];
       const pubkey = w1._getPubkeyByAddress(input.address);
       const path = w1._getDerivationPathByAddress(input.address);
+      assert.ok(path);
+      assert.ok(pubkey);
 
       psbt.addInput({
         hash: input.txid,
@@ -98,7 +102,10 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       const input = w2Utxo[0];
       const pubkey = w2._getPubkeyByAddress(input.address);
       const path = w2._getDerivationPathByAddress(input.address);
+      assert.ok(pubkey);
+      assert.ok(path);
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+      assert.ok(p2wpkh.output);
 
       psbt.addInput({
         hash: input.txid,
@@ -113,7 +120,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
         ],
         witnessUtxo: {
           script: p2wpkh.output,
-          value: input.value,
+          value: BigInt(input.value),
         },
       });
     }
@@ -123,8 +130,11 @@ describe('AbstractHDElectrumWallet.cosign', () => {
       const input = w3Utxo[0];
       const pubkey = w3._getPubkeyByAddress(input.address);
       const path = w3._getDerivationPathByAddress(input.address);
+      assert.ok(pubkey);
+      assert.ok(path);
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
       const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
+      assert.ok(p2sh.output);
 
       psbt.addInput({
         hash: input.txid,
@@ -139,7 +149,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
         ],
         witnessUtxo: {
           script: p2sh.output,
-          value: input.value,
+          value: BigInt(input.value),
         },
         redeemScript: p2wpkh.output,
       });
@@ -148,7 +158,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     // send all to the one output
     psbt.addOutput({
       address: w1._getExternalAddressByIndex(0),
-      value: 10000,
+      value: 10000n,
     });
 
     assert.strictEqual(
@@ -173,6 +183,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     tx = w3.cosignPsbt(psbt).tx; // GREAT SUCCESS!
     assert.strictEqual(w3.calculateHowManySignaturesWeHaveFromPsbt(psbt), 3);
     assert.ok(tx);
+    assert.ok(tx instanceof Transaction);
 
     assert.strictEqual(
       tx.toHex(),
@@ -197,6 +208,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp), 0);
 
     const { tx } = w.cosignPsbt(psbtWithCorrectFp);
+    assert.ok(tx instanceof Transaction);
     assert.ok(tx && tx.toHex());
     assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp), 1);
   });
@@ -219,15 +231,13 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     watchOnlyWallet.init();
 
     // hardcoding valid utxo (unspent at the momend of coding):
-    const utxos = [
+    const utxos: CreateTransactionUtxo[] = [
       {
-        height: 707112,
         value: 10000,
         address: 'bc1q79hsqzg9q6d36ftyncwv2drg7pyt66pamghn9n',
         vout: 0,
         txid: 'e598c705bef463e2e12d7bebc15e3cf0a34477679c3c21de9693987c6de8f15e',
-        wif: false,
-        confirmations: 1,
+        wif: '',
       },
     ];
 
@@ -244,6 +254,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     // signing this tx with signer wallet
     const { tx } = signerWallet.cosignPsbt(psbt);
     assert.ok(tx);
+    assert.ok(tx instanceof Transaction);
     assert.ok(tx.toHex());
 
     assert.strictEqual(

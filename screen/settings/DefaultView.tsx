@@ -61,8 +61,7 @@ const DefaultView: React.FC = () => {
       dispatch({ type: ActionType.SetDefaultWalletLabel, payload: newDefaultWalletLabel });
       dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: newViewAllWalletsEnabled });
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wallets, getSelectedDefaultWallet, isViewAllWalletsEnabled]);
 
   const onViewAllWalletsSwitchValueChanged = async (value: boolean) => {
     await setViewAllWalletsEnabled(value);

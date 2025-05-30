@@ -8,9 +8,8 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-
 import SeedWords from '../../components/SeedWords';
-import { disableScreenProtect, enableScreenProtect } from '../../helpers/screenProtect';
+import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -22,6 +21,7 @@ const PleaseBackup: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -51,7 +51,7 @@ const PleaseBackup: React.FC = () => {
       return () => {
         disableScreenProtect();
       };
-    }, [isPrivacyBlurEnabled]),
+    }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
   );
 
   return (

@@ -31,16 +31,16 @@ type TBip32Derivation = {
 type TOutputData =
   | {
       bip32Derivation: TBip32Derivation;
-      redeemScript: Buffer;
+      redeemScript: Uint8Array;
     }
   | {
       bip32Derivation: TBip32Derivation;
-      witnessScript: Buffer;
+      witnessScript: Uint8Array;
     }
   | {
       bip32Derivation: TBip32Derivation;
-      redeemScript: Buffer;
-      witnessScript: Buffer;
+      redeemScript: Uint8Array;
+      witnessScript: Uint8Array;
     };
 
 const electrumSegwit = (passphrase?: string): SeedOpts => ({
@@ -80,7 +80,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   private _isNativeSegwit: boolean = false;
   private _isWrappedSegwit: boolean = false;
   private _isLegacy: boolean = false;
-  private _nodes: BIP32Interface[][] = [];
+  private _nodes: Record<number, Record<number, BIP32Interface>> = {}; // nodeIndex -> cosignerIndex -> BIP32Interface
   public _derivationPath: string = '';
   public gap_limit: number = 20;
 
@@ -265,6 +265,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @private
    */
   protected _getXpubFromCosignerIndex(index: number) {
+    if (!this._cosigners || !this._cosigners[index]) {
+      throw new Error('Invalid cosigner index or cosigners not initialized');
+    }
     let cosigner: string = this._cosigners[index];
     if (MultisigHDWallet.isXprvString(cosigner)) cosigner = MultisigHDWallet.convertXprvToXpub(cosigner);
     let xpub = cosigner;
@@ -289,9 +292,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getAddressFromNode(nodeIndex: number, index: number) {
+    this._nodes = this._nodes || {};
     const pubkeys = [];
     for (const [cosignerIndex] of this._cosigners.entries()) {
-      this._nodes[nodeIndex] = this._nodes[nodeIndex] || [];
+      this._nodes[nodeIndex] = this._nodes[nodeIndex] || {};
       let _node;
 
       if (!this._nodes[nodeIndex][cosignerIndex]) {
@@ -781,7 +785,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         bip32Derivation,
         witnessUtxo: {
           script: p2wsh.output,
-          value: input.value,
+          value: BigInt(input.value),
         },
         witnessScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
@@ -808,7 +812,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         bip32Derivation,
         witnessUtxo: {
           script: p2shP2wsh.output,
-          value: input.value,
+          value: BigInt(input.value),
         },
         witnessScript,
         redeemScript,
@@ -995,7 +999,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       let outputData: Parameters<typeof psbt.addOutput>[0] = {
         address,
-        value: output.value,
+        value: BigInt(output.value),
       };
 
       if (change) {
@@ -1110,14 +1114,14 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     for (const inp of psbt.data.inputs) {
       if (inp.witnessUtxo && inp.witnessUtxo.value) {
         // segwit input
-        goesIn += inp.witnessUtxo.value;
+        goesIn += Number(inp.witnessUtxo.value);
       } else if (inp.nonWitnessUtxo) {
         // non-segwit input
         // lets parse this transaction and cache how much each input was worth
         const inputTx = bitcoin.Transaction.fromBuffer(inp.nonWitnessUtxo);
         let index = 0;
         for (const out of inputTx.outs) {
-          cacheUtxoAmounts[inputTx.getId() + ':' + index] = out.value;
+          cacheUtxoAmounts[inputTx.getId() + ':' + index] = Number(out.value);
           index++;
         }
       }
@@ -1134,7 +1138,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
     let goesOut = 0;
     for (const output of psbt.txOutputs) {
-      goesOut += output.value;
+      goesOut += Number(output.value);
     }
 
     return goesIn - goesOut;

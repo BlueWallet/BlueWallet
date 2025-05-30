@@ -10,7 +10,7 @@ import { useCallback, useMemo } from 'react';
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosigners', 'ExportMultisigCoordinationSetupRoot'];
 
 // List of screens that require wallet export to be saved
-const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
+const requiresWalletExportIsSaved = ['ReceiveDetails', 'WalletAddresses'];
 
 export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T & {
   navigateToWalletsList: () => void;

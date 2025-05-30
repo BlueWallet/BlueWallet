@@ -7,7 +7,7 @@ const useBounceAnimation = (query: string) => {
   useEffect(() => {
     if (query) {
       Animated.timing(bounceAnim, {
-        toValue: 1.2,
+        toValue: 1.08, // Reduced from 1.2 to 1.08 for more subtle animation
         duration: 150,
         useNativeDriver: true,
       }).start(() => {
