@@ -38,20 +38,6 @@ export const BlueSpacing20: React.FC<BlueSpacingProps> = props => {
   );
 };
 
-export const BlueSpacing30: React.FC<BlueSpacingProps> = props => {
-  const { style, ...otherProps } = props;
-  return (
-    <View
-      {...otherProps}
-      style={[
-        {
-          height: 30,
-        },
-        style,
-      ]}
-    />
-  );
-};
 export const BlueSpacing40: React.FC<BlueSpacingProps> = props => {
   const { style, ...otherProps } = props;
   return (
@@ -60,21 +46,6 @@ export const BlueSpacing40: React.FC<BlueSpacingProps> = props => {
       style={[
         {
           height: 40,
-        },
-        style,
-      ]}
-    />
-  );
-};
-
-export const BlueSpacing50: React.FC<BlueSpacingProps> = props => {
-  const { style, ...otherProps } = props;
-  return (
-    <View
-      {...otherProps}
-      style={[
-        {
-          height: 50,
         },
         style,
       ]}
