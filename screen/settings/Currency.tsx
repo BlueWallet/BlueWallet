@@ -10,7 +10,7 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
-import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -19,6 +19,7 @@ import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 dayjs.extend(calendar);
 

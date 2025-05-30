@@ -5,7 +5,7 @@ import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVe
 import { Icon } from '@rneui/themed';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
-import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -15,6 +15,7 @@ import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const branch = require('../../current-branch.json');
 

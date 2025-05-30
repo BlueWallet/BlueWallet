@@ -3,13 +3,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { BlueSpacing20 } from '../../BlueComponents';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'GeneralSettings'>;
 

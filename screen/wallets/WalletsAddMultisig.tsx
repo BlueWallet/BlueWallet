@@ -3,7 +3,6 @@ import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
@@ -14,6 +13,7 @@ import loc from '../../loc';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
 type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
