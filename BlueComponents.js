@@ -108,7 +108,6 @@ export const BlueFormMultiInput = props => {
   );
 };
 
-
 export class is {
   static ipad() {
     return isIpad;
@@ -141,4 +140,3 @@ export function BlueBigCheckmark({ style = {} }) {
     </View>
   );
 }
-
