@@ -131,7 +131,6 @@ export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
 };
 
-
 export function BlueBigCheckmark({ style = {} }) {
   const defaultStyles = {
     backgroundColor: '#ccddf9',
@@ -150,5 +149,3 @@ export function BlueBigCheckmark({ style = {} }) {
     </View>
   );
 }
-
-export { BlueLoading } from './components/BlueLoading';
