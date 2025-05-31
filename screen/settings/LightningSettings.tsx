@@ -3,7 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, I18nManager, Linking, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
@@ -17,6 +17,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueLoading } from '../../components/BlueLoading';
 
 const styles = StyleSheet.create({
   buttonStyle: {

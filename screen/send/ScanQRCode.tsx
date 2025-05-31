@@ -6,7 +6,7 @@ import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-n
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
-import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -17,6 +17,7 @@ import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
+import { BlueLoading } from '../../components/BlueLoading.tsx';
 
 let decoder: BlueURDecoder | undefined;
 
