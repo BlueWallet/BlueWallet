@@ -4,6 +4,7 @@ import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
+import { formatBTCAddress } from '../helpers/formatBTCAddress';
 
 type CopyTextToClipboardProps = {
   text: string;
@@ -25,7 +26,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
   useEffect(() => {
     if (!hasTappedText) {
-      setAddress(text);
+      setAddress(formatBTCAddress(text));
     }
   }, [text, hasTappedText]);
 
