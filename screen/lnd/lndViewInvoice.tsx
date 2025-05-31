@@ -4,7 +4,7 @@ import { BackHandler, I18nManager, Image, ScrollView, StyleSheet, Text, Touchabl
 import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueLoading, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
+import { BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -19,6 +19,7 @@ import BigNumber from 'bignumber.js';
 import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueLoading } from '../../components/BlueLoading';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;

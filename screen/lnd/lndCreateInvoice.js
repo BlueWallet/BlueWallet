@@ -17,7 +17,6 @@ import { Icon } from '@rneui/themed';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -30,6 +29,7 @@ import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import { BlueLoading } from '../../components/BlueLoading';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
