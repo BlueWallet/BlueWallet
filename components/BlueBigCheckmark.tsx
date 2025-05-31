@@ -1,16 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, ViewProps, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from './themes';
 
-interface BlueBigCheckmarkProps extends ViewProps {
-  style?: ViewStyle;
-}
+interface BlueBigCheckmarkProps extends ViewProps {}
 
-export function BlueBigCheckmark({ style = {} }: BlueBigCheckmarkProps) {
+export function BlueBigCheckmark(props: BlueBigCheckmarkProps) {
   const { colors } = useTheme();
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, props.style]}>
       <Icon name="check" size={50} type="font-awesome" color={colors.successCheck} />
     </View>
   );
