@@ -3,6 +3,7 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../clas
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
+import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 export type SendDetailsParams = {
   transactionMemo?: string;
@@ -24,6 +25,7 @@ export type SendDetailsParams = {
   uri?: string;
   paymentCode?: string;
   selectedFeeRate?: string | undefined;
+  selectedFeeType?: NetworkTransactionFeeType;
   addRecipientParams?: {
     address: string;
     amount?: number;

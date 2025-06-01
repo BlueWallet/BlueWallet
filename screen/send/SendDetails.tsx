@@ -52,7 +52,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../../models/networkTransactionFees';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import ActionSheet from '../ActionSheet';
@@ -101,6 +101,7 @@ const SendDetails = () => {
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
+  const [selectedPresetFeeRate, setSelectedPresetFeeRate] = useState<string | null>(null);
   const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
@@ -112,18 +113,43 @@ const SendDetails = () => {
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
-    if (customFee) return customFee;
-    if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
-    let initialFee;
-    if (feePrecalc.fastestFee !== null) {
-      initialFee = String(networkTransactionFees.fastestFee);
-    } else if (feePrecalc.mediumFee !== null) {
-      initialFee = String(networkTransactionFees.mediumFee);
-    } else {
-      initialFee = String(networkTransactionFees.slowFee);
+    console.log('SendDetails: feeRate useMemo - customFee:', customFee);
+    console.log('SendDetails: feeRate useMemo - selectedPresetFeeRate:', selectedPresetFeeRate);
+    console.log('SendDetails: feeRate useMemo - feePrecalc:', feePrecalc);
+    console.log('SendDetails: feeRate useMemo - networkTransactionFees:', networkTransactionFees);
+    
+    if (customFee) {
+      console.log('SendDetails: Using customFee:', customFee);
+      return customFee;
     }
-    return initialFee;
-  }, [customFee, feePrecalc, networkTransactionFees]);
+    
+    if (selectedPresetFeeRate) {
+      console.log('SendDetails: Using selectedPresetFeeRate:', selectedPresetFeeRate);
+      return selectedPresetFeeRate;
+    }
+    
+    // If we have precalculated fees, use them to determine the default fee
+    if (feePrecalc.slowFee !== null) {
+      let initialFee;
+      if (feePrecalc.fastestFee !== null) {
+        initialFee = String(networkTransactionFees.fastestFee);
+        console.log('SendDetails: Using fastestFee:', initialFee);
+      } else if (feePrecalc.mediumFee !== null) {
+        initialFee = String(networkTransactionFees.mediumFee);
+        console.log('SendDetails: Using mediumFee:', initialFee);
+      } else {
+        initialFee = String(networkTransactionFees.slowFee);
+        console.log('SendDetails: Using slowFee:', initialFee);
+      }
+      console.log('SendDetails: Final feeRate:', initialFee);
+      return initialFee;
+    }
+    
+    // If no precalc fees yet, default to fastestFee from network fees
+    const defaultFee = String(networkTransactionFees.fastestFee);
+    console.log('SendDetails: No precalc fees yet, using default networkTransactionFees.fastestFee:', defaultFee);
+    return defaultFee;
+  }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
     // decode route params
@@ -1165,16 +1191,43 @@ const SendDetails = () => {
     }
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
-  // Handle selectedFeeRate returned from SelectFeeScreen
+  // Handle selectedFeeRate and selectedFeeType returned from SelectFeeScreen
   useEffect(() => {
     const selectedFeeRate = routeParams.selectedFeeRate;
-    if (selectedFeeRate !== undefined) {
-      // If selectedFeeRate is a string, set it as custom fee
-      // If selectedFeeRate is undefined, clear the custom fee (preset fee was selected)
-      setCustomFee(selectedFeeRate || null);
-      setParams({ selectedFeeRate: undefined });
+    const selectedFeeType = routeParams.selectedFeeType;
+
+    console.log('SendDetails: Fee selection useEffect triggered');
+    console.log('SendDetails: selectedFeeRate:', selectedFeeRate);
+    console.log('SendDetails: selectedFeeType:', selectedFeeType);
+    console.log('SendDetails: current customFee:', customFee);
+    console.log('SendDetails: current selectedPresetFeeRate:', selectedPresetFeeRate);
+    console.log('SendDetails: networkTransactionFees:', networkTransactionFees);
+
+    if (selectedFeeRate !== undefined || selectedFeeType !== undefined) {
+      console.log('SendDetails: Processing fee selection...');
+      
+      if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
+        console.log('SendDetails: CUSTOM fee selected, setting customFee to:', selectedFeeRate);
+        // Custom fee was selected - set the custom fee rate and clear preset
+        setCustomFee(selectedFeeRate || null);
+        setSelectedPresetFeeRate(null);
+      } else if (
+        selectedFeeType === NetworkTransactionFeeType.FAST ||
+        selectedFeeType === NetworkTransactionFeeType.MEDIUM ||
+        selectedFeeType === NetworkTransactionFeeType.SLOW
+      ) {
+        console.log('SendDetails: Preset fee selected:', selectedFeeType);
+        console.log('SendDetails: Setting selectedPresetFeeRate to:', selectedFeeRate);
+        // Preset fee was selected - set the preset fee rate and clear custom fee
+        setSelectedPresetFeeRate(selectedFeeRate || null);
+        setCustomFee(null);
+      }
+
+      console.log('SendDetails: Clearing route params...');
+      // Clear the parameters to prevent re-processing
+      setParams({ selectedFeeRate: undefined, selectedFeeType: undefined });
     }
-  }, [routeParams.selectedFeeRate, setParams]);
+  }, [routeParams.selectedFeeRate, routeParams.selectedFeeType, networkTransactionFees, setParams, customFee, selectedPresetFeeRate]);
 
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;

@@ -47,7 +47,7 @@ const SendDetailsStack = () => {
         component={SelectFeeScreen}
         options={navigationStyle({
           closeButtonPosition: CloseButtonPosition.Right,
-          sheetAllowedDetents: [0.5],
+          sheetAllowedDetents: 'fitToContents',
           presentation: 'formSheet',
           headerTitle: '',
         })(theme)}

@@ -6,6 +6,7 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { SendDetailsStackParamList } from '../navigation/SendDetailsStackParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 interface FeeOptionProps {
   label: string;
@@ -108,6 +109,13 @@ const SelectFeeScreen = () => {
 
   const { networkTransactionFees, feePrecalc, feeRate, feeUnit = BitcoinUnit.BTC, walletID, customFee } = route.params;
 
+  console.debug('SelectFeeScreen: Screen initialized');
+  console.debug('SelectFeeScreen: route.params:', route.params);
+  console.debug('SelectFeeScreen: networkTransactionFees:', networkTransactionFees);
+  console.debug('SelectFeeScreen: feePrecalc:', feePrecalc);
+  console.debug('SelectFeeScreen: feeRate:', feeRate);
+  console.debug('SelectFeeScreen: customFee:', customFee);
+
   const [customFeeValue, setCustomFeeValue] = useState<string>(customFee || '');
   const [isCustomFeeFocused, setIsCustomFeeFocused] = useState(false);
   const customFeeInputRef = useRef<TextInput>(null);
@@ -118,8 +126,7 @@ const SelectFeeScreen = () => {
   const stylesHook = StyleSheet.create({
     container: {
       backgroundColor: colors.elevated,
-      flex: 1,
-      padding: 16,
+      paddingHorizontal: 16,
     },
     feeModalItemActive: {
       backgroundColor: colors.feeActive,
@@ -135,11 +142,23 @@ const SelectFeeScreen = () => {
   const formatFee = useCallback((fee: number) => formatBalance(fee, feeUnit, true), [feeUnit]);
 
   const handleFeeOptionPress = useCallback(
-    (rate: number) => {
-      // Navigate back and return the selected fee
+    (rate: number, feeType: NetworkTransactionFeeType) => {
+      console.debug('SelectFeeScreen: handleFeeOptionPress called');
+      console.debug('SelectFeeScreen: rate:', rate);
+      console.debug('SelectFeeScreen: feeType:', feeType);
+      console.debug('SelectFeeScreen: walletID:', walletID);
+
+      // Navigate back and pass the actual rate value along with the fee type
       navigation.popTo('SendDetails', {
         walletID,
         selectedFeeRate: rate.toString(),
+        selectedFeeType: feeType,
+      });
+
+      console.debug('SelectFeeScreen: Navigation popTo called with params:', {
+        walletID,
+        selectedFeeRate: rate.toString(),
+        selectedFeeType: feeType,
       });
     },
     [navigation, walletID],
@@ -154,12 +173,26 @@ const SelectFeeScreen = () => {
   }, []);
 
   const handleCustomFeeSubmit = useCallback(() => {
+    console.debug('SelectFeeScreen: handleCustomFeeSubmit called');
+    console.debug('SelectFeeScreen: customFeeValue:', customFeeValue);
+
     const numericValue = customFeeValue.replace(',', '.');
+    console.debug('SelectFeeScreen: numericValue:', numericValue);
+
     if (numericValue && Number(numericValue) > 0) {
-      navigation.navigate('SendDetails', {
+      console.debug('SelectFeeScreen: Valid custom fee, navigating with:', {
         walletID,
         selectedFeeRate: numericValue,
+        selectedFeeType: NetworkTransactionFeeType.CUSTOM,
       });
+
+      navigation.popTo('SendDetails', {
+        walletID,
+        selectedFeeRate: numericValue,
+        selectedFeeType: NetworkTransactionFeeType.CUSTOM,
+      });
+    } else {
+      console.debug('SelectFeeScreen: Invalid custom fee value');
     }
   }, [customFeeValue, navigation, walletID]);
 
@@ -170,6 +203,7 @@ const SelectFeeScreen = () => {
         time: loc.send.fee_10m,
         fee: feePrecalc.fastestFee,
         rate: nf.fastestFee,
+        feeType: NetworkTransactionFeeType.FAST,
         active: !isCustomFeeFocused && Number(feeRate) === nf.fastestFee,
       },
       {
@@ -177,6 +211,7 @@ const SelectFeeScreen = () => {
         time: loc.send.fee_3h,
         fee: feePrecalc.mediumFee,
         rate: nf.mediumFee,
+        feeType: NetworkTransactionFeeType.MEDIUM,
         active: !isCustomFeeFocused && Number(feeRate) === nf.mediumFee,
         disabled: nf.mediumFee === nf.fastestFee,
       },
@@ -185,6 +220,7 @@ const SelectFeeScreen = () => {
         time: loc.send.fee_1d,
         fee: feePrecalc.slowFee,
         rate: nf.slowFee,
+        feeType: NetworkTransactionFeeType.SLOW,
         active: !isCustomFeeFocused && Number(feeRate) === nf.slowFee,
         disabled: nf.slowFee === nf.mediumFee || nf.slowFee === nf.fastestFee,
       },
@@ -220,7 +256,7 @@ const SelectFeeScreen = () => {
   return (
     <View style={stylesHook.container}>
       <View>
-        {options.map(({ label, time, fee, rate, active, disabled }) => (
+        {options.map(({ label, time, fee, rate, active, disabled, feeType }) => (
           <FeeOption
             key={label}
             label={label}
@@ -229,7 +265,7 @@ const SelectFeeScreen = () => {
             rate={rate}
             active={active}
             disabled={disabled}
-            onPress={() => handleFeeOptionPress(rate)}
+            onPress={() => handleFeeOptionPress(rate, feeType)}
             formatFee={formatFee}
             feeUnit={feeUnit}
           />
