@@ -20,6 +20,7 @@ import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
+import { Platform } from 'react-native';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -47,7 +48,7 @@ const SendDetailsStack = () => {
         component={SelectFeeScreen}
         options={navigationStyle({
           closeButtonPosition: CloseButtonPosition.Right,
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.7],
           presentation: 'formSheet',
           headerTitle: '',
         })(theme)}
