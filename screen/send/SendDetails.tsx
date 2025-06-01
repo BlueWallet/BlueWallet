@@ -117,17 +117,17 @@ const SendDetails = () => {
     console.log('SendDetails: feeRate useMemo - selectedPresetFeeRate:', selectedPresetFeeRate);
     console.log('SendDetails: feeRate useMemo - feePrecalc:', feePrecalc);
     console.log('SendDetails: feeRate useMemo - networkTransactionFees:', networkTransactionFees);
-    
+
     if (customFee) {
       console.log('SendDetails: Using customFee:', customFee);
       return customFee;
     }
-    
+
     if (selectedPresetFeeRate) {
       console.log('SendDetails: Using selectedPresetFeeRate:', selectedPresetFeeRate);
       return selectedPresetFeeRate;
     }
-    
+
     // If we have precalculated fees, use them to determine the default fee
     if (feePrecalc.slowFee !== null) {
       let initialFee;
@@ -144,7 +144,7 @@ const SendDetails = () => {
       console.log('SendDetails: Final feeRate:', initialFee);
       return initialFee;
     }
-    
+
     // If no precalc fees yet, default to fastestFee from network fees
     const defaultFee = String(networkTransactionFees.fastestFee);
     console.log('SendDetails: No precalc fees yet, using default networkTransactionFees.fastestFee:', defaultFee);
@@ -1205,7 +1205,7 @@ const SendDetails = () => {
 
     if (selectedFeeRate !== undefined || selectedFeeType !== undefined) {
       console.log('SendDetails: Processing fee selection...');
-      
+
       if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
         console.log('SendDetails: CUSTOM fee selected, setting customFee to:', selectedFeeRate);
         // Custom fee was selected - set the custom fee rate and clear preset
