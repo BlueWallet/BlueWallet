@@ -39,14 +39,12 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../c
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
-import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
-import SelectFeeModal from '../../components/SelectFeeModal';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -98,7 +96,6 @@ const SendDetails = () => {
   const [dimensions, setDimensions] = useState({ width: Dimensions.get('window').width, height: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
-  const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
@@ -1168,6 +1165,17 @@ const SendDetails = () => {
     }
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
+  // Handle selectedFeeRate returned from SelectFeeScreen
+  useEffect(() => {
+    const selectedFeeRate = routeParams.selectedFeeRate;
+    if (selectedFeeRate !== undefined) {
+      // If selectedFeeRate is a string, set it as custom fee
+      // If selectedFeeRate is undefined, clear the custom fee (preset fee was selected)
+      setCustomFee(selectedFeeRate || null);
+      setParams({ selectedFeeRate: undefined });
+    }
+  }, [routeParams.selectedFeeRate, setParams]);
+
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
@@ -1416,7 +1424,16 @@ const SendDetails = () => {
         <TouchableOpacity
           testID="chooseFee"
           accessibilityRole="button"
-          onPress={() => feeModalRef.current?.present()}
+          onPress={() =>
+            navigation.navigate('SelectFee', {
+              networkTransactionFees,
+              feePrecalc,
+              feeRate,
+              feeUnit,
+              walletID: wallet?.getID() || '',
+              customFee,
+            })
+          }
           disabled={isLoading}
           style={styles.fee}
         >
@@ -1433,14 +1450,6 @@ const SendDetails = () => {
           )}
         </TouchableOpacity>
         {renderCreateButton()}
-        <SelectFeeModal
-          ref={feeModalRef}
-          networkTransactionFees={networkTransactionFees}
-          feePrecalc={feePrecalc}
-          feeRate={feeRate}
-          setCustomFee={setCustomFee}
-          feeUnit={addresses[scrollIndex.current]?.unit ?? BitcoinUnit.BTC}
-        />
       </View>
       <DismissKeyboardInputAccessory />
       {Platform.select({

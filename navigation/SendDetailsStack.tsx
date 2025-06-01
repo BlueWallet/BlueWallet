@@ -19,6 +19,7 @@ import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import SelectFeeScreen from '../screen/SelectFeeScreen';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -40,6 +41,16 @@ const SendDetailsStack = () => {
           closeButtonPosition: CloseButtonPosition.Left,
         })(theme)}
         initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
+      />
+      <Stack.Screen
+        name="SelectFee"
+        component={SelectFeeScreen}
+        options={navigationStyle({
+          closeButtonPosition: CloseButtonPosition.Right,
+          sheetAllowedDetents: [0.5],
+          presentation: 'formSheet',
+          headerTitle: '',
+        })(theme)}
       />
       <Stack.Screen
         name="Confirm"
