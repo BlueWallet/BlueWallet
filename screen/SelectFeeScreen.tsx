@@ -127,6 +127,7 @@ const SelectFeeScreen = () => {
     container: {
       backgroundColor: colors.elevated,
       paddingHorizontal: 16,
+      paddingVertical: 8, // Add some vertical padding for formSheet
     },
     feeModalItemActive: {
       backgroundColor: colors.feeActive,
@@ -254,8 +255,8 @@ const SelectFeeScreen = () => {
   };
 
   return (
-    <View style={stylesHook.container}>
-      <View>
+    <View style={[stylesHook.container, styles.screenContainer]}>
+      <View style={styles.contentContainer}>
         {options.map(({ label, time, fee, rate, active, disabled, feeType }) => (
           <FeeOption
             key={label}
@@ -305,6 +306,14 @@ const SelectFeeScreen = () => {
 export default SelectFeeScreen;
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    minHeight: 300, // Minimum height for formSheet presentation
+    maxHeight: 500, // Maximum height to prevent overflow
+  },
+  contentContainer: {
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
   feeModalItem: {
     paddingHorizontal: 16,
     paddingVertical: 8,
