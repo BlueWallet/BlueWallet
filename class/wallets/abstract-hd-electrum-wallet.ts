@@ -8,8 +8,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
-import { ECPairFactory } from 'ecpair';
-import { ECPairInterface } from 'ecpair/src/ecpair';
+import { ECPairFactory, ECPairInterface } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
@@ -367,6 +366,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // then we combine all this data (we need inputs to see source addresses and amounts)
     const vinTxids = [];
     for (const txdata of Object.values(txdatas)) {
+      if (txdata.vin.length > 99) continue;
+      // ^^^ cutoff, some transactions have thousands of inputs, so the resulting array of txs for inputs to fetch
+      // might be dozens of thousands. too much to handle, so we skip such transactions
       for (const vin of txdata.vin) {
         vin.txid && vinTxids.push(vin.txid);
         // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
@@ -1244,7 +1246,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         address: output.address,
         // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
         script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
-        value: output.value,
+        value: BigInt(output.value),
         bip32Derivation:
           change && path && pubkey
             ? [
@@ -1299,7 +1301,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ],
       witnessUtxo: {
         script: p2wpkh.output,
-        value: input.value,
+        value: BigInt(input.value),
       },
     });
 

@@ -9,7 +9,7 @@ import { useTheme } from './themes';
 import RNQRGenerator from 'rn-qr-generator';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { scanQrHelper } from '../helpers/scan-qr.ts';
 
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
@@ -29,7 +29,6 @@ export const AddressInputScanButton = ({
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
 
-  const navigation = useExtendedNavigation();
   const stylesHook = StyleSheet.create({
     scan: {
       backgroundColor: colors.scanLabel,
@@ -44,10 +43,8 @@ export const AddressInputScanButton = ({
       await beforePress();
     }
     Keyboard.dismiss();
-    navigation.navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-  }, [navigation, beforePress]);
+    scanQrHelper().then(onChangeText);
+  }, [beforePress, onChangeText]);
 
   const actions = useMemo(() => {
     const availableActions = [
@@ -65,11 +62,6 @@ export const AddressInputScanButton = ({
   const onMenuItemPressed = useCallback(
     async (action: string) => {
       switch (action) {
-        case CommonToolTipActions.ScanQR.id:
-          navigation.navigate('ScanQRCode', {
-            showFileImportButton: true,
-          });
-          break;
         case CommonToolTipActions.PasteFromClipboard.id:
           try {
             let getImage: string | null = null;
@@ -132,7 +124,7 @@ export const AddressInputScanButton = ({
       }
       Keyboard.dismiss();
     },
-    [navigation, onChangeText],
+    [onChangeText],
   );
 
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);

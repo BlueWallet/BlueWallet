@@ -6,6 +6,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types.ts';
 import { CoinSelectTarget } from 'coinselect';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
@@ -25,7 +26,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
    */
   static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
-      const publicKey = Buffer.from(scriptPubKey, 'hex');
+      const publicKey = hexToUint8Array(scriptPubKey);
       return bitcoin.address.fromOutputScript(publicKey, bitcoin.networks.bitcoin);
     } catch (_) {
       return false;
@@ -59,7 +60,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       }
       const xOnlyPubkey = keyPair.publicKey.subarray(1, 33);
       address = bitcoin.payments.p2tr({
-        pubkey: Buffer.from(xOnlyPubkey),
+        pubkey: xOnlyPubkey,
       }).address;
     } catch (err: any) {
       console.log(err.message);
@@ -104,7 +105,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
         sequence,
         witnessUtxo: {
           script: p2tr.output!,
-          value: input.value,
+          value: BigInt(input.value),
         },
         // tell PSBT it’s a key-path Taproot spend
         tapInternalKey: xOnlyPub,
@@ -117,7 +118,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       if (!output.address) output.address = changeAddress;
       psbt.addOutput({
         address: output.address!,
-        value: output.value,
+        value: BigInt(output.value),
       });
     });
 

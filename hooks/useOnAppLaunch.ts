@@ -10,7 +10,8 @@ const useOnAppLaunch = () => {
   const getSelectedDefaultWallet = useCallback(async (): Promise<string | undefined> => {
     let selectedWallet: TWallet | undefined;
     try {
-      const selectedWalletID = JSON.parse((await AsyncStorage.getItem(STORAGE_KEY)) || 'null');
+      const selectedWalletID = await AsyncStorage.getItem(STORAGE_KEY);
+      console.log('Selected wallet ID:', selectedWalletID);
       if (selectedWalletID !== null) {
         selectedWallet = wallets.find((wallet: TWallet) => wallet.getID() === selectedWalletID);
         if (!selectedWallet) {
@@ -24,12 +25,11 @@ const useOnAppLaunch = () => {
       return undefined;
     }
     return selectedWallet.getID();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [STORAGE_KEY]);
+  }, [STORAGE_KEY, wallets]);
 
   const setSelectedDefaultWallet = useCallback(
     async (value: string): Promise<void> => {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      await AsyncStorage.setItem(STORAGE_KEY, value);
     },
     [STORAGE_KEY],
   ); // No external dependencies
@@ -55,8 +55,7 @@ const useOnAppLaunch = () => {
         await AsyncStorage.setItem(STORAGE_KEY, '');
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [STORAGE_KEY, getSelectedDefaultWallet, setSelectedDefaultWallet],
+    [STORAGE_KEY, getSelectedDefaultWallet, setSelectedDefaultWallet, wallets],
   );
 
   return {

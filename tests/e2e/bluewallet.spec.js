@@ -2,6 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import {
+  scanText,
   expectToBeVisible,
   extractTextFromElementById,
   hashIt,
@@ -223,9 +224,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('BitcoinAddressQRCodeContainer');
     await waitForId('CopyTextToClipboard');
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet('cr34t3d');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -385,8 +384,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // in case it didnt work first time
     await sleep(3000); // propagate
-
-    await helperDeleteWallet('fake_wallet');
+    await expect(element(by.text('fake_wallet'))).toBeVisible();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -469,7 +467,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await waitForId('cr34t3d'); // success
-    await helperDeleteWallet('cr34t3d');
+
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -547,8 +545,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletDetails')).tap();
     await waitForText('2 / 2 (native segwit)');
 
-    await device.pressBack();
-    await helperDeleteWallet('Multisig Vault');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -676,13 +672,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.ok(transaction.ins.length === 1);
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    assert.strictEqual(transaction.outs[0].value, 50000);
-
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet(expectedWalletLabel, '108880');
+    assert.strictEqual(transaction.outs[0].value, 50000n);
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
@@ -740,10 +730,88 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletDetails')).tap();
     await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
 
-    await device.pressBack();
-    await device.pressBack();
-    await helperDeleteWallet('Imported HD Legacy (BIP44 P2PKH)');
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 
+  it('can create wallet, and use main screen SCAN button to scan address', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t8');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+    }
+    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await waitForId('WalletsList');
+
+    await helperCreateWallet();
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+
+    // now, gona import second wallet (ln) and test bip21 with both onchain and offchain present
+
+    await device.pressBack();
+    await waitForId('WalletsList');
+    await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    // going to Import Wallet screen and importing mnemonic
+    await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
+    await element(by.id('ImportWallet')).tap();
+    await element(by.id('ScanImport')).tap();
+    await scanText('lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol');
+    await waitForText('OK', 30_000); // waiting for wallet import
+    await element(by.text('OK')).tap();
+
+    // imported
+
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText(
+      'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
+    );
+    await expect(element(by.id('AddressInput'))).toHaveText(
+      'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
+    );
+
+    // ok, time to test wallets selector
+
+    await device.pressBack();
+
+    await waitForId('WalletsList');
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText(
+      'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
+    );
+
+    await waitForId('SelectWalletsList');
+    await element(by.text('Imported Lightning')).tap();
+    await expect(element(by.id('AddressInput'))).toHaveText(
+      'lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
+    ); // send screen, and ln invoice is prefilled!
+
+    // now again, but chosing onchain
+
+    await device.pressBack();
+    await waitForId('WalletsList');
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText(
+      'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
+    );
+
+    await waitForId('SelectWalletsList');
+    await element(by.text('cr34t3d')).tap();
+    await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
+    await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create wallet and delete wallet', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t9');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+    }
+    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await waitForId('WalletsList');
+    await helperCreateWallet();
+    // nop
+    await helperDeleteWallet('cr34t3d');
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 });

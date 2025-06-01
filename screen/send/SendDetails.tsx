@@ -858,11 +858,13 @@ const SendDetails = () => {
         // @ts-ignore hacky
         changeAddresses.push(wallet._getInternalAddressByIndex(c));
       }
-      const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
+      const recipients = psbt.txOutputs
+        .filter(({ address }) => !changeAddresses.includes(String(address)))
+        .map(recipient => ({ ...recipient, value: Number(recipient.value) }));
 
       navigation.navigate('CreateTransaction', {
-        fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
-        feeSatoshi: psbt.getFee(),
+        fee: Number(new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber()),
+        feeSatoshi: Number(psbt.getFee()),
         tx: tx.toHex(),
         recipients,
         satoshiPerByte: psbt.getFeeRate(),

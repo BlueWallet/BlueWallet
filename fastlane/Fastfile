@@ -9,8 +9,93 @@ def app_identifiers
   ]
 end
 
+def app_store_state_readable(state)
+  states = {
+    "DEVELOPER_REJECTED" => "Developer Rejected",
+    "PREPARE_FOR_SUBMISSION" => "Prepare for Submission",
+    "WAITING_FOR_REVIEW" => "Waiting for Review",
+    "IN_REVIEW" => "In Review",
+    "PENDING_DEVELOPER_RELEASE" => "Pending Developer Release",
+    "READY_FOR_SALE" => "Ready for Sale",
+    "REJECTED" => "Rejected",
+    "METADATA_REJECTED" => "Metadata Rejected"
+  }
+  
+  states[state] || state
+end
+
 default_platform(:android)
 project_root = File.expand_path("..", __dir__)
+
+# Add session caching for App Store Connect
+def cached_app_store_connect_login
+  # Skip if already authenticated and token is not expired
+  if defined?(Spaceship::ConnectAPI) && Spaceship::ConnectAPI.token && !Spaceship::ConnectAPI.token.expired?
+    UI.message("Using existing App Store Connect session")
+    return true
+  end
+  
+  UI.message("Logging in to App Store Connect...")
+  
+  # Try API key authentication first
+  api_key_path = ENV["APPLE_API_KEY_PATH"] || "./appstore_api_key.json"
+  
+  if File.exist?(api_key_path) && ENV["APPLE_API_KEY_ID"] && ENV["APPLE_API_ISSUER_ID"]
+    UI.message("Using API key authentication for App Store Connect")
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APPLE_API_KEY_ID"],
+      issuer_id: ENV["APPLE_API_ISSUER_ID"],
+      key_filepath: api_key_path,
+      duration: 1200, # 20 minute session
+      in_house: false
+    )
+    
+    # Store the API key in lane context for reuse
+    ENV["SPACESHIP_CONNECT_API_KEY"] = api_key
+    
+    # Force App Store Connect API to use this key
+    Spaceship::ConnectAPI.token = api_key
+    
+    UI.success("Successfully authenticated with App Store Connect API Key")
+    return true
+  elsif ENV["FASTLANE_USER"] && ENV["FASTLANE_PASSWORD"]
+    UI.message("Using username/password from environment variables")
+    # Use credentials from environment variables
+    Spaceship::ConnectAPI.login(
+      use_portal: true, 
+      use_tunes: true,
+      portal_team_id: ENV["TEAM_ID"],
+      tunes_team_id: ENV["ITC_TEAM_ID"]
+    )
+    UI.success("Successfully authenticated with Apple ID")
+    return true
+  else
+    UI.message("Using interactive username/password authentication")
+    # Last resort - interactive login
+    Spaceship::ConnectAPI.login(
+      use_portal: true, 
+      use_tunes: true
+    )
+    UI.success("Successfully authenticated with Apple ID")
+    return true
+  end
+end
+
+before_all do |lane, options|
+  skip_auth_lanes = ['register_devices_from_txt']
+  
+  # Check if we need App Store Connect for this lane
+  unless skip_auth_lanes.include?(lane)
+    begin
+      # Try to authenticate once at the beginning
+      require 'spaceship'
+      cached_app_store_connect_login
+    rescue => ex
+      UI.error("Authentication failed: #{ex.message}")
+      # Continue anyway as some lanes might not need authentication
+    end
+  end
+end
 
 # ===========================
 #       Android Lanes
@@ -528,11 +613,9 @@ end
 
   # Helper method to determine which iOS version to use
   private_lane :determine_ios_version do
-    # Get available iOS simulator runtimes
     runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false) rescue ""
     
     if runtimes_output.include?("iOS")
-      # Extract available iOS versions
       ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
                                    .flatten
                                    .map { |v| Gem::Version.new(v) }
@@ -542,103 +625,206 @@ end
       if ios_versions.any?
         latest_version = ios_versions.first.to_s
         UI.success("Found iOS simulator version: #{latest_version}")
-        latest_version # Implicit return - last expression is returned
+        latest_version
       else
-        # Default to a reasonable iOS version if none found
         UI.important("No iOS simulator versions found. Using default version.")
-        "17.6" # Implicit return
+        "17.6"
       end
     else
-      # Default to a reasonable iOS version if no iOS runtimes
       UI.important("No iOS simulator runtimes found. Using default version.")
-      "17.6" # Implicit return
+      "17.6"
     end
   end
-
 end
+
 # ===========================
 #       Global Lanes
 # ===========================
-
-
 
 desc "Deploy to TestFlight"
 lane :deploy do |options|
   UI.message("Starting deployment process...")
 
-  # Update WWDR Certificate
   update_wwdr_certificate
-
-  # Setup App Store Connect API Key
   setup_app_store_connect_api_key
-
-  # Setup Provisioning Profiles
   setup_provisioning_profiles
-
-  # Clear Derived Data
   clear_derived_data_lane
-
-  # Increment Build Number
   increment_build_number_lane
 
-  # Install CocoaPods if not already installed
   unless File.directory?("Pods")
     install_pods
   end
 
-  # Build the iOS App
   build_app_lane
-
-  # Upload IPA to TestFlight
   upload_to_testflight_lane
 
-  # Clean up and delete the temporary keychain
   delete_keychain(name: "temp_keychain")
 
-  # Mark deployment as completed for the current commit
   last_commit = last_git_commit
   already_built_flag = ".already_built_#{last_commit[:sha]}"
   File.write(already_built_flag, Time.now.to_s)
 end
 
-desc "Update 'What's New' section in App Store Connect for the 'Prepare for Submission' version"
-lane :update_release_notes do |options|
+desc "Update release notes for App Store versions (iOS or Mac Catalyst)"
+lane :release_notes do |options|
   require 'spaceship'
-
-  UI.message("Logging in to App Store Connect...")
-  Spaceship::ConnectAPI.login
 
   app = Spaceship::ConnectAPI::App.find(app_identifiers.first)
 
   UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
 
-  # Retry logic for fetching or creating the edit version
+  platform_option = options[:platform]
+  
+  if platform_option
+    platform = case platform_option.to_s.downcase
+      when "ios"
+        UI.message("Using platform from options: iOS")
+        Spaceship::ConnectAPI::Platform::IOS
+      when "catalyst", "mac_catalyst", "mac-catalyst"
+        UI.message("Using platform from options: Mac Catalyst")
+        UI.message("Using Spaceship::ConnectAPI::Platform::MAC_OS for Mac Catalyst")
+        Spaceship::ConnectAPI::Platform::MAC_OS
+      else
+        UI.user_error!("Invalid platform option: #{platform_option}")
+      end
+  else
+    platform_selection = UI.select("Select platform for release notes:", ["iOS", "Mac Catalyst"])
+    
+    platform = case platform_selection
+      when "iOS"
+        UI.message("Selected platform: iOS")
+        Spaceship::ConnectAPI::Platform::IOS
+      when "Mac Catalyst"
+        UI.message("Selected platform: Mac Catalyst")
+        UI.message("Using Spaceship::ConnectAPI::Platform::MAC_OS for Mac Catalyst")
+        Spaceship::ConnectAPI::Platform::MAC_OS
+      else
+        UI.user_error!("Invalid platform selection")
+      end
+  end
+
   retries = 5
   begin
-    prepare_version = app.get_edit_app_store_version(platform: Spaceship::ConnectAPI::Platform::IOS)
+    rejected_version = nil
+    UI.message("Checking for Developer Rejected version for platform: #{platform}")
     
-    if prepare_version.nil?
-      UI.message("No version in 'Prepare for Submission' found.")
+    begin
+      filter = {
+        appStoreState: "DEVELOPER_REJECTED",
+        platformString: platform.to_s
+      }
       
-      # Ask user if they want to create a new version
-      create_new_version = UI.confirm("Would you like to create a new version?")
-      
-      if create_new_version
-        latest_version = app.get_latest_version(platform: Spaceship::ConnectAPI::Platform::IOS)
-        new_version_number = (latest_version.version_string.to_f + 0.1).to_s
-        prepare_version = app.create_version!(platform: Spaceship::ConnectAPI::Platform::IOS, version_string: new_version_number)
-        UI.message("Created new version: #{new_version_number}")
-      else
-        UI.user_error!("No version in 'Prepare for Submission' found and user chose not to create one. Aborting.")
+      app.get_app_store_versions(filter: filter).each do |version|
+        rejected_version = version
+        UI.message("Found rejected version: #{version.version_string}")
+        break
       end
+    rescue => e
+      UI.error("Error fetching Developer Rejected versions: #{e.message}")
+      UI.message("Debug info: Platform type: #{platform.class}, Value: #{platform}")
+    end
+
+    if rejected_version
+      UI.success("Found 'Developer Rejected' version: #{rejected_version.version_string}. This will be the target for updates.")
+      prepare_version = rejected_version
     else
-      UI.message("Found existing version in 'Prepare for Submission': #{prepare_version.version_string}")
+      UI.message("No Developer Rejected version found. Checking for version in edit mode or waiting for review...")
+      
+      begin
+        prepare_version = app.get_edit_app_store_version(platform: platform)
+        if prepare_version
+          UI.message("Found version in edit mode: #{prepare_version.version_string}")
+        else
+          UI.message("No version in edit mode found")
+        end
+      rescue => e
+        UI.error("Error fetching edit app store version: #{e.message}")
+        prepare_version = nil
+      end
+      
+      if prepare_version.nil?
+        UI.message("Checking for version in Waiting for Review status...")
+        begin
+          waiting_filter = {
+            platformString: platform.to_s,
+            appStoreState: "WAITING_FOR_REVIEW"
+          }
+          
+          waiting_versions = app.get_app_store_versions(filter: waiting_filter)
+          if waiting_versions && !waiting_versions.empty?
+            prepare_version = waiting_versions.first
+            UI.success("Found version in Waiting for Review status: #{prepare_version.version_string}")
+          else
+            UI.message("No version in Waiting for Review status found")
+          end
+        rescue => e
+          UI.error("Error fetching Waiting for Review versions: #{e.message}")
+        end
+      end
+      
+      if prepare_version.nil?
+        UI.message("Looking for any in-flight version...")
+        begin
+          all_versions = app.get_app_store_versions(filter: { platformString: platform.to_s })
+          UI.message("Found #{all_versions.count} versions for platform #{platform}:")
+          
+          all_versions.each do |version|
+            state = app_store_state_readable(version.app_store_state)
+            UI.message("  - Version: #{version.version_string}, State: #{state}")
+          end
+          
+          editable_states = ["PREPARE_FOR_SUBMISSION", "WAITING_FOR_REVIEW", "REJECTED", "METADATA_REJECTED", "DEVELOPER_REJECTED"]
+          editable_version = all_versions.find { |v| editable_states.include?(v.app_store_state) }
+          
+          if editable_version
+            prepare_version = editable_version
+            UI.success("Using editable version: #{prepare_version.version_string} (#{app_store_state_readable(prepare_version.app_store_state)})")
+          elsif all_versions.count > 0
+            latest_version = all_versions.sort_by { |v| Gem::Version.new(v.version_string) }.last
+            UI.message("Latest version: #{latest_version.version_string} (#{app_store_state_readable(latest_version.app_store_state)})")
+          end
+        rescue => e
+          UI.error("Error listing versions: #{e.message}")
+        end
+      end
+      
+      if prepare_version.nil?
+        UI.message("No editable version found.")
+        
+        create_new_version = UI.confirm("Would you like to create a new version?")
+        
+        if create_new_version
+          begin
+            UI.message("Fetching latest version for platform: #{platform}")
+            latest_version = app.get_latest_version(platform: platform)
+            if latest_version
+              UI.message("Latest version: #{latest_version.version_string}")
+              new_version_number = (latest_version.version_string.to_f + 0.1).round(1).to_s
+            else
+              UI.message("No latest version found. Using 1.0 as base")
+              new_version_number = "1.0"
+            end
+            
+            UI.message("Creating new version: #{new_version_number} for platform: #{platform_selection || platform_option}")
+            prepare_version = app.create_version!(platform: platform, version_string: new_version_number)
+            UI.message("Created new version: #{new_version_number}")
+          rescue => e
+            UI.error("Failed to create new version: #{e.message}")
+            UI.user_error!("Failed to create version. Make sure your app is configured for Mac Catalyst in App Store Connect.")
+          end
+        else
+          UI.user_error!("No editable version found and user chose not to create one. Aborting.")
+        end
+      else
+        UI.message("Using version #{prepare_version.version_string} in state: #{app_store_state_readable(prepare_version.app_store_state)}")
+      end
     end
   rescue => e
     retries -= 1
     if retries > 0
       delay = 20
-      UI.message("Cannot find edit app info... Retrying after #{delay} seconds (remaining: #{retries})")
+      UI.message("Cannot find app version info... Retrying after #{delay} seconds (remaining: #{retries})")
+      UI.error("Error details: #{e.message}")
       sleep(delay)
       retry
     else
@@ -646,33 +832,97 @@ lane :update_release_notes do |options|
     end
   end
 
-  # Extract existing metadata
   localized_metadata = prepare_version.get_app_store_version_localizations
-
-  # Get enabled locales
   enabled_locales = localized_metadata.map(&:locale)
-
-  # Define release notes
   release_notes_text = options[:release_notes]
   
   if release_notes_text.nil? || release_notes_text.strip.empty?
-    # Prompt the user to select an option for release notes
-    selection = UI.select("Select a source for release notes:", [
+    existing_release_notes = nil
+    
+    en_us_localization = localized_metadata.find { |loc| loc.locale == 'en-US' }
+    if en_us_localization && en_us_localization.whats_new && !en_us_localization.whats_new.strip.empty?
+      existing_release_notes = en_us_localization.whats_new
+      UI.success("Found existing release notes in App Store Connect!")
+    else
+      localized_metadata.each do |loc|
+        if loc.whats_new && !loc.whats_new.strip.empty?
+          existing_release_notes = loc.whats_new
+          UI.success("Found existing release notes in App Store Connect for locale: #{loc.locale}")
+          break
+        end
+      end
+    end
+    
+    ios_release_notes_path = "metadata/ios/en-US/release_notes.txt"
+    project_release_notes_path = "../release-notes.txt"
+    
+    ios_notes_exist = File.exist?(ios_release_notes_path)
+    project_notes_exist = File.exist?(project_release_notes_path)
+    
+    options_list = []
+    
+    if existing_release_notes
+      options_list << "View/Edit existing App Store notes"
+    end
+    
+    options_list += [
       "Enter manually",
-      "Use clipboard content", 
-      "Use release-notes.txt file"
-    ])
+      "Use clipboard content"
+    ]
+    
+    if project_notes_exist
+      options_list << "Use release-notes.txt file"
+    end
+    
+    if ios_notes_exist
+      options_list << "Use iOS metadata release notes"
+    end
+    
+    selection = UI.select("Select a source for release notes:", options_list)
     
     case selection
+    when "View/Edit existing App Store notes"
+      UI.message("Existing release notes:")
+      UI.message("-" * 50)
+      UI.message(existing_release_notes)
+      UI.message("-" * 50)
+      
+      edit_choice = UI.select("Do you want to edit these notes or use as-is?:", [
+        "Use as-is",
+        "Edit notes"
+      ])
+      
+      if edit_choice == "Edit notes"
+        require 'tempfile'
+        temp_file = Tempfile.new('release_notes')
+        temp_file.write(existing_release_notes)
+        temp_file.close
+        
+        editor = ENV['EDITOR'] || 'nano'
+        system("#{editor} #{temp_file.path}")
+        
+        release_notes_text = File.read(temp_file.path)
+        temp_file.unlink
+        
+        UI.message("Edited release notes:")
+        UI.message("-" * 50)
+        UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+        UI.message("-" * 50)
+        
+        unless UI.confirm("Use these edited notes?")
+          UI.user_error!("User canceled edited notes. Aborting.")
+        end
+      else
+        release_notes_text = existing_release_notes
+      end
+    
     when "Enter manually"
-      # Option 1: Enter manually
       release_notes_text = UI.input("Enter the release notes:")
       if release_notes_text.nil? || release_notes_text.strip.empty?
         UI.user_error!("No release notes provided. Aborting.")
       end
       
     when "Use clipboard content"
-      # Option 2: Use clipboard content
       require 'open3'
       stdout, stderr, status = Open3.capture3("pbpaste")
       
@@ -680,21 +930,30 @@ lane :update_release_notes do |options|
         UI.user_error!("Failed to get clipboard content or clipboard is empty")
       end
       
-      # Show preview of clipboard content
       UI.message("Clipboard content preview:")
       UI.message("-" * 50)
       UI.message(stdout.length > 500 ? "#{stdout[0..500]}..." : stdout)
       UI.message("-" * 50)
       
-      # Confirm clipboard content
       unless UI.confirm("Use this clipboard content for release notes?")
         UI.user_error!("User canceled clipboard content usage. Aborting.")
       end
       
       release_notes_text = stdout
       
+    when "Use iOS metadata release notes"
+      release_notes_text = File.read(ios_release_notes_path)
+      
+      UI.message("iOS metadata release notes preview:")
+      UI.message("-" * 50)
+      UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
+      UI.message("-" * 50)
+      
+      unless UI.confirm("Use this content from iOS metadata release notes?")
+        UI.user_error!("User canceled file content usage. Aborting.")
+      end
+      
     when "Use release-notes.txt file"
-      # Option 3: Use release-notes.txt file
       release_notes_path = "../release-notes.txt"
       
       unless File.exist?(release_notes_path)
@@ -702,16 +961,13 @@ lane :update_release_notes do |options|
         UI.user_error!("No release-notes.txt file found. Aborting.")
       end
       
-      # Read release notes from file
       release_notes_text = File.read(release_notes_path)
       
-      # Show preview of file content
       UI.message("release-notes.txt content preview:")
       UI.message("-" * 50)
       UI.message(release_notes_text.length > 500 ? "#{release_notes_text[0..500]}..." : release_notes_text)
       UI.message("-" * 50)
       
-      # Confirm file content
       unless UI.confirm("Use this content from release-notes.txt?")
         UI.user_error!("User canceled file content usage. Aborting.")
       end
@@ -722,48 +978,54 @@ lane :update_release_notes do |options|
     UI.user_error!("No release notes content available. Aborting.")
   end
 
-  # Define localized release notes
   localized_release_notes = {
-    'en-US' => release_notes_text, # English (U.S.) - Primary
-    'ar-SA' => release_notes_text, # Arabic
-    'zh-Hans' => release_notes_text, # Chinese (Simplified)
-    'hr' => release_notes_text, # Croatian
-    'da' => release_notes_text, # Danish
-    'nl-NL' => release_notes_text, # Dutch
-    'fi' => release_notes_text, # Finnish
-    'fr-FR' => release_notes_text, # French
-    'de-DE' => release_notes_text, # German
-    'el' => release_notes_text, # Greek
-    'he' => release_notes_text, # Hebrew
-    'hu' => release_notes_text, # Hungarian
-    'it' => release_notes_text, # Italian
-    'ja' => release_notes_text, # Japanese
-    'ms' => release_notes_text, # Malay
-    'nb' => release_notes_text, # Norwegian (Bokmål)
-    'no' => release_notes_text, # Norwegian
-    'pl' => release_notes_text, # Polish
-    'pt-BR' => release_notes_text, # Portuguese (Brazil)
-    'pt-PT' => release_notes_text, # Portuguese (Portugal)
-    'ro' => release_notes_text, # Romanian
-    'ru' => release_notes_text, # Russian
-    'es-MX' => release_notes_text, # Spanish (Mexico)
-    'es-ES' => release_notes_text, # Spanish (Spain)
-    'sv' => release_notes_text, # Swedish
-    'th' => release_notes_text, # Thai
-  }.select { |locale, _| enabled_locales.include?(locale) } # Only include enabled locales
+    'en-US' => release_notes_text,
+    'ar-SA' => release_notes_text,
+    'zh-Hans' => release_notes_text,
+    'hr' => release_notes_text,
+    'da' => release_notes_text,
+    'nl-NL' => release_notes_text,
+    'fi' => release_notes_text,
+    'fr-FR' => release_notes_text,
+    'de-DE' => release_notes_text,
+    'el' => release_notes_text,
+    'he' => release_notes_text,
+    'hu' => release_notes_text,
+    'it' => release_notes_text,
+    'ja' => release_notes_text,
+    'ms' => release_notes_text,
+    'nb' => release_notes_text,
+    'no' => release_notes_text,
+    'pl' => release_notes_text,
+    'pt-BR' => release_notes_text,
+    'pt-PT' => release_notes_text,
+    'ro' => release_notes_text,
+    'ru' => release_notes_text,
+    'es-MX' => release_notes_text,
+    'es-ES' => release_notes_text,
+    'sv' => release_notes_text,
+    'th' => release_notes_text,
+  }
 
-  # Review release notes updates
+  if platform == Spaceship::ConnectAPI::Platform::MAC_OS
+    UI.message("Mac Catalyst selected - using only en-US localization")
+    localized_release_notes = { 'en-US' => release_notes_text }
+  end
+
+  localized_release_notes = localized_release_notes.select { |locale, _| enabled_locales.include?(locale) }
+
   UI.message("Review the following release notes updates:")
   localized_release_notes.each do |locale, notes|
     UI.message("Locale: #{locale} - Notes: #{notes}")
   end
 
-  unless options[:force_yes]
+  force_yes = options && options.is_a?(Hash) && options[:force_yes] == true
+  
+  unless force_yes
     confirm = UI.confirm("Do you want to proceed with these release notes updates?")
     UI.user_error!("User aborted the lane.") unless confirm
   end
 
-  # Update release notes in App Store Connect
   localized_release_notes.each do |locale, notes|
     app_store_version_localization = localized_metadata.find { |loc| loc.locale == locale }
     if app_store_version_localization
