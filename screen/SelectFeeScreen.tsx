@@ -90,15 +90,6 @@ const CustomFeeInput = React.forwardRef<TextInput, CustomFeeInputProps>(
       />
     );
   },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.value === nextProps.value &&
-      prevProps.onChangeText === nextProps.onChangeText &&
-      prevProps.onSubmitEditing === nextProps.onSubmitEditing &&
-      prevProps.onFocus === nextProps.onFocus &&
-      prevProps.onBlur === nextProps.onBlur
-    );
-  },
 );
 
 type SelectFeeScreenNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'SelectFee'>;
