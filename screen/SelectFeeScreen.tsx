@@ -232,7 +232,7 @@ const SelectFeeScreen = () => {
   const handleCustomFeeBlur = () => {
     setIsCustomFeeFocused(false);
     const numericValue = Number(customFeeValue.replace(',', '.'));
-    if (!customFeeValue || numericValue < 1) {
+    if (!customFeeValue || numericValue === 0) {
       setCustomFeeValue('');
     }
   };
