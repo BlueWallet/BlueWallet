@@ -74,7 +74,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   const textInputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
   const amount = props.amount || '0'; // internally amount is aways a string with a correct number
-  const { onChangeText, unit, pointerEvents, onAmountUnitChange, disabled = false, isLoading = false, ...otherProps } = props;
+  const { onChangeText, unit, onAmountUnitChange, disabled = false, isLoading = false, ...otherProps } = props;
   const [isRateBeingUpdatedLocal, setIsRateBeingUpdatedLocal] = useState(false);
   const [outdatedRefreshRate, setOutdatedRefreshRate] = useState<CurrencyRate | undefined>();
 
@@ -257,12 +257,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   });
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={loc._.enter_amount}
-      disabled={pointerEvents === 'none'}
-      onPress={handleTextInputOnPress}
-    >
+    <Pressable accessibilityRole="button" accessibilityLabel={loc._.enter_amount} disabled={disabled} onPress={handleTextInputOnPress}>
       <View style={styles.root}>
         {!disabled && <View style={[styles.center, stylesHook.center]} />}
         <View style={styles.flex}>
