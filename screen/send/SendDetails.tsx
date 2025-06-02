@@ -1048,7 +1048,7 @@ const SendDetails = () => {
         selectedDataProcessor.current = CommonToolTipActions.ImportTransactionQR;
         importQrTransaction();
       } else if (id === CommonToolTipActions.ImportTransactionMultsig.id) {
-        selectedDataProcessor.current = CommonToolTipActions.ImportTransactionMultsig;
+        selectedDataProcessor.current = CommonToolTipActions.ImportTransactionMultisig;
         importTransactionMultisig();
       } else if (id === CommonToolTipActions.CoSignTransaction.id) {
         selectedDataProcessor.current = CommonToolTipActions.CoSignTransaction;
@@ -1077,6 +1077,16 @@ const SendDetails = () => {
     ],
   );
 
+  const sendMaxSubtitle = useMemo(() => {
+    const totalRecipientsAmount = addresses.reduce((total, item) => {
+      if (item.amount === BitcoinUnit.MAX) return total; // Skip MAX amounts
+      return total + Number(item.amountSats || 0);
+    }, 0);
+    const currentFee = feePrecalc.current || 0;
+    const availableAmount = balance - totalRecipientsAmount - currentFee - frozenBalance;
+    return availableAmount > 0 ? formatBalance(availableAmount, BitcoinUnit.BTC, true) : undefined;
+  }, [addresses, feePrecalc, balance, frozenBalance]);
+
   const headerRightActions = useCallback(() => {
     if (!wallet) return [];
 
@@ -1096,11 +1106,13 @@ const SendDetails = () => {
     walletActions.push(recipientActions);
 
     const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
     const sendMaxAction: Action[] = [
       {
         ...CommonToolTipActions.SendMax,
         disabled: wallet.getBalance() === 0 || isSendMaxUsed,
         hidden: !isEditable || !(Number(wallet.getBalance()) > 0),
+        subtitle: sendMaxSubtitle,
       },
     ];
     walletActions.push(sendMaxAction);
@@ -1148,7 +1160,7 @@ const SendDetails = () => {
     walletActions.push(specificWalletActions);
 
     return walletActions;
-  }, [addresses, isEditable, wallet, isTransactionReplaceable]);
+  }, [wallet, addresses, isEditable, isTransactionReplaceable, sendMaxSubtitle]);
 
   const HeaderRight = useCallback(
     () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
