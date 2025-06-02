@@ -1477,7 +1477,8 @@ const SendDetails = () => {
         <TouchableOpacity
           testID="chooseFee"
           accessibilityRole="button"
-          onPress={() =>
+          onPress={() => {
+            Keyboard.dismiss();
             navigation.navigate('SelectFee', {
               networkTransactionFees,
               feePrecalc,
@@ -1485,8 +1486,8 @@ const SendDetails = () => {
               feeUnit,
               walletID: wallet?.getID() || '',
               customFee,
-            })
-          }
+            });
+          }}
           disabled={isLoading}
           style={styles.fee}
         >
