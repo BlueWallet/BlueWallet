@@ -142,11 +142,15 @@ const SelectFeeScreen = () => {
       console.debug('SelectFeeScreen: walletID:', walletID);
 
       // Navigate back and pass the actual rate value along with the fee type
-      navigation.popTo('SendDetails', {
-        walletID,
-        selectedFeeRate: rate.toString(),
-        selectedFeeType: feeType,
-      });
+      navigation.popTo(
+        'SendDetails',
+        {
+          walletID,
+          selectedFeeRate: rate.toString(),
+          selectedFeeType: feeType,
+        },
+        { merge: true },
+      );
 
       console.debug('SelectFeeScreen: Navigation popTo called with params:', {
         walletID,
@@ -179,11 +183,15 @@ const SelectFeeScreen = () => {
         selectedFeeType: NetworkTransactionFeeType.CUSTOM,
       });
 
-      navigation.popTo('SendDetails', {
-        walletID,
-        selectedFeeRate: numericValue,
-        selectedFeeType: NetworkTransactionFeeType.CUSTOM,
-      });
+      navigation.popTo(
+        'SendDetails',
+        {
+          walletID,
+          selectedFeeRate: numericValue,
+          selectedFeeType: NetworkTransactionFeeType.CUSTOM,
+        },
+        { merge: true },
+      );
     } else {
       console.debug('SelectFeeScreen: Invalid custom fee value');
     }
