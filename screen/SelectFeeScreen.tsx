@@ -68,11 +68,12 @@ const FeeOption = React.memo<FeeOptionProps>(
   },
 );
 
-const CustomFeeInput = React.memo<CustomFeeInputProps>(
-  ({ value, onChangeText, onSubmitEditing, onFocus, onBlur }) => {
+const CustomFeeInput = React.forwardRef<TextInput, CustomFeeInputProps>(
+  ({ value, onChangeText, onSubmitEditing, onFocus, onBlur }, ref) => {
     const { colors } = useTheme();
     return (
       <TextInput
+        ref={ref}
         style={[styles.customFeeInput, { color: colors.successColor, borderColor: colors.formBorder }]}
         keyboardType="numeric"
         placeholder={loc.send.insert_custom_fee}
@@ -286,6 +287,7 @@ const SelectFeeScreen = () => {
             <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{loc.send.fee_custom}</Text>
             <View style={styles.customFeeContainer}>
               <CustomFeeInput
+                ref={customFeeInputRef}
                 value={customFeeValue}
                 onChangeText={handleCustomFeeChange}
                 onSubmitEditing={handleCustomFeeSubmit}
