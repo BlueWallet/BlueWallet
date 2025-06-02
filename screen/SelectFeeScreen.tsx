@@ -1,9 +1,9 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard } from 'react-native';
 import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { SendDetailsStackParamList } from '../navigation/SendDetailsStackParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
@@ -245,6 +245,16 @@ const SelectFeeScreen = () => {
     }
     return true;
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      Keyboard.dismiss();
+      return () => {
+        console.debug('SelectFeeScreen: useFocusEffect cleanup, dismissing keyboard');
+        Keyboard.dismiss();
+      };
+    }, []),
+  );
 
   return (
     <View style={[stylesHook.container, styles.screenContainer]}>

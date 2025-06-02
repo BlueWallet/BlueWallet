@@ -47,10 +47,10 @@ const SendDetailsStack = () => {
         name="SelectFee"
         component={SelectFeeScreen}
         options={navigationStyle({
-          closeButtonPosition: CloseButtonPosition.Right,
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
           presentation: 'formSheet',
           headerTitle: '',
+          sheetGrabberVisible: true,
         })(theme)}
       />
       <Stack.Screen
