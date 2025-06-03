@@ -220,8 +220,6 @@
     "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram-Channel",
     "about_sm_twitter": "Folgt uns auf Twitter",
-    "privacy_temporary_screenshots": "Bildschirmfotos zulassen",
-    "privacy_temporary_screenshots_instructions": "Der Bildschirmaufnahmeschutz wird für diese Sitzung ausgeschaltet. Mit schließen und erneutem öffnen der App, wird der Schutz automatisch wieder aktiviert.",
     "biometrics": "Biometrie",
     "biometrics_no_longer_available": "Die Geräteeinstellungen stimmen nicht mehr mit den App Sicherheitseinstellungen überein. Um die Änderungen zu übernehmen, die Biometrie oder den Passcode einrichten, dann die App neu starten.",
     "biom_10times": "Es wurde 10 Mal versucht, das Passwort einzugeben. Soll der Speicher zurückgesetzt werden? Dabei werden alle Wallets entfernt der Speicher entschlüsselt.",
