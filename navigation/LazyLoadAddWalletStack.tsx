@@ -12,6 +12,7 @@ const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
 const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
 const ProvideEntropy = lazy(() => import('../screen/wallets/ProvideEntropy'));
 const WalletsAddMultisig = lazy(() => import('../screen/wallets/WalletsAddMultisig'));
+const MultisigAdvanced = lazy(() => import('../screen/wallets/MultisigAdvanced'));
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
 
@@ -66,6 +67,12 @@ export const ProvideEntropyComponent = () => (
 export const WalletsAddMultisigComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <WalletsAddMultisig />
+  </Suspense>
+);
+
+export const MultisigAdvancedComponent = () => (
+  <Suspense fallback={<LazyLoadingIndicator />}>
+    <MultisigAdvanced />
   </Suspense>
 );
 
