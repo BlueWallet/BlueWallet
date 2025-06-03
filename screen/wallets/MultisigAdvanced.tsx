@@ -163,7 +163,7 @@ const MultisigAdvanced: React.FC = () => {
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
   const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} />,
+    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,
     [handleSave, hasUnsavedChanges],
   );
 
@@ -190,7 +190,7 @@ const MultisigAdvanced: React.FC = () => {
             </TouchableOpacity>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} />
+              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />
             </View>
           </View>
         </View>
