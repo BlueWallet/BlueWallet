@@ -47,7 +47,7 @@ const SendDetailsStack = () => {
         name="SelectFee"
         component={SelectFeeScreen}
         options={navigationStyle({
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.4, 0.9],
           presentation: 'formSheet',
           headerTitle: '',
           sheetGrabberVisible: true,
