@@ -7,7 +7,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -31,6 +31,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { SuccessView } from '../send/success';
+import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 const HORIZONTAL_PADDING = 20;

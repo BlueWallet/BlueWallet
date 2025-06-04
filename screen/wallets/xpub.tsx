@@ -2,7 +2,7 @@ import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } fr
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -14,6 +14,7 @@ import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {

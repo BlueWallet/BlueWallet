@@ -2,12 +2,13 @@ import { useRoute } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueTextCentered } from '../../BlueComponents';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
