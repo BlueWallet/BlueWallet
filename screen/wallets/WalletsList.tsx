@@ -4,7 +4,7 @@ import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowD
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
-import * as fs from '../../blue_modules/fs';
+import { showImagePickerAndReadImage } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
@@ -429,11 +429,20 @@ const WalletsList: React.FC = () => {
         case 0:
           break;
         case 1:
-          fs.showImagePickerAndReadImage()
-            .then(onBarScanned)
+          showImagePickerAndReadImage()
             .catch(error => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
               presentAlert({ title: loc.errors.error, message: error.message });
+            })
+            .then(value => {
+              if (value) {
+                if (typeof value.data === 'string') {
+                  onBarScanned(value.data);
+                } else {
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                  presentAlert({ title: loc.errors.error, message: 'Invalid data format' });
+                }
+              }
             });
           break;
         case 2:

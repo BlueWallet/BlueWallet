@@ -7,7 +7,10 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'json', 'ts', 'tsx'],
   transformIgnorePatterns: ['node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|@rneui|silent-payments/)'],
-  setupFiles: ['./tests/setup.js'],
+  setupFiles: [
+    './tests/setup.js',
+    './node_modules/@react-native-documents/picker/jest/build/jest/setup.js',
+  ],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],
   setupFilesAfterEnv: ['./tests/setupAfterEnv.js'],
 };
