@@ -2,6 +2,8 @@ import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { IFee } from '../screen/send/SendDetails';
+import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 export type SendDetailsParams = {
   transactionMemo?: string;
@@ -22,6 +24,8 @@ export type SendDetailsParams = {
   isEditable?: boolean;
   uri?: string;
   paymentCode?: string;
+  selectedFeeRate?: string | undefined;
+  selectedFeeType?: NetworkTransactionFeeType;
   addRecipientParams?: {
     address: string;
     amount?: number;
@@ -40,6 +44,18 @@ export type TNavigationWrapper = {
 
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
+  SelectFee: {
+    networkTransactionFees: {
+      fastestFee: number;
+      mediumFee: number;
+      slowFee: number;
+    };
+    feePrecalc: IFee;
+    feeRate: string;
+    feeUnit?: BitcoinUnit;
+    walletID: string;
+    customFee?: string | null;
+  };
   Confirm: {
     fee: number;
     memo?: string;

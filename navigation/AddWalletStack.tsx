@@ -14,6 +14,7 @@ import {
   PleaseBackupLNDHubComponent,
   ProvideEntropyComponent,
   WalletsAddMultisigComponent,
+  MultisigAdvancedComponent,
   WalletsAddMultisigHelpComponent,
   WalletsAddMultisigStep2Component,
 } from './LazyLoadAddWalletStack';
@@ -52,6 +53,12 @@ export type AddWalletStackParamList = {
   };
   WalletsAddMultisig: {
     walletLabel: string;
+  };
+  MultisigAdvanced: {
+    m: number;
+    n: number;
+    format: string;
+    onSave: (m: number, n: number, format: string) => void;
   };
   WalletsAddMultisigStep2: {
     m: number;
@@ -124,6 +131,19 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigComponent}
         options={navigationStyle({ title: '' })(theme)}
         initialParams={{ walletLabel: loc.multisig.default_label }}
+      />
+      <Stack.Screen
+        name="MultisigAdvanced"
+        component={MultisigAdvancedComponent}
+        options={navigationStyle({
+          title: loc.multisig.vault_advanced_customize,
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          contentStyle: { flex: 1 },
+          headerShown: true,
+          headerTitle: loc.multisig.vault_advanced_customize,
+        })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
