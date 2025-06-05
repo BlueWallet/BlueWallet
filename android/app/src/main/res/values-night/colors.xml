@@ -3,5 +3,15 @@
     <color name="widget_background">#1B1B1F</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#D3D3D3</color>
+    <color name="button_background_color">#3A3A3C</color>
+    <color name="button_text_color">#ffffff</color>
+    <color name="button_alternative_text_color">#ffffff</color>
+    <color name="button_disabled_background_color">#3A3A3C</color>
+    <color name="button_disabled_text_color">#9aa0aa</color>
+    <color name="form_border_color">#202020</color>
+    <color name="foreground_color">#ffffff</color>
+    <color name="alternative_text_color">#9aa0aa</color>
+    <color name="ripple_color">#1Affffff</color>
+    <color name="ripple_color_selected">#1A0A84FF</color>
 </resources>
 

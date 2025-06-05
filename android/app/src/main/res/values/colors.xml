@@ -8,4 +8,26 @@
     <color name="widget_text_color">#FFFFFF</color>
     <color name="container_green">#4ADCBA</color>
     <color name="container_red">#F83661</color>
+    
+    <color name="button_background_color">#ccddf9</color>
+    <color name="button_text_color">#0c2550</color>
+    <color name="button_alternative_text_color">#2f5fb3</color>
+    <color name="button_disabled_background_color">#eef0f4</color>
+    <color name="button_disabled_text_color">#9aa0aa</color>
+    <color name="form_border_color">#d2d2d2</color>
+    <color name="foreground_color">#0c2550</color>
+    <color name="alternative_text_color">#9aa0aa</color>
+    <color name="ripple_color">#1A0c2550</color>
+    <color name="ripple_color_selected">#1A2f5fb3</color>
+    
+    <color name="button_background_color_dark">#3A3A3C</color>
+    <color name="button_text_color_dark">#ffffff</color>
+    <color name="button_alternative_text_color_dark">#ffffff</color>
+    <color name="button_disabled_background_color_dark">#3A3A3C</color>
+    <color name="button_disabled_text_color_dark">#9aa0aa</color>
+    <color name="form_border_color_dark">#202020</color>
+    <color name="foreground_color_dark">#ffffff</color>
+    <color name="alternative_text_color_dark">#9aa0aa</color>
+    <color name="ripple_color_dark">#1Affffff</color>
+    <color name="ripple_color_selected_dark">#1A0A84FF</color>
 </resources>

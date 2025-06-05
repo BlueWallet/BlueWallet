@@ -1,4 +1,13 @@
 <resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorPrimary">@color/button_background_color_dark</item>
+        <item name="colorPrimaryVariant">@color/button_alternative_text_color_dark</item>
+        <item name="colorOnPrimary">@color/button_text_color_dark</item>
+    </style>
+
     <style name="WidgetTextPrimary">
         <item name="android:textColor">@color/text_primary</item>
     </style>

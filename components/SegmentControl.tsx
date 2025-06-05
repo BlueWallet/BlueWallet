@@ -44,7 +44,9 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 18,
+    marginHorizontal: 18,
+    marginBottom: 18,
+    minHeight: 40,
   },
   segmentedControl: {
     height: 40,

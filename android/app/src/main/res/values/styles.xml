@@ -1,8 +1,16 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <!-- Status bar color - transparent for light theme -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Status bar text color - dark content for light theme -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Set the primary color to avoid Material default purple -->
+        <item name="colorPrimary">@color/button_background_color</item>
+        <item name="colorPrimaryVariant">@color/button_alternative_text_color</item>
+        <item name="colorOnPrimary">@color/button_text_color</item>
     </style>
     
     <!-- Widget text styles -->
