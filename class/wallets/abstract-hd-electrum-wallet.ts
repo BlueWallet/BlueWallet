@@ -17,6 +17,7 @@ import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
+import { isValidBech32Address } from '../../utils/isValidBech32Address';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1109,8 +1110,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!address) return false;
     let cleanAddress = address;
 
-    if (this.segwitType === 'p2wpkh') {
-      cleanAddress = address.toLowerCase();
+    const isBech32Address = isValidBech32Address(address);
+
+    if (isBech32Address) {
+      cleanAddress = address.toLocaleLowerCase();
     }
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
