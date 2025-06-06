@@ -7,7 +7,6 @@ import createHash from 'create-hash';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -24,6 +23,7 @@ import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { BlueLoading } from '../../components/BlueLoading';
 
 interface DataSection {
   title: string;

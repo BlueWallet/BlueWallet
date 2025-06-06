@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import URL from 'url';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -13,6 +13,7 @@ import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
+import { BlueLoading } from '../../components/BlueLoading';
 
 const AuthState = {
   USER_PROMPT: 0,
