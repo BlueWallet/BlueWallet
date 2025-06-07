@@ -5,7 +5,7 @@ buildscript {
         minSdkVersion = 24
         buildToolsVersion = "35.0.0"
         compileSdkVersion = 35
-        targetSdkVersion = 34
+        targetSdkVersion = 35
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
