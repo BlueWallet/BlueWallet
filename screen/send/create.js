@@ -11,7 +11,7 @@ import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import Share from 'react-native-share';
 import { satoshiToBTC } from '../../blue_modules/currency';
 import { isDesktop } from '../../blue_modules/environment';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
@@ -19,6 +19,7 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
