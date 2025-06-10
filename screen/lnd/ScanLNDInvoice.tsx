@@ -336,12 +336,11 @@ const ScanLNDInvoice = () => {
         >
           <View style={styles.scrollMargin}>
             <AmountInput.AmountInput
-              pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
               onChangeText={setAmount}
-              disabled={!decoded || isLoading || decoded.num_satoshis > 0}
+              disabled={!isAmountInitiallyEmpty || !decoded || isLoading || decoded.num_satoshis > 0}
               unit={unit}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
