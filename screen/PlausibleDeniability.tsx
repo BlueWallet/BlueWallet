@@ -1,6 +1,6 @@
 import React, { useReducer, useRef } from 'react';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueText } from '../BlueComponents';
 import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
@@ -12,6 +12,7 @@ import PromptPasswordConfirmationModal, {
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { StackActions } from '@react-navigation/native';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
+import { BlueLoading } from '../components/BlueLoading';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
