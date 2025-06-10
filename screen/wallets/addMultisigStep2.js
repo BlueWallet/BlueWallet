@@ -644,7 +644,7 @@ const WalletsAddMultisigStep2 = () => {
     return (
       <BottomModal
         footer={
-          <View style={[styles.modalFooterBottomPadding, { opacity }]} pointerEvents={isVisible ? 'none' : 'auto'}>
+          <View style={[styles.modalFooterBottomPadding, { opacity }]}>
             {isLoading ? (
               <ActivityIndicator />
             ) : (

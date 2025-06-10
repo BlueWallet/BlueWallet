@@ -5,7 +5,7 @@ import { Icon } from '@rneui/themed';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueLoading } from '../../BlueComponents';
+import { BlueCard } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
@@ -25,6 +25,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -336,12 +337,11 @@ const ScanLNDInvoice = () => {
         >
           <View style={styles.scrollMargin}>
             <AmountInput.AmountInput
-              pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
               onChangeText={setAmount}
-              disabled={!decoded || isLoading || decoded.num_satoshis > 0}
+              disabled={!isAmountInitiallyEmpty || !decoded || isLoading || decoded.num_satoshis > 0}
               unit={unit}
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
