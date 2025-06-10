@@ -220,8 +220,6 @@
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat do Telegram",
     "about_sm_twitter": "Siga-nos no Twitter",
-    "privacy_temporary_screenshots": "Permitir Screenshots",
-    "privacy_temporary_screenshots_instructions": "A proteção de captura de tela será desligada para esta sesão, permitindo que você tire Screenshots. Uma vez que você fechar e reabrir a aplicação, a proteção estará ligada automáticamente.",
     "biometrics": "Biometria",
     "biometrics_no_longer_available": "As configurações do seu dispositivo foram alteradas e não correspondem mais às configurações de segurança selecionadas no aplicativo. Reative a biometria ou a senha e reinicie o aplicativo para aplicar essas alterações.",
     "biom_10times": "Você tentou digitar sua senha 10 vezes. Você gostaria de resetar seu armazenamento? Isso irá remover todas suas carteiras e descriptografar seu armazenamento.",

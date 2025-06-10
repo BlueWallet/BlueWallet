@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
 
 const { height, width } = Dimensions.get('window');
@@ -131,10 +131,21 @@ export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
 };
 
-export const BlueLoading = props => {
+export function BlueBigCheckmark({ style = {} }) {
+  const defaultStyles = {
+    backgroundColor: '#ccddf9',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: 0,
+    marginBottom: 0,
+  };
+  const mergedStyles = { ...defaultStyles, ...style };
   return (
-    <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
-      <ActivityIndicator />
+    <View style={mergedStyles}>
+      <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
     </View>
   );
-};
+}

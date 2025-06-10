@@ -224,8 +224,6 @@
     "about_sm_discord": "Discord 服务器",
     "about_sm_telegram": "电报频道",
     "about_sm_twitter": "在推特上关注我们",
-    "privacy_temporary_screenshots": "允许截屏",
-    "privacy_temporary_screenshots_instructions": "屏幕截图保护将在此会话中关闭，允许你截屏。关闭并重新打开应用后，保护将自动开启。",
     "biometrics": "生物识别",
     "biometrics_no_longer_available": "您的设备设置已更改，不再与应用程序中选择的安全设置相匹配。请重新启用生物识别或密码，然后重启应用程序以应用这些更改。",
     "biom_10times": "您已尝试输入密码10次。 您想重置存储空间吗？ 这将删除所有钱包并解密您的存储。",
