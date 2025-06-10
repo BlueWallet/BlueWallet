@@ -29,7 +29,7 @@ const LightningSettings: React.FC = () => {
   const { colors } = useTheme();
   const { setParams } = useExtendedNavigation();
 
-  const dynamicStyles = StyleSheet.create({
+  const stylesHook = StyleSheet.create({
     buttonStyle: {
       backgroundColor: 'transparent',
       flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
@@ -132,7 +132,7 @@ const LightningSettings: React.FC = () => {
         title="github.com/BlueWallet/LndHub"
         // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
         // color={colors.buttonTextColor}
-        buttonStyle={dynamicStyles.buttonStyle}
+        buttonStyle={stylesHook.buttonStyle}
       />
 
       <BlueCard>

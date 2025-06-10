@@ -99,9 +99,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
     activityIndicatorStyle: {
       backgroundColor: colors.background,
     },
-  });
-
-  const dynamicStyles = StyleSheet.create({
     sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
     receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
   });
@@ -618,7 +615,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
                   size={buttonFontSize}
                   type="font-awesome"
                   color={colors.buttonAlternativeTextColor}
-                  style={dynamicStyles.receiveIcon}
+                  style={stylesHook.receiveIcon}
                 />
               </View>
             }
@@ -637,7 +634,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
                   size={buttonFontSize}
                   type="font-awesome"
                   color={colors.buttonAlternativeTextColor}
-                  style={dynamicStyles.sendIcon}
+                  style={stylesHook.sendIcon}
                 />
               </View>
             }

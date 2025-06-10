@@ -49,7 +49,7 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
   const { colors } = useTheme();
   const { direction } = useLocale();
   const borderColor = active ? colors[details.borderColorActive] : colors.buttonDisabledBackgroundColor;
-  const dynamicStyles = StyleSheet.create({
+  const stylesHook = StyleSheet.create({
     buttonContainer: {
       borderColor: borderColor as ColorValue,
       backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -73,12 +73,12 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
 
   return (
     <TouchableOpacity accessibilityRole="button" testID={testID} onPress={onPress} style={styles.touchable}>
-      <View style={[styles.container, dynamicStyles.buttonContainer]}>
+      <View style={[styles.container, stylesHook.buttonContainer]}>
         <View style={styles.content}>
           <Image style={styles.image} source={details.image} />
           <View style={styles.textContainer}>
-            <Text style={dynamicStyles.textTitle}>{details.title}</Text>
-            <Text style={dynamicStyles.textExplain}>{details.explain}</Text>
+            <Text style={stylesHook.textTitle}>{details.title}</Text>
+            <Text style={stylesHook.textExplain}>{details.explain}</Text>
           </View>
         </View>
       </View>

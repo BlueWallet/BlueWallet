@@ -63,9 +63,6 @@ const ScanLNDInvoice = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-  });
-
-  const dynamicStyles = StyleSheet.create({
     expiresIn: {
       writingDirection: direction,
       color: '#81868e',
@@ -376,9 +373,9 @@ const ScanLNDInvoice = () => {
             </View>
             {expiresIn !== undefined && (
               <View>
-                <Text style={dynamicStyles.expiresIn}>{expiresIn}</Text>
+                <Text style={stylesHook.expiresIn}>{expiresIn}</Text>
                 {decoded && decoded.num_satoshis > 0 && (
-                  <Text style={dynamicStyles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
+                  <Text style={stylesHook.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                 )}
               </View>
             )}
