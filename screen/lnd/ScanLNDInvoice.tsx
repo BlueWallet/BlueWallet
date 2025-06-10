@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, I18nManager, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -34,6 +34,7 @@ const ScanLNDInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const route = useRoute<RouteProps>();
   const { walletID, uri, invoice } = route.params || {};
   const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
@@ -61,6 +62,16 @@ const ScanLNDInvoice = () => {
     },
     root: {
       backgroundColor: colors.elevated,
+    },
+  });
+
+  const dynamicStyles = StyleSheet.create({
+    expiresIn: {
+      writingDirection: direction,
+      color: '#81868e',
+      fontSize: 12,
+      left: 20,
+      top: 10,
     },
   });
 
@@ -259,7 +270,7 @@ const ScanLNDInvoice = () => {
         {!isLoading && (
           <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
@@ -365,9 +376,9 @@ const ScanLNDInvoice = () => {
             </View>
             {expiresIn !== undefined && (
               <View>
-                <Text style={styles.expiresIn}>{expiresIn}</Text>
+                <Text style={dynamicStyles.expiresIn}>{expiresIn}</Text>
                 {decoded && decoded.num_satoshis > 0 && (
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
+                  <Text style={dynamicStyles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                 )}
               </View>
             )}
@@ -458,13 +469,6 @@ const styles = StyleSheet.create({
     color: '#81868e',
     fontWeight: '500',
     fontSize: 14,
-  },
-  expiresIn: {
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    color: '#81868e',
-    fontSize: 12,
-    left: 20,
-    top: 10,
   },
   addressInput: {
     marginHorizontal: 16,

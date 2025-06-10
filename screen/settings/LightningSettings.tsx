@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { Alert, I18nManager, Linking, StyleSheet } from 'react-native';
+import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { Alert, Linking, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueCard, BlueSpacing40, BlueText } from '../../BlueComponents';
@@ -19,21 +19,22 @@ import AddressInput from '../../components/AddressInput';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueLoading } from '../../components/BlueLoading';
 
-const styles = StyleSheet.create({
-  buttonStyle: {
-    backgroundColor: 'transparent',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
-});
-
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
+  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const { setParams } = useExtendedNavigation();
+
+  const dynamicStyles = StyleSheet.create({
+    buttonStyle: {
+      backgroundColor: 'transparent',
+      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+    },
+  });
 
   useEffect(() => {
     const fetchURI = async () => {
@@ -131,7 +132,7 @@ const LightningSettings: React.FC = () => {
         title="github.com/BlueWallet/LndHub"
         // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
         // color={colors.buttonTextColor}
-        buttonStyle={styles.buttonStyle}
+        buttonStyle={dynamicStyles.buttonStyle}
       />
 
       <BlueCard>

@@ -1,15 +1,6 @@
 import React from 'react';
-import {
-  ColorValue,
-  DimensionValue,
-  I18nManager,
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ColorValue, DimensionValue, Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLocale } from '@react-navigation/native';
 
 import loc from '../loc';
 import { Theme, useTheme } from './themes';
@@ -56,6 +47,7 @@ const buttonDetails: Record<string, ButtonDetails> = {
 const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress, size, active }) => {
   const details = buttonDetails[buttonType];
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const borderColor = active ? colors[details.borderColorActive] : colors.buttonDisabledBackgroundColor;
   const dynamicStyles = StyleSheet.create({
     buttonContainer: {
@@ -67,9 +59,15 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
     },
     textTitle: {
       color: colors[details.borderColorActive] as ColorValue,
+      fontWeight: 'bold',
+      fontSize: 18,
+      writingDirection: direction,
     },
     textExplain: {
       color: colors.alternativeTextColor,
+      fontSize: 13,
+      fontWeight: '500',
+      writingDirection: direction,
     },
   });
 
@@ -79,8 +77,8 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
         <View style={styles.content}>
           <Image style={styles.image} source={details.image} />
           <View style={styles.textContainer}>
-            <Text style={[styles.textTitle, dynamicStyles.textTitle]}>{details.title}</Text>
-            <Text style={[styles.textExplain, dynamicStyles.textExplain]}>{details.explain}</Text>
+            <Text style={dynamicStyles.textTitle}>{details.title}</Text>
+            <Text style={dynamicStyles.textExplain}>{details.explain}</Text>
           </View>
         </View>
       </View>
@@ -110,16 +108,6 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-  },
-  textTitle: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  textExplain: {
-    fontSize: 13,
-    fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
 });
 
