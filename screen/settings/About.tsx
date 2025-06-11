@@ -1,6 +1,6 @@
 import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from '@rneui/themed';
 import Rate, { AndroidMarket } from 'react-native-rate';
@@ -15,6 +15,7 @@ import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import BluePressable from '../../components/BluePressable';
 
 const branch = require('../../current-branch.json');
 
@@ -136,10 +137,10 @@ const About: React.FC = () => {
           <BlueTextCentered>Nodejs</BlueTextCentered>
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
-          <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
+          <BluePressable accessibilityRole="button" onPress={handleOnGithubPress} androidRippleBorderRadius={12} style={[styles.buttonLink, stylesHook.buttonLink]}>
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
-          </TouchableOpacity>
+          </BluePressable>
         </View>
       </BlueCard>
       <ListItem
@@ -210,7 +211,7 @@ const About: React.FC = () => {
       </BlueTextCentered>
       <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
-        <TouchableOpacity
+        <BluePressable
           accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'userId:' + getUniqueIdSync();
@@ -219,7 +220,7 @@ const About: React.FC = () => {
           }}
         >
           <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
-        </TouchableOpacity>
+        </BluePressable>
       </View>
       <BlueSpacing20 />
       <BlueSpacing20 />

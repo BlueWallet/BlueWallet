@@ -3,6 +3,7 @@ import React, { forwardRef } from 'react';
 import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
+import BluePressable from './components/BluePressable';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -21,7 +22,7 @@ if (aspectRatio > 1.6) {
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity
+    <BluePressable
       accessibilityRole="button"
       style={{
         minWidth: 100,
@@ -32,7 +33,7 @@ export const BlueButtonLink = forwardRef((props, ref) => {
       ref={ref}
     >
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
-    </TouchableOpacity>
+    </BluePressable>
   );
 });
 
