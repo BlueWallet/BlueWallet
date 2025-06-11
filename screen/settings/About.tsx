@@ -137,7 +137,12 @@ const About: React.FC = () => {
           <BlueTextCentered>Nodejs</BlueTextCentered>
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
-          <BluePressable accessibilityRole="button" onPress={handleOnGithubPress} androidRippleBorderRadius={12} style={[styles.buttonLink, stylesHook.buttonLink]}>
+          <BluePressable
+            accessibilityRole="button"
+            onPress={handleOnGithubPress}
+            androidRippleBorderRadius={12}
+            style={[styles.buttonLink, stylesHook.buttonLink]}
+          >
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </BluePressable>

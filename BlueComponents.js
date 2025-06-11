@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
 import BluePressable from './components/BluePressable';
