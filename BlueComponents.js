@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
 import BluePressable from './components/BluePressable';
@@ -130,14 +130,6 @@ export const BlueSpacing20 = props => {
 
 export const BlueSpacing10 = props => {
   return <View {...props} style={{ height: 10, opacity: 0 }} />;
-};
-
-export const BlueLoading = props => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
-      <ActivityIndicator />
-    </View>
-  );
 };
 
 export function BlueBigCheckmark({ style = {} }) {
