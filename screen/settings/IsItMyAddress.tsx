@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Keyboard, StyleSheet, TextInput, View, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View, ScrollView, Text, Pressable } from 'react-native';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -154,9 +154,9 @@ const IsItMyAddress: React.FC = () => {
             testID="AddressInput"
           />
           {address.length > 0 && (
-            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+            <Pressable onPress={clearAddressInput} style={styles.clearButton}>
               <Icon name="close" size={20} color="#81868e" />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 

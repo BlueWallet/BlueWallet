@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, I18nManager, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
 
@@ -21,18 +21,21 @@ if (aspectRatio > 1.6) {
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
-      style={{
-        minWidth: 100,
-        minHeight: 36,
-        justifyContent: 'center',
-      }}
+      style={({ pressed }) => [
+        {
+          minWidth: 100,
+          minHeight: 36,
+          justifyContent: 'center',
+        },
+        pressed && { opacity: 0.6 },
+      ]}
       {...props}
       ref={ref}
     >
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 });
 
