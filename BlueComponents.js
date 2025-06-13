@@ -21,19 +21,7 @@ if (aspectRatio > 1.6) {
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
-    <Pressable
-      accessibilityRole="button"
-      style={({ pressed }) => [
-        {
-          minWidth: 100,
-          minHeight: 36,
-          justifyContent: 'center',
-        },
-        pressed && { opacity: 0.6 },
-      ]}
-      {...props}
-      ref={ref}
-    >
+    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.blueButtonLink, pressed && styles.pressed]} {...props} ref={ref}>
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
     </Pressable>
   );
@@ -152,3 +140,14 @@ export function BlueBigCheckmark({ style = {} }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  blueButtonLink: {
+    minWidth: 100,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+});

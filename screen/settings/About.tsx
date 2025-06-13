@@ -139,8 +139,8 @@ const About: React.FC = () => {
           <Pressable
             accessibilityRole="button"
             onPress={handleOnGithubPress}
-            android_ripple={{ color: '#ccc' }}
-            style={({ pressed }) => [Platform.OS === 'ios' && pressed ? { opacity: 0.6 } : null, styles.buttonLink, stylesHook.buttonLink]}
+            android_ripple={{ color: colors.androidRippleColor }}
+            style={({ pressed }) => [Platform.OS === 'ios' && pressed ? styles.pressed : null, styles.buttonLink, stylesHook.buttonLink]}
           >
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
@@ -222,7 +222,7 @@ const About: React.FC = () => {
             A.logError('copied unique id');
             Clipboard.setString(stringToCopy);
           }}
-          style={({ pressed }) => [pressed && { opacity: 0.5 }]}
+          style={({ pressed }) => [pressed && styles.pressed]}
         >
           <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
         </Pressable>
@@ -283,5 +283,8 @@ const styles = StyleSheet.create({
   textLink: {
     marginLeft: 8,
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
