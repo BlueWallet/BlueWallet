@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useLocale, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -45,6 +45,7 @@ const LnurlPay: React.FC = () => {
   const { setParams, navigate } = useExtendedNavigation();
   const [amount, setAmount] = useState<string | undefined>();
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -177,7 +178,7 @@ const LnurlPay: React.FC = () => {
           onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
         >
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>

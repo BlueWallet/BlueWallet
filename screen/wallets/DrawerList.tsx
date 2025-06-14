@@ -245,6 +245,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
       automaticallyAdjustContentInsets={true}
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
+      directionalLockEnabled
     >
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       {isTotalBalanceEnabled && (

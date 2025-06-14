@@ -1,6 +1,7 @@
 import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
+import { useLocale } from '@react-navigation/native';
 import React, { useEffect, useMemo } from 'react';
-import { I18nManager, Animated, Easing } from 'react-native';
+import { Animated, Easing } from 'react-native';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
@@ -34,6 +35,7 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 
 const DrawerRoot = () => {
   const { sizeClass, isLargeScreen } = useSizeClass();
+  const { direction } = useLocale();
   useCompanionListeners();
 
   const getDrawerWidth = useMemo(() => {
@@ -49,7 +51,7 @@ const DrawerRoot = () => {
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
-      drawerPosition: I18nManager.isRTL ? 'right' : 'left',
+      drawerPosition: direction === 'rtl' ? 'right' : 'left',
       drawerStyle: {
         width: getDrawerWidth,
         height: '100%',
@@ -58,9 +60,10 @@ const DrawerRoot = () => {
       overlayColor: 'rgba(0,0,0,0.4)',
       swipeEnabled: false,
       drawerStatusBarAnimation: 'fade',
+
       ...getAnimationConfig(true),
     }),
-    [getDrawerWidth, isLargeScreen],
+    [getDrawerWidth, isLargeScreen, direction],
   );
 
   useEffect(() => {
