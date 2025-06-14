@@ -234,12 +234,6 @@ const WalletsList: React.FC = () => {
     [navigation],
   );
 
-  useEffect(() => {
-    refreshTransactions();
-    // es-lint-disable-next-line react-hooks/exhaustive-deps
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleClick = useCallback(
     (item?: TWallet) => {
       if (item?.getID) {
