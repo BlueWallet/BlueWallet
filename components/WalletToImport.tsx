@@ -1,6 +1,7 @@
 import React from 'react';
-import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from '@rneui/themed';
+import { useLocale } from '@react-navigation/native';
 
 import { useTheme } from './themes';
 
@@ -13,6 +14,7 @@ interface WalletToImportProp {
 
 const WalletToImport: React.FC<WalletToImportProp> = ({ title, subtitle, active, onPress }) => {
   const { colors } = useTheme();
+  const { direction } = useLocale();
 
   const stylesHooks = StyleSheet.create({
     root: {
@@ -21,11 +23,11 @@ const WalletToImport: React.FC<WalletToImportProp> = ({ title, subtitle, active,
     },
     title: {
       color: colors.newBlue,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      writingDirection: direction,
     },
     subtitle: {
       color: colors.alternativeTextColor,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      writingDirection: direction,
     },
   });
 

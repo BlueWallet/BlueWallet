@@ -1,7 +1,7 @@
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
-import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -21,6 +21,7 @@ const PleaseBackup: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const stylesHook = StyleSheet.create({
@@ -29,6 +30,7 @@ const PleaseBackup: React.FC = () => {
     },
     pleaseText: {
       color: colors.foregroundColor,
+      writingDirection: direction,
     },
   });
 
@@ -101,7 +103,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     fontSize: 16,
     fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
 });
 

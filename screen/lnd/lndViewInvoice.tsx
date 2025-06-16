@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RouteProp, useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import { BackHandler, I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useNavigation, useNavigationState, useRoute, useLocale } from '@react-navigation/native';
+import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -30,6 +30,7 @@ const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
+  const { direction } = useLocale();
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
@@ -236,7 +237,7 @@ const LNDViewInvoice = () => {
                 <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
-                    name={I18nManager.isRTL ? 'angle-left' : 'angle-right'}
+                    name={direction === 'rtl' ? 'angle-left' : 'angle-right'}
                     size={18}
                     type="font-awesome"
                     color={colors.alternativeTextColor}

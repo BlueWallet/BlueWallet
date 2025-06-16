@@ -1,11 +1,13 @@
 import React from 'react';
-import { I18nManager, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from './themes';
+import { useLocale } from '@react-navigation/native';
 
 const SeedWords = ({ seed }: { seed: string }) => {
   const words = seed.split(/\s/);
   const { colors } = useTheme();
+  const { direction } = useLocale();
 
   const stylesHook = StyleSheet.create({
     word: {
@@ -14,10 +16,14 @@ const SeedWords = ({ seed }: { seed: string }) => {
     wortText: {
       color: colors.labelText,
     },
+    secret: {
+      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      backgroundColor: colors.lightBorder,
+    },
   });
 
   return (
-    <View style={styles.secret}>
+    <View style={[styles.secret, stylesHook.secret]}>
       {words.map((secret, index) => {
         const text = `${index + 1}. ${secret}  `;
         return (
@@ -53,7 +59,6 @@ const styles = StyleSheet.create({
   secret: {
     flexWrap: 'wrap',
     justifyContent: 'center',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
   hiddenText: {
     height: 0,
