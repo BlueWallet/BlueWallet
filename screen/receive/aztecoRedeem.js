@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { I18nManager, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-import {  BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import Azteco from '../../class/azteco';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';

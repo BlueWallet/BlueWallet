@@ -27,7 +27,7 @@ import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import HighlightedText from './HighlightedText';
 import { BlueSpacing10 } from './BlueSpacing';
-import { useLocale } from "@react-navigation/native";
+import { useLocale } from '@react-navigation/native';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
