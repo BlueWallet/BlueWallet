@@ -1,8 +1,9 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
+import { useLocale } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -42,10 +43,11 @@ export const BlueCard = props => {
 
 export const BlueText = ({ bold = false, ...props }) => {
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const style = StyleSheet.compose(
     {
       color: colors.foregroundColor,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      writingDirection: direction,
       fontWeight: bold ? 'bold' : 'normal',
     },
     props.style,
@@ -60,6 +62,7 @@ export const BlueTextCentered = props => {
 
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
+  const { direction } = useLocale();
 
   return (
     <Text
@@ -68,7 +71,7 @@ export const BlueFormLabel = props => {
         color: colors.foregroundColor,
         fontWeight: '400',
         marginHorizontal: 20,
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        writingDirection: direction,
       }}
     />
   );
@@ -113,14 +116,6 @@ export class is {
     return isIpad;
   }
 }
-
-export const BlueLoading = props => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
-      <ActivityIndicator />
-    </View>
-  );
-};
 
 export function BlueBigCheckmark({ style = {} }) {
   const defaultStyles = {

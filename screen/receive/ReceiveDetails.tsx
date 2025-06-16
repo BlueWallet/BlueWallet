@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, InteractionManager, LayoutAnimation, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, InteractionManager, LayoutAnimation, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -17,7 +17,6 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SafeArea from '../../components/SafeArea';
 import SegmentedControl from '../../components/SegmentControl';
 import { useTheme } from '../../components/themes';
 import TipBox from '../../components/TipBox';
@@ -32,9 +31,36 @@ import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsSta
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { SuccessView } from '../send/success';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 const HORIZONTAL_PADDING = 20;
+
+type StickyHeaderProps = {
+  wallet: any;
+  isBIP47Enabled: boolean;
+  tabValues: string[];
+  currentTab: string;
+  setCurrentTab: (tab: string) => void;
+  backgroundColor: string;
+};
+
+const StickyHeader = React.memo(({ wallet, isBIP47Enabled, tabValues, currentTab, setCurrentTab, backgroundColor }: StickyHeaderProps) => {
+  if (!wallet || !isBIP47Enabled) return null;
+
+  return (
+    <View style={[styles.tabsContainer, { backgroundColor }]}>
+      <SegmentedControl
+        values={tabValues}
+        selectedIndex={tabValues.findIndex(tab => tab === currentTab)}
+        onChange={index => {
+          setCurrentTab(tabValues[index]);
+        }}
+      />
+    </View>
+  );
+});
 
 type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
@@ -509,20 +535,9 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <View style={styles.flex}>
-      {wallet && isBIP47Enabled ? (
-        <SafeArea style={styles.tabsContainer}>
-          <SegmentedControl
-            values={segmentControlValues}
-            selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-            onChange={index => {
-              setCurrentTab(segmentControlValues[index]);
-            }}
-          />
-        </SafeArea>
-      ) : null}
-      <ScrollView
-        automaticallyAdjustContentInsets
+    <View style={[styles.flex, stylesHook.root]}>
+      <SafeAreaScrollView
+        centerContent
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustsScrollIndicatorInsets
         automaticallyAdjustKeyboardInsets
@@ -531,40 +546,49 @@ const ReceiveDetails = () => {
         contentContainerStyle={[styles.root, stylesHook.root]}
         keyboardShouldPersistTaps="always"
         onLayout={onLayout}
+        stickyHeaderIndices={wallet && isBIP47Enabled ? [0] : []}
       >
-        <SafeArea style={stylesHook.root}>
-          {showAddress && renderTabContent()}
-          {showAddress && address !== undefined && (
-            <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
-          )}
-          {showConfirmedBalance && renderConfirmedBalance()}
-          {showPendingBalance && renderPendingBalance()}
+        {wallet && isBIP47Enabled && (
+          <StickyHeader
+            wallet={wallet}
+            isBIP47Enabled={isBIP47Enabled}
+            tabValues={segmentControlValues}
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            backgroundColor={colors.elevated}
+          />
+        )}
+        {showAddress && renderTabContent()}
+        {showAddress && address !== undefined && (
+          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
+        )}
+        {showConfirmedBalance && renderConfirmedBalance()}
+        {showPendingBalance && renderPendingBalance()}
 
-          {!showAddress && !showPendingBalance && !showConfirmedBalance && (
-            <View style={styles.loadingContainer}>
-              <BlueLoading />
-            </View>
-          )}
-
-          <View style={styles.share}>
-            <BlueCard>
-              {showAddress && currentTab === loc.wallets.details_address && (
-                <BlueButtonLink
-                  style={styles.link}
-                  testID="SetCustomAmountButton"
-                  title={loc.receive.details_setAmount}
-                  onPress={showCustomAmountModal}
-                />
-              )}
-              <Button
-                onPress={handleShareButtonPressed}
-                title={loc.receive.details_share}
-                disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
-              />
-            </BlueCard>
+        {!showAddress && !showPendingBalance && !showConfirmedBalance && (
+          <View style={styles.loadingContainer}>
+            <BlueLoading />
           </View>
-        </SafeArea>
-      </ScrollView>
+        )}
+
+        <View style={styles.share}>
+          <BlueCard>
+            {showAddress && currentTab === loc.wallets.details_address && (
+              <BlueButtonLink
+                style={styles.link}
+                testID="SetCustomAmountButton"
+                title={loc.receive.details_setAmount}
+                onPress={showCustomAmountModal}
+              />
+            )}
+            <Button
+              onPress={handleShareButtonPressed}
+              title={loc.receive.details_share}
+              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
+            />
+          </BlueCard>
+        </View>
+      </SafeAreaScrollView>
 
       <BottomModal
         ref={bottomModalRef}
@@ -641,16 +665,19 @@ const styles = StyleSheet.create({
   tabsContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: Platform.OS === 'ios' ? 'transparent' : undefined,
   },
   scrollBody: {
-    flexGrow: 1,
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   share: {
     width: '100%',
     paddingHorizontal: 32,
-    marginVertical: 16,
-    marginTop: 'auto',
+    marginBottom: 16,
   },
   link: {
     marginVertical: 16,

@@ -225,8 +225,6 @@
     "about_sm_discord": "Serveur discord",
     "about_sm_telegram": "Chaîne Telegram",
     "about_sm_twitter": "Nous suivre sur Twitter",
-    "privacy_temporary_screenshots": "Autorise copie écran",
-    "privacy_temporary_screenshots_instructions": "La protection contre la capture d'écran sera désactivée pour cette session, ce qui vous permettra de prendre des captures d'écran. Une fois l'application fermée et rouverte, la protection sera automatiquement réactivée.",
     "biometrics": "Biométrie",
     "biometrics_no_longer_available": "Les paramètres de votre appareil ont changé et ne correspondent plus aux paramètres de sécurité sélectionnés dans l'application. Veuillez réactiver la biométrie ou le mot de passe, puis redémarrer l'application pour appliquer ces modifications.",
     "biom_10times": "Vous avez tenter d'entrer votre mots de passe 10 fois. Voulez vous réinitialiser votre espace de stockage ? Ceci effacera tous les portefeuilles et déchiffrera votre espace de stockage.",

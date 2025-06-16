@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -13,6 +13,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading.tsx';
 
 type LnurlPaySuccessRouteProp = RouteProp<DetailViewStackParamList, 'LnurlPaySuccess'>;
 type LnurlPaySuccessNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'LnurlPaySuccess'>;

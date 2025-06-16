@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
+import { Linking, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import {
   getDefaultUri,
@@ -28,31 +28,28 @@ import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { useLocale } from '@react-navigation/native';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
+  const { direction } = useLocale();
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
-  const stylesWithThemeHook = {
-    root: {
-      backgroundColor: colors.background,
-    },
+  const stylesWithThemeHook = StyleSheet.create({
     scroll: {
       backgroundColor: colors.background,
     },
-    scrollBody: {
-      backgroundColor: colors.background,
-    },
+
     uri: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
-  };
-
+    buttonStyles: { flexDirection: direction === 'rtl' ? 'row-reverse' : 'row' },
+  });
   const handleTap = () => {
     setTapCount(prevCount => prevCount + 1);
   };
@@ -231,7 +228,7 @@ const NotificationSettings: React.FC = () => {
             titleStyle={{ color: colors.buttonAlternativeTextColor }}
             title="github.com/BlueWallet/GroundControl"
             color={colors.buttonTextColor}
-            buttonStyle={styles.buttonStyle}
+            buttonStyle={[styles.buttonStyle, stylesWithThemeHook.buttonStyles]}
           />
 
           <BlueCard>
@@ -295,7 +292,6 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     backgroundColor: 'transparent',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
   multilineText: {
     textAlign: 'left',

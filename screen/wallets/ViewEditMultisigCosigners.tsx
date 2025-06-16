@@ -18,7 +18,7 @@ import {
 import { Badge, Icon } from '@rneui/themed';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueCard, BlueFormMultiInput, BlueLoading, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
@@ -46,6 +46,7 @@ import { TWallet } from '../../class/wallets/types';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;

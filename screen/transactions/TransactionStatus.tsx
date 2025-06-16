@@ -5,7 +5,7 @@ import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, Vie
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
@@ -24,6 +24,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
 
 enum ButtonStatus {
   Possible,

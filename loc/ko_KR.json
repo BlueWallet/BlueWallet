@@ -208,8 +208,6 @@
     "about_sm_discord": "디스코드 서버",
     "about_sm_telegram": "텔레그램 채널",
     "about_sm_twitter": "트위터에서 팔로우해주세요.",
-    "privacy_temporary_screenshots": "스크린샷 허용",
-    "privacy_temporary_screenshots_instructions": "이 세션 동안 스크린샷 방지 기능이 비활성화됩니다. 앱을 종료한 후 다시 열면 스크린샷 방지 기능이 자동으로 활성화됩니다.",
     "biometrics": "바이오메트릭",
     "biom_10times": "비밀번호를 10번 실패했습니다. 스토리지를 초기화시키겠습니까? 이는 모든 월렛을 지우고 스토리지를 암호화합니다. ",
     "biom_conf_identity": "개인정보를 확인하세요",

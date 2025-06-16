@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { Alert, I18nManager, Linking, StyleSheet } from 'react-native';
+import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { Alert, Linking, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
@@ -18,22 +18,24 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
-
-const styles = StyleSheet.create({
-  buttonStyle: {
-    backgroundColor: 'transparent',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
-});
+import { BlueLoading } from '../../components/BlueLoading';
 
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
+  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const { setParams } = useExtendedNavigation();
+
+  const stylesHook = StyleSheet.create({
+    buttonStyle: {
+      backgroundColor: 'transparent',
+      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+    },
+  });
 
   useEffect(() => {
     const fetchURI = async () => {
@@ -131,7 +133,7 @@ const LightningSettings: React.FC = () => {
         title="github.com/BlueWallet/LndHub"
         // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
         // color={colors.buttonTextColor}
-        buttonStyle={styles.buttonStyle}
+        buttonStyle={stylesHook.buttonStyle}
       />
 
       <BlueCard>

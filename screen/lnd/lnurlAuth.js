@@ -1,9 +1,9 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
-import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import URL from 'url';
-import { BlueCard, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -14,6 +14,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -25,6 +26,7 @@ const AuthState = {
 const LnurlAuth = () => {
   const { wallets } = useStorage();
   const { name } = useRoute();
+  const { direction } = useLocale();
   const { walletID, lnurl } = useRoute().params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
@@ -74,7 +76,7 @@ const LnurlAuth = () => {
       {authState !== AuthState.IN_PROGRESS && (
         <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          <Icon name={direction === 'rlt' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>

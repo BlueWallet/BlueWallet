@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { Share, StyleSheet, View } from 'react-native';
-import { BlueLoading, BlueText } from '../../BlueComponents';
+import {  BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -13,6 +13,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { LightningCustodianWallet } from '../../class';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteParams = {
   params: {
