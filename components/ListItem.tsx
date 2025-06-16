@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
+import { useLocale } from '@react-navigation/native';
 
 import { useTheme } from './themes';
 
@@ -86,16 +87,17 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     swipeableRightContent,
   }: ListItemProps) => {
     const { colors } = useTheme();
+    const { direction } = useLocale();
     const stylesHook = StyleSheet.create({
       title: {
         color: disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
         fontSize: 16,
         fontWeight: '500',
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        writingDirection: direction,
       },
       subtitle: {
         flexWrap: 'wrap',
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        writingDirection: direction,
         color: colors.alternativeTextColor,
         fontWeight: '400',
         paddingVertical: switchProps ? 8 : 0,
@@ -152,7 +154,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           <ActivityIndicator />
         ) : (
           <>
-            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
+            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
             {rightIcon && <Avatar icon={rightIcon} />}
             {switchProps && (
               <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />

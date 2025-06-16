@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
-  I18nManager,
   Image,
   Keyboard,
   Platform,
@@ -40,6 +39,7 @@ const LNDCreateInvoice = () => {
   const { navigate, getParent, goBack, pop, setParams } = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
   const [amount, setAmount] = useState();
+  const { direction } = useLocale();
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
@@ -351,7 +351,7 @@ const LNDCreateInvoice = () => {
         {!isLoading && (
           <TouchableOpacity accessibilityRole="button" style={styles.walletChooseWrap} onPress={navigateToSelectWallet}>
             <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>
