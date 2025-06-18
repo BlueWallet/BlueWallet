@@ -16,7 +16,7 @@ import { Icon } from '@rneui/themed';
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -43,6 +43,7 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 const staticCache = {};
 

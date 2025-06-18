@@ -16,7 +16,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { BlueSpacing20 } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
@@ -24,6 +23,7 @@ import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;

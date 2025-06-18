@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
-import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
@@ -12,6 +11,7 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import HeaderRightButton from '../../components/HeaderRightButton';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'MultisigAdvanced'>;
 type RouteProps = RouteProp<AddWalletStackParamList, 'MultisigAdvanced'>;

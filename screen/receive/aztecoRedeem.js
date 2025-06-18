@@ -2,12 +2,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { I18nManager, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-import { BlueSpacing, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import Azteco from '../../class/azteco';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
+import { BlueSpacing } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 
 const styles = StyleSheet.create({
