@@ -8,9 +8,9 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { BlueSpacing20 } from '../../BlueComponents';
 import { isDesktop } from '../../blue_modules/environment';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 enum SettingsPrivacySection {
   None,

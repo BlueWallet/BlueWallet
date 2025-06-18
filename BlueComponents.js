@@ -111,28 +111,11 @@ export const BlueFormMultiInput = props => {
   );
 };
 
-export const BlueSpacing = props => {
-  return <View {...props} style={{ height: 60 }} />;
-};
-
-export const BlueSpacing40 = props => {
-  return <View {...props} style={{ height: 50 }} />;
-};
-
 export class is {
   static ipad() {
     return isIpad;
   }
 }
-
-export const BlueSpacing20 = props => {
-  const { horizontal = false } = props;
-  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
-};
-
-export const BlueSpacing10 = props => {
-  return <View {...props} style={{ height: 10, opacity: 0 }} />;
-};
 
 export function BlueBigCheckmark({ style = {} }) {
   const defaultStyles = {
