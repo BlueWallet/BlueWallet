@@ -80,7 +80,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.27.2",
-    "@bugsnag/react-native": "8.3.1",
+    "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.0",
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#5945184a2fea9fe5ba8f5cfcdb20e3fc5eed6e37",
