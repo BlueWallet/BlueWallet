@@ -18,7 +18,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { navigationRouteFor } from '../../navigation/LinkingConfig';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,7 +31,7 @@ type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
-  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { direction } = useLocale();
@@ -137,7 +137,10 @@ const ScanLNDInvoice = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
-        setTimeout(() => presentAlert({ message: Err.message, hapticFeedback: HapticFeedbackTypes.NotificationError }), 10);
+        if (Err && Err.message) {
+          console.log(Err.message);
+          setTimeout(() => presentAlert({ message: Err.message, hapticFeedback: HapticFeedbackTypes.NotificationError }), 10);
+        }
         setIsLoading(false);
         setAmount(undefined);
         setDestination('');
@@ -303,12 +306,21 @@ const ScanLNDInvoice = () => {
   const onBarScanned = useCallback(
     (value: string): void => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, (completionValue: any) => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        navigate(...completionValue);
-      });
+      navigationRouteFor(
+        { url: value },
+        (completionValue: any) => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          navigate(...completionValue);
+        },
+        {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        },
+      );
     },
-    [navigate],
+    [navigate, wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   useEffect(() => {

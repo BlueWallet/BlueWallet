@@ -11,6 +11,7 @@ import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
+import { updateWalletContext, updateLinkingContext } from '../../navigation/LinkingConfig';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -310,6 +311,20 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWallets(BlueApp.getWallets());
     }
   }, [walletsInitialized]);
+
+  // Update LinkingConfig whenever wallets change
+  useEffect(() => {
+    updateWalletContext(wallets);
+  }, [wallets]);
+
+  // Update LinkingConfig with storage context functions
+  useEffect(() => {
+    updateLinkingContext({
+      saveToDisk,
+      addWallet,
+      setSharedCosigner: setCurrentSharedCosigner,
+    });
+  }, [saveToDisk, addWallet]);
 
   // Add a refresh lock to prevent concurrent refreshes
   const refreshingRef = useRef<boolean>(false);

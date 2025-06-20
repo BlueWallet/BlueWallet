@@ -1,4 +1,3 @@
-import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import A from '../blue_modules/analytics';
@@ -14,20 +13,18 @@ import {
   setApplicationIconBadgeNumber,
 } from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
-import { navigationRef } from '../NavigationService';
+import { processNotificationsWithNavigation, isBitcoinUri, isLightningUri } from '../navigation/LinkingConfig';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
-import RNQRGenerator from 'rn-qr-generator';
-import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 import { useExtendedNavigation } from './useExtendedNavigation';
+import Lnurl from '../class/lnurl';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -38,15 +35,7 @@ const ClipboardContentType = Object.freeze({
  * Hook that initializes all companion listeners and functionality without rendering a component
  */
 const useCompanionListeners = (skipIfNotInitialized = true) => {
-  const {
-    wallets,
-    addWallet,
-    saveToDisk,
-    fetchAndSaveWalletTransactions,
-    refreshAllWalletTransactions,
-    setSharedCosigner,
-    walletsInitialized,
-  } = useStorage();
+  const { wallets, refreshAllWalletTransactions, walletsInitialized } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
   const navigation = useExtendedNavigation();
@@ -68,10 +57,12 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
     await new Promise(resolve => setTimeout(resolve, 200));
     try {
+      // Get and clear stored notifications
       const notifications2process = await getStoredNotifications();
       await clearStoredNotifications();
       setApplicationIconBadgeNumber(0);
 
+      // Get delivered notifications and schedule cleanup
       const deliveredNotifications = await getDeliveredNotifications();
       setTimeout(async () => {
         try {
@@ -81,105 +72,59 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         }
       }, 5000);
 
-      // Process notifications
-      for (const payload of notifications2process) {
-        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+      console.log('🔔 Processing notifications:', {
+        stored: notifications2process.length,
+        delivered: deliveredNotifications.length,
+      });
 
-        console.log('processing push notification:', payload);
-        let wallet;
-        switch (+payload.type) {
-          case 2:
-          case 3:
-            wallet = wallets.find(w => w.weOwnAddress(payload.address));
-            break;
-          case 1:
-          case 4:
-            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-            break;
-        }
+      // Process stored notifications using centralized logic
+      let didNavigate = false;
+      if (notifications2process.length > 0) {
+        await processNotificationsWithNavigation(notifications2process, wallets, action => {
+          navigation.dispatch(action);
+          didNavigate = true;
+        });
+      }
 
-        if (wallet) {
-          const walletID = wallet.getID();
-          fetchAndSaveWalletTransactions(walletID);
-          if (wasTapped) {
-            if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-              navigation.navigate('WalletTransactions', {
-                walletID,
-                walletType: wallet.type,
-              });
-            } else {
-              navigation.navigate('ReceiveDetails', {
-                walletID,
-                address: payload.address,
-              });
-            }
+      // Process delivered notifications if no navigation occurred yet
+      if (!didNavigate && deliveredNotifications.length > 0) {
+        // Convert delivered notifications to our format if needed
+        const deliveredAsPayloads = deliveredNotifications
+          .map(notification => {
+            // Try to extract notification data from the delivered notification format
+            const payload = notification.data || notification;
+            return {
+              foreground: false, // Delivered notifications are considered tapped
+              userInteraction: true,
+              address: payload.address || '',
+              txid: payload.txid || '',
+              type: payload.type || 0,
+              hash: payload.hash || '',
+              subText: payload.subText || notification.title || '',
+              message: payload.message || notification.body || '',
+            };
+          })
+          .filter(payload => payload.address || payload.txid || payload.hash); // Only valid notifications
 
-            return true;
-          }
-        } else {
-          console.log('could not find wallet while processing push notification, NOP');
+        if (deliveredAsPayloads.length > 0) {
+          await processNotificationsWithNavigation(deliveredAsPayloads, wallets, action => {
+            navigation.dispatch(action);
+            didNavigate = true;
+          });
         }
       }
 
-      if (deliveredNotifications.length > 0) {
-        for (const payload of deliveredNotifications) {
-          const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
-
-          console.log('processing push notification:', payload);
-          let wallet;
-          switch (+payload.type) {
-            case 2:
-            case 3:
-              wallet = wallets.find(w => w.weOwnAddress(payload.address));
-              break;
-            case 1:
-            case 4:
-              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-              break;
-          }
-
-          if (wallet) {
-            const walletID = wallet.getID();
-            fetchAndSaveWalletTransactions(walletID);
-            if (wasTapped) {
-              if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-                navigationRef.dispatch(
-                  CommonActions.navigate({
-                    name: 'WalletTransactions',
-                    params: {
-                      walletID,
-                      walletType: wallet.type,
-                    },
-                  }),
-                );
-              } else {
-                navigationRef.dispatch(
-                  CommonActions.navigate({
-                    name: 'ReceiveDetails',
-                    params: {
-                      walletID,
-                      address: payload.address,
-                    },
-                  }),
-                );
-              }
-
-              return true;
-            }
-          } else {
-            console.log('could not find wallet while processing push notification, NOP');
-          }
-        }
-      }
-
+      // Refresh all wallet transactions if we had any notifications
       if (deliveredNotifications.length > 0) {
         refreshAllWalletTransactions();
       }
+
+      return didNavigate;
     } catch (error) {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, navigation, refreshAllWalletTransactions]);
+  }, [shouldActivateListeners, wallets, navigation, refreshAllWalletTransactions]);
 
   useEffect(() => {
     if (!shouldActivateListeners) return;
@@ -188,66 +133,8 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldActivateListeners]);
 
-  const handleOpenURL = useCallback(
-    async (event: { url: string }): Promise<void> => {
-      if (!shouldActivateListeners) return;
-
-      try {
-        if (!event.url) return;
-        let decodedUrl: string;
-        try {
-          decodedUrl = decodeURIComponent(event.url);
-        } catch (e) {
-          console.error('Failed to decode URL, using original', e);
-          decodedUrl = event.url;
-        }
-        const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let qrResult;
-          try {
-            qrResult = await RNQRGenerator.detect({ uri: decodedUrl });
-          } catch (e) {
-            console.error('QR detection first attempt failed:', e);
-          }
-          if (!qrResult || !qrResult.values || qrResult.values.length === 0) {
-            const altUrl = decodedUrl.replace(/^file:\/\//, '');
-            try {
-              qrResult = await RNQRGenerator.detect({ uri: altUrl });
-            } catch (e) {
-              console.error('QR detection second attempt failed:', e);
-            }
-          }
-          if (qrResult?.values?.length) {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-            DeeplinkSchemaMatch.navigationRouteFor(
-              { url: qrResult.values[0] },
-              (value: [string, any]) => navigationRef.navigate(...value),
-              {
-                wallets,
-                addWallet,
-                saveToDisk,
-                setSharedCosigner,
-              },
-            );
-          } else {
-            throw new Error(loc.send.qr_error_no_qrcode);
-          }
-        } else {
-          DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
-        }
-      } catch (err: any) {
-        console.error('Error in handleOpenURL:', err);
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
-      }
-    },
-    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
-  );
+  // URL handling is now done by React Navigation's LinkingConfig
+  // This eliminates the conflict between multiple URL event listeners
 
   const showClipboardAlert = useCallback(
     ({ contentType }: { contentType: undefined | string }) => {
@@ -268,14 +155,16 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
               case 0:
                 break;
               case 1:
-                handleOpenURL({ url: clipboard });
+                // Route through React Navigation's linking system instead of handling locally
+                // This ensures consistency with other deep link handling
+                Linking.openURL(clipboard);
                 break;
             }
           },
         );
       });
     },
-    [handleOpenURL, shouldActivateListeners],
+    [shouldActivateListeners],
   );
 
   const handleAppStateChange = useCallback(
@@ -296,19 +185,23 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             return (wallet as LightningCustodianWallet).isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
           }
         });
-        const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
-        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
-        const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
-        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
+        // Check for URI patterns that should be handled by React Navigation 7
+        const clipboardHasBitcoinUri = isBitcoinUri(clipboard);
+
+        const clipboardHasLightningUri = isLightningUri(clipboard);
+
+        const isLNURL = Lnurl.isLnurl(clipboard);
+        const isBothBitcoinAndLightning = false; // Simplified - both Bitcoin and Lightning handling is complex and rare
+
         if (
           !isAddressFromStoredWallet &&
           clipboardContent.current !== clipboard &&
-          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
+          (clipboardHasBitcoinUri || clipboardHasLightningUri || isLNURL || isBothBitcoinAndLightning)
         ) {
           let contentType;
-          if (isBitcoinAddress) {
+          if (clipboardHasBitcoinUri) {
             contentType = ClipboardContentType.BITCOIN;
-          } else if (isLightningInvoice || isLNURL) {
+          } else if (clipboardHasLightningUri || isLNURL) {
             contentType = ClipboardContentType.LIGHTNING;
           } else if (isBothBitcoinAndLightning) {
             contentType = ClipboardContentType.BITCOIN;
@@ -327,20 +220,21 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   const addListeners = useCallback(() => {
     if (!shouldActivateListeners) return { urlSubscription: null, appStateSubscription: null };
 
-    const urlSubscription = Linking.addEventListener('url', handleOpenURL);
+    // URL events are now handled by React Navigation's LinkingConfig
+    // No need to listen for URL events here as they should go through the navigation system
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
 
     return {
-      urlSubscription,
+      urlSubscription: null, // No longer listening for URL events
       appStateSubscription,
     };
-  }, [handleOpenURL, handleAppStateChange, shouldActivateListeners]);
+  }, [handleAppStateChange, shouldActivateListeners]);
 
   useEffect(() => {
     const subscriptions = addListeners();
 
     return () => {
-      subscriptions.urlSubscription?.remove?.();
+      // URL subscription is no longer used - handled by React Navigation
       subscriptions.appStateSubscription?.remove?.();
     };
   }, [addListeners]);

@@ -168,33 +168,43 @@ const ScanQRCode = () => {
   };
 
   const onBarCodeRead = (ret: { data: string }) => {
+    console.log('📱 onBarCodeRead: Received QR data:', ret.data);
+    console.log('📱 onBarCodeRead: launchedBy:', launchedBy);
+    console.log('📱 onBarCodeRead: onBarScanned callback exists:', !!onBarScanned);
+    
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
+      console.log('📱 onBarCodeRead: Data already scanned, ignoring duplicate');
       return;
     }
     scannedCache[h] = +new Date();
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-ACCOUNT')) {
+      console.log('📱 onBarCodeRead: Processing UR:CRYPTO-ACCOUNT');
       return _onReadUniformResourceV2(ret.data);
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
+      console.log('📱 onBarCodeRead: Processing UR:CRYPTO-PSBT');
       return _onReadUniformResourceV2(ret.data);
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
+      console.log('📱 onBarCodeRead: Processing UR:CRYPTO-OUTPUT');
       return _onReadUniformResourceV2(ret.data);
     }
 
     if (ret.data.toUpperCase().startsWith('UR:BYTES')) {
       const splitted = ret.data.split('/');
       if (splitted.length === 3 && splitted[1].includes('-')) {
+        console.log('📱 onBarCodeRead: Processing UR:BYTES');
         return _onReadUniformResourceV2(ret.data);
       }
     }
 
     if (ret.data.toUpperCase().startsWith('UR')) {
+      console.log('📱 onBarCodeRead: Processing UR');
       return _onReadUniformResource(ret.data);
     }
 
@@ -204,29 +214,34 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = Buffer.from(hex, 'hex').toString('base64');
 
+      console.log('📱 onBarCodeRead: Processed as base43, navigating back with data');
       if (launchedBy) {
         const merge = true;
         const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
         if (onBarScanned) {
+          console.log('📱 onBarCodeRead: Calling onBarScanned callback with base43 data');
           onBarScanned(data);
         }
         navigation.dispatch(popToAction);
       }
       return;
     } catch (_) {
+      console.log('📱 onBarCodeRead: Not base43, processing as regular data');
       if (!isLoading && launchedBy) {
         setIsLoading(true);
         try {
           const merge = true;
 
+          console.log('📱 onBarCodeRead: Navigating back with regular data:', ret.data);
           const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge });
           if (onBarScanned) {
+            console.log('📱 onBarCodeRead: Calling onBarScanned callback with regular data');
             onBarScanned(ret.data);
           }
 
           navigation.dispatch(popToAction);
         } catch (e) {
-          console.log(e);
+          console.log('📱 onBarCodeRead: Error during navigation:', e);
         }
       }
     }
@@ -241,13 +256,28 @@ const ScanQRCode = () => {
   };
 
   const onShowImagePickerButtonPress = () => {
+    console.log('📱 onShowImagePickerButtonPress: Starting image picker flow');
     if (!isLoading) {
       setIsLoading(true);
       fs.showImagePickerAndReadImage()
         .then(data => {
-          if (data) onBarCodeRead({ data });
+          console.log('📱 onShowImagePickerButtonPress: Image picker returned data:', data);
+          if (data) {
+            console.log('📱 onShowImagePickerButtonPress: Calling onBarCodeRead with data');
+            onBarCodeRead({ data });
+          } else {
+            console.log('📱 onShowImagePickerButtonPress: No data returned from image picker');
+          }
         })
-        .finally(() => setIsLoading(false));
+        .catch(error => {
+          console.error('📱 onShowImagePickerButtonPress: Error from image picker:', error);
+        })
+        .finally(() => {
+          console.log('📱 onShowImagePickerButtonPress: Finished, setting loading to false');
+          setIsLoading(false);
+        });
+    } else {
+      console.log('📱 onShowImagePickerButtonPress: Already loading, ignoring request');
     }
   };
 

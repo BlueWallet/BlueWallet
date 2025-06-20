@@ -3,7 +3,6 @@ import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInp
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import loc from '../../loc';
@@ -421,11 +420,8 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const onBarScanned = (value: string) => {
-    let v = value;
-    if (value && DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
-      v = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value) as string;
-    }
-    const [scannedHost, scannedPort, type] = v?.split(':') ?? [];
+    // Direct server string input - just parse the server format
+    const [scannedHost, scannedPort, type] = value?.split(':') ?? [];
     setHost(scannedHost);
     if (type === 's') {
       setSslPort(Number(scannedPort));

@@ -4,7 +4,6 @@ import { Alert, Linking, StyleSheet } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueCard, BlueSpacing40, BlueText } from '../../BlueComponents';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -76,11 +75,10 @@ const LightningSettings: React.FC = () => {
   }, [params?.url]);
 
   const setLndhubURI = (value: string) => {
-    // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
-    const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
-
-    setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
+    // Direct input - just set the value
+    setURI(value.trim());
   };
+
   const save = useCallback(async () => {
     setIsLoading(true);
     let normalizedURI;

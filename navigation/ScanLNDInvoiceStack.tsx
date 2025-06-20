@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
@@ -17,7 +17,12 @@ const ScanLNDInvoiceRoot = () => {
       <Stack.Screen
         name="ScanLNDInvoice"
         component={ScanLNDInvoiceComponent}
-        options={navigationStyle({ headerBackVisible: false, title: loc.send.header, statusBarStyle: 'light' })(theme)}
+        options={navigationStyle({
+          headerBackVisible: false,
+          title: loc.send.header,
+          statusBarStyle: 'light',
+          closeButtonPosition: CloseButtonPosition.Left,
+        })(theme)}
         initialParams={{ uri: undefined, walletID: undefined, invoice: undefined }}
       />
       <Stack.Screen

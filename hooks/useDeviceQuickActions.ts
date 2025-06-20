@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import { navigationRouteFor, hasDeepLinkSchema } from '../navigation/LinkingConfig';
 import { TWallet } from '../class/wallets/types';
 import useOnAppLaunch from '../hooks/useOnAppLaunch';
 import { formatBalance } from '../loc';
@@ -92,7 +92,7 @@ const useDeviceQuickActions = () => {
     } else {
       const url = await Linking.getInitialURL();
       if (url) {
-        if (DeeplinkSchemaMatch.hasSchema(url)) {
+        if (hasDeepLinkSchema(url)) {
           handleOpenURL({ url });
         }
       } else {
@@ -116,7 +116,7 @@ const useDeviceQuickActions = () => {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
+    navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
       wallets,
       addWallet,
       saveToDisk,

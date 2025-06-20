@@ -104,6 +104,7 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
 };
 
 export const showImagePickerAndReadImage = async (): Promise<string | undefined> => {
+  console.log('📷 showImagePickerAndReadImage: Starting image picker flow');
   try {
     const response: ImagePickerResponse = await launchImageLibrary({
       mediaType: 'photo',
@@ -112,29 +113,55 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
       selectionLimit: 1,
     });
 
+    console.log('📷 showImagePickerAndReadImage: Image picker response:', {
+      didCancel: response.didCancel,
+      errorCode: response.errorCode,
+      errorMessage: response.errorMessage,
+      assetsCount: response.assets?.length || 0,
+    });
+
     if (response.didCancel) {
+      console.log('📷 showImagePickerAndReadImage: User cancelled image picker');
       return undefined;
     } else if (response.errorCode) {
+      console.error('📷 showImagePickerAndReadImage: Image picker error:', response.errorMessage);
       throw new Error(response.errorMessage);
     } else if (response.assets) {
       try {
         const uri = response.assets[0].uri;
+        console.log('📷 showImagePickerAndReadImage: Processing image URI:', uri);
+        
         if (uri) {
-          const result = await RNQRGenerator.detect({ uri: decodeURI(uri.toString()) });
+          const decodedUri = decodeURI(uri.toString());
+          console.log('📷 showImagePickerAndReadImage: Decoded URI:', decodedUri);
+          
+          console.log('📷 showImagePickerAndReadImage: Starting QR code detection...');
+          const result = await RNQRGenerator.detect({ uri: decodedUri });
+          
+          console.log('📷 showImagePickerAndReadImage: QR detection result:', {
+            values: result?.values,
+            valuesLength: result?.values?.length || 0,
+          });
+          
           if (result?.values.length > 0) {
-            return result?.values[0];
+            const detectedValue = result.values[0];
+            console.log('📷 showImagePickerAndReadImage: Successfully detected QR code:', detectedValue);
+            return detectedValue;
           }
         }
+        
+        console.warn('📷 showImagePickerAndReadImage: No QR code found in image');
         throw new Error(loc.send.qr_error_no_qrcode);
       } catch (error) {
-        console.error(error);
+        console.error('📷 showImagePickerAndReadImage: Error processing QR code:', error);
         presentAlert({ message: loc.send.qr_error_no_qrcode });
       }
     }
 
+    console.log('📷 showImagePickerAndReadImage: Returning undefined (no result)');
     return undefined;
   } catch (error: any) {
-    console.error(error);
+    console.error('📷 showImagePickerAndReadImage: Top-level error:', error);
     throw error;
   }
 };
