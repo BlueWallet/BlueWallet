@@ -129,7 +129,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.work:work-runtime-ktx:2.10.2'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.compose.ui:ui:1.8.2'
+    implementation 'androidx.compose.ui:ui:1.8.3'
     implementation 'androidx.compose.material3:material3:1.3.2'
 
     if (hermesEnabled.toBoolean()) {
