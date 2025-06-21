@@ -21,7 +21,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
@@ -1307,28 +1307,28 @@ const SendDetails = () => {
     return (
       <View style={styles.select}>
         {!isLoading && isEditable && (
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
-            style={styles.selectTouch}
+            style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
-          </TouchableOpacity>
+          </Pressable>
         )}
         <View style={styles.selectWrap}>
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
-            style={styles.selectTouch}
+            style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     );
@@ -1394,11 +1394,15 @@ const SendDetails = () => {
         </View>
 
         {frozenBalance > 0 && (
-          <TouchableOpacity accessibilityRole="button" style={styles.frozenContainer} onPress={handleCoinControl}>
+          <Pressable
+            accessibilityRole="button"
+            style={({ pressed }) => [pressed && styles.pressed, styles.frozenContainer]}
+            onPress={handleCoinControl}
+          >
             <BlueText>
               {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
             </BlueText>
-          </TouchableOpacity>
+          </Pressable>
         )}
 
         <View style={styles.addressInputContainer}>
@@ -1474,7 +1478,7 @@ const SendDetails = () => {
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
         </View>
-        <TouchableOpacity
+        <Pressable
           testID="chooseFee"
           accessibilityRole="button"
           onPress={() => {
@@ -1489,7 +1493,7 @@ const SendDetails = () => {
             });
           }}
           disabled={isLoading}
-          style={styles.fee}
+          style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
         >
           <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
@@ -1502,7 +1506,7 @@ const SendDetails = () => {
               </Text>
             </View>
           )}
-        </TouchableOpacity>
+        </Pressable>
         {renderCreateButton()}
       </View>
       <DismissKeyboardInputAccessory />
@@ -1623,5 +1627,8 @@ const styles = StyleSheet.create({
   },
   fullWidthInput: {
     width: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

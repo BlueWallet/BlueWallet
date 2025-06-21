@@ -3,10 +3,11 @@ import {
   ActivityIndicator,
   findNodeHandle,
   GestureResponderEvent,
+  Platform,
   StyleProp,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
   ViewStyle,
 } from 'react-native';
@@ -176,27 +177,39 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
           <>
             {props.button.buttonType === undefined ||
               (props.button.buttonType === MultipleStepsListItemButtonType.Full && (
-                <TouchableOpacity
+                <Pressable
                   ref={isActionSheet ? selfRef : null}
                   testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
-                  style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
+                  android_ripple={{ color: colors.androidRippleColor }}
+                  style={({ pressed }) => [
+                    Platform.OS === 'ios' && pressed ? styles.pressed : null,
+                    styles.provideKeyButton,
+                    stylesHook.provideKeyButton,
+                    buttonOpacity,
+                  ]}
                   onPress={onPress}
                 >
                   <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             {props.button.buttonType === MultipleStepsListItemButtonType.Partial && (
               <View style={styles.buttonPartialContainer}>
                 <Text numberOfLines={1} style={[styles.rowPartialLeftText, stylesHook.rowPartialLeftText]} lineBreakMode="middle">
                   {props.button.leftText}
                 </Text>
-                <TouchableOpacity
+                <Pressable
                   testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
-                  style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
+                  android_ripple={{ color: colors.androidRippleColor }}
+                  style={({ pressed }) => [
+                    Platform.OS === 'ios' && pressed ? styles.pressed : null,
+                    styles.rowPartialRightButton,
+                    stylesHook.provideKeyButton,
+                    rightButtonOpacity,
+                  ]}
                   onPress={onPress}
                 >
                   {props.button.showActivityIndicator ? (
@@ -206,17 +219,17 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
                       {props.button.text}
                     </Text>
                   )}
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           </>
         )}
         {!showActivityIndicator && props.rightButton && checked && (
           <View style={styles.rightButtonContainer}>
-            <TouchableOpacity
+            <Pressable
               accessibilityRole="button"
               disabled={props.rightButton.disabled}
-              style={styles.rightButton}
+              style={({ pressed }) => [pressed && styles.pressed, styles.rightButton]}
               onPress={props.rightButton.onPress}
             >
               {props.rightButton.showActivityIndicator ? (
@@ -224,7 +237,7 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
               ) : (
                 <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
               )}
-            </TouchableOpacity>
+            </Pressable>
           </View>
         )}
       </View>
@@ -300,6 +313,9 @@ const styles = StyleSheet.create({
   },
   rowPartialLeftText: {
     textAlign: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

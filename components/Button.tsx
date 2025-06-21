@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleProp, StyleSheet, Text, Pressable, PressableProps, View, ViewStyle, Platform } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from './themes';
 
-interface ButtonProps extends TouchableOpacityProps {
+interface ButtonProps extends PressableProps {
   backgroundColor?: string;
   buttonTextColor?: string;
   disabled?: boolean;
@@ -20,7 +20,7 @@ interface ButtonProps extends TouchableOpacityProps {
   showActivityIndicator?: boolean;
 }
 
-export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, ButtonProps>((props, ref) => {
+export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>((props, ref) => {
   const { colors } = useTheme();
 
   let backgroundColor = props.backgroundColor ?? colors.mainColor;
@@ -51,17 +51,20 @@ export const Button = forwardRef<React.ElementRef<typeof TouchableOpacity>, Butt
   );
 
   return props.onPress ? (
-    <TouchableOpacity
-      ref={ref}
-      testID={props.testID}
-      style={[buttonStyle, props.style, styles.content]}
-      accessibilityRole="button"
-      onPress={props.onPress}
-      disabled={props.disabled}
-      {...props}
-    >
-      {buttonView}
-    </TouchableOpacity>
+    <View style={styles.pressableWrapper}>
+      <Pressable
+        ref={ref}
+        testID={props.testID}
+        android_ripple={{ color: colors.androidRippleColor }}
+        style={({ pressed }) => [Platform.OS === 'ios' && pressed ? styles.pressed : null, buttonStyle, props.style, styles.content]}
+        accessibilityRole="button"
+        onPress={props.onPress}
+        disabled={props.disabled}
+        {...props}
+      >
+        {buttonView}
+      </Pressable>
+    </View>
   ) : (
     <View style={[buttonStyle, props.style, styles.content]}>{buttonView}</View>
   );
@@ -88,6 +91,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     fontSize: 16,
     fontWeight: '600',
+  },
+  pressableWrapper: {
+    overflow: 'hidden',
+    borderRadius: 25,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

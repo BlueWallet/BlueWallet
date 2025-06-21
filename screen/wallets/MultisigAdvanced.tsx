@@ -1,5 +1,5 @@
 import React, { useCallback, FC } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
@@ -49,13 +49,23 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
   return (
     <View style={styles.rowCenter}>
       <View style={styles.column}>
-        <TouchableOpacity accessibilityRole="button" onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={increaseM}
+          disabled={n === m || m === 7}
+          style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
+        >
           <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
-        <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={decreaseM}
+          disabled={m === 2}
+          style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
+        >
           <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <View style={styles.columnOf}>
@@ -63,13 +73,24 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
       </View>
 
       <View style={styles.column}>
-        <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={n === 7}
+          onPress={increaseN}
+          style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
+        >
           <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
-        <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron} testID="DecreaseN">
+        <Pressable
+          accessibilityRole="button"
+          onPress={decreaseN}
+          disabled={n === m}
+          style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
+          testID="DecreaseN"
+        >
           <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -180,14 +201,14 @@ const MultisigAdvanced: React.FC = () => {
       {Platform.OS === 'android' && (
         <View style={styles.androidHeader}>
           <View style={styles.androidHeaderContent}>
-            <TouchableOpacity
+            <Pressable
               onPress={() => navigation.goBack()}
-              style={styles.androidBackButton}
+              style={({ pressed }) => [pressed && styles.pressed, styles.androidBackButton]}
               accessibilityRole="button"
               accessibilityLabel="Go back"
             >
               <Icon name="arrow-back" type="material" size={24} color={colors.foregroundColor} />
-            </TouchableOpacity>
+            </Pressable>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
               <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />
@@ -284,6 +305,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     paddingVertical: 30,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 
