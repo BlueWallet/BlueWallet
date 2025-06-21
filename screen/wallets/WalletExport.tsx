@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
-import { LayoutChangeEvent, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -30,7 +30,7 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
   });
 
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.copyRoot, stylesHook.copyRoot]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [pressed && styles.pressed, styles.copyRoot, stylesHook.copyRoot]}>
       <View style={styles.copyLeft}>
         <BlueText textBreakStrategy="balanced" style={styles.copyText}>
           {text}
@@ -39,7 +39,7 @@ const CopyBox: React.FC<{ text: string; onPress: () => void }> = ({ text, onPres
       <View style={styles.copyRight}>
         <Icon name="copy" type="font-awesome-5" color={colors.foregroundColor} />
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -265,6 +265,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 
