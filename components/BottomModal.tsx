@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, Image, StyleSheet, View, TouchableOpacity, Platform, GestureResponderEvent, Text } from 'react-native';
+import { Keyboard, Image, StyleSheet, View, Pressable, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
 import { Icon } from '@rneui/base';
@@ -116,10 +116,10 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
           );
         } else if (shareButtonOnPress) {
           buttons.push(
-            <TouchableOpacity
+            <Pressable
               testID="ModalShareButton"
               key="ModalShareButton"
-              style={[styles.topRightButton, stylesHook.barButton]}
+              style={({ pressed }) => [pressed && styles.pressed, styles.topRightButton, stylesHook.barButton]}
               onPress={shareButtonOnPress}
             >
               <Icon
@@ -128,20 +128,20 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
                 size={20}
                 color={colors.buttonTextColor}
               />
-            </TouchableOpacity>,
+            </Pressable>,
           );
         }
       }
       if (showCloseButton) {
         buttons.push(
-          <TouchableOpacity
-            style={[styles.topRightButton, stylesHook.barButton]}
+          <Pressable
+            style={({ pressed }) => [pressed && styles.pressed, styles.topRightButton, stylesHook.barButton]}
             onPress={dismiss}
             key="ModalDoneButton"
             testID="ModalDoneButton"
           >
             <Image source={closeImage} />
-          </TouchableOpacity>,
+          </Pressable>,
         );
       }
       return <View style={styles.topRightButtonContainer}>{buttons}</View>;
@@ -265,5 +265,8 @@ const styles = StyleSheet.create({
     paddingTop: 66,
     paddingHorizontal: 16,
     width: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
