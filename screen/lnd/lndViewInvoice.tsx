@@ -24,7 +24,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
-  invoice: LightningTransaction;
+  invoice: string | LightningTransaction;
 };
 
 const LNDViewInvoice = () => {
@@ -106,10 +106,10 @@ const LNDViewInvoice = () => {
   }, [colors, isModal]);
 
   useEffect(() => {
+    console.log('LNDViewInvoice - useEffect', { invoice });
     if (!wallet) {
       return;
     }
-    console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
