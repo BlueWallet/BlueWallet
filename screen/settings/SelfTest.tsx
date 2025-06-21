@@ -29,6 +29,7 @@ import loc from '../../loc';
 import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
+import { LightningSparkWallet } from '../../class/wallets/lightning-spark-wallet.ts';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -93,6 +94,13 @@ export default class SelfTest extends Component {
       } else {
         // skipping RN-specific test
       }
+
+      //
+
+      const w = new LightningSparkWallet();
+      w.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+      await w.init();
+      assertStrictEqual(await w.getSparkAddress(), 'sp1pgss9qfk8ygtphqqzkj2yhn43k3s7r3g8z822ffvpcm38ym094800574233rzd', 'Spark failed');
 
       //
 

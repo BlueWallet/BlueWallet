@@ -33,6 +33,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { LightningSparkWallet } from '../../class/wallets/lightning-spark-wallet.ts';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -40,6 +41,7 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
+  SPARK = 'SPARK',
 }
 
 interface State {
@@ -196,6 +198,12 @@ const WalletsAdd: React.FC = () => {
         subtitle: LightningCustodianWallet.subtitleReadable,
         menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
       },
+      {
+        id: LightningSparkWallet.type,
+        text: LightningSparkWallet.typeReadable,
+        subtitle: LightningSparkWallet.subtitleReadable,
+        menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
+      },
     ];
 
     const walletAction: Action = {
@@ -232,6 +240,10 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
+  }, [confirmResetEntropy]);
+
+  const handleOnLightningSparkButtonPressed = useCallback(() => {
+    confirmResetEntropy(ButtonSelected.SPARK);
   }, [confirmResetEntropy]);
 
   const HeaderRight = useMemo(
@@ -300,6 +312,8 @@ const WalletsAdd: React.FC = () => {
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
+    } else if (selectedWalletType === ButtonSelected.SPARK) {
+      createLightningSparkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | SegwitP2SHWallet | HDSegwitP2SHWallet;
       if (selectedIndex === 2) {
@@ -386,6 +400,26 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
+  const createLightningSparkWallet = async () => {
+    const wallet = new LightningSparkWallet();
+    try {
+      await wallet.generate();
+    } catch (Err: any) {
+      setIsLoading(false);
+      console.warn('lightning spark create failure', Err);
+      return presentAlert({ message: Err.message ?? '' });
+    }
+
+    addWallet(wallet);
+    await saveToDisk();
+
+    A(A.ENUM.CREATED_WALLET);
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    navigate('PleaseBackupLNDHub', {
+      walletID: wallet.getID(),
+    });
+  };
+
   const navigateToImportWallet = () => {
     navigate('ImportWallet');
   };
@@ -407,15 +441,24 @@ const WalletsAdd: React.FC = () => {
 
   const LightningButtonMemo = useMemo(
     () => (
-      <WalletButton
-        buttonType="Lightning"
-        testID="ActivateLightningButton"
-        active={selectedWalletType === ButtonSelected.OFFCHAIN}
-        onPress={handleOnLightningButtonPressed}
-        size={styles.button}
-      />
+      <>
+        <WalletButton
+          buttonType="Lightning"
+          testID="ActivateLightningButton"
+          active={selectedWalletType === ButtonSelected.OFFCHAIN}
+          onPress={handleOnLightningButtonPressed}
+          size={styles.button}
+        />
+        <WalletButton
+          buttonType="LightningSpark"
+          testID="ActivateLightningSparkButton"
+          active={selectedWalletType === ButtonSelected.SPARK}
+          onPress={handleOnLightningSparkButtonPressed}
+          size={styles.button}
+        />
+      </>
     ),
-    [selectedWalletType, handleOnLightningButtonPressed],
+    [selectedWalletType, handleOnLightningButtonPressed, handleOnLightningSparkButtonPressed],
   );
 
   return (
@@ -457,7 +500,7 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+        {[ButtonSelected.OFFCHAIN, ButtonSelected.SPARK].includes(selectedWalletType) && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>
         {selectedWalletType === ButtonSelected.OFFCHAIN && (
