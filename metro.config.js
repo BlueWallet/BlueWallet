@@ -63,6 +63,7 @@ const config = {
         http2: false,
         https: false,
         fs: false,
+        os: false,
         child_process: false,
         cluster: false,
         dgram: false,
