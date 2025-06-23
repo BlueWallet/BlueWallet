@@ -50,13 +50,17 @@ const config = {
         };
       }
 
-      /**
-       * Node.js modules that need to be polyfilled for React Native
-       */
+      if (moduleName === 'crypto') {
+        return {
+          filePath: path.resolve(__dirname, 'node_modules/react-native-crypto/index.js'),
+          type: 'sourceFile',
+        };
+      }
+
       const nodeModules = {
-        crypto: 'react-native-crypto',
         zlib: false,
         http: false,
+        http2: false,
         https: false,
         fs: false,
         child_process: false,
@@ -74,16 +78,10 @@ const config = {
         worker_threads: false,
       };
 
-      if (nodeModules[moduleName] !== undefined) {
-        if (nodeModules[moduleName] === false) {
-          // Return empty module for unsupported Node.js modules
-          return {
-            filePath: path.resolve(__dirname, 'empty-module.js'),
-            type: 'sourceFile',
-          };
-        }
+      if (nodeModules[moduleName] === false) {
+        // Return empty module for unsupported Node.js modules
         return {
-          filePath: path.resolve(__dirname, `node_modules/${nodeModules[moduleName]}/index.js`),
+          filePath: path.resolve(__dirname, 'empty-module.js'),
           type: 'sourceFile',
         };
       }
