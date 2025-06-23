@@ -36,7 +36,6 @@ const LNDViewInvoice = () => {
   const navigation = useNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID);
-  const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
@@ -107,10 +106,11 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     console.log('LNDViewInvoice - useEffect', { invoice });
+
     if (!wallet) {
       return;
     }
-    if (typeof invoice !== 'string' && !invoice.ispaid) {
+    if (!(invoice as LightningTransaction).ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
@@ -124,10 +124,9 @@ const LNDViewInvoice = () => {
                 ? filteredInvoice.payment_request === invoice.payment_request
                 : filteredInvoice.payment_request === invoice,
             )[0];
-            if (typeof updatedUserInvoice !== 'undefined') {
+            if (updatedUserInvoice) {
               setInvoiceStatusChanged(true);
               setParams({ invoice: updatedUserInvoice });
-              setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
@@ -193,13 +192,6 @@ const LNDViewInvoice = () => {
   };
 
   const render = () => {
-    if (isLoading) {
-      return (
-        <View style={[styles.root, stylesHook.root]}>
-          <BlueLoading />
-        </View>
-      );
-    }
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
@@ -292,7 +284,7 @@ const LNDViewInvoice = () => {
           </ScrollView>
         );
       }
-    } else {
+    } else if (invoice) {
       // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
       // and more data is rendered)
       return (
@@ -300,6 +292,13 @@ const LNDViewInvoice = () => {
           <View style={styles.activeQrcode}>
             <QRCodeComponent value={invoice} size={qrCodeSize} />
           </View>
+        </View>
+      );
+    } else {
+      // something is not right
+      return (
+        <View style={[styles.root, stylesHook.root]}>
+          <BlueLoading />
         </View>
       );
     }

@@ -6,7 +6,6 @@ import { randomBytes } from '../rng.ts';
 import * as bip39 from 'bip39';
 import { WalletTransfer } from '@buildonspark/spark-sdk/types';
 import { LightningTransaction } from './types.ts';
-import bolt11 from 'bolt11';
 
 export class LightningSparkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningSparkWallet';

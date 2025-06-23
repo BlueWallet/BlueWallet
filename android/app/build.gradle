@@ -97,6 +97,12 @@ android {
         checkReleaseBuilds false
     }
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
