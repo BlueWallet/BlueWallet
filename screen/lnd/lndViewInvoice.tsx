@@ -24,7 +24,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
-  invoice: string | LightningTransaction;
+  invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
 };
 
 const LNDViewInvoice = () => {
@@ -110,12 +110,12 @@ const LNDViewInvoice = () => {
     if (!wallet) {
       return;
     }
-    if (!invoice.ispaid) {
+    if (typeof invoice !== 'string' && !invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
             // @ts-ignore - getUserInvoices is not set on TWallet
-            const userInvoices = await wallet.getUserInvoices(20);
+            const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
             // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
@@ -135,7 +135,7 @@ const LNDViewInvoice = () => {
               } else {
                 const currentDate = new Date();
                 const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-                const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+                const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
                   fetchAndSaveWalletTransactions(walletID);
@@ -160,13 +160,12 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const navigateToPreImageScreen = () => {
-    navigate('LNDViewAdditionalInvoicePreImage', {
-      preImageData: invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none',
-    });
+  const navigateToPreImageScreen = (preImageData: string) => {
+    navigate('LNDViewAdditionalInvoicePreImage', { preImageData });
   };
 
   const handleOnSharePressed = () => {
+    if (typeof invoice === 'string' || !invoice.payment_request) return;
     Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
   };
 
@@ -175,6 +174,7 @@ const LNDViewInvoice = () => {
   };
 
   useEffect(() => {
+    if (typeof invoice === 'string') return;
     if (invoice.ispaid && invoiceStatusChanged) {
       setInvoiceStatusChanged(true);
     }
@@ -235,7 +235,11 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.date_time}: {invoiceDate}
               </Text>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  style={styles.detailsTouch}
+                  onPress={() => navigateToPreImageScreen(String(invoice.payment_preimage))}
+                >
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
                     name={direction === 'rtl' ? 'angle-left' : 'angle-right'}
@@ -288,6 +292,16 @@ const LNDViewInvoice = () => {
           </ScrollView>
         );
       }
+    } else {
+      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
+      // and more data is rendered)
+      return (
+        <View style={[styles.activeRoot, stylesHook.root]}>
+          <View style={styles.activeQrcode}>
+            <QRCodeComponent value={invoice} size={qrCodeSize} />
+          </View>
+        </View>
+      );
     }
   };
 

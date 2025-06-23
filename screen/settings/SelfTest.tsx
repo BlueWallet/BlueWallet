@@ -97,10 +97,10 @@ export default class SelfTest extends Component {
 
       //
 
-      const w = new LightningSparkWallet();
-      w.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-      await w.init();
-      assertStrictEqual(await w.getSparkAddress(), 'sp1pgss9qfk8ygtphqqzkj2yhn43k3s7r3g8z822ffvpcm38ym094800574233rzd', 'Spark failed');
+      const spkw = new LightningSparkWallet();
+      spkw.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+      await spkw.init();
+      assertStrictEqual(await spkw.getSparkAddress(), 'sp1pgss9qfk8ygtphqqzkj2yhn43k3s7r3g8z822ffvpcm38ym094800574233rzd', 'Spark failed');
 
       //
 

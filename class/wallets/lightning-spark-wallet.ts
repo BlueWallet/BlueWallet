@@ -22,14 +22,14 @@ export class LightningSparkWallet extends LightningCustodianWallet {
   private _userInvoices: Record<string, string> = {}; // LightningReceiveRequest id => bolt11 string
 
   async init() {
-      const { wallet } = await NativeSDK.initialize({
-        signer: new ReactNativeSparkSigner(),
-        mnemonicOrSeed: this.secret.replace('spark://', ''),
-        options: {
-          network: 'MAINNET',
-        },
-      });
-      this._sdk = wallet;
+    const { wallet } = await NativeSDK.initialize({
+      signer: new ReactNativeSparkSigner(),
+      mnemonicOrSeed: this.secret.replace('spark://', ''),
+      options: {
+        network: 'MAINNET',
+      },
+    });
+    this._sdk = wallet;
   }
 
   async generate(): Promise<void> {
@@ -61,7 +61,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
       tx.amt = tx.value;
 
       // cross-reference with user invoices we created and fill the data thats missing in `transfers` from our invoices:
-/*       const invoice = this._userInvoices[sparkTransfer.id];
+      /*       const invoice = this._userInvoices[sparkTransfer.id];
       if (invoice) {
         const { tags } = bolt11.decode(invoice);
         for (let i = 0; i < tags.length; i++) {
