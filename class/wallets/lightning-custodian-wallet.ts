@@ -664,6 +664,10 @@ export class LightningCustodianWallet extends LegacyWallet {
   authenticate(lnurl: any) {
     return lnurl.authenticate(this.secret);
   }
+
+  getLatestTransactionTime(): string | 0 {
+    return new Date(this.getTransactions().reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
+  }
 }
 
 /*

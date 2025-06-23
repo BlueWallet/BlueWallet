@@ -48,7 +48,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     for (const sparkTransfer of this._transfers) {
       const tx: LightningTransaction = {
         payment_hash: '',
-        timestamp: Math.floor(+Date.parse(String(sparkTransfer.updatedTime)) / 1),
+        timestamp: Math.floor(+Date.parse(String(sparkTransfer.updatedTime)) / 1000),
         ispaid: true, // fixme
         walletID: this.getID(),
         value: sparkTransfer.transferDirection === 'INCOMING' ? sparkTransfer.totalValue : -1 * sparkTransfer.totalValue,
@@ -153,7 +153,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
           break;
       }
 
-      ispaid && console.log(request);
+      console.log(request);
 
       const decoded = this.decodeInvoice(payment_request);
 
@@ -166,6 +166,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
         memo: decoded.description,
         description: decoded.description,
         timestamp: request?.updatedAt ? Math.floor(+Date.parse(request?.updatedAt) / 1000) : undefined,
+        expire_time: parseInt(decoded.expiry, 10),
         payment_preimage: request?.paymentPreimage,
       };
 

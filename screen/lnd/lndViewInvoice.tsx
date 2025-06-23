@@ -130,6 +130,8 @@ const LNDViewInvoice = () => {
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
+                clearInterval(fetchInvoiceInterval.current);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
                 fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
@@ -150,10 +152,6 @@ const LNDViewInvoice = () => {
           }
         }
       }, 3000);
-    } else {
-      setIsFetchingInvoices(false);
-      clearInterval(fetchInvoiceInterval.current);
-      fetchInvoiceInterval.current = undefined;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -84,7 +84,10 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         return loc.transactions.pending;
       } else {
         console.log('item=', item);
-        return transactionTimeToReadable(item.received! || item.timestamp!);
+        console.log('item.received! || item.timestamp!  =', item.received! || item.timestamp!);
+        const ret = transactionTimeToReadable(item.received! || item.timestamp!);
+        console.log('ret=', ret);
+        return ret;
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [item.confirmations, item.received, language]);
