@@ -57,6 +57,27 @@ const config = {
         };
       }
 
+      if (moduleName === 'buffer') {
+        return {
+          filePath: path.resolve(__dirname, 'node_modules/buffer/index.js'),
+          type: 'sourceFile',
+        };
+      }
+
+      if (moduleName === 'string_decoder') {
+        return {
+          filePath: path.resolve(__dirname, 'node_modules/string_decoder/lib/string_decoder.js'),
+          type: 'sourceFile',
+        };
+      }
+
+      if (moduleName === 'events') {
+        return {
+          filePath: path.resolve(__dirname, 'node_modules/events/events.js'),
+          type: 'sourceFile',
+        };
+      }
+
       const nodeModules = {
         zlib: false,
         http: false,
@@ -72,7 +93,6 @@ const config = {
         punycode: false,
         readline: false,
         repl: false,
-        string_decoder: false,
         sys: false,
         tty: false,
         vm: false,
