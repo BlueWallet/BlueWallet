@@ -17,6 +17,32 @@ const config = {
     unstable_enablePackageExports: true,
     extraNodeModules: {
       ws: path.resolve(__dirname, 'ws-shim.js'),
+      stream: path.resolve(__dirname, 'node_modules/stream-browserify/index.js'),
+      net: path.resolve(__dirname, 'node_modules/react-native-tcp-socket/src/index.js'),
+      tls: path.resolve(__dirname, 'node_modules/react-native-tcp-socket/src/index.js'),
+      crypto: path.resolve(__dirname, 'node_modules/react-native-crypto/index.js'),
+      buffer: path.resolve(__dirname, 'node_modules/buffer/index.js'),
+      string_decoder: path.resolve(__dirname, 'node_modules/string_decoder/lib/string_decoder.js'),
+      events: path.resolve(__dirname, 'node_modules/events/events.js'),
+      // empty modules below
+      zlib: path.resolve(__dirname, 'empty-module.js'),
+      http: path.resolve(__dirname, 'empty-module.js'),
+      http2: path.resolve(__dirname, 'empty-module.js'),
+      https: path.resolve(__dirname, 'empty-module.js'),
+      fs: path.resolve(__dirname, 'empty-module.js'),
+      os: path.resolve(__dirname, 'empty-module.js'),
+      child_process: path.resolve(__dirname, 'empty-module.js'),
+      cluster: path.resolve(__dirname, 'empty-module.js'),
+      dgram: path.resolve(__dirname, 'empty-module.js'),
+      dns: path.resolve(__dirname, 'empty-module.js'),
+      domain: path.resolve(__dirname, 'empty-module.js'),
+      punycode: path.resolve(__dirname, 'empty-module.js'),
+      readline: path.resolve(__dirname, 'empty-module.js'),
+      repl: path.resolve(__dirname, 'empty-module.js'),
+      sys: path.resolve(__dirname, 'empty-module.js'),
+      tty: path.resolve(__dirname, 'empty-module.js'),
+      vm: path.resolve(__dirname, 'empty-module.js'),
+      worker_threads: path.resolve(__dirname, 'empty-module.js'),
     },
     resolveRequest: (context, moduleName, platform) => {
       /**
@@ -25,84 +51,6 @@ const config = {
       if (moduleName === '@buildonspark/spark-sdk/native') {
         return {
           filePath: path.resolve(__dirname, 'node_modules/@buildonspark/spark-sdk/dist/native/index.cjs'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'stream') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/stream-browserify/index.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'net') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/react-native-tcp-socket/src/index.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'tls') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/react-native-tcp-socket/src/index.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'crypto') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/react-native-crypto/index.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'buffer') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/buffer/index.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'string_decoder') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/string_decoder/lib/string_decoder.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      if (moduleName === 'events') {
-        return {
-          filePath: path.resolve(__dirname, 'node_modules/events/events.js'),
-          type: 'sourceFile',
-        };
-      }
-
-      const nodeModules = {
-        zlib: false,
-        http: false,
-        http2: false,
-        https: false,
-        fs: false,
-        os: false,
-        child_process: false,
-        cluster: false,
-        dgram: false,
-        dns: false,
-        domain: false,
-        punycode: false,
-        readline: false,
-        repl: false,
-        sys: false,
-        tty: false,
-        vm: false,
-        worker_threads: false,
-      };
-
-      if (nodeModules[moduleName] === false) {
-        // Return empty module for unsupported Node.js modules
-        return {
-          filePath: path.resolve(__dirname, 'empty-module.js'),
           type: 'sourceFile',
         };
       }
