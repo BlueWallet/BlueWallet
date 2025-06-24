@@ -18,7 +18,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
   private _sdk: NativeSDK | /* SDK | */ undefined;
   private _transfers: WalletTransfer[] = [];
-  private _userInvoices: Record<string, string> = {}; // LightningReceiveRequest id => bolt11 string
+  private _userInvoices: Record<string, LightningTransaction & { id?: string }> = {}; // LightningReceiveRequest id => LightningTransaction object; also transfer id (to be used for cross-referencing)
 
   async init() {
     const { wallet } = await NativeSDK.initialize({
@@ -59,25 +59,18 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
       tx.amt = tx.value;
 
-      // cross-reference with user invoices we created and fill the data thats missing in `transfers` from our invoices:
-      /*       const invoice = this._userInvoices[sparkTransfer.id];
-      if (invoice) {
-        const { tags } = bolt11.decode(invoice);
-        for (let i = 0; i < tags.length; i++) {
-          const { tagName, data } = tags[i];
-          switch (tagName) {
-            case 'payment_hash':
-              tx.payment_hash = data.toString();
-              break;
-            case 'expire_time':
-              tx.expire_time = parseInt(data.toString());
-              break;
-            case 'description':
-              tx.memo = data.toString();
-              break;
-          }
+      if (sparkTransfer.id) {
+        // cross-reference with user invoices:
+        const foundLnInvoice = Object.values(this._userInvoices).find(invoice => invoice.id === sparkTransfer.id);
+        if (foundLnInvoice) {
+          tx.memo = foundLnInvoice.memo;
+          tx.payment_preimage = foundLnInvoice.payment_preimage;
+          tx.payment_hash = foundLnInvoice.payment_hash;
+          tx.payment_request = foundLnInvoice.payment_request;
+          tx.expire_time = foundLnInvoice.expire_time;
+          tx.ispaid = foundLnInvoice.ispaid;
         }
-      } */
+      }
 
       ret.push(tx);
     }
@@ -122,6 +115,17 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     }
   }
 
+  getBalance() {
+    if (!this.balance) {
+      return this._transfers.reduce(
+        (sum, transfer) => sum + (transfer.transferDirection === 'INCOMING' ? transfer.totalValue : -1 * transfer.totalValue),
+        0,
+      );
+    }
+
+    return this.balance;
+  }
+
   async payInvoice(invoice: string, freeAmount: number = 0) {
     if (!this._sdk) throw new Error('not initialized');
     if (!this._sdk.payLightningInvoice) throw new Error('Spark wallet is not done initializing, please wait');
@@ -141,36 +145,38 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
     const ret: LightningTransaction[] = [];
 
-    for (const id of Object.keys(this._userInvoices)) {
-      const payment_request = this._userInvoices[id];
-      const request = await this._sdk.getLightningReceiveRequest(id);
+    for (const LightningReceiveRequestId of Object.keys(this._userInvoices)) {
+      const unfinalizedLnTx = this._userInvoices[LightningReceiveRequestId];
 
-      let ispaid = false;
+      if (unfinalizedLnTx.ispaid) {
+        // already paid, skip
+        ret.push(unfinalizedLnTx);
+        continue;
+      }
+
+      if ((unfinalizedLnTx.timestamp ?? 0) + (unfinalizedLnTx.expire_time ?? 0) < Date.now() / 1000) {
+        // expired, skip
+        ret.push(unfinalizedLnTx);
+        continue;
+      }
+
+      // not skipped means we are fetching its status from the server:
+      const request = await this._sdk.getLightningReceiveRequest(LightningReceiveRequestId);
+      unfinalizedLnTx.id = request?.transfer?.sparkId;
+
       switch (request?.status) {
         case 'LIGHTNING_PAYMENT_RECEIVED':
         case 'TRANSFER_COMPLETED':
-          ispaid = true;
+          unfinalizedLnTx.ispaid = true;
+          if (request.updatedAt) {
+            unfinalizedLnTx.timestamp = Math.floor(+Date.parse(request.updatedAt) / 1000);
+          }
+          unfinalizedLnTx.payment_preimage = request?.paymentPreimage;
           break;
       }
 
-      console.log(request);
-
-      const decoded = this.decodeInvoice(payment_request);
-
-      const lnTx: LightningTransaction = {
-        payment_request,
-        ispaid,
-        type: 'user_invoice',
-        amt: +decoded.num_satoshis,
-        value: +decoded.num_satoshis,
-        memo: decoded.description,
-        description: decoded.description,
-        timestamp: request?.updatedAt ? Math.floor(+Date.parse(request?.updatedAt) / 1000) : undefined,
-        expire_time: parseInt(decoded.expiry, 10),
-        payment_preimage: request?.paymentPreimage,
-      };
-
-      ret.push(lnTx);
+      this._userInvoices[LightningReceiveRequestId] = unfinalizedLnTx; // saving back
+      ret.push(unfinalizedLnTx);
     }
 
     return ret;
@@ -187,7 +193,16 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
     console.log('ADD receiveRequest:', receiveRequest);
 
-    this._userInvoices[receiveRequest.id] = receiveRequest.invoice.encodedInvoice;
+    const decoded = this.decodeInvoice(receiveRequest.invoice.encodedInvoice);
+
+    const tx: LightningTransaction = decoded;
+    tx.payment_request = receiveRequest.invoice.encodedInvoice;
+    tx.memo = decoded.description;
+    tx.ispaid = false;
+    tx.expire_time = decoded.expiry;
+    tx.type = 'user_invoice';
+
+    this._userInvoices[receiveRequest.id] = tx;
 
     return receiveRequest.invoice.encodedInvoice;
   }
@@ -245,7 +260,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
   }
 
   isInvoiceGeneratedByWallet(paymentRequest: string) {
-    return Object.values(this._userInvoices).includes(paymentRequest);
+    return Object.values(this._userInvoices).some(tx => tx.payment_request === paymentRequest);
   }
 
   async createAccount(isTest: boolean = false) {

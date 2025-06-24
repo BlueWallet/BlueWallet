@@ -14,7 +14,6 @@ beforeAll(async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-
   const start = +new Date();
   w.setSecret('spark://' + process.env.HD_MNEMONIC);
   await w.init();
@@ -48,6 +47,25 @@ describe('LightningSparkWallet', () => {
     assert.ok(balance > 0);
   });
 
+  it('can decode invoice', async () => {
+    const invoice =
+      'lnbc20n1p59n9nkpp58s49flel3cz5u3lrve8qeqzxljxmu0gja06elfcgwrx2e9nq959ssp5z7ytwq0rm6yq8evn2kteduj6a0rs4svn3sfwvg92a29f8l022jjqxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdq023mk7gryv9uhxgq9qyyssqy4mv8te3l6mrc7qf4pksh4m4z76jz7s2qrwxd7q2s22ghnanqt33e9p0nahz9fr32g00vn2vhc9rrhpvtr54s40tle25tyyvp59sdpsqty30rp';
+
+    const decoded = w.decodeInvoice(invoice);
+
+    assert.strictEqual(decoded.num_satoshis, 2);
+    assert.strictEqual(decoded.num_millisatoshis, 2000);
+    assert.strictEqual(decoded.timestamp, 1750701686);
+    assert.strictEqual(decoded.expiry, 2592000);
+    assert.strictEqual(decoded.description, 'Two days ');
+    assert.strictEqual(decoded.payment_hash, '3c2a54ff3f8e054e47e3664e0c8046fc8dbe3d12ebf59fa70870ccac96602d0b');
+    assert.strictEqual(decoded.destination, '030936e7a016fb3f5ce53c8db29da2b6dfbf8e068ea058c363e0fd77f444270d8a');
+    assert.strictEqual(decoded.fallback_addr, '');
+    assert.strictEqual(decoded.description_hash, '');
+    assert.strictEqual(decoded.cltv_expiry, '40');
+    assert.strictEqual(decoded.route_hints.length, 0); // decode function does not decode this yet cause we dont need it for now
+  });
+
   it.skip('can create invoice', async () => {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
@@ -66,21 +84,31 @@ describe('LightningSparkWallet', () => {
 
     // @ts-ignore forcing internal state for the test to run (this data is saved ONLY when invoice is created, we can
     // _not_ fetch it later when importing the wallet)
-    /* w._userInvoices = {
-      '45ee49a8-2291-4dd9-8ff4-0e54c04639ed':
-        'lnbc1u1p598kcapp5a76m2e3qz859fvp8yz8ldf8sz3xy4e70yngnk9q4cpukqtytc6dssp5v9zqgtdsunuw3lguqtss3eu72ysv6ywqv9akg5ayfje6w8zdwkhsxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdqlw3jhxapqxycrqumpwssxjmnkda5kxeg9qyyssq5vjhw4argp4vqafcqkuc050vuwp4aag2agr0nj9m5f8r7kc4xenhuyw4kc4n6n5tldnkygmdyr2ulsny402zjcmujv036yn2k8nmkcsp8l0thu',
-    }; */
+    w._userInvoices = {
+      'receive-id-bla-bla': {
+        id: '45ee49a8-2291-4dd9-8ff4-0e54c04639ed', // this is how user invoice is cross-referenced with the transfer
+        payment_request:
+          'lnbc1u1p598kcapp5a76m2e3qz859fvp8yz8ldf8sz3xy4e70yngnk9q4cpukqtytc6dssp5v9zqgtdsunuw3lguqtss3eu72ysv6ywqv9akg5ayfje6w8zdwkhsxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdqlw3jhxapqxycrqumpwssxjmnkda5kxeg9qyyssq5vjhw4argp4vqafcqkuc050vuwp4aag2agr0nj9m5f8r7kc4xenhuyw4kc4n6n5tldnkygmdyr2ulsny402zjcmujv036yn2k8nmkcsp8l0thu',
+        memo: 'test 100sat invoice',
+        value: 100,
+        type: 'user_invoice',
+        expire_time: 2592000,
+        timestamp: 1750326116000,
+        ispaid: true,
+        payment_hash: 'efb5b5662011e854b027208ff6a4f0144c4ae7cf24d13b1415c079602c8bc69b',
+      },
+    };
 
     await w.fetchTransactions();
     assert.ok(w.getTransactions().length > 0);
 
-    /* const tx = w.getTransactions().find(t => t.payment_hash === 'efb5b5662011e854b027208ff6a4f0144c4ae7cf24d13b1415c079602c8bc69b');
+    const tx = w.getTransactions().find(t => t.payment_hash === 'efb5b5662011e854b027208ff6a4f0144c4ae7cf24d13b1415c079602c8bc69b');
     assert.ok(tx);
     assert.strictEqual(tx.memo, 'test 100sat invoice');
     assert.strictEqual(tx.value, 100);
     assert.strictEqual(tx.type, 'user_invoice');
     assert.strictEqual(tx.expire_time, 2592000);
-    assert.strictEqual(tx.timestamp, 1750326116000); */
+    assert.strictEqual(tx.timestamp, 1750326116);
   });
 
   it.skip('can pay invoice', async () => {
