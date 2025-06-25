@@ -52,15 +52,9 @@ export type DetailViewStackParamList = {
   ScanLNDInvoiceRoot: {
     screen: string;
     params: {
-      // For ScanLNDInvoice screen
-      walletID?: string;
-      uri?: string;
-      invoice?: string;
-      onBarScanned?: string;
-      // For LnurlPaySuccess screen
-      paymentHash?: string;
-      fromWalletID?: string;
-      justPaid?: boolean;
+      paymentHash: string;
+      fromWalletID: string;
+      justPaid: boolean;
     };
   };
   AztecoRedeemRoot: undefined;
@@ -98,7 +92,8 @@ export type DetailViewStackParamList = {
   };
   ReceiveDetails: {
     walletID?: string;
-    address: string;
+    address?: string;
+    txid?: string;
   };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {

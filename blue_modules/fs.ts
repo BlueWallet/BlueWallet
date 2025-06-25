@@ -130,26 +130,26 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
       try {
         const uri = response.assets[0].uri;
         console.log('📷 showImagePickerAndReadImage: Processing image URI:', uri);
-        
+
         if (uri) {
           const decodedUri = decodeURI(uri.toString());
           console.log('📷 showImagePickerAndReadImage: Decoded URI:', decodedUri);
-          
+
           console.log('📷 showImagePickerAndReadImage: Starting QR code detection...');
           const result = await RNQRGenerator.detect({ uri: decodedUri });
-          
+
           console.log('📷 showImagePickerAndReadImage: QR detection result:', {
             values: result?.values,
             valuesLength: result?.values?.length || 0,
           });
-          
+
           if (result?.values.length > 0) {
             const detectedValue = result.values[0];
             console.log('📷 showImagePickerAndReadImage: Successfully detected QR code:', detectedValue);
             return detectedValue;
           }
         }
-        
+
         console.warn('📷 showImagePickerAndReadImage: No QR code found in image');
         throw new Error(loc.send.qr_error_no_qrcode);
       } catch (error) {

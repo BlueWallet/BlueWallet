@@ -171,7 +171,7 @@ const ScanQRCode = () => {
     console.log('📱 onBarCodeRead: Received QR data:', ret.data);
     console.log('📱 onBarCodeRead: launchedBy:', launchedBy);
     console.log('📱 onBarCodeRead: onBarScanned callback exists:', !!onBarScanned);
-    
+
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks

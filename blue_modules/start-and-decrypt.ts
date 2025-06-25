@@ -45,6 +45,15 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
 
   if (success) {
     console.log('loaded from disk');
+    
+    // Process any pending notifications after successful wallet loading
+    try {
+      const { processAllNotifications } = require('../navigation/LinkingConfig');
+      await processAllNotifications();
+    } catch (error) {
+      console.error('Failed to process pending notifications:', error);
+    }
+    
     // We want to return true to let the UnlockWith screen that its ok to proceed.
     return true;
   }

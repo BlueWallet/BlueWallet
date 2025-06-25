@@ -9,7 +9,11 @@
 #   ./deeplink-to-emusim.sh settings 1        # App Settings test #1
 #   ./deeplink-to-emusim.sh widgets 1         # App Extensions test #1
 #   ./deeplink-to-emusim.sh qrcode 1          # QR Code image test #1
-#   ./deeplink-to-emusim.sh notification      # Notification test
+#   ./deeplink-to-emusim.sh notification      # Notification test (Push or Deep Link)
+#
+# Push Notification Testing:
+#   This script uses `xcrun simctl push` to send properly formatted notifications
+#   that work with the new LinkingConfig.ts navigation system
 
 # Test data - using arrays for macOS compatibility
 BITCOIN_TESTS=(
@@ -18,6 +22,29 @@ BITCOIN_TESTS=(
   "bitcoin://bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq?amount=0.0001"
   "bluewallet:bitcoin://tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"
 )
+
+# Helper function to clear screen
+clear_screen() {
+  clear
+}
+
+# Helper function to URL encode a string (bash-only, no jq dependency)
+url_encode() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"
+}
 
 BITCOIN_DESCRIPTIONS=(
   "Bitcoin URI (bech32 + amount + label)"
@@ -71,16 +98,30 @@ WEB_DESCRIPTIONS=(
   "Block Explorer Link"
 )
 
-# Notification test addresses
+# Notification test addresses and URLs
 NOTIFICATION_ADDRESSES=(
   "12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
-  "bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+  "bc1qmqrxpj6ace2lawuv99kd6q6u5d6kftucm2emdg"
   "BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
+)
+
+# Notification deep link URLs for testing LinkingConfig navigation
+NOTIFICATION_DEEPLINKS=(
+  "bluewallet://transaction/c4f32e7c3552a3b7f1b826e8e8c9b5c6bde9a8f4f6a2b1b8c6a7a6e4e3d2f1b0/status?address=bc1qmqrxpj6ace2lawuv99kd6q6u5d6kftucm2emdg"
+  "bluewallet://wallet/wallet123?address=bc1qmqrxpj6ace2lawuv99kd6q6u5d6kftucm2emdg"
+  "bluewallet://lnurl/pay?lnurl=lnurl1dp68gurn8ghj7ampd3kx2ar0veekzar0wd5xjtnrdakj7tnhv4kxctttdehhwm30d3h82unvwqhkxetrwfjhzum5wd6rjue9"
+)
+
+# Descriptions for notification deeplinks
+NOTIFICATION_DEEPLINK_DESCRIPTIONS=(
+  "Transaction Status Screen (matches LinkingConfig transaction status route)"
+  "Wallet Transactions Screen (matches LinkingConfig wallet route)" 
+  "LNURL Pay Screen (matches LinkingConfig LNURL pay route)"
 )
 
 # QR Code image tests - these contain actual QR code image data
 QRCODE_TESTS=(
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABNYSURBVHja7Z1NbBvHFcd/u5ItWZJlx3bsOHYSJ02apE3TBG2BAmkBF+ihQIGih6JAgQJFe2gPPfTQQw89tIcCBXpo0UMPBQoUKFCgh6JA0UOBHgq0QIECBVqgQAu0QJO0SdokTpzYsWNLlizJH9wZcjkayeInd5ez7w8YWBJlzs7M/N/783ZmdklERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERER7S0SuwCR3UNKmQawD8A+AG0AurU/HQCa9b8mABYAVAEsAlgAUK79mwcwB2BWVdVF7AIiBwCRRkFK2Q6gH8ABAIcBDAI4BGC/9u8AgG4ATRHcdhnAHIApAO8DeAvAGwAmAUwAmFRVdd5EJxABAJGGhZSyBcBAzZf+MICjAI4BOKz9OwSg1UStLAF4G8BrAF4F8CqANwG8pqrqgo7PyVQgAgCiByiluGJfA3CRtJ9B4ym1fzUPYBzAKwBeAvASgJdVVV3W8bkoAggAiOgGKaU4j34MgPgBJHV8SdEEPX8p2Qs/xqxnAfwVwIsAXlBVdUaHPY8AIAJAs2/9PADxfD8J4HQBQxQ8v1VV9bROr0cAgABQPv9/DEDXvwqgS6fXJABAAMA5f1TA6wO4VKfXJgBAAJDdv6Hd/ycAPNbkb0EAkBgA5u7/HoDnAPwd/f6NAICITwJmP80sLyMd+XsBfqHzwRAmAEA5gPPZBimdYFKvg0c4AQDl8P8iDPcCABP/N6j/WwCYyRM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"
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABNYSURBVHja7Z1NbBvHFcd/u5ItWZJlx3bsOHYSJ02apE3TBG2BAmkBF+ihQIGih6JAgQJFe2gPPfTQQw89tIcCBXpo0UMPBQoUKFCgh6JA0UOBHgq0QIECBVqgQAu0QJO0SdokTpzYsWNLlizJH9wZcjkayeInd5ez7w8YWBJlzs7M/N/783ZmdklERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERER7S0SuwCR3UNKmQawD8A+AG0AurU/HQCa9b8mABYAVAEsAlgAUK79mwcwB2BWVdVF7AIiBwCRRkFK2Q6gH8ABAIcBDAI4BGC/9u8AgG4ATRHcdhnAHIApAO8DeAvAGwAmAUwAmFRVdd5EJxABAJGGhZSyBcBAzZf+MICjAI4BOKz9OwSg1UStLAF4G8BrAF4F8CqANwG8pqrqgo7PyVQgAgCiByiluGJfA3CRtJ9B4ym1fzUPYBzAKwBeAvASgJdVVV3W8bkoAggAiOgGKaU4j34MgPgBJHV8SdEEPX8p2Qs/xqxnAfwVwIsAXlBVdUaHPY8AIAJAs2/9PADxfD8J4HQBQxQ8v1VV9bROr0cAgABQPv9/DEDXvwqgS6fXJABAAMA5f1TA6wO4VKfXJgBAAJDdv6Hd/ycAPNbkb0EAkBgA5u7/H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"
 )
 
 QRCODE_DESCRIPTIONS=(
@@ -230,11 +271,171 @@ select_test_type() {
   done
   
   if [[ "$TEST_TYPE" == "Notification" ]]; then
-    selectedLink="${NOTIFICATION_ADDRESSES[0]}"
-    selectedDescription="Notification Test"
+    select_notification_type
   else
     select_deeplink_category
   fi
+}
+
+# Function to select notification test type
+select_notification_type() {
+  local notificationOptions=("Lightning Invoice Paid" "Address Got Paid" "Address Got Unconfirmed Transaction" "Transaction Confirmed")
+  local notification_names=("Type 1: Lightning invoice was paid" "Type 2: New transaction to address" "Type 3: New unconfirmed transaction to address" "Type 4: Transaction confirmed")
+  local selected=0
+  local ESC=$(printf "\033")
+  
+  while true; do
+    clear_screen
+    echo -e "\033[1;36m📱 BlueWallet Deep Link Test Tool\033[0m"
+    echo
+    echo -e "\033[1;33m🔔 Select Notification Test Type:\033[0m"
+    echo
+    
+    for i in "${!notificationOptions[@]}"; do
+      if [ $i -eq $selected ]; then
+        echo -e "     \033[1;32m▶\033[0m ${notificationOptions[$i]} - ${notification_names[$i]}"
+      else
+        echo -e "       ${notificationOptions[$i]} - ${notification_names[$i]}"
+      fi
+    done
+    
+    echo
+    echo -e "\033[0;37m     Use ↑/↓ arrows to navigate, Enter to select, q to quit\033[0m"
+    
+    read -rsn1 key
+    if [[ $key == $ESC ]]; then
+      read -rsn2 key
+      case $key in
+        '[A') # Up arrow
+          selected=$(( (selected - 1 + ${#notificationOptions[@]}) % ${#notificationOptions[@]} ))
+          ;;
+        '[B') # Down arrow
+          selected=$(( (selected + 1) % ${#notificationOptions[@]} ))
+          ;;
+      esac
+    elif [[ $key == "q" ]]; then
+      exit 0
+    elif [[ $key == "" ]]; then # Enter key
+      NOTIFICATION_TYPE="${notificationOptions[$selected]}"
+      break
+    fi
+  done
+  
+  if [[ "$NOTIFICATION_TYPE" == "Lightning Invoice Paid" ]]; then
+    selectedDescription="Lightning Invoice Paid Test (Type 1)"
+    NOTIFICATION_API_TYPE=1
+    selectedLink="test_lightning_invoice"  # No address needed for lightning
+  elif [[ "$NOTIFICATION_TYPE" == "Address Got Paid" ]]; then
+    select_notification_address
+    selectedDescription="Address Got Paid Test (Type 2)"
+    NOTIFICATION_API_TYPE=2
+  elif [[ "$NOTIFICATION_TYPE" == "Address Got Unconfirmed Transaction" ]]; then
+    select_notification_address
+    selectedDescription="Address Got Unconfirmed Transaction Test (Type 3)"
+    NOTIFICATION_API_TYPE=3
+  elif [[ "$NOTIFICATION_TYPE" == "Transaction Confirmed" ]]; then
+    select_notification_address
+    selectedDescription="Transaction Confirmed Test (Type 4)"
+    NOTIFICATION_API_TYPE=4
+  fi
+}
+
+# Function to select notification deep link
+# Function to select a Bitcoin address for notification testing
+select_notification_address() {
+  local selected=0
+  local ESC=$(printf "\033")
+  
+  while true; do
+    clear_screen
+    echo -e "\033[1;36m📱 BlueWallet Deep Link Test Tool\033[0m"
+    echo
+    echo -e "\033[1;33m💰 Select Bitcoin Address for Notification:\033[0m"
+    echo
+    
+    # Add descriptions for each address
+    local ADDRESS_DESCRIPTIONS=(
+      "Legacy P2PKH address (starts with 1)"
+      "Native SegWit bech32 address (starts with bc1, lowercase)"
+      "Native SegWit bech32 address (starts with BC1, uppercase)"
+    )
+    
+    for i in "${!NOTIFICATION_ADDRESSES[@]}"; do
+      if [ $i -eq $selected ]; then
+        echo -e "     \033[1;32m▶\033[0m ($((i+1))) ${ADDRESS_DESCRIPTIONS[$i]}"
+        echo -e "         \033[1;33m${NOTIFICATION_ADDRESSES[$i]}\033[0m"
+      else
+        echo -e "       ($((i+1))) ${ADDRESS_DESCRIPTIONS[$i]}"
+        echo -e "         \033[0;90m${NOTIFICATION_ADDRESSES[$i]}\033[0m"
+      fi
+      echo
+    done
+    
+    echo
+    echo -e "\033[0;37m     Use ↑/↓ arrows to navigate, Enter to select, q to quit\033[0m"
+    
+    read -rsn1 key
+    if [[ $key == $ESC ]]; then
+      read -rsn2 key
+      case $key in
+        '[A') # Up arrow
+          selected=$(( (selected - 1 + ${#NOTIFICATION_ADDRESSES[@]}) % ${#NOTIFICATION_ADDRESSES[@]} ))
+          ;;
+        '[B') # Down arrow
+          selected=$(( (selected + 1) % ${#NOTIFICATION_ADDRESSES[@]} ))
+          ;;
+      esac
+    elif [[ $key == "q" ]]; then
+      exit 0
+    elif [[ $key == "" ]]; then # Enter key
+      selectedLink="${NOTIFICATION_ADDRESSES[$selected]}"
+      break
+    fi
+  done
+}
+
+select_notification_deeplink() {
+  local selected=0
+  local ESC=$(printf "\033")
+  
+  while true; do
+    clear_screen
+    echo -e "\033[1;36m📱 BlueWallet Deep Link Test Tool\033[0m"
+    echo
+    echo -e "\033[1;33m🔗 Select Notification Deep Link:\033[0m"
+    echo
+    
+    for i in "${!NOTIFICATION_DEEPLINKS[@]}"; do
+      if [ $i -eq $selected ]; then
+        echo -e "     \033[1;32m▶\033[0m ($((i+1))) ${NOTIFICATION_DEEPLINK_DESCRIPTIONS[$i]}"
+        echo -e "         \033[0;90m${NOTIFICATION_DEEPLINKS[$i]:0:80}...\033[0m"
+      else
+        echo -e "       ($((i+1))) ${NOTIFICATION_DEEPLINK_DESCRIPTIONS[$i]}"
+      fi
+    done
+    
+    echo
+    echo -e "\033[0;37m     Use ↑/↓ arrows to navigate, Enter to select, q to quit\033[0m"
+    
+    read -rsn1 key
+    if [[ $key == $ESC ]]; then
+      read -rsn2 key
+      case $key in
+        '[A') # Up arrow
+          selected=$(( (selected - 1 + ${#NOTIFICATION_DEEPLINKS[@]}) % ${#NOTIFICATION_DEEPLINKS[@]} ))
+          ;;
+        '[B') # Down arrow
+          selected=$(( (selected + 1) % ${#NOTIFICATION_DEEPLINKS[@]} ))
+          ;;
+      esac
+    elif [[ $key == "q" ]]; then
+      exit 0
+    elif [[ $key == "" ]]; then # Enter key
+      selectedLink="${NOTIFICATION_DEEPLINKS[$selected]}"
+      selectedDescription="${NOTIFICATION_DEEPLINK_DESCRIPTIONS[$selected]}"
+      break
+    fi
+  done
 }
 
 # Function to select deeplink category
@@ -567,13 +768,82 @@ send_to_ios_simulator() {
   echo
   
   if [[ "$TEST_TYPE" == "Notification" ]]; then
-    echo -e "     \033[1;37mTest:\033[0m     Notification"
-    echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
-    echo
-    echo
-    
-    # dynamically build APNS payload with selected address
-    read -r -d '' APNS_PAYLOAD << JSON
+    if [[ "$NOTIFICATION_TYPE" == "Lightning Invoice Paid" ]]; then
+      echo -e "     \033[1;37mTest:\033[0m     Lightning Invoice Paid (Type 1)"
+      echo -e "     \033[1;37mInvoice:\033[0m  Test Lightning Invoice"
+      echo
+      echo
+      
+      # Generate test data for lightning invoice
+      hash="test_hash_$(date +%s)"
+      current_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      
+      # Construct lightning invoice deep link
+      deep_link="bluewallet://lightningInvoice?hash=${hash}&sat=1000"
+      
+      # Build APNS payload for Lightning Invoice Paid (Type 1)
+      read -r -d '' APNS_PAYLOAD << JSON
+{
+  "Simulator Target Bundle": "io.bluewallet.bluewallet",
+  "aps": {
+    "alert": {
+      "title": "Lightning Invoice Paid",
+      "body": "Your lightning invoice for 1000 satoshis was paid.",
+      "action": "View Invoice"
+    },
+    "sound": "default",
+    "badge": 1,
+    "content-available": 1,
+    "mutable-content": 1,
+    "category": "LIGHTNING"
+  },
+  "data": {
+    "type": 1,
+    "level": "transactions",
+    "sat": 1000,
+    "hash": "$hash",
+    "memo": "Test Lightning Payment",
+    "userInteraction": true,
+    "foreground": true,
+    "timestamp": "$current_timestamp"
+  },
+  "message": "Lightning invoice paid",
+  "subText": "1000 satoshis received"
+}
+JSON
+      # write payload to temporary file
+      apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
+      printf '%s' "$APNS_PAYLOAD" > "$apns_file"
+      
+      echo -e "     🔔 \033[1;32mPushing notification to simulator using xcrun simctl push...\033[0m"
+      echo -e "     💰 \033[1;32mAddress: $selectedLink\033[0m"
+      echo -e "     🆔 \033[1;32mTransaction ID: $txid\033[0m"
+      
+      if xcrun simctl push "$udid" "io.bluewallet.bluewallet" "$apns_file" 2>/dev/null; then
+        echo -e "     ✅ \033[1;32mNotification sent successfully!\033[0m"
+      else
+        echo -e "     ❌ \033[1;31mFailed to send notification. Make sure BlueWallet is installed.\033[0m"
+        echo -e "     ℹ️ \033[1;34mCommand used: xcrun simctl push \"$udid\" \"io.bluewallet.bluewallet\" \"$apns_file\"\033[0m"
+      fi
+      rm -f "$apns_file"
+    elif [[ "$NOTIFICATION_TYPE" == "Address Got Paid" ]]; then
+      echo -e "     \033[1;37mTest:\033[0m     Address Got Paid (Type 2)"
+      echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
+      echo
+      echo
+      
+      # Generate unique txid for testing
+      txid="sample_txid_$(date +%s)"
+      current_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      
+      # URL encode the address for the deep link
+      encoded_address=$(url_encode "$selectedLink")
+      
+      # Construct deep link URL for confirmed transaction
+      deep_link="bluewallet://receive?address=${encoded_address}&txid=${txid}"
+      
+      # Build APNS payload for Address Got Paid (Type 2)
+      read -r -d '' APNS_PAYLOAD << JSON
 {
   "Simulator Target Bundle": "io.bluewallet.bluewallet",
   "aps": {
@@ -584,31 +854,159 @@ send_to_ios_simulator() {
     },
     "sound": "default",
     "badge": 1,
-    "content-available": 1
+    "content-available": 1,
+    "mutable-content": 1,
+    "category": "TRANSACTION"
   },
   "data": {
     "type": 2,
+    "level": "transactions",
     "sat": 2000,
     "address": "$selectedLink",
-    "txid": "sample_txid_$(date +%s)",
+    "txid": "$txid",
     "userInteraction": true,
-    "foreground": false,
-    "walletID": "wallet123",
-    "chain": "ONCHAIN",
-    "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-  }
+    "foreground": true,
+    "timestamp": "$current_timestamp"
+  },
+  "message": "Transaction received",
+  "subText": "2000 satoshis received"
 }
 JSON
-    # write payload to temporary file
-    apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
-    printf '%s' "$APNS_PAYLOAD" > "$apns_file"
-    echo -e "     🔔 \033[1;32mPushing notification to simulator...\033[0m"
-    if xcrun simctl push "$udid" "$apns_file" 2>/dev/null; then
-      echo -e "     ✅ \033[1;32mNotification sent successfully!\033[0m"
-    else
-      echo -e "     ❌ \033[1;31mFailed to send notification. Make sure BlueWallet is installed.\033[0m"
+      # write payload to temporary file
+      apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
+      printf '%s' "$APNS_PAYLOAD" > "$apns_file"
+      
+      echo -e "     🔔 \033[1;32mPushing address-only notification to simulator...\033[0m"
+      echo -e "     💰 \033[1;32mAddress: $selectedLink\033[0m"
+      echo -e "     ℹ️ \033[1;33mNo transaction ID - tests ReceiveDetails routing\033[0m"
+      echo -e "     📱 \033[1;36mTap the notification when it appears to trigger routing\033[0m"
+      
+      if xcrun simctl push "$udid" "io.bluewallet.bluewallet" "$apns_file" 2>/dev/null; then
+        echo -e "     ✅ \033[1;32mAddress-only notification sent successfully!\033[0m"
+        echo -e "     👆 \033[1;33mNow tap the notification in the simulator to test routing\033[0m"
+        echo -e "     📱 \033[1;36mThis should route to ReceiveDetails screen when tapped\033[0m"
+      else
+        echo -e "     ❌ \033[1;31mFailed to send notification. Make sure BlueWallet is installed.\033[0m"
+        echo -e "     ℹ️ \033[1;34mCommand used: xcrun simctl push \"$udid\" \"io.bluewallet.bluewallet\" \"$apns_file\"\033[0m"
+      fi
+      rm -f "$apns_file"
+    elif [[ "$NOTIFICATION_TYPE" == "Address Got Unconfirmed Transaction" ]]; then
+      echo -e "     \033[1;37mTest:\033[0m     Address Got Unconfirmed Transaction (Type 3)"
+      echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
+      echo
+      echo
+      
+      # Generate unique txid for testing
+      txid="unconfirmed_txid_$(date +%s)"
+      current_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      
+      # URL encode the address for the deep link
+      encoded_address=$(url_encode "$selectedLink")
+      
+      # Construct deep link URL for unconfirmed transaction
+      deep_link="bluewallet://receive?address=${encoded_address}&txid=${txid}"
+      
+      # Build APNS payload for Address Got Unconfirmed Transaction (Type 3)
+      read -r -d '' APNS_PAYLOAD << JSON
+{
+  "Simulator Target Bundle": "io.bluewallet.bluewallet",
+  "aps": {
+    "alert": {
+      "title": "Unconfirmed Transaction",
+      "body": "You received an unconfirmed transaction of 1500 satoshis.",
+      "action": "View Transaction"
+    },
+    "sound": "default",
+    "badge": 1,
+    "content-available": 1,
+    "mutable-content": 1,
+    "category": "UNCONFIRMED"
+  },
+  "data": {
+    "type": 3,
+    "level": "transactions",
+    "sat": 1500,
+    "address": "$selectedLink",
+    "txid": "$txid",
+    "userInteraction": true,
+    "foreground": true,
+    "timestamp": "$current_timestamp"
+  },
+  "message": "Unconfirmed transaction received",
+  "subText": "1500 satoshis pending"
+}
+JSON
+      # write payload to temporary file
+      apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
+      printf '%s' "$APNS_PAYLOAD" > "$apns_file"
+      
+      echo -e "     � \033[1;32mPushing unconfirmed transaction notification to simulator...\033[0m"
+      echo -e "     💰 \033[1;32mAddress: $selectedLink\033[0m"
+      echo -e "     🆔 \033[1;32mTransaction ID: $txid (unconfirmed)\033[0m"
+      
+      if xcrun simctl push "$udid" "io.bluewallet.bluewallet" "$apns_file" 2>/dev/null; then
+        echo -e "     ✅ \033[1;32mUnconfirmed transaction notification sent successfully!\033[0m"
+      else
+        echo -e "     ❌ \033[1;31mFailed to send notification. Make sure BlueWallet is installed.\033[0m"
+        echo -e "     ℹ️ \033[1;34mCommand used: xcrun simctl push \"$udid\" \"io.bluewallet.bluewallet\" \"$apns_file\"\033[0m"
+      fi
+      rm -f "$apns_file"
+    elif [[ "$NOTIFICATION_TYPE" == "Transaction Confirmed" ]]; then
+      echo -e "     \033[1;37mTest:\033[0m     Transaction Confirmed (Type 4)"
+      echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
+      echo
+      echo
+      
+      # Generate unique txid for testing
+      txid="confirmed_txid_$(date +%s)"
+      current_timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      
+      # Construct deep link URL for confirmed transaction
+      deep_link="bluewallet://transaction/${txid}"
+      
+      # Build APNS payload for Transaction Confirmed (Type 4)
+      read -r -d '' APNS_PAYLOAD << JSON
+{
+  "Simulator Target Bundle": "io.bluewallet.bluewallet",
+  "aps": {
+    "alert": {
+      "title": "Transaction Confirmed",
+      "body": "Your transaction has been confirmed on the blockchain.",
+      "action": "View Transaction"
+    },
+    "sound": "default",
+    "badge": 1,
+    "content-available": 1,
+    "mutable-content": 1,
+    "category": "CONFIRMED"
+  },
+  "data": {
+    "type": 4,
+    "level": "transactions",
+    "txid": "$txid",
+    "userInteraction": true,
+    "foreground": true,
+    "timestamp": "$current_timestamp"
+  },
+  "message": "Transaction confirmed",
+  "subText": "Blockchain confirmation received"
+}
+JSON
+      # write payload to temporary file
+      apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
+      printf '%s' "$APNS_PAYLOAD" > "$apns_file"
+      
+      echo -e "     � \033[1;32mPushing transaction confirmed notification to simulator...\033[0m"
+      echo -e "     🆔 \033[1;32mTransaction ID: $txid (confirmed)\033[0m"
+      
+      if xcrun simctl push "$udid" "io.bluewallet.bluewallet" "$apns_file" 2>/dev/null; then
+        echo -e "     ✅ \033[1;32mTransaction confirmed notification sent successfully!\033[0m"
+      else
+        echo -e "     ❌ \033[1;31mFailed to send notification. Make sure BlueWallet is installed.\033[0m"
+        echo -e "     ℹ️ \033[1;34mCommand used: xcrun simctl push \"$udid\" \"io.bluewallet.bluewallet\" \"$apns_file\"\033[0m"
+      fi
+      rm -f "$apns_file"
     fi
-    rm -f "$apns_file"
   else
     echo -e "     \033[1;37mTest:\033[0m     $selectedDescription"
     echo -e "     \033[1;37mURI:\033[0m      $selectedLink"
@@ -646,15 +1044,30 @@ send_to_android_emulator() {
   echo
   
   if [[ "$TEST_TYPE" == "Notification" ]]; then
-    echo -e "     \033[1;37mTest:\033[0m     Notification"  
-    echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
-    echo
-    echo
-    echo -e "     ⚠️  \033[1;33mNotification testing not supported on Android emulators.\033[0m"
-    echo -e "         Use iOS Simulator for notification tests."
-    echo
-    echo
-    return
+    if [[ "$NOTIFICATION_TYPE" == "Push Notification" ]]; then
+      echo -e "     \033[1;37mTest:\033[0m     Push Notification"  
+      echo -e "     \033[1;37mAddress:\033[0m  $selectedLink"
+      echo
+      echo
+      echo -e "     ⚠️  \033[1;33mPush notification testing not supported on Android emulators.\033[0m"
+      echo -e "         Use iOS Simulator for push notification tests."
+      echo
+      echo
+      return
+    else
+      echo -e "     \033[1;37mTest:\033[0m     Notification Deep Link"
+      echo -e "     \033[1;37mURL:\033[0m      $selectedLink"
+      echo
+      echo
+      
+      echo -e "     🔗 \033[1;32mSending notification deep link to emulator...\033[0m"
+      if adb -s "$emuId" shell am start -W -a android.intent.action.VIEW -d "$selectedLink" io.bluewallet.bluewallet 2>/dev/null; then
+        echo -e "     ✅ \033[1;32mNotification deep link sent successfully!\033[0m"
+      else
+        echo -e "     ❌ \033[1;31mFailed to send notification deep link. Make sure BlueWallet is installed.\033[0m"
+      fi
+      return
+    fi
   fi
   
   echo -e "     \033[1;37mTest:\033[0m     $selectedDescription"
@@ -799,8 +1212,6 @@ offer_to_launch_device() {
       esac
     elif [[ $key == "" ]]; then # Enter key
       break
-    elif [[ $key == "q" ]]; then
-      exit 0
     fi
   done
   

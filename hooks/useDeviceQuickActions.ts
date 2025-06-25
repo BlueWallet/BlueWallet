@@ -116,7 +116,7 @@ const useDeviceQuickActions = () => {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
-    navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
+    navigationRouteFor(event, (route: string, params?: any) => NavigationService.navigate(route, params), {
       wallets,
       addWallet,
       saveToDisk,

@@ -13,7 +13,28 @@ const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
+let alreadyInitialized = false;
 let baseURI = groundControlUri;
+
+// Helper function to wait for wallets to be initialized before proceeding
+const waitForWalletsInitialized = async (): Promise<any[]> => {
+  return new Promise<any[]>(resolve => {
+    const BlueAppClass = require('../class/blue-app').BlueApp;
+    const BlueAppInstance = BlueAppClass.getInstance();
+    
+    const checkInitialized = () => {
+      const wallets = BlueAppInstance.getWallets();
+      if (wallets && wallets.length > 0) {
+        console.log('✅ Wallets are initialized, proceeding with notification handling');
+        resolve(wallets);
+      } else {
+        console.log('⏳ Waiting for wallets to be initialized...');
+        setTimeout(checkInitialized, 100);
+      }
+    };
+    checkInitialized();
+  });
+};
 
 type TPushToken = {
   token: string;
@@ -32,6 +53,8 @@ type TPayload = {
   txid: string;
   type: number;
   hash: string;
+  // Direct navigation URL for React Navigation linking system
+  url?: string;
 };
 
 function deepClone<T>(obj: T): T {
@@ -328,6 +351,8 @@ const _setPushToken = async (token: TPushToken) => {
  * @returns {Promise<boolean>}
  */
 export const configureNotifications = async (onProcessNotifications?: () => void) => {
+  console.log('🔧 configureNotifications called, alreadyConfigured:', alreadyConfigured);
+  
   if (alreadyConfigured) {
     console.debug('configureNotifications: Already configured, skipping');
     return true;
@@ -335,16 +360,20 @@ export const configureNotifications = async (onProcessNotifications?: () => void
 
   return new Promise(resolve => {
     const handleRegistration = async (token: TPushToken) => {
-      if (__DEV__) {
-        console.debug('configureNotifications: Token received:', token);
-      }
+      console.log('📱 Push token registered:', {
+        token: token?.token ? `${token.token.substring(0, 10)}...` : 'no token',
+        os: token?.os,
+        isDev: __DEV__,
+      });
       alreadyConfigured = true;
       await _setPushToken(token);
       resolve(true);
     };
 
     // const handleNotification = async (notification: TPushNotification & { data: any }) => {
-    const handleNotification = async (notification: Omit<ReceivedNotification, 'userInfo'>) => {
+    const handleNotification = async (notification: any) => {
+      console.log('🔔 Notification handler called with:', JSON.stringify(notification, null, 2));
+      
       // Deep clone to avoid modifying the original object
       // @ts-ignore some missing properties hopefully will be unwrapped from `.data`
       const payload: TPayload = deepClone({
@@ -352,13 +381,31 @@ export const configureNotifications = async (onProcessNotifications?: () => void
         ...notification.data,
       });
 
+      // Handle iOS notification format where data is nested under userInfo.data
+      if (notification.userInfo?.data) {
+        const validData = Object.fromEntries(Object.entries(notification.userInfo.data).filter(([_, value]) => value != null));
+        Object.assign(payload, validData);
+        console.log('📱 Extracted data from userInfo.data:', validData);
+      }
+
+      // Handle Android notification format where data is directly in notification.data
       if (notification.data?.data) {
         const validData = Object.fromEntries(Object.entries(notification.data.data).filter(([_, value]) => value != null));
         Object.assign(payload, validData);
+        console.log('🤖 Extracted data from notification.data.data:', validData);
       }
 
       // @ts-ignore stfu ts, its cleanup
       payload.data = undefined;
+
+      console.log('🔍 Final processed payload:', {
+        type: payload.type,
+        address: payload.address,
+        txid: payload.txid,
+        userInteraction: payload.userInteraction,
+        hasSubText: !!payload.subText,
+        hasMessage: !!payload.message,
+      });
 
       if (!payload.subText && !payload.message) {
         console.warn('Notification missing required fields:', payload);
@@ -368,6 +415,163 @@ export const configureNotifications = async (onProcessNotifications?: () => void
       await addNotification(payload);
       notification.finish(PushNotificationIOS.FetchResult.NoData);
 
+      // Check if app is in cold boot state
+      const appState = AppState.currentState;
+      const isColdBoot = appState === 'inactive' || appState === 'background';
+      console.log('Current app state during notification:', appState, 'Cold boot detected:', isColdBoot);
+
+      // For cold boot scenarios, add a delay to ensure app navigation is ready
+      if (isColdBoot && payload.userInteraction) {
+        console.log('🧊 Cold boot notification detected, scheduling delayed processing...');
+        setTimeout(async () => {
+          console.log('🚀 Processing delayed cold boot notification');
+          // Wait for wallets to be initialized before processing the notification
+          await waitForWalletsInitialized();
+          console.log('✅ Wallets ready, processing cold boot notification');
+          // Process the notification routing (the rest of the notification logic will continue)
+        }, 1500); // Increased delay to ensure app is fully loaded
+      }
+
+      console.log('Processing notification payload:', {
+        type: payload.type,
+        address: payload.address,
+        txid: payload.txid,
+        userInteraction: payload.userInteraction,
+        url: payload.url,
+        isColdBoot,
+      });
+
+      // Handle notification routing when user taps notification
+      if (payload.userInteraction) {
+        if (payload.url) {
+          // Handle notification tap - route through LinkingConfig if URL is present
+          console.log('Notification tapped with URL:', payload.url);
+          try {
+            const { Linking } = require('react-native');
+            await Linking.openURL(payload.url);
+            console.log('Notification URL routed through LinkingConfig:', payload.url);
+          } catch (error) {
+            console.error('Failed to route notification URL:', error);
+          }
+        } else if (payload.type === 1 && payload.hash) {
+          // Handle Lightning Invoice Paid notifications
+          console.log('Lightning invoice notification tapped (Type 1):', payload.hash);
+          try {
+            // Wait for wallets to be initialized
+            const wallets = await waitForWalletsInitialized();
+            
+            const walletForHash = wallets.find((wallet: any) => {
+              // Check if wallet has lightning capability and contains this hash
+              if (wallet.type === 'lightningCustodialWallet' || wallet.allowReceive?.()) {
+                return wallet.weOwnAddress && wallet.weOwnAddress(payload.hash);
+              }
+              return false;
+            });
+            
+            if (!walletForHash) {
+              console.log('Lightning invoice notification for unknown wallet, ignoring:', payload.hash);
+              return;
+            }
+            
+            const { Linking } = require('react-native');
+            const lightningUrl = `bluewallet://lightningInvoice?hash=${encodeURIComponent(payload.hash)}&walletID=${encodeURIComponent(walletForHash.getID())}`;
+            await Linking.openURL(lightningUrl);
+            console.log('Lightning invoice notification routed with walletID:', lightningUrl);
+          } catch (error) {
+            console.error('Failed to route lightning invoice notification:', error);
+          }
+        } else if (payload.type === 4 && payload.txid) {
+          // Handle Transaction Confirmed notifications
+          console.log('Transaction confirmed notification tapped (Type 4):', payload.txid);
+          try {
+            // Wait for wallets to be initialized
+            const wallets = await waitForWalletsInitialized();
+            
+            const walletForTxid = wallets.find((wallet: any) => {
+              const transactions = wallet.getTransactions ? wallet.getTransactions() : [];
+              return transactions.some((tx: any) => tx.hash === payload.txid || tx.txid === payload.txid);
+            });
+            
+            if (!walletForTxid) {
+              console.log('Transaction confirmed notification for unknown transaction, ignoring:', payload.txid);
+              return;
+            }
+            
+            const { Linking } = require('react-native');
+            const transactionUrl = `bluewallet://transaction/${encodeURIComponent(payload.txid)}?walletID=${encodeURIComponent(walletForTxid.getID())}`;
+            await Linking.openURL(transactionUrl);
+            console.log('Transaction confirmed notification routed with walletID:', transactionUrl);
+          } catch (error) {
+            console.error('Failed to route transaction confirmed notification:', error);
+          }
+        } else if ((payload.type === 2 || payload.type === 3) && payload.address) {
+          // Handle address-based notifications (Type 2: Address Got Paid, Type 3: Address Got Unconfirmed Transaction)
+          console.log('Address notification tapped (Type', payload.type, '):', payload.address);
+          try {
+            // Wait for wallets to be initialized
+            const wallets = await waitForWalletsInitialized();
+            
+            const walletForAddress = wallets.find((wallet: any) => {
+              const addresses = wallet.getAllExternalAddresses ? wallet.getAllExternalAddresses() : [];
+              const internalAddresses = wallet.getAllInternalAddresses ? wallet.getAllInternalAddresses() : [];
+              return [...addresses, ...internalAddresses].includes(payload.address);
+            });
+            
+            if (!walletForAddress) {
+              console.log('Address notification for unknown wallet, ignoring:', payload.address);
+              return;
+            }
+            
+            const { Linking } = require('react-native');
+            let receiveUrl = `bluewallet://receive?address=${encodeURIComponent(payload.address)}&walletID=${encodeURIComponent(walletForAddress.getID())}`;
+            if (payload.txid) {
+              receiveUrl += `&txid=${encodeURIComponent(payload.txid)}`;
+            }
+            
+            console.log('Address notification routed to ReceiveDetails with walletID:', receiveUrl);
+            
+            try {
+              console.log('🚀 Starting navigation to ReceiveDetails...');
+              
+              // Check if NavigationService is ready for direct navigation
+              try {
+                const NavigationService = require('../NavigationService');
+                if (NavigationService.navigationRef && NavigationService.navigationRef.isReady && NavigationService.navigationRef.isReady()) {
+                  console.log('🎯 Navigation ready, attempting direct navigation to ReceiveDetails modal...');
+                  NavigationService.navigate('ReceiveDetails', {
+                    address: payload.address,
+                    walletID: walletForAddress.getID(),
+                    txid: payload.txid,
+                  });
+                  console.log('✅ Direct navigation to ReceiveDetails modal successful');
+                  return;
+                } else {
+                  console.log('⚠️ NavigationService not ready, using Linking.openURL for cold boot');
+                }
+              } catch (directNavError) {
+                console.log('⚠️ Direct navigation failed, falling back to Linking.openURL:', directNavError);
+              }
+              
+              // Use Linking.openURL for cold boot or when direct navigation fails
+              console.log('🔗 Using Linking.openURL for navigation...');
+              await Linking.openURL(receiveUrl);
+              console.log('✅ Address notification navigation successful via Linking');
+            } catch (error: any) {
+              console.error('❌ Address notification navigation failed:', error);
+            }
+          } catch (error) {
+            console.error('Failed to route address notification:', error);
+          }
+        } else {
+          console.log('Notification not processed for routing:', {
+            hasUserInteraction: !!payload.userInteraction,
+            hasUrl: !!payload.url,
+            hasAddress: !!payload.address,
+            type: payload.type,
+          });
+        }
+      }
+
       if (payload.foreground && onProcessNotifications) {
         await onProcessNotifications();
       }
@@ -375,9 +579,10 @@ export const configureNotifications = async (onProcessNotifications?: () => void
 
     const configure = async () => {
       try {
+        console.log('🔧 Starting PushNotification.configure...');
         const { status } = await checkNotifications();
         if (status !== RESULTS.GRANTED) {
-          console.debug('configureNotifications: Permissions not granted');
+          console.debug('configureNotifications: Permissions not granted, status:', status);
           return resolve(false);
         }
 
@@ -388,16 +593,25 @@ export const configureNotifications = async (onProcessNotifications?: () => void
           return resolve(true);
         }
 
+        console.log('🔧 Configuring PushNotification with handlers...');
+        console.log('🔧 Environment check:', {
+          isDev: __DEV__,
+          platform: Platform.OS,
+          notificationsCapable: isNotificationsCapable,
+          baseURI,
+        });
         PushNotification.configure({
           onRegister: handleRegistration,
           onNotification: handleNotification,
           onRegistrationError: (error: any) => {
-            console.error('Registration error:', error);
+            console.error('❌ Push notification registration error:', error);
             resolve(false);
           },
           permissions: { alert: true, badge: true, sound: true },
           popInitialNotification: true,
         });
+        console.log('✅ PushNotification.configure completed');
+        console.log('📱 Push notification system is now listening for notifications...');
       } catch (error) {
         console.error('Error in configure:', error);
         resolve(false);
@@ -613,8 +827,21 @@ export const getStoredNotifications = async (): Promise<TPayload[]> => {
   return notifications;
 };
 
+// Helper function to reset initialization state (useful for testing)
+export const resetNotificationInitialization = () => {
+  console.debug('resetNotificationInitialization: Resetting initialization state');
+  alreadyInitialized = false;
+  alreadyConfigured = false;
+};
+
 // on app launch (load module):
 export const initializeNotifications = async (onProcessNotifications?: () => void) => {
+  if (alreadyInitialized) {
+    console.debug('initializeNotifications: Already initialized, skipping duplicate call');
+    return;
+  }
+  
+  alreadyInitialized = true;
   console.debug('initializeNotifications: Starting initialization');
   try {
     const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
@@ -650,11 +877,18 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
         await configureNotifications(onProcessNotifications);
         await postTokenConfig();
       } else {
-        console.debug('initializeNotifications: No token found, will request permissions');
-        await tryToObtainPermissions();
+        console.debug('initializeNotifications: No token found, configuring for cold boot handling');
+        // Configure notifications even without token to handle cold boot scenarios
+        // This ensures we can process the notification that launched the app
+        await configureNotifications(onProcessNotifications);
+        console.debug('initializeNotifications: Configured for initial notification processing');
       }
     } else {
       console.debug('Notifications require user action to enable');
+      // Even if permissions aren't granted, configure to handle any initial notification
+      // that might have launched the app (popInitialNotification: true will handle this)
+      console.debug('initializeNotifications: Configuring for potential cold boot notification');
+      await configureNotifications(onProcessNotifications);
     }
   } catch (error) {
     console.error('Failed to initialize notifications:', error);

@@ -339,7 +339,20 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
         let blockExplorer = userDefaultsGroup?.string(forKey: "blockExplorer") ?? "https://www.mempool.space"
 
-        if let data = userInfo["data"] as? [String: Any] {
+        // First, check if notification has a custom deep link URL
+        if let url = userInfo["url"] as? String, !url.isEmpty {
+            NSLog("[AppDelegate] Notification contains deep link URL: \(url)")
+            if let deepLinkURL = URL(string: url) {
+                // Route through the app's linking system (handled by LinkingConfig)
+                DispatchQueue.main.async {
+                    UIApplication.shared.open(deepLinkURL, options: [:]) { success in
+                        NSLog("[AppDelegate] Deep link navigation result: \(success)")
+                    }
+                }
+            }
+        }
+        // Handle specific notification actions
+        else if let data = userInfo["data"] as? [String: Any] {
             if response.actionIdentifier == "VIEW_ADDRESS_TRANSACTIONS", let address = data["address"] as? String {
                 if let url = URL(string: "\(blockExplorer)/address/\(address)") {
                     UIApplication.shared.open(url)

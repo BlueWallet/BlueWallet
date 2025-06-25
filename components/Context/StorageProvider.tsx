@@ -11,7 +11,7 @@ import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
-import { updateWalletContext, updateLinkingContext } from '../../navigation/LinkingConfig';
+import { updateWalletContext } from '../../navigation/LinkingConfig';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -87,6 +87,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         const params = currentRoute.params as { walletID?: string };
         if (params.walletID) {
           console.debug('[StorageProvider] selectedWalletID from current route:', params.walletID);
+          // Update wallet context in LinkingConfig
+          updateWalletContext({ walletID: params.walletID });
           return params.walletID;
         }
       }
@@ -99,6 +101,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         const walletID = findWalletIDInNavigationState(state.routes, screenName);
         if (walletID) {
           console.debug('[StorageProvider] selectedWalletID from navigation state:', walletID, 'in screen:', screenName);
+          // Update wallet context in LinkingConfig
+          updateWalletContext({ walletID });
           return walletID;
         }
       }
@@ -109,11 +113,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (detailViewStack?.state?.routes) {
           for (const route of detailViewStack.state.routes) {
             if (screensToCheck.includes(route.name) && (route.params as { walletID?: string })?.walletID) {
-              console.debug(
-                '[StorageProvider] selectedWalletID from drawer navigation:',
-                (route.params as { walletID?: string })?.walletID,
-              );
-              return (route.params as { walletID?: string })?.walletID;
+              const drawerWalletID = (route.params as { walletID?: string })?.walletID;
+              console.debug('[StorageProvider] selectedWalletID from drawer navigation:', drawerWalletID);
+              if (drawerWalletID) {
+                // Update wallet context in LinkingConfig
+                updateWalletContext({ walletID: drawerWalletID });
+              }
+              return drawerWalletID;
             }
           }
         }
@@ -311,20 +317,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWallets(BlueApp.getWallets());
     }
   }, [walletsInitialized]);
-
-  // Update LinkingConfig whenever wallets change
-  useEffect(() => {
-    updateWalletContext(wallets);
-  }, [wallets]);
-
-  // Update LinkingConfig with storage context functions
-  useEffect(() => {
-    updateLinkingContext({
-      saveToDisk,
-      addWallet,
-      setSharedCosigner: setCurrentSharedCosigner,
-    });
-  }, [saveToDisk, addWallet]);
 
   // Add a refresh lock to prevent concurrent refreshes
   const refreshingRef = useRef<boolean>(false);
