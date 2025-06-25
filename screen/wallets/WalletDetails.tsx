@@ -17,6 +17,7 @@ import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
   LegacyWallet,
+  LightningSparkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -73,6 +74,7 @@ const WalletDetails: React.FC = () => {
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
+  const [sparkAddress, setSparkAddress] = useState<string>('');
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
@@ -88,6 +90,23 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet]);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
+
+  // Fetch spark address when wallet is a LightningSparkWallet
+  useEffect(() => {
+    const fetchSparkAddress = async () => {
+      if (wallet.type === LightningSparkWallet.type && wallet.getSparkAddress) {
+        try {
+          const address = await wallet.getSparkAddress();
+          console.log('spark address:', address);
+          setSparkAddress(address);
+        } catch (error: any) {
+          setSparkAddress(error.message);
+        }
+      }
+    };
+
+    fetchSparkAddress();
+  }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -474,6 +493,14 @@ const WalletDetails: React.FC = () => {
               <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                 {wallet.typeReadable}
               </Text>
+              {wallet.type === LightningSparkWallet.type && (
+                <>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>spark {loc.wallets.details_address.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {sparkAddress}
+                  </Text>
+                </>
+              )}
 
               {wallet.type === MultisigHDWallet.type && (
                 <>
