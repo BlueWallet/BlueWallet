@@ -27,11 +27,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
 
-  constructor() {
-    super();
-    this.init();
-  }
-
   /**
    * requires calling init() after setting
    *
