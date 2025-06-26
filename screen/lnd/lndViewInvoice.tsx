@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
+import { LightningCustodianWallet, LightningSparkWallet } from '../../class';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -35,7 +36,7 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | LightningSparkWallet | undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);

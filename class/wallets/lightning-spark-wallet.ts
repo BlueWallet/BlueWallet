@@ -6,6 +6,7 @@ import { randomBytes } from '../rng.ts';
 import * as bip39 from 'bip39';
 import { WalletTransfer } from '@buildonspark/spark-sdk/types';
 import { LightningTransaction } from './types.ts';
+import { base64ToString, stringToUint8Array } from '../../blue_modules/uint8array-extras/index';
 
 export class LightningSparkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningSparkWallet';
@@ -21,6 +22,8 @@ export class LightningSparkWallet extends LightningCustodianWallet {
   private _userInvoices: Record<string, LightningTransaction & { id?: string }> = {}; // LightningReceiveRequest id => LightningTransaction object; also transfer id (to be used for cross-referencing)
 
   async init() {
+    if (!this.secret) throw new Error('secret is not set');
+
     const { wallet } = await NativeSDK.initialize({
       signer: new ReactNativeSparkSigner(),
       mnemonicOrSeed: this.secret.replace('spark://', ''),
@@ -182,13 +185,14 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     return ret;
   }
 
-  async addInvoice(amt: number, memo: string) {
+  async addInvoice(amt: number, memo: string, receiverIdentityPubkey?: string) {
     if (!this._sdk) throw new Error('not initialized');
     if (!this._sdk.createLightningInvoice) throw new Error('Spark wallet is not done initializing, please wait');
 
     const receiveRequest = await this._sdk.createLightningInvoice({
       amountSats: amt, // amount in satoshis
       memo, // optional description
+      receiverIdentityPubkey, // if present, the invoice will be created on behalf of the OTHER USER
     });
 
     console.log('ADD receiveRequest:', receiveRequest);
@@ -199,6 +203,7 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     tx.payment_request = receiveRequest.invoice.encodedInvoice;
     tx.memo = decoded.description;
     tx.ispaid = false;
+    tx.amt = tx.value = decoded.num_satoshis;
     tx.expire_time = decoded.expiry;
     tx.type = 'user_invoice';
 
@@ -207,10 +212,59 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     return receiveRequest.invoice.encodedInvoice;
   }
 
+  async getReceiveRequestStatus(requestId: string): Promise<LightningTransaction> {
+    if (!this._sdk) throw new Error('not initialized');
+    if (!this._sdk.getLightningReceiveRequest) throw new Error('Spark wallet is not done initializing, please wait');
+
+    const request = await this._sdk.getLightningReceiveRequest(requestId);
+
+    const lntx: LightningTransaction = {
+      timestamp: Math.floor(+Date.parse(request?.updatedAt ?? '') / 1000),
+      ispaid: request?.status === 'TRANSFER_COMPLETED' || request?.status === 'LIGHTNING_PAYMENT_RECEIVED',
+      value: request?.transfer?.totalAmount?.originalValue || (request?.invoice?.amount?.originalValue ?? 0) / 1000,
+
+      memo: base64ToString(request?.invoice?.memo ?? '') || request?.invoice?.memo,
+      payment_preimage: request?.paymentPreimage,
+      payment_hash: request?.invoice?.paymentHash,
+      payment_request: request?.invoice.encodedInvoice,
+    };
+
+    return lntx;
+  }
+
+  async signMessageWithIdentityKey(message: string) {
+    if (!this._sdk) throw new Error('not initialized');
+
+    // @ts-ignore no its actually expecting Uint8Array, not string
+    const signature = await this._sdk.signMessageWithIdentityKey(stringToUint8Array(message));
+    console.log('signature=', signature);
+
+    /* 
+    const isValid = await this._sdk.validateMessageWithIdentityKey(message, signature);
+    console.log('isValid=', isValid);
+ */
+    return signature;
+  }
+
+  async validateMessageWithIdentityKey(message: string, signature: string): Promise<boolean> {
+    if (!this._sdk) throw new Error('not initialized');
+
+    const isValid = await this._sdk.validateMessageWithIdentityKey(message, signature);
+    console.log('isValid=', isValid);
+
+    return isValid;
+  }
+
   async getSparkAddress(): Promise<string> {
     if (!this._sdk) throw new Error('not initialized');
 
     return await this._sdk.getSparkAddress();
+  }
+
+  async getSparkIdentityPubkey(): Promise<string> {
+    if (!this._sdk) throw new Error('not initialized');
+
+    return await this._sdk.getIdentityPublicKey();
   }
 
   async fetchInfo() {
