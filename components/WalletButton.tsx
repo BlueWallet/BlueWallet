@@ -1,5 +1,5 @@
 import React from 'react';
-import { ColorValue, DimensionValue, Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ColorValue, DimensionValue, Image, ImageSourcePropType, StyleSheet, Text, Pressable, View } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
 import loc from '../loc';
@@ -78,7 +78,12 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
   });
 
   return (
-    <TouchableOpacity accessibilityRole="button" testID={testID} onPress={onPress} style={styles.touchable}>
+    <Pressable
+      accessibilityRole="button"
+      testID={testID}
+      onPress={onPress}
+      style={({ pressed }) => [pressed && styles.pressed, styles.touchable]}
+    >
       <View style={[styles.container, stylesHook.buttonContainer]}>
         <View style={styles.content}>
           <Image style={styles.image} source={details.image} />
@@ -88,7 +93,7 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -114,6 +119,9 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 
