@@ -232,6 +232,16 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     return lntx;
   }
 
+  async getSendRequestStatus(requestId: string) {
+    if (!this._sdk) throw new Error('not initialized');
+    if (!this._sdk.getLightningSendRequest) throw new Error('Spark wallet is not done initializing, please wait');
+
+    const request = await this._sdk.getLightningSendRequest(requestId);
+    console.log('request=', request);
+
+    return request;
+  }
+
   async signMessageWithIdentityKey(message: string) {
     if (!this._sdk) throw new Error('not initialized');
 

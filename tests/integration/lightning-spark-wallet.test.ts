@@ -102,6 +102,13 @@ describe('LightningSparkWallet', () => {
     );
   });
 
+  it.skip('can check spark send request status', async () => {
+    const requestId = 'SparkLightningSendRequest:0197aca4-d3eb-e342-0000-dbf654e5b168';
+    const status = await w.getSendRequestStatus(requestId);
+
+    console.log(status);
+  });
+
   it('can sign message with identity key', async () => {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
