@@ -25,6 +25,7 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
+import { LightningSparkWallet } from './wallets/lightning-spark-wallet.ts';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -435,6 +436,10 @@ export class BlueApp {
             break;
           case SLIP39SegwitBech32Wallet.type:
             unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
+            break;
+          case LightningSparkWallet.type:
+            unserializedWallet = LightningSparkWallet.fromJson(key) as unknown as LightningSparkWallet;
+            // unserializedWallet.init();
             break;
           case LightningCustodianWallet.type: {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;

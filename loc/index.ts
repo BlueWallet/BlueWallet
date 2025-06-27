@@ -278,6 +278,10 @@ export const saveLanguage = async (lang: string) => {
 };
 
 export const transactionTimeToReadable = (time: number | string) => {
+  if (+time < 1000000000000) {
+    // converting timestamp to milliseconds timestamp
+    time = +time * 1000;
+  }
   if (time === -1) {
     return 'unknown';
   }
