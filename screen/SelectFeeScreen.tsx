@@ -235,7 +235,7 @@ const SelectFeeScreen = () => {
 
   const handleCustomFeeSubmit = useCallback(() => {
     const numericValue = state.customFeeValue.replace(',', '.');
-    if (numericValue && Number(numericValue) > 0) {
+    if (numericValue && Number(numericValue) >= 0) {
       navigateWithFee(numericValue, NetworkTransactionFeeType.CUSTOM);
     }
   }, [state.customFeeValue, navigateWithFee]);
@@ -243,7 +243,7 @@ const SelectFeeScreen = () => {
   const handleCustomFeeBlur = useCallback(() => {
     dispatch({ type: FeeScreenActions.SET_CUSTOM_FEE_BLURRED });
     const numericValue = Number(state.customFeeValue.replace(',', '.'));
-    if (!state.customFeeValue || numericValue === 0) {
+    if (!state.customFeeValue || numericValue < 0) {
       dispatch({ type: FeeScreenActions.CLEAR_CUSTOM_FEE });
     }
   }, [state.customFeeValue]);
