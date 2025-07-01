@@ -1,4 +1,4 @@
-import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useNavigation, NavigationProp, ParamListBase, CommonActions } from '@react-navigation/native';
 import { navigationRef } from '../NavigationService';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
 import { unlockWithBiometrics, useBiometrics } from './useBiometrics';
@@ -141,8 +141,33 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
   );
 
   const navigateToWalletsList = useCallback(() => {
-    enhancedNavigate('WalletsList');
-  }, [enhancedNavigate]);
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'DrawerRoot',
+            state: {
+              routes: [
+                {
+                  name: 'DetailViewStackScreensStack',
+                  state: {
+                    routes: [
+                      {
+                        name: 'WalletsList',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      })
+    );
+  }
+}, []);
 
   return useMemo(
     () => ({
