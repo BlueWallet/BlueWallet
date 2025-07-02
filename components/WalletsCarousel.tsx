@@ -314,14 +314,17 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         image = direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
     }
 
-    const latestTransactionText =
-      walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
-        ? loc.transactions.updating
-        : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-          ? loc.wallets.pull_to_refresh
-          : item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
-            ? loc.transactions.pending
-            : transactionTimeToReadable(item.getLatestTransactionTime());
+    let latestTransactionText;
+
+    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
+      latestTransactionText = loc.transactions.updating;
+    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+      latestTransactionText = loc.wallets.pull_to_refresh;
+    } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
+      latestTransactionText = loc.transactions.pending;
+    } else {
+      latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
+    }
 
     const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
 

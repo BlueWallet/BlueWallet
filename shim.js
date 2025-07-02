@@ -1,4 +1,7 @@
 /* global __DEV__, localStorage */
+import 'react-native-get-random-values';
+import '@azure/core-asynciterator-polyfill'; // needed for spark
+import 'text-encoding'; // needed for spark
 if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';

@@ -42,6 +42,12 @@ const buttonDetails: Record<string, ButtonDetails> = {
     explain: loc.wallets.add_lightning_explain,
     borderColorActive: 'lnborderColor',
   },
+  LightningSpark: {
+    image: require('../img/addWallet/lightning.png'),
+    title: loc.wallets.add_lightning + ' Spark',
+    explain: loc.wallets.add_lightning_explain + '\n(service provided by LightSpark)',
+    borderColorActive: 'lnborderColor',
+  },
 };
 
 const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress, size, active }) => {
