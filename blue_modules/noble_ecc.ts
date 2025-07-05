@@ -8,7 +8,6 @@
 import * as necc from '@noble/secp256k1';
 import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32/types/bip32';
 import { XOnlyPointAddTweakResult } from 'bitcoinjs-lib/src/types';
-import createHash from 'create-hash';
 import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha2';
 import { TinySecp256k1Interface } from 'ecpair';
@@ -26,9 +25,13 @@ export interface TinySecp256k1InterfaceExtended {
 }
 
 necc.utils.sha256Sync = (...messages: Uint8Array[]): Uint8Array => {
-  const sha256 = createHash('sha256');
-  for (const message of messages) sha256.update(message);
-  return sha256.digest();
+  const combinedMessages = messages.reduce((acc, msg) => {
+    const newArray = new Uint8Array(acc.length + msg.length);
+    newArray.set(acc);
+    newArray.set(msg, acc.length);
+    return newArray;
+  }, new Uint8Array(0));
+  return sha256(combinedMessages);
 };
 
 necc.utils.hmacSha256Sync = (key: Uint8Array, ...messages: Uint8Array[]): Uint8Array => {
