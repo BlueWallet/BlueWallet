@@ -1,4 +1,4 @@
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
 
 export async function waitForId(id, timeout = 33000) {
@@ -84,7 +84,7 @@ export async function sleep(ms) {
 }
 
 export function hashIt(s) {
-  return createHash('sha256').update(s).digest().toString('hex');
+  return Buffer.from(sha256(s)).toString('hex');
 }
 
 export async function helperDeleteWallet(label, remainingBalanceSat = false) {

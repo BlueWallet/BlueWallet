@@ -3,7 +3,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -201,7 +201,7 @@ export default function PaymentCodesList() {
   const renderItem = (pc: string, index: number) => {
     if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
 
-    const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
+    const color = Buffer.from(sha256(pc)).toString('hex').substring(0, 6);
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label || pc);
 
