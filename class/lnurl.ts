@@ -362,15 +362,17 @@ export default class Lnurl {
         const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
         const derSignature = secp256k1.signatureExport(signatureObj.signature);
 
-        this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`).then(reply => {
-          if (reply.status === 'OK') {
-            resolve();
-          } else {
-            reject(reply.reason);
-          }
-        }).catch(err => {
-          reject(err);
-        });
+        this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`)
+          .then(reply => {
+            if (reply.status === 'OK') {
+              resolve();
+            } else {
+              reject(reply.reason);
+            }
+          })
+          .catch(err => {
+            reject(err);
+          });
       } catch (err) {
         reject(err);
       }
