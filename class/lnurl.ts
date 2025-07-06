@@ -349,34 +349,27 @@ export default class Lnurl {
     return this.getMin();
   }
 
-  authenticate(secret: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this._lnurl) throw new Error('this._lnurl is not set');
+  async authenticate(secret: string): Promise<void> {
+    if (!this._lnurl) throw new Error('this._lnurl is not set');
 
-      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl) || '', true);
+    const url = parse(Lnurl.getUrlFromLnurl(this._lnurl) || '', true);
 
-      try {
-        const privateKey = hmac(sha256, secret, url.hostname);
-        const privateKeyBuf = Buffer.from(privateKey);
-        const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-        const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
-        const derSignature = secp256k1.signatureExport(signatureObj.signature);
+    if (!url.hostname) {
+      throw new Error('Invalid URL: hostname is null');
+    }
 
-        this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`)
-          .then(reply => {
-            if (reply.status === 'OK') {
-              resolve();
-            } else {
-              reject(reply.reason);
-            }
-          })
-          .catch(err => {
-            reject(err);
-          });
-      } catch (err) {
-        reject(err);
-      }
-    });
+    const privateKey = hmac(sha256, secret, url.hostname);
+    const privateKeyBuf = Buffer.from(privateKey);
+    const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
+    const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
+    const derSignature = secp256k1.signatureExport(signatureObj.signature);
+
+    const reply = await this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
+    if (reply.status === 'OK') {
+      // Authentication successful
+    } else {
+      throw reply.reason;
+    }
   }
 
   static isLightningAddress(address: string) {
