@@ -24,7 +24,6 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 interface DataSection {
   title: string;
@@ -202,7 +201,7 @@ export default function PaymentCodesList() {
   const renderItem = (pc: string, index: number) => {
     if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
 
-    const color = uint8ArrayToHex(sha256(pc)).substring(0, 6);
+    const color = Buffer.from(sha256(pc)).toString('hex').substring(0, 6);
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label || pc);
 

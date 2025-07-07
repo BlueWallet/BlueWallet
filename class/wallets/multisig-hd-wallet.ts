@@ -13,7 +13,6 @@ import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1106,7 +1105,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getID() {
     const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return uint8ArrayToHex(sha256(string2hash));
+    return Buffer.from(sha256(string2hash)).toString('hex');
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {
