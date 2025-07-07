@@ -25,6 +25,7 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
+import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -253,7 +254,7 @@ export class BlueApp {
   };
 
   hashIt = (s: string): string => {
-    return Buffer.from(sha256(s)).toString('hex');
+    return uint8ArrayToHex(sha256(s));
   };
 
   /**

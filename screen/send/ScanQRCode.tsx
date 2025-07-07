@@ -19,6 +19,7 @@ import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 let decoder: BlueURDecoder | undefined;
 
@@ -93,7 +94,7 @@ const ScanQRCode = () => {
   }, []);
 
   const HashIt = function (s: string): string {
-    return Buffer.from(sha256(s)).toString('hex');
+    return uint8ArrayToHex(sha256(s));
   };
 
   const _onReadUniformResourceV2 = (part: string) => {
