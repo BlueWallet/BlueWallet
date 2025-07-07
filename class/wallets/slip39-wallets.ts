@@ -1,10 +1,11 @@
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import slip39 from 'slip39';
 import { WORD_LIST } from 'slip39/src/slip39_helper';
 
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 type TWalletThis = Omit<HDLegacyP2PKHWallet | HDSegwitP2SHWallet | HDSegwitBech32Wallet, 'secret'> & {
   secret: string[];
@@ -67,7 +68,7 @@ const SLIP39Mixin = {
   getID() {
     const self = this as unknown as TWalletThis;
     const string2hash = self.secret.sort().join(',') + (self.getPassphrase() || '');
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    return uint8ArrayToHex(sha256(string2hash));
   },
 };
 

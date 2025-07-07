@@ -1,5 +1,6 @@
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 export async function waitForId(id, timeout = 33000) {
   try {
@@ -84,7 +85,7 @@ export async function sleep(ms) {
 }
 
 export function hashIt(s) {
-  return createHash('sha256').update(s).digest().toString('hex');
+  return uint8ArrayToHex(sha256(s));
 }
 
 export async function helperDeleteWallet(label, remainingBalanceSat = false) {

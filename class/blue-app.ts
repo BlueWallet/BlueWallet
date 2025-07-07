@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Keychain from 'react-native-keychain';
@@ -25,6 +25,7 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
+import { uint8ArrayToHex, hexToUint8Array } from '../blue_modules/uint8array-extras';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -253,7 +254,7 @@ export class BlueApp {
   };
 
   hashIt = (s: string): string => {
-    return createHash('sha256').update(s).digest().toString('hex');
+    return uint8ArrayToHex(sha256(s));
   };
 
   /**
@@ -263,7 +264,7 @@ export class BlueApp {
   async getRealmForTransactions() {
     const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
-    const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
+    const buf = hexToUint8Array(this.hashIt(password) + this.hashIt(password));
     const encryptionKey = Int8Array.from(buf);
     const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
     const path = `${cacheFolderPath}/${fileName}`; // Use cache folder path
@@ -308,7 +309,7 @@ export class BlueApp {
       await Keychain.setGenericPassword(service, password, { service });
     }
 
-    const buf = Buffer.from(password, 'hex');
+    const buf = hexToUint8Array(password);
     const encryptionKey = Int8Array.from(buf);
     const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
 
