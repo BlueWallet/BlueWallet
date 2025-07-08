@@ -1449,8 +1449,8 @@ const SendDetails = () => {
 
     return (
       <View style={[styles.warningContainer, stylesHook.warningContainer]}>
-        <Text style={[styles.warningHeader, stylesHook.warningText]}>Warning</Text>
-        <Text style={stylesHook.warningText}>Fees below 1 sat/vB are valid, but may not be relayed due to node policies.</Text>
+        <Text style={[styles.warningHeader, stylesHook.warningText]}>{loc.transactions.custom_fee_warning_title}</Text>
+        <Text style={stylesHook.warningText}>{loc.transactions.custom_fee_warning_description}</Text>
       </View>
     );
   };
