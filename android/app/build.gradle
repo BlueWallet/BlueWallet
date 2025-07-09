@@ -138,7 +138,7 @@ dependencies {
         implementation jscFlavor
     }
     androidTestImplementation('com.wix:detox:0.1.1')
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 }
