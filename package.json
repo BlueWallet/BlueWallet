@@ -174,7 +174,7 @@
     "rn-nodeify": "10.3.0",
     "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#731ed8eb445f65f3a659632232e18ff7e1ce56d6",
     "scryptsy": "2.1.0",
-    "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17",
+    "silent-payments": "github:BlueWallet/SilentPayments#c2e64ec",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
     "stream-browserify": "3.0.0",
     "url": "0.11.4",
