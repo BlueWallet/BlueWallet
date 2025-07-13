@@ -392,6 +392,9 @@ export class LightningCustodianWallet extends LegacyWallet {
         tx.value = parseInt(tx.amt, 10);
         tx.memo = tx.description || 'Lightning invoice';
       }
+
+      // Set received property for sorting in WalletTransactions.tsx
+      tx.received = tx.timestamp ? new Date(tx.timestamp * 1000).toISOString() : new Date().toISOString();
     }
     return txs.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return b.timestamp - a.timestamp;
