@@ -319,7 +319,7 @@ const TransactionDetails = () => {
         {tx.timestamp && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
-            <BlueText style={styles.rowValue}>{dayjs(tx.timestamp).format('LLL')}</BlueText>
+            <BlueText style={styles.rowValue}>{dayjs(tx.timestamp * 1000).format('LLL')}</BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
