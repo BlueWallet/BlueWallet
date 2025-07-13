@@ -272,8 +272,9 @@ const LNDCreateInvoice = () => {
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
       /** @type LightningCustodianWallet */
       const decoded = await wallet.current.decodeInvoice(invoiceRequest);
-      await tryToObtainPermissions();
-      majorTomToGroundControl([], [decoded.payment_hash], []);
+      tryToObtainPermissions()
+        .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
+        .catch(err => console.error(err.message));
 
       // send to lnurl-withdraw callback url if that exists
       if (lnurlParams) {
