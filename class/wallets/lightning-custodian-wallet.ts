@@ -666,7 +666,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getLatestTransactionTime(): string | 0 {
-    return new Date(this.getTransactions().reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
+    const transactions = this.getTransactions();
+    if (transactions.length === 0) {
+      return 0;
+    }
+    return new Date(transactions.reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
   }
 }
 
