@@ -866,9 +866,7 @@ export class BlueApp {
 
     return txs
       .sort((a, b) => {
-        const bTime = new Date(b.timestamp).getTime();
-        const aTime = new Date(a.timestamp).getTime();
-        return bTime - aTime;
+        return b.timestamp - a.timestamp;
       })
       .slice(0, limit);
   };
