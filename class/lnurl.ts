@@ -1,7 +1,7 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
-import createHash from 'create-hash';
-import { createHmac } from 'crypto';
+import { sha256 } from '@noble/hashes/sha256';
+import { hmac } from '@noble/hashes/hmac';
 import CryptoJS from 'crypto-js';
 // @ts-ignore theres no types for secp256k1
 import secp256k1 from 'secp256k1';
@@ -189,7 +189,7 @@ export default class Lnurl {
 
     // check pr description_hash, amount etc:
     const decoded = this.decodeInvoice(this._lnurlPayServiceBolt11Payload.pr);
-    const metadataHash = createHash('sha256').update(this._lnurlPayServicePayload.metadata).digest('hex');
+    const metadataHash = Buffer.from(sha256(this._lnurlPayServicePayload.metadata)).toString('hex');
     if (metadataHash !== decoded.description_hash) {
       console.log(`Invoice description_hash doesn't match metadata.`);
     }
@@ -349,35 +349,27 @@ export default class Lnurl {
     return this.getMin();
   }
 
-  authenticate(secret: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this._lnurl) throw new Error('this._lnurl is not set');
+  async authenticate(secret: string): Promise<void> {
+    if (!this._lnurl) throw new Error('this._lnurl is not set');
 
-      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl) || '', true);
+    const url = parse(Lnurl.getUrlFromLnurl(this._lnurl) || '', true);
 
-      const hmac = createHmac('sha256', secret);
-      hmac.on('readable', async () => {
-        try {
-          const privateKey = hmac.read();
-          if (!privateKey) return;
-          const privateKeyBuf = Buffer.from(privateKey, 'hex');
-          const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-          const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
-          const derSignature = secp256k1.signatureExport(signatureObj.signature);
+    if (!url.hostname) {
+      throw new Error('Invalid URL: hostname is null');
+    }
 
-          const reply = await this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
-          if (reply.status === 'OK') {
-            resolve();
-          } else {
-            reject(reply.reason);
-          }
-        } catch (err) {
-          reject(err);
-        }
-      });
-      hmac.write(url.hostname);
-      hmac.end();
-    });
+    const privateKey = hmac(sha256, secret, url.hostname);
+    const privateKeyBuf = Buffer.from(privateKey);
+    const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
+    const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
+    const derSignature = secp256k1.signatureExport(signatureObj.signature);
+
+    const reply = await this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
+    if (reply.status === 'OK') {
+      // Authentication successful
+    } else {
+      throw reply.reason;
+    }
   }
 
   static isLightningAddress(address: string) {

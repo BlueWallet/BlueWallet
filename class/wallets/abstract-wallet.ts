@@ -1,5 +1,5 @@
 import b58 from 'bs58check';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import wif from 'wif';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -80,7 +80,7 @@ export class AbstractWallet {
     const passphrase = thisWithPassphrase.getPassphrase ? thisWithPassphrase.getPassphrase() : '';
     const path = this._derivationPath ?? '';
     const string2hash = this.type + this.getSecret() + passphrase + path;
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    return Buffer.from(sha256(string2hash)).toString('hex');
   }
 
   getTransactions(): Transaction[] {
@@ -217,9 +217,13 @@ export class AbstractWallet {
     // Starts with S, is 22 length or larger, is base58
     if (newSecret.startsWith('S') && newSecret.length >= 22 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(newSecret)) {
       // minikey + ? hashed with SHA256 starts with 0x00 byte
-      if (createHash('sha256').update(`${newSecret}?`).digest('hex').startsWith('00')) {
+      if (
+        Buffer.from(sha256(`${newSecret}?`))
+          .toString('hex')
+          .startsWith('00')
+      ) {
         // it is a valid minikey
-        newSecret = wif.encode(0x80, createHash('sha256').update(newSecret).digest(), false);
+        newSecret = wif.encode(0x80, Buffer.from(sha256(newSecret)), false);
       }
     }
 

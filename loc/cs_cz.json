@@ -533,7 +533,7 @@
     "manage_keys": "Spravovat klíče",
     "how_many_signatures_can_bluewallet_make": "kolik podpisů může BlueWallet udělat",
     "signatures_required_to_spend": "Vyžadují se {number} podpisy",
-    "signatures_we_can_make": " může vytvořit {number}",
+    "signatures_we_can_make": "ze {number}",
     "scan_or_import_file": "Naskenujte nebo importujte soubor",
     "export_coordination_setup": "Nastavení koordinace exportu",
     "cosign_this_transaction": "Spolupodepsat tuto transakci?",

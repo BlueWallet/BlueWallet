@@ -41,7 +41,6 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { Action } from '../../components/types';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { popToTop } from '../../NavigationService';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -68,7 +67,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate } = useExtendedNavigation();
+  const { setOptions, navigate, navigateToWalletsList } = useExtendedNavigation();
   const { colors } = useTheme();
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
@@ -93,7 +92,7 @@ const WalletDetails: React.FC = () => {
     setIsLoading(true);
     const deletionSucceeded = await handleWalletDeletion(wallet.getID());
     if (deletionSucceeded) {
-      popToTop();
+      navigateToWalletsList();
     } else {
       setIsLoading(false);
     }

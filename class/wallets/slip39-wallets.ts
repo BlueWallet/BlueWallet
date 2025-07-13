@@ -1,4 +1,4 @@
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import slip39 from 'slip39';
 import { WORD_LIST } from 'slip39/src/slip39_helper';
 
@@ -67,7 +67,7 @@ const SLIP39Mixin = {
   getID() {
     const self = this as unknown as TWalletThis;
     const string2hash = self.secret.sort().join(',') + (self.getPassphrase() || '');
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    return Buffer.from(sha256(string2hash)).toString('hex');
   },
 };
 

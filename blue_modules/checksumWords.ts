@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 
 // partial (11 or 23 word) seed phrase
 export function generateChecksumWords(stringSeedPhrase: string) {
@@ -55,7 +55,7 @@ export function generateChecksumWords(stringSeedPhrase: string) {
       }
     }
 
-    const hash = createHash('sha256').update(Buffer.from(entropy)).digest();
+    const hash = Buffer.from(sha256(Buffer.from(entropy)));
 
     const hashBits = new Array(hash.length * 8);
     for (let iq = 0; iq < hash.length; ++iq) for (let jq = 0; jq < 8; ++jq) hashBits[iq * 8 + jq] = (hash[iq] & (1 << (7 - jq))) !== 0; // eslint-disable-line no-bitwise
