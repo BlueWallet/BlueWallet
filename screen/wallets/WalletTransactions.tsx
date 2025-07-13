@@ -138,7 +138,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
-    txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
+    txs.sort((a: { received?: number }, b: { received?: number }) => +new Date(b.received ?? 0) - +new Date(a.received ?? 0));
     return txs;
   }, [wallet]);
 

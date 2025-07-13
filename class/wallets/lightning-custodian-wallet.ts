@@ -2,7 +2,7 @@ import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { fetch } from '../../util/fetch';
 import { LegacyWallet } from './legacy-wallet';
-import { DecodedInvoice } from './types';
+import { DecodedInvoice, LightningTransaction, Transaction } from './types';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
@@ -358,7 +358,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
   }
 
-  getTransactions() {
+  getTransactions(): (Transaction & LightningTransaction)[] {
     let txs: any = [];
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
 
@@ -392,6 +392,8 @@ export class LightningCustodianWallet extends LegacyWallet {
         tx.value = parseInt(tx.amt, 10);
         tx.memo = tx.description || 'Lightning invoice';
       }
+
+      tx.received = tx.time;
     }
     return txs.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return b.timestamp - a.timestamp;
