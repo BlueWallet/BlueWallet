@@ -149,7 +149,7 @@
     "react-native-image-picker": "8.2.1",
     "react-native-keychain": "9.1.0",
     "react-native-linear-gradient": "2.8.3",
-    "react-native-localize": "3.5.0",
+    "react-native-localize": "3.5.1",
     "react-native-permissions": "5.4.1",
     "react-native-prompt-android": "github:BlueWallet/react-native-prompt-android#ed168d66fed556bc2ed07cf498770f058b78a376",
     "react-native-push-notification": "8.1.1",
