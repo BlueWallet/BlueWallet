@@ -43,7 +43,7 @@ class TransactionTableRow: NSObject {
     willSet {
       if newValue == .pending {
         transactionTypeImage.setImage(UIImage(named: "pendingConfirmation"))
-      } else if newValue == .timestamp {
+      } else if newValue == .received {
         transactionTypeImage.setImage(UIImage(named: "receivedArrow"))
       } else if newValue == .sent {
         transactionTypeImage.setImage(UIImage(named: "sentArrow"))
