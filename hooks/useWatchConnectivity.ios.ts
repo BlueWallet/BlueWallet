@@ -118,7 +118,7 @@ export function useWatchConnectivity() {
                 'hash' in (transaction as Transaction)
                   ? txMetadata[(transaction as Transaction).hash]?.memo || transaction.memo || ''
                   : transaction.memo || '',
-              time: transaction.received ?? transaction.time,
+              time: transaction.timestamp ?? transaction.time,
             }));
 
           const walletData = {

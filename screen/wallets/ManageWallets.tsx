@@ -384,8 +384,8 @@ const ManageWallets: React.FC = () => {
 
         if (transactions.length > 0 || addresses.length > 0) {
           transactions.sort((a, b) => {
-            if (a.data.received && b.data.received) {
-              return b.data.received - a.data.received;
+            if (a.data.timestamp && b.data.timestamp) {
+              return b.data.timestamp - a.data.timestamp;
             }
             return 0;
           });

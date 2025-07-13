@@ -34,14 +34,14 @@ extension Transaction {
             amount: Decimal(string: "-0.001")!
         )
     }
-    
+
     static var mockTransactions: [Transaction] {
         [
             .mock,
             Transaction(
                 time: Date(timeIntervalSince1970: 1714308153), // 2024-04-26T11:22:33Z
                 memo: "Another Mock Transaction",
-                type: .received,
+                type: .timestamp,
                 amount: Decimal(string: "0.002")!
             ),
             Transaction(

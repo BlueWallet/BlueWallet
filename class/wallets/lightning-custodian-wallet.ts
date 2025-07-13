@@ -368,7 +368,6 @@ export class LightningCustodianWallet extends LegacyWallet {
         // pending tx
         tx.amt = tx.amount * -100000000;
         tx.fee = 0;
-        tx.timestamp = tx.time;
         tx.memo = 'On-chain transaction';
       }
 
@@ -390,10 +389,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       if (tx.type === 'user_invoice') {
         // incoming ln tx
         tx.value = parseInt(tx.amt, 10);
+        tx.fee = 0;
         tx.memo = tx.description || 'Lightning invoice';
       }
 
-      tx.received = tx.time;
+      tx.timestamp = tx.timestamp || tx.time;
     }
     return txs.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return b.timestamp - a.timestamp;
