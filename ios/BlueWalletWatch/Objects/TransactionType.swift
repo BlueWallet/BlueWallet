@@ -26,7 +26,7 @@ enum TransactionType: Codable, Equatable {
     case unknown(String) // For any unknown or future transaction types
     
     case sent
-    case timestamp
+    case received
 
     // MARK: - Coding Keys
     enum CodingKeys: String, CodingKey {
@@ -50,8 +50,8 @@ enum TransactionType: Codable, Equatable {
         switch typeString.lowercased() {
         case "sent":
             return .sent
-        case "timestamp":
-            return .timestamp
+        case "received":
+            return .received
         case "pending":
             return .pending
         case "bitcoind_tx":
@@ -69,8 +69,8 @@ enum TransactionType: Codable, Equatable {
         switch self {
         case .sent:
             return "sent"
-        case .timestamp:
-            return "timestamp"
+        case .received:
+            return "received"
         case .pending:
             return "pending"
         case .onchain:
@@ -92,8 +92,8 @@ extension TransactionType: CustomStringConvertible {
         switch self {
         case .sent:
             return "Sent"
-        case .timestamp:
-            return "Timestamp"
+        case .received:
+            return "Received"
         case .pending:
             return "pending"
         case .onchain:
@@ -112,7 +112,7 @@ extension TransactionType: CustomStringConvertible {
 extension TransactionType {
     var isIncoming: Bool {
         switch self {
-        case .timestamp:
+        case .received:
             return true
         default:
             return false
@@ -141,7 +141,7 @@ extension TransactionType {
       return .sent
     }
 
-    static var mockTimestamp: TransactionType {
-      return .timestamp
+    static var mockReceived: TransactionType {
+      return .received
     }
 }
