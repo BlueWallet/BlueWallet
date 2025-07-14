@@ -1,7 +1,8 @@
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { LegacyWallet } from './legacy-wallet';
 import { fetch } from '../../util/fetch';
+import { LegacyWallet } from './legacy-wallet';
+import { DecodedInvoice, LightningTransaction, Transaction } from './types';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
@@ -25,12 +26,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   preferredBalanceUnit = BitcoinUnit.SATS;
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
-  decoded_invoice_raw?: any;
-
-  constructor() {
-    super();
-    this.init();
-  }
 
   /**
    * requires calling init() after setting
@@ -363,7 +358,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
   }
 
-  getTransactions() {
+  getTransactions(): (Transaction & LightningTransaction)[] {
     let txs: any = [];
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
 
@@ -373,7 +368,6 @@ export class LightningCustodianWallet extends LegacyWallet {
         // pending tx
         tx.amt = tx.amount * -100000000;
         tx.fee = 0;
-        tx.timestamp = tx.time;
         tx.memo = 'On-chain transaction';
       }
 
@@ -395,10 +389,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       if (tx.type === 'user_invoice') {
         // incoming ln tx
         tx.value = parseInt(tx.amt, 10);
+        tx.fee = 0;
         tx.memo = tx.description || 'Lightning invoice';
       }
 
-      tx.received = new Date(tx.timestamp * 1000).toString();
+      tx.timestamp = tx.timestamp || tx.time;
     }
     return txs.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return b.timestamp - a.timestamp;
@@ -512,48 +507,53 @@ export class LightningCustodianWallet extends LegacyWallet {
    *   route_hints: [] }
    *
    * @param invoice BOLT invoice string
-   * @return {payment_hash: string}
+   * @return {DecodedInvoice}
    */
-  decodeInvoice(invoice: string) {
+  decodeInvoice(invoice: string): DecodedInvoice {
     const { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
-    const decoded: any = {
-      destination: payeeNodeKey,
-      num_satoshis: satoshis ? satoshis.toString() : '0',
-      num_millisatoshis: millisatoshis ? millisatoshis.toString() : '0',
-      timestamp: timestamp?.toString() ?? '0',
+    const decoded: DecodedInvoice = {
+      destination: payeeNodeKey ?? '',
+      num_satoshis: satoshis ? +satoshis : 0,
+      num_millisatoshis: millisatoshis ? +millisatoshis : 0,
+      timestamp: timestamp ?? 0,
       fallback_addr: '',
       route_hints: [],
+      payment_hash: '',
+      expiry: 3600, // default
+      description: '',
+      description_hash: '',
+      cltv_expiry: '',
     };
 
     for (let i = 0; i < tags.length; i++) {
       const { tagName, data } = tags[i];
       switch (tagName) {
         case 'payment_hash':
-          decoded.payment_hash = data;
+          decoded.payment_hash = String(data);
           break;
         case 'purpose_commit_hash':
-          decoded.description_hash = data;
+          decoded.description_hash = String(data);
           break;
         case 'min_final_cltv_expiry':
           decoded.cltv_expiry = data.toString();
           break;
         case 'expire_time':
-          decoded.expiry = data.toString();
+          decoded.expiry = +data;
           break;
         case 'description':
-          decoded.description = data;
+          decoded.description = String(data);
           break;
       }
     }
 
-    if (!decoded.expiry) decoded.expiry = '3600'; // default
+    if (!decoded.expiry) decoded.expiry = 3600; // default
 
-    if (parseInt(decoded.num_satoshis, 10) === 0 && decoded.num_millisatoshis > 0) {
-      decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
+    if (decoded.num_satoshis === 0 && decoded.num_millisatoshis > 0) {
+      decoded.num_satoshis = Math.floor(decoded.num_millisatoshis / 1000);
     }
 
-    return (this.decoded_invoice_raw = decoded);
+    return decoded;
   }
 
   async fetchInfo() {
@@ -652,7 +652,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(json));
     }
 
-    return (this.decoded_invoice_raw = json);
+    return json;
   }
 
   weOwnTransaction(txid: string) {
@@ -665,6 +665,14 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   authenticate(lnurl: any) {
     return lnurl.authenticate(this.secret);
+  }
+
+  getLatestTransactionTime(): string | 0 {
+    const transactions = this.getTransactions();
+    if (transactions.length === 0) {
+      return 0;
+    }
+    return new Date(transactions.reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
   }
 }
 

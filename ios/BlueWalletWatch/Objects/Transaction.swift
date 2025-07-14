@@ -34,7 +34,7 @@ extension Transaction {
             amount: Decimal(string: "-0.001")!
         )
     }
-    
+
     static var mockTransactions: [Transaction] {
         [
             .mock,

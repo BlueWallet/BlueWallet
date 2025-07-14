@@ -140,7 +140,7 @@ extension TransactionType {
     static var mockSent: TransactionType {
       return .sent
     }
-    
+
     static var mockReceived: TransactionType {
       return .received
     }
