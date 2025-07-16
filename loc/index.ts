@@ -324,7 +324,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(+value) + ' ' + loc.units[BitcoinUnit.BTC];
+    return removeTrailingZeros(value) + ' ' + loc.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
     return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else {
