@@ -79,7 +79,7 @@
     "unit": "jest -b -w tests/unit/*"
   },
   "dependencies": {
-    "@babel/preset-env": "7.27.2",
+    "@babel/preset-env": "7.28.0",
     "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.0",
