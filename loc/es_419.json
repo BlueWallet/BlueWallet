@@ -385,7 +385,9 @@
     "to": "A: {counterparty}",
     "updating": "Actualizando...",
     "watchOnlyWarningTitle": "Advertencia de seguridad",
-    "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo."
+    "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo.",
+    "custom_fee_warning_title": "Advertencia",
+    "custom_fee_warning_description": "Las tarifas inferiores a 1 sat/vB son válidas, pero puede que no se retransmitan debido a las políticas de los nodos."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -681,7 +683,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
