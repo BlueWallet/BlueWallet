@@ -15,7 +15,7 @@
     "@react-native/eslint-config": "^0.77.2",
     "@react-native/js-polyfills": "^0.77.2",
     "@react-native/metro-babel-transformer": "^0.77.2",
-    "@react-native/typescript-config": "0.77.2",
+    "@react-native/typescript-config": "0.80.2",
     "@testing-library/react-native": "^13.0.1",
     "@types/bip38": "^3.1.2",
     "@types/bs58check": "^2.1.0",
