@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
@@ -225,11 +225,15 @@ const WalletsList: React.FC = () => {
   const onBarScanned = useCallback(
     (value: any) => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        // @ts-ignore: for now
-        navigation.navigate(...completionValue);
-      });
+      try {
+        DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          // @ts-ignore: for now
+          navigation.navigate(...completionValue);
+        });
+      } catch (e: any) {
+        Alert.alert(loc.send.details_scan_error, e.message);
+      }
     },
     [navigation],
   );
