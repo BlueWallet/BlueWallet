@@ -99,7 +99,7 @@ const AztecoRedeem = () => {
     <SafeArea style={[styles.root, stylesHook.root]}>
       <View style={styles.root}>
         <Text style={stylesHook.text}>{loc.azteco.codeIs}</Text>
-        <BlueText style={[styles.code, stylesHook.text]}>
+        <BlueText testID="AztecoCode" style={[styles.code, stylesHook.text]}>
           {aztecoVoucher.c1}-{aztecoVoucher.c2}-{aztecoVoucher.c3}-{aztecoVoucher.c4}
         </BlueText>
 
