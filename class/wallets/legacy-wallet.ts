@@ -7,6 +7,7 @@ import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
+import { hexToUint8Array, concatUint8Arrays } from '../../blue_modules/uint8array-extras';
 import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
@@ -62,7 +63,7 @@ export class LegacyWallet extends AbstractWallet {
     this.secret = ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
-  async generateFromEntropy(user: Buffer): Promise<void> {
+  async generateFromEntropy(user: Uint8Array): Promise<void> {
     if (user.length !== 32) {
       throw new Error('Entropy should be 32 bytes');
     }
@@ -520,7 +521,7 @@ export class LegacyWallet extends AbstractWallet {
       const decoded = bitcoin.address.fromBech32(address);
       if (decoded.version === 0) return true;
       if (decoded.version === 1 && decoded.data.length !== 32) return false;
-      if (decoded.version === 1 && !ecc.isPoint(Buffer.concat([Buffer.from([2]), decoded.data]))) return false;
+      if (decoded.version === 1 && !ecc.isPoint(concatUint8Arrays([new Uint8Array([2]), decoded.data]))) return false;
       if (decoded.version > 1) return false;
       // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
       return true;
@@ -537,7 +538,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
-      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      const scriptPubKey2 = hexToUint8Array(scriptPubKey);
       return (
         bitcoin.payments.p2pkh({
           output: scriptPubKey2,
