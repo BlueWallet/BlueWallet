@@ -13,6 +13,7 @@ import { ECPairFactory, ECPairInterface } from 'ecpair';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
+import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -155,14 +156,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   async generate() {
     const buf = await randomBytes(16);
-    this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+    this.secret = bip39.entropyToMnemonic(uint8ArrayToHex(buf));
   }
 
-  async generateFromEntropy(user: Buffer) {
+  async generateFromEntropy(user: Uint8Array) {
     if (user.length !== 32 && user.length !== 16) {
       throw new Error('Entropy has to be 16 or 32 bytes long');
     }
-    this.secret = bip39.entropyToMnemonic(user.toString('hex'));
+    this.secret = bip39.entropyToMnemonic(uint8ArrayToHex(user));
   }
 
   _getExternalWIFByIndex(index: number): string | false {
@@ -288,8 +289,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
     let data = b58.decode(xpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
-    this._xpub = b58.encode(data);
+    const concatenated = concatUint8Arrays([hexToUint8Array('04b24746'), data]);
+    this._xpub = b58.encode(concatenated);
 
     return this._xpub;
   }
@@ -1203,8 +1204,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (masterFingerprint) {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
-        const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
+        const hexBuffer = hexToUint8Array(masterFingerprintHex);
+        masterFingerprintBuffer = Buffer.from(new Uint8Array(hexBuffer).reverse());
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -1230,8 +1231,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (masterFingerprint) {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
-        const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
+        const hexBuffer = hexToUint8Array(masterFingerprintHex);
+        masterFingerprintBuffer = Buffer.from(new Uint8Array(hexBuffer).reverse());
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -1512,7 +1513,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   static seedToFingerprint(seed: Buffer) {
     const root = bip32.fromSeed(seed);
-    let hex = root.fingerprint.toString('hex');
+    let hex = uint8ArrayToHex(root.fingerprint);
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();
   }
@@ -1633,7 +1634,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     targetsTemp.push({
       value: 0,
       script: {
-        hex: Buffer.alloc(83).toString('hex'), // no `address` here, its gonabe op_return. but we pass dummy data here with a correct size just to choose utxo
+        hex: uint8ArrayToHex(new Uint8Array(83)), // no `address` here, its gonabe op_return. but we pass dummy data here with a correct size just to choose utxo
       },
     });
 
@@ -1659,7 +1660,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       bobBip47,
       keyPair.privateKey as Buffer,
       // txid is reversed, as well as output number
-      Buffer.from(inputsTemp[0].txid, 'hex').reverse().toString('hex') + outputNumber.toString('hex'),
+      uint8ArrayToHex(new Uint8Array(hexToUint8Array(inputsTemp[0].txid)).reverse()) + uint8ArrayToHex(outputNumber),
     );
 
     // targets:

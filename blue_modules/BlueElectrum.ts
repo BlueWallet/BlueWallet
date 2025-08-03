@@ -12,7 +12,7 @@ import { GROUP_IO_BLUEWALLET } from './currency';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
-import { uint8ArrayToHex } from './uint8array-extras/index';
+import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -108,16 +108,16 @@ let latestBlock: { height: number; time: number } | { height: undefined; time: u
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
 
-function bitcoinjs_crypto_sha256(buffer: Uint8Array): Buffer {
-  return Buffer.from(_sha256(buffer));
+function bitcoinjs_crypto_sha256(buffer: Uint8Array): Uint8Array {
+  return _sha256(buffer);
 }
 
 async function _getRealm() {
   if (_realm) return _realm;
 
   const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
-  const password = uint8ArrayToHex(bitcoinjs_crypto_sha256(Buffer.from('fyegjitkyf[eqjnc.lf')));
-  const buf = Buffer.from(password + password, 'hex');
+  const password = uint8ArrayToHex(bitcoinjs_crypto_sha256(stringToUint8Array('fyegjitkyf[eqjnc.lf')));
+  const buf = hexToUint8Array(password + password);
   const encryptionKey = Int8Array.from(buf);
   const path = `${cacheFolderPath}/electrumcache.realm`; // Use cache folder path
 
@@ -492,8 +492,8 @@ export const getBalanceByAddress = async function (address: string): Promise<{ c
     if (!mainClient) throw new Error('Electrum client is not connected');
     const script = bitcoin.address.toOutputScript(address);
     const hash = bitcoinjs_crypto_sha256(script);
-    const reversedHash = Buffer.from(hash).reverse();
-    const balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
+    const reversedHash = new Uint8Array(hash).reverse();
+    const balance = await mainClient.blockchainScripthash_getBalance(uint8ArrayToHex(reversedHash));
     balance.addr = address;
     return balance;
   } catch (error) {
@@ -520,8 +520,8 @@ export const getTransactionsByAddress = async function (address: string): Promis
   if (!mainClient) throw new Error('Electrum client is not connected');
   const script = bitcoin.address.toOutputScript(address);
   const hash = bitcoinjs_crypto_sha256(script);
-  const reversedHash = Buffer.from(hash).reverse();
-  const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
+  const reversedHash = new Uint8Array(hash).reverse();
+  const history = await mainClient.blockchainScripthash_getHistory(uint8ArrayToHex(reversedHash));
   for (const h of history || []) {
     if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
   }
@@ -533,8 +533,8 @@ export const getMempoolTransactionsByAddress = async function (address: string):
   if (!mainClient) throw new Error('Electrum client is not connected');
   const script = bitcoin.address.toOutputScript(address);
   const hash = bitcoinjs_crypto_sha256(script);
-  const reversedHash = Buffer.from(hash).reverse();
-  return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
+  const reversedHash = new Uint8Array(hash).reverse();
+  return mainClient.blockchainScripthash_getMempool(uint8ArrayToHex(reversedHash));
 };
 
 export const ping = async function () {
@@ -585,7 +585,7 @@ export function txhexToElectrumTransaction(txhex: string): ElectrumTransactionWi
     if (inn.witness[1]) txinwitness.push(uint8ArrayToHex(inn.witness[1]));
 
     ret.vin.push({
-      txid: Buffer.from(inn.hash).reverse().toString('hex'),
+      txid: uint8ArrayToHex(new Uint8Array(inn.hash).reverse()),
       vout: inn.index,
       scriptSig: { hex: uint8ArrayToHex(inn.script), asm: '' },
       txinwitness,
@@ -719,7 +719,7 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
       const hash = bitcoinjs_crypto_sha256(script);
-      const reversedHash = Buffer.from(hash).reverse().toString('hex');
+      const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);
       scripthash2addr[reversedHash] = addr;
     }
@@ -763,7 +763,7 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
       const hash = bitcoinjs_crypto_sha256(script);
-      const reversedHash = Buffer.from(hash).reverse().toString('hex');
+      const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);
       scripthash2addr[reversedHash] = addr;
     }
@@ -813,7 +813,7 @@ export const multiGetHistoryByAddress = async function (
     for (const addr of chunk) {
       const script = bitcoin.address.toOutputScript(addr);
       const hash = bitcoinjs_crypto_sha256(script);
-      const reversedHash = Buffer.from(hash).reverse().toString('hex');
+      const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);
       scripthash2addr[reversedHash] = addr;
     }
