@@ -385,7 +385,9 @@
     "to": "到：{counterparty}",
     "updating": "正在更新...",
     "watchOnlyWarningTitle": "安全警告",
-    "watchOnlyWarningDescription": "小心诈骗份子，他们经常使用 “仅供观察 ”钱包来欺骗用户。这些钱包不允许您控制或发送资金，只允许您查看余额。"
+    "watchOnlyWarningDescription": "小心诈骗份子，他们经常使用 “仅供观察 ”钱包来欺骗用户。这些钱包不允许您控制或发送资金，只允许您查看余额。",
+    "custom_fee_warning_title": " 警告",
+    "custom_fee_warning_description": " 低于 1 聪/vB 的矿工费用是有效的，但由于节点政策，可能无法转发。"
   },
   "wallets": {
     "add_bitcoin": "比特币",
