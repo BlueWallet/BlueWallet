@@ -385,7 +385,9 @@
     "to": "Pro: {counterparty}",
     "updating": "Aktualizování…",
     "watchOnlyWarningTitle": "Bezpečnostní upozornění",
-    "watchOnlyWarningDescription": "Dávejte si pozor na podvodníky, kteří často používají peněženky „pouze pro sledování“ ke klamání uživatelů. Tyto peněženky vám neumožňují kontrolovat nebo odesílat prostředky; umožňují vám pouze zobrazit zůstatek."
+    "watchOnlyWarningDescription": "Dávejte si pozor na podvodníky, kteří často používají peněženky „pouze pro sledování“ ke klamání uživatelů. Tyto peněženky vám neumožňují kontrolovat nebo odesílat prostředky; umožňují vám pouze zobrazit zůstatek.",
+    "custom_fee_warning_title": "Varování",
+    "custom_fee_warning_description": "Poplatky ve výši pod 1 sat/vB jsou platné, ale nemusí být vyslány dále do sítě z důvodu zásad uzlu."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
