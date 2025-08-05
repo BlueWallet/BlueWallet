@@ -20,7 +20,6 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
 import { LightningCustodianWallet } from '../../class';
 
 type LNDViewInvoiceRouteParams = {
@@ -297,7 +296,7 @@ const LNDViewInvoice = () => {
       // something is not right
       return (
         <View style={[styles.root, stylesHook.root]}>
-          <BlueLoading />
+          <BlueTextCentered>Internal error: invoice is not provided</BlueTextCentered>
         </View>
       );
     }

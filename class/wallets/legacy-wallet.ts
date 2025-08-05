@@ -314,7 +314,7 @@ export class LegacyWallet extends AbstractWallet {
             ...txRest,
             inputs: [...vin2],
             outputs: [...vout],
-            timestamp: tx.blocktime || tx.time || 0,
+            timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
           };
 
           _txsByExternalIndex.push(clonedTx);
@@ -328,7 +328,7 @@ export class LegacyWallet extends AbstractWallet {
             ...txRest,
             inputs: [...vin],
             outputs: [...vout2],
-            timestamp: tx.blocktime || tx.time || 0,
+            timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
           };
 
           _txsByExternalIndex.push(clonedTx);
