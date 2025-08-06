@@ -83,10 +83,10 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       if (item.confirmations === 0) {
         return loc.transactions.pending;
       } else {
-        return transactionTimeToReadable(item.received!);
+        return transactionTimeToReadable(item.timestamp);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [item.confirmations, item.received, language]);
+    }, [item.confirmations, item.timestamp, language]);
 
     let counterparty;
     if (item.counterparty) {
@@ -422,7 +422,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
   (prevProps, nextProps) => {
     return (
       prevProps.item.hash === nextProps.item.hash &&
-      prevProps.item.received === nextProps.item.received &&
+      prevProps.item.timestamp === nextProps.item.timestamp &&
       prevProps.itemPriceUnit === nextProps.itemPriceUnit &&
       prevProps.walletID === nextProps.walletID &&
       prevProps.searchQuery === nextProps.searchQuery

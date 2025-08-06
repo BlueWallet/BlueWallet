@@ -65,7 +65,7 @@ export const calculateBalanceAndTransactionTime = async (
       const confirmedTransactions = transactions.filter(t => t.confirmations > 0);
       const latestTransactionTime =
         confirmedTransactions.length > 0
-          ? Math.max(...confirmedTransactions.map(t => t.received || t.time || 0))
+          ? Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0))
           : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
 
       return { balance, latestTransactionTime };

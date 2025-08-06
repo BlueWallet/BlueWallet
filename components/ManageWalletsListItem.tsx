@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
-import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
+import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
@@ -240,7 +240,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
-      const w = state.wallets.find(wallet => wallet.getTransactions()?.some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
+      const w = state.wallets.find(wallet => wallet.getTransactions()?.some((tx: Transaction) => tx.hash === item.data.hash));
 
       const walletID = w ? w.getID() : '';
 

@@ -281,6 +281,11 @@ export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) {
     return 'unknown';
   }
+  if (+time < 1000000000000) {
+    // converting timestamp to milliseconds timestamp
+    // (we dont expect timestamps before September 9, 2001 so this conversion is fine)
+    time = +time * 1000;
+  }
   if (time === 0) {
     return loc._.never;
   }

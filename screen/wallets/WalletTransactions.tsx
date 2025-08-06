@@ -138,7 +138,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
-    txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
+    txs.sort((a, b) => b.timestamp - a.timestamp);
     return txs;
   }, [wallet]);
 
@@ -192,13 +192,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }) => {
         setFetchFailures(0);
         const newTimestamp = Date.now();
         setLastFetchTimestamp(newTimestamp);
-      } catch (err) {
+      } catch (err: any) {
+        const errorMessage: string = err.message;
         setFetchFailures(prev => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
-            if (err) {
-              presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+            if (errorMessage) {
+              presentAlert({ message: errorMessage, type: AlertType.Toast });
             }
           }
           setIsLoading(true);
