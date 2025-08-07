@@ -3,7 +3,7 @@ import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -20,6 +20,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { isCancel } from '../../blue_modules/fs';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -204,11 +205,8 @@ const PsbtWithHardwareWallet = () => {
 
   const openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pickSingle({
-        type:
-          Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.json]
-            : [DocumentPicker.types.allFiles],
+      const [res] = await pick({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.json] : [types.allFiles],
       });
       const file = await RNFS.readFile(res.uri);
       if (file) {
@@ -217,7 +215,7 @@ const PsbtWithHardwareWallet = () => {
         throw new Error();
       }
     } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
+      if (!isCancel(err)) {
         presentAlert({ message: loc.send.details_no_signed_tx });
       }
     }
