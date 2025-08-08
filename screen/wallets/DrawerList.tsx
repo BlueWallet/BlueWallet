@@ -82,7 +82,7 @@ const walletReducer = (state: WalletState, action: WalletAction): WalletState =>
   }
 };
 
-const DrawerList: React.FC<DrawerContentComponentProps> = memo(props => {
+const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerContentComponentProps) => {
   const initialState: WalletState = {
     wallets: [],
     isFocused: false,

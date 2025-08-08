@@ -149,8 +149,6 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
           : [types.allFiles],
     });
 
-    pickedFile;
-
     const [localCopy] = await keepLocalCopy({
       files: [
         {
@@ -225,4 +223,32 @@ export const readFileOutsideSandbox = (filePath: string) => {
     presentAlert({ message: 'Not implemented for this platform' });
     throw new Error('Not implemented for this platform');
   }
+};
+
+export const openSignedTransactionRaw: () => Promise<string> = async () => {
+  try {
+    const [res] = await pick({
+      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.json] : [types.allFiles],
+    });
+    const file = await RNFS.readFile(res.uri);
+    if (file) {
+      return file;
+    } else {
+      throw new Error('Could not read file');
+    }
+  } catch (err) {
+    if (!isCancel(err)) {
+      presentAlert({ message: loc.send.details_no_signed_tx });
+    }
+
+    return '';
+  }
+};
+
+export const pickTransaction = async () => {
+  const [res] = await pick({
+    type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.plainText, types.json] : [types.allFiles],
+  });
+
+  return res;
 };

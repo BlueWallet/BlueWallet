@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { pick, types } from '@react-native-documents/picker';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
@@ -58,7 +57,7 @@ import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/netw
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import ActionSheet from '../ActionSheet';
-import { isCancel } from '../../blue_modules/fs';
+import { isCancel, pickTransaction } from '../../blue_modules/fs';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -715,9 +714,7 @@ const SendDetails = () => {
     }
 
     try {
-      const [res] = await pick({
-        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.plainText, types.json] : [types.allFiles],
-      });
+      const res = await pickTransaction();
 
       if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
         // we assume that transaction is already signed, so all we have to do is get txhex and pass it to next screen

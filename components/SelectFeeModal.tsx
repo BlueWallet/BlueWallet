@@ -37,11 +37,13 @@ interface FeeOptionProps {
   disabled?: boolean;
   onPress: () => void;
   formatFee: (fee: number) => string;
+  // its actually used while eslint thinks its unused:
+  // eslint-disable-next-line react/no-unused-prop-types
   feeUnit: BitcoinUnit;
 }
 
 const FeeOption = React.memo<FeeOptionProps>(
-  ({ label, time, fee, rate, active, disabled, onPress, formatFee }) => {
+  ({ label, time, fee, rate, active, disabled, onPress, formatFee }: FeeOptionProps) => {
     const { colors } = useTheme();
     return (
       <TouchableOpacity
@@ -81,7 +83,7 @@ const FeeOption = React.memo<FeeOptionProps>(
 );
 
 const CustomFeeInput = React.memo<CustomFeeInputProps>(
-  ({ value, onChangeText, onSubmitEditing, onFocus, onBlur }) => {
+  ({ value, onChangeText, onSubmitEditing, onFocus, onBlur }: CustomFeeInputProps) => {
     const { colors } = useTheme();
     return (
       <TextInput
@@ -113,7 +115,7 @@ const CustomFeeInput = React.memo<CustomFeeInputProps>(
 );
 
 const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
-  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, feeUnit }, ref) => {
+  ({ networkTransactionFees, feePrecalc, feeRate, setCustomFee, feeUnit }: SelectFeeModalProps, ref) => {
     const [customFeeValue, setCustomFeeValue] = useState<string>('');
     const [isCustomFeeFocused, setIsCustomFeeFocused] = useState(false);
     const feeModalRef = useRef<BottomModalHandle>(null);

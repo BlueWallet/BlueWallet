@@ -8,7 +8,6 @@ import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import CPFP from './CPFP';
 import { StorageContext } from '../../components/Context/StorageProvider';
-import { popToTop } from '../../NavigationService';
 
 export default class RBFCancel extends CPFP {
   static contextType = StorageContext;
@@ -71,7 +70,7 @@ export default class RBFCancel extends CPFP {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
+    this.props.navigation.navigate('Success', { amount: undefined });
   }
 
   render() {
