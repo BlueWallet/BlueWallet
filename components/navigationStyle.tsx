@@ -12,6 +12,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonFormSheet: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginLeft: 22,
+  },
 });
 
 enum CloseButtonPosition {
@@ -69,7 +77,8 @@ const navigationStyle = (
   return theme =>
     ({ navigation, route }) => {
       const isFirstRouteInStack = navigation.getState().index === 0;
-      const isModal = route.params?.presentation !== 'card';
+      const isModal = route.params?.presentation === 'modal' || route.params?.presentation === 'transparentModal';
+      const isFormSheet = route.params?.presentation === 'formSheet';
 
       const closeButton = getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
@@ -82,7 +91,7 @@ const navigationStyle = (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={loc._.close}
-            style={styles.button}
+            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
             onPress={handleClose}
             testID="NavigationCloseButton"
           >
@@ -94,7 +103,7 @@ const navigationStyle = (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={loc._.close}
-            style={styles.button}
+            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
             onPress={handleClose}
             testID="NavigationCloseButton"
           >

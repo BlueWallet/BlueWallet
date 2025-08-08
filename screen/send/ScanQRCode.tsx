@@ -1,12 +1,12 @@
 import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
-import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -17,6 +17,8 @@ import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
+import { BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading.tsx';
 
 let decoder: BlueURDecoder | undefined;
 
@@ -91,7 +93,7 @@ const ScanQRCode = () => {
   }, []);
 
   const HashIt = function (s: string): string {
-    return createHash('sha256').update(s).digest().toString('hex');
+    return Buffer.from(sha256(s)).toString('hex');
   };
 
   const _onReadUniformResourceV2 = (part: string) => {

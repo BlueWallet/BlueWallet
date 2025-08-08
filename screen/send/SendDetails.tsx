@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
 import assert from 'assert';
@@ -13,7 +13,6 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
-  I18nManager,
   Keyboard,
   LayoutAnimation,
   NativeScrollEvent,
@@ -22,7 +21,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   View,
 } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -38,14 +37,12 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../c
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
-import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
-import SelectFeeModal from '../../components/SelectFeeModal';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -53,7 +50,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../../models/networkTransactionFees';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import ActionSheet from '../ActionSheet';
@@ -79,6 +76,7 @@ type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
+  const { direction } = useLocale();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
@@ -98,12 +96,12 @@ const SendDetails = () => {
   const [dimensions, setDimensions] = useState({ width: Dimensions.get('window').width, height: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
-  const feeModalRef = useRef<BottomModalHandle>(null);
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
+  const [selectedPresetFeeRate, setSelectedPresetFeeRate] = useState<string | null>(null);
   const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
@@ -115,18 +113,43 @@ const SendDetails = () => {
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
-    if (customFee) return customFee;
-    if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
-    let initialFee;
-    if (feePrecalc.fastestFee !== null) {
-      initialFee = String(networkTransactionFees.fastestFee);
-    } else if (feePrecalc.mediumFee !== null) {
-      initialFee = String(networkTransactionFees.mediumFee);
-    } else {
-      initialFee = String(networkTransactionFees.slowFee);
+    console.log('SendDetails: feeRate useMemo - customFee:', customFee);
+    console.log('SendDetails: feeRate useMemo - selectedPresetFeeRate:', selectedPresetFeeRate);
+    console.log('SendDetails: feeRate useMemo - feePrecalc:', feePrecalc);
+    console.log('SendDetails: feeRate useMemo - networkTransactionFees:', networkTransactionFees);
+
+    if (customFee) {
+      console.log('SendDetails: Using customFee:', customFee);
+      return customFee;
     }
-    return initialFee;
-  }, [customFee, feePrecalc, networkTransactionFees]);
+
+    if (selectedPresetFeeRate) {
+      console.log('SendDetails: Using selectedPresetFeeRate:', selectedPresetFeeRate);
+      return selectedPresetFeeRate;
+    }
+
+    // If we have precalculated fees, use them to determine the default fee
+    if (feePrecalc.slowFee !== null) {
+      let initialFee;
+      if (feePrecalc.fastestFee !== null) {
+        initialFee = String(networkTransactionFees.fastestFee);
+        console.log('SendDetails: Using fastestFee:', initialFee);
+      } else if (feePrecalc.mediumFee !== null) {
+        initialFee = String(networkTransactionFees.mediumFee);
+        console.log('SendDetails: Using mediumFee:', initialFee);
+      } else {
+        initialFee = String(networkTransactionFees.slowFee);
+        console.log('SendDetails: Using slowFee:', initialFee);
+      }
+      console.log('SendDetails: Final feeRate:', initialFee);
+      return initialFee;
+    }
+
+    // If no precalc fees yet, default to fastestFee from network fees
+    const defaultFee = String(networkTransactionFees.fastestFee);
+    console.log('SendDetails: No precalc fees yet, using default networkTransactionFees.fastestFee:', defaultFee);
+    return defaultFee;
+  }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
     // decode route params
@@ -468,7 +491,7 @@ const SendDetails = () => {
       } else if (parseFloat(String(transaction.amountSats)) <= 500) {
         error = loc.send.details_amount_field_is_less_than_minimum_amount_sat;
         console.log('validation error');
-      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
+      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 0) {
         error = loc.send.details_fee_field_is_not_valid;
         console.log('validation error');
       } else if (!transaction.address) {
@@ -1163,6 +1186,44 @@ const SendDetails = () => {
     }
   }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
+  // Handle selectedFeeRate and selectedFeeType returned from SelectFeeScreen
+  useEffect(() => {
+    const selectedFeeRate = routeParams.selectedFeeRate;
+    const selectedFeeType = routeParams.selectedFeeType;
+
+    console.log('SendDetails: Fee selection useEffect triggered');
+    console.log('SendDetails: selectedFeeRate:', selectedFeeRate);
+    console.log('SendDetails: selectedFeeType:', selectedFeeType);
+    console.log('SendDetails: current customFee:', customFee);
+    console.log('SendDetails: current selectedPresetFeeRate:', selectedPresetFeeRate);
+    console.log('SendDetails: networkTransactionFees:', networkTransactionFees);
+
+    if (selectedFeeRate !== undefined || selectedFeeType !== undefined) {
+      console.log('SendDetails: Processing fee selection...');
+
+      if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
+        console.log('SendDetails: CUSTOM fee selected, setting customFee to:', selectedFeeRate);
+        // Custom fee was selected - set the custom fee rate and clear preset
+        setCustomFee(selectedFeeRate || null);
+        setSelectedPresetFeeRate(null);
+      } else if (
+        selectedFeeType === NetworkTransactionFeeType.FAST ||
+        selectedFeeType === NetworkTransactionFeeType.MEDIUM ||
+        selectedFeeType === NetworkTransactionFeeType.SLOW
+      ) {
+        console.log('SendDetails: Preset fee selected:', selectedFeeType);
+        console.log('SendDetails: Setting selectedPresetFeeRate to:', selectedFeeRate);
+        // Preset fee was selected - set the preset fee rate and clear custom fee
+        setSelectedPresetFeeRate(selectedFeeRate || null);
+        setCustomFee(null);
+      }
+
+      console.log('SendDetails: Clearing route params...');
+      // Clear the parameters to prevent re-processing
+      setParams({ selectedFeeRate: undefined, selectedFeeType: undefined });
+    }
+  }, [routeParams.selectedFeeRate, routeParams.selectedFeeType, networkTransactionFees, setParams, customFee, selectedPresetFeeRate]);
+
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
@@ -1197,6 +1258,12 @@ const SendDetails = () => {
     },
     feeValue: {
       color: colors.feeValue,
+    },
+    warningContainer: {
+      backgroundColor: colors.changeBackground,
+    },
+    warningText: {
+      color: colors.changeText,
     },
   });
 
@@ -1241,28 +1308,28 @@ const SendDetails = () => {
     return (
       <View style={styles.select}>
         {!isLoading && isEditable && (
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
-            style={styles.selectTouch}
+            style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
-          </TouchableOpacity>
+            <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          </Pressable>
         )}
         <View style={styles.selectWrap}>
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
-            style={styles.selectTouch}
+            style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
             }}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
     );
@@ -1328,11 +1395,15 @@ const SendDetails = () => {
         </View>
 
         {frozenBalance > 0 && (
-          <TouchableOpacity accessibilityRole="button" style={styles.frozenContainer} onPress={handleCoinControl}>
+          <Pressable
+            accessibilityRole="button"
+            style={({ pressed }) => [pressed && styles.pressed, styles.frozenContainer]}
+            onPress={handleCoinControl}
+          >
             <BlueText>
               {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
             </BlueText>
-          </TouchableOpacity>
+          </Pressable>
         )}
 
         <View style={styles.addressInputContainer}>
@@ -1364,6 +1435,17 @@ const SendDetails = () => {
             {loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}
           </Text>
         )}
+      </View>
+    );
+  };
+
+  const renderCustomFeeWarning = () => {
+    if (!customFee || Number(customFee) >= 1) return;
+
+    return (
+      <View style={[styles.warningContainer, stylesHook.warningContainer]}>
+        <Text style={[styles.warningHeader, stylesHook.warningText]}>{loc.transactions.custom_fee_warning_title}</Text>
+        <Text style={stylesHook.warningText}>{loc.transactions.custom_fee_warning_description}</Text>
       </View>
     );
   };
@@ -1408,12 +1490,22 @@ const SendDetails = () => {
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
           />
         </View>
-        <TouchableOpacity
+        <Pressable
           testID="chooseFee"
           accessibilityRole="button"
-          onPress={() => feeModalRef.current?.present()}
+          onPress={() => {
+            Keyboard.dismiss();
+            navigation.navigate('SelectFee', {
+              networkTransactionFees,
+              feePrecalc,
+              feeRate,
+              feeUnit,
+              walletID: wallet?.getID() || '',
+              customFee,
+            });
+          }}
           disabled={isLoading}
-          style={styles.fee}
+          style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
         >
           <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
@@ -1426,16 +1518,9 @@ const SendDetails = () => {
               </Text>
             </View>
           )}
-        </TouchableOpacity>
+        </Pressable>
+        {renderCustomFeeWarning()}
         {renderCreateButton()}
-        <SelectFeeModal
-          ref={feeModalRef}
-          networkTransactionFees={networkTransactionFees}
-          feePrecalc={feePrecalc}
-          feeRate={feeRate}
-          setCustomFee={setCustomFee}
-          feeUnit={addresses[scrollIndex.current]?.unit ?? BitcoinUnit.BTC}
-        />
       </View>
       <DismissKeyboardInputAccessory />
       {Platform.select({
@@ -1555,5 +1640,19 @@ const styles = StyleSheet.create({
   },
   fullWidthInput: {
     width: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+  warningContainer: {
+    flexDirection: 'column',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 4,
+    marginTop: 12,
+  },
+  warningHeader: {
+    fontWeight: 'bold',
   },
 });

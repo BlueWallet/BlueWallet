@@ -17,6 +17,7 @@ import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
+import { isValidBech32Address } from '../../utils/isValidBech32Address';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -416,7 +417,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+            const clonedTx = {
+              ...txRest,
+              inputs: txVin.slice(0),
+              outputs: txVout.slice(0),
+              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+            };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -434,7 +440,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+            const clonedTx = {
+              ...txRest,
+              inputs: txVin.slice(0),
+              outputs: txVout.slice(0),
+              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+            };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -457,7 +468,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+            const clonedTx = {
+              ...txRest,
+              inputs: txVin.slice(0),
+              outputs: txVout.slice(0),
+              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+            };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -475,7 +491,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+            const clonedTx = {
+              ...txRest,
+              inputs: txVin.slice(0),
+              outputs: txVout.slice(0),
+              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+            };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -501,7 +522,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
               this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
               this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
               const { vin: txVin, vout: txVout, ...txRest } = tx;
-              const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+              const clonedTx = {
+                ...txRest,
+                inputs: txVin.slice(0),
+                outputs: txVout.slice(0),
+                timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+              };
 
               // trying to replace tx if it exists already (because it has lower confirmations, for example)
               let replaced = false;
@@ -561,8 +587,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     const ret: Transaction[] = [];
     for (const tx of txs) {
-      tx.received = tx.blocktime * 1000;
-      if (!tx.blocktime) tx.received = +new Date() - 30 * 1000; // unconfirmed
+      tx.timestamp = tx.blocktime;
+      if (!tx.blocktime) tx.timestamp = Math.floor(+new Date() / 1000) - 30; // unconfirmed
       tx.confirmations = tx.confirmations || 0; // unconfirmed
       tx.hash = tx.txid;
       tx.value = 0;
@@ -596,7 +622,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return ret2.sort(function (a, b) {
-      return Number(b.received) - Number(a.received);
+      return Number(b.timestamp) - Number(a.timestamp);
     });
   }
 
@@ -1109,8 +1135,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!address) return false;
     let cleanAddress = address;
 
-    if (this.segwitType === 'p2wpkh') {
-      cleanAddress = address.toLowerCase();
+    const isBech32Address = isValidBech32Address(address);
+
+    if (isBech32Address) {
+      cleanAddress = address.toLocaleLowerCase();
     }
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {

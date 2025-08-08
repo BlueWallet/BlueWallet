@@ -71,6 +71,9 @@ describe('Localization', () => {
   it.each([
     [123000000, BitcoinUnit.SATS, false, '123000000 sats'],
     [123000000, BitcoinUnit.BTC, false, '1.23 BTC'],
+    [15, BitcoinUnit.BTC, false, '0.00000015 BTC'],
+    [1, BitcoinUnit.BTC, false, '0.00000001 BTC'],
+    [0, BitcoinUnit.BTC, false, '0 BTC'],
     [123000000, BitcoinUnit.LOCAL_CURRENCY, false, '$1.23'],
   ])(
     'can formatBalance',

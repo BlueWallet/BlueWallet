@@ -1,8 +1,9 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { ActivityIndicator, Dimensions, I18nManager, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Icon, Text } from '@rneui/themed';
 import { useTheme } from './components/themes';
+import { useLocale } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -21,18 +22,9 @@ if (aspectRatio > 1.6) {
 export const BlueButtonLink = forwardRef((props, ref) => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      style={{
-        minWidth: 100,
-        minHeight: 36,
-        justifyContent: 'center',
-      }}
-      {...props}
-      ref={ref}
-    >
+    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.blueButtonLink, pressed && styles.pressed]} {...props} ref={ref}>
       <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{props.title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 });
 
@@ -42,10 +34,11 @@ export const BlueCard = props => {
 
 export const BlueText = ({ bold = false, ...props }) => {
   const { colors } = useTheme();
+  const { direction } = useLocale();
   const style = StyleSheet.compose(
     {
       color: colors.foregroundColor,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      writingDirection: direction,
       fontWeight: bold ? 'bold' : 'normal',
     },
     props.style,
@@ -60,6 +53,7 @@ export const BlueTextCentered = props => {
 
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
+  const { direction } = useLocale();
 
   return (
     <Text
@@ -68,7 +62,7 @@ export const BlueFormLabel = props => {
         color: colors.foregroundColor,
         fontWeight: '400',
         marginHorizontal: 20,
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        writingDirection: direction,
       }}
     />
   );
@@ -108,36 +102,11 @@ export const BlueFormMultiInput = props => {
   );
 };
 
-export const BlueSpacing = props => {
-  return <View {...props} style={{ height: 60 }} />;
-};
-
-export const BlueSpacing40 = props => {
-  return <View {...props} style={{ height: 50 }} />;
-};
-
 export class is {
   static ipad() {
     return isIpad;
   }
 }
-
-export const BlueSpacing20 = props => {
-  const { horizontal = false } = props;
-  return <View {...props} style={{ height: horizontal ? 0 : 20, width: horizontal ? 20 : 0, opacity: 0 }} />;
-};
-
-export const BlueSpacing10 = props => {
-  return <View {...props} style={{ height: 10, opacity: 0 }} />;
-};
-
-export const BlueLoading = props => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
-      <ActivityIndicator />
-    </View>
-  );
-};
 
 export function BlueBigCheckmark({ style = {} }) {
   const defaultStyles = {
@@ -157,3 +126,14 @@ export function BlueBigCheckmark({ style = {} }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  blueButtonLink: {
+    minWidth: 100,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
+  },
+});

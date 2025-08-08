@@ -52,7 +52,7 @@ describe('LegacyWallet', function () {
     for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
-      assert.ok(tx.received);
+      assert.ok(tx.timestamp);
       assert.ok(tx.confirmations! > 1);
     }
 
@@ -88,7 +88,7 @@ describe('LegacyWallet', function () {
     for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
-      assert.ok(tx.received);
+      assert.ok(tx.timestamp);
       assert.ok(tx.confirmations! > 1);
     }
   };
@@ -162,7 +162,7 @@ describe('SegwitBech32Wallet', function () {
     for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
-      assert.ok(tx.received);
+      assert.ok(tx.timestamp);
       assert.ok(tx.confirmations! > 1);
     }
 
@@ -183,7 +183,7 @@ describe('SegwitBech32Wallet', function () {
     const tx = w.getTransactions()[1];
     assert.ok(tx.hash);
     assert.strictEqual(tx.value, 100000);
-    assert.ok(tx.received);
+    assert.ok(tx.timestamp);
     assert.ok(tx.confirmations! > 1);
 
     const tx0 = w.getTransactions()[0];

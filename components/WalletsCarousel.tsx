@@ -2,7 +2,6 @@ import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, u
 import {
   Animated,
   FlatList,
-  I18nManager,
   ImageBackground,
   Platform,
   Pressable,
@@ -17,7 +16,6 @@ import {
   UIManager,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { BlueSpacing10 } from '../BlueComponents';
 import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
@@ -28,6 +26,8 @@ import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import HighlightedText from './HighlightedText';
+import { BlueSpacing10 } from './BlueSpacing';
+import { useLocale } from '@react-navigation/native';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -171,23 +171,19 @@ const iStyles = StyleSheet.create({
   label: {
     backgroundColor: 'transparent',
     fontSize: 19,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   balance: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTx: {
     backgroundColor: 'transparent',
     fontSize: 13,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTxTime: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     fontSize: 16,
   },
   shadowContainer: {
@@ -231,6 +227,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { sizeClass } = useSizeClass();
+    const { direction } = useLocale();
 
     const springConfig = useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
     const animateScale = useCallback(
@@ -308,23 +305,26 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     let image;
     switch (item.type) {
       case LightningCustodianWallet.type:
-        image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+        image = direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
         break;
       case MultisigHDWallet.type:
-        image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+        image = direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
         break;
       default:
-        image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+        image = direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
     }
 
-    const latestTransactionText =
-      walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
-        ? loc.transactions.updating
-        : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-          ? loc.wallets.pull_to_refresh
-          : item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
-            ? loc.transactions.pending
-            : transactionTimeToReadable(item.getLatestTransactionTime());
+    let latestTransactionText;
+
+    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
+      latestTransactionText = loc.transactions.updating;
+    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+      latestTransactionText = loc.wallets.pull_to_refresh;
+    } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
+      latestTransactionText = loc.transactions.pending;
+    } else {
+      latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
+    }
 
     const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
 
@@ -358,12 +358,12 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
               <Text style={iStyles.br} />
               {!isPlaceHolder && (
                 <>
-                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
                     {renderHighlightedText && searchQuery ? (
                       <HighlightedText
                         text={item.getLabel()}
                         query={searchQuery}
-                        style={[iStyles.label, { color: colors.inverseForegroundColor }]}
+                        style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}
                       />
                     ) : (
                       item.getLabel()
@@ -380,17 +380,20 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                         numberOfLines={1}
                         adjustsFontSizeToFit
                         key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                        style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                        style={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
                       >
                         {`${balance} `}
                       </Text>
                     )}
                   </View>
                   <Text style={iStyles.br} />
-                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
+                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
                     {loc.wallets.list_latest_transaction}
                   </Text>
-                  <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                  <Text
+                    numberOfLines={1}
+                    style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                  >
                     {latestTransactionText}
                   </Text>
                 </>

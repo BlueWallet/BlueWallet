@@ -1,4 +1,4 @@
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,7 +6,6 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
-  I18nManager,
   LayoutAnimation,
   PixelRatio,
   ScrollView,
@@ -62,6 +61,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
+  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
@@ -99,6 +99,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     activityIndicatorStyle: {
       backgroundColor: colors.background,
     },
+    sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
+    receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
   });
 
   useFocusEffect(
@@ -136,7 +138,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
-    txs.sort((a: { received: string }, b: { received: string }) => +new Date(b.received) - +new Date(a.received));
+    txs.sort((a, b) => b.timestamp - a.timestamp);
     return txs;
   }, [wallet]);
 
@@ -190,13 +192,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setFetchFailures(0);
         const newTimestamp = Date.now();
         setLastFetchTimestamp(newTimestamp);
-      } catch (err) {
+      } catch (err: any) {
+        const errorMessage: string = err.message;
         setFetchFailures(prev => {
           const newFailures = prev + 1;
           // Only show error on final attempt for automatic refresh
           if ((isManualRefresh || newFailures === MAX_FAILURES) && newFailures >= MAX_FAILURES) {
-            if (err) {
-              presentAlert({ message: (err as Error).message, type: AlertType.Toast });
+            if (errorMessage) {
+              presentAlert({ message: errorMessage, type: AlertType.Toast });
             }
           }
           setIsLoading(true);
@@ -613,7 +616,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                   size={buttonFontSize}
                   type="font-awesome"
                   color={colors.buttonAlternativeTextColor}
-                  style={styles.receiveIcon}
+                  style={stylesHook.receiveIcon}
                 />
               </View>
             }
@@ -632,7 +635,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                   size={buttonFontSize}
                   type="font-awesome"
                   color={colors.buttonAlternativeTextColor}
-                  style={styles.sendIcon}
+                  style={stylesHook.sendIcon}
                 />
               </View>
             }
@@ -667,8 +670,6 @@ const styles = StyleSheet.create({
   emptyTxsContainer: { height: '10%', minHeight: '10%', flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
-  sendIcon: { transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }] },
-  receiveIcon: { transform: [{ rotate: I18nManager.isRTL ? '-45deg' : '45deg' }] },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',

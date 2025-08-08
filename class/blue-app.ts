@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Keychain from 'react-native-keychain';
@@ -253,7 +253,7 @@ export class BlueApp {
   };
 
   hashIt = (s: string): string => {
-    return createHash('sha256').update(s).digest().toString('hex');
+    return Buffer.from(sha256(s)).toString('hex');
   };
 
   /**
@@ -866,9 +866,7 @@ export class BlueApp {
 
     return txs
       .sort((a, b) => {
-        const bTime = new Date(b.received!).getTime();
-        const aTime = new Date(a.received!).getTime();
-        return bTime - aTime;
+        return b.timestamp - a.timestamp;
       })
       .slice(0, limit);
   };

@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
-import createHash from 'create-hash';
+import { sha256 } from '@noble/hashes/sha256';
 import { ECPairFactory } from 'ecpair';
 import * as mn from 'electrum-mnemonic';
 
@@ -1105,7 +1105,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getID() {
     const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return createHash('sha256').update(string2hash).digest().toString('hex');
+    return Buffer.from(sha256(string2hash)).toString('hex');
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {

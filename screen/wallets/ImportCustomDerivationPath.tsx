@@ -3,7 +3,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
-import { BlueFormLabel, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueFormLabel, BlueTextCentered } from '../../BlueComponents';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
@@ -15,6 +15,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { useSettings } from '../../hooks/context/useSettings';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ImportCustomDerivationPath'>;

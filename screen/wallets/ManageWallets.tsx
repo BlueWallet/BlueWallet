@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Image,
   Alert,
-  I18nManager,
   Animated,
   FlatList,
   ActivityIndicator,
@@ -14,7 +13,7 @@ import {
   Keyboard,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { usePreventRemove } from '@react-navigation/native';
+import { useLocale, usePreventRemove } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -186,6 +185,7 @@ const ManageWallets: React.FC = () => {
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack, dispatch: navigationDispatch } = useExtendedNavigation();
+  const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
   const debouncedSearchQuery = useDebounce(state.searchQuery, 300);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -195,6 +195,7 @@ const ManageWallets: React.FC = () => {
     },
     noResultsText: {
       color: colors.foregroundColor,
+      writingDirection: direction,
     },
   };
   const [noResultsOpacity] = useState(new Animated.Value(0));
@@ -383,8 +384,8 @@ const ManageWallets: React.FC = () => {
 
         if (transactions.length > 0 || addresses.length > 0) {
           transactions.sort((a, b) => {
-            if (a.data.received && b.data.received) {
-              return b.data.received - a.data.received;
+            if (a.data.timestamp && b.data.timestamp) {
+              return b.data.timestamp - a.data.timestamp;
             }
             return 0;
           });
@@ -748,7 +749,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     justifyContent: 'center',
     marginTop: 34,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     fontWeight: 'bold',
     fontSize: 19,
   },

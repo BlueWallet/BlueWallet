@@ -16,19 +16,19 @@ struct CompactPriceView: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(.large ... .accessibility5)
-                .foregroundColor(textColor())
+                .foregroundColor(textColor)
                 .accessibilityLabel("Bitcoin price: \(price)")
 
             VStack(alignment: .center, spacing: 8) {
                 Text(code)
-                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
+                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
                 Text(lastUpdated)
-                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
+                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
                 Text(dataSource)
-                    .shadow(color: shadowColor(), radius: 1, x: 0, y: 1)
+                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
             }
             .font(.subheadline)
-            .foregroundColor(textColor())
+            .foregroundColor(textColor)
             .multilineTextAlignment(.center)
             .accessibilityElement(children: .combine)
         }
@@ -36,15 +36,14 @@ struct CompactPriceView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func textColor() -> Color {
+    private var textColor: Color {
         colorScheme == .dark ? .white : .black
     }
 
-    private func shadowColor() -> Color {
-        textColor().opacity(0.2)
+    private var shadowColor: Color {
+        textColor.opacity(0.2)
     }
 }
-
 
 @available(iOS 15.0, *)
 struct CompactPriceView_Previews: PreviewProvider {

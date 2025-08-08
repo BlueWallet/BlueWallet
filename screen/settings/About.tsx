@@ -1,11 +1,11 @@
 import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from '@rneui/themed';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
-import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -15,6 +15,7 @@ import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const branch = require('../../current-branch.json');
 
@@ -136,10 +137,15 @@ const About: React.FC = () => {
           <BlueTextCentered>Nodejs</BlueTextCentered>
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
-          <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={handleOnGithubPress}
+            android_ripple={{ color: colors.androidRippleColor }}
+            style={({ pressed }) => [Platform.OS === 'ios' && pressed ? styles.pressed : null, styles.buttonLink, stylesHook.buttonLink]}
+          >
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
             <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </BlueCard>
       <ListItem
@@ -210,16 +216,17 @@ const About: React.FC = () => {
       </BlueTextCentered>
       <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
-        <TouchableOpacity
+        <Pressable
           accessibilityRole="button"
           onPress={() => {
             const stringToCopy = 'userId:' + getUniqueIdSync();
             A.logError('copied unique id');
             Clipboard.setString(stringToCopy);
           }}
+          style={({ pressed }) => [pressed && styles.pressed]}
         >
           <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
       <BlueSpacing20 />
       <BlueSpacing20 />
@@ -277,5 +284,8 @@ const styles = StyleSheet.create({
   textLink: {
     marginLeft: 8,
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
