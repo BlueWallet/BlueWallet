@@ -38,6 +38,7 @@
     "redeem": "Redeem to wallet",
     "redeemButton": "Redeem",
     "success": "Success",
+    "successMessage": "Voucher redeemed successfully! Your funds should arrive in your Bitcoin wallet shortly.",
     "title": "Redeem Azte.co voucher"
   },
   "entropy": {

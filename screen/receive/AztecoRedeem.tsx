@@ -62,7 +62,7 @@ const AztecoRedeem = () => {
       setIsLoading(false);
     } else {
       navigation.goBack();
-      presentAlert({ message: loc.azteco.success });
+      presentAlert({ title: loc.azteco.success, message: loc.azteco.successMessage });
     }
   };
 
