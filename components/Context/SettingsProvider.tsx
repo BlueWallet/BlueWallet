@@ -132,7 +132,7 @@ const defaultSettingsContext: SettingsContextType = {
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
 
-export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => {
+export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }: { children: React.ReactNode }) => {
   const [preferredFiatCurrency, setPreferredFiatCurrencyState] = useState<TFiatUnit>(FiatUnit.USD);
   const [language, setLanguage] = useState<string>('en');
   const [isHandOffUseEnabled, setIsHandOffUseEnabledState] = useState<boolean>(false);

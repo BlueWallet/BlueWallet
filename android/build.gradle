@@ -66,6 +66,8 @@ subprojects {
             }
         }
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            // FIXME: next line should be removed when https://github.com/wix/Detox/issues/4678 is fixed
+            kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.ExperimentalStdlibApi"]
             if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
                 kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
             } else {

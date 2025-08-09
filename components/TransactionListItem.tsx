@@ -53,7 +53,15 @@ interface TransactionListItemProps {
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
-  ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style, renderHighlightedText, onPress: customOnPress }) => {
+  ({
+    item,
+    itemPriceUnit = BitcoinUnit.BTC,
+    walletID,
+    searchQuery,
+    style,
+    renderHighlightedText,
+    onPress: customOnPress,
+  }: TransactionListItemProps) => {
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
