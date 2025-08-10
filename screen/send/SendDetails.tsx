@@ -1237,7 +1237,6 @@ const SendDetails = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-
     selectLabel: {
       color: colors.buttonTextColor,
     },
@@ -1252,7 +1251,6 @@ const SendDetails = () => {
     feeLabel: {
       color: colors.feeText,
     },
-
     feeRow: {
       backgroundColor: colors.feeLabel,
     },

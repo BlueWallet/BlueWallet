@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
-const AztecoRedeem = lazy(() => import('../screen/receive/aztecoRedeem'));
+const AztecoRedeem = lazy(() => import('../screen/receive/AztecoRedeem'));
 const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 
 export const AztecoRedeemComponent = () => (
