@@ -67,9 +67,10 @@ interface SuccessViewParam {
   amountUnit?: BitcoinUnit;
   fee?: number;
   invoiceDescription?: string;
+  shouldAnimate?: boolean;
 }
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription }: SuccessViewParam) => {
+export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }: SuccessViewParam) => {
   const { colors } = useTheme();
 
   let unit: string = '';
@@ -116,8 +117,9 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription }: Suc
         <LottieView
           style={styles.lottie}
           source={require('../../img/bluenice.json')}
-          autoPlay
+          autoPlay={shouldAnimate}
           loop={false}
+          progress={shouldAnimate ? 0 : 1}
           colorFilters={[
             {
               keypath: 'spark',

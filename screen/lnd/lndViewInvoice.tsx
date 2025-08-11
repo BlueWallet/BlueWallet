@@ -218,6 +218,7 @@ const LNDViewInvoice = () => {
               amountUnit={BitcoinUnit.SATS}
               invoiceDescription={description}
               fee={invoice.fee ? new BigNumber(invoice.fee).multipliedBy(-1).dividedBy(1e8).toNumber() : undefined}
+              shouldAnimate={false}
             />
             <View style={styles.detailsRoot}>
               <Text style={[styles.detailsText, stylesHook.detailsText]}>
