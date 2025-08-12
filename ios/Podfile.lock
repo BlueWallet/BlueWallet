@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (8.3.1):
+  - BugsnagReactNative (8.4.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -14,7 +14,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.77.2)
   - hermes-engine/Pre-built (0.77.2)
   - lottie-ios (4.5.0)
-  - lottie-react-native (7.2.2):
+  - lottie-react-native (7.2.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1292,7 +1292,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (5.4.1):
+  - react-native-safe-area-context (5.5.2):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -1632,9 +1632,9 @@ PODS:
     - Yoga
   - RealmJS (20.1.0):
     - React
-  - RNCAsyncStorage (2.1.2):
+  - RNCAsyncStorage (2.2.0):
     - React-Core
-  - RNCClipboard (1.16.2):
+  - RNCClipboard (1.16.3):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -1688,7 +1688,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNLocalize (3.4.1):
+  - RNLocalize (3.5.1):
     - React-Core
   - RNPermissions (5.4.1):
     - React-Core
@@ -1861,7 +1861,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (12.0.11):
+  - RNShare (12.1.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2241,7 +2241,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BugsnagReactNative: 72af66afc89b2598cf59f6a0ebdff566647d5a23
+  BugsnagReactNative: f2731e875074768796910d51fab561dfde4a20be
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
@@ -2251,7 +2251,7 @@ SPEC CHECKSUMS:
   glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
   hermes-engine: 8eb265241fa1d7095d3a40d51fd90f7dce68217c
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 35b7c1125a01f847fa5905d380e54951132d2450
+  lottie-react-native: 3d5879c421eb43a19e3c723f834300fecfd3e5b9
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 85b72250b63cfb54f29ca96ceb108cb9ef3c2079
   RCTRequired: 567cb8f5d42b990331bfd93faad1d8999b1c1736
@@ -2289,7 +2289,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb
   react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
-  react-native-safe-area-context: dde2052b903c11d677c320b599c3244021c34ce8
+  react-native-safe-area-context: 0f7bf11598f9a61b7ceac8dc3f59ef98697e99e1
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
@@ -2324,8 +2324,8 @@ SPEC CHECKSUMS:
   ReactCommon: 7763e59534d58e15f8f22121cdfe319040e08888
   ReactNativeCameraKit: c7cec02191d24b6607c002dff403d349a61f5e49
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
-  RNCAsyncStorage: b9f5f78da5d16a853fe3dc22e8268d932fc45a83
-  RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade
+  RNCAsyncStorage: b44e8a4e798c3e1f56bffccd0f591f674fb9198f
+  RNCClipboard: f6679d470d0da2bce2a37b0af7b9e0bf369ecda5
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
@@ -2333,7 +2333,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 92e89a04cd0d1c77f383a55d14c15e7f423f4c00
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
-  RNLocalize: 15463c4d79c7da45230064b4adcf5e9bb984667e
+  RNLocalize: 60ebbb668e46d3b9f276aaf2db8ae5353b84e514
   RNPermissions: 59041974c1661e4ae4599b4d3f2f3aa8f64023a1
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
@@ -2341,7 +2341,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
   RNReanimated: 9314062225482de1f3359245705191e9aacfe85c
   RNScreens: 9ef996b6041d0960a4794a845f7d0808b171b4ef
-  RNShare: b4d46f2037d01cb8e1dda34478bb80ed97e0ad35
+  RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
   RNSVG: 4a789b2408851b376e3055c3798ce310a35d0fe7
   RNVectorIcons: f7a99433a71f4b38891c14c64b21fc521d064392
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
