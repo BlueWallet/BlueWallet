@@ -155,7 +155,7 @@
     "react-native-push-notification": "8.1.1",
     "react-native-qrcode-svg": "6.3.15",
     "react-native-quick-actions": "0.3.13",
-    "react-native-randombytes": "3.6.1",
+    "react-native-get-random-values": "1.11.0",
     "react-native-rate": "1.2.12",
     "react-native-reanimated": "3.18.0",
     "react-native-safe-area-context": "5.5.2",
