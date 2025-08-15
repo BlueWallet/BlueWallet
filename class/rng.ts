@@ -3,9 +3,7 @@
  * into one place to try and prevent mistakes when touching the crypto code.
  */
 
-import crypto from 'crypto';
-// uses `crypto` module under nodejs/cli and shim under RN
-// check out 'react-native-crypto' in package.json
+// React Native: entropy via global crypto.getRandomValues (polyfilled by react-native-get-random-values)
 
 /**
  * Generate cryptographically secure random bytes using native api.
@@ -14,16 +12,11 @@ import crypto from 'crypto';
  */
 export async function randomBytes(size: number): Promise<Buffer> {
   const g: any = globalThis as any;
-  const webCrypto = g && g.crypto && (g.crypto.getRandomValues ? g.crypto : g.crypto.webcrypto);
-  if (webCrypto && typeof webCrypto.getRandomValues === 'function') {
-    const bytes = new Uint8Array(size);
-    webCrypto.getRandomValues(bytes);
-    return Buffer.from(bytes);
+  const rnCrypto = g && g.crypto;
+  if (!rnCrypto || typeof rnCrypto.getRandomValues !== 'function') {
+    throw new Error('crypto.getRandomValues is not available');
   }
-  return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, data) => {
-      if (err) reject(err);
-      else resolve(data);
-    });
-  });
+  const bytes = new Uint8Array(size);
+  rnCrypto.getRandomValues(bytes);
+  return Buffer.from(bytes);
 }
