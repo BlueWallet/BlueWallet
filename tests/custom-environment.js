@@ -8,7 +8,7 @@ class CustomEnvironment extends NodeEnvironment {
       if (!process.env.RETRY) return;
 
       const fullName = (event.test.parent.name === 'ROOT_DESCRIBE_BLOCK' ? '' : event.test.parent.name + ' ') + event.test.name;
-      const hash = require('crypto').createHash('md5').update(fullName).digest('hex');
+      const hash = require('noble-crypto').createHash('md5').update(fullName).digest('hex');
       if (require('fs').existsSync(`/tmp/${hash}`)) {
         event.test.mode = 'skip';
         console.log('skipping as it previously passed on CI:', fullName);

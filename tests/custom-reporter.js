@@ -23,7 +23,7 @@ class CustomReporter {
     if (testCaseResult.fullName.includes('addresses for vout missing')) return;
     if (testCaseResult.fullName.includes('txdatas were coming back null from BlueElectrum because of high batchsize')) return;
 
-    const hash = require('crypto').createHash('md5').update(testCaseResult.fullName).digest('hex');
+    const hash = require('noble-crypto').createHash('md5').update(testCaseResult.fullName).digest('hex');
     if (testCaseResult.status === 'passed') {
       // marking testcase as passed in /tmp
       require('fs').writeFileSync(`/tmp/${hash}`, '1');
