@@ -2,7 +2,7 @@ import assert from 'assert';
 
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from '../../class';
 
-global.crypto = require('crypto');
+global.crypto = require('noble-crypto');
 
 describe('SLIP39 wallets tests', () => {
   it('can validateMnemonic', async () => {

@@ -61,7 +61,7 @@
     "adb": "adb reverse tcp:8081 tcp:8081",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
-    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run patches",
+    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert --hack; npm run releasenotes2json; npm run branch2json; npm run patches",
     "patches": "",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest tests/integration/*",
@@ -126,6 +126,7 @@
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "lottie-react-native": "7.2.4",
+    "noble-crypto": "https://github.com/BlueWallet/noble-crypto",
     "path-browserify": "1.0.1",
     "payjoin-client": "1.0.1",
     "process": "0.11.10",
@@ -136,8 +137,7 @@
     "react-native-biometrics": "3.0.1",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit": "15.0.1",
-    "react-native-capture-protection": "github:BlueWallet/react-native-capture-protection#54d900",
-    "react-native-crypto": "2.2.0",
+        "react-native-capture-protection": "github:BlueWallet/react-native-capture-protection#54d900",
     "react-native-default-preference": "https://github.com/BlueWallet/react-native-default-preference.git#6338a1f1235e4130b8cfc2dd3b53015eeff2870c",
     "react-native-device-info": "14.0.4",
     "react-native-document-picker": "9.3.1",
@@ -178,7 +178,7 @@
     "wif": "2.0.6"
   },
   "react-native": {
-    "crypto": "react-native-crypto",
+    "crypto": "noble-crypto",
     "net": "react-native-tcp-socket",
     "tls": "react-native-tcp-socket",
     "path": "path-browserify",
@@ -190,7 +190,9 @@
     "stream": "stream-browserify"
   },
   "browser": {
-    "crypto": "react-native-crypto",
+    "crypto": "noble-crypto",
+    "net": "react-native-tcp-socket",
+    "tls": "react-native-tcp-socket",
     "path": "path-browserify",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",

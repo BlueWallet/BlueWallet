@@ -3,9 +3,7 @@
  * into one place to try and prevent mistakes when touching the crypto code.
  */
 
-import crypto from 'crypto';
-// uses `crypto` module under nodejs/cli and shim under RN
-// check out 'react-native-crypto' in package.json
+import { randomBytes as rnRandomBytes } from 'react-native-randombytes';
 
 /**
  * Generate cryptographically secure random bytes using native api.
@@ -14,7 +12,7 @@ import crypto from 'crypto';
  */
 export async function randomBytes(size: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (err, data) => {
+    rnRandomBytes(size, (err: Error | null, data: Buffer) => {
       if (err) reject(err);
       else resolve(data);
     });
