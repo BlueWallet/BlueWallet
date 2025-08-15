@@ -13,6 +13,13 @@ import crypto from 'crypto';
  * @return {Promise.<Buffer>}   The random bytes
  */
 export async function randomBytes(size: number): Promise<Buffer> {
+  const g: any = globalThis as any;
+  const webCrypto = g && g.crypto && (g.crypto.getRandomValues ? g.crypto : g.crypto.webcrypto);
+  if (webCrypto && typeof webCrypto.getRandomValues === 'function') {
+    const bytes = new Uint8Array(size);
+    webCrypto.getRandomValues(bytes);
+    return Buffer.from(bytes);
+  }
   return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, data) => {
       if (err) reject(err);
