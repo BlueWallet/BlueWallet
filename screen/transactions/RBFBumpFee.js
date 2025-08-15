@@ -8,7 +8,6 @@ import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import CPFP from './CPFP';
 import { StorageContext } from '../../components/Context/StorageProvider';
-import { popToTop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const styles = StyleSheet.create({
@@ -69,7 +68,7 @@ export default class RBFBumpFee extends CPFP {
       this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
     }
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
+    this.props.navigation.navigate('Success', { amount: undefined });
   }
 
   render() {

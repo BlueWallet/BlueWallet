@@ -218,7 +218,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     onPressOut,
     isNewWallet = false,
     isExiting = false,
-  }) => {
+  }: WalletCarouselItemProps) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const opacityValue = useRef(new Animated.Value(isSelectedWallet === false ? 0.5 : 1.0)).current;
     const translateYValue = useRef(new Animated.Value(isNewWallet ? 20 : 0)).current;
