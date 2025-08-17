@@ -38,6 +38,7 @@
     "redeem": "Canjear en billetera",
     "redeemButton": "Canjear",
     "success": "Éxito",
+    "successMessage": "¡Cupón canjeado correctamente! Los fondos deberían llegar a tu billetera Bitcoin en breve.",
     "title": "Canjear cupón Azte.co"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "Editar nombre de contacto",
     "details_scan": "Escanear",
     "details_scan_hint": "Toca dos veces para escanear o importar un destino",
+    "details_scan_error": "Error de escaneo",
     "details_total_exceeds_balance": "La cantidad de envío excede el saldo disponible.",
     "details_total_exceeds_balance_frozen": "El monto del envío excede el saldo disponible. Ten en cuenta que las monedas congeladas están excluidas.",
     "details_unrecognized_file_format": "Formato de archivo no reconocido",
@@ -683,7 +685,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
