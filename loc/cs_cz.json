@@ -38,6 +38,7 @@
     "redeem": "Uplatnit do peněženky",
     "redeemButton": "Uplatnit",
     "success": "Úspěch",
+    "successMessage": "Poukaz byl úspěšně uplatněn! Vaše prostředky by měly brzy dorazit na vaši bitcoinovou peněženku.",
     "title": "Uplatnit Azte.co voucher"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "Upravit jméno kontaktu",
     "details_scan": "Skenovat",
     "details_scan_hint": "Dvojitým klepnutím naskenujete nebo importujete cíl",
+    "details_scan_error": "Chyba skenování",
     "details_total_exceeds_balance": "Částka, kterou se snažíte odeslat, přesahuje dostupný zůstatek.",
     "details_total_exceeds_balance_frozen": "Odesílaná částka překračuje dostupný zůstatek. Upozorňujeme, že zmrazené mince nejsou zahrnuty.",
     "details_unrecognized_file_format": "Neznámý formát souboru",
