@@ -14,11 +14,12 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
-import { popToTop } from '../../NavigationService.ts';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 
 const Success = () => {
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
   const route = useRoute<RouteProps>();
@@ -36,7 +37,8 @@ const Success = () => {
   });
 
   const onDonePressed = () => {
-    popToTop();
+    // @ts-ignore idk
+    navigation?.getParent().pop();
   };
 
   useEffect(() => {
