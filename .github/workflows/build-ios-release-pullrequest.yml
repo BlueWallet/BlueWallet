@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -75,19 +75,31 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Install iOS Simulator Runtime
+      - name: Install Simulator Runtimes (iOS & watchOS)
         run: |
-          echo "Available iOS simulator runtimes:"
+          echo "Available simulator runtimes (before):"
           xcrun simctl list runtimes
-          
-          # Try to download the latest iOS 16.x simulator if not present
-          if (! xcrun simctl list runtimes | grep -q "iOS 16"); then
-            echo "Installing iOS 16.4 simulator..."
-            sudo xcode-select -s /Applications/Xcode.app
+
+          # Use active Xcode
+          sudo xcode-select -s /Applications/Xcode.app
+
+          # Ensure an iOS 17+ runtime exists
+          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
+            echo "Installing iOS simulator runtime (17 or newer)..."
             xcodebuild -downloadPlatform iOS
+          else
+            echo "iOS 17 or newer simulator runtime already present."
           fi
-          
-          echo "Available iOS simulator runtimes after install:"
+
+          # Ensure a watchOS 11+ runtime exists
+          if ! xcrun simctl list runtimes | grep -Eq "watchOS (1[1-9]|[2-9][0-9])"; then
+            echo "Installing watchOS simulator runtime (11 or newer)..."
+            xcodebuild -downloadPlatform watchOS
+          else
+            echo "watchOS 11 or newer simulator runtime already present."
+          fi
+
+          echo "Available simulator runtimes (after):"
           xcrun simctl list runtimes
 
       - name: Set Up Ruby
@@ -217,7 +229,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-15
+    runs-on: macos-latest
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}

@@ -2,9 +2,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -20,6 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
+import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 const PsbtWithHardwareWallet = () => {
@@ -203,25 +202,9 @@ const PsbtWithHardwareWallet = () => {
     dynamicQRCode.current?.startAutoMove();
   };
 
-  const openSignedTransaction = async () => {
-    try {
-      const res = await DocumentPicker.pickSingle({
-        type:
-          Platform.OS === 'ios'
-            ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', DocumentPicker.types.json]
-            : [DocumentPicker.types.allFiles],
-      });
-      const file = await RNFS.readFile(res.uri);
-      if (file) {
-        onBarScanned({ data: file });
-      } else {
-        throw new Error();
-      }
-    } catch (err) {
-      if (!DocumentPicker.isCancel(err)) {
-        presentAlert({ message: loc.send.details_no_signed_tx });
-      }
-    }
+  const onOpenSignedTransaction = async () => {
+    const file = await openSignedTransactionRaw();
+    file && onBarScanned({ data: file });
   };
 
   useEffect(() => {
@@ -270,7 +253,7 @@ const PsbtWithHardwareWallet = () => {
             type: 'entypo',
             color: colors.secondButtonTextColor,
           }}
-          onPress={openSignedTransaction}
+          onPress={onOpenSignedTransaction}
           title={loc.send.psbt_tx_open}
         />
         <BlueSpacing20 />

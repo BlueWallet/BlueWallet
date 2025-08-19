@@ -6,7 +6,7 @@
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
-import SwiftUICore
+import SwiftUI
 
 
 extension Color {
