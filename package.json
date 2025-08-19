@@ -95,7 +95,7 @@
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-documents/picker": "10.1.5",
     "@react-native-menu/menu": "github:BlueWallet/menu#9933468",
-    "@react-native/gradle-plugin": "0.78.2",
+    "@react-native/gradle-plugin": "0.81.0",
     "@react-native/metro-config": "0.78.2",
     "@react-navigation/devtools": "7.0.24",
     "@react-navigation/drawer": "7.3.7",
