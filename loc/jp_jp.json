@@ -38,6 +38,7 @@
     "redeem": "ウォレットに交換する",
     "redeemButton": "交換する",
     "success": "成功",
+    "successMessage": "バウチャーの交換に成功しました！　まもなくビットコインウォレットに入金されます。",
     "title": "Azte.co バウチャーを交換"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "連絡先の名前を編集",
     "details_scan": "読取り",
     "details_scan_hint": "ダブルタップして宛先をスキャンまたはインポート",
+    "details_scan_error": "読み取りエラー",
     "details_total_exceeds_balance": "送金額が利用可能残額を超えています。",
     "details_total_exceeds_balance_frozen": "送金額が利用可能残額を超えています。フリーズしたコインは使えないのでご注意ください。",
     "details_unrecognized_file_format": "認識できないファイルフォーマット",

@@ -114,7 +114,10 @@
     "copy_link": "لٛف گری لینگ",
     "details_copy": "لٛف گری",
     "date": "ویرگار",
-    "details_received": "گرته بیه"
+    "details_received": "گرته بیه",
+    "details_title": "تراکونش",
+    "transaction": "تراکونش",
+    "open_url_error": "نا مووفق د واز کردن لینگ وا گشت گر پؽش فرز. گشت گر پؽش فرز خوته آلشت کوݩ ۉ د نۊ تفره بکوݩ."
   },
   "wallets": {
     "add_bitcoin": "بیت کوین",

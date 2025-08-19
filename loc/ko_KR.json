@@ -38,6 +38,7 @@
     "redeem": "지갑으로 교환",
     "redeemButton": "교환",
     "success": "성공",
+    "successMessage": "바우처가 성공적으로 사용되었습니다! 곧 비트코인 지갑으로 자금이 입금될 것입니다.",
     "title": "제목"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "연락처 이름 편집",
     "details_scan": "스캔",
     "details_scan_hint": "목적지를 스캔하거나 들여오기 하기위해서 더블 탭하세요",
+    "details_scan_error": "스캔 에러",
     "details_total_exceeds_balance": "전송될 금액이 사용 가능한 잔고를 초과합니다.",
     "details_total_exceeds_balance_frozen": "보내시는 금액이 잔고를 초월합니다. 동결된 코인은 제외됨에 주의하시기 바랍니다.",
     "details_unrecognized_file_format": "인식할 수 없는 파일 형식",
@@ -364,7 +366,7 @@
     "onchain": "온체인",
     "details_to": "출력",
     "enable_offline_signing": "이 지갑은 오프라인 서명과 함께 쓸수 없습니다. 지금 가능하도록 할까요?",
-    "list_conf": "확정획수: {number}",
+    "list_conf": "확정 횟수: {number}",
     "pending": "보류중",
     "pending_with_amount": "보류중 {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -385,7 +387,9 @@
     "to": "받는 대상: {counterparty}",
     "updating": "갱신중...",
     "watchOnlyWarningTitle": "보안 경고",
-    "watchOnlyWarningDescription": "사기꾼들은 종종 ‘조회 전용’ 지갑을 사용해 사용자를 속입니다. 이러한 지갑은 자금을 송금하거나 제어할 수 없고 잔액 조회만 가능합니다."
+    "watchOnlyWarningDescription": "사기꾼들은 종종 ‘조회 전용’ 지갑을 사용해 사용자를 속입니다. 이러한 지갑은 자금을 송금하거나 제어할 수 없고 잔액 조회만 가능합니다.",
+    "custom_fee_warning_title": "경고",
+    "custom_fee_warning_description": "1 sat/vB 이하의 수수료도 유효하지만, 노드의 정책에 따라 트랜잭션이 릴레이되지 않을 수 있습니다."
   },
   "wallets": {
     "add_bitcoin": "비트코인",
