@@ -17,6 +17,7 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 DerivedData
+.kotlin/
 *.hmap
 *.ipa
 *.xcuserstate

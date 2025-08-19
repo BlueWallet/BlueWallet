@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
-import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '@rneui/themed';
 import { BlueCard } from '../../BlueComponents';
@@ -14,15 +13,17 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+
+type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 
 const Success = () => {
-  const pop = () => {
-    getParent().pop();
-  };
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
-  const { getParent } = useNavigation();
-  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop, txid } = useRoute().params;
+  const route = useRoute<RouteProps>();
+  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', txid } = route.params || {};
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -34,19 +35,19 @@ const Success = () => {
       color: colors.alternativeTextColor2,
     },
   });
+
+  const onDonePressed = () => {
+    // @ts-ignore idk
+    navigation?.getParent().pop();
+  };
+
   useEffect(() => {
     console.log('send/success - useEffect');
   }, []);
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
-      <SuccessView
-        amount={amount}
-        amountUnit={amountUnit}
-        fee={fee}
-        invoiceDescription={invoiceDescription}
-        onDonePressed={onDonePressed}
-      />
+      <SuccessView amount={amount} amountUnit={amountUnit} fee={fee} invoiceDescription={invoiceDescription} />
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
@@ -63,9 +64,24 @@ const Success = () => {
 
 export default Success;
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }) => {
-  const animationRef = useRef();
+interface SuccessViewParam {
+  amount?: number;
+  amountUnit?: BitcoinUnit;
+  fee?: number;
+  invoiceDescription?: string;
+  shouldAnimate?: boolean;
+}
+
+export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }: SuccessViewParam) => {
   const { colors } = useTheme();
+
+  let unit: string = '';
+  switch (amountUnit) {
+    case BitcoinUnit.BTC:
+    case BitcoinUnit.SATS:
+      unit = loc.units[amountUnit];
+      break;
+  }
 
   const stylesHook = StyleSheet.create({
     amountValue: {
@@ -76,34 +92,21 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
     },
   });
 
-  useEffect(() => {
-    if (shouldAnimate && animationRef.current) {
-      /*
-      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
-      Temporary workaround until Lottie is fixed.
-      */
-      setTimeout(() => {
-        animationRef.current?.reset();
-        animationRef.current?.play();
-      }, 100);
-    }
-  }, [colors, shouldAnimate]);
-
   return (
     <View style={styles.root}>
-      {amount || fee > 0 ? (
+      {amount || (fee ?? 0) > 0 ? (
         <BlueCard style={styles.amount}>
           <View style={styles.view}>
             {amount ? (
               <>
                 <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-                <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
+                <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + unit}</Text>
               </>
             ) : null}
           </View>
-          {fee > 0 && (
+          {(fee ?? 0) > 0 && (
             <Text style={styles.feeText}>
-              {loc.send.create_fee}: {new BigNumber(fee).toFixed(8)} {loc.units[BitcoinUnit.BTC]}
+              {loc.send.create_fee}: {new BigNumber(fee ?? 0).toFixed(8)} {loc.units[BitcoinUnit.BTC]}
             </Text>
           )}
           <Text numberOfLines={0} style={styles.feeText}>
@@ -117,7 +120,6 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
           style={styles.lottie}
           source={require('../../img/bluenice.json')}
           autoPlay={shouldAnimate}
-          ref={animationRef}
           loop={false}
           progress={shouldAnimate ? 0 : 1}
           colorFilters={[
@@ -139,14 +141,6 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
       </View>
     </View>
   );
-};
-
-SuccessView.propTypes = {
-  amount: PropTypes.number,
-  amountUnit: PropTypes.string,
-  fee: PropTypes.number,
-  invoiceDescription: PropTypes.string,
-  shouldAnimate: PropTypes.bool,
 };
 
 const styles = StyleSheet.create({

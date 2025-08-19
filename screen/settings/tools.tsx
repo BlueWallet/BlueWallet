@@ -1,11 +1,11 @@
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 
 const ToolsScreen = () => {
-  const { navigate } = useNavigation();
+  const { navigate } = useExtendedNavigation();
 
   const navigateToIsItMyAddress = () => {
     navigate('IsItMyAddress');
