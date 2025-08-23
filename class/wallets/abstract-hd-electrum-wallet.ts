@@ -7,6 +7,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
+import { bech32m } from 'bech32';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory, ECPairInterface } from 'ecpair';
 
@@ -54,6 +55,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   // BIP47
   _enable_BIP47: boolean;
   _payment_code: string;
+
+  // BIP352 (Silent Payments)
+  _enable_BIP352: boolean;
 
   /**
    * payment codes of people who can pay us
@@ -108,6 +112,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // BIP47
     this._enable_BIP47 = false;
     this._payment_code = '';
+
+    // BIP352 (Silent Payments)
+    this._enable_BIP352 = true;
     this._receive_payment_codes = [];
     this._send_payment_codes = [];
     this._next_free_payment_code_address_index_receive = {};
@@ -1571,6 +1578,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._enable_BIP47 = value;
   }
 
+  isBIP352Enabled(): boolean {
+    return this._enable_BIP352;
+  }
+
+  switchBIP352(value: boolean): void {
+    this._enable_BIP352 = value;
+  }
+
   getBIP47FromSeed(): BIP47Interface {
     if (!this._bip47_instance || !this._bip47_instance.getNotificationAddress) {
       this._bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
@@ -1883,5 +1898,32 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
     const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
     return hdNode.publicKey;
+  }
+
+  allowSilentPaymentReceive(): boolean {
+    return true;
+  }
+
+  getSilentPaymentAddress(): string | null {
+    const seed = this._getSeed();
+    
+    const silentPaymentRoot = bip32.fromSeed(seed);
+    
+    const spendKey = silentPaymentRoot.derivePath("m/352'/0'/0'/0'/0");
+    const scanKey = silentPaymentRoot.derivePath("m/352'/0'/0'/1'/0");
+
+    if (!scanKey.privateKey || !spendKey.privateKey) {
+      return null;
+    }
+
+    const scanPubKey = scanKey.publicKey;
+    const spendPubKey = spendKey.publicKey;
+
+    const paymentCodeData = Buffer.concat([scanPubKey, spendPubKey]);
+
+    const words = bech32m.toWords(paymentCodeData);
+    const silentPaymentCode = bech32m.encode('sp', [0, ...words], 118); 
+
+    return silentPaymentCode;
   }
 }

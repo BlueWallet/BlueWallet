@@ -159,6 +159,14 @@ export class AbstractWallet {
     return false;
   }
 
+  allowSilentPaymentReceive(): boolean {
+    return false;
+  }
+
+  getSilentPaymentAddress(): string | null {
+    return null;
+  }
+
   allowRBF(): boolean {
     return false;
   }
@@ -415,6 +423,10 @@ export class AbstractWallet {
   }
 
   isBIP47Enabled(): boolean {
+    return false;
+  }
+
+  isBIP352Enabled(): boolean {
     return false;
   }
 

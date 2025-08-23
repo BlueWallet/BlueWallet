@@ -688,5 +688,10 @@
     "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
     "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
+  },
+  "bip352": {
+    "silent_payments": "Silent Payments",
+    "not_supported": "Silent Payments not supported by this wallet",
+    "explanation": "Silent Payment addresses are reusable, allowing you to share a single address for multiple payments without compromising privacy."
   }
 }

@@ -34,7 +34,7 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
-const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
+const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code, loc.bip352.silent_payments];
 const HORIZONTAL_PADDING = 20;
 
 type StickyHeaderProps = {
@@ -92,7 +92,8 @@ const ReceiveDetails = () => {
   const [qrCodeSize, setQRCodeSize] = useState(90);
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
-  const isBIP47Enabled = wallet?.isBIP47Enabled();
+  const isBIP47Enabled = wallet?.isBIP47Enabled() ?? false;
+  const isBIP352Enabled = wallet?.isBIP352Enabled() ?? false;
 
   const stylesHook = StyleSheet.create({
     customAmount: {
@@ -406,8 +407,7 @@ const ReceiveDetails = () => {
           )}
         </View>
       );
-    } else if (wallet && isBIP47Enabled) {
-      // wallet is always defined here
+    } else if (currentTab === segmentControlValues[1] && wallet && isBIP47Enabled) {
       const qrValue =
         'getBIP47PaymentCode' in wallet && typeof wallet.getBIP47PaymentCode === 'function' ? wallet.getBIP47PaymentCode() : undefined;
       return (
@@ -422,6 +422,24 @@ const ReceiveDetails = () => {
             </>
           ) : (
             <Text>{loc.bip47.not_found}</Text>
+          )}
+        </View>
+      );
+    } else if (currentTab === segmentControlValues[2] && wallet && isBIP352Enabled) {
+      const silentPaymentCode =
+        'getSilentPaymentAddress' in wallet && typeof wallet.getSilentPaymentAddress === 'function' ? wallet.getSilentPaymentAddress() : undefined;
+      return (
+        <View style={styles.container}>
+          {silentPaymentCode ? (
+            <>
+              <TipBox description={loc.bip352.explanation} containerStyle={styles.tip} />
+              <View style={styles.qrCodeContainer}>
+                <QRCodeComponent value={silentPaymentCode} size={qrCodeSize} />
+              </View>
+              <CopyTextToClipboard text={silentPaymentCode} truncated={false} />
+            </>
+          ) : (
+            <Text>{loc.bip352.not_supported}</Text>
           )}
         </View>
       );
@@ -522,8 +540,10 @@ const ReceiveDetails = () => {
     let message: string | false = false;
     if (currentTab === segmentControlValues[0]) {
       message = bip21encoded;
-    } else {
+    } else if (currentTab === segmentControlValues[1] && wallet && isBIP47Enabled) {
       message = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? false;
+    } else if (currentTab === segmentControlValues[2] && wallet && isBIP352Enabled) {
+      message = (wallet && 'getSilentPaymentAddress' in wallet && wallet.getSilentPaymentAddress()) ?? false;
     }
 
     if (!message) {
@@ -584,7 +604,11 @@ const ReceiveDetails = () => {
             <Button
               onPress={handleShareButtonPressed}
               title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
+              disabled={
+                (currentTab === segmentControlValues[0] && !bip21encoded) ||
+                (currentTab === segmentControlValues[1] && !isBIP47Enabled) ||
+                (currentTab === segmentControlValues[2] && !isBIP352Enabled)
+              }
             />
           </BlueCard>
         </View>
