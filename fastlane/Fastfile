@@ -628,11 +628,11 @@ end
         latest_version
       else
         UI.important("No iOS simulator versions found. Using default version.")
-        "17.6"
+        "18.0"
       end
     else
       UI.important("No iOS simulator runtimes found. Using default version.")
-      "17.6"
+      "18.0"
     end
   end
 end

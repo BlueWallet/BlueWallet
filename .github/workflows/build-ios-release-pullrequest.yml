@@ -83,12 +83,12 @@ jobs:
           # Use active Xcode
           sudo xcode-select -s /Applications/Xcode.app
 
-          # Ensure an iOS 17+ runtime exists
-          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
-            echo "Installing iOS simulator runtime (17 or newer)..."
+          # Ensure an iOS 18+ runtime exists
+          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[8-9]|[2-9][0-9])"; then
+            echo "Installing iOS simulator runtime (18 or newer)..."
             xcodebuild -downloadPlatform iOS
           else
-            echo "iOS 17 or newer simulator runtime already present."
+            echo "iOS 18 or newer simulator runtime already present."
           fi
 
           # Ensure a watchOS 11+ runtime exists
