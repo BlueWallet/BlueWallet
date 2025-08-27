@@ -75,37 +75,166 @@ jobs:
         with:
           xcode-version: latest
 
+      - name: Setup Xcode Path
+        run: |
+          echo -e "\033[1;34m==================== XCODE SETUP DEBUG ====================\033[0m"
+          echo -e "\033[1;36mSystem Information:\033[0m"
+          echo "  macOS Version: $(sw_vers -productVersion)"
+          echo "  macOS Build: $(sw_vers -buildVersion)"
+          echo "  Architecture: $(uname -m)"
+          
+          echo -e "\033[1;36mAvailable Xcode Installations:\033[0m"
+          find /Applications -name "Xcode*.app" -type d 2>/dev/null | while read -r xcode_path; do
+            if [ -d "$xcode_path/Contents/Developer" ]; then
+              echo "  Found: $xcode_path"
+              version=$("$xcode_path/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | head -1 || echo "Version unavailable")
+              echo "    Version: $version"
+            fi
+          done
+          
+          echo -e "\033[1;36mCurrent Xcode Configuration:\033[0m"
+          echo "  Before xcode-select: $(xcode-select -p 2>/dev/null || echo 'Not set')"
+          
+          # Ensure we're using the correct Xcode installation
+          sudo xcode-select -s /Applications/Xcode.app
+          
+          echo "  After xcode-select: $(xcode-select -p)"
+          echo "  Xcode Version: $(xcodebuild -version)"
+          echo "  Xcode Build Version: $(xcodebuild -version | tail -1)"
+          
+          echo -e "\033[1;36mSDK Information:\033[0m"
+          echo "  Available SDKs:"
+          xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -10
+          
+          echo -e "\033[1;34m========================================================\033[0m"
+
       - name: Install Simulator Runtimes (iOS & watchOS)
         run: |
-          echo "Available simulator runtimes (before):"
-          xcrun simctl list runtimes
-
-          # Use active Xcode
-          sudo xcode-select -s /Applications/Xcode.app
-
-          # Ensure an iOS 18+ runtime exists
-          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[8-9]|[2-9][0-9])"; then
-            echo "Installing iOS simulator runtime (18 or newer)..."
+          echo -e "\033[1;34m============ SIMULATOR RUNTIME SETUP DEBUG ============\033[0m"
+          echo -e "\033[1;33mNote: Installing runtimes for debugging purposes - release builds use physical device targets\033[0m"
+          echo -e "\033[1;36mInitial Runtime Analysis:\033[0m"
+          echo "  All available runtimes:"
+          xcrun simctl list runtimes | cat -n
+          
+          echo -e "\033[1;36mRuntime Summary:\033[0m"
+          echo "  iOS Runtimes:"
+          xcrun simctl list runtimes | grep "iOS" | while read -r line; do
+            echo "    $line"
+          done
+          
+          echo "  watchOS Runtimes:"
+          xcrun simctl list runtimes | grep "watchOS" | while read -r line; do
+            echo "    $line"
+          done
+          
+          echo -e "\033[1;33mChecking iOS Runtime Requirements (17+):\033[0m"
+          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
+            echo -e "\033[1;31m  No iOS 17+ runtime found - installing...\033[0m"
+            echo "  Downloading iOS platform..."
             xcodebuild -downloadPlatform iOS
+            echo -e "\033[1;32m  iOS platform download completed\033[0m"
           else
-            echo "iOS 18 or newer simulator runtime already present."
+            echo -e "\033[1;32m  iOS 17+ runtime already present\033[0m"
+            xcrun simctl list runtimes | grep -E "iOS (1[7-9]|[2-9][0-9])" | while read -r line; do
+              echo "    Found: $line"
+            done
           fi
 
-          # Ensure a watchOS 11+ runtime exists
+          echo -e "\033[1;33mChecking watchOS Runtime Requirements (11+):\033[0m"
           if ! xcrun simctl list runtimes | grep -Eq "watchOS (1[1-9]|[2-9][0-9])"; then
-            echo "Installing watchOS simulator runtime (11 or newer)..."
+            echo -e "\033[1;31m  No watchOS 11+ runtime found - installing...\033[0m"
+            echo "  Downloading watchOS platform..."
             xcodebuild -downloadPlatform watchOS
+            echo -e "\033[1;32m  watchOS platform download completed\033[0m"
           else
-            echo "watchOS 11 or newer simulator runtime already present."
+            echo -e "\033[1;32m  watchOS 11+ runtime already present\033[0m"
+            xcrun simctl list runtimes | grep -E "watchOS (1[1-9]|[2-9][0-9])" | while read -r line; do
+              echo "    Found: $line"
+            done
           fi
 
-          echo "Available simulator runtimes (after):"
-          xcrun simctl list runtimes
+          echo -e "\033[1;36mFinal Runtime Analysis:\033[0m"
+          echo "  All runtimes after installation:"
+          xcrun simctl list runtimes | cat -n
+          
+          echo -e "\033[1;36mDevice Analysis & Setup:\033[0m"
+          echo "  Current iOS devices:"
+          xcrun simctl list devices iOS | cat -n
+          
+          echo -e "\033[1;33mChecking for available iPhone simulators:\033[0m"
+          IPHONE_COUNT=$(xcrun simctl list devices iOS | grep -c "iPhone" || echo "0")
+          echo "  iPhone simulators found: $IPHONE_COUNT"
+          
+          if [ "$IPHONE_COUNT" -eq "0" ]; then
+            echo -e "\033[1;31m  No iPhone simulators found - creating one...\033[0m"
+            
+            # Get the latest iOS runtime available
+            echo "  Finding latest iOS runtime:"
+            LATEST_IOS=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | sed 's/.*iOS \([0-9.]*\).*/\1/')
+            echo "    Latest iOS version detected: $LATEST_IOS"
+            
+            if [ -n "$LATEST_IOS" ]; then
+              RUNTIME_ID="com.apple.CoreSimulator.SimRuntime.iOS-${LATEST_IOS//./-}"
+              DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.iPhone-15"
+              
+              echo "  Creating iPhone 15 simulator:"
+              echo "    Device Type: $DEVICE_TYPE"
+              echo "    Runtime ID: $RUNTIME_ID"
+              
+              if xcrun simctl create "iPhone 15" "$DEVICE_TYPE" "$RUNTIME_ID"; then
+                echo -e "\033[1;32m  Successfully created iPhone 15 with iOS $LATEST_IOS\033[0m"
+              else
+                echo -e "\033[1;33m  Failed to create iPhone 15, trying iPhone 14...\033[0m"
+                xcrun simctl create "iPhone 14" "com.apple.CoreSimulator.SimDeviceType.iPhone-14" "$RUNTIME_ID" || echo -e "\033[1;31m  Failed to create any iPhone simulator\033[0m"
+              fi
+            else
+              echo -e "\033[1;31m  No iOS runtime available for device creation\033[0m"
+            fi
+          else
+            echo -e "\033[1;32m  iPhone simulators already available\033[0m"
+          fi
+          
+          echo -e "\033[1;36mFinal Device Status:\033[0m"
+          echo "  All iOS devices:"
+          xcrun simctl list devices iOS | cat -n
+          
+          echo -e "\033[1;36mDevice Type Analysis:\033[0m"
+          echo "  Available device types:"
+          xcrun simctl list devicetypes | grep -i iphone | head -5
+          
+          echo -e "\033[1;34m======================================================\033[0m"
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+
+      - name: System Debug Information
+        run: |
+          echo -e "\033[1;34m================ SYSTEM DEBUG INFORMATION ================\033[0m"
+          echo -e "\033[1;36mSystem Overview:\033[0m"
+          echo "  Hostname: $(hostname)"
+          echo "  User: $(whoami)"
+          echo "  Home: $HOME"
+          echo "  Shell: $SHELL"
+          echo "  PATH (first 5 entries):"
+          echo "$PATH" | tr ':' '\n' | head -5 | sed 's/^/    /'
+          
+          echo -e "\033[1;36mDisk Space:\033[0m"
+          df -h / | tail -1 | awk '{print "  Available: " $4 " (" $5 " used)"}'
+          
+          echo -e "\033[1;36mMemory:\033[0m"
+          vm_stat | grep "Pages free" | awk '{print "  Free Pages: " $3}'
+          
+          echo -e "\033[1;36mPackage Managers:\033[0m"
+          echo "  Bundle version: $(bundle --version 2>/dev/null || echo 'Not available')"
+          echo "  NPM version: $(npm --version 2>/dev/null || echo 'Not available')"
+          echo "  CocoaPods version: $(pod --version 2>/dev/null || echo 'Not available')"
+          
+          echo -e "\033[1;36mEnvironment Variables (Build-related):\033[0m"
+          env | grep -E "(GITHUB_|CI|RUNNER_|PROJECT_|NEW_BUILD)" | sort | head -10
+          
+          echo -e "\033[1;34m========================================================\033[0m"
 
       - name: Install Dependencies with Bundler
         run: |
@@ -164,26 +293,131 @@ jobs:
       - name: Build App
         id: build_app
         run: |
+          echo -e "\033[1;34m==================== BUILD APP DEBUG ====================\033[0m"
+          echo -e "\033[1;36mPre-Build Environment Check:\033[0m"
+          echo "  Working Directory: $(pwd)"
+          echo "  iOS Directory Contents:"
+          ls -la ios/ || echo -e "\033[1;31m  iOS directory not found\033[0m"
+          
+          echo -e "\033[1;36mBuild Configuration:\033[0m"
+          echo "  PROJECT_VERSION: ${PROJECT_VERSION:-'Not set'}"
+          echo "  NEW_BUILD_NUMBER: ${NEW_BUILD_NUMBER:-'Not set'}"
+          echo "  Build Type: Release (App Store)"
+          
+          echo -e "\033[1;33mXcode Project Analysis:\033[0m"
+          if [ -f "ios/BlueWallet.xcworkspace" ]; then
+            echo -e "\033[1;32m  Workspace found: ios/BlueWallet.xcworkspace\033[0m"
+          else
+            echo -e "\033[1;31m  Workspace missing: ios/BlueWallet.xcworkspace\033[0m"
+          fi
+          
+          if [ -f "ios/export_options.plist" ]; then
+            echo -e "\033[1;32m  Export options found: ios/export_options.plist\033[0m"
+            echo "  Export options content:"
+            cat ios/export_options.plist | head -20
+          else
+            echo -e "\033[1;31m  Export options missing: ios/export_options.plist\033[0m"
+          fi
+          
+          echo -e "\033[1;33mAvailable Build Destinations:\033[0m"
+          if [ -f "ios/BlueWallet.xcworkspace" ]; then
+            xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -showdestinations 2>/dev/null | head -20 || echo -e "\033[1;31m  Failed to get destinations\033[0m"
+          fi
+          
+          echo -e "\033[1;35mStarting Fastlane Build (Release Mode):\033[0m"
           bundle exec fastlane ios build_app_lane
+          
+          echo -e "\033[1;36mPost-Build IPA Analysis:\033[0m"
+          echo "  Searching for IPA files..."
+          find ./ios -name "*.ipa" -type f 2>/dev/null | while read -r ipa; do
+            echo "    Found IPA: $ipa"
+            echo "    Size: $(ls -lh "$ipa" | awk '{print $5}')"
+            echo "    Modified: $(ls -l "$ipa" | awk '{print $6, $7, $8}')"
+          done
           
           # Ensure IPA path is set for subsequent steps
           if [ -f "./ios/build/ipa_path.txt" ]; then
             IPA_PATH=$(cat ./ios/build/ipa_path.txt)
+            echo -e "\033[1;32m  IPA path from file: $IPA_PATH\033[0m"
             echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
             echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
-            echo "Found IPA at: $IPA_PATH"
           else
-            echo "Warning: ipa_path.txt not found, trying to locate IPA file manually..."
+            echo -e "\033[1;33m  ipa_path.txt not found, searching manually...\033[0m"
             IPA_PATH=$(find ./ios -name "*.ipa" | head -n 1)
             if [ -n "$IPA_PATH" ]; then
+              echo -e "\033[1;32m  IPA found manually: $IPA_PATH\033[0m"
               echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
               echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
-              echo "Found IPA at: $IPA_PATH"
             else
-              echo "Error: No IPA file found"
+              echo -e "\033[1;31m  No IPA file found anywhere\033[0m"
+              echo -e "\033[1;33m  Directory structure for debugging:\033[0m"
+              find ./ios -type f -name "*.xcarchive" -o -name "*.ipa" -o -name "build_logs" 2>/dev/null || echo "    No build artifacts found"
               exit 1
             fi
           fi
+          
+          echo -e "\033[1;32mBuild Summary:\033[0m"
+          echo "  Final IPA Path: ${IPA_OUTPUT_PATH:-'Not set'}"
+          if [ -n "${IPA_OUTPUT_PATH}" ] && [ -f "${IPA_OUTPUT_PATH}" ]; then
+            echo -e "\033[1;32m  IPA file exists and is ready for release\033[0m"
+            echo "  File info: $(ls -lh "${IPA_OUTPUT_PATH}")"
+          fi
+          echo -e "\033[1;34m========================================================\033[0m"
+
+      - name: Debug Build Failure
+        if: failure()
+        run: |
+          echo -e "\033[1;31m================== BUILD FAILURE DEBUG ==================\033[0m"
+          echo -e "\033[1;31mBuild failure analysis initiated...\033[0m"
+          
+          echo -e "\033[1;36mProject Structure Analysis:\033[0m"
+          echo "  iOS directory contents:"
+          ls -la ios/ 2>/dev/null || echo -e "\033[1;31m  iOS directory not accessible\033[0m"
+          
+          echo "  Build directory contents:"
+          if [ -d "ios/build" ]; then
+            find ios/build -type f -name "*.log" -o -name "*.ipa" -o -name "*.xcarchive" | head -10
+          else
+            echo -e "\033[1;31m  ios/build directory does not exist\033[0m"
+          fi
+          
+          echo -e "\033[1;36mBuild Logs Analysis:\033[0m"
+          if [ -d "ios/build_logs" ]; then
+            echo "  Build logs directory contents:"
+            ls -la ios/build_logs/ | head -10
+            
+            echo "  Recent log files (last 50 lines each):"
+            find ios/build_logs -name "*.log" -type f | head -3 | while read -r logfile; do
+              echo "    === $logfile ==="
+              tail -50 "$logfile" 2>/dev/null | head -20
+              echo "    === End of $logfile ==="
+            done
+          else
+            echo -e "\033[1;31m  No build logs directory found\033[0m"
+          fi
+          
+          echo -e "\033[1;36mXcode Build System Analysis:\033[0m"
+          echo "  Recent archives:"
+          find ~/Library/Developer/Xcode/Archives -name "*.xcarchive" -type d 2>/dev/null | tail -3 || echo "  No archives found"
+          
+          echo "  Derived data contents:"
+          find ~/Library/Developer/Xcode/DerivedData -maxdepth 2 -name "*BlueWallet*" 2>/dev/null | head -5 || echo "  No derived data found"
+          
+          echo -e "\033[1;36mFinal Simulator State:\033[0m"
+          echo "  Available runtimes:"
+          xcrun simctl list runtimes | grep -E "(iOS|watchOS)" | tail -5
+          
+          echo "  Available devices:"
+          xcrun simctl list devices iOS | head -10
+          
+          echo -e "\033[1;36mSystem State:\033[0m"
+          echo "  Disk space:"
+          df -h / | tail -1
+          
+          echo "  Memory usage:"
+          vm_stat | grep -E "(Pages free|Pages active)" | head -2
+          
+          echo -e "\033[1;31m========================================================\033[0m"
 
       - name: Upload Bugsnag Sourcemaps
         if: success()
