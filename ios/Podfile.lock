@@ -1246,7 +1246,7 @@ PODS:
     - React-Core
   - react-native-capture-protection (2.0.7):
     - React-Core
-  - react-native-document-picker (9.3.1):
+  - react-native-document-picker (10.1.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1288,7 +1288,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-menu (1.2.1):
+  - react-native-menu (1.2.4):
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -1959,7 +1959,7 @@ DEPENDENCIES:
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-capture-protection (from `../node_modules/react-native-capture-protection`)
-  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -2117,7 +2117,7 @@ EXTERNAL SOURCES:
   react-native-capture-protection:
     :path: "../node_modules/react-native-capture-protection"
   react-native-document-picker:
-    :path: "../node_modules/react-native-document-picker"
+    :path: "../node_modules/@react-native-documents/picker"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-menu:
@@ -2285,9 +2285,9 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: d2d5ced5fead227abb1304518d55774de19c3021
-  react-native-document-picker: 67f639fe9ec052951315abb7b5514ec61fe5e1b7
+  react-native-document-picker: d71fb688c2a16a1ad30a622ba2fe4461531dbd57
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb
-  react-native-menu: 2cfe0a3b3c610ed331f00d9f0df300db14ba8692
+  react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-safe-area-context: 0f7bf11598f9a61b7ceac8dc3f59ef98697e99e1
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6

@@ -541,18 +541,170 @@ end
 
       clear_derived_data_lane
       
+      UI.message("\033[1;34m==================== FASTLANE BUILD DEBUG ====================\033[0m")
+      
+      # Comprehensive environment check
+      UI.message("\033[1;36mEnvironment Analysis:\033[0m")
+      UI.message("  Project Root: #{project_root}")
+      UI.message("  Current Directory: #{Dir.pwd}")
+      UI.message("  Ruby Version: #{RUBY_VERSION}")
+      UI.message("  Fastlane Version: #{Fastlane::VERSION}")
+      UI.message("  Build Mode: Release (App Store)")
+      
+      # Ensure we're using the correct Xcode installation
+      UI.message("\033[1;36mXcode Configuration:\033[0m")
+      begin
+        sh("sudo xcode-select -s /Applications/Xcode.app") rescue nil
+        xcode_path = sh('xcode-select -p', log: false).strip
+        xcode_version = sh('xcodebuild -version', log: false).strip
+        UI.message("  Active Xcode Path: #{xcode_path}")
+        UI.message("  Xcode Version: #{xcode_version}")
+        
+        # Check if Xcode path is valid
+        if File.exist?(File.join(xcode_path, "usr/bin/xcodebuild"))
+          UI.success("  \033[1;32mXcode installation is valid\033[0m")
+        else
+          UI.error("  \033[1;31mXcode installation appears invalid\033[0m")
+        end
+      rescue => e
+        UI.error("  \033[1;31mError checking Xcode: #{e.message}\033[0m")
+      end
+      
+      # Project structure analysis
+      UI.message("\033[1;36mProject Structure Analysis:\033[0m")
+      %w[
+        ios/BlueWallet.xcworkspace
+        ios/BlueWallet.xcodeproj
+        ios/export_options.plist
+        ios/Podfile
+        ios/Podfile.lock
+      ].each do |file_path|
+        full_path = File.join(project_root, file_path)
+        if File.exist?(full_path)
+          UI.message("  \033[1;32m#{file_path} exists\033[0m")
+          if file_path.end_with?('.plist')
+            UI.message("    Content preview:")
+            content = File.read(full_path).lines.first(10).join.strip
+            UI.message("    #{content[0..200]}...")
+          end
+        else
+          UI.error("  \033[1;31m#{file_path} missing\033[0m")
+        end
+      end
+      
+      # Environment variables check
+      UI.message("\033[1;36mEnvironment Variables:\033[0m")
+      %w[PROJECT_VERSION NEW_BUILD_NUMBER].each do |var|
+        value = ENV[var]
+        if value && !value.empty?
+          UI.message("  \033[1;32m#{var}: #{value}\033[0m")
+        else
+          UI.error("  \033[1;31m#{var}: Not set or empty\033[0m")
+        end
+      end
+      
       # Determine which iOS version to use
+      UI.message("\033[1;36miOS Version Analysis:\033[0m")
       ios_version = determine_ios_version
+      UI.message("  Selected iOS version: #{ios_version}")
 
-      UI.message("Using iOS version: #{ios_version}")
-      UI.message("Using export options from: #{export_options_path}")
+      UI.message("\033[1;36mBuild Configuration:\033[0m")
+      UI.message("  Workspace: #{workspace_path}")
+      UI.message("  Export options: #{export_options_path}")
+      UI.message("  Output directory: #{File.join(project_root, 'ios', 'build')}")
+      UI.message("  Build type: Release (generic/platform=iOS)")
+      
+      # Comprehensive destination analysis
+      UI.message("\033[1;33mBuild Destinations Analysis:\033[0m")
+      begin
+        destinations_output = sh("xcodebuild -workspace '#{workspace_path}' -scheme BlueWallet -showdestinations", log: false)
+        UI.message("  Available destinations:")
+        destinations_output.lines.each_with_index do |line, index|
+          UI.message("    #{index + 1}. #{line.strip}") if line.strip.length > 0
+        end
+        
+        # Analyze destination types
+        ios_destinations = destinations_output.scan(/platform:iOS[^}]*/).length
+        catalyst_destinations = destinations_output.scan(/Mac Catalyst/).length
+        
+        UI.message("  \033[1;36mDestination Summary:\033[0m")
+        UI.message("    iOS destinations: #{ios_destinations}")
+        UI.message("    Mac Catalyst destinations: #{catalyst_destinations}")
+        
+        if ios_destinations > 0
+          UI.success("  \033[1;32miOS destinations available for release build\033[0m")
+        else
+          UI.important("  \033[1;33mNo iOS destinations found - may need to create simulators\033[0m")
+        end
+      rescue => e
+        UI.error("  \033[1;31mFailed to get destinations: #{e.message}\033[0m")
+        destinations_output = "Failed to get destinations: #{e.message}"
+      end
+      
+      # Simulator runtime check for development/debugging
+      UI.message("\033[1;33mSimulator Runtime Check (for debugging):\033[0m")
+      begin
+        runtimes = sh("xcrun simctl list runtimes", log: false)
+        ios_runtimes = runtimes.scan(/iOS ([0-9.]+)/).flatten
+        UI.message("  Available iOS runtimes: #{ios_runtimes.join(', ')}")
+        
+        devices = sh("xcrun simctl list devices iOS", log: false)
+        iphone_count = devices.scan(/iPhone/).length
+        UI.message("  Available iPhone simulators: #{iphone_count}")
+      rescue => e
+        UI.error("  \033[1;31mError checking simulators: #{e.message}\033[0m")
+      end
       
       # Define the IPA output path before building
       ipa_directory = File.join(project_root, "ios", "build")
       ipa_name = "BlueWallet_#{ENV['PROJECT_VERSION']}_#{ENV['NEW_BUILD_NUMBER']}.ipa"
       ipa_path = File.join(ipa_directory, ipa_name)
       
+      UI.message("\033[1;36mBuild Output Configuration:\033[0m")
+      UI.message("  IPA Directory: #{ipa_directory}")
+      UI.message("  IPA Name: #{ipa_name}")
+      UI.message("  Full IPA Path: #{ipa_path}")
+      
+      # Ensure build directory exists
+      FileUtils.mkdir_p(ipa_directory) unless Dir.exist?(ipa_directory)
+      
       begin
+        UI.message("🚀 Starting iOS Build Process...")
+        UI.message("  Build Parameters:")
+        UI.message("    Scheme: BlueWallet")
+        UI.message("    Workspace: #{workspace_path}")
+        UI.message("    Export Method: app-store")
+        UI.message("    Export Options: #{export_options_path}")
+        UI.message("    Output Directory: #{ipa_directory}")
+        UI.message("    Output Name: #{ipa_name}")
+        UI.message("    Build Logs: #{File.join(project_root, 'ios', 'build_logs')}")
+        UI.message("    Destination: generic/platform=iOS")
+        
+        # Pre-build validation
+        UI.message("🔍 Pre-Build Validation:")
+        
+        # Check workspace
+        if File.exist?(workspace_path)
+          UI.success("  ✅ Workspace exists")
+        else
+          UI.user_error!("  ❌ Workspace not found: #{workspace_path}")
+        end
+        
+        # Check export options
+        if File.exist?(export_options_path)
+          UI.success("  ✅ Export options exist")
+          # Read and validate export options
+          begin
+            export_content = File.read(export_options_path)
+            UI.message("    Export options preview:")
+            export_content.lines.first(5).each { |line| UI.message("      #{line.strip}") }
+          rescue => e
+            UI.error("    ⚠️ Could not read export options: #{e.message}")
+          end
+        else
+          UI.user_error!("  ❌ Export options not found: #{export_options_path}")
+        end
+        
         build_ios_app(
           scheme: "BlueWallet",
           workspace: workspace_path,
@@ -560,10 +712,55 @@ end
           export_options: export_options_path,
           output_directory: ipa_directory,
           output_name: ipa_name,
-          buildlog_path: File.join(project_root, "ios", "build_logs"),
+          buildlog_path: File.join(project_root, "ios", "build_logs")
+          # Removed explicit destination - let Xcode determine the best destination for release builds
         )
-      rescue => e
-        UI.user_error!("build_ios_app failed: #{e.message}")
+        
+        UI.success("\033[1;32miOS release build completed successfully!\033[0m")
+        
+      rescue => build_error
+        UI.error("\033[1;31miOS release build failed!\033[0m")
+        UI.error("  Error Class: #{build_error.class}")
+        UI.error("  Error Message: #{build_error.message}")
+        UI.error("  \033[1;31mError Backtrace:\033[0m")
+        build_error.backtrace.first(5).each { |line| UI.error("    #{line}") }
+        
+        UI.message("\033[1;33mPost-Build Debugging:\033[0m")
+        
+        # Check for partial build artifacts
+        build_logs_dir = File.join(project_root, "ios", "build_logs")
+        if Dir.exist?(build_logs_dir)
+          UI.message("  \033[1;36mBuild logs directory contents:\033[0m")
+          Dir.entries(build_logs_dir).each do |file|
+            next if file.start_with?('.')
+            file_path = File.join(build_logs_dir, file)
+            size = File.size(file_path) rescue 0
+            UI.message("    #{file} (#{size} bytes)")
+          end
+        end
+        
+        # Check for xcarchive files
+        archives = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive"))
+        if archives.any?
+          UI.message("  \033[1;36mRecent archives found:\033[0m")
+          archives.last(3).each { |archive| UI.message("    #{archive}") }
+        end
+        
+        # If iOS build fails, check if we can build using available destinations
+        if destinations_output.include?("Any iOS Device")
+          UI.message("Retrying build without explicit destination...")
+          build_ios_app(
+            scheme: "BlueWallet",
+            workspace: workspace_path,
+            export_method: "app-store",
+            export_options: export_options_path,
+            output_directory: ipa_directory,
+            output_name: ipa_name,
+            buildlog_path: File.join(project_root, "ios", "build_logs")
+          )
+        else
+          UI.user_error!("build_ios_app failed: #{build_error.message}")
+        end
       end
 
       # Check for IPA path from both our defined path and fastlane's context
@@ -612,27 +809,68 @@ end
   end
 
   # Helper method to determine which iOS version to use
+  # Updated for macOS-15 compatibility (defaults to iOS 17.5 for broader compatibility)
   private_lane :determine_ios_version do
-    runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false) rescue ""
+    UI.message("\033[1;33mDetermining iOS Version for Release Build:\033[0m")
+    
+    begin
+      runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false)
+      UI.message("  \033[1;32mSuccessfully retrieved simulator runtimes\033[0m")
+      
+      # Debug: Show all runtimes
+      UI.message("  \033[1;36mAll available runtimes:\033[0m")
+      runtimes_output.lines.first(10).each_with_index do |line, index|
+        UI.message("    #{index + 1}. #{line.strip}")
+      end
+      
+    rescue => e
+      UI.error("  \033[1;31mFailed to get simulator runtimes: #{e.message}\033[0m")
+      runtimes_output = ""
+    end
     
     if runtimes_output.include?("iOS")
-      ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
-                                   .flatten
-                                   .map { |v| Gem::Version.new(v) }
-                                   .sort
-                                   .reverse
+      UI.message("  \033[1;36miOS runtimes detected\033[0m")
       
-      if ios_versions.any?
-        latest_version = ios_versions.first.to_s
-        UI.success("Found iOS simulator version: #{latest_version}")
-        latest_version
-      else
-        UI.important("No iOS simulator versions found. Using default version.")
-        "17.6"
+      begin
+        ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
+                                     .flatten
+                                     .map { |v| Gem::Version.new(v) }
+                                     .sort
+                                     .reverse
+        
+        UI.message("  \033[1;36mParsed iOS versions:\033[0m")
+        ios_versions.each_with_index do |version, index|
+          UI.message("    #{index + 1}. iOS #{version}")
+        end
+        
+        if ios_versions.any?
+          latest_version = ios_versions.first.to_s
+          UI.success("  \033[1;32mSelected iOS version for release: #{latest_version}\033[0m")
+          
+          # Additional validation
+          if Gem::Version.new(latest_version) >= Gem::Version.new("17.0")
+            UI.success("    \033[1;32mVersion is compatible for release builds (17.0+)\033[0m")
+          else
+            UI.important("    \033[1;33mVersion is older than 17.0, may have compatibility issues\033[0m")
+          end
+          
+          latest_version
+        else
+          UI.important("  \033[1;33mNo iOS versions could be parsed from runtime output\033[0m")
+          UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
+          "17.5"
+        end
+      rescue => e
+        UI.error("  \033[1;31mError parsing iOS versions: #{e.message}\033[0m")
+        UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
+        "17.5"
       end
     else
-      UI.important("No iOS simulator runtimes found. Using default version.")
-      "17.6"
+      UI.important("  \033[1;33mNo iOS runtimes found in simulator list\033[0m")
+      UI.message("  \033[1;36mRuntime output preview:\033[0m")
+      runtimes_output.lines.first(5).each { |line| UI.message("    #{line.strip}") }
+      UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
+      "17.5"
     end
   end
 end
