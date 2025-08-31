@@ -37,28 +37,54 @@ jobs:
           echo "commit_message=${{ github.event.head_commit.message || github.event.pull_request.title }}" >> $GITHUB_OUTPUT
 
       - name: Specify Node.js Version
+        if: ${{ !((contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted'))) }}
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Setup Node.js for Self-Hosted Runner
+        if: ${{ (contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted')) }}
+        run: |
+          echo "Using system Node.js on self-hosted runner"
+          node --version
+          npm --version
+          which node
+          which npm
+
+      - name: Setup Xcode (GitHub Hosted)
+        if: ${{ !((contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted'))) }}
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest
 
       - name: Setup Xcode Path
         run: |
           echo "Setting up Xcode..."
-          sudo xcode-select -s /Applications/Xcode.app
+          if command -v sudo >/dev/null 2>&1; then
+            sudo xcode-select -s /Applications/Xcode.app || echo "Could not set Xcode path with sudo, continuing..."
+          else
+            echo "No sudo access, using current Xcode configuration"
+          fi
           echo "Xcode Version: $(xcodebuild -version)"
           echo "SDK Information:"
           xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -5
 
       - name: Set Up Ruby
+        if: ${{ !((contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted'))) }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+
+      - name: Setup Ruby for Self-Hosted Runner
+        if: ${{ (contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted')) }}
+        run: |
+          echo "Using system Ruby on self-hosted runner"
+          ruby --version
+          gem --version
+          which ruby
+          which gem
 
       - name: Install Dependencies with Bundler
         run: |
@@ -214,9 +240,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set Up Ruby
+        if: ${{ !((contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted'))) }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+
+      - name: Setup Ruby for Self-Hosted Runner
+        if: ${{ (contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted')) }}
+        run: |
+          echo "Using system Ruby on self-hosted runner"
+          ruby --version
+          gem --version
+          which ruby
+          which gem
           
       - name: Install Dependencies with Bundler
         run: |
