@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ (contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted')) && 'self-hosted' || 'macos-latest' }}
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -28,41 +28,13 @@ jobs:
       - name: Checkout Project
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensures the full Git history is 
+          fetch-depth: 0 # Ensures the full Git history is available
 
-      - name: Ensure Correct Branch
-        if: github.ref != 'refs/heads/master'
-        run: |
-          if [ -n "${GITHUB_HEAD_REF}" ]; then
-            git fetch origin ${GITHUB_HEAD_REF}:${GITHUB_HEAD_REF}
-            git checkout ${GITHUB_HEAD_REF}
-          else
-            git fetch origin ${GITHUB_REF##*/}:${GITHUB_REF##*/}
-            git checkout ${GITHUB_REF##*/}
-          fi
-          echo "Checked out branch: $(git rev-parse --abbrev-ref HEAD)"
-
-      - name: Get Latest Commit Details
+      - name: Get Commit Details
         id: get_latest_commit_details
         run: |
-          # Check if we are in a detached HEAD state
-          if [ "$(git rev-parse --abbrev-ref HEAD)" == "HEAD" ]; then
-            CURRENT_BRANCH=$(git show-ref --head -s HEAD | xargs -I {} git branch --contains {} | grep -v "detached" | head -n 1 | sed 's/^[* ]*//')
-          else
-            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-          fi
-          
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          
-          echo "CURRENT_BRANCH=${CURRENT_BRANCH}" >> $GITHUB_ENV
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-          echo "branch_name=${CURRENT_BRANCH}" >> $GITHUB_OUTPUT
-          echo "commit_message=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
-
-      - name: Print Commit Details
-        run: |
-          echo "Commit Message: ${{ env.LATEST_COMMIT_MESSAGE }}"
-          echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
+          echo "branch_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "commit_message=${{ github.event.head_commit.message || github.event.pull_request.title }}" >> $GITHUB_OUTPUT
 
       - name: Specify Node.js Version
         uses: actions/setup-node@v4
@@ -77,164 +49,16 @@ jobs:
 
       - name: Setup Xcode Path
         run: |
-          echo -e "\033[1;34m==================== XCODE SETUP DEBUG ====================\033[0m"
-          echo -e "\033[1;36mSystem Information:\033[0m"
-          echo "  macOS Version: $(sw_vers -productVersion)"
-          echo "  macOS Build: $(sw_vers -buildVersion)"
-          echo "  Architecture: $(uname -m)"
-          
-          echo -e "\033[1;36mAvailable Xcode Installations:\033[0m"
-          find /Applications -name "Xcode*.app" -type d 2>/dev/null | while read -r xcode_path; do
-            if [ -d "$xcode_path/Contents/Developer" ]; then
-              echo "  Found: $xcode_path"
-              version=$("$xcode_path/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | head -1 || echo "Version unavailable")
-              echo "    Version: $version"
-            fi
-          done
-          
-          echo -e "\033[1;36mCurrent Xcode Configuration:\033[0m"
-          echo "  Before xcode-select: $(xcode-select -p 2>/dev/null || echo 'Not set')"
-          
-          # Ensure we're using the correct Xcode installation
+          echo "Setting up Xcode..."
           sudo xcode-select -s /Applications/Xcode.app
-          
-          echo "  After xcode-select: $(xcode-select -p)"
-          echo "  Xcode Version: $(xcodebuild -version)"
-          echo "  Xcode Build Version: $(xcodebuild -version | tail -1)"
-          
-          echo -e "\033[1;36mSDK Information:\033[0m"
-          echo "  Available SDKs:"
-          xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -10
-          
-          echo -e "\033[1;34m========================================================\033[0m"
-
-      - name: Install Simulator Runtimes (iOS & watchOS)
-        run: |
-          echo -e "\033[1;34m============ SIMULATOR RUNTIME SETUP DEBUG ============\033[0m"
-          echo -e "\033[1;33mNote: Installing runtimes for debugging purposes - release builds use physical device targets\033[0m"
-          echo -e "\033[1;36mInitial Runtime Analysis:\033[0m"
-          echo "  All available runtimes:"
-          xcrun simctl list runtimes | cat -n
-          
-          echo -e "\033[1;36mRuntime Summary:\033[0m"
-          echo "  iOS Runtimes:"
-          xcrun simctl list runtimes | grep "iOS" | while read -r line; do
-            echo "    $line"
-          done
-          
-          echo "  watchOS Runtimes:"
-          xcrun simctl list runtimes | grep "watchOS" | while read -r line; do
-            echo "    $line"
-          done
-          
-          echo -e "\033[1;33mChecking iOS Runtime Requirements (17+):\033[0m"
-          if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
-            echo -e "\033[1;31m  No iOS 17+ runtime found - installing...\033[0m"
-            echo "  Downloading iOS platform..."
-            xcodebuild -downloadPlatform iOS
-            echo -e "\033[1;32m  iOS platform download completed\033[0m"
-          else
-            echo -e "\033[1;32m  iOS 17+ runtime already present\033[0m"
-            xcrun simctl list runtimes | grep -E "iOS (1[7-9]|[2-9][0-9])" | while read -r line; do
-              echo "    Found: $line"
-            done
-          fi
-
-          echo -e "\033[1;33mChecking watchOS Runtime Requirements (11+):\033[0m"
-          if ! xcrun simctl list runtimes | grep -Eq "watchOS (1[1-9]|[2-9][0-9])"; then
-            echo -e "\033[1;31m  No watchOS 11+ runtime found - installing...\033[0m"
-            echo "  Downloading watchOS platform..."
-            xcodebuild -downloadPlatform watchOS
-            echo -e "\033[1;32m  watchOS platform download completed\033[0m"
-          else
-            echo -e "\033[1;32m  watchOS 11+ runtime already present\033[0m"
-            xcrun simctl list runtimes | grep -E "watchOS (1[1-9]|[2-9][0-9])" | while read -r line; do
-              echo "    Found: $line"
-            done
-          fi
-
-          echo -e "\033[1;36mFinal Runtime Analysis:\033[0m"
-          echo "  All runtimes after installation:"
-          xcrun simctl list runtimes | cat -n
-          
-          echo -e "\033[1;36mDevice Analysis & Setup:\033[0m"
-          echo "  Current iOS devices:"
-          xcrun simctl list devices iOS | cat -n
-          
-          echo -e "\033[1;33mChecking for available iPhone simulators:\033[0m"
-          IPHONE_COUNT=$(xcrun simctl list devices iOS | grep -c "iPhone" || echo "0")
-          echo "  iPhone simulators found: $IPHONE_COUNT"
-          
-          if [ "$IPHONE_COUNT" -eq "0" ]; then
-            echo -e "\033[1;31m  No iPhone simulators found - creating one...\033[0m"
-            
-            # Get the latest iOS runtime available
-            echo "  Finding latest iOS runtime:"
-            LATEST_IOS=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | sed 's/.*iOS \([0-9.]*\).*/\1/')
-            echo "    Latest iOS version detected: $LATEST_IOS"
-            
-            if [ -n "$LATEST_IOS" ]; then
-              RUNTIME_ID="com.apple.CoreSimulator.SimRuntime.iOS-${LATEST_IOS//./-}"
-              DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.iPhone-15"
-              
-              echo "  Creating iPhone 15 simulator:"
-              echo "    Device Type: $DEVICE_TYPE"
-              echo "    Runtime ID: $RUNTIME_ID"
-              
-              if xcrun simctl create "iPhone 15" "$DEVICE_TYPE" "$RUNTIME_ID"; then
-                echo -e "\033[1;32m  Successfully created iPhone 15 with iOS $LATEST_IOS\033[0m"
-              else
-                echo -e "\033[1;33m  Failed to create iPhone 15, trying iPhone 14...\033[0m"
-                xcrun simctl create "iPhone 14" "com.apple.CoreSimulator.SimDeviceType.iPhone-14" "$RUNTIME_ID" || echo -e "\033[1;31m  Failed to create any iPhone simulator\033[0m"
-              fi
-            else
-              echo -e "\033[1;31m  No iOS runtime available for device creation\033[0m"
-            fi
-          else
-            echo -e "\033[1;32m  iPhone simulators already available\033[0m"
-          fi
-          
-          echo -e "\033[1;36mFinal Device Status:\033[0m"
-          echo "  All iOS devices:"
-          xcrun simctl list devices iOS | cat -n
-          
-          echo -e "\033[1;36mDevice Type Analysis:\033[0m"
-          echo "  Available device types:"
-          xcrun simctl list devicetypes | grep -i iphone | head -5
-          
-          echo -e "\033[1;34m======================================================\033[0m"
+          echo "Xcode Version: $(xcodebuild -version)"
+          echo "SDK Information:"
+          xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -5
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-
-      - name: System Debug Information
-        run: |
-          echo -e "\033[1;34m================ SYSTEM DEBUG INFORMATION ================\033[0m"
-          echo -e "\033[1;36mSystem Overview:\033[0m"
-          echo "  Hostname: $(hostname)"
-          echo "  User: $(whoami)"
-          echo "  Home: $HOME"
-          echo "  Shell: $SHELL"
-          echo "  PATH (first 5 entries):"
-          echo "$PATH" | tr ':' '\n' | head -5 | sed 's/^/    /'
-          
-          echo -e "\033[1;36mDisk Space:\033[0m"
-          df -h / | tail -1 | awk '{print "  Available: " $4 " (" $5 " used)"}'
-          
-          echo -e "\033[1;36mMemory:\033[0m"
-          vm_stat | grep "Pages free" | awk '{print "  Free Pages: " $3}'
-          
-          echo -e "\033[1;36mPackage Managers:\033[0m"
-          echo "  Bundle version: $(bundle --version 2>/dev/null || echo 'Not available')"
-          echo "  NPM version: $(npm --version 2>/dev/null || echo 'Not available')"
-          echo "  CocoaPods version: $(pod --version 2>/dev/null || echo 'Not available')"
-          
-          echo -e "\033[1;36mEnvironment Variables (Build-related):\033[0m"
-          env | grep -E "(GITHUB_|CI|RUNNER_|PROJECT_|NEW_BUILD)" | sort | head -10
-          
-          echo -e "\033[1;34m========================================================\033[0m"
 
       - name: Install Dependencies with Bundler
         run: |
@@ -267,13 +91,6 @@ jobs:
           echo "project_version=$MARKETING_VERSION" >> $GITHUB_OUTPUT
         working-directory: ios
 
-      - name: Set Up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
-
       - name: Create Temporary Keychain
         run: bundle exec fastlane ios create_temp_keychain
         env:
@@ -293,131 +110,53 @@ jobs:
       - name: Build App
         id: build_app
         run: |
-          echo -e "\033[1;34m==================== BUILD APP DEBUG ====================\033[0m"
-          echo -e "\033[1;36mPre-Build Environment Check:\033[0m"
-          echo "  Working Directory: $(pwd)"
-          echo "  iOS Directory Contents:"
-          ls -la ios/ || echo -e "\033[1;31m  iOS directory not found\033[0m"
+          echo "Starting iOS build..."
+          echo "PROJECT_VERSION: ${PROJECT_VERSION:-'Not set'}"
+          echo "NEW_BUILD_NUMBER: ${NEW_BUILD_NUMBER:-'Not set'}"
           
-          echo -e "\033[1;36mBuild Configuration:\033[0m"
-          echo "  PROJECT_VERSION: ${PROJECT_VERSION:-'Not set'}"
-          echo "  NEW_BUILD_NUMBER: ${NEW_BUILD_NUMBER:-'Not set'}"
-          echo "  Build Type: Release (App Store)"
-          
-          echo -e "\033[1;33mXcode Project Analysis:\033[0m"
-          if [ -f "ios/BlueWallet.xcworkspace" ]; then
-            echo -e "\033[1;32m  Workspace found: ios/BlueWallet.xcworkspace\033[0m"
-          else
-            echo -e "\033[1;31m  Workspace missing: ios/BlueWallet.xcworkspace\033[0m"
-          fi
-          
-          if [ -f "ios/export_options.plist" ]; then
-            echo -e "\033[1;32m  Export options found: ios/export_options.plist\033[0m"
-            echo "  Export options content:"
-            cat ios/export_options.plist | head -20
-          else
-            echo -e "\033[1;31m  Export options missing: ios/export_options.plist\033[0m"
-          fi
-          
-          echo -e "\033[1;33mAvailable Build Destinations:\033[0m"
-          if [ -f "ios/BlueWallet.xcworkspace" ]; then
-            xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -showdestinations 2>/dev/null | head -20 || echo -e "\033[1;31m  Failed to get destinations\033[0m"
-          fi
-          
-          echo -e "\033[1;35mStarting Fastlane Build (Release Mode):\033[0m"
           bundle exec fastlane ios build_app_lane
           
-          echo -e "\033[1;36mPost-Build IPA Analysis:\033[0m"
-          echo "  Searching for IPA files..."
-          find ./ios -name "*.ipa" -type f 2>/dev/null | while read -r ipa; do
-            echo "    Found IPA: $ipa"
-            echo "    Size: $(ls -lh "$ipa" | awk '{print $5}')"
-            echo "    Modified: $(ls -l "$ipa" | awk '{print $6, $7, $8}')"
-          done
-          
-          # Ensure IPA path is set for subsequent steps
+          # Set IPA path for subsequent steps
           if [ -f "./ios/build/ipa_path.txt" ]; then
             IPA_PATH=$(cat ./ios/build/ipa_path.txt)
-            echo -e "\033[1;32m  IPA path from file: $IPA_PATH\033[0m"
             echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
             echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
           else
-            echo -e "\033[1;33m  ipa_path.txt not found, searching manually...\033[0m"
             IPA_PATH=$(find ./ios -name "*.ipa" | head -n 1)
             if [ -n "$IPA_PATH" ]; then
-              echo -e "\033[1;32m  IPA found manually: $IPA_PATH\033[0m"
               echo "IPA_OUTPUT_PATH=$IPA_PATH" >> $GITHUB_ENV
               echo "ipa_output_path=$IPA_PATH" >> $GITHUB_OUTPUT
             else
-              echo -e "\033[1;31m  No IPA file found anywhere\033[0m"
-              echo -e "\033[1;33m  Directory structure for debugging:\033[0m"
-              find ./ios -type f -name "*.xcarchive" -o -name "*.ipa" -o -name "build_logs" 2>/dev/null || echo "    No build artifacts found"
+              echo "❌ No IPA file found"
               exit 1
             fi
           fi
           
-          echo -e "\033[1;32mBuild Summary:\033[0m"
-          echo "  Final IPA Path: ${IPA_OUTPUT_PATH:-'Not set'}"
-          if [ -n "${IPA_OUTPUT_PATH}" ] && [ -f "${IPA_OUTPUT_PATH}" ]; then
-            echo -e "\033[1;32m  IPA file exists and is ready for release\033[0m"
-            echo "  File info: $(ls -lh "${IPA_OUTPUT_PATH}")"
-          fi
-          echo -e "\033[1;34m========================================================\033[0m"
+          echo "✅ Build completed. IPA: ${IPA_PATH}"
 
       - name: Debug Build Failure
         if: failure()
         run: |
-          echo -e "\033[1;31m================== BUILD FAILURE DEBUG ==================\033[0m"
-          echo -e "\033[1;31mBuild failure analysis initiated...\033[0m"
+          echo "❌ Build failed - gathering debug information..."
           
-          echo -e "\033[1;36mProject Structure Analysis:\033[0m"
-          echo "  iOS directory contents:"
-          ls -la ios/ 2>/dev/null || echo -e "\033[1;31m  iOS directory not accessible\033[0m"
-          
-          echo "  Build directory contents:"
+          echo "Build directory contents:"
           if [ -d "ios/build" ]; then
-            find ios/build -type f -name "*.log" -o -name "*.ipa" -o -name "*.xcarchive" | head -10
+            find ios/build -type f -name "*.log" -o -name "*.ipa" -o -name "*.xcarchive" | head -5
           else
-            echo -e "\033[1;31m  ios/build directory does not exist\033[0m"
+            echo "  ios/build directory not found"
           fi
           
-          echo -e "\033[1;36mBuild Logs Analysis:\033[0m"
+          echo "Recent build logs:"
           if [ -d "ios/build_logs" ]; then
-            echo "  Build logs directory contents:"
-            ls -la ios/build_logs/ | head -10
-            
-            echo "  Recent log files (last 50 lines each):"
-            find ios/build_logs -name "*.log" -type f | head -3 | while read -r logfile; do
-              echo "    === $logfile ==="
-              tail -50 "$logfile" 2>/dev/null | head -20
-              echo "    === End of $logfile ==="
+            find ios/build_logs -name "*.log" -type f | head -2 | while read -r logfile; do
+              echo "=== Last 20 lines of $logfile ==="
+              tail -20 "$logfile" 2>/dev/null
             done
           else
-            echo -e "\033[1;31m  No build logs directory found\033[0m"
+            echo "  No build logs directory found"
           fi
           
-          echo -e "\033[1;36mXcode Build System Analysis:\033[0m"
-          echo "  Recent archives:"
-          find ~/Library/Developer/Xcode/Archives -name "*.xcarchive" -type d 2>/dev/null | tail -3 || echo "  No archives found"
-          
-          echo "  Derived data contents:"
-          find ~/Library/Developer/Xcode/DerivedData -maxdepth 2 -name "*BlueWallet*" 2>/dev/null | head -5 || echo "  No derived data found"
-          
-          echo -e "\033[1;36mFinal Simulator State:\033[0m"
-          echo "  Available runtimes:"
-          xcrun simctl list runtimes | grep -E "(iOS|watchOS)" | tail -5
-          
-          echo "  Available devices:"
-          xcrun simctl list devices iOS | head -10
-          
-          echo -e "\033[1;36mSystem State:\033[0m"
-          echo "  Disk space:"
-          df -h / | tail -1
-          
-          echo "  Memory usage:"
-          vm_stat | grep -E "(Pages free|Pages active)" | head -2
-          
-          echo -e "\033[1;31m========================================================\033[0m"
+          echo "Disk space: $(df -h / | tail -1 | awk '{print $4 " available"}')"
 
       - name: Upload Bugsnag Sourcemaps
         if: success()
@@ -438,13 +177,12 @@ jobs:
 
       - name: Verify IPA File Before Upload
         run: |
-          echo "Checking IPA file at: $IPA_OUTPUT_PATH"
-          if [ -f "$IPA_OUTPUT_PATH" ]; then
+          echo "Checking IPA file at: ${{ steps.build_app.outputs.ipa_output_path }}"
+          if [ -f "${{ steps.build_app.outputs.ipa_output_path }}" ]; then
             echo "✅ IPA file exists"
-            ls -la "$IPA_OUTPUT_PATH"
+            ls -la "${{ steps.build_app.outputs.ipa_output_path }}"
           else
-            echo "❌ IPA file not found at: $IPA_OUTPUT_PATH"
-            echo "Current directory contents:"
+            echo "❌ IPA file not found"
             find ./ios -name "*.ipa"
             exit 1
           fi
@@ -454,7 +192,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet_IPA
-          path: ${{ env.IPA_OUTPUT_PATH }}
+          path: ${{ steps.build_app.outputs.ipa_output_path }}
           retention-days: 7
 
       - name: Delete Temporary Keychain
@@ -463,7 +201,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-latest
+    runs-on: ${{ (contains(github.event.pull_request.title, '[self-hosted]') || contains(github.event.pull_request.labels.*.name, 'self-hosted')) && 'self-hosted' || 'macos-latest' }}
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -507,25 +245,17 @@ jobs:
             echo "✅ Found IPA at: $IPA_OUTPUT_PATH"
           fi
 
-      - name: Print Environment Variables for Debugging
-        run: |
-          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
-          echo "BRANCH_NAME: $BRANCH_NAME"
-          echo "PROJECT_VERSION: $PROJECT_VERSION"
-          echo "NEW_BUILD_NUMBER: $NEW_BUILD_NUMBER"
-          echo "IPA_OUTPUT_PATH: $IPA_OUTPUT_PATH"
-
       - name: Upload to TestFlight
         run: bundle exec fastlane ios upload_to_testflight_lane
         env:
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
+          APPLE_API_KEY_PATH: ./appstore_api_key.json
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APPLE_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Post PR Comment
