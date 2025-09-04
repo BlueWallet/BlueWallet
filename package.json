@@ -109,7 +109,7 @@
     "base-x": "4.0.1",
     "bc-bech32": "file:blue_modules/bc-bech32",
     "bech32": "2.0.0",
-    "bignumber.js": "9.2.0",
+    "bignumber.js": "9.3.1",
     "bip21": "2.0.3",
     "bip32": "3.1.0",
     "bip38": "github:BlueWallet/bip38",
