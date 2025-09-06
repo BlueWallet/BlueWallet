@@ -46,16 +46,16 @@ describe.each(['', '//'])('unit - navigation linking (suffix=%s)', function (suf
       navigate: (...args: any[]) => {
         navArgsOn = args;
       },
-    } as any;
+    };
     const navigationMockOff = {
       pop: () => (popCalled = true),
       navigate: (...args: any[]) => {
         navArgsOff = args;
       },
-    } as any;
+    };
 
-    const onchainWallet = { chain: Chain.ONCHAIN, getID: () => 'on-id' } as any;
-    const offchainWallet = { chain: Chain.OFFCHAIN, getID: () => 'off-id' } as any;
+    const onchainWallet = { chain: Chain.ONCHAIN, getID: () => 'on-id' };
+    const offchainWallet = { chain: Chain.OFFCHAIN, getID: () => 'off-id' };
 
     onWalletSelect(onchainWallet, { navigation: navigationMockOn });
     onWalletSelect(offchainWallet, { navigation: navigationMockOff });
