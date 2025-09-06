@@ -26,7 +26,7 @@ export const linking = {
               },
             },
           ],
-        } as any;
+        };
       }
     } catch (_) {
       // fall through to default routing
@@ -46,8 +46,8 @@ export const linking = {
           },
         },
       ],
-    } as any;
+    };
   },
-} as any;
+};
 
 export default linking;
