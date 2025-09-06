@@ -9,7 +9,7 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
-import linkingConfig from './navigation/linking.ts';
+import linkingConfig from './navigation/linking';
 
 const App = () => {
   const colorScheme = useColorScheme();
