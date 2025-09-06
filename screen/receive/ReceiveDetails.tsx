@@ -1,7 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, InteractionManager, LayoutAnimation, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  BackHandler,
+  InteractionManager,
+  KeyboardAvoidingView,
+  LayoutAnimation,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
@@ -11,7 +24,6 @@ import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -75,6 +87,7 @@ const ReceiveDetails = () => {
   const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState('');
   const [isCustom, setIsCustom] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [tempCustomLabel, setTempCustomLabel] = useState('');
   const [tempCustomAmount, setTempCustomAmount] = useState('');
   const [tempCustomUnit, setTempCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
@@ -83,7 +96,6 @@ const ReceiveDetails = () => {
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, setOptions } = useExtendedNavigation<NavigationProps>();
-  const bottomModalRef = useRef<BottomModalHandle | null>(null);
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -114,6 +126,12 @@ const ReceiveDetails = () => {
     },
     modalButton: {
       backgroundColor: colors.modalButton,
+    },
+    keyboardAvoidingView: {
+      backgroundColor: colors.modal,
+    },
+    modal: {
+      backgroundColor: colors.modalOverlayColor,
     },
   });
 
@@ -453,11 +471,11 @@ const ReceiveDetails = () => {
     setTempCustomLabel(customLabel);
     setTempCustomAmount(customAmount);
     setTempCustomUnit(customUnit);
-    bottomModalRef.current?.present();
+    setIsModalVisible(true);
   }, [customLabel, customAmount, customUnit]);
 
   const createCustomAmountAddress = () => {
-    bottomModalRef.current?.dismiss();
+    setIsModalVisible(false);
     setIsCustom(true);
     let amount = tempCustomAmount;
     const amountNumber = Number(amount);
@@ -495,7 +513,7 @@ const ReceiveDetails = () => {
     // address is always defined here
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address!));
     setShowAddress(true);
-    bottomModalRef.current?.dismiss();
+    setIsModalVisible(false);
   };
 
   /**
@@ -590,59 +608,72 @@ const ReceiveDetails = () => {
         </View>
       </SafeAreaScrollView>
 
-      <BottomModal
-        ref={bottomModalRef}
-        contentContainerStyle={styles.modalContainerJustify}
-        backgroundColor={colors.modal}
-        footer={
-          <View style={styles.modalButtonContainer}>
-            <Button
-              testID="CustomAmountResetButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.reset}
-              onPress={resetCustomAmount}
-            />
-            <View style={styles.modalButtonSpacing} />
-            <Button
-              testID="CustomAmountSaveButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.details_create}
-              onPress={createCustomAmountAddress}
-            />
-          </View>
-        }
-      >
-        <AmountInput.AmountInput
-          unit={tempCustomUnit}
-          amount={tempCustomAmount || ''}
-          onChangeText={setTempCustomAmount}
-          onAmountUnitChange={setTempCustomUnit}
-        />
-        <View style={[styles.customAmount, stylesHook.customAmount]}>
-          <TextInput
-            onChangeText={setTempCustomLabel}
-            placeholderTextColor="#81868e"
-            placeholder={loc.receive.details_label}
-            value={tempCustomLabel || ''}
-            numberOfLines={1}
-            style={[styles.customAmountText, stylesHook.customAmountText]}
-            testID="CustomAmountDescription"
-          />
-        </View>
-        <BlueSpacing20 />
+      <Modal visible={isModalVisible} animationType="slide" transparent onRequestClose={() => setIsModalVisible(false)}>
+        <Pressable style={[stylesHook.modal, styles.modal]} onPress={() => setIsModalVisible(false)}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            style={[stylesHook.keyboardAvoidingView, styles.keyboardAvoidingView]}
+          >
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.keyboardAvoidingViewContainer}>
+              <AmountInput.AmountInput
+                unit={tempCustomUnit}
+                amount={tempCustomAmount || ''}
+                onChangeText={setTempCustomAmount}
+                onAmountUnitChange={setTempCustomUnit}
+              />
 
-        <BlueSpacing20 />
-      </BottomModal>
+              <View style={[styles.customAmount, stylesHook.customAmount]}>
+                <TextInput
+                  onChangeText={setTempCustomLabel}
+                  placeholderTextColor="#81868e"
+                  placeholder={loc.receive.details_label}
+                  value={tempCustomLabel || ''}
+                  numberOfLines={1}
+                  style={[styles.customAmountText, stylesHook.customAmountText]}
+                  testID="CustomAmountDescription"
+                />
+              </View>
+
+              <BlueSpacing20 />
+            </ScrollView>
+
+            <View style={styles.modalButtonContainer}>
+              <Button
+                testID="CustomAmountResetButton"
+                style={[styles.modalButton, stylesHook.modalButton]}
+                title={loc.receive.reset}
+                onPress={resetCustomAmount}
+              />
+              <View style={styles.modalButtonSpacing} />
+              <Button
+                testID="CustomAmountSaveButton"
+                style={[styles.modalButton, stylesHook.modalButton]}
+                title={loc.receive.details_create}
+                onPress={createCustomAmountAddress}
+              />
+            </View>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainerJustify: {
-    alignContent: 'center',
-    padding: 22,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  keyboardAvoidingView: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  keyboardAvoidingViewContainer: {
+    paddingBottom: 20,
+  },
+  modal: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   customAmount: {
     flexDirection: 'row',
@@ -695,10 +726,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     paddingVertical: 14,
-    borderRadius: 50,
-    fontWeight: '700',
-    flex: 0.5,
-    alignItems: 'center',
+    paddingHorizontal: 14,
   },
   modalButtonContainer: {
     flexDirection: 'row',
