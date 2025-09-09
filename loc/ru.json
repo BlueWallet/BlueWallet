@@ -389,7 +389,7 @@
     "watchOnlyWarningTitle": "Предупреждение безопасности",
     "watchOnlyWarningDescription": "Кошельки «только для чтения» не позволяют тратить средства. Будьте осторожны.",
     "custom_fee_warning_title": "Внимание",
-    "custom_fee_warning_description": "Комиссии ниже 1 сат/вБ действительны, но могут не ретранслироваться из-за политик узлов."
+    "custom_fee_warning_description": "Комиссии ниже 1 сат/вБайт действительны, но могут не ретранслироваться из-за политик узлов."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
