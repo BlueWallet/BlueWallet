@@ -106,19 +106,55 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
 
 export const showImagePickerAndReadImage = async (): Promise<string | undefined> => {
   try {
-    const response: ImagePickerResponse = await launchImageLibrary({
-      mediaType: 'photo',
-      maxHeight: 800,
-      maxWidth: 600,
-      selectionLimit: 1,
+    // Use Google Play policy-compliant document picker for images instead of broad media permissions
+    const result = await pick({
+      type: [types.images],
+      presentationStyle: 'formSheet',
+      allowMultiSelection: false,
+      copyTo: 'cachesDirectory', // Copy to app cache to avoid needing persistent storage access
     });
 
-    if (response.didCancel) {
-      return undefined;
-    } else if (response.errorCode) {
-      throw new Error(response.errorMessage);
-    } else if (response.assets) {
+    if (result && result.length > 0) {
+      const selectedFile = result[0];
+      
       try {
+        // Use the copied file URI for QR code detection
+        const qrResult = await RNQRGenerator.detect({ uri: selectedFile.uri });
+        if (qrResult?.values.length > 0) {
+          return qrResult?.values[0];
+        }
+        throw new Error(loc.send.qr_error_no_qrcode);
+      } catch (qrError) {
+        console.error('QR detection error:', qrError);
+        throw new Error(loc.send.qr_error_no_qrcode);
+      }
+    }
+    
+    return undefined;
+  } catch (error: any) {
+    // Check if user cancelled the document picker
+    if (isCancel(error)) {
+      return undefined;
+    }
+    
+    // Log the error for debugging
+    console.error('Document picker error:', error);
+    
+    // If document picker fails, fall back to image library (which uses system picker on newer Android)
+    try {
+      const response: ImagePickerResponse = await launchImageLibrary({
+        mediaType: 'photo',
+        maxHeight: 800,
+        maxWidth: 600,
+        selectionLimit: 1,
+        presentationStyle: 'pageSheet', // Uses system-provided interface
+      });
+
+      if (response.didCancel) {
+        return undefined;
+      } else if (response.errorCode) {
+        throw new Error(response.errorMessage);
+      } else if (response.assets) {
         const uri = response.assets[0].uri;
         if (uri) {
           const result = await RNQRGenerator.detect({ uri: decodeURI(uri.toString()) });
@@ -127,16 +163,13 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
           }
         }
         throw new Error(loc.send.qr_error_no_qrcode);
-      } catch (error) {
-        console.error(error);
-        presentAlert({ message: loc.send.qr_error_no_qrcode });
       }
+    } catch (fallbackError) {
+      console.error('Fallback image picker error:', fallbackError);
+      throw error; // Throw original error
     }
-
+    
     return undefined;
-  } catch (error: any) {
-    console.error(error);
-    throw error;
   }
 };
 

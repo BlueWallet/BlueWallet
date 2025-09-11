@@ -90,6 +90,18 @@ android {
         versionName "7.2.1"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        
+        // 16 KB page size support
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+    }
+
+    // Configure packaging for 16 KB page size compatibility  
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false  // Use uncompressed native libs for AGP 8.5.1+ and 16KB support
+        }
     }
 
     lintOptions {
