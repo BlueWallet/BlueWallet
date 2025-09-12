@@ -21,6 +21,7 @@ enum FiatUnitEnum: String, AppEnum, CaseIterable, Identifiable, Codable {
     case COP
     case CZK
     case DKK
+    case EGP
     case EUR
     case GBP
     case HRK
@@ -98,6 +99,8 @@ enum FiatUnitEnum: String, AppEnum, CaseIterable, Identifiable, Codable {
             return "CoinGecko"
         case .DKK:
             return "CoinGecko"
+        case .EGP:
+            return "YadioConvert"
         case .EUR:
             return "Kraken"
         case .GBP:
@@ -208,6 +211,7 @@ enum FiatUnitEnum: String, AppEnum, CaseIterable, Identifiable, Codable {
             .COP: DisplayRepresentation(stringLiteral: "Colombia (Colombian Peso)"),
             .CZK: DisplayRepresentation(stringLiteral: "Czech Republic (Czech Koruna)"),
             .DKK: DisplayRepresentation(stringLiteral: "Denmark (Danish Krone)"),
+            .EGP: DisplayRepresentation(stringLiteral: "Egypt (Egyptian Pound)"),
             .EUR: DisplayRepresentation(stringLiteral: "European Union (Euro)"),
             .GBP: DisplayRepresentation(stringLiteral: "United Kingdom (British Pound)"),
             .HRK: DisplayRepresentation(stringLiteral: "Croatia (Croatian Kuna)"),

@@ -111,6 +111,13 @@
         "symbol": "kr",
         "country": "Denmark (Danish Krone)"
     },
+    "EGP": {
+        "endPointKey": "EGP",
+        "locale": "ar-EG",
+        "source": "YadioConvert",
+        "symbol": "ج.م.",
+        "country": "Egypt (Egyptian Pound)"
+    },
     "EUR": {
         "endPointKey": "EUR",
         "locale": "en-IE",
