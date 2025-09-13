@@ -39,7 +39,7 @@ const LNDViewInvoice = () => {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const fetchInvoiceInterval = useRef<any>();
+  const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({

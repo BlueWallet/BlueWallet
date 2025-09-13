@@ -223,7 +223,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     preferredStyle: .alert
                 )
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-              self.window.rootViewController?.present(alert, animated: true, completion: nil)
+                self.window?.rootViewController?.present(alert, animated: true, completion: nil)
             }
         }
     }
@@ -296,7 +296,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
       guard !activityType.isEmpty else {
             print("[Handoff] Invalid or missing userActivity")
@@ -323,17 +323,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return false
     }
 
-    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return RCTLinkingManager.application(app, open: url, options: options)
     }
 
-    override func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         userDefaultsGroup?.removeObject(forKey: "onUserActivityOpen")
         
         UserDefaults.standard.removeObserver(self, forKeyPath: "deviceUID")
     }
 
-    override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
     }
 

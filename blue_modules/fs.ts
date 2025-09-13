@@ -116,7 +116,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
 
     if (result && result.length > 0) {
       const selectedFile = result[0];
-      
+
       try {
         // Use the copied file URI for QR code detection
         const qrResult = await RNQRGenerator.detect({ uri: selectedFile.uri });
@@ -129,17 +129,17 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
         throw new Error(loc.send.qr_error_no_qrcode);
       }
     }
-    
+
     return undefined;
   } catch (error: any) {
     // Check if user cancelled the document picker
     if (isCancel(error)) {
       return undefined;
     }
-    
+
     // Log the error for debugging
     console.error('Document picker error:', error);
-    
+
     // If document picker fails, fall back to image library (which uses system picker on newer Android)
     try {
       const response: ImagePickerResponse = await launchImageLibrary({
@@ -168,7 +168,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
       console.error('Fallback image picker error:', fallbackError);
       throw error; // Throw original error
     }
-    
+
     return undefined;
   }
 };

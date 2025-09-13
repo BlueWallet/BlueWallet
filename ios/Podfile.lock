@@ -1853,7 +1853,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.2):
     - React-Core
-  - react-native-safe-area-context (5.5.2):
+  - react-native-safe-area-context (5.6.1):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -2435,7 +2435,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.25.0):
+  - RNGestureHandler (2.28.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2681,7 +2681,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNScreens (4.11.1):
+  - RNScreens (4.16.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2710,7 +2710,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNShare (12.1.0):
+  - RNShare (12.2.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3175,7 +3175,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 2e2ae2d06f57565b25cca651c134a423027a5048
   react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
   react-native-randombytes: 4eeddad82d1fd57adda1cd5beffe67d041c9d6de
-  react-native-safe-area-context: 0f7bf11598f9a61b7ceac8dc3f59ef98697e99e1
+  react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: 9e5dae3d575dc30aa79fee459724551820a4007a
@@ -3217,7 +3217,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 5223ffbe9bf3006167409d70d38d2d9e1f8c2649
+  RNGestureHandler: 12a436b5074378be95468a57b62c165a1e24cfc9
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: c87e969d3b73c6fd8d02eef563ee07c39d935bf5
   RNLocalize: 3c4d0abd777a546fa77bdb6caef85a87fb9ea349
@@ -3227,8 +3227,8 @@ SPEC CHECKSUMS:
   RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: b9a2e47c9b5b83e94a86a20f072c708f412a2105
   RNReanimated: a8a1b8f23ac3d76e67d308a31f84d41fd1c1b54c
-  RNScreens: ce850bfbec83665fcc1efa6e7dc832d0afc1a5a0
-  RNShare: 49a63c101f9e55622379b846bdb836505b51c432
+  RNScreens: 35525ebfe219c8709da0d26aebbc9a5e02e1077b
+  RNShare: ab19939d471d2d2b5ba4745ebe2c3c9a0cddccd2
   RNSVG: 7819ae13be2d7ca49e4060bcb6a4c73c1870d303
   RNVectorIcons: 7cc0adee28ab69fa2b689573cc1bfb66b655c999
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f

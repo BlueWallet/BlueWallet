@@ -1,4 +1,3 @@
-import { useTheme } from '../components/themes';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
@@ -12,7 +11,7 @@ import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
-import { TaprootWallet } from './wallets/taproot-wallet.ts';
+import { TaprootWallet } from './wallets/taproot-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet: string[] = ['#007AFF', '#0040FF'];
@@ -29,8 +28,7 @@ export default class WalletGradient {
   static aezeedWallet: string[] = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
-    const { colors } = useTheme();
-    return colors.lightButton;
+    return '#ffffff'; // Default white background for create wallet button
   };
 
   static gradientsFor(type: string): string[] {
