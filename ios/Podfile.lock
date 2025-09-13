@@ -1849,8 +1849,34 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-menu (1.2.4):
-    - React
+  - react-native-menu (2.0.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - react-native-randombytes (3.6.2):
     - React-Core
   - react-native-safe-area-context (5.6.1):
@@ -2738,9 +2764,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNSVG (15.12.0):
+  - RNSVG (15.13.0):
     - React-Core
-  - RNVectorIcons (10.2.0):
+  - RNVectorIcons (10.3.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3173,7 +3199,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: a5b16a4479790738a9536013121331d9108d25c0
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 2e2ae2d06f57565b25cca651c134a423027a5048
-  react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
+  react-native-menu: ff00cdf67083e8d2c07c2cf17e9818f425d7d5a6
   react-native-randombytes: 4eeddad82d1fd57adda1cd5beffe67d041c9d6de
   react-native-safe-area-context: 2243039f43d10cb1ea30ec5ac57fc6d1448413f4
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
@@ -3229,8 +3255,8 @@ SPEC CHECKSUMS:
   RNReanimated: a8a1b8f23ac3d76e67d308a31f84d41fd1c1b54c
   RNScreens: 35525ebfe219c8709da0d26aebbc9a5e02e1077b
   RNShare: ab19939d471d2d2b5ba4745ebe2c3c9a0cddccd2
-  RNSVG: 7819ae13be2d7ca49e4060bcb6a4c73c1870d303
-  RNVectorIcons: 7cc0adee28ab69fa2b689573cc1bfb66b655c999
+  RNSVG: e0293d50d2cc0c7b8259fc66faa292378a04ba9a
+  RNVectorIcons: 9084b0cf37b3c5690b730c5627a21d750c9f517e
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: a3ed390a19db0459bd6839823a6ac6d9c6db198d
