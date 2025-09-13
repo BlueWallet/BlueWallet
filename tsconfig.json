@@ -15,6 +15,7 @@
     "paths": {
     }
   },
-  "extends": "@react-native/typescript-config/tsconfig.json",
-  "exclude": ["node_modules", "babel.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
+  "extends": "@react-native/typescript-config/tsconfig",
+   "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules", "**/Pods", "babel.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
 }

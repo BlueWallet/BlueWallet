@@ -46,7 +46,7 @@ interface TransactionListItemProps {
   item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
   searchQuery?: string;
   style?: ViewStyle;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   onPress?: () => void;
 }
 
@@ -65,7 +65,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
-    const menuRef = useRef<ToolTipMenuProps>();
+    const menuRef = useRef<ToolTipMenuProps | null>(null);
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
     const { language, selectedBlockExplorer } = useSettings();
     const insets = useSafeAreaInsets();
