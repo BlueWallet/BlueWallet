@@ -7,11 +7,18 @@ import Bugsnag
 
 
 @main
-class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    var window: UIWindow?
+
+    var reactNativeDelegate: ReactNativeDelegate?
+    var reactNativeFactory: RCTReactNativeFactory?
 
     private var userDefaultsGroup: UserDefaults?
 
-    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
@@ -44,9 +51,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
       #endif
         }
 
-        self.moduleName = "BlueWallet"
-        self.dependencyProvider = RCTAppDependencyProvider()
-        self.initialProps = [:]
+        let delegate = ReactNativeDelegate()
+        let factory = RCTReactNativeFactory(delegate: delegate)
+        delegate.dependencyProvider = RCTAppDependencyProvider()
+
+        reactNativeDelegate = delegate
+        reactNativeFactory = factory
+
+        window = UIWindow(frame: UIScreen.main.bounds)
 
         RCTI18nUtil.sharedInstance().allowRTL(true)
 
@@ -59,20 +71,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         // Access the singleton via the class method
         _ = MenuElementsEmitter.sharedInstance()
         NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
+
+        factory.startReactNative(
+            withModuleName: "BlueWallet",
+            in: window,
+            launchOptions: launchOptions
+        )
         
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    }
-
-    override func sourceURL(for bridge: RCTBridge) -> URL? {
-        return bundleURL()
-    }
-
-    override func bundleURL() -> URL? {
-        #if DEBUG
-        return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
-        #else
-        return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
-        #endif
+        return true
     }
 
     private func registerNotificationCategories() {
@@ -473,5 +479,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         } else {
             return super.canPerformAction(action, withSender: sender)
         }
+    }
+}
+
+class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+    override func sourceURL(for bridge: RCTBridge) -> URL? {
+        self.bundleURL()
+    }
+
+    override func bundleURL() -> URL? {
+#if DEBUG
+        RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+#else
+        Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+#endif
     }
 }

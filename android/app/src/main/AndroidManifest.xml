@@ -26,7 +26,7 @@
         android:allowBackup="false"
         android:largeHeap="true"
         android:extractNativeLibs="true"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="${usesCleartextTraffic}"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config"
