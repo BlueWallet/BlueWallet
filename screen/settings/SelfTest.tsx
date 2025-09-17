@@ -198,7 +198,7 @@ export default class SelfTest extends Component {
 
       l = new TaprootWallet();
       l.setSecret('L4PKRVk1Peaar5WuH5LiKfkTygWtFfGrFeH2g2t3YVVqiwpJjMoF');
-      if (l.getAddress() !== 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf') {
+      if (l.getAddress() !== 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu') {
         throw new Error('failed to generate Taproot address from WIF');
       }
 
@@ -207,9 +207,9 @@ export default class SelfTest extends Component {
       const txNewTaproot = l.createTransaction(
         [
           {
-            value: 9778,
-            address: 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf',
-            txid: '511e007f9c96b6d713a72b730506198f61dd96046edee72f0dc636bfe1f3a9cf',
+            value: 10000,
+            address: 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu',
+            txid: '4dc4c9a03dd7005310a313c5ef1754e5e53888d587073f01a5a662501c12ac3b',
             vout: 0,
           },
         ],

@@ -16,8 +16,15 @@ describe('Taproot wallet', () => {
   it('can derive address from WIF', () => {
     const w = new TaprootWallet();
     w.setSecret('L4PKRVk1Peaar5WuH5LiKfkTygWtFfGrFeH2g2t3YVVqiwpJjMoF');
-    assert.strictEqual(w.getAddress(), 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf');
-    assert.ok(w.weOwnAddress('bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf'));
+    assert.strictEqual(w.getAddress(), 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu');
+    assert.ok(w.weOwnAddress('bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu'));
+  });
+
+  it('can derive address from WIF 2', () => {
+    const w = new TaprootWallet();
+    w.setSecret('L2an3aQwN2RX5YLkeXuFHUTVHuj1UKqRf38nESJRf6R9NmJrsftB');
+    assert.strictEqual(w.getAddress(), 'bc1ptestlpef53v6vyku3f9rk0ve2mek2fdwnd9k6q3mnyn6vs9nqlsqqnejxf');
+    assert.ok(w.weOwnAddress('bc1ptestlpef53v6vyku3f9rk0ve2mek2fdwnd9k6q3mnyn6vs9nqlsqqnejxf'));
   });
 
   it('can create transaction', () => {
@@ -26,12 +33,11 @@ describe('Taproot wallet', () => {
 
     const utxos = [
       {
-        height: 894578,
-        value: 9778,
-        address: 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf',
-        txid: '511e007f9c96b6d713a72b730506198f61dd96046edee72f0dc636bfe1f3a9cf',
+        height: 0,
+        value: 10000,
+        address: 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu',
+        txid: '4dc4c9a03dd7005310a313c5ef1754e5e53888d587073f01a5a662501c12ac3b',
         vout: 0,
-        confirmations: 1046,
       },
     ];
 
@@ -39,7 +45,7 @@ describe('Taproot wallet', () => {
     const txNew = w.createTransaction(
       utxos,
       [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }],
-      1,
+      4,
       String(w.getAddress()),
       0xffffffff,
       false,
@@ -49,7 +55,7 @@ describe('Taproot wallet', () => {
 
     assert.strictEqual(
       txNew.tx.toHex(),
-      '02000000000101cfa9f3e1bf36c60d2fe7de6e0496dd618f190605732ba713d7b6969c7f001e510000000000ffffffff01c2250000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac0140d75f5e8012a42b7341e9f26e26c45c1e78301f2bb74ed9f4a0183154973649523e3e91a6b61fca600e1904fde467099bc1c46c5a9d9b431d60afc6c7054aadb900000000',
+      '020000000001013bac121c5062a6a5013f0787d58838e5e55417efc513a3105300d73da0c9c44d0000000000ffffffff0150250000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac0140fe709c8bc93582e749761438f76b4bc7d9820c4c321aa1849805f20bbeaba790bf0bb088031af50a75c0d7637c102d68322cfd77ce17342fdb22b19fef36e0b800000000',
     );
 
     // verifying:
