@@ -10,7 +10,7 @@ const ECPair = ECPairFactory(ecc);
 
 export class SegwitBech32Wallet extends LegacyWallet {
   static readonly type = 'segwitBech32';
-  static readonly typeReadable = 'P2 WPKH';
+  static readonly typeReadable = 'SegWit (P2WPKH)';
   // @ts-ignore: override
   public readonly type = SegwitBech32Wallet.type;
   // @ts-ignore: override
