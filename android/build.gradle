@@ -3,27 +3,28 @@
 buildscript {
     ext {
         minSdkVersion = 24
-        buildToolsVersion = "35.0.0"
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        buildToolsVersion = "36.0.0"
+        compileSdkVersion = 36
+        targetSdkVersion = 36
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "21.1.0"
         ndkVersion = "27.1.12297006"
-        kotlin_version = '2.0.21'
-        kotlinVersion = '2.0.21'
+        kotlin_version = '2.1.20'
+        kotlinVersion = '2.1.20'
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.5.1")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 	    classpath 'com.google.gms:google-services:4.4.3'  // Google Services plugin
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.2.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
     }
 }
 
@@ -62,6 +63,19 @@ subprojects {
                 compileSdkVersion 35
                  defaultConfig {
                     minSdkVersion 24
+                    targetSdkVersion Math.max(35, project.hasProperty('targetSdkVersion') ? project.targetSdkVersion : 35)
+                    
+                    // 16 KB page size support for NDK
+                    ndk {
+                        abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                    }
+                }
+                
+                // Configure packaging for 16 KB page size compatibility
+                packagingOptions {
+                    jniLibs {
+                        useLegacyPackaging = false  // Use uncompressed native libs for 16KB support
+                    }
                 }
             }
         }

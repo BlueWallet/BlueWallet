@@ -13,7 +13,7 @@ import { StorageProvider } from './components/Context/StorageProvider';
 const App = () => {
   const colorScheme = useColorScheme();
 
-  useLogger(navigationRef);
+  useLogger(navigationRef as any);
 
   return (
     <SizeClassProvider>

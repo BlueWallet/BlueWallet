@@ -41,6 +41,8 @@
 	</array>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.finance</string>
+	<key>RCTNewArchEnabled</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

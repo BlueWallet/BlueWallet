@@ -7,11 +7,18 @@ import Bugsnag
 
 
 @main
-class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    var window: UIWindow?
+
+    var reactNativeDelegate: ReactNativeDelegate?
+    var reactNativeFactory: RCTReactNativeFactory?
 
     private var userDefaultsGroup: UserDefaults?
 
-    override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
@@ -44,9 +51,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
       #endif
         }
 
-        self.moduleName = "BlueWallet"
-        self.dependencyProvider = RCTAppDependencyProvider()
-        self.initialProps = [:]
+        let delegate = ReactNativeDelegate()
+        let factory = RCTReactNativeFactory(delegate: delegate)
+        delegate.dependencyProvider = RCTAppDependencyProvider()
+
+        reactNativeDelegate = delegate
+        reactNativeFactory = factory
+
+        window = UIWindow(frame: UIScreen.main.bounds)
 
         RCTI18nUtil.sharedInstance().allowRTL(true)
 
@@ -59,20 +71,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         // Access the singleton via the class method
         _ = MenuElementsEmitter.sharedInstance()
         NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
+
+        factory.startReactNative(
+            withModuleName: "BlueWallet",
+            in: window,
+            launchOptions: launchOptions
+        )
         
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    }
-
-    override func sourceURL(for bridge: RCTBridge) -> URL? {
-        return bundleURL()
-    }
-
-    override func bundleURL() -> URL? {
-        #if DEBUG
-        return RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
-        #else
-        return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
-        #endif
+        return true
     }
 
     private func registerNotificationCategories() {
@@ -217,7 +223,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                     preferredStyle: .alert
                 )
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-              self.window.rootViewController?.present(alert, animated: true, completion: nil)
+                self.window?.rootViewController?.present(alert, animated: true, completion: nil)
             }
         }
     }
@@ -290,7 +296,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         }
     }
 
-    override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
       guard !activityType.isEmpty else {
             print("[Handoff] Invalid or missing userActivity")
@@ -317,17 +323,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return false
     }
 
-    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return RCTLinkingManager.application(app, open: url, options: options)
     }
 
-    override func applicationWillTerminate(_ application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         userDefaultsGroup?.removeObject(forKey: "onUserActivityOpen")
         
         UserDefaults.standard.removeObserver(self, forKeyPath: "deviceUID")
     }
 
-    override func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
         RNQuickActionManager.onQuickActionPress(shortcutItem, completionHandler: completionHandler)
     }
 
@@ -473,5 +479,19 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         } else {
             return super.canPerformAction(action, withSender: sender)
         }
+    }
+}
+
+class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
+    override func sourceURL(for bridge: RCTBridge) -> URL? {
+        self.bundleURL()
+    }
+
+    override func bundleURL() -> URL? {
+#if DEBUG
+        RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index")
+#else
+        Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+#endif
     }
 }
