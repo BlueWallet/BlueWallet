@@ -608,10 +608,10 @@ const ReceiveDetails = () => {
         </View>
       </SafeAreaScrollView>
 
-      <Modal visible={isModalVisible} animationType="slide" transparent onRequestClose={() => setIsModalVisible(false)}>
+      <Modal visible={isModalVisible} animationType="fade" transparent statusBarTranslucent onRequestClose={() => setIsModalVisible(false)}>
         <Pressable style={[stylesHook.modal, styles.modal]} onPress={() => setIsModalVisible(false)}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior="padding"
             keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
             style={[stylesHook.keyboardAvoidingView, styles.keyboardAvoidingView]}
           >
