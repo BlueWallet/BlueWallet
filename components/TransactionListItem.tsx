@@ -26,6 +26,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HighlightedText from './HighlightedText';
+import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 
 const styles = StyleSheet.create({
   subtitle: {
@@ -254,7 +255,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             const LN = new Lnurl(false, AsyncStorage);
             let paymentHash = item.payment_hash!;
             if (typeof paymentHash === 'object') {
-              paymentHash = Buffer.from(paymentHash.data).toString('hex');
+              paymentHash = uint8ArrayToHex(hexToUint8Array(paymentHash.data));
             }
             const loaded = await LN.loadSuccessfulPayment(paymentHash);
             if (loaded) {

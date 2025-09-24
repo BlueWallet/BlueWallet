@@ -19,6 +19,7 @@ import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
+import { hexToUint8Array, uint8ArrayToBase64, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 
 let decoder: BlueURDecoder | undefined;
 
@@ -93,7 +94,7 @@ const ScanQRCode = () => {
   }, []);
 
   const HashIt = function (s: string): string {
-    return Buffer.from(sha256(s)).toString('hex');
+    return uint8ArrayToHex(sha256(s));
   };
 
   const _onReadUniformResourceV2 = (part: string) => {
@@ -203,7 +204,7 @@ const ScanQRCode = () => {
     try {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
-      const data = Buffer.from(hex, 'hex').toString('base64');
+      const data = uint8ArrayToBase64(hexToUint8Array(hex));
 
       if (launchedBy) {
         const merge = true;
