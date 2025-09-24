@@ -1,3 +1,4 @@
+/* eslint react/prop-types: "off" */
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';

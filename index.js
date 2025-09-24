@@ -1,4 +1,5 @@
 import './gesture-handler';
+import 'react-native-get-random-values';
 import './shim.js';
 
 import React, { useEffect } from 'react';

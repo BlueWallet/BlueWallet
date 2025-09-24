@@ -168,10 +168,10 @@ export function stringToBase64(string, { urlSafe = false } = {}) {
   return uint8ArrayToBase64(stringToUint8Array(string), { urlSafe });
 }
 
-export function base64ToString(base64String) {
-  assertString(base64String);
-  return uint8ArrayToString(base64ToUint8Array(base64String));
-}
+// export function base64ToString(base64String) {
+//   assertString(base64String);
+//   return uint8ArrayToString(base64ToUint8Array(base64String));
+// }
 
 const byteToHexLookupTable = Array.from({ length: 256 }, (_, index) => index.toString(16).padStart(2, '0'));
 

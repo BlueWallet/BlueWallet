@@ -38,6 +38,7 @@
     "redeem": "Uplatnit do peněženky",
     "redeemButton": "Uplatnit",
     "success": "Úspěch",
+    "successMessage": "Poukaz byl úspěšně uplatněn! Vaše prostředky by měly brzy dorazit na vaši bitcoinovou peněženku.",
     "title": "Uplatnit Azte.co voucher"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "Upravit jméno kontaktu",
     "details_scan": "Skenovat",
     "details_scan_hint": "Dvojitým klepnutím naskenujete nebo importujete cíl",
+    "details_scan_error": "Chyba skenování",
     "details_total_exceeds_balance": "Částka, kterou se snažíte odeslat, přesahuje dostupný zůstatek.",
     "details_total_exceeds_balance_frozen": "Odesílaná částka překračuje dostupný zůstatek. Upozorňujeme, že zmrazené mince nejsou zahrnuty.",
     "details_unrecognized_file_format": "Neznámý formát souboru",
@@ -385,7 +387,9 @@
     "to": "Pro: {counterparty}",
     "updating": "Aktualizování…",
     "watchOnlyWarningTitle": "Bezpečnostní upozornění",
-    "watchOnlyWarningDescription": "Dávejte si pozor na podvodníky, kteří často používají peněženky „pouze pro sledování“ ke klamání uživatelů. Tyto peněženky vám neumožňují kontrolovat nebo odesílat prostředky; umožňují vám pouze zobrazit zůstatek."
+    "watchOnlyWarningDescription": "Dávejte si pozor na podvodníky, kteří často používají peněženky „pouze pro sledování“ ke klamání uživatelů. Tyto peněženky vám neumožňují kontrolovat nebo odesílat prostředky; umožňují vám pouze zobrazit zůstatek.",
+    "custom_fee_warning_title": "Varování",
+    "custom_fee_warning_description": "Poplatky ve výši pod 1 sat/vB jsou platné, ale nemusí být vyslány dále do sítě z důvodu zásad uzlu."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

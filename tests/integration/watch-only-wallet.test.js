@@ -65,7 +65,7 @@ describe('Watch only wallet', () => {
       for (const tx of w.getTransactions()) {
         assert.ok(tx.hash);
         assert.ok(tx.value);
-        assert.ok(tx.received);
+        assert.ok(tx.timestamp);
         assert.ok(tx.confirmations > 1);
       }
 

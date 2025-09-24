@@ -346,6 +346,7 @@ const startImport = (
         yield { wallet: segwitBech32Wallet };
         yield { wallet: segwitWallet };
         yield { wallet: legacyWallet };
+        yield { wallet: taprootWallet };
       }
     }
 

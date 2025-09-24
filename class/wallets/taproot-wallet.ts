@@ -11,7 +11,7 @@ const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
   static readonly type = 'taproot';
-  static readonly typeReadable = 'P2 TR';
+  static readonly typeReadable = 'Taproot (P2TR)';
   // @ts-ignore: override
   public readonly type = TaprootWallet.type;
   // @ts-ignore: override
@@ -60,7 +60,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       }
       const xOnlyPubkey = keyPair.publicKey.subarray(1, 33);
       address = bitcoin.payments.p2tr({
-        pubkey: xOnlyPubkey,
+        internalPubkey: xOnlyPubkey,
       }).address;
     } catch (err: any) {
       console.log(err.message);
@@ -91,7 +91,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
 
     // Precompute the P2TR payment (to rebuild scriptPubKey)
     const p2tr = bitcoin.payments.p2tr({
-      pubkey: xOnlyPub,
+      internalPubkey: xOnlyPub,
     });
     if (!p2tr.output) throw new Error('Could not build p2tr.output');
 
@@ -126,7 +126,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
     if (!skipSigning) {
       // Sign each input as a Taproot key-path spend
       inputs.forEach((_, idx) => {
-        psbt.signTaprootInput(idx, keyPair);
+        psbt.signTaprootInput(idx, keyPair.tweak(bitcoin.crypto.taggedHash('TapTweak', xOnlyPub)));
       });
 
       // Finalize all inputs (will auto-detect Taproot)

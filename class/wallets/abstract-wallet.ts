@@ -364,17 +364,6 @@ export class AbstractWallet {
     return 0;
   }
 
-  getLatestTransactionTimeEpoch(): number {
-    if (this.getTransactions().length === 0) {
-      return 0;
-    }
-    let max = 0;
-    for (const tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.received ?? 0).getTime(), max);
-    }
-    return max;
-  }
-
   /**
    * @deprecated
    * TODO: be more precise on the type

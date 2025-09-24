@@ -197,7 +197,7 @@ jest.mock('react-native-fs', () => {
   };
 });
 
-jest.mock('react-native-document-picker', () => ({}));
+jest.mock('@react-native-documents/picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 

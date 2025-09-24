@@ -315,6 +315,7 @@ export class LegacyWallet extends AbstractWallet {
             ...txRest,
             inputs: [...vin2],
             outputs: [...vout],
+            timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
           };
 
           _txsByExternalIndex.push(clonedTx);
@@ -328,6 +329,7 @@ export class LegacyWallet extends AbstractWallet {
             ...txRest,
             inputs: [...vin],
             outputs: [...vout2],
+            timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
           };
 
           _txsByExternalIndex.push(clonedTx);
@@ -497,7 +499,7 @@ export class LegacyWallet extends AbstractWallet {
     }
     let max = 0;
     for (const tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.received ?? 0).getTime(), max);
+      max = Math.max(tx.timestamp ? tx.timestamp * 1000 : 0, max);
     }
     return new Date(max).toString();
   }
