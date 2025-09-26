@@ -22,6 +22,8 @@ export interface TinySecp256k1InterfaceExtended {
   xOnlyPointAddTweak(p: Uint8Array, tweak: Uint8Array): XOnlyPointAddTweakResult | null;
 
   privateNegate(d: Uint8Array): Uint8Array;
+
+  signDER(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
 }
 
 necc.utils.sha256Sync = (...messages: Uint8Array[]): Uint8Array => {
@@ -137,6 +139,10 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
 
   sign: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
     return necc.signSync(h, d, { der: false, extraEntropy: e });
+  },
+
+  signDER: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
+    return necc.signSync(h, d, { der: true, extraEntropy: e });
   },
 
   signSchnorr: (h: Uint8Array, d: Uint8Array, e: Uint8Array = new Uint8Array(32).fill(0x00)): Uint8Array => {
