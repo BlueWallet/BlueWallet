@@ -2,12 +2,14 @@ import { Platform } from 'react-native';
 import { pick, types, keepLocalCopy, errorCodes } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
+import RNQRGenerator from 'rn-qr-generator';
 import Share from 'react-native-share';
+
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
-import RNQRGenerator from 'rn-qr-generator';
+import { base64ToUint8Array, uint8ArrayToString } from './uint8array-extras/index';
 
 const _sanitizeFileName = (fileName: string) => {
   // Remove any path delimiters and non-alphanumeric characters except for -, _, and .
@@ -91,7 +93,7 @@ export const openSignedTransaction = async function (): Promise<string | false> 
 
 const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
   const base64 = await RNFS.readFile(uri, 'base64');
-  const stringData = Buffer.from(base64, 'base64').toString(); // decode from base64
+  const stringData = uint8ArrayToString(base64ToUint8Array(base64)); // decode from base64
   if (stringData.startsWith('psbt')) {
     // file was binary, but outer code expects base64 psbt, so we return base64 we got from rn-fs;
     // most likely produced by Electrum-desktop

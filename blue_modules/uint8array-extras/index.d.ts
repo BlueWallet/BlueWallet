@@ -299,3 +299,13 @@ console.log(includes(byteArray, new Uint8Array([0x78, 0x90])));
 ```
 */
 export function includes(array: Uint8Array, value: Uint8Array): boolean;
+
+/**
+ * Convert a Uint8Array (or ArrayBuffer) of UTF-8 bytes into a JS string.
+ * Only "utf8" is supported. For any other encoding you’ll need a polyfill.
+ *
+ * @param {Uint8Array|ArrayBuffer} input
+ * @param {string} [encoding="utf8"]
+ * @returns {string}
+ */
+export function uint8ArrayToString(array: Uint8Array, encoding?: string): string;

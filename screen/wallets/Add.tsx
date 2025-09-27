@@ -33,6 +33,7 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -107,7 +108,7 @@ const WalletsAdd: React.FC = () => {
   //
   const { addWallet, saveToDisk } = useStorage();
   const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
-  const entropy = entropyHex ? Buffer.from(entropyHex, 'hex') : undefined;
+  const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
   const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
@@ -248,9 +249,9 @@ const WalletsAdd: React.FC = () => {
           } else if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
           } else if (id === '12_words') {
-            navigate('ProvideEntropy', { words: 12, entropy: entropy?.toString('hex') });
+            navigate('ProvideEntropy', { words: 12, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
           } else if (id === '24_words') {
-            navigate('ProvideEntropy', { words: 24, entropy: entropy?.toString('hex') });
+            navigate('ProvideEntropy', { words: 24, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
           } else if (id === CommonToolTipActions.ResetToDefault.id) {
             confirmResetEntropy(ButtonSelected.ONCHAIN);
           }
