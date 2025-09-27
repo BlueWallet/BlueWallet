@@ -3,8 +3,7 @@ import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
 import CryptoJS from 'crypto-js';
-// @ts-ignore theres no types for secp256k1
-import secp256k1 from 'secp256k1';
+import ecc from '../blue_modules/noble_ecc';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { fetch } from '../util/fetch';
 
@@ -360,11 +359,15 @@ export default class Lnurl {
 
     const privateKey = hmac(sha256, secret, url.hostname);
     const privateKeyBuf = Buffer.from(privateKey);
-    const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-    const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
-    const derSignature = secp256k1.signatureExport(signatureObj.signature);
+    const publicKey = ecc.pointFromScalar(privateKeyBuf);
+    if (!publicKey) {
+      throw new Error('Failed to generate public key');
+    }
+    const signature = ecc.signDER(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
 
-    const reply = await this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
+    const reply = await this.fetchGet(
+      `${url.href}&sig=${Buffer.from(signature).toString('hex')}&key=${Buffer.from(publicKey).toString('hex')}`,
+    );
     if (reply.status === 'OK') {
       // Authentication successful
     } else {
