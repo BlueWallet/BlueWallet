@@ -71,6 +71,7 @@ export const BlueDefaultTheme = {
     receiveText: '#37C0A1',
     navigationBarColor: '#FFFFFF',
     androidRippleColor: '#CCCCCC',
+    modalOverlayColor: 'rgba(0,0,0,0.3)',
   },
 };
 
@@ -129,6 +130,7 @@ export const BlueDarkTheme: Theme = {
     receiveText: '#37C0A1',
     navigationBarColor: '#3A3A3C',
     androidRippleColor: '#444444',
+    modalOverlayColor: 'rgba(0,0,0,0.6)',
   },
 };
 
