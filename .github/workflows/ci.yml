@@ -7,6 +7,8 @@ env:
   TRAVIS: 1
   HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
   HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+  ANDROID_HOME: /usr/local/lib/android/sdk
 
 on: [pull_request]
 
@@ -318,17 +320,15 @@ jobs:
         # Also create fallback camera directory for compatibility
         mkdir -p $HOME/.android/camera
         cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
-
-    - name: Work around emulator-2 install path
+     
+    - name: Ensure emulator path (fix emulator-2)
       run: |
-        SDK_ROOT="/usr/local/lib/android/sdk"
+        SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
         if [ -d "$SDK_ROOT/emulator-2" ]; then
           sudo rm -rf "$SDK_ROOT/emulator"
           sudo ln -s "$SDK_ROOT/emulator-2" "$SDK_ROOT/emulator"
         fi
-        # sanity check
-        ls -l "$SDK_ROOT"
-        test -x "$SDK_ROOT/emulator/emulator" && "$SDK_ROOT/emulator/emulator" -version || true
+        "$SDK_ROOT/emulator/emulator" -version || true
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
@@ -339,13 +339,13 @@ jobs:
         avd-name: Pixel_API_29_AOSP
         force-avd-creation: true
         emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back virtualscene -camera-front none -partition-size 2047"
+        script: npm run e2e:release-test -- --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
         pre-emulator-launch-script: |
           AVD="$HOME/.android/avd/Pixel_API_29_AOSP.avd/config.ini"
           echo "hw.camera.back=virtualscene" >> "$AVD"
           echo "hw.camera.front=none"        >> "$AVD"
           echo "camera.back=virtualscene"    >> "$AVD"
           echo "camera.front=none"           >> "$AVD"
-        script: npm run e2e:release-test -- --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v4
       if: failure()
