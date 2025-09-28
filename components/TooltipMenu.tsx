@@ -8,8 +8,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
     title = '',
     isMenuPrimaryAction = false,
-    disabled = false,
-    onPress,
     buttonStyle,
     onPressMenuItem,
     children,
