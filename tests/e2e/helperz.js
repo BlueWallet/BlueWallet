@@ -420,8 +420,7 @@ export async function scanText(text) {
 
   // Wait for camera to show the new QR code and auto-scan it
   await sleep(3000); // give time for virtual scene to update and camera to scan
-
-  // Only call getQRImageForText once and use the result for logging
+  // Empty placeholder - no code changes needed here since we're using the cached result
   const qrImageFile = getQRImageForText(text);
   console.log(`Real camera scanning QR for: ${text.substring(0, 50)}... using image: ${qrImageFile}`);
 }
@@ -469,6 +468,12 @@ export async function scanQRImage(imageName) {
  */
 export async function scanAnimatedQR(qrFrames) {
   console.log(`Scanning animated QR sequence with ${qrFrames.length} frames`);
+
+  // Ensure qr-images directory exists
+  const qrImagesDir = path.join(__dirname, 'qr-images');
+  if (!fs.existsSync(qrImagesDir)) {
+    fs.mkdirSync(qrImagesDir, { recursive: true });
+  }
 
   // For animated sequences, we need to generate QR images from UR strings and cycle through them
   for (let i = 0; i < qrFrames.length; i++) {
