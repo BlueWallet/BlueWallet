@@ -421,6 +421,7 @@ export async function scanText(text) {
   // Wait for camera to show the new QR code and auto-scan it
   await sleep(3000); // give time for virtual scene to update and camera to scan
   
+  // Only call getQRImageForText once and use the result for logging
   const qrImageFile = getQRImageForText(text);
   console.log(`Real camera scanning QR for: ${text.substring(0, 50)}... using image: ${qrImageFile}`);
 }
