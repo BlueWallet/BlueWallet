@@ -352,8 +352,12 @@ position 0 0 -1.2
 rotation 0 0 0
 default ${imageName}`;
 
-      fs.writeFileSync(posterFile, posterContent);
-      console.log(`✅ Set virtual scene QR to: ${imageName} (smaller size for better scanning)`);
+      try {
+        fs.writeFileSync(posterFile, posterContent);
+        console.log(`✅ Set virtual scene QR to: ${imageName} (smaller size for better scanning)`);
+      } catch (writeError) {
+        console.warn('Failed to write poster configuration:', writeError.message);
+      }
       resolve();
     });
   });
