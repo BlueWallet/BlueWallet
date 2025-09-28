@@ -320,7 +320,7 @@ jobs:
         cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
 
     - name: Run tests with Android Emulator Runner
-      uses: ReactiveCircus/android-emulator-runner@v2
+      uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 31
         avd-name: Pixel_API_29_AOSP
