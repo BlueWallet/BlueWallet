@@ -334,17 +334,17 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 31
-        avd-name: Pixel_API_29_AOSP
+        target: default
         arch: x86_64
-        force-avd-creation: false
-    - name: Run tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 31
         avd-name: Pixel_API_29_AOSP
-        arch: x86_64
-        force-avd-creation: false
+        force-avd-creation: true
         emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back virtualscene -camera-front none -partition-size 2047"
+        pre-emulator-launch-script: |
+          AVD="$HOME/.android/avd/Pixel_API_29_AOSP.avd/config.ini"
+          echo "hw.camera.back=virtualscene" >> "$AVD"
+          echo "hw.camera.front=none"        >> "$AVD"
+          echo "camera.back=virtualscene"    >> "$AVD"
+          echo "camera.front=none"           >> "$AVD"
         script: npm run e2e:release-test -- --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v4
