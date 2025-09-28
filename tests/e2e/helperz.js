@@ -294,12 +294,6 @@ function getQRImageForText(text) {
     };
     
     return TEST_ADDRESSES[text] || 'marketplace-bitcoin-address.png';
-  }if (text.startsWith('bc1q') && text === 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7') {
-    // Specific plain address used in tests
-    return 'plain-bitcoin-address.png';
-  } else if (text.startsWith('bc1q') || text.startsWith('1') || text.startsWith('3')) {
-    // Bitcoin addresses
-    return 'marketplace-bitcoin-address.png';
   }
 
   // Default fallback
