@@ -1,6 +1,11 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
 
+// Move require statements to top to avoid repeated module resolution
+const { exec } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
 export async function waitForId(id, timeout = 33000) {
   try {
     await waitFor(element(by.id(id)))
@@ -306,9 +311,6 @@ async function setVirtualSceneQRFromText(text) {
 
 // Function to set QR code image in virtual scene camera by image filename
 async function setVirtualSceneQRFromImage(imageName) {
-  const { exec } = require('child_process');
-  const path = require('path');
-  
   return new Promise(resolve => {
     const sourcePath = path.join(__dirname, 'qr-images', imageName);
     
@@ -349,7 +351,7 @@ position 0 0 -1.2
 rotation 0 0 0
 default ${imageName}`;
       
-      require('fs').writeFileSync(posterFile, posterContent);
+      fs.writeFileSync(posterFile, posterContent);
       console.log(`✅ Set virtual scene QR to: ${imageName} (smaller size for better scanning)`);
       resolve();
     });
@@ -358,9 +360,6 @@ default ${imageName}`;
 
 // Function to initialize virtual scene camera setup
 export async function initVirtualSceneCamera() {
-  const { exec } = require('child_process');
-  const path = require('path');
-  
   return new Promise(resolve => {
     const androidHome = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
     
@@ -400,7 +399,7 @@ rotation 0 0 0
 default marketplace-bitcoin-address.png`;
         
         try {
-          require('fs').writeFileSync(posterFile, posterContent);
+          fs.writeFileSync(posterFile, posterContent);
           console.log('🎥 Virtual scene camera initialized with smaller QR poster (0.5x0.5)');
           console.log('📋 Poster file:', posterFile);
           console.log('🖼️  Default image: marketplace-bitcoin-address.png');
@@ -438,38 +437,48 @@ export async function scanQRImage(imageName) {
 }
 
 // Function to handle animated QR sequences (for UR PSBTs)
+// qrFrames should be an array of UR text strings that will be converted to QR images dynamically
 export async function scanAnimatedQR(qrFrames) {
   console.log(`Scanning animated QR sequence with ${qrFrames.length} frames`);
   
-  // For animated sequences, we'll cycle through the frames
+  // For animated sequences, we need to generate QR images from UR strings and cycle through them
   for (let i = 0; i < qrFrames.length; i++) {
-    const frame = qrFrames[i];
-    await setVirtualSceneQRFromImage(frame);
-    await sleep(1000); // Wait between frames
+    const urText = qrFrames[i];
     
-    console.log(`Animated QR frame ${i + 1}/${qrFrames.length}: ${frame}`);
+    // Generate temporary QR image for this UR frame
+    const tempImageName = `animated_frame_${i}.png`;
+    const tempImagePath = path.join(__dirname, 'qr-images', tempImageName);
+    
+    try {
+      // Generate QR code image from UR text
+      const QRCode = require('qrcode');
+      await QRCode.toFile(tempImagePath, urText, {
+        errorCorrectionLevel: 'M',
+        type: 'png',
+        quality: 0.92,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+        width: 256, // Smaller size for better virtual scene scanning
+      });
+      
+      // Set the generated image in virtual scene
+      await setVirtualSceneQRFromImage(tempImageName);
+      await sleep(1000); // Wait between frames
+      
+      console.log(`Animated QR frame ${i + 1}/${qrFrames.length}: ${urText.substring(0, 50)}...`);
+      
+      // Clean up temporary image
+      if (fs.existsSync(tempImagePath)) {
+        fs.unlinkSync(tempImagePath);
+      }
+    } catch (error) {
+      console.error(`Failed to generate/display animated QR frame ${i + 1}:`, error);
+    }
   }
   
   // Give extra time for the wallet to process the complete sequence
   await sleep(2000);
-}
-
-// Function to scan QR with specific image file (when we know exactly which image to use)
-export async function scanQRWithImage(imageName, waitTime = 3000) {
-  const { exec } = require('child_process');
-  const path = require('path');
-  
-  return new Promise(resolve => {
-    const sourcePath = path.join(__dirname, 'qr-images', imageName);
-    const targetPath = process.env.HOME + '/.android/camera/default-qr.png';
-    
-    exec(`cp "${sourcePath}" "${targetPath}"`, error => {
-      if (error) {
-        console.warn('Failed to set virtual scene QR image:', error.message);
-      } else {
-        console.log(`Set virtual scene to image: ${imageName}`);
-      }
-      resolve();
-    });
-  }).then(() => sleep(waitTime));
 }
