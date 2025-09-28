@@ -319,7 +319,7 @@ jobs:
         mkdir -p $HOME/.android/camera
         cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
 
-    - name: Run tests with Android Emulator Runner
+    - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 31
