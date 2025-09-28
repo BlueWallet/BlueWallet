@@ -1,4 +1,4 @@
-import { hashIt, helperDeleteWallet, helperImportWallet, sleep, waitForId } from './helperz';
+import { hashIt, helperDeleteWallet, helperImportWallet, sleep, waitForId, scanQRImage } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
 console.warn = console.log = (...args) => {
@@ -64,37 +64,14 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Import Transaction (QR)')).tap(); // opens camera
 
-    // produced by real Keystone device using MNEMONICS_KEYSTONE
-    const unsignedPsbt =
-      'UR:CRYPTO-PSBT/HDRNJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWCPAMAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGACSRPLEYNVEGHAEAELAAEAEAELAAEAEAELAAEAEAEAEAEAEAEAEAEAEGETNJYFN';
-    const signedPsbt =
-      'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
-
-    // tapping 5 times invisible button is a backdoor:
-    await sleep(5000); // wait for camera screen to initialize
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText(unsignedPsbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanQRImage('unsigned-psbt-ur.png');
 
     // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
 
     await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
-    // tapping 5 times invisible button is a backdoor:
-    await sleep(5000); // wait for camera screen to initialize
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText(signedPsbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
-    await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
+    await scanQRImage('signed-psbt-ur.png');
     await waitForId('PsbtWithHardwareWalletBroadcastTransactionButton');
 
     await device.pressBack();
