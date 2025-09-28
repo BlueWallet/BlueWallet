@@ -319,6 +319,17 @@ jobs:
         mkdir -p $HOME/.android/camera
         cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
 
+    - name: Work around emulator-2 install path
+      run: |
+        SDK_ROOT="/usr/local/lib/android/sdk"
+        if [ -d "$SDK_ROOT/emulator-2" ]; then
+          sudo rm -rf "$SDK_ROOT/emulator"
+          sudo ln -s "$SDK_ROOT/emulator-2" "$SDK_ROOT/emulator"
+        fi
+        # sanity check
+        ls -l "$SDK_ROOT"
+        test -x "$SDK_ROOT/emulator/emulator" && "$SDK_ROOT/emulator/emulator" -version || true
+
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
