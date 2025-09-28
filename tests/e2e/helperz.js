@@ -287,7 +287,14 @@ function getQRImageForText(text) {
   } else if (text.startsWith('bitcoin:')) {
     // Simple BIP21
     return 'bip21-simple.png';
-  } else if (text.startsWith('bc1q') && text === 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7') {
+  } else if (text.startsWith('bc1q') || text.startsWith('1') || text.startsWith('3')) {
+    // Bitcoin addresses - use specific image if it's a known test address
+    const TEST_ADDRESSES = {
+      'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7': 'plain-bitcoin-address.png'
+    };
+    
+    return TEST_ADDRESSES[text] || 'marketplace-bitcoin-address.png';
+  }if (text.startsWith('bc1q') && text === 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7') {
     // Specific plain address used in tests
     return 'plain-bitcoin-address.png';
   } else if (text.startsWith('bc1q') || text.startsWith('1') || text.startsWith('3')) {
@@ -438,13 +445,40 @@ export async function scanQRImage(imageName) {
 
 // Function to handle animated QR sequences (for UR PSBTs)
 // qrFrames should be an array of UR text strings that will be converted to QR images dynamically
+/**
+ * Scans an animated QR code sequence by cycling through multiple QR frames.
+ * Generates temporary QR code images from UR (Uniform Resource) strings and displays them
+ * in the virtual scene sequentially to simulate animated QR code scanning.
+ * 
+ * @async
+ * @function scanAnimatedQR
+ * @param {string[]} qrFrames - Array of UR text strings representing each frame of the animated QR sequence
+ * @returns {Promise<void>} Resolves when all frames have been processed and displayed
+ * 
+ * @example
+ * // Scan a multi-frame UR sequence
+ * const urFrames = [
+ *   'ur:crypto-psbt/1-3/lpadaxcfaxiacyvwhdfh...',
+ *   'ur:crypto-psbt/2-3/lpaoaxcfaxiacyvwhdlr...',
+ *   'ur:crypto-psbt/3-3/lpaxaxcfaxiacyvwhdmn...'
+ * ];
+ * await scanAnimatedQR(urFrames);
+ * 
+ * @throws Will log errors to console if QR code generation or display fails for any frame
+ * 
+ * @description
+ * - Generates QR code images with 256px width for optimal virtual scene scanning
+ * - Uses error correction level 'M' for balance between data capacity and error recovery
+ * - Waits 1 second between frames and 2 seconds after completion for processing
+ * - Automatically cleans up temporary QR images after display
+ * - Uses setVirtualSceneQRFromImage() internally (requires proper environment setup)
+ */
 export async function scanAnimatedQR(qrFrames) {
   console.log(`Scanning animated QR sequence with ${qrFrames.length} frames`);
 
   // For animated sequences, we need to generate QR images from UR strings and cycle through them
   for (let i = 0; i < qrFrames.length; i++) {
     const urText = qrFrames[i];
-
     // Generate temporary QR image for this UR frame
     const tempImageName = `animated_frame_${i}.png`;
     const tempImagePath = path.join(__dirname, 'qr-images', tempImageName);
