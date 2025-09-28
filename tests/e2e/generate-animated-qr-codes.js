@@ -17,7 +17,7 @@ const animatedSequences = {
     frameCount: 3,
     frameRate: 2,
   },
-  
+
   'test-account-animated': {
     name: 'test-account-animated',
     description: 'Animated Account UR QR codes',
@@ -35,39 +35,39 @@ const outputDir = path.join(__dirname, 'qr-images', 'animated-sequences');
  */
 async function createAnimatedSequence(sequenceConfig) {
   const { name, description, frameCount, frameRate } = sequenceConfig;
-  
+
   console.log(`Creating animated sequence: ${name}`);
-  
+
   // Create sequence directory
   const sequenceDir = path.join(outputDir, name);
   if (!fs.existsSync(sequenceDir)) {
     fs.mkdirSync(sequenceDir, { recursive: true });
   }
-  
+
   // Find and organize frame files
   const frames = [];
   for (let i = 1; i <= frameCount; i++) {
     const frameNum = i.toString().padStart(3, '0');
     const frameName = name.includes('psbt') ? `psbt-frame-${frameNum}.png` : `account-frame-${frameNum}.png`;
     const framePath = path.join(framesDir, frameName);
-    
+
     if (fs.existsSync(framePath)) {
       // Copy frame to sequence directory
       const destPath = path.join(sequenceDir, `frame_${frameNum}.png`);
       fs.copyFileSync(framePath, destPath);
-      
+
       frames.push({
         frame: i - 1,
         filename: `frame_${frameNum}.png`,
         path: destPath,
       });
-      
+
       console.log(`Added frame ${i}/${frameCount} for ${name}: ${frameName}`);
     } else {
       console.warn(`Frame not found: ${framePath}`);
     }
   }
-  
+
   // Create sequence metadata
   const metadata = {
     name,
@@ -78,9 +78,9 @@ async function createAnimatedSequence(sequenceConfig) {
     generated: new Date().toISOString(),
     source: 'CI-generated frames stitched by Node.js',
   };
-  
+
   fs.writeFileSync(path.join(sequenceDir, 'sequence.json'), JSON.stringify(metadata, null, 2));
-  
+
   console.log(`Created animated sequence: ${name} (${frames.length} frames)`);
   return metadata;
 }
@@ -90,26 +90,26 @@ async function createAnimatedSequence(sequenceConfig) {
  */
 async function generateAnimatedQRSequences() {
   console.log('Stitching animated QR code sequences from CI-generated frames...');
-  
+
   // Create output directory
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-  
+
   // Check if frames directory exists
   if (!fs.existsSync(framesDir)) {
     console.warn('Animated frames directory not found. CI should have generated frames.');
     console.warn('Expected directory:', framesDir);
     return;
   }
-  
+
   // List available frames
   const availableFrames = fs.readdirSync(framesDir).filter(f => f.endsWith('.png'));
   console.log('Available frames:', availableFrames);
-  
+
   // Generate each animated sequence
   const results = [];
-  for (const [key, config] of Object.entries(animatedSequences)) {
+  for (const config of Object.values(animatedSequences)) {
     try {
       const result = await createAnimatedSequence(config);
       results.push(result);
@@ -117,10 +117,10 @@ async function generateAnimatedQRSequences() {
       console.error(`Failed to create sequence ${config.name}:`, error);
     }
   }
-  
+
   console.log('Animated QR sequence generation complete!');
   console.log(`Generated ${results.length} animated sequences`);
-  
+
   return results;
 }
 

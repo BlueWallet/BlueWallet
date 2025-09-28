@@ -294,7 +294,7 @@ function getQRImageForText(text) {
     // Bitcoin addresses
     return 'marketplace-bitcoin-address.png';
   }
-  
+
   // Default fallback
   return 'marketplace-bitcoin-address.png';
 }
@@ -302,10 +302,10 @@ function getQRImageForText(text) {
 // Function to set QR code image in virtual scene camera by text content
 async function setVirtualSceneQRFromText(text) {
   const qrImageFile = getQRImageForText(text);
-  
+
   // Use the proper image-based method
   await setVirtualSceneQRFromImage(qrImageFile);
-  
+
   console.log(`✅ Set virtual scene QR for text: ${text.substring(0, 50)}... using image: ${qrImageFile}`);
 }
 
@@ -313,14 +313,14 @@ async function setVirtualSceneQRFromText(text) {
 async function setVirtualSceneQRFromImage(imageName) {
   return new Promise(resolve => {
     const sourcePath = path.join(__dirname, 'qr-images', imageName);
-    
+
     // Get Android SDK path
     const androidHome = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
     if (!androidHome) {
       console.warn('ANDROID_HOME or ANDROID_SDK_ROOT not set, falling back to user directory');
       const fallbackDir = path.join(process.env.HOME, '.android', 'camera');
       const fallbackPath = path.join(fallbackDir, 'default-qr.png');
-      
+
       exec(`mkdir -p "${fallbackDir}" && cp "${sourcePath}" "${fallbackPath}"`, error => {
         if (error) {
           console.warn('Failed to set virtual scene QR (fallback):', error.message);
@@ -331,12 +331,12 @@ async function setVirtualSceneQRFromImage(imageName) {
       });
       return;
     }
-    
+
     // Use proper Android emulator virtual scene method
     const emulatorResourcesDir = path.join(androidHome, 'emulator', 'resources');
     const targetPath = path.join(emulatorResourcesDir, imageName);
     const posterFile = path.join(emulatorResourcesDir, 'Toren1BD.posters');
-    
+
     // Copy image to emulator resources directory
     exec(`cp "${sourcePath}" "${targetPath}"`, copyError => {
       if (copyError) {
@@ -344,13 +344,13 @@ async function setVirtualSceneQRFromImage(imageName) {
         resolve();
         return;
       }
-      
+
       // Update poster configuration to use the new image with smaller size for better scanning
       const posterContent = `poster customsize 0.5 0.5
 position 0 0 -1.2
 rotation 0 0 0
 default ${imageName}`;
-      
+
       fs.writeFileSync(posterFile, posterContent);
       console.log(`✅ Set virtual scene QR to: ${imageName} (smaller size for better scanning)`);
       resolve();
@@ -362,7 +362,7 @@ default ${imageName}`;
 export async function initVirtualSceneCamera() {
   return new Promise(resolve => {
     const androidHome = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
-    
+
     if (!androidHome) {
       console.warn('⚠️  ANDROID_HOME or ANDROID_SDK_ROOT not set');
       console.warn('Virtual scene camera may not work properly');
@@ -370,12 +370,12 @@ export async function initVirtualSceneCamera() {
       resolve();
       return;
     }
-    
+
     const emulatorResourcesDir = path.join(androidHome, 'emulator', 'resources');
     const defaultQRSource = path.join(__dirname, 'qr-images', 'marketplace-bitcoin-address.png');
     const defaultQRTarget = path.join(emulatorResourcesDir, 'marketplace-bitcoin-address.png');
     const posterFile = path.join(emulatorResourcesDir, 'Toren1BD.posters');
-    
+
     // Create resources directory if it doesn't exist
     exec(`mkdir -p "${emulatorResourcesDir}"`, mkdirError => {
       if (mkdirError) {
@@ -383,7 +383,7 @@ export async function initVirtualSceneCamera() {
         resolve();
         return;
       }
-      
+
       // Copy default QR image to resources
       exec(`cp "${defaultQRSource}" "${defaultQRTarget}"`, copyError => {
         if (copyError) {
@@ -391,13 +391,13 @@ export async function initVirtualSceneCamera() {
         } else {
           console.log('📱 Copied default QR image to emulator resources');
         }
-        
+
         // Create/update poster configuration with smaller size for better QR scanning
         const posterContent = `poster customsize 0.5 0.5
 position 0 0 -1.2
 rotation 0 0 0
 default marketplace-bitcoin-address.png`;
-        
+
         try {
           fs.writeFileSync(posterFile, posterContent);
           console.log('🎥 Virtual scene camera initialized with smaller QR poster (0.5x0.5)');
@@ -406,7 +406,7 @@ default marketplace-bitcoin-address.png`;
         } catch (writeError) {
           console.warn('Failed to write poster configuration:', writeError.message);
         }
-        
+
         resolve();
       });
     });
@@ -416,10 +416,10 @@ default marketplace-bitcoin-address.png`;
 export async function scanText(text) {
   // Set the QR code image in the virtual scene based on text content
   await setVirtualSceneQRFromText(text);
-  
+
   // Wait for camera to show the new QR code and auto-scan it
   await sleep(3000); // give time for virtual scene to update and camera to scan
-  
+
   // Only call getQRImageForText once and use the result for logging
   const qrImageFile = getQRImageForText(text);
   console.log(`Real camera scanning QR for: ${text.substring(0, 50)}... using image: ${qrImageFile}`);
@@ -429,10 +429,10 @@ export async function scanText(text) {
 export async function scanQRImage(imageName) {
   // Set the QR code image directly in the virtual scene
   await setVirtualSceneQRFromImage(imageName);
-  
+
   // Wait for camera to show the new QR code and auto-scan it
   await sleep(3000); // give time for virtual scene to update and camera to scan
-  
+
   console.log(`Real camera scanning QR image: ${imageName}`);
 }
 
@@ -440,15 +440,15 @@ export async function scanQRImage(imageName) {
 // qrFrames should be an array of UR text strings that will be converted to QR images dynamically
 export async function scanAnimatedQR(qrFrames) {
   console.log(`Scanning animated QR sequence with ${qrFrames.length} frames`);
-  
+
   // For animated sequences, we need to generate QR images from UR strings and cycle through them
   for (let i = 0; i < qrFrames.length; i++) {
     const urText = qrFrames[i];
-    
+
     // Generate temporary QR image for this UR frame
     const tempImageName = `animated_frame_${i}.png`;
     const tempImagePath = path.join(__dirname, 'qr-images', tempImageName);
-    
+
     try {
       // Generate QR code image from UR text
       const QRCode = require('qrcode');
@@ -463,13 +463,13 @@ export async function scanAnimatedQR(qrFrames) {
         },
         width: 256, // Smaller size for better virtual scene scanning
       });
-      
+
       // Set the generated image in virtual scene
       await setVirtualSceneQRFromImage(tempImageName);
       await sleep(1000); // Wait between frames
-      
+
       console.log(`Animated QR frame ${i + 1}/${qrFrames.length}: ${urText.substring(0, 50)}...`);
-      
+
       // Clean up temporary image
       if (fs.existsSync(tempImagePath)) {
         fs.unlinkSync(tempImagePath);
@@ -478,7 +478,7 @@ export async function scanAnimatedQR(qrFrames) {
       console.error(`Failed to generate/display animated QR frame ${i + 1}:`, error);
     }
   }
-  
+
   // Give extra time for the wallet to process the complete sequence
   await sleep(2000);
 }
