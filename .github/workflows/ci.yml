@@ -296,7 +296,6 @@ jobs:
     - name: Setup virtual scene camera with smaller QR codes
       run: |
         # Set up Android SDK path for virtual scene camera
-        export ANDROID_HOME=$ANDROID_HOME
         export ANDROID_SDK_ROOT=$ANDROID_HOME
         echo "ANDROID_HOME: $ANDROID_HOME"
         
