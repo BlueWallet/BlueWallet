@@ -320,7 +320,7 @@ jobs:
         # Also create fallback camera directory for compatibility
         mkdir -p $HOME/.android/camera
         cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
-     
+
     - name: Ensure emulator path (fix emulator-2)
       run: |
         SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
@@ -329,7 +329,7 @@ jobs:
           sudo ln -s "$SDK_ROOT/emulator-2" "$SDK_ROOT/emulator"
         fi
         "$SDK_ROOT/emulator/emulator" -version || true
-
+    
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -340,13 +340,7 @@ jobs:
         force-avd-creation: true
         emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back virtualscene -camera-front none -partition-size 2047"
         script: npm run e2e:release-test -- --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
-        pre-emulator-launch-script: |
-          AVD="$HOME/.android/avd/Pixel_API_29_AOSP.avd/config.ini"
-          echo "hw.camera.back=virtualscene" >> "$AVD"
-          echo "hw.camera.front=none"        >> "$AVD"
-          echo "camera.back=virtualscene"    >> "$AVD"
-          echo "camera.front=none"           >> "$AVD"
-
+    
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
