@@ -114,6 +114,19 @@ export function compareUint8Arrays(a, b) {
   return Math.sign(a.length - b.length);
 }
 
+// const cachedDecoders = {
+//   utf8: new globalThis.TextDecoder("utf8"),
+// };
+
+//
+// !!!!!!! commented out because we dont have `TextDecoder` as dep anymore !!!!!!!!
+//
+// export function uint8ArrayToString(array, encoding = "utf8") {
+//   assertUint8ArrayOrArrayBuffer(array);
+//   cachedDecoders[encoding] ??= new globalThis.TextDecoder(encoding);
+//   return cachedDecoders[encoding].decode(array);
+// }
+  
 function assertString(value) {
   if (typeof value !== 'string') {
     throw new TypeError(`Expected \`string\`, got \`${typeof value}\``);
@@ -168,10 +181,10 @@ export function stringToBase64(string, { urlSafe = false } = {}) {
   return uint8ArrayToBase64(stringToUint8Array(string), { urlSafe });
 }
 
-export function base64ToString(base64String) {
-  assertString(base64String);
-  return uint8ArrayToString(base64ToUint8Array(base64String));
-}
+// export function base64ToString(base64String) {
+//   assertString(base64String);
+//   return uint8ArrayToString(base64ToUint8Array(base64String));
+// }
 
 const byteToHexLookupTable = Array.from({ length: 256 }, (_, index) => index.toString(16).padStart(2, '0'));
 

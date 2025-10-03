@@ -133,7 +133,7 @@ console.log(uint8ArrayToString(ja, 'shift-jis'));
 //=> 'こんにちは'
 ```
 */
-export function uint8ArrayToString(array: Uint8Array | ArrayBuffer, encoding?: string): string;
+// export function uint8ArrayToString(array: Uint8Array | ArrayBuffer, encoding?: string): string;
 
 /**
 Convert a string to a `Uint8Array` (using UTF-8 encoding).

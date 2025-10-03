@@ -63,14 +63,14 @@ def enableProguardInReleaseBuilds = false
  * The preferred build flavor of JavaScriptCore (JSC)
  *
  * For example, to use the international variant, you can use:
- * `def jscFlavor = 'org.webkit:android-jsc-intl:+'`
+ * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.+`
  *
  * The international variant includes ICU i18n library and necessary data
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'org.webkit:android-jsc-intl:+'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
     androidResources {
@@ -87,7 +87,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "7.2.0"
+        versionName "7.2.1"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
@@ -127,9 +127,9 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.work:work-runtime-ktx:2.10.2'
+    implementation 'androidx.work:work-runtime-ktx:2.10.3'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.compose.ui:ui:1.8.3'
+    implementation 'androidx.compose.ui:ui:1.9.0'
     implementation 'androidx.compose.material3:material3:1.3.2'
 
     if (hermesEnabled.toBoolean()) {

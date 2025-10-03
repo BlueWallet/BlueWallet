@@ -186,7 +186,7 @@ const WalletDetails: React.FC = () => {
         }
       }
 
-      const date = transaction.received ? new Date(transaction.received).toString() : '';
+      const date = transaction.timestamp ? new Date(transaction.timestamp * 1000).toString() : '';
       const data = [date, hash, value, memo];
 
       if (wallet.chain === Chain.OFFCHAIN) {

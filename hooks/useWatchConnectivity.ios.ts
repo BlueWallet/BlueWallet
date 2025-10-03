@@ -108,7 +108,7 @@ export function useWatchConnectivity() {
       wallets.map(async wallet => {
         try {
           const receiveAddress = wallet.chain === Chain.ONCHAIN ? await wallet.getAddressAsync() : wallet.getAddress();
-          const transactions: Transaction[] = wallet
+          const transactions: Partial<Transaction>[] = wallet
             .getTransactions()
             .slice(0, 10)
             .map((transaction: Transaction & LightningTransaction) => ({
@@ -118,7 +118,7 @@ export function useWatchConnectivity() {
                 'hash' in (transaction as Transaction)
                   ? txMetadata[(transaction as Transaction).hash]?.memo || transaction.memo || ''
                   : transaction.memo || '',
-              time: transaction.received ?? transaction.time,
+              time: transaction.timestamp ?? transaction.time,
             }));
 
           const walletData = {

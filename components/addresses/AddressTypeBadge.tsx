@@ -1,24 +1,12 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useTheme } from '../themes';
 
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignSelf: 'flex-end',
-  },
-  badgeText: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-});
+type Props = { isInternal: boolean; hasTransactions: boolean };
 
-const AddressTypeBadge = ({ isInternal, hasTransactions }) => {
+export const AddressTypeBadge: React.FC<Props> = ({ isInternal, hasTransactions }) => {
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
@@ -57,9 +45,15 @@ const AddressTypeBadge = ({ isInternal, hasTransactions }) => {
   );
 };
 
-AddressTypeBadge.propTypes = {
-  isInternal: PropTypes.bool,
-  hasTransactions: PropTypes.bool,
-};
-
-export { AddressTypeBadge };
+const styles = StyleSheet.create({
+  container: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignSelf: 'flex-end',
+  },
+  badgeText: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+});

@@ -91,7 +91,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Language')).tap();
     await element(by.text('Chinese (ZH)')).tap();
     await device.pressBack();
-    await expect(element(by.text('语言'))).toBeVisible();
+    await expect(element(by.text('显示语言'))).toBeVisible();
     await element(by.id('Language')).tap();
     await element(by.text('English')).tap();
     await device.pressBack();
@@ -770,9 +770,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     );
 
     // ok, time to test wallets selector
-
     await device.pressBack();
-
     await waitForId('WalletsList');
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText(
@@ -798,6 +796,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('cr34t3d')).tap();
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
+
+    // let's test Azteco voucher scanning now, while we have a wallet
+    await device.pressBack();
+    await waitForId('WalletsList');
+    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
+    await scanText('https://azte.co/redeem?code=1111222233334444');
+    await waitForId('AztecoCode');
+    await expect(element(by.id('AztecoCode'))).toBeVisible();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

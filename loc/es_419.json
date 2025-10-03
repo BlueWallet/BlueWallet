@@ -38,6 +38,7 @@
     "redeem": "Canjear en billetera",
     "redeemButton": "Canjear",
     "success": "Éxito",
+    "successMessage": "¡Cupón canjeado correctamente! Los fondos deberían llegar a tu billetera Bitcoin en breve.",
     "title": "Canjear cupón Azte.co"
   },
   "entropy": {
@@ -160,6 +161,7 @@
     "counterparty_label_placeholder": "Editar nombre de contacto",
     "details_scan": "Escanear",
     "details_scan_hint": "Toca dos veces para escanear o importar un destino",
+    "details_scan_error": "Error de escaneo",
     "details_total_exceeds_balance": "La cantidad de envío excede el saldo disponible.",
     "details_total_exceeds_balance_frozen": "El monto del envío excede el saldo disponible. Ten en cuenta que las monedas congeladas están excluidas.",
     "details_unrecognized_file_format": "Formato de archivo no reconocido",
@@ -385,7 +387,9 @@
     "to": "A: {counterparty}",
     "updating": "Actualizando...",
     "watchOnlyWarningTitle": "Advertencia de seguridad",
-    "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo."
+    "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo.",
+    "custom_fee_warning_title": "Advertencia",
+    "custom_fee_warning_description": "Las tarifas inferiores a 1 sat/vB son válidas, pero puede que no se retransmitan debido a las políticas de los nodos."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

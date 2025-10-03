@@ -2,20 +2,33 @@
   "_": {
     "cancel": "لقو",
     "continue": "ادامه",
+    "clipboard": "ویرگه",
     "enter_password": "رزمن بزݩ",
     "of": "{number} د {total}",
     "ok": "خو",
+    "enter_url": "نشونی اینترنتی ن بزݩ",
     "yes": "ٱ",
     "no": "ن",
+    "seed": "سید",
     "success": "مۏوفق بی",
     "wallet_key": "کلٛیل کیف پیلٛ",
+    "close": "بستن",
     "refresh": "وانۊ کردن",
-    "enter_amount": "مقدارن بزݩ"
+    "pick_image": "د کتاو هونه پسند بکؽتوݩ",
+    "pick_file": "پسند فایل",
+    "enter_amount": "مقدارن بزݩ",
+    "qr_custom_input_button": "سی زؽن وۊرۊڌی سفارشی، 10 گلٛ ریش بزݩ",
+    "unlock": "واز کردن چفت",
+    "port": "پورت",
+    "ssl_port": "پورت SSL"
   },
   "azteco": {
     "codeIs": "کود تخفیف شما",
+    "errorSomething": "موشکلؽ پؽش اوما. اؽ کود تخفیف هنی قوۊل هؽ؟",
     "redeem": "ازاف کردن و کیف پیلٛ",
-    "success": "مۏوفق بی"
+    "redeemButton": "فعال کردن",
+    "success": "مۏوفق بی",
+    "title": "فعال کردن کود تخفیف Azte.co"
   },
   "entropy": {
     "title": "آنتروپی"
@@ -52,6 +65,7 @@
   },
   "receive": {
     "details_setAmount": "گرؽتن وا مقدار",
+    "details_share": "یک رسونی...",
     "header": "گرتن"
   },
   "send": {
@@ -76,9 +90,11 @@
     "fee_fast": "زلٛ",
     "fee_medium": "مؽنجا",
     "header": "کلٛ کردن",
+    "input_paste": "جا ونن",
     "psbt_sign": "امزا کردن تراکونش"
   },
   "settings": {
+    "about": "دبار",
     "about_selftest": "ر ونن خوش آزمایی",
     "about_selftest_electrum_disabled": "خوش آزمایی د هالت آفلاین د دسرس نؽ. هالت آفلاینن قیر فعال بکو ۉ دۏورته تفره بکو.",
     "about_sm_github": "گیت هاب",
@@ -94,10 +110,13 @@
     "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموݩ بۊئه؟",
     "electrum_settings_server": "سرور الکترام",
     "electrum_status": "وزیت",
+    "electrum_history": "ویرگار",
     "encrypt_title": "ٱمنیت",
     "encrypt_use": "{type} ن و کار بییر",
+    "general": "گرد ولاتی",
     "header": "سامونیا",
     "language": "زوݩ",
+    "license": "موجوز",
     "lightning_settings": "سامونیا لایتنینگ",
     "network": "شبکه",
     "network_electrum": "سرور الکترام",
@@ -114,26 +133,114 @@
     "copy_link": "لٛف گری لینگ",
     "details_copy": "لٛف گری",
     "date": "ویرگار",
-    "details_received": "گرته بیه"
+    "details_received": "گرته بیه",
+    "details_title": "تراکونش",
+    "list_title": "تراکونشیا",
+    "transaction": "تراکونش",
+    "open_url_error": "نا مووفق د واز کردن لینگ وا گشت گر پؽش فرز. گشت گر پؽش فرز خوته آلشت کوݩ ۉ د نۊ تفره بکوݩ."
   },
   "wallets": {
     "add_bitcoin": "بیت کوین",
     "add_entropy": "آنتروپی",
+    "add_wallet_type": "نوع",
     "details_address": "آدرس",
-    "details_advanced": "پؽش رته"
+    "details_advanced": "پؽش رته",
+    "details_delete": "پاک کردن",
+    "details_delete_wallet": "پاک کردن کیف پیلٛ",
+    "details_derivation_path": "تۏر موشتق بیؽن",
+    "details_display": "نشوݩ دؽن مؽن بلگه ٱسلی",
+    "details_export_backup": "و در کردن نۏسخه لادرار",
+    "details_export_history": "گرتن ۉ و در کشیئن ویرگار و فورمت CSV",
+    "details_multisig_type": "چند امزایی",
+    "details_show_xpub": "نشوݩ دؽن XPUB کیف پیلٛ",
+    "details_show_addresses": "نشوݩ دؽن آدرسیا",
+    "details_title": "کیف پیلٛ",
+    "wallets": "کیف پیلٛیا",
+    "details_type": "نوع",
+    "details_yes_delete": "ٱ پاک کوݩ",
+    "enter_bip38_password": "رزمن سی رزم گوشایی بزنؽت",
+    "export_title": "و در کشیئن کیف پیلٛ",
+    "import_do_import": "و مؽن اووردن",
+    "import_passphrase": "پس فریز (Passphrase)",
+    "import_passphrase_title": "پس فریز (Passphrase)",
+    "import_imported": "و مؽن اوما",
+    "import_scan_qr": "اسکن یا و مؽن اووردن فایل",
+    "import_success": "کیف پیلٛ شما وا مووفقیت و مؽن اوما.",
+    "import_title": "و مؽن اووردن",
+    "learn_more": "بیشتر دونسۊیت",
+    "import_discovery_title": "جۊرسن",
+    "import_discovery_subtitle": "کیف پیلٛ جۊرسه بیه ن پسند بکؽت",
+    "import_discovery_derivation": "و کار گرتن تۏر موشتق دلخا",
+    "import_discovery_no_wallets": "کیف پیلٛی نجۊرس",
+    "import_derivation_found": "جۊرس",
+    "import_derivation_found_not": "نجۊرس",
+    "import_derivation_loading": "ها بار ونی مۊئه...",
+    "paste_from_clipboard": "جا ونن",
+    "import_file": "و مؽن اووردن فایل",
+    "list_long_scan": "اسکن کود QR",
+    "list_title": "کیف پیلٛیا",
+    "list_tryagain": "دۏورته تفره بکوݩ"
   },
   "multisig": {
+    "provide_signature": "دین امزا",
     "confirm": "تایید",
     "header": "کلٛ کردن",
+    "share": "یک رسونی...",
+    "view": "سلٛ",
+    "shared_key_detected": "امزا کوݩ هومبهر",
+    "scan_or_import_file": "اسکن یا و من اوردن فایل",
+    "export_coordination_setup": "ر ونن هماهنگی و در کشین",
+    "cosign_this_transaction": "اؽ تراکونشن و جۊر هومبهر امزا مؽکیتوݩ؟",
+    "legacy_title": "Legacy",
     "co_sign_transaction": "امزا کردن تراکونش",
+    "what_is_vault_numberOfWallets": "چند امزایی {m} د {n} ",
+    "what_is_vault_wallet": "کیف پیلٛ",
     "of": "د",
+    "wallet_type": "نوع کیف پیلٛ",
+    "not_a_multisignature_xpub": "ی XPUB د ی کیف پیلٛ چند امزایی نؽ!",
+    "scan_or_open_file": "اسکن یا واز کردن فایل",
+    "forget_this_seed": "اؽ سید د ویرت روئه ۉ د جالش XPUB ن و کار بیر.",
     "ms_help_title5": "هالت پؽش رته"
   },
   "cc": {
-    "sort_status": "وزیت"
+    "change": "باقی منه",
+    "header": "دؽونداری کردن",
+    "use_coin": "و کار گرتن کوین",
+    "use_coins": "و کار گرتن کوینیا",
+    "sort_value": "مقدار",
+    "sort_status": "وزیت",
+    "sort_by": "ترتیب و ری"
+  },
+  "units": {
+    "BTC": "بیت کوین",
+    "MAX": "گرد مۉجۊدی",
+    "sat_vbyte": "ساتۊشی/بایت مجازی",
+    "sats": "ساتۊشی"
   },
   "addresses": {
+    "sign_sign": "امزا کردن",
+    "sign_verify": "دۏرۏسی سنجی",
+    "sign_signature_correct": "دۏرۏسی سنجی مووفق بی!",
+    "sign_signature_incorrect": "دۏرۏسی سنجی شکست هرد!",
     "sign_placeholder_address": "آدرس",
-    "type_receive": "گرتن"
+    "sign_placeholder_message": "پیوم",
+    "sign_placeholder_signature": "امزا",
+    "addresses_title": "آدرسیا",
+    "type_change": "باقی منه",
+    "type_receive": "گرتن",
+    "type_used": "و کار گرته بیه",
+    "transactions": "تراکونشیا"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "مؽهایت هساوی مؽن",
+    "login_question_part_1": "مؽهایت مؽن",
+    "auth_question_part_1": "مؽهایت مؽن",
+    "authenticate": "ائراز"
+  },
+  "bip47": {
+    "payment_code": "کود پرداخت",
+    "contacts": "هومدنگیا",
+    "add_contact": "اوردن هومدنگ",
+    "not_found": "کود پرداخت نجۊرست"
   }
 }

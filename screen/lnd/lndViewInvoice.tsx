@@ -20,11 +20,11 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
+import { LightningCustodianWallet } from '../../class';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
-  invoice: LightningTransaction;
+  invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
 };
 
 const LNDViewInvoice = () => {
@@ -35,8 +35,7 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find(w => w.getID() === walletID);
-  const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
@@ -106,16 +105,17 @@ const LNDViewInvoice = () => {
   }, [colors, isModal]);
 
   useEffect(() => {
+    console.log('LNDViewInvoice - useEffect', { invoice });
+
     if (!wallet) {
       return;
     }
-    console.log('LNDViewInvoice - useEffect');
-    if (!invoice.ispaid) {
+    if (!(invoice as LightningTransaction).ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
             // @ts-ignore - getUserInvoices is not set on TWallet
-            const userInvoices = await wallet.getUserInvoices(20);
+            const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
             // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
@@ -124,18 +124,19 @@ const LNDViewInvoice = () => {
                 ? filteredInvoice.payment_request === invoice.payment_request
                 : filteredInvoice.payment_request === invoice,
             )[0];
-            if (typeof updatedUserInvoice !== 'undefined') {
+            if (updatedUserInvoice) {
               setInvoiceStatusChanged(true);
               setParams({ invoice: updatedUserInvoice });
-              setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
+                clearInterval(fetchInvoiceInterval.current);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
                 fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
                 const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-                const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+                const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
                   fetchAndSaveWalletTransactions(walletID);
@@ -151,22 +152,17 @@ const LNDViewInvoice = () => {
           }
         }
       }, 3000);
-    } else {
-      setIsFetchingInvoices(false);
-      clearInterval(fetchInvoiceInterval.current);
-      fetchInvoiceInterval.current = undefined;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const navigateToPreImageScreen = () => {
-    navigate('LNDViewAdditionalInvoicePreImage', {
-      preImageData: invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? invoice.payment_preimage : 'none',
-    });
+  const navigateToPreImageScreen = (preImageData: string) => {
+    navigate('LNDViewAdditionalInvoicePreImage', { preImageData });
   };
 
   const handleOnSharePressed = () => {
+    if (typeof invoice === 'string' || !invoice.payment_request) return;
     Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
   };
 
@@ -175,6 +171,7 @@ const LNDViewInvoice = () => {
   };
 
   useEffect(() => {
+    if (typeof invoice === 'string') return;
     if (invoice.ispaid && invoiceStatusChanged) {
       setInvoiceStatusChanged(true);
     }
@@ -193,13 +190,6 @@ const LNDViewInvoice = () => {
   };
 
   const render = () => {
-    if (isLoading) {
-      return (
-        <View style={[styles.root, stylesHook.root]}>
-          <BlueLoading />
-        </View>
-      );
-    }
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
@@ -235,7 +225,11 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.date_time}: {invoiceDate}
               </Text>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity accessibilityRole="button" style={styles.detailsTouch} onPress={navigateToPreImageScreen}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  style={styles.detailsTouch}
+                  onPress={() => navigateToPreImageScreen(String(invoice.payment_preimage))}
+                >
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
                   <Icon
                     name={direction === 'rtl' ? 'angle-left' : 'angle-right'}
@@ -288,6 +282,23 @@ const LNDViewInvoice = () => {
           </ScrollView>
         );
       }
+    } else if (invoice) {
+      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
+      // and more data is rendered)
+      return (
+        <View style={[styles.activeRoot, stylesHook.root]}>
+          <View style={styles.activeQrcode}>
+            <QRCodeComponent value={invoice} size={qrCodeSize} />
+          </View>
+        </View>
+      );
+    } else {
+      // something is not right
+      return (
+        <View style={[styles.root, stylesHook.root]}>
+          <BlueTextCentered>Internal error: invoice is not provided</BlueTextCentered>
+        </View>
+      );
     }
   };
 
