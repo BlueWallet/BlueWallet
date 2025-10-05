@@ -13,15 +13,11 @@ enum WidgetCommunicationKeys {
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
 }
 
-// Constants for widget data values
 const WIDGET_ENABLED = '1';
 const WIDGET_DISABLED = '0';
 const WIDGET_CLEARED_VALUE = '0';
 
-// Timestamp conversion utilities
-// Transaction timestamps are in seconds, iOS widgets expect milliseconds
 const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
-const millisecondsToSeconds = (milliseconds: number): number => Math.floor(milliseconds / 1000);
 
 DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
