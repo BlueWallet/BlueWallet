@@ -1685,7 +1685,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       bobBip47,
       keyPair.privateKey as Buffer,
       // txid is reversed, as well as output number
-      uint8ArrayToHex(new Uint8Array(hexToUint8Array(inputsTemp[0].txid)).reverse()) + uint8ArrayToHex(outputNumber),
+      uint8ArrayToHex(hexToUint8Array(inputsTemp[0].txid).reverse()) + outputNumber.toString('hex'),
     );
 
     // targets:

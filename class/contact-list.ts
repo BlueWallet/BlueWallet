@@ -32,7 +32,7 @@ export class ContactList {
       const decoded = bitcoin.address.fromBech32(address);
       if (decoded.version === 0) return true;
       if (decoded.version === 1 && decoded.data.length !== 32) return false;
-      if (decoded.version === 1 && !ecc.isPoint(Buffer.from(concatUint8Arrays([new Uint8Array([2]), decoded.data])))) return false;
+      if (decoded.version === 1 && !ecc.isPoint(concatUint8Arrays([new Uint8Array([2]), decoded.data]))) return false;
       if (decoded.version > 1) return false;
       // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
       return true;

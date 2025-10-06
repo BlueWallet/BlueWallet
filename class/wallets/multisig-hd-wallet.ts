@@ -13,7 +13,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
-import { uint8ArrayToHex, hexToUint8Array, concatUint8Arrays } from '../../blue_modules/uint8array-extras';
+import { uint8ArrayToHex, hexToUint8Array, concatUint8Arrays, uint8ArrayToString } from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -517,7 +517,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (secret.toUpperCase().startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]) as string;
       const b = hexToUint8Array(decoded);
-      secret = new TextDecoder().decode(b);
+      secret = uint8ArrayToString(b);
     }
 
     // is it Coldcard json file?
@@ -629,10 +629,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const re = /\[([^\]]+)\](.*)/;
         const m = s3[c].match(re);
         if (m && m.length === 3) {
-          let hexFingerprint = m[1].split('/')[0];
-          if (hexFingerprint.length === 8) {
-            hexFingerprint = uint8ArrayToHex(hexToUint8Array(hexFingerprint));
-          }
+          const hexFingerprint = m[1].split('/')[0];
 
           let path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
           if (path === 'm/') {
@@ -1071,7 +1068,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static isPathValid(path: string): boolean {
-    const root = bip32.fromSeed(Buffer.from(new Uint8Array(32)));
+    const root = bip32.fromSeed(Buffer.alloc(32));
     try {
       root.derivePath(path);
       return true;
