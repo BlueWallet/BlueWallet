@@ -1274,7 +1274,7 @@ PODS:
     - React-Core
   - react-native-capture-protection (2.0.7):
     - React-Core
-  - react-native-document-picker (10.1.5):
+  - react-native-document-picker (10.1.7):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2312,7 +2312,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: d2d5ced5fead227abb1304518d55774de19c3021
-  react-native-document-picker: d71fb688c2a16a1ad30a622ba2fe4461531dbd57
+  react-native-document-picker: e1dc1c14b246540c048afc6dadfce2efe9f21f95
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb
   react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
