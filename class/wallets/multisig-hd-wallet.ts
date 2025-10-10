@@ -13,6 +13,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
+import { uint8ArrayToHex, hexToUint8Array, concatUint8Arrays, uint8ArrayToString } from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -249,7 +250,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static convertMultisigXprvToRegularXprv(Zprv: string) {
     let data = b58.decode(Zprv);
     data = data.slice(4);
-    return b58.encode(Buffer.concat([Buffer.from('0488ade4', 'hex'), data]));
+    return b58.encode(concatUint8Arrays([hexToUint8Array('0488ade4'), data]));
   }
 
   static convertXprvToXpub(xprv: string) {
@@ -379,9 +380,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7ed3', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('02aa7ed3'), data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b43f', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('0295b43f'), data]));
     }
 
     return xpub;
@@ -391,9 +392,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7a99', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('02aa7a99'), data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b005', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('0295b005'), data]));
     }
 
     return xpub;
@@ -515,8 +516,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   setSecret(secret: string) {
     if (secret.toUpperCase().startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]) as string;
-      const b = Buffer.from(decoded, 'hex');
-      secret = b.toString();
+      const b = hexToUint8Array(decoded);
+      secret = uint8ArrayToString(b);
     }
 
     // is it Coldcard json file?
@@ -628,10 +629,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const re = /\[([^\]]+)\](.*)/;
         const m = s3[c].match(re);
         if (m && m.length === 3) {
-          let hexFingerprint = m[1].split('/')[0];
-          if (hexFingerprint.length === 8) {
-            hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
-          }
+          const hexFingerprint = m[1].split('/')[0];
 
           let path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
           if (path === 'm/') {
@@ -1131,7 +1129,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
       // from non-segwit inputs
       for (const inp of psbt.txInputs) {
-        const cacheKey = Buffer.from(inp.hash).reverse().toString('hex') + ':' + inp.index;
+        const cacheKey = uint8ArrayToHex(new Uint8Array(inp.hash).reverse()) + ':' + inp.index;
         if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
       }
     }
