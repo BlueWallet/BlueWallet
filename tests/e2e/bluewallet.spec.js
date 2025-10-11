@@ -2,7 +2,9 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import {
-  scanText,
+  scanQRImage,
+  scanAnimatedQR,
+  initVirtualSceneCamera,
   expectToBeVisible,
   extractTextFromElementById,
   hashIt,
@@ -29,6 +31,11 @@ console.warn = console.log = (...args) => {
  * this testsuite is for test cases that require no wallets to be present
  */
 describe('BlueWallet UI Tests - no wallets', () => {
+  beforeAll(async () => {
+    // Initialize virtual scene camera for QR code testing
+    await initVirtualSceneCamera();
+  });
+
   it('selftest passes', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t1');
     if (process.env.TRAVIS) {
@@ -498,15 +505,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('VaultCosignerImport1')).tap();
     await element(by.id('ScanOrOpenFile')).tap();
 
-    await sleep(5000); // wait for camera screen to initialize
-    await waitForId('ScanQrBackdoorButton');
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-    }
-    await element(by.id('scanQrBackdoorInput')).replaceText(
-      'pipe goose bottom run seed curious thought kangaroo example family coral success',
-    );
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanQRImage('seed-phrase-multisig.png');
     await element(by.id('DoImportKeyButton')).tap(); // when seed - need to extra tap the button
 
     // key2 - xpub:
@@ -514,14 +513,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('VaultCosignerImport2')).tap();
     await element(by.id('ScanOrOpenFile')).tap();
 
-    await sleep(5000); // wait for camera screen to initialize
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-    }
-    await element(by.id('scanQrBackdoorInput')).replaceText(
-      'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
-    );
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanQRImage('ur-crypto-account.png');
     // when xpub - it automatically closes the modal, so no need to tap the button
 
     await element(by.id('CreateButton')).tap();
@@ -569,16 +561,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
-    for (const ur of urs) {
-      // tapping 5 times invisible button is a backdoor:
-      await sleep(5000); // wait for camera screen to initialize
-      for (let c = 0; c <= 5; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
-      }
-      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
-      await element(by.id('scanQrBackdoorOkButton')).tap();
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
+    await scanAnimatedQR(urs);
 
     if (process.env.TRAVIS) await sleep(60000);
     await waitForText('OK', 3 * 61000); // waiting for wallet import
@@ -615,7 +598,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await element(by.id('ProvideSignature')).tap();
     await element(by.id('PsbtMultisigQRCodeScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
+    await element(by.id('CosignedScanOrImportFile')).tap();
 
     const ursSignedByPassport = [
       'UR:CRYPTO-PSBT/22-4/LPCMAACFAXPLCYZTVYVOPKHDWPHKAXPYJOIHIDHNJSATRTSWEYGUHDURWYDECAGLAAHTTBHTFZFPWDRTLROXLUEHCXAHJTIHTEHDHKTEVTOTIOWFSKGEOSCFFLDRGLFTCYKELSRDNSHYGLLEVYIDGYZOEEDAAOENHGASFDHFVWNSATVYCFETATZSFROXFPMHGUJNWDSPNYMHHGPAIMGYURAYCXLEZEZSCLKBJZLFSRAOOYMSYNCEHDOSPYGTTDSODRSKLALBCAVYBNOLOEGSOYVOVLMWFDPFHGBAVDAEAEAEADADWMDTGDPTADAEADADSTENFYASFDTBCLDINBAOHFHYTPPKWYMSSNDKHKKNUOIELPDRKTOYHPCFCSWNFXPKFZNEPKVOIOCNAOAXMNPSKPLTGYFLRHLOHGUYKISWBWVEGUGMLAAYDLLDLSAAVDTDSADLIDFXYLKKFYURMTOXLKMDRSTYTERSJNHSBDPSGOGWJKJESTWLZCTKGE',
@@ -624,38 +607,20 @@ describe('BlueWallet UI Tests - no wallets', () => {
       'UR:CRYPTO-PSBT/416-4/LPCFADNBAACFAXPLCYZTVYVOPKHDWPONBWDWPACLGTAEIDWLWZBAZODNCSMSEHZELBIYDLMWCSHDIADKNYWNZSSGPKVEFLMKLRKNCELEDAMYEMBYKIJKFNDEDMIAHPLBRDPMLTROWMFNWSLTROCMIOYKWPFZDSLGLGDKWSOYPFAHMODAMYENSAIOSEGAZEEHTSLBKGOEDMWZUTRFNYJEKIPEEMIYJSOTUEZERORFPSGRPABSSKLOGOONAECAGRSFBDLRWFEMLNSALRCWZOWNLPHNPTNSLPJTKBMTEYNSISTAFTEHSEGDOTENSNMHKNFGCLFXOXMYPLCELTKOMTNEGRTOJYGURHKGPMTAFHHKWPKIOTJPGWVSKNSKSSFTOYPTKKSGSRFGIORHMDDAFHNYKTHPCPOTKEGELANNLEWEGMJEKPIYGYSFECJNCWFNRYVLTBTBWPHTKBISTLRLDEMWADCWMNKTTARKDRJSZCJPLRCNFSHGNEGAMTYLVLGOWS',
     ];
 
-    for (const ur of ursSignedByPassport) {
-      // tapping 5 times invisible button is a backdoor:
-      await sleep(5000); // wait for camera screen to initialize
-      for (let c = 0; c <= 5; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
-      }
-      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
-      await element(by.id('scanQrBackdoorOkButton')).tap();
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
+    await scanAnimatedQR(ursSignedByPassport);
 
     await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
 
     await element(by.id('ProvideSignature')).tap();
     await element(by.id('PsbtMultisigQRCodeScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
+    await element(by.id('CosignedScanOrImportFile')).tap();
 
     const urSignedByPassportAndKeystone = [
       'UR:CRYPTO-PSBT/105-2/LPCSINAOCFAXOLCYSBLUFDHSHKADTEHKAXOTJOJKIDJYZMADAEKIAOAEAEAEADSGMHIEQDIAFLKPVABAJEHLLNVLRKKPCPDAHYNSOTTSOYBTIMMUCYAASSMDAMDAMKAEAEAEAEAEZMZMZMZMAOGDSRAEAEAEAEAEAECMAEBBKBOTLPWFGMRNINIMPFYNWLGEBAVTVLSWTYPAGEGUWFVLAEAEAEAEAEAECPAECXHEJTWTTTWEPDFMMDSNYKDPRYZMRLBARSPAAYLETDCLGDJKIHBNTYFXCHNNWTRHFEAEAEAEAEAEADAEWDAOAEAEAEAEADADSTENIYASISYLVDVLGWCXRPBWVYVSDALOTLCESKTTFEJTWDTBPTECMOMNLNDABSDTADAEAEAEAEADAEAELAAOGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOONMOAOAEAEAEAEAECMAEBBMNAMRTRKDYGUHDURWSVOLGDRRLESMEDLOLGWLYNTAOFLDYFYAOCXDYYTJOMYYAUELEDYKIYLADUROYFNURDRGLFTCYKEKEFEIAOYGSTNCPIDGYZOEEDAAOCXHGCAENYKHNJLGOHEJOGMRLBNTDWYGWJOPFPYFMKKTISROXGMIMGYURAYCXLEUOZSADCLAOJPBGWSASPTIATTPMLECMPRIHSTMDJYLOYKTKRTHHTLSTFZKPOYWKBKROASBGBAVDAEAEAEAEADADDNGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOCPAOAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAFLDYFYAOCXISRERKHDRDGAPMATEHJLFL',
       'UR:CRYPTO-PSBT/158-2/LPCSNNAOCFAXOLCYSBLUFDHSHKADTEZECFFTHDETNBADMOCLINLNOSOXZEYKGDPYTPKTRETNURTIZOPDAOCXIAAOWETTJKMDUOSBONAASWNLMERLZSGLCYCTGAKBDAFHGHWKMTRSNLAAYKFWWPRSADADAHFLGMCLAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCLAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAGMPLCPAMAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAECPAMAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAACETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAEAEAEADADFLGMCLAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCLAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKGMPLCPAOAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAECPAOAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAEAENNHKLKUO',
     ];
 
-    for (const ur of urSignedByPassportAndKeystone) {
-      // tapping 5 times invisible button is a backdoor:
-      await sleep(5000); // wait for camera screen to initialize
-      for (let c = 0; c <= 5; c++) {
-        await element(by.id('ScanQrBackdoorButton')).tap();
-      }
-      await element(by.id('scanQrBackdoorInput')).replaceText(ur);
-      await element(by.id('scanQrBackdoorOkButton')).tap();
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
+    await scanAnimatedQR(urSignedByPassportAndKeystone);
 
     await waitFor(element(by.id('ExportSignedPsbt'))).toBeVisible();
 
@@ -742,8 +707,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
 
     await helperCreateWallet();
-    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
-    await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await element(by.id('HomeScreenScanButton')).tap();
+    await scanQRImage('bip21-simple.png');
     await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
     // now, gona import second wallet (ln) and test bip21 with both onchain and offchain present
@@ -755,16 +720,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
     await element(by.id('ImportWallet')).tap();
     await element(by.id('ScanImport')).tap();
-    await scanText('lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol');
+    await scanQRImage('lndhub-connection.png');
     await waitForText('OK', 30_000); // waiting for wallet import
     await element(by.text('OK')).tap();
 
     // imported
 
-    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
-    await scanText(
-      'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
-    );
+    await element(by.id('HomeScreenScanButton')).tap();
+    await scanQRImage('lightning-invoice.png');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
@@ -772,10 +735,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // ok, time to test wallets selector
     await device.pressBack();
     await waitForId('WalletsList');
-    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
-    await scanText(
-      'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
-    );
+    await element(by.id('HomeScreenScanButton')).tap();
+    await scanQRImage('bip21-with-lightning.png');
 
     await waitForId('SelectWalletsList');
     await element(by.text('Imported Lightning')).tap();
@@ -787,10 +748,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await device.pressBack();
     await waitForId('WalletsList');
-    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
-    await scanText(
-      'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
-    );
+    await element(by.id('HomeScreenScanButton')).tap();
+    await scanQRImage('bip21-with-lightning.png');
 
     await waitForId('SelectWalletsList');
     await element(by.text('cr34t3d')).tap();
@@ -800,8 +759,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // let's test Azteco voucher scanning now, while we have a wallet
     await device.pressBack();
     await waitForId('WalletsList');
-    await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
-    await scanText('https://azte.co/redeem?code=1111222233334444');
+    await element(by.id('HomeScreenScanButton')).tap();
+    await scanQRImage('azteco-voucher.png');
     await waitForId('AztecoCode');
     await expect(element(by.id('AztecoCode'))).toBeVisible();
 
