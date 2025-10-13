@@ -139,6 +139,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           style={[styles.input, stylesHook.input]}
           value={password}
           onChangeText={setPassword}
+          clearButtonMode={isSuccess ? 'never' : 'while-editing'}
           placeholder={placeholder}
           placeholderTextColor={colors.alternativeTextColor}
           secureTextEntry
@@ -148,7 +149,6 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           onSubmitEditing={handleSubmit}
           returnKeyType="done"
           enablesReturnKeyAutomatically={true}
-          showSoftInputOnFocus={true}
         />
 
         {isSuccess && (
