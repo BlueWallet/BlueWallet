@@ -144,7 +144,6 @@ const UnlockWith: React.FC = () => {
         passwordInputRef.current?.showError();
         dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
         isUnlockingWallets.current = false;
-        
         // Wait for shake animation to complete, then retry
         setTimeout(() => {
           unlockWithKey(true);
