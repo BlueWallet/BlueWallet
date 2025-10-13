@@ -73,7 +73,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
       showSuccess: () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         setIsSuccess(true);
-        
+
         // Dismiss keyboard on success
         inputRef.current?.blur();
 
