@@ -12,6 +12,7 @@ let unlockAttempt = 0;
 type PasswordPromptCallback = () => Promise<string | undefined>;
 
 export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: PasswordPromptCallback): Promise<boolean> => {
+  // If wallets are already loaded, no need to migrate, decrypt, or load from disk.
   if (BlueApp.getWallets().length > 0) {
     return true;
   }
