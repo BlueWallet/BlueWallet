@@ -111,7 +111,7 @@ export default class PayjoinTransaction {
     });
   }
 
-  async isOwnOutputScript(outputScript: Buffer) {
+  async isOwnOutputScript(outputScript: Uint8Array) {
     const address = bitcoin.address.fromOutputScript(outputScript);
 
     return this._wallet.weOwnAddress(address);
