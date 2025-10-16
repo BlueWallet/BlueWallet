@@ -1,8 +1,12 @@
 package io.bluewallet.bluewallet
 
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
@@ -32,6 +36,30 @@ class MainActivity : ReactActivity() {
     override fun onResume() {
         super.onResume()
         Log.d("MainActivity", "MainActivity resumed. Confirming single instance is active.")
+        
+        // Check if we should show cache cleared alert
+        checkAndShowCacheClearedAlert()
+    }
+    
+    private fun checkAndShowCacheClearedAlert() {
+        val sharedPref = getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        val shouldShowAlert = sharedPref.getBoolean("shouldShowCacheClearedAlert", false)
+        
+        if (shouldShowAlert) {
+            // Reset the flag
+            sharedPref.edit()
+                .putBoolean("shouldShowCacheClearedAlert", false)
+                .apply()
+            
+            // Show alert after a short delay to ensure UI is ready
+            Handler(Looper.getMainLooper()).postDelayed({
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.cache_cleared_title)
+                    .setMessage(R.string.cache_cleared_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }, 500)
+        }
     }
 
     /**

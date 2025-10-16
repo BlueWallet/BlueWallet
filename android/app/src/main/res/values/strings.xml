@@ -21,4 +21,16 @@
     
     <string name="loading_placeholder">%1$s</string>
     <string name="error_placeholder">%1$s</string>
+    
+    <!-- Settings Preferences -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_report_issue_title">Report Issue</string>
+    <string name="settings_report_issue_footer">Provide this Unique ID when reporting an issue</string>
+    <string name="settings_unique_id_title">Unique ID</string>
+    <string name="settings_cache_title">Cache</string>
+    <string name="settings_clear_cache_title">Clear Cache on Next Launch</string>
+    <string name="settings_clear_cache_summary">Enable to clear all cached files when the app starts next time</string>
+    <string name="cache_cleared_title">Cache Cleared</string>
+    <string name="cache_cleared_message">The document, cache, and temp directories have been cleared.</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
 </resources>
