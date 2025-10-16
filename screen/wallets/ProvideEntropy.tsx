@@ -24,6 +24,7 @@ import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;
@@ -124,9 +125,9 @@ export const getEntropy = (number: number, base: number): TEntropy | null => {
   return null;
 };
 
-// cut entropy to bytes, convert to Buffer
-export const convertToBuffer = ({ entropy, bits }: { entropy: BN; bits: number }): Buffer => {
-  if (bits < 8) return Buffer.from([]);
+// cut entropy to bytes, convert to Uint8Array
+export const convertToBuffer = ({ entropy, bits }: { entropy: BN; bits: number }): Uint8Array => {
+  if (bits < 8) return new Uint8Array([]);
   const bytes = Math.floor(bits / 8);
 
   // convert to byte array
@@ -148,7 +149,7 @@ export const convertToBuffer = ({ entropy, bits }: { entropy: BN; bits: number }
     const zeros = [...Array(bytes - arr2.length)].map(() => 0);
     arr2 = [...zeros, ...arr2];
   }
-  return Buffer.from(arr2);
+  return new Uint8Array(arr2);
 };
 
 const Coin = ({ push }: { push: TPush }) => (
@@ -320,14 +321,14 @@ const ProvideEntropy = () => {
           onPress: async () => {
             if (remaining > 0) {
               const random = await randomBytes(remaining);
-              buf = Buffer.concat([buf, random], bufLength);
+              buf = concatUint8Arrays([buf, random], bufLength);
             }
 
-            /* Convert Buffer to hex string before navigating as React Navigation
-              does not support passing Buffer objects between screens
+            /* Convert Uint8Array to hex string before navigating as React Navigation
+              does not support passing Uint8Array objects between screens
             */
 
-            const popTo = StackActions.popTo('AddWallet', { entropy: buf.toString('hex'), words }, { merge: true });
+            const popTo = StackActions.popTo('AddWallet', { entropy: uint8ArrayToHex(buf), words }, { merge: true });
 
             navigation.dispatch(popTo);
           },
