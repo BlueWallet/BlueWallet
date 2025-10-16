@@ -56,7 +56,7 @@ class MarketWidget : AppWidgetProvider() {
         fun updateAllWidgets(context: Context) {
             val widgetIds = getAllWidgetIds(context)
             if (widgetIds.isNotEmpty()) {
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context, widgetIds)
+                MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
             }
         }
         
@@ -68,8 +68,7 @@ class MarketWidget : AppWidgetProvider() {
                     updateAppWidget(context, appWidgetManager, widgetId)
                 }
                 
-                // Schedule an immediate update
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context, widgetIds, true)
+                MarketWidgetUpdateWorker.scheduleMarketUpdate(context, forceUpdate = true)
                 
                 Log.d(TAG, "Scheduled immediate market widget update")
             }
@@ -97,13 +96,9 @@ class MarketWidget : AppWidgetProvider() {
             // Create RemoteViews to update the widget
             val views = RemoteViews(context.packageName, R.layout.widget_market)
             
-            // Set network status indicator visibility
             views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
             
-            // Apply theme appropriate styling if needed beyond resource qualifiers
-            applyTheme(context, views)
-            
-            // Add click intent to open the app as a single instance
+            // Add click intent to open the app
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or 
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or 
@@ -142,19 +137,13 @@ class MarketWidget : AppWidgetProvider() {
             
             // Schedule update if network available, otherwise retry in 30 seconds
             if (isNetworkAvailable) {
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context, intArrayOf(appWidgetId))
+                MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
             } else {
-                MarketWidgetUpdateWorker.scheduleRetryOnNetworkAvailable(context, intArrayOf(appWidgetId))
+                MarketWidgetUpdateWorker.scheduleRetryOnNetworkAvailable(context)
             }
         }
         
-        /**
-         * Apply theme based on current system settings or user preference
-         */
-        private fun applyTheme(context: Context, views: RemoteViews) {
-            // No manual styling needed here as we're using resource qualifiers (values-night)
-            // This is a stub for any future manual theme adjustments
-        }
+
         
         private fun storeConnectivityStatus(context: Context, isOnline: Boolean) {
             val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
@@ -199,25 +188,42 @@ class MarketWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-        Log.d("MarketWidget", "MarketWidget updated. Confirming interaction with MainActivity.")
+        Log.d(TAG, "MarketWidget onUpdate called. Widget IDs: ${appWidgetIds.joinToString()}")
         
-        // First update widgets with existing data
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
         
-        // Then schedule a work request to fetch fresh data
-        MarketWidgetUpdateWorker.scheduleMarketUpdate(context, appWidgetIds)
+        MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        Log.d(TAG, "MarketWidget enabled")
+        Log.d(TAG, "MarketWidget enabled - First widget added")
+        val widgetIds = getAllWidgetIds(context)
+        if (widgetIds.isNotEmpty()) {
+            MarketWidgetUpdateWorker.scheduleMarketUpdate(context, forceUpdate = true)
+        }
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        Log.d(TAG, "MarketWidget disabled")
-        WorkManager.getInstance(context).cancelUniqueWork(MarketWidgetUpdateWorker.WORK_NAME)
+        Log.d(TAG, "MarketWidget disabled - Last widget removed")
+        // Cancel all scheduled work when last widget is removed
+        val workManager = WorkManager.getInstance(context)
+        workManager.cancelUniqueWork(MarketWidgetUpdateWorker.WORK_NAME)
+        workManager.cancelUniqueWork(MarketWidgetUpdateWorker.NETWORK_RETRY_WORK_NAME)
+        
+        // Clear cached data
+        clearMarketData(context)
+    }
+    
+    private fun clearMarketData(context: Context) {
+        context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(MarketData.PREF_KEY)
+            .remove(KEY_LAST_ONLINE_STATUS)
+            .apply()
+        Log.d(TAG, "Market widget data cleared")
     }
 }
