@@ -29,7 +29,6 @@ import loc from '../../loc';
 import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
-import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -333,7 +332,7 @@ export default class SelfTest extends Component {
 
       //
 
-      assertStrictEqual(uint8ArrayToHex(hexToUint8Array('00ff0f').reverse()), '0fff00');
+      assertStrictEqual(Buffer.from('00ff0f', 'hex').reverse().toString('hex'), '0fff00');
 
       //
     } catch (Err) {
