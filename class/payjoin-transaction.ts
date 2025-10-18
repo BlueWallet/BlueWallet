@@ -110,10 +110,4 @@ export default class PayjoinTransaction {
       }
     });
   }
-
-  async isOwnOutputScript(outputScript: Buffer) {
-    const address = bitcoin.address.fromOutputScript(outputScript);
-
-    return this._wallet.weOwnAddress(address);
-  }
 }

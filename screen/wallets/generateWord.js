@@ -43,7 +43,7 @@ const GenerateWord = () => {
     }
 
     const random = await randomBytes(1);
-    const randomindex = Math.round((random.readUInt8(0) / 255) * (possibleWords.length - 1));
+    const randomindex = Math.round((random[0] / 255) * (possibleWords.length - 1));
 
     setResult(possibleWords[randomindex]);
   };

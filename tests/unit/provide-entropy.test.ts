@@ -105,39 +105,39 @@ describe('getEntropy function', () => {
 describe('convertToBuffer function', () => {
   it('zero bits', () => {
     const state = eReducer(undefined, { type: EActionType.noop });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([]));
   });
 
   it('8 zero bits', () => {
     const state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 8 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([0]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([0]));
   });
 
   it('8 filled bits', () => {
     const state = eReducer(undefined, { type: EActionType.push, value: 0b11111111, bits: 8 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([0b11111111]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([0b11111111]));
   });
 
   it('9 zero bits', () => {
     const state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 9 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([0]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([0]));
   });
 
   it('9 filled bits', () => {
     const state = eReducer(undefined, { type: EActionType.push, value: 0b111111111, bits: 9 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([0b11111111]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([0b11111111]));
   });
 
   it('9 bits', () => {
     const state = eReducer(undefined, { type: EActionType.push, value: 0b111100111, bits: 9 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([0b11100111]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([0b11100111]));
   });
 
   it('3 bytes', () => {
     let state = eReducer(undefined, { type: EActionType.push, value: 1, bits: 8 });
     state = eReducer(state, { type: EActionType.push, value: 2, bits: 8 });
     state = eReducer(state, { type: EActionType.push, value: 3, bits: 8 });
-    assert.deepEqual(convertToBuffer(state), Buffer.from([1, 2, 3]));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array([1, 2, 3]));
   });
 
   it('256 bits or 32bytes', () => {
@@ -150,6 +150,6 @@ describe('convertToBuffer function', () => {
 
     const bytes = [...Array(32)].map(() => 255);
 
-    assert.deepEqual(convertToBuffer(state), Buffer.from(bytes));
+    assert.deepEqual(convertToBuffer(state), new Uint8Array(bytes));
   });
 });

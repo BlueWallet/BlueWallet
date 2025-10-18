@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <!-- Report Issue Section -->
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_report_issue_title"
+        app:iconSpaceReserved="false">
+        
+        <androidx.preference.Preference
+            android:selectable="false"
+            android:summary="@string/settings_report_issue_footer"
+            app:iconSpaceReserved="false" />
+        
+        <androidx.preference.Preference
+            android:key="deviceUIDCopy"
+            android:title="@string/settings_unique_id_title"
+            android:selectable="true"
+            android:persistent="true"
+            app:iconSpaceReserved="false" />
+        
+    </androidx.preference.PreferenceCategory>
+    
+    <!-- Cache Section -->
+    <androidx.preference.PreferenceCategory
+        android:title="@string/settings_cache_title"
+        app:iconSpaceReserved="false">
+        
+        <androidx.preference.SwitchPreferenceCompat
+            android:key="clearFilesOnLaunch"
+            android:title="@string/settings_clear_cache_title"
+            android:summary="@string/settings_clear_cache_summary"
+            android:defaultValue="false"
+            android:persistent="true"
+            app:iconSpaceReserved="false" />
+        
+    </androidx.preference.PreferenceCategory>
+    
+</androidx.preference.PreferenceScreen>

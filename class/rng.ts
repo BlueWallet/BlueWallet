@@ -8,9 +8,9 @@
 /**
  * Generate cryptographically secure random bytes using native api.
  * @param  {number}   size      The number of bytes of randomness
- * @return {Promise.<Buffer>}   The random bytes
+ * @return {Promise.<Uint8Array>}   The random bytes
  */
-export async function randomBytes(size: number): Promise<Buffer> {
+export async function randomBytes(size: number): Promise<Uint8Array> {
   const g: any = globalThis as any;
   const rnCrypto = g && g.crypto;
   if (!rnCrypto || typeof rnCrypto.getRandomValues !== 'function') {
@@ -18,5 +18,5 @@ export async function randomBytes(size: number): Promise<Buffer> {
   }
   const bytes = new Uint8Array(size);
   rnCrypto.getRandomValues(bytes);
-  return Buffer.from(bytes);
+  return bytes;
 }

@@ -163,7 +163,7 @@ export class HDSegwitBech32Transaction {
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
-      prevInputs.push(Buffer.from(inp.hash).reverse().toString('hex'));
+      prevInputs.push(uint8ArrayToHex(new Uint8Array(inp.hash).reverse()));
     }
 
     const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs, true);
@@ -172,7 +172,7 @@ export class HDSegwitBech32Transaction {
     let wentIn = 0;
     const utxos: CreateTransactionUtxo[] = [];
     for (const inp of this._txDecoded.ins) {
-      const reversedHash = Buffer.from(inp.hash).reverse().toString('hex');
+      const reversedHash = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
       if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
         let value = prevTransactions[reversedHash].vout[inp.index].value;
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
@@ -240,7 +240,7 @@ export class HDSegwitBech32Transaction {
 
     const spentUtxos = this._wallet.getDerivedUtxoFromOurTransaction(true);
     for (const inp of this._txDecoded.ins) {
-      const txidInUtxo = Buffer.from(inp.hash).reverse().toString('hex');
+      const txidInUtxo = uint8ArrayToHex(new Uint8Array(inp.hash).reverse());
 
       let found = false;
       for (const spentU of spentUtxos) {
