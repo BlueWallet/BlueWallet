@@ -4,6 +4,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -32,16 +33,22 @@ type State = {
   };
   isAuthenticating: boolean;
   showPasswordInput: boolean;
+  password: string;
+  isSuccess: boolean;
 };
 
 const SET_AUTH = 'SET_AUTH';
 const SET_IS_AUTHENTICATING = 'SET_IS_AUTHENTICATING';
 const SET_SHOW_PASSWORD_INPUT = 'SET_SHOW_PASSWORD_INPUT';
+const SET_PASSWORD = 'SET_PASSWORD';
+const SET_SUCCESS = 'SET_SUCCESS';
 
 type Action =
   | { type: typeof SET_AUTH; payload: { type: AuthType; detail: keyof typeof BiometricType | undefined } }
   | { type: typeof SET_IS_AUTHENTICATING; payload: boolean }
-  | { type: typeof SET_SHOW_PASSWORD_INPUT; payload: boolean };
+  | { type: typeof SET_SHOW_PASSWORD_INPUT; payload: boolean }
+  | { type: typeof SET_PASSWORD; payload: string }
+  | { type: typeof SET_SUCCESS; payload: boolean };
 
 const initialState: State = {
   auth: {
@@ -50,6 +57,8 @@ const initialState: State = {
   },
   isAuthenticating: false,
   showPasswordInput: false,
+  password: '',
+  isSuccess: false,
 };
 
 function reducer(state: State, action: Action): State {
@@ -60,6 +69,10 @@ function reducer(state: State, action: Action): State {
       return { ...state, isAuthenticating: action.payload };
     case SET_SHOW_PASSWORD_INPUT:
       return { ...state, showPasswordInput: action.payload };
+    case SET_PASSWORD:
+      return { ...state, password: action.payload };
+    case SET_SUCCESS:
+      return { ...state, isSuccess: action.payload };
     default:
       return state;
   }
@@ -112,9 +125,6 @@ const UnlockWith: React.FC = () => {
   const handlePasswordSubmit = useCallback(async (password: string) => {
     if (!passwordResolveRef.current) return;
 
-    dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
-
-    // Temporarily resolve with the password
     const resolve = passwordResolveRef.current;
     passwordResolveRef.current = null;
 
@@ -133,6 +143,8 @@ const UnlockWith: React.FC = () => {
       const result = await startAndDecrypt(isRetry, promptForPassword);
 
       if (result) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        dispatch({ type: SET_SUCCESS, payload: true });
         passwordInputRef.current?.showSuccess();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         // Wait a bit to show success animation
@@ -200,7 +212,23 @@ const UnlockWith: React.FC = () => {
             onSubmit={handlePasswordSubmit}
             placeholder={loc._.enter_password}
             disabled={state.isAuthenticating}
+            onChangeText={text => {
+              dispatch({ type: SET_PASSWORD, payload: text });
+            }}
           />
+          {!state.isSuccess && (
+            <>
+              <View style={styles.buttonSpacing} />
+              <Button
+                onPress={() => {
+                  const password = passwordInputRef.current?.getValue() || '';
+                  handlePasswordSubmit(password);
+                }}
+                title={loc._.unlock}
+                disabled={state.password.length === 0}
+              />
+            </>
+          )}
         </View>
       );
     }
@@ -265,6 +293,9 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 300,
     alignSelf: 'center',
+  },
+  buttonSpacing: {
+    height: 16,
   },
 });
 

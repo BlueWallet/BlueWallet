@@ -11,16 +11,18 @@ export interface PasswordInputHandle {
   showError: () => void;
   showSuccess: () => void;
   reset: () => void;
+  getValue: () => string;
 }
 
 interface PasswordInputProps {
   onSubmit: (password: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  onChangeText?: (text: string) => void;
 }
 
 export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>(
-  ({ onSubmit, placeholder = loc._.enter_password, disabled = false }, ref) => {
+  ({ onSubmit, placeholder = loc._.enter_password, disabled = false, onChangeText }, ref) => {
     const [password, setPassword] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const inputRef = useRef<TextInput>(null);
@@ -35,6 +37,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
       },
       blur: () => inputRef.current?.blur(),
       clear: () => setPassword(''),
+      getValue: () => password,
       showError: () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsSuccess(false);
@@ -138,7 +141,10 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           testID="PasswordInput"
           style={[styles.input, stylesHook.input]}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={(text) => {
+            setPassword(text);
+            onChangeText?.(text);
+          }}
           clearButtonMode={isSuccess ? 'never' : 'while-editing'}
           placeholder={placeholder}
           placeholderTextColor={colors.alternativeTextColor}
