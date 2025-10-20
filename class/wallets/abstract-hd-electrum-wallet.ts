@@ -1052,10 +1052,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (returnSpentUtxoAsWell) return utxos;
 
     // got all utxos we ever had. lets filter out the ones that are spent:
+    const txs = this.getTransactions();
     const ret = [];
     for (const utxo of utxos) {
       let spent = false;
-      for (const tx of this.getTransactions()) {
+      for (const tx of txs) {
         for (const input of tx.inputs) {
           if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
           // utxo we got previously was actually spent right here ^^
