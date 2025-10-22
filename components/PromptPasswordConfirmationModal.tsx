@@ -256,7 +256,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
         dismissible={false}
-        sizes={Platform.OS === 'ios' ? ['auto'] : [420, 'auto']}
+        sizes={Platform.OS === 'ios' ? ['auto'] : [460, '90%']}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   feeModalFooterSpacing: {
-    padding: 24,
+    padding: 16,
     marginVertical: 24,
   },
   inputContainer: {
