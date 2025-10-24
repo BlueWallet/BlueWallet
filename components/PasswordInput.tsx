@@ -141,7 +141,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           testID="PasswordInput"
           style={[styles.input, stylesHook.input]}
           value={password}
-          onChangeText={(text) => {
+          onChangeText={text => {
             setPassword(text);
             onChangeText?.(text);
           }}
