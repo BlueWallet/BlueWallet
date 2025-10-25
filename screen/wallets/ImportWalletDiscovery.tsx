@@ -7,10 +7,10 @@ import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import startImport, { TImport } from '../../class/wallet-import';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import PassphrasePrompt from '../../components/PassphrasePrompt';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import WalletToImport from '../../components/WalletToImport';
-import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -28,6 +28,13 @@ type WalletEntry = {
   wallet: TWallet | THDWalletForWatchOnly;
   subtitle: string;
   id: string;
+};
+
+type PasswordRequest = {
+  title: string;
+  message: string;
+  resolve: (value: string) => void;
+  reject: (error?: Error) => void;
 };
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -49,6 +56,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const [selected, setSelected] = useState<number>(0);
   const [progress, setProgress] = useState<string | undefined>();
   const importing = useRef<boolean>(false);
+  const [passwordRequest, setPasswordRequest] = useState<PasswordRequest | null>(null);
   const bip39 = useMemo(() => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
@@ -90,10 +98,12 @@ const ImportWalletDiscovery: React.FC = () => {
       try {
         // For watch-only wallets, display the descriptor or xpub
         if (wallet.type === WatchOnlyWallet.type) {
-          if (wallet.isHd() && wallet.getSecret()) {
-            subtitle = wallet.getSecret(); // Display descriptor
+          const watchOnlyWallet = wallet as WatchOnlyWallet;
+          if (typeof watchOnlyWallet.isHd === 'function' && watchOnlyWallet.isHd() && watchOnlyWallet.getSecret()) {
+            subtitle = watchOnlyWallet.getSecret(); // Display descriptor
           } else {
-            subtitle = wallet.getAddress(); // Display address
+            const address = watchOnlyWallet.getAddress();
+            subtitle = typeof address === 'string' ? address : undefined; // Display address when available
           }
         } else {
           subtitle = (wallet as THDWalletForWatchOnly).getDerivationPath?.();
@@ -103,18 +113,26 @@ const ImportWalletDiscovery: React.FC = () => {
       setWallets(w => [...w, { wallet, subtitle: subtitle || '', id }]);
     };
 
-    const onPassword = async (title: string, subtitle: string) => {
-      try {
-        const pass = await prompt(title, subtitle);
-        setPassword(pass);
-        return pass;
-      } catch (e: any) {
-        if (e.message === 'Cancel Pressed') {
-          navigation.goBack();
-        }
-        throw e;
-      }
-    };
+    const onPassword = (title: string, subtitle: string) =>
+      new Promise<string>((resolvePassword, rejectPassword) => {
+        setPasswordRequest({
+          title,
+          message: subtitle,
+          resolve: value => {
+            setPassword(value);
+            resolvePassword(value);
+            setPasswordRequest(null);
+          },
+          reject: error => {
+            const reason = error ?? new Error('Cancel Pressed');
+            if (reason.message === 'Cancel Pressed') {
+              navigation.goBack();
+            }
+            rejectPassword(reason);
+            setPasswordRequest(null);
+          },
+        });
+      });
 
     task.current = startImport(importText, askPassphrase, searchAccounts, isElectrumDisabled, onProgress, onWallet, onPassword);
 
@@ -237,6 +255,15 @@ const ImportWalletDiscovery: React.FC = () => {
           <Button disabled={wallets?.length === 0} title={loc.wallets.import_do_import} onPress={handleSave} />
         </View>
       </View>
+      <PassphrasePrompt
+        visible={Boolean(passwordRequest)}
+        title={passwordRequest?.title ?? ''}
+        message={passwordRequest?.message ?? ''}
+        cancelButtonText={loc._.cancel}
+        continueButtonText={loc._.ok}
+        onCancel={() => passwordRequest?.reject()}
+        onSubmit={value => passwordRequest?.resolve(value)}
+      />
     </SafeArea>
   );
 };
