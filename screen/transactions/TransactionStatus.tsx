@@ -187,6 +187,8 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     });
   }, [DetailsButton, colors, hash, setOptions]);
 
+  const lastTxFetch = wallet?.getLastTxFetch();
+
   useEffect(() => {
     if (wallet) {
       const transactions = wallet.getTransactions();
@@ -195,7 +197,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
         setTX(newTx);
       }
     }
-  }, [hash, wallet]);
+  }, [hash, wallet, lastTxFetch]);
 
   useEffect(() => {
     const foundWallet = wallets.find(w => w.getID() === walletID) || null;
