@@ -729,7 +729,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     throw new Error('Not applicable in multisig');
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Uint8Array) {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const pubkeys = [];
     for (const [cosignerIndex] of this._cosigners.entries()) {
@@ -741,7 +741,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
       );
       // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
-      const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
+      const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
 
       if (!path) {
         throw new Error('Could not find derivation path for address ' + input.address);
@@ -788,7 +788,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         witnessScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
         // some hw wallets attack vector
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else if (this.isWrappedSegwit()) {
       const p2shP2wsh = bitcoin.payments.p2sh({
@@ -816,7 +816,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         redeemScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
         // some hw wallets attack vector
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else if (this.isLegacy()) {
       const p2sh = bitcoin.payments.p2sh({
@@ -832,7 +832,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         sequence,
         bip32Derivation,
         redeemScript,
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else {
       throw new Error('Dont know how to add input');
@@ -1103,7 +1103,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getID() {
     const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return Buffer.from(sha256(string2hash)).toString('hex');
+    return uint8ArrayToHex(sha256(string2hash));
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {

@@ -4,7 +4,7 @@ import wif from 'wif';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { hexToUint8Array, concatUint8Arrays } from '../../blue_modules/uint8array-extras';
+import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 type WalletWithPassphrase = AbstractWallet & { getPassphrase: () => string };
 type UtxoMetadata = {
@@ -81,7 +81,7 @@ export class AbstractWallet {
     const passphrase = thisWithPassphrase.getPassphrase ? thisWithPassphrase.getPassphrase() : '';
     const path = this._derivationPath ?? '';
     const string2hash = this.type + this.getSecret() + passphrase + path;
-    return Buffer.from(sha256(string2hash)).toString('hex');
+    return uint8ArrayToHex(sha256(string2hash));
   }
 
   getTransactions(): Transaction[] {
@@ -218,11 +218,7 @@ export class AbstractWallet {
     // Starts with S, is 22 length or larger, is base58
     if (newSecret.startsWith('S') && newSecret.length >= 22 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(newSecret)) {
       // minikey + ? hashed with SHA256 starts with 0x00 byte
-      if (
-        Buffer.from(sha256(`${newSecret}?`))
-          .toString('hex')
-          .startsWith('00')
-      ) {
+      if (uint8ArrayToHex(sha256(`${newSecret}?`)).startsWith('00')) {
         // it is a valid minikey
         newSecret = wif.encode(0x80, Buffer.from(sha256(newSecret)), false);
       }
@@ -239,7 +235,7 @@ export class AbstractWallet {
       let [hexFingerprint, ...derivationPathArray] = m[1].split('/');
       const derivationPath = `m/${derivationPathArray.join('/').replace(/h/g, "'")}`;
       if (hexFingerprint.length === 8) {
-        hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+        hexFingerprint = uint8ArrayToHex(hexToUint8Array(hexFingerprint).reverse());
         this.masterFingerprint = parseInt(hexFingerprint, 16);
         this._derivationPath = derivationPath;
       }
@@ -291,7 +287,7 @@ export class AbstractWallet {
       // It is a Cobo Vault Hardware Wallet
       if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint && parsedSecret.AccountKeyPath) {
         this.secret = parsedSecret.ExtPubKey;
-        const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
+        const mfp = uint8ArrayToHex(hexToUint8Array(parsedSecret.MasterFingerprint).reverse());
         this.masterFingerprint = parseInt(mfp, 16);
         this._derivationPath = parsedSecret.AccountKeyPath.startsWith('m/')
           ? parsedSecret.AccountKeyPath
@@ -321,7 +317,7 @@ export class AbstractWallet {
       const fp = fpAndPath.substring(0, pathIndex);
 
       this._derivationPath = path;
-      const mfp = Buffer.from(fp, 'hex').reverse().toString('hex');
+      const mfp = uint8ArrayToHex(hexToUint8Array(fp).reverse());
       this.masterFingerprint = parseInt(mfp, 16);
 
       if (this.secret.startsWith('wpkh(')) {
@@ -338,7 +334,7 @@ export class AbstractWallet {
       if (json.MasterFingerprint && json.ExtPubKey) {
         // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
         this.secret = this._xpubToZpub(json.ExtPubKey);
-        const mfp = Buffer.from(json.MasterFingerprint, 'hex').reverse().toString('hex');
+        const mfp = uint8ArrayToHex(hexToUint8Array(json.MasterFingerprint).reverse());
         this.masterFingerprint = parseInt(mfp, 16);
         return this;
       }
@@ -350,7 +346,7 @@ export class AbstractWallet {
       if (json.chain && json.chain === 'BTC' && json.xfp && json.bip84) {
         // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
         this.secret = json.bip84._pub;
-        const mfp = Buffer.from(json.xfp, 'hex').reverse().toString('hex');
+        const mfp = uint8ArrayToHex(hexToUint8Array(json.xfp).reverse());
         this.masterFingerprint = parseInt(mfp, 16);
         this._derivationPath = json.bip84.deriv;
         return this;
@@ -509,7 +505,7 @@ export class AbstractWallet {
 
   getMasterFingerprintFromHex(hexValue: string): number {
     if (hexValue.length < 8) hexValue = '0' + hexValue;
-    const b = Buffer.from(hexValue, 'hex');
+    const b = hexToUint8Array(hexValue);
     if (b.length !== 4) throw new Error('invalid fingerprint hex');
 
     hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
