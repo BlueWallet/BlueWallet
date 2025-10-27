@@ -1231,9 +1231,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = hexToUint8Array(masterFingerprintHex);
-        masterFingerprintBuffer = Buffer.from(new Uint8Array(hexBuffer).reverse());
+        masterFingerprintBuffer = hexBuffer.reverse();
       } else {
-        masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+        masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
       }
       // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
@@ -1258,9 +1258,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = hexToUint8Array(masterFingerprintHex);
-        masterFingerprintBuffer = Buffer.from(new Uint8Array(hexBuffer).reverse());
+        masterFingerprintBuffer = hexBuffer.reverse();
       } else {
-        masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+        masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
       }
 
       // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
@@ -1275,7 +1275,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       psbt.addOutput({
         address: output.address,
         // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
-        script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
+        script: output.script?.hex ? hexToUint8Array(output.script.hex) : undefined,
         value: BigInt(output.value),
         bip32Derivation:
           change && path && pubkey
@@ -1304,7 +1304,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return { tx, inputs, outputs, fee, psbt };
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Uint8Array) {
     if (!input.address) {
       throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
     }

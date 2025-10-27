@@ -461,7 +461,7 @@ export class LegacyWallet extends AbstractWallet {
         index: input.vout,
         sequence,
         // non-segwit inputs now require passing the whole previous tx as Buffer
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     });
 
