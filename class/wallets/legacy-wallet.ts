@@ -392,6 +392,8 @@ export class LegacyWallet extends AbstractWallet {
         u.script = { length: 27 };
       } else if (this.segwitType === 'p2sh(p2wpkh)') {
         u.script = { length: 50 };
+      } else if (this.segwitType === 'p2tr') {
+        u.script = { length: 19 }; // set empyrically, didnt actually calculate it
       }
     }
 
