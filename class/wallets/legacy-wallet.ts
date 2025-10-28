@@ -612,7 +612,16 @@ export class LegacyWallet extends AbstractWallet {
     const keyPair = ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
-    const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
+    let segwitType: 'p2wpkh' | 'p2sh(p2wpkh)' = 'p2wpkh';
+    switch (this.segwitType) {
+      case 'p2sh(p2wpkh)':
+        segwitType = 'p2sh(p2wpkh)';
+        break;
+      default:
+        segwitType = 'p2wpkh';
+        break;
+    }
+    const options = this.segwitType && useSegwit ? { segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, Buffer.from(privateKey), keyPair.compressed, options);
     return signature.toString('base64');
   }

@@ -1,34 +1,17 @@
 import assert from 'assert';
-import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDTaprootWallet, TaprootWallet } from '../../class';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-// import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-// jest.setTimeout(90 * 1000);
-
-// afterAll(async () => {
-//   // after all tests we close socket so the test suite can actually terminate
-//   BlueElectrum.forceDisconnect();
-// });
-
-// beforeAll(async () => {
-//   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
-//   // while app starts up, but for tests we need to wait for it
-//   await BlueElectrum.connectMain();
-// });
-
-
-const utxos =     [
-    {
-      height: 0,
-      value: 181385,
-      address: 'bc1p84mlccwgz7vz2y7xp0yy98zz5h8myyjd7zdncw6dzw9cm5yglu9qm4qrjg',
-      txid: 'e97f982766537c5330b50ef521bbcd8811971eb7cc9fd64bda45266136f27b82',
-      vout: 0,
-      wif: 'L1qB2ugfwSjM1CCuZtq4T6Ban9tAWSETpoq6NyNR9W9wNK3d5L2p'
-    }
-  ];
+const utxos = [
+  {
+    height: 0,
+    value: 181385,
+    address: 'bc1p84mlccwgz7vz2y7xp0yy98zz5h8myyjd7zdncw6dzw9cm5yglu9qm4qrjg',
+    txid: 'e97f982766537c5330b50ef521bbcd8811971eb7cc9fd64bda45266136f27b82',
+    vout: 0,
+    wif: 'L1qB2ugfwSjM1CCuZtq4T6Ban9tAWSETpoq6NyNR9W9wNK3d5L2p',
+  },
+];
 
 describe('Taproot HD (BIP86)', () => {
   it('can create', async function () {
@@ -65,13 +48,13 @@ describe('Taproot HD (BIP86)', () => {
     assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
 
     assert.strictEqual(
-        hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
-        'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115',
-      );
-      assert.strictEqual(
-        hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
-        '399f1b2f4393f29a18c937859c5dd8a77350103157eb880f02e8c08214277cef',
-      );
+      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
+      'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115',
+    );
+    assert.strictEqual(
+      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
+      '399f1b2f4393f29a18c937859c5dd8a77350103157eb880f02e8c08214277cef',
+    );
   });
 
   it('can generate addresses only via zpub', function () {
@@ -107,7 +90,6 @@ describe('Taproot HD (BIP86)', () => {
     assert.ok(hd2.validateMnemonic());
   });
 
-
   it('can createTransaction with a correct feerate', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -117,13 +99,10 @@ describe('Taproot HD (BIP86)', () => {
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
 
-
-  const targetFeeRate = 1;
+    const targetFeeRate = 1;
     const { tx, psbt, outputs } = hd.createTransaction(
       utxos,
-      [
-        { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' },
-      ],
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }],
       targetFeeRate,
       hd._getInternalAddressByIndex(0),
     );
@@ -133,13 +112,16 @@ describe('Taproot HD (BIP86)', () => {
 
     const actualFeerate = Number(psbt.getFee()) / tx.virtualSize();
     assert.strictEqual(
-      Math.round(actualFeerate) >= targetFeeRate && actualFeerate <= (targetFeeRate + 1),
+      Math.round(actualFeerate) >= targetFeeRate && actualFeerate <= targetFeeRate + 1,
       true,
       `bad feerate, got ${actualFeerate}, expected at least ${targetFeeRate}; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
     );
 
     // txid: 7a84a51cfd06db19037526ab60eb0f55fa6c9f4ff87bdfc5ec174e3375e38f0d
-    assert.strictEqual(tx.toHex(), '02000000000101827bf236612645da4bd69fccb71e971188cdbb21f50eb530537c536627987fe90000000000000000800121c40200000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac014041d9e5a159fe6fb10dee9a3263cf93e78435b711c262f3ed9b9615bc78df8a4e1f05ad9f2549d4587f8a45c744a4f41b3e7f482c4e1b53a9f61c5ba91651cba700000000');
+    assert.strictEqual(
+      tx.toHex(),
+      '02000000000101827bf236612645da4bd69fccb71e971188cdbb21f50eb530537c536627987fe90000000000000000800121c40200000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac014041d9e5a159fe6fb10dee9a3263cf93e78435b711c262f3ed9b9615bc78df8a4e1f05ad9f2549d4587f8a45c744a4f41b3e7f482c4e1b53a9f61c5ba91651cba700000000',
+    );
   });
 
   it('can createTransaction with a correct feerate 2', async () => {
@@ -151,7 +133,7 @@ describe('Taproot HD (BIP86)', () => {
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
 
-  const targetFeeRate = 10;
+    const targetFeeRate = 10;
     const { tx, psbt, outputs } = hd.createTransaction(
       utxos,
       [
@@ -168,11 +150,9 @@ describe('Taproot HD (BIP86)', () => {
 
     const actualFeerate = Number(psbt.getFee()) / tx.virtualSize();
     assert.strictEqual(
-      Math.round(actualFeerate) >= targetFeeRate && actualFeerate <= (targetFeeRate + 1),
+      Math.round(actualFeerate) >= targetFeeRate && actualFeerate <= targetFeeRate + 1,
       true,
       `bad feerate, got ${actualFeerate}, expected at least ${targetFeeRate}; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
     );
   });
-
-
 });

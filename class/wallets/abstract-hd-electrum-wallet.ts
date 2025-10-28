@@ -13,7 +13,7 @@ import { ECPairFactory, ECPairInterface } from 'ecpair';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
-import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex, assertUint8Array } from '../../blue_modules/uint8array-extras';
+import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -1290,12 +1290,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
                 },
               ]
             : [],
-        tapBip32Derivation: this.segwitType === 'p2tr' && pubkey && path && change ? [{
-          pubkey: new Uint8Array(pubkey),
-          masterFingerprint: new Uint8Array(masterFingerprintBuffer),
-          path,
-          leafHashes: [], 
-        }] : [],
+        tapBip32Derivation:
+          this.segwitType === 'p2tr' && pubkey && path && change
+            ? [
+                {
+                  pubkey: new Uint8Array(pubkey),
+                  masterFingerprint: new Uint8Array(masterFingerprintBuffer),
+                  path,
+                  leafHashes: [],
+                },
+              ]
+            : [],
         // tapInternalKey : this.segwitType === 'p2tr' && pubkey ? new Uint8Array(pubkey): undefined,
       });
     });
@@ -1305,9 +1310,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       for (let cc = 0; cc < c; cc++) {
         if (this.segwitType === 'p2tr') {
           assert(psbt.data.inputs[cc].tapInternalKey, 'TapInternalKey is required for taproot inputs');
-          psbt.signTaprootInput(cc, keypairs[cc].tweak(bitcoin.crypto.taggedHash('TapTweak', psbt.data.inputs[cc].tapInternalKey as Uint8Array)));
+          psbt.signTaprootInput(
+            cc,
+            keypairs[cc].tweak(bitcoin.crypto.taggedHash('TapTweak', psbt.data.inputs[cc].tapInternalKey as Uint8Array)),
+          );
         } else {
-        psbt.signInput(cc, keypairs[cc]);
+          psbt.signInput(cc, keypairs[cc]);
         }
       }
     }
