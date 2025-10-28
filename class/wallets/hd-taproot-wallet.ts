@@ -39,14 +39,6 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
     return xpub;
   }
 
-  _getExternalAddressByIndex(index: number): string {
-    return this._getNodeAddressByIndex(0, index);
-  }
-
-  _getInternalAddressByIndex(index: number) {
-    return this._getNodeAddressByIndex(1, index);
-  }
-
   _hdNodeToAddress(hdNode: BIP32Interface): string {
     return this._nodeToTaprootAddress(hdNode);
   }
