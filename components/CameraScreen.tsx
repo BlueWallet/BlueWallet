@@ -16,6 +16,7 @@ interface CameraScreenProps {
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
   onReadCode?: (event: OnReadCodeData) => void;
+  scanThrottleDelay?: number;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -25,6 +26,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   onImagePickerButtonPress,
   onFilePickerButtonPress,
   onReadCode,
+  scanThrottleDelay = 150,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
   const [torchMode, setTorchMode] = useState(false);
@@ -152,6 +154,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           onZoom={handleZoom}
           maxZoom={10}
           onOrientationChange={handleOrientationChange}
+          scanThrottleDelay={scanThrottleDelay}
         />
       </View>
       <View style={styles.bottomButtons}>

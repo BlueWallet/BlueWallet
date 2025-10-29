@@ -356,6 +356,7 @@ const ScanQRCode = () => {
           onFilePickerButtonPress={showFilePicker}
           onImagePickerButtonPress={onShowImagePickerButtonPress}
           onCancelButtonPress={dismiss}
+          scanThrottleDelay={120}
         />
       ) : null}
       {urTotal > 0 && (
