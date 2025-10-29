@@ -20,7 +20,7 @@ const protocols: Array<{ value: QRProtocol; label: string }> = [
   },
   {
     value: 'bbqr',
-    label: loc.settings.qr_protocol_bbqr,
+    label: 'BBQr',
   },
   {
     value: 'auto',
