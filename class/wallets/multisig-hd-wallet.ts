@@ -24,9 +24,9 @@ type SeedOpts = {
 };
 
 type TBip32Derivation = {
-  masterFingerprint: Buffer;
+  masterFingerprint: Uint8Array;
   path: string;
-  pubkey: Buffer;
+  pubkey: Uint8Array;
 }[];
 
 type TOutputData =
@@ -850,7 +850,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
       );
       // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
-      const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
+      const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
 
       if (!path) {
         throw new Error('Could not find derivation path for address ' + address);
