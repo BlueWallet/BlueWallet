@@ -1,7 +1,8 @@
 import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { getProtocolForEncoding } from '../../blue_modules/bbqr';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
@@ -26,10 +27,18 @@ const PsbtMultisigQRCode: React.FC = () => {
   const { params } = useRoute<RouteParams>();
   const { psbtBase64, isShowOpenScanner } = params;
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [protocol, setProtocol] = useState<'bc-ur' | 'bbqr'>('bc-ur');
   const dynamicQRCode = useRef<DynamicQRCode>(null);
   const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
+
+  useEffect(() => {
+    // Fetch the preferred protocol
+    getProtocolForEncoding()
+      .then(setProtocol)
+      .catch(() => setProtocol('bc-ur'));
+  }, []);
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -110,7 +119,10 @@ const PsbtMultisigQRCode: React.FC = () => {
         description={loc.multisig.provide_signature_details}
         additionalDescription={`${loc.multisig.provide_signature_details_bluewallet} ${loc.multisig.co_sign_transaction}`}
       />
-      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} protocol={protocol} />
+      <Text style={[styles.protocolLabel, { color: colors.alternativeTextColor }]}>
+        {loc.formatString(loc.send.qr_protocol_used, { protocol: protocol.toUpperCase() })}
+      </Text>
       {!isLoading && (
         <>
           <BlueSpacing20 />
@@ -170,6 +182,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
+  },
+  protocolLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 8,
+    fontWeight: '500',
   },
 });
 

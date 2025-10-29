@@ -6,6 +6,7 @@ import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-n
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
+import { BBQRDecoder, isBBQR } from '../../blue_modules/bbqr';
 import { BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import Button from '../../components/Button';
@@ -22,6 +23,7 @@ import { BlueLoading } from '../../components/BlueLoading.tsx';
 import { hexToUint8Array, uint8ArrayToBase64, uint8ArrayToHex, uint8ArrayToString } from '../../blue_modules/uint8array-extras/index.js';
 
 let decoder: BlueURDecoder | undefined;
+let bbqrDecoder: BBQRDecoder | undefined;
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'ScanQRCode'>;
 
@@ -169,6 +171,54 @@ const ScanQRCode = () => {
     }
   };
 
+  const _onReadBBQR = (part: string) => {
+    if (!bbqrDecoder) bbqrDecoder = new BBQRDecoder();
+    try {
+      const isNew = bbqrDecoder.receivePart(part);
+      if (isNew) {
+        // Update progress indicators
+        setUrTotal(bbqrDecoder.partsTotal || 100);
+        setUrHave(bbqrDecoder.partsReceived);
+      }
+
+      if (bbqrDecoder.isComplete()) {
+        const result = bbqrDecoder.decode();
+        bbqrDecoder = undefined; // nullify for future use
+
+        // Convert to appropriate format based on file type
+        let data: string;
+        if (result.fileType === 'P') {
+          // PSBT - encode as base64
+          data = uint8ArrayToBase64(result.raw);
+        } else if (result.fileType === 'T') {
+          // Transaction - encode as hex
+          data = uint8ArrayToHex(result.raw);
+        } else if (result.fileType === 'U' || result.fileType === 'J') {
+          // Text or JSON - decode as string
+          data = uint8ArrayToString(result.raw);
+        } else {
+          // Binary - encode as base64
+          data = uint8ArrayToBase64(result.raw);
+        }
+
+        if (launchedBy) {
+          const merge = true;
+          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
+          if (onBarScanned) {
+            onBarScanned(data);
+          }
+          navigation.dispatch(popToAction);
+        }
+      }
+    } catch (error) {
+      setIsLoading(true);
+      presentAlert({
+        title: loc.errors.error,
+        message: loc._.invalid_animated_qr_code_fragment,
+      });
+    }
+  };
+
   const onBarCodeRead = (ret: { data: string }) => {
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
@@ -198,6 +248,11 @@ const ScanQRCode = () => {
 
     if (ret.data.toUpperCase().startsWith('UR')) {
       return _onReadUniformResource(ret.data);
+    }
+
+    // is it BBQR?
+    if (isBBQR(ret.data)) {
+      return _onReadBBQR(ret.data);
     }
 
     // is it base43? stupid electrum desktop

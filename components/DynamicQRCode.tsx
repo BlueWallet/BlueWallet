@@ -3,6 +3,7 @@ import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 
 import { Text } from '@rneui/themed';
 
 import { encodeUR } from '../blue_modules/ur';
+import { encodeBBQR } from '../blue_modules/bbqr';
 import { BlueCurrentTheme } from '../components/themes';
 import loc from '../loc';
 import QRCodeComponent from './QRCodeComponent';
@@ -14,6 +15,7 @@ interface DynamicQRCodeProps {
   value: string;
   capacity?: number;
   hideControls?: boolean;
+  protocol?: 'bc-ur' | 'bbqr';
 }
 
 interface DynamicQRCodeState {
@@ -42,9 +44,16 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
   fragments: string[] = [];
 
   componentDidMount() {
-    const { value, capacity = 175, hideControls = true } = this.props;
+    const { value, capacity = 175, hideControls = true, protocol = 'bc-ur' } = this.props;
     try {
-      this.fragments = encodeUR(value, capacity);
+      if (protocol === 'bbqr') {
+        // Use BBQR encoding
+        const result = encodeBBQR(value, { maxVersion: 40 });
+        this.fragments = result.parts;
+      } else {
+        // Use BC-UR encoding (default)
+        this.fragments = encodeUR(value, capacity);
+      }
       this.setState(
         {
           total: this.fragments.length,
@@ -58,6 +67,30 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
     } catch (e) {
       console.log(e);
       this.setState({ displayQRCode: false, hideControls });
+    }
+  }
+
+  componentDidUpdate(prevProps: DynamicQRCodeProps) {
+    // Re-encode if protocol or value changes
+    if (prevProps.protocol !== this.props.protocol || prevProps.value !== this.props.value) {
+      const { value, capacity = 175, protocol = 'bc-ur' } = this.props;
+      try {
+        if (protocol === 'bbqr') {
+          // Use BBQR encoding
+          const result = encodeBBQR(value, { maxVersion: 40 });
+          this.fragments = result.parts;
+        } else {
+          // Use BC-UR encoding (default)
+          this.fragments = encodeUR(value, capacity);
+        }
+        this.setState({
+          total: this.fragments.length,
+          index: 0, // Reset to first fragment
+        });
+      } catch (e) {
+        console.log(e);
+        this.setState({ displayQRCode: false });
+      }
     }
   }
 

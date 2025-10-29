@@ -66,6 +66,7 @@ const GeneralSettings: React.FC = () => {
         title="Legacy URv1 QR"
         switch={{ onValueChange: setIsLegacyURv1EnabledStorage, value: isLegacyURv1Enabled }}
       />
+      <ListItem onPress={() => navigate('QRProtocol')} title={loc.settings.qr_protocol} chevron />
       <BlueSpacing20 />
     </SafeAreaScrollView>
   );
