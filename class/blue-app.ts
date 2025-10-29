@@ -26,6 +26,7 @@ import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { getLNDHub } from '../helpers/lndHub';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -404,6 +405,9 @@ export class BlueApp {
             break;
           case HDSegwitBech32Wallet.type:
             unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
+            break;
+          case HDTaprootWallet.type:
+            unserializedWallet = HDTaprootWallet.fromJson(key) as unknown as HDTaprootWallet;
             break;
           case HDLegacyBreadwalletWallet.type:
             unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;

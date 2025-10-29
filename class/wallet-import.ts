@@ -10,6 +10,7 @@ import {
   HDSegwitBech32Wallet,
   HDSegwitElectrumSeedP2WPKHWallet,
   HDSegwitP2SHWallet,
+  HDTaprootWallet,
   LegacyWallet,
   LightningCustodianWallet,
   MultisigHDWallet,
@@ -108,6 +109,7 @@ const startImport = (
     // 3.1 check HD Electrum legacy
     // 3.2 check if its AEZEED
     // 3.3 check if its SLIP39
+    // 3.4 check if its HDTaprootWallet (BIP86)
     // 4. check if its Segwit WIF (P2SH)
     // 4.5 check if its Taproot WIF
     // 5. check if its Legacy WIF
@@ -232,6 +234,9 @@ const startImport = (
             break;
           case 'p2wpkh-p2sh':
             WalletClass = HDSegwitP2SHWallet;
+            break;
+          case 'p2tr':
+            WalletClass = HDTaprootWallet;
             break;
           default:
             // p2wpkh

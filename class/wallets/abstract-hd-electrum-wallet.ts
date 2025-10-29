@@ -1190,6 +1190,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // for a single wallet all utxos gona be the same type, so we define it only once:
       let utxoType: SPUTXOType = 'non-eligible';
       switch (this.segwitType) {
+        case 'p2tr':
+          utxoType = 'p2tr';
+          break;
         case 'p2sh(p2wpkh)':
           utxoType = 'p2sh-p2wpkh';
           break;
@@ -1278,7 +1281,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
         value: BigInt(output.value),
         bip32Derivation:
-          change && path && pubkey
+          change && path && pubkey && this.segwitType !== 'p2tr'
             ? [
                 {
                   masterFingerprint: masterFingerprintBuffer,
@@ -1287,13 +1290,33 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
                 },
               ]
             : [],
+        tapBip32Derivation:
+          this.segwitType === 'p2tr' && pubkey && path && change
+            ? [
+                {
+                  pubkey: new Uint8Array(pubkey),
+                  masterFingerprint: new Uint8Array(masterFingerprintBuffer),
+                  path,
+                  leafHashes: [],
+                },
+              ]
+            : [],
+        // tapInternalKey : this.segwitType === 'p2tr' && pubkey ? new Uint8Array(pubkey): undefined,
       });
     });
 
     if (!skipSigning) {
       // skiping signing related stuff
       for (let cc = 0; cc < c; cc++) {
-        psbt.signInput(cc, keypairs[cc]);
+        if (this.segwitType === 'p2tr') {
+          assert(psbt.data.inputs[cc].tapInternalKey, 'TapInternalKey is required for taproot inputs');
+          psbt.signTaprootInput(
+            cc,
+            keypairs[cc].tweak(bitcoin.crypto.taggedHash('TapTweak', psbt.data.inputs[cc].tapInternalKey as Uint8Array)),
+          );
+        } else {
+          psbt.signInput(cc, keypairs[cc]);
+        }
       }
     }
 

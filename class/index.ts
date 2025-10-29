@@ -10,6 +10,7 @@ export * from './wallets/hd-legacy-p2pkh-wallet';
 export * from './wallets/hd-segwit-bech32-wallet';
 export * from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 export * from './wallets/hd-segwit-p2sh-wallet';
+export * from './wallets/hd-taproot-wallet';
 export * from './wallets/legacy-wallet';
 export * from './wallets/lightning-custodian-wallet';
 export * from './wallets/multisig-hd-wallet';
