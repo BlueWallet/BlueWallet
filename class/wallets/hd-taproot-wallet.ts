@@ -24,7 +24,6 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    // first, getting xpub
     const seed = this._getSeed();
     const root = bip32.fromSeed(seed);
 
@@ -36,6 +35,8 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
     const xpub = child.toBase58();
     this._xpub = xpub;
 
+    // returning regular xpub since industry standard is to use regular xpubs for Taproot wallets without any
+    // kind of prefix change (like ypub or zpub)
     return xpub;
   }
 
@@ -118,5 +119,38 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
     });
 
     return psbt;
+  }
+
+  allowSend() {
+    return true;
+  }
+
+  allowCosignPsbt() {
+    return true;
+  }
+
+  // is it even used anywhere..?
+  isSegwit() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
+    return true;
+  }
+
+  allowMasterFingerprint() {
+    return true;
+  }
+
+  allowXpub() {
+    return true;
+  }
+
+  allowBIP47() {
+    return true;
+  }
+
+  allowSilentPaymentSend(): boolean {
+    return true;
   }
 }

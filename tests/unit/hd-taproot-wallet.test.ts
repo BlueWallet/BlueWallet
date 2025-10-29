@@ -90,6 +90,22 @@ describe('Taproot HD (BIP86)', () => {
     assert.ok(hd2.validateMnemonic());
   });
 
+  it('can make xpub', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    const hd = new HDTaprootWallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+
+    assert.strictEqual(true, hd.validateMnemonic());
+    assert.strictEqual(
+      'xpub6D7Yb9GhEurKUHVVcpeaCRMBydwrJN3uoy2Mqt7UZXuVezdreniHwedHPGtzct3Fy7JgN6XqdJvw9svHvLHHDuh4RTDArPizwttxaHCzSCP',
+      hd.getXpub(),
+    );
+  });
+
   it('can createTransaction with a correct feerate', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');

@@ -18,6 +18,12 @@
         "iterate_accounts": true
     },
     {
+        "description": "Standard BIP86 native segwit",
+        "derivation_path": "m/86'/0'/0'",
+        "script_type": "p2tr",
+        "iterate_accounts": true
+    },
+    {
         "description": "Non-standard legacy",
         "derivation_path": "m/0'",
         "script_type": "p2pkh",

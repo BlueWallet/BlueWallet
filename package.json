@@ -60,6 +60,7 @@
     "android": "react-native run-android",
     "adb": "adb reverse tcp:8081 tcp:8081",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
+    "android:restart": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
     "ios": "react-native run-ios",
     "postinstall": "npm run releasenotes2json; npm run branch2json; npm run patches",
     "patches": "",

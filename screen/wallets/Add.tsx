@@ -15,7 +15,7 @@ import {
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
+import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, HDTaprootWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -192,6 +192,12 @@ const WalletsAdd: React.FC = () => {
         menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
+        id: HDTaprootWallet.type,
+        text: `Taproot`,
+        subtitle: 'p2tr/HD',
+        menuState: selectedIndex === 3 && selectedWalletType === ButtonSelected.ONCHAIN,
+      },
+      {
         id: LightningCustodianWallet.type,
         text: LightningCustodianWallet.typeReadable,
         subtitle: LightningCustodianWallet.subtitleReadable,
@@ -246,6 +252,8 @@ const WalletsAdd: React.FC = () => {
             setSelectedIndex(1);
           } else if (id === HDSegwitP2SHWallet.type) {
             setSelectedIndex(2);
+          } else if (id === HDTaprootWallet.type) {
+            setSelectedIndex(3);
           } else if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
           } else if (id === '12_words') {
@@ -302,9 +310,11 @@ const WalletsAdd: React.FC = () => {
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
-      let w: HDSegwitBech32Wallet | SegwitP2SHWallet | HDSegwitP2SHWallet;
-      if (selectedIndex === 2) {
-        // zero index radio - HD segwit
+      let w: HDSegwitBech32Wallet | SegwitP2SHWallet | HDSegwitP2SHWallet | HDTaprootWallet;
+      if (selectedIndex === 3) {
+        w = new HDTaprootWallet();
+        w.setLabel(label || loc.wallets.details_title);
+      } else if (selectedIndex === 2) {
         w = new HDSegwitP2SHWallet();
         w.setLabel(label || loc.wallets.details_title);
       } else if (selectedIndex === 1) {
@@ -314,7 +324,7 @@ const WalletsAdd: React.FC = () => {
         w.setLabel(label || loc.wallets.details_title);
       } else {
         // btc was selected
-        // index 2 radio - hd bip84
+        // index 0 radio - hd bip84
         w = new HDSegwitBech32Wallet();
         w.setLabel(label || loc.wallets.details_title);
       }
