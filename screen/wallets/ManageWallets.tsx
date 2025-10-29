@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import {
   StyleSheet,
-  TouchableOpacity,
+  Pressable,
   Image,
   Alert,
   Animated,
@@ -517,16 +517,16 @@ const ManageWallets: React.FC = () => {
   const buttonOpacity = useMemo(() => ({ opacity: saveInProgress ? 0.5 : 1 }), [saveInProgress]);
   const HeaderLeftButton = useMemo(
     () => (
-      <TouchableOpacity
+      <Pressable
         accessibilityRole="button"
         accessibilityLabel={loc._.close}
-        style={[styles.button, buttonOpacity]}
+        style={({ pressed }) => [styles.button, buttonOpacity, pressed && styles.pressed]}
         onPress={goBack}
         disabled={saveInProgress}
         testID="NavigationCloseButton"
       >
         <Image source={closeImage} />
-      </TouchableOpacity>
+      </Pressable>
     ),
     [buttonOpacity, goBack, saveInProgress, closeImage],
   );
@@ -757,5 +757,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

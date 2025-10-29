@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, Pressable } from 'react-native';
 
 import { useTheme } from './themes';
 
@@ -14,15 +14,15 @@ const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, 
   const { colors } = useTheme();
   const opacity = disabled ? 0.5 : 1;
   return (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
       disabled={disabled}
-      style={[styles.save, { backgroundColor: colors.lightButton }, { opacity }]}
+      style={({ pressed }) => [styles.save, { backgroundColor: colors.lightButton }, { opacity }, pressed && styles.pressed]}
       onPress={onPress}
       testID={testID}
     >
       <Text style={[styles.saveText, { color: colors.buttonTextColor }]}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

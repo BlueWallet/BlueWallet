@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Pressable, View } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
@@ -19,7 +19,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
+const CopyTextToClipboard = forwardRef<React.ElementRef<typeof Pressable>, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
   const [hasTappedText, setHasTappedText] = useState(false);
   const [address, setAddress] = useState(text);
 
@@ -42,12 +42,13 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Pressable
         ref={ref}
         accessibilityRole="button"
         onPress={copyToClipboard}
         disabled={hasTappedText}
         testID="CopyTextToClipboard"
+        style={({ pressed }) => [pressed && styles.pressed]}
       >
         <Animated.Text
           style={styleCopyTextToClipboard.address}
@@ -56,7 +57,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
         >
           {address}
         </Animated.Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 });
@@ -65,4 +66,7 @@ export default CopyTextToClipboard;
 
 const styles = StyleSheet.create({
   container: { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 },
+  pressed: {
+    opacity: 0.6,
+  },
 });

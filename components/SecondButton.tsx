@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, Pressable, View, ActivityIndicator } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from './themes';
@@ -20,7 +20,7 @@ type SecondButtonProps = {
   testID?: string;
 };
 
-export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>, SecondButtonProps>((props, ref) => {
+export const SecondButton = forwardRef<React.ElementRef<typeof Pressable>, SecondButtonProps>((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonGrayBackgroundColor;
   let fontColor = colors.secondButtonTextColor;
@@ -39,16 +39,16 @@ export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>
   );
 
   return props.onPress ? (
-    <TouchableOpacity
+    <Pressable
       disabled={props.disabled || props.loading}
       accessibilityRole="button"
       testID={props.testID}
-      style={[styles.button, { backgroundColor }]}
+      style={({ pressed }) => [styles.button, { backgroundColor }, pressed && styles.pressed]}
       {...props}
       ref={ref}
     >
       {buttonView}
-    </TouchableOpacity>
+    </Pressable>
   ) : (
     <View style={[styles.button, { backgroundColor }]}>{buttonView}</View>
   );
@@ -79,5 +79,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

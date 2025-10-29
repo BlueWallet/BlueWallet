@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Pressable, View } from 'react-native';
 
 import { useTheme } from './themes';
 
@@ -24,6 +24,9 @@ const tabsStyles = StyleSheet.create({
   marginBottom: {
     marginBottom: 30,
   },
+  pressed: {
+    opacity: 0.6,
+  },
 });
 
 interface TabProps {
@@ -42,14 +45,18 @@ export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, isIpad = fal
   return (
     <View style={[tabsStyles.root, isIpad && tabsStyles.marginBottom]}>
       {tabs.map((Tab, i) => (
-        <TouchableOpacity
+        <Pressable
           key={i}
           accessibilityRole="button"
           onPress={() => onSwitch(i)}
-          style={[tabsStyles.tabRoot, active === i && { ...tabsStyles.activeTabRoot, borderColor: colors.buttonAlternativeTextColor }]}
+          style={({ pressed }) => [
+            tabsStyles.tabRoot,
+            active === i && { ...tabsStyles.activeTabRoot, borderColor: colors.buttonAlternativeTextColor },
+            pressed && tabsStyles.pressed,
+          ]}
         >
           <Tab active={active === i} />
-        </TouchableOpacity>
+        </Pressable>
       ))}
     </View>
   );

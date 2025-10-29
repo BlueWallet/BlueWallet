@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, Pressable, View } from 'react-native';
 
 import { useTheme } from './themes';
 
@@ -46,11 +46,16 @@ const StyledButton: FC<StyledButtonProps> = ({ onPress, text, disabled = false, 
   };
 
   return (
-    <TouchableOpacity accessibilityRole="button" onPress={onPress} disabled={disabled} style={stylesHook.container}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [stylesHook.container, pressed && styles.pressed]}
+    >
       <View style={[styles.buttonContainer, buttonStyles()]}>
         <Text style={[styles.text, textStyles()]}>{text}</Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -81,6 +86,9 @@ const styles = StyleSheet.create({
   },
   textDestroy: {
     color: '#D0021B',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

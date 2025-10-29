@@ -1,15 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  InteractionManager,
-  LayoutAnimation,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, InteractionManager, LayoutAnimation, StyleSheet, Switch, Text, TextInput, Pressable, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -595,9 +585,9 @@ const WalletDetails: React.FC = () => {
                       {isMasterFingerPrintVisible ? (
                         <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
                       ) : (
-                        <TouchableOpacity onPress={onViewMasterFingerPrintPress}>
+                        <Pressable onPress={onViewMasterFingerPrintPress} style={({ pressed }) => [pressed && styles.pressed]}>
                           <BlueText>{loc.multisig.view}</BlueText>
-                        </TouchableOpacity>
+                        </Pressable>
                       )}
                     </View>
                   )}
@@ -710,6 +700,9 @@ const styles = StyleSheet.create({
   },
   marginRight16: {
     marginRight: 16,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

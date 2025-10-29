@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, BackHandler, StyleSheet, Text, Pressable, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -434,11 +434,11 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     } else if (isRBFCancelPossible === ButtonStatus.Possible) {
       return (
         <>
-          <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
+          <Pressable accessibilityRole="button" style={({ pressed }) => [styles.cancel, pressed && styles.pressed]}>
             <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
               {loc.transactions.status_cancel}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
           <BlueSpacing10 />
         </>
       );
@@ -731,5 +731,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

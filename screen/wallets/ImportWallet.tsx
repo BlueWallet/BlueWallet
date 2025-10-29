@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
+import { Keyboard, Platform, StyleSheet, View, Pressable, Image } from 'react-native';
 import { BlueFormLabel, BlueFormMultiInput } from '../../BlueComponents';
 import Button from '../../components/Button';
 import {
@@ -52,6 +52,9 @@ const ImportWallet = () => {
     },
     button: {
       padding: 10,
+    },
+    pressed: {
+      opacity: 0.6,
     },
   });
 
@@ -177,19 +180,19 @@ const ImportWallet = () => {
       headerLeft:
         navigation.getState().index === 0
           ? () => (
-              <TouchableOpacity
+              <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={loc._.close}
-                style={styles.button}
+                style={({ pressed }) => [styles.button, pressed && styles.pressed]}
                 onPress={() => navigation.goBack()}
                 testID="NavigationCloseButton"
               >
                 <Image source={closeImage} />
-              </TouchableOpacity>
+              </Pressable>
             )
           : undefined,
     });
-  }, [colors, navigation, toolTipActions, HeaderRight, styles.button, closeImage]);
+  }, [colors, navigation, toolTipActions, HeaderRight, styles.button, styles.pressed, closeImage]);
 
   const renderOptionsAndImportButton = (
     <>
@@ -207,9 +210,9 @@ const ImportWallet = () => {
   return (
     <SafeAreaScrollView contentContainerStyle={styles.root} keyboardShouldPersistTaps="always" automaticallyAdjustKeyboardInsets>
       <BlueSpacing20 />
-      <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
+      <Pressable accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-      </TouchableWithoutFeedback>
+      </Pressable>
       <BlueSpacing20 />
       <BlueFormMultiInput
         value={importText}

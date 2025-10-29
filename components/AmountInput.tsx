@@ -11,7 +11,6 @@ import {
   TextInput,
   TextInputProps,
   TextInputSelectionChangeEventData,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -296,15 +295,15 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
           </View>
         </View>
         {!disabled && amount !== BitcoinUnit.MAX && (
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
             accessibilityLabel={loc._.change_input_currency}
             testID="changeAmountUnitButton"
-            style={styles.changeAmountUnit}
+            style={({ pressed }) => [styles.changeAmountUnit, pressed && styles.pressed]}
             onPress={changeAmountUnit}
           >
             <Image source={require('../img/round-compare-arrows-24-px.png')} />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
       {outdatedRefreshRate && (
@@ -313,15 +312,15 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
           <View style={styles.spacing8} />
           <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT') })}</BlueText>
           <View style={styles.spacing8} />
-          <TouchableOpacity
+          <Pressable
             accessibilityRole="button"
             accessibilityLabel={loc._.refresh}
             onPress={updateRate}
             disabled={isRateBeingUpdatedLocal}
-            style={isRateBeingUpdatedLocal ? styles.disabledButton : styles.enabledButon}
+            style={({ pressed }) => [isRateBeingUpdatedLocal ? styles.disabledButton : styles.enabledButon, pressed && styles.pressed]}
           >
             <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
     </Pressable>
@@ -392,5 +391,8 @@ const styles = StyleSheet.create({
     marginRight: 16,
     paddingLeft: 16,
     paddingVertical: 16,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

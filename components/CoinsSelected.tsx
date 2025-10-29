@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, Pressable, View } from 'react-native';
 import { Avatar } from '@rneui/themed';
 
 import loc from '../loc';
@@ -31,6 +31,9 @@ const styles = StyleSheet.create({
     borderRadius: 13,
     backgroundColor: 'rgba(255, 255, 255, 0.32)',
   },
+  pressed: {
+    opacity: 0.6,
+  },
 });
 
 interface CoinsSelectedProps {
@@ -40,14 +43,14 @@ interface CoinsSelectedProps {
 }
 
 const CoinsSelected: React.FC<CoinsSelectedProps> = ({ number, onContainerPress, onClose }) => (
-  <TouchableOpacity accessibilityRole="button" style={styles.root} onPress={onContainerPress}>
+  <Pressable accessibilityRole="button" style={({ pressed }) => [styles.root, pressed && styles.pressed]} onPress={onContainerPress}>
     <View style={styles.labelContainer}>
       <Text style={styles.labelText}>{loc.formatString(loc.cc.coins_selected, { number })}</Text>
     </View>
-    <TouchableOpacity accessibilityRole="button" style={styles.buttonContainer} onPress={onClose}>
+    <Pressable accessibilityRole="button" style={({ pressed }) => [styles.buttonContainer, pressed && styles.pressed]} onPress={onClose}>
       <Avatar rounded containerStyle={[styles.ball]} icon={{ name: 'close', size: 22, type: 'ionicons', color: 'white' }} />
-    </TouchableOpacity>
-  </TouchableOpacity>
+    </Pressable>
+  </Pressable>
 );
 
 export default CoinsSelected;

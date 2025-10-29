@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
+import { StyleSheet, ViewStyle, Pressable, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
@@ -54,25 +54,29 @@ interface SwipeContentProps {
 }
 
 const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, colors }) => (
-  <TouchableOpacity
+  <Pressable
     onPress={onPress}
-    style={[styles.leftButtonContainer, { backgroundColor: colors.buttonAlternativeTextColor } as ViewStyle]}
+    style={({ pressed }) => [
+      styles.leftButtonContainer,
+      { backgroundColor: colors.buttonAlternativeTextColor } as ViewStyle,
+      pressed && styles.pressed,
+    ]}
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
     <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
-  </TouchableOpacity>
+  </Pressable>
 );
 
 const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) => (
-  <TouchableOpacity
+  <Pressable
     onPress={onPress}
-    style={styles.rightButtonContainer as ViewStyle}
+    style={({ pressed }) => [styles.rightButtonContainer as ViewStyle, pressed && styles.pressed]}
     accessibilityRole="button"
     accessibilityLabel="Delete Wallet"
   >
     <Icon name={Platform.OS === 'android' ? 'delete' : 'delete-outline'} color="#FFFFFF" />
-  </TouchableOpacity>
+  </Pressable>
 );
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
@@ -524,6 +528,9 @@ const styles = StyleSheet.create({
   itemDivider: {
     height: 1,
     width: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 

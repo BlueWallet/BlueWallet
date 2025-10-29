@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, Pressable, View, ViewStyle } from 'react-native';
 
 import { useTheme } from './themes';
 
@@ -10,7 +10,7 @@ interface SquareButtonProps {
   testID?: string;
 }
 
-export const SquareButton = forwardRef<React.ElementRef<typeof TouchableOpacity>, SquareButtonProps>((props, ref) => {
+export const SquareButton = forwardRef<React.ElementRef<typeof Pressable>, SquareButtonProps>((props, ref) => {
   const { title, onPress, style, testID } = props;
   const { colors } = useTheme();
 
@@ -27,9 +27,15 @@ export const SquareButton = forwardRef<React.ElementRef<typeof TouchableOpacity>
   );
 
   return onPress ? (
-    <TouchableOpacity ref={ref} style={style} onPress={onPress} testID={testID} accessibilityRole="button">
+    <Pressable
+      ref={ref}
+      style={({ pressed }) => [style, pressed && styles.pressed]}
+      onPress={onPress}
+      testID={testID}
+      accessibilityRole="button"
+    >
       {buttonView}
-    </TouchableOpacity>
+    </Pressable>
   ) : (
     <View style={style}>{buttonView}</View>
   );
@@ -44,5 +50,8 @@ const styles = StyleSheet.create({
   text: {
     marginHorizontal: 8,
     fontSize: 16,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

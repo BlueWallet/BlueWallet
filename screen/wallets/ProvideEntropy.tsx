@@ -3,18 +3,7 @@ import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigat
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
 import BN from 'bignumber.js';
-import {
-  Alert,
-  Dimensions,
-  Image,
-  PixelRatio,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Alert, Dimensions, Image, PixelRatio, ScrollView, StyleSheet, Text, Pressable, View, useWindowDimensions } from 'react-native';
 
 import { randomBytes } from '../../class/rng';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -154,12 +143,20 @@ export const convertToBuffer = ({ entropy, bits }: { entropy: BN; bits: number }
 
 const Coin = ({ push }: { push: TPush }) => (
   <View style={styles.coinRoot}>
-    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => push(getEntropy(0, 2))}
+      style={({ pressed }) => [styles.coinBody, pressed && styles.pressed]}
+    >
       <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
-    </TouchableOpacity>
-    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
+    </Pressable>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => push(getEntropy(1, 2))}
+      style={({ pressed }) => [styles.coinBody, pressed && styles.pressed]}
+    >
       <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
-    </TouchableOpacity>
+    </Pressable>
   </View>
 );
 
@@ -199,7 +196,12 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
   return (
     <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
-        <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
+        <Pressable
+          accessibilityRole="button"
+          key={i}
+          onPress={() => push(getEntropy(i, sides))}
+          style={({ pressed }) => [pressed && styles.pressed]}
+        >
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
@@ -209,7 +211,7 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
               </View>
             )}
           </View>
-        </TouchableOpacity>
+        </Pressable>
       ))}
     </ScrollView>
   );
@@ -346,13 +348,13 @@ const ProvideEntropy = () => {
   return (
     <SafeArea>
       <BlueSpacing20 />
-      <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
+      <Pressable accessibilityRole="button" onPress={() => setShow(!show)} style={({ pressed }) => [pressed && styles.pressed]}>
         <View style={[styles.entropy, stylesHook.entropy]}>
           <Text style={[styles.entropyText, stylesHook.entropyText]}>
             {show ? hex : loc.formatString(loc.entropy.amountOfEntropy, { bits, limit: entropy.limit })}
           </Text>
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
       <Tabs active={tab} onSwitch={setTab} tabs={[TollTab, D6Tab, D20Tab]} />
 
@@ -438,6 +440,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     transform: [{ rotate: '-45deg' }],
     alignItems: 'center',
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });
 
