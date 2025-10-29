@@ -2,6 +2,7 @@
 import { DEFAULT_QR_VERSION, ENCODING, FILE_TYPE, HEADER, QR_CAPACITIES, SPLIT_MODULO } from './constants';
 import type { EncodingType, FileType } from './constants';
 import { base32Encode, encodeByType, intToBase36, isPSBT, selectOptimalEncoding } from './utils';
+import { uint8ArrayToString } from '../uint8array-extras/index';
 
 export interface EncodeOptions {
   encoding?: EncodingType;
@@ -48,7 +49,7 @@ export function detectFileType(bytes: Uint8Array, hint?: FileType): FileType {
 
   // Try to detect JSON
   try {
-    const text = new TextDecoder().decode(bytes);
+    const text = uint8ArrayToString(bytes);
     if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
       JSON.parse(text);
       return FILE_TYPE.JSON;
