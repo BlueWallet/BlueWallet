@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Platform, TouchableOpacity } from 'react-native';
+import { Platform, View } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -8,8 +8,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
     title = '',
     isMenuPrimaryAction = false,
-    disabled = false,
-    onPress,
     buttonStyle,
     onPressMenuItem,
     children,
@@ -120,9 +118,9 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         accessibilityLanguage={language}
       >
         {isMenuPrimaryAction || isButton ? (
-          <TouchableOpacity style={buttonStyle} disabled={disabled} onPress={onPress} {...restProps}>
+          <View style={buttonStyle} {...restProps}>
             {children}
-          </TouchableOpacity>
+          </View>
         ) : (
           children
         )}
