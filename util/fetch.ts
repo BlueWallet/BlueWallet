@@ -1,4 +1,4 @@
-const DEFAULT_TIMEOUT = 10000; // default timeout in ms
+const DEFAULT_TIMEOUT = 20_000; // default timeout in ms
 
 // protection against calling itself recursively
 const nativeFetch = globalThis.fetch.bind(globalThis);
