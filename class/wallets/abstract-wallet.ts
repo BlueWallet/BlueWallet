@@ -246,7 +246,7 @@ export class AbstractWallet {
       const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '').split('/')[0];
 
       const pathIndex = fpAndPath.indexOf('/');
-      const path = 'm' + fpAndPath.substring(pathIndex);
+      const path = 'm' + fpAndPath.substring(pathIndex).replace(/h/g, "'");
       const fp = fpAndPath.substring(0, pathIndex);
 
       this._derivationPath = path;
