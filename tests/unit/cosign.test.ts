@@ -5,6 +5,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 import { Transaction } from 'bitcoinjs-lib';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';
 
 describe('AbstractHDElectrumWallet.cosign', () => {
   it('different descendants of AbstractHDElectrumWallet can cosign one transaction', async () => {
@@ -69,7 +70,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     // but for now, we will construct psbt by hand
 
     const sequence = HDSegwitBech32Wallet.defaultRBFSequence;
-    const masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+    const masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
     const psbt = new bitcoin.Psbt();
 
     // add one input from each wallet
@@ -93,7 +94,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
           },
         ],
         // non-segwit inputs now require passing the whole previous tx as Buffer
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     }
 

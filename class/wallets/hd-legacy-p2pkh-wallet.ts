@@ -5,6 +5,7 @@ import { CoinSelectReturnInput } from 'coinselect';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -80,7 +81,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     }
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Uint8Array) {
     if (!input.address) {
       throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
     }
@@ -104,7 +105,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
         },
       ],
       // non-segwit inputs now require passing the whole previous tx as Buffer
-      nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+      nonWitnessUtxo: hexToUint8Array(input.txhex),
     });
 
     return psbt;
