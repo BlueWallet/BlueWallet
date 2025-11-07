@@ -323,16 +323,17 @@ const WalletsAdd: React.FC = () => {
           switch (index2walletType[c].walletType) {
             case HDTaprootWallet.type:
               w = new HDTaprootWallet();
+              w.setLabel(label || loc.wallets.details_title);
               break;
             case HDLegacyP2PKHWallet.type:
               w = new HDLegacyP2PKHWallet();
+              w.setLabel(label || loc.wallets.details_title);
               break;
             case HDSegwitBech32Wallet.type:
               w = new HDSegwitBech32Wallet();
+              w.setLabel(label || loc.wallets.details_title);
               break;
           }
-
-          w.setLabel(label || loc.wallets.details_title);
         }
       }
 

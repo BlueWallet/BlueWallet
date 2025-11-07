@@ -80,7 +80,7 @@ const WalletXpub: React.FC = () => {
         setXPubText(xpub);
       }
     })();
-  }, [wallet, xPubText, xpub]);
+  }, [wallet, xpub]);
 
   const onLayout = (e: { nativeEvent: { layout: { width: any; height?: any } } }) => {
     const { height, width } = e.nativeEvent.layout;
