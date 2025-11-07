@@ -1301,7 +1301,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
                 },
               ]
             : [],
-        // tapInternalKey : this.segwitType === 'p2tr' && pubkey ? new Uint8Array(pubkey): undefined,
+        ...(this.segwitType === 'p2tr' && pubkey ? { tapInternalKey: new Uint8Array(pubkey) } : {}),
       });
     });
 

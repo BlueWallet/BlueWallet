@@ -18,7 +18,7 @@
         "iterate_accounts": true
     },
     {
-        "description": "Standard BIP86 native segwit",
+        "description": "Standard BIP86 native taproot",
         "derivation_path": "m/86'/0'/0'",
         "script_type": "p2tr",
         "iterate_accounts": true

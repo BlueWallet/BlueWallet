@@ -388,12 +388,18 @@ export class LegacyWallet extends AbstractWallet {
         continue;
       }
 
+      // counting the number of vbytes for each script type:
       if (this.segwitType === 'p2wpkh') {
+        // 72 (high R low S signature) + 1 + 33 (comp pubkey) + 1 = 107 / 4 = 26.75 rounded up.
         u.script = { length: 27 };
       } else if (this.segwitType === 'p2sh(p2wpkh)') {
+        // ((72 (high R low S signature) + 1 + 33 (comp pubkey) + 1) / 4) + 22 (P2WPKH output on scriptSig stack) + 1 = 49.75 rounded up
         u.script = { length: 50 };
       } else if (this.segwitType === 'p2tr') {
-        u.script = { length: 19 }; // set empyrically, didnt actually calculate it
+        // taproot key path spend is just a 64 or 65 byte signature on the witness stack.
+        // So it would be 65 bytes (assuming max size) + the pushbyte for 65 bytes on the stack, which makes 66.
+        // 66 / 4 = 16.5 round up to 17
+        u.script = { length: 17 };
       }
     }
 
@@ -612,7 +618,7 @@ export class LegacyWallet extends AbstractWallet {
     const keyPair = ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
-    let segwitType: 'p2wpkh' | 'p2sh(p2wpkh)' = 'p2wpkh';
+    let segwitType: 'p2wpkh' | 'p2sh(p2wpkh)';
     switch (this.segwitType) {
       case 'p2sh(p2wpkh)':
         segwitType = 'p2sh(p2wpkh)';
