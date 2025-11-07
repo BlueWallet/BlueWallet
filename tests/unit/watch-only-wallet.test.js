@@ -179,6 +179,23 @@ describe('Watch only wallet', () => {
     );
   });
 
+  it('can import coldcard json', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      '{"seed_version": 17, "use_encryption": false, "wallet_type": "standard", "keystore": {"type": "hardware", "hw_type": "coldcard", "label": "Coldcard Import 96749544", "ckcc_xfp": 1150645398, "ckcc_xpub": "xpub661MyMwAqRbcGR5LnL22SYYJesG8PAm4wkT5dcJ76U8RT72NNZjaLQFHvaLe88pp45DcdfDSQ1hVzfJ371VHzYGNgVroS9N6Y31C6uGQ9St", "derivation": "m/84h/0h/0h", "xpub": "zpub6rCuTB3jGcJZkGjP7LNwGxg24yBSbi1gCr33DJkrxSsPTwMgYFE8khr8GWEC3bGKA2kG6GTU9WEkLAaYnFFQvn6y3w8MZJZua5GkcbA8nrd"}}',
+    );
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rCuTB3jGcJZkGjP7LNwGxg24yBSbi1gCr33DJkrxSsPTwMgYFE8khr8GWEC3bGKA2kG6GTU9WEkLAaYnFFQvn6y3w8MZJZua5GkcbA8nrd',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 1150645398);
+    assert.strictEqual(w.getMasterFingerprintHex(), '96749544');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.ok(w.useWithHardwareWalletEnabled());
+  });
+
   it('can import Electrum compatible backup wallet, and create a tx with master fingerprint', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum.txt', 'ascii'));

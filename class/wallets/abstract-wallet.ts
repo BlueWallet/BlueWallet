@@ -278,6 +278,7 @@ export class AbstractWallet {
         }
         if (parsedSecret.keystore.derivation) {
           this._derivationPath = parsedSecret.keystore.derivation;
+          this._derivationPath = this._derivationPath?.replace(/h/g, "'");
         }
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
