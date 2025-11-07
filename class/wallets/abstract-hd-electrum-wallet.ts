@@ -51,6 +51,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _txs_by_internal_index: Record<number, Transaction[]>;
 
   _utxo: any[];
+  _fp: string;
 
   // BIP47
   _enable_BIP47: boolean;
@@ -117,6 +118,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._next_free_payment_code_address_index_send = {};
     this._balances_by_payment_code_index = {};
     this._addresses_by_payment_code_receive = {};
+
+    // cache
+    this._fp = '';
   }
 
   /**
@@ -1577,11 +1581,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
+   * @returns Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
    */
   getMasterFingerprintHex() {
+    if (this._fp) {
+      return this._fp; // cache hit
+    }
+
     const seed = this._getSeed();
-    return AbstractHDElectrumWallet.seedToFingerprint(seed);
+    this._fp = AbstractHDElectrumWallet.seedToFingerprint(seed);
+    return this._fp;
   }
 
   /**

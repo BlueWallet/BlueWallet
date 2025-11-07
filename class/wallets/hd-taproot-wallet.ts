@@ -135,7 +135,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
   }
 
   allowSignVerifyMessage() {
-    return true;
+    return false;
   }
 
   allowMasterFingerprint() {

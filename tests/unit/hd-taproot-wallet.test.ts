@@ -20,6 +20,7 @@ describe('Taproot HD (BIP86)', () => {
     hd.setSecret(mnemonic);
 
     assert.strictEqual(true, hd.validateMnemonic());
+    assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
     assert.strictEqual(
       'xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ',
       hd.getXpub(),
