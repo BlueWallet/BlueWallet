@@ -62,6 +62,7 @@ const WalletExport: React.FC = () => {
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const [qrCodeSize, setQRCodeSize] = useState(90);
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
@@ -81,22 +82,22 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
-      const timer = setTimeout(() => navigation.goBack(), 500);
+      disableScreenProtect();
+      const timer = setTimeout(() => {
+        navigation.goBack();
+      }, 500);
       return () => clearTimeout(timer);
     }
-  }, [currentAppState, previousAppState, navigation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAppState, previousAppState]);
 
   useEffect(() => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
     }
-    return () => {
-      disableScreenProtect();
-    };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrivacyBlurEnabled]);
 
