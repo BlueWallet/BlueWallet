@@ -282,7 +282,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     async (nextAppState: AppStateStatus | undefined) => {
       if (!shouldActivateListeners || wallets.length === 0) return;
 
-      if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
+      if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         updateExchangeRate();
         const processed = await processPushNotifications();

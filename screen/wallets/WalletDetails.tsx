@@ -285,13 +285,11 @@ const WalletDetails: React.FC = () => {
   });
 
   const navigateToWalletExport = () => {
-    navigate('WalletExportRoot', {
-      screen: 'WalletExport',
-      params: {
-        walletID,
-      },
+    navigate('WalletExport', {
+      walletID,
     });
   };
+
   const navigateToMultisigCoordinationSetup = () => {
     navigate('ExportMultisigCoordinationSetupRoot', {
       screen: 'ExportMultisigCoordinationSetup',
@@ -306,12 +304,12 @@ const WalletDetails: React.FC = () => {
     });
   };
   const navigateToXPub = () =>
-    navigate('WalletXpubRoot', {
-      screen: 'WalletXpub',
-      params: {
-        walletID,
-      },
+    navigate('WalletXpub', {
+      walletID,
+      xpub: wallet.getXpub(),
+
     });
+
   const navigateToSignVerify = () =>
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',

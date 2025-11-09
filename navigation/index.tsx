@@ -7,6 +7,8 @@ import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import WalletXpub from '../screen/wallets/xpub';
+import WalletExport from '../screen/wallets/WalletExport';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -15,9 +17,7 @@ const SendDetailsStack = lazy(() => import('./SendDetailsStack'));
 const LNDCreateInvoiceRoot = lazy(() => import('./LNDCreateInvoiceStack'));
 const ScanLNDInvoiceRoot = lazy(() => import('./ScanLNDInvoiceStack'));
 const AztecoRedeemStackRoot = lazy(() => import('./AztecoRedeemStack'));
-const WalletExportStack = lazy(() => import('./WalletExportStack'));
 const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisigCoordinationSetupStack'));
-const WalletXpubStackRoot = lazy(() => import('./WalletXpubStack'));
 const SignVerifyStackRoot = lazy(() => import('./SignVerifyStack'));
 const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
 const ViewEditMultisigCosigners = lazy(() => import('../screen/wallets/ViewEditMultisigCosigners'));
@@ -79,12 +79,6 @@ const LazyAztecoRedeemStackRoot = () => (
   </Suspense>
 );
 
-const LazyWalletExportStack = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <WalletExportStack />
-  </Suspense>
-);
-
 const LazyExportMultisigCoordinationSetupStack = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <ExportMultisigCoordinationSetupStack />
@@ -133,10 +127,17 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+
           <DetailViewStack.Screen
-            name="WalletExportRoot"
-            component={LazyWalletExportStack}
-            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+            name="WalletExport"
+            component={WalletExport}
+            options={navigationStyle({
+              headerBackVisible: false,
+              title: loc.wallets.export_title,
+              presentation: 'modal',
+              headerShown: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
           />
           <DetailViewStack.Screen
             name="ExportMultisigCoordinationSetupRoot"
@@ -155,9 +156,14 @@ const MainRoot = () => {
             })(theme)}
           />
           <DetailViewStack.Screen
-            name="WalletXpubRoot"
-            component={LazyWalletXpubStackRoot}
-            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+            name="WalletXpub"
+            component={WalletXpub}
+            options={navigationStyle({
+              title: loc.wallets.xpub_title,
+              presentation: 'modal',
+              headerShown: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
           />
           <DetailViewStack.Screen
             name="SignVerifyRoot"

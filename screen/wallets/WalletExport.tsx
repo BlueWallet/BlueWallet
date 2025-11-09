@@ -97,7 +97,7 @@ const WalletExport: React.FC = () => {
     return () => {
       disableScreenProtect();
     };
-  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
+  }, [isPrivacyBlurEnabled]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;

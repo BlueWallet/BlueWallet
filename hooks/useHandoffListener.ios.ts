@@ -34,10 +34,7 @@ const useHandoffListener = () => {
           navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
           );
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpubRoot', {
-            screen: 'WalletXpub',
-            params: { xpub: modifiedUserInfo.xpub, type: activityType },
-          });
+          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }
