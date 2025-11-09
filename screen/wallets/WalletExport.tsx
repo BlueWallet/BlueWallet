@@ -97,6 +97,7 @@ const WalletExport: React.FC = () => {
     return () => {
       disableScreenProtect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPrivacyBlurEnabled]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
