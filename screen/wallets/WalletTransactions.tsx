@@ -508,11 +508,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                     onManageFundsPressed(id);
                   })
                   .catch(() => {
-                    navigate('WalletExportRoot', {
-                      screen: 'WalletExport',
-                      params: {
-                        walletID,
-                      },
+                    navigate('WalletExport', {
+                      walletID,
                     });
                   });
               }
