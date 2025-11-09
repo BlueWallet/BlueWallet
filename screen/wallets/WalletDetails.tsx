@@ -307,7 +307,6 @@ const WalletDetails: React.FC = () => {
     navigate('WalletXpub', {
       walletID,
       xpub: wallet.getXpub(),
-
     });
 
   const navigateToSignVerify = () =>

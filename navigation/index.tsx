@@ -91,12 +91,6 @@ const LazyViewEditMultisigCosigners = () => (
   </Suspense>
 );
 
-const LazyWalletXpubStackRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <WalletXpubStackRoot />
-  </Suspense>
-);
-
 const LazySignVerifyStackRoot = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <SignVerifyStackRoot />
