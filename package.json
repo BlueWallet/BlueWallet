@@ -138,7 +138,7 @@
     "react-native-camera-kit": "15.0.1",
     "react-native-capture-protection": "github:BlueWallet/react-native-capture-protection#54d900",
     "react-native-default-preference": "https://github.com/BlueWallet/react-native-default-preference.git#6338a1f1235e4130b8cfc2dd3b53015eeff2870c",
-    "react-native-device-info": "14.0.4",
+    "react-native-device-info": "14.1.1",
     "react-native-draglist": "github:BlueWallet/react-native-draglist#0c8049d",
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.25.0",
