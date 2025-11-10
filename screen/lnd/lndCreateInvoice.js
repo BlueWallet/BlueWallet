@@ -202,11 +202,8 @@ const LNDCreateInvoice = () => {
             })
             .catch(() => {
               getParent().pop();
-              NavigationService.navigate('WalletExportRoot', {
-                screen: 'WalletExport',
-                params: {
-                  walletID,
-                },
+              NavigationService.navigate('WalletExport', {
+                walletID: wallet.current.getID(),
               });
             });
         }
