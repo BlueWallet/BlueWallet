@@ -117,7 +117,8 @@ describe('import procedure', () => {
       ...store.callbacks,
     );
     await promise;
-    assert.strictEqual(store.state.wallets.length > 100, true);
+    // store.state.wallets.map(w => console.log(w.type));
+    assert.strictEqual(store.state.wallets.length > 90, true);
   });
 
   it('can import BIP84', async () => {

@@ -67,7 +67,7 @@ interface TAction {
 }
 
 const index2walletType: Record<number, { text: string; subtitle: string; walletType: string }> = {
-  0: { subtitle: 'p2wsh/HD', text: `${loc.multisig.native_segwit_title}`, walletType: HDSegwitBech32Wallet.type },
+  0: { subtitle: 'p2wpkh/HD', text: `${loc.multisig.native_segwit_title}`, walletType: HDSegwitBech32Wallet.type },
   1: { subtitle: 'p2pkh/HD', text: `${loc.multisig.legacy_title}`, walletType: HDLegacyP2PKHWallet.type },
   2: { subtitle: 'p2tr/HD', text: 'Taproot', walletType: HDTaprootWallet.type },
   3: {
