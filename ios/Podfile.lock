@@ -14,7 +14,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.78.2)
   - hermes-engine/Pre-built (0.78.2)
   - lottie-ios (4.5.0)
-  - lottie-react-native (7.2.4):
+  - lottie-react-native (7.3.4):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1714,7 +1714,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNLocalize (3.5.2):
+  - RNLocalize (3.5.4):
     - React-Core
   - RNPermissions (5.4.2):
     - React-Core
@@ -2277,7 +2277,7 @@ SPEC CHECKSUMS:
   glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
   hermes-engine: 2771b98fb813fdc6f92edd7c9c0035ecabf9fee7
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 3d5879c421eb43a19e3c723f834300fecfd3e5b9
+  lottie-react-native: 0fdfbaa934fc6d3acbffbac5fb4d73d48e37fdf5
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: be794de7dc6ed8f9f7fbf525f86e7651b8b68746
   RCTRequired: a83787b092ec554c2eb6019ff3f5b8d125472b3b
@@ -2359,7 +2359,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 92e89a04cd0d1c77f383a55d14c15e7f423f4c00
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
-  RNLocalize: 3c4d0abd777a546fa77bdb6caef85a87fb9ea349
+  RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
   RNPermissions: c48851513712284b650e8a166fdd409aa81b6104
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
