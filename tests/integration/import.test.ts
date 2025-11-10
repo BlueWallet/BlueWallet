@@ -117,7 +117,6 @@ describe('import procedure', () => {
       ...store.callbacks,
     );
     await promise;
-    // store.state.wallets.map(w => console.log(w.type));
     assert.strictEqual(store.state.wallets.length > 90, true);
   });
 
