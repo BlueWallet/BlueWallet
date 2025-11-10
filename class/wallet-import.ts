@@ -22,12 +22,17 @@ import {
   TaprootWallet,
   WatchOnlyWallet,
 } from '.';
-import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
+import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 import type { TWallet } from './wallets/types';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+
+// because original file bip39WalletFormatsElectrum is from Electrum X and doesn't contain p2tr wallets, we need to merge it with bip39WalletFormatsBlueWallet
+const bip39WalletFormats = [...bip39WalletFormatsBlueWallet, ...bip39WalletFormatsElectrum].filter((format, index, self) => {
+  return index === self.findIndex(t => t.derivation_path === format.derivation_path && t.script_type === format.script_type);
+});
 
 type TStatus = {
   cancelled: boolean;
