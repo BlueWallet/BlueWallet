@@ -367,6 +367,33 @@ describe('Watch only wallet', () => {
     );
   });
 
+  it('can import BIP86 (taproot) wallet descriptor', async () => {
+    const descriptors = [
+      "tr([97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw/<0;1>/*)",
+      "tr([97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)",
+      "tr([97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw",
+      "[97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw",
+    ];
+    for (const descriptor of descriptors) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(descriptor);
+      w.init();
+      assert.ok(w.valid());
+
+      assert.strictEqual(w.getMasterFingerprintHex(), '97311f91');
+      assert.strictEqual(w.getDerivationPath(), "m/86'/0'/0'");
+
+      assert.strictEqual(
+        w.getSecret(),
+        'xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw',
+      );
+
+      assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), 'not taproot address, got: ' + w._getExternalAddressByIndex(0));
+
+      assert.ok(!w.useWithHardwareWalletEnabled());
+    }
+  });
+
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');

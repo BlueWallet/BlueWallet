@@ -51,6 +51,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _txs_by_internal_index: Record<number, Transaction[]>;
 
   _utxo: any[];
+  _fp: string;
 
   // BIP47
   _enable_BIP47: boolean;
@@ -117,6 +118,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._next_free_payment_code_address_index_send = {};
     this._balances_by_payment_code_index = {};
     this._addresses_by_payment_code_receive = {};
+
+    // cache
+    this._fp = '';
   }
 
   /**
@@ -1190,6 +1194,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // for a single wallet all utxos gona be the same type, so we define it only once:
       let utxoType: SPUTXOType = 'non-eligible';
       switch (this.segwitType) {
+        case 'p2tr':
+          utxoType = 'p2tr';
+          break;
         case 'p2sh(p2wpkh)':
           utxoType = 'p2sh-p2wpkh';
           break;
@@ -1278,7 +1285,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         script: output.script?.hex ? hexToUint8Array(output.script.hex) : undefined,
         value: BigInt(output.value),
         bip32Derivation:
-          change && path && pubkey
+          change && path && pubkey && this.segwitType !== 'p2tr'
             ? [
                 {
                   masterFingerprint: masterFingerprintBuffer,
@@ -1287,13 +1294,33 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
                 },
               ]
             : [],
+        tapBip32Derivation:
+          this.segwitType === 'p2tr' && pubkey && path && change
+            ? [
+                {
+                  pubkey: new Uint8Array(pubkey),
+                  masterFingerprint: new Uint8Array(masterFingerprintBuffer),
+                  path,
+                  leafHashes: [],
+                },
+              ]
+            : [],
+        ...(this.segwitType === 'p2tr' && pubkey ? { tapInternalKey: new Uint8Array(pubkey) } : {}),
       });
     });
 
     if (!skipSigning) {
       // skiping signing related stuff
       for (let cc = 0; cc < c; cc++) {
-        psbt.signInput(cc, keypairs[cc]);
+        if (this.segwitType === 'p2tr') {
+          assert(psbt.data.inputs[cc].tapInternalKey, 'TapInternalKey is required for taproot inputs');
+          psbt.signTaprootInput(
+            cc,
+            keypairs[cc].tweak(bitcoin.crypto.taggedHash('TapTweak', psbt.data.inputs[cc].tapInternalKey as Uint8Array)),
+          );
+        } else {
+          psbt.signInput(cc, keypairs[cc]);
+        }
       }
     }
 
@@ -1554,11 +1581,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
+   * @returns Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
    */
   getMasterFingerprintHex() {
+    if (this._fp) {
+      return this._fp; // cache hit
+    }
+
     const seed = this._getSeed();
-    return AbstractHDElectrumWallet.seedToFingerprint(seed);
+    this._fp = AbstractHDElectrumWallet.seedToFingerprint(seed);
+    return this._fp;
   }
 
   /**

@@ -10,6 +10,7 @@ import {
   HDSegwitBech32Wallet,
   HDSegwitElectrumSeedP2WPKHWallet,
   HDSegwitP2SHWallet,
+  HDTaprootWallet,
   LegacyWallet,
   LightningCustodianWallet,
   MultisigHDWallet,
@@ -21,12 +22,20 @@ import {
   TaprootWallet,
   WatchOnlyWallet,
 } from '.';
-import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
+import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 import type { TWallet } from './wallets/types';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+
+// because original file bip39WalletFormatsElectrum is from Electrum X and doesn't contain p2tr wallets, we need to add it
+bip39WalletFormatsElectrum.push({
+  description: 'Standard BIP86 native taproot',
+  derivation_path: "m/86'/0'/0'",
+  script_type: 'p2tr',
+  iterate_accounts: true,
+});
 
 type TStatus = {
   cancelled: boolean;
@@ -108,6 +117,7 @@ const startImport = (
     // 3.1 check HD Electrum legacy
     // 3.2 check if its AEZEED
     // 3.3 check if its SLIP39
+    // 3.4 check if its HDTaprootWallet (BIP86)
     // 4. check if its Segwit WIF (P2SH)
     // 4.5 check if its Taproot WIF
     // 5. check if its Legacy WIF
@@ -214,7 +224,7 @@ const startImport = (
     if (hd2.validateMnemonic()) {
       let walletFound = false;
       // by default we don't try all the paths and options
-      const searchPaths = searchAccounts ? bip39WalletFormats : bip39WalletFormatsBlueWallet;
+      const searchPaths = searchAccounts ? bip39WalletFormatsElectrum : bip39WalletFormatsBlueWallet;
       for (const i of searchPaths) {
         // we need to skip m/0' p2pkh from default scan list. It could be a BRD wallet and will be handled later
         if (i.derivation_path === "m/0'" && i.script_type === 'p2pkh') continue;
@@ -232,6 +242,9 @@ const startImport = (
             break;
           case 'p2wpkh-p2sh':
             WalletClass = HDSegwitP2SHWallet;
+            break;
+          case 'p2tr':
+            WalletClass = HDTaprootWallet;
             break;
           default:
             // p2wpkh

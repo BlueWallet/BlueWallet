@@ -18,6 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -70,7 +71,19 @@ const WalletExport: React.FC = () => {
 
   const secrets: string[] = useMemo(() => {
     try {
-      const secret = wallet.getSecret();
+      let secret = wallet.getSecret();
+      if (wallet instanceof WatchOnlyWallet) {
+        try {
+          const path = wallet.getDerivationPath();
+          if (path?.startsWith('m/86')) {
+            // for taproot watch-only HD we dont just show xpub, we show wallet descriptor
+            const fp = wallet.getMasterFingerprintHex();
+            secret = WalletDescriptor.getDescriptor(fp, path, secret);
+          }
+        } catch (e: any) {
+          console.log(e.message);
+        }
+      }
       return typeof secret === 'string' ? [secret] : Array.isArray(secret) ? secret : [];
     } catch (error) {
       console.error('Failed to get wallet secret:', error);
@@ -119,9 +132,9 @@ const WalletExport: React.FC = () => {
   }, []);
 
   const handleCopy = useCallback(() => {
-    Clipboard.setString(wallet.getSecret());
+    Clipboard.setString(secrets[0]);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
-  }, [wallet]);
+  }, [secrets]);
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types

@@ -31,7 +31,7 @@ export class AbstractWallet {
     return temp;
   }
 
-  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)';
+  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)' | 'p2tr';
   _derivationPath?: string;
   label: string;
   secret: string;
@@ -228,6 +228,41 @@ export class AbstractWallet {
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
 
+    // is it output descriptor?
+    if (
+      this.secret.startsWith('wpkh(') ||
+      this.secret.startsWith('pkh(') ||
+      this.secret.startsWith('sh(') ||
+      this.secret.startsWith('tr(')
+    ) {
+      const xpubIndex = Math.max(this.secret.indexOf('xpub'), this.secret.indexOf('ypub'), this.secret.indexOf('zpub'));
+      let fpAndPath;
+      if (this.secret.includes('[')) {
+        fpAndPath = this.secret.substring(this.secret.indexOf('['), xpubIndex).replace(/[[\]]/g, '');
+      } else {
+        // old (or broken) format..? no square brackets, only "()"
+        fpAndPath = this.secret.substring(this.secret.indexOf('('), xpubIndex).replace(/[()]/g, '');
+      }
+      const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '').split('/')[0];
+
+      const pathIndex = fpAndPath.indexOf('/');
+      const path = 'm' + fpAndPath.substring(pathIndex).replace(/h/g, "'");
+      const fp = fpAndPath.substring(0, pathIndex);
+
+      this._derivationPath = path;
+      const mfp = uint8ArrayToHex(hexToUint8Array(fp).reverse());
+      this.masterFingerprint = parseInt(mfp, 16);
+
+      if (this.secret.startsWith('wpkh(')) {
+        this.secret = this._xpubToZpub(xpub);
+      } else {
+        // nop
+        this.secret = xpub;
+      }
+
+      return this;
+    }
+
     // [fingerprint/derivation]zpub
     const re = /\[([^\]]+)\](.*)/;
     const m = this.secret.match(re);
@@ -305,27 +340,6 @@ export class AbstractWallet {
         this._derivationPath = "m/49'/0'/0'"; // Assume default BIP49 path for segwit wrapped wallets
       } else if (this.secret.startsWith('zpub')) {
         this._derivationPath = "m/84'/0'/0'"; // Assume default BIP84 for native segwit wallets
-      }
-    }
-
-    // is it output descriptor?
-    if (this.secret.startsWith('wpkh(') || this.secret.startsWith('pkh(') || this.secret.startsWith('sh(')) {
-      const xpubIndex = Math.max(this.secret.indexOf('xpub'), this.secret.indexOf('ypub'), this.secret.indexOf('zpub'));
-      const fpAndPath = this.secret.substring(this.secret.indexOf('(') + 1, xpubIndex);
-      const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '');
-      const pathIndex = fpAndPath.indexOf('/');
-      const path = 'm' + fpAndPath.substring(pathIndex);
-      const fp = fpAndPath.substring(0, pathIndex);
-
-      this._derivationPath = path;
-      const mfp = uint8ArrayToHex(hexToUint8Array(fp).reverse());
-      this.masterFingerprint = parseInt(mfp, 16);
-
-      if (this.secret.startsWith('wpkh(')) {
-        this.secret = this._xpubToZpub(xpub);
-      } else {
-        // nop
-        this.secret = xpub;
       }
     }
 

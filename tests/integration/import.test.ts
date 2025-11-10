@@ -10,6 +10,7 @@ import {
   HDSegwitBech32Wallet,
   HDSegwitElectrumSeedP2WPKHWallet,
   HDSegwitP2SHWallet,
+  HDTaprootWallet,
   LegacyWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -116,7 +117,7 @@ describe('import procedure', () => {
       ...store.callbacks,
     );
     await promise;
-    assert.strictEqual(store.state.wallets.length > 100, true);
+    assert.strictEqual(store.state.wallets.length > 120, true);
   });
 
   it('can import BIP84', async () => {
@@ -131,6 +132,22 @@ describe('import procedure', () => {
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDSegwitBech32Wallet.type);
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1qth9qxvwvdthqmkl6x586ukkq8zvumd38nxr08l');
+  });
+
+  it('can import BIP86', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    const store = createStore();
+    const { promise } = startImport(process.env.HD_MNEMONIC_BIP84, false, false, false, ...store.callbacks);
+    await promise;
+    assert.strictEqual(store.state.wallets[1].type, HDTaprootWallet.type);
+    assert.strictEqual(
+      store.state.wallets[1]._getExternalAddressByIndex(0),
+      'bc1p84mlccwgz7vz2y7xp0yy98zz5h8myyjd7zdncw6dzw9cm5yglu9qm4qrjg',
+    );
   });
 
   it('can import BIP84 with passphrase', async () => {
