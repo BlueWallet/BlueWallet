@@ -29,9 +29,12 @@ import type { TWallet } from './wallets/types';
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
-// because original file bip39WalletFormatsElectrum is from Electrum X and doesn't contain p2tr wallets, we need to merge it with bip39WalletFormatsBlueWallet
-const bip39WalletFormats = [...bip39WalletFormatsBlueWallet, ...bip39WalletFormatsElectrum].filter((format, index, self) => {
-  return index === self.findIndex(t => t.derivation_path === format.derivation_path && t.script_type === format.script_type);
+// because original file bip39WalletFormatsElectrum is from Electrum X and doesn't contain p2tr wallets, we need to add it
+bip39WalletFormatsElectrum.push({
+  description: 'Standard BIP86 native taproot',
+  derivation_path: "m/86'/0'/0'",
+  script_type: 'p2tr',
+  iterate_accounts: true,
 });
 
 type TStatus = {
@@ -221,7 +224,7 @@ const startImport = (
     if (hd2.validateMnemonic()) {
       let walletFound = false;
       // by default we don't try all the paths and options
-      const searchPaths = searchAccounts ? bip39WalletFormats : bip39WalletFormatsBlueWallet;
+      const searchPaths = searchAccounts ? bip39WalletFormatsElectrum : bip39WalletFormatsBlueWallet;
       for (const i of searchPaths) {
         // we need to skip m/0' p2pkh from default scan list. It could be a BRD wallet and will be handled later
         if (i.derivation_path === "m/0'" && i.script_type === 'p2pkh') continue;
