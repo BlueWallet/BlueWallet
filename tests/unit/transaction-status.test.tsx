@@ -185,10 +185,10 @@ const setup = (confirmations: number, lastFetch: number) => {
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
     currentLastFetch = nextFetch;
-    
+
     // Create a new proxy to simulate what useWalletSubscribe does when lastTxFetch changes
     mockWalletSubscribe = new Proxy(walletMock, {});
-    
+
     mockStorageState = {
       ...mockStorageState,
       wallets: [walletMock],
