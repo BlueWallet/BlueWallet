@@ -46,8 +46,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
 
-  private _userInvoices: Record<string, LightningTransaction & { id?: string }> = {}; // LightningReceiveRequest id => LightningTransaction object; also transfer id (to be used for cross-referencing)
-  private _createdInvoices: CreateLightningInvoiceResponse[] = [];
   private _swapHistory: (PendingReverseSwap | PendingSubmarineSwap)[] = [];
   private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
@@ -320,8 +318,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       description: memo,
     });
 
-    this._createdInvoices.push(result);
-
     console.log('Expiry (seconds):', result.expiry);
     console.log('Lightning Invoice:', result.invoice);
     console.log('Payment Hash:', result.paymentHash);
@@ -376,8 +372,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   isInvoiceGeneratedByWallet(paymentRequest: string) {
-    // todo
-    return Object.values(this._userInvoices).some(tx => tx.payment_request === paymentRequest);
+    return this.getTransactions().some(tx => tx.payment_request === paymentRequest && typeof tx.value !== 'undefined' && tx?.value >= 0);
   }
 
   async createAccount(isTest: boolean = false) {

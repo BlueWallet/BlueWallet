@@ -213,6 +213,17 @@ describe('LightningArkWallet', () => {
     assert.ok(invoices.length > 0);
     assert(invoices[0].value! > 0);
     assert(invoices[0].ispaid);
+
+    assert.ok(
+      w.isInvoiceGeneratedByWallet(
+        'lnbc100u1p50528cpp5rhy4fgs0ff23asecxtxt9zvc3apn0p8h7fxsj0d5k7j3x92zwhlqdq5w3jhxapqd9h8vmmfvdjscqrp80xqyf8ucsp5vcsrzye432n9wh0zwuv5z8y5n9zvkwpctr685e80utzc2yueccms9qxpqysgqd87swq3hput9k6llp0wxg098hc7ge3e5nrtnvak6zreywzaf4k9s8d3u4hrmt3m22kf0jt7ruqj0caknk5ykzdenjdphz50t7xrstnqqn6aw0m',
+      ),
+    );
+    assert.ok(
+      !w.isInvoiceGeneratedByWallet(
+        'lnbc80u1p5052hwpp5z4ln6hyq4wcck809pt7f0q54ag5he6ce797flm7gl9vuccm9lx2sdqqcqzysxqyz5vqsp5nh9fl4g36606tvxswtnfxzy55yze2656cw2fya7dhl8r6u0czyds9qxpqysgq83sw25g9d9ltr05nkfzejnvvunzkrk4qeuxhszuvvsguk5m6vmg3a7n5nd67l9frru3kjzpt8x6jfusjyc7ezh49jeeh900kt3v30qsqzq7fst',
+      ),
+    );
   });
 
   // eslint-disable-next-line jest/no-disabled-tests
