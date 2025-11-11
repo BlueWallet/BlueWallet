@@ -90,6 +90,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           throw new Error('Ark wallet initialization timed out');
         }
       }
+      initLock[namespace] = false;
       return; // wallet is initialized, so we can return
     }
 
@@ -133,6 +134,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._wallet = staticWalletCache[namespace];
 
     await this._initLightningSwaps();
+    initLock[namespace] = false;
 
     // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
     setTimeout(async () => {
@@ -358,7 +360,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async fetchBtcAddress() {
-    if (!this._wallet) throw new Error('Ark wallet not initialized');
+    if (!this._wallet) await this.init();
+    assert(this._wallet,'Ark wallet not initialized');
 
     this.refill_addressess = this.refill_addressess || [];
     const address = await this._wallet.getBoardingAddress();
