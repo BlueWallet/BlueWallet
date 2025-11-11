@@ -18,6 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
+import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
 
 type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
 
@@ -62,6 +63,7 @@ const WalletExport: React.FC = () => {
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const [qrCodeSize, setQRCodeSize] = useState(90);
+  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
@@ -69,7 +71,19 @@ const WalletExport: React.FC = () => {
 
   const secrets: string[] = useMemo(() => {
     try {
-      const secret = wallet.getSecret();
+      let secret = wallet.getSecret();
+      if (wallet instanceof WatchOnlyWallet) {
+        try {
+          const path = wallet.getDerivationPath();
+          if (path?.startsWith('m/86')) {
+            // for taproot watch-only HD we dont just show xpub, we show wallet descriptor
+            const fp = wallet.getMasterFingerprintHex();
+            secret = WalletDescriptor.getDescriptor(fp, path, secret);
+          }
+        } catch (e: any) {
+          console.log(e.message);
+        }
+      }
       return typeof secret === 'string' ? [secret] : Array.isArray(secret) ? secret : [];
     } catch (error) {
       console.error('Failed to get wallet secret:', error);
@@ -81,23 +95,24 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
-      const timer = setTimeout(() => navigation.goBack(), 500);
+      disableScreenProtect();
+      const timer = setTimeout(() => {
+        navigation.goBack();
+      }, 500);
       return () => clearTimeout(timer);
     }
-  }, [currentAppState, previousAppState, navigation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentAppState, previousAppState]);
 
   useEffect(() => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
     }
-    return () => {
-      disableScreenProtect();
-    };
-  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPrivacyBlurEnabled]);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
@@ -117,9 +132,9 @@ const WalletExport: React.FC = () => {
   }, []);
 
   const handleCopy = useCallback(() => {
-    Clipboard.setString(wallet.getSecret());
+    Clipboard.setString(secrets[0]);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
-  }, [wallet]);
+  }, [secrets]);
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types

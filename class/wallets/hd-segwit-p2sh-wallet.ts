@@ -79,7 +79,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Uint8Array) {
     if (!input.address) {
       throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
     }

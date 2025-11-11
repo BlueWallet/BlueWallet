@@ -4,7 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { BlueFormLabel, BlueTextCentered } from '../../BlueComponents';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, HDTaprootWallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
@@ -57,7 +57,7 @@ const ImportCustomDerivationPath: React.FC = () => {
 
       // create wallets
       const newWallets: { [type: string]: TWallet } = {};
-      for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet]) {
+      for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDTaprootWallet]) {
         const wallet = new Wallet();
         wallet.setSecret(importText);
         if (password) {
@@ -104,6 +104,7 @@ const ImportCustomDerivationPath: React.FC = () => {
       [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, used[path]?.[HDLegacyP2PKHWallet.type]],
       [HDSegwitP2SHWallet.type, HDSegwitP2SHWallet.typeReadable, used[path]?.[HDSegwitP2SHWallet.type]],
       [HDSegwitBech32Wallet.type, HDSegwitBech32Wallet.typeReadable, used[path]?.[HDSegwitBech32Wallet.type]],
+      [HDTaprootWallet.type, HDTaprootWallet.typeReadable, used[path]?.[HDTaprootWallet.type]],
     ];
   }, [path, used, wallets]);
 

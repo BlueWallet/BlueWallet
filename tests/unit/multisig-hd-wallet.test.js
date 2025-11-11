@@ -5,6 +5,7 @@ import Base43 from '../../blue_modules/base43';
 import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigHDWallet } from '../../class/';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const fp1cobo = 'D37EAD88';
 const Zpub1 = 'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ';
@@ -882,20 +883,20 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(w2.calculateFeeFromPsbt(psbt2) < 300);
     assert.ok(w2.calculateFeeFromPsbt(psbt2) > 0);
 
-    assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[0].masterFingerprint.toString('hex').toUpperCase(), fp1cobo);
-    assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[1].masterFingerprint.toString('hex').toUpperCase(), fp2coldcard);
+    assert.strictEqual(uint8ArrayToHex(psbt2.data.outputs[1].bip32Derivation[0].masterFingerprint).toUpperCase(), fp1cobo);
+    assert.strictEqual(uint8ArrayToHex(psbt2.data.outputs[1].bip32Derivation[1].masterFingerprint).toUpperCase(), fp2coldcard);
     assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[0].path, "m/6'/7'/8'/2'" + '/1/3');
     assert.strictEqual(psbt2.data.outputs[1].bip32Derivation[1].path, "m/5'/4'/3'/2'" + '/1/3');
 
     assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[0].path, "m/6'/7'/8'/2'/0/0");
     assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[1].path, "m/5'/4'/3'/2'/0/0");
 
-    assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[0].masterFingerprint.toString('hex').toUpperCase(), fp1cobo);
+    assert.strictEqual(uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[0].masterFingerprint).toUpperCase(), fp1cobo);
     assert.strictEqual(
       psbt2.data.inputs[0].bip32Derivation[0].pubkey.toString('hex').toUpperCase(),
       '02F73DC67739702AAE9006A7101F787F2D1A5228B124034231616CFF1120E651CB',
     );
-    assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[1].masterFingerprint.toString('hex').toUpperCase(), fp2coldcard);
+    assert.strictEqual(uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[1].masterFingerprint).toUpperCase(), fp2coldcard);
     assert.strictEqual(
       psbt2.data.inputs[0].bip32Derivation[1].pubkey.toString('hex').toUpperCase(),
       '03D50975097F0D887DF1E948F6DA2BBC484C1EC079A1452CAA26D6E67F0FA0D75A',

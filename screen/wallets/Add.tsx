@@ -15,7 +15,7 @@ import {
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
+import { HDSegwitBech32Wallet, HDTaprootWallet, LightningCustodianWallet, HDLegacyP2PKHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -34,7 +34,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import assert from 'assert';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -42,7 +42,6 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
-  ARK = 'ARK',
 }
 
 interface State {
@@ -66,6 +65,18 @@ interface TAction {
   type: ActionTypes;
   payload?: any;
 }
+
+const index2walletType: Record<number, { text: string; subtitle: string; walletType: string }> = {
+  0: { subtitle: 'p2wpkh/HD', text: `${loc.multisig.native_segwit_title}`, walletType: HDSegwitBech32Wallet.type },
+  1: { subtitle: 'p2pkh/HD', text: `${loc.multisig.legacy_title}`, walletType: HDLegacyP2PKHWallet.type },
+  2: { subtitle: 'p2tr/HD', text: 'Taproot', walletType: HDTaprootWallet.type },
+  3: {
+    // lightning
+    subtitle: LightningCustodianWallet.subtitleReadable,
+    text: LightningCustodianWallet.typeReadable,
+    walletType: LightningCustodianWallet.type,
+  },
+};
 
 const initialState: State = {
   isLoading: true,
@@ -176,27 +187,27 @@ const WalletsAdd: React.FC = () => {
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
       {
-        id: HDSegwitBech32Wallet.type,
-        text: `${loc.multisig.native_segwit_title}`,
-        subtitle: 'p2wsh/HD',
+        id: index2walletType[0].walletType,
+        text: index2walletType[0].text,
+        subtitle: index2walletType[0].subtitle,
         menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
-        id: SegwitP2SHWallet.type,
-        text: `${loc.multisig.wrapped_segwit_title}`,
-        subtitle: 'p2sh-p2wsh/HD',
+        id: index2walletType[1].walletType,
+        text: index2walletType[1].text,
+        subtitle: index2walletType[1].subtitle,
         menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
-        id: HDSegwitP2SHWallet.type,
-        text: `${loc.multisig.legacy_title}`,
-        subtitle: 'p2sh/non-HD',
+        id: index2walletType[2].walletType,
+        text: index2walletType[2].text,
+        subtitle: index2walletType[2].subtitle,
         menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
       },
       {
-        id: LightningCustodianWallet.type,
-        text: LightningCustodianWallet.typeReadable,
-        subtitle: LightningCustodianWallet.subtitleReadable,
+        id: index2walletType[3].walletType,
+        text: index2walletType[3].text,
+        subtitle: index2walletType[3].subtitle,
         menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
       },
     ];
@@ -237,22 +248,19 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
 
-  const handleOnLightningArkButtonPressed = useCallback(() => {
-    confirmResetEntropy(ButtonSelected.ARK);
-  }, [confirmResetEntropy]);
-
   const HeaderRight = useMemo(
     () => (
       <HeaderMenuButton
         onPressMenuItem={(id: string) => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          if (id === HDSegwitBech32Wallet.type) {
-            setSelectedIndex(0);
-          } else if (id === SegwitP2SHWallet.type) {
-            setSelectedIndex(1);
-          } else if (id === HDSegwitP2SHWallet.type) {
-            setSelectedIndex(2);
-          } else if (id === LightningCustodianWallet.type) {
+
+          for (let c = 0; c < Object.values(index2walletType).length; c++) {
+            if (index2walletType[c].walletType === id) {
+              // found our item that was pressed
+              setSelectedIndex(c);
+            }
+          }
+          if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
           } else if (id === '12_words') {
             navigate('ProvideEntropy', { words: 12, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
@@ -307,25 +315,30 @@ const WalletsAdd: React.FC = () => {
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
-    } else if (selectedWalletType === ButtonSelected.ARK) {
-      createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
-      let w: HDSegwitBech32Wallet | SegwitP2SHWallet | HDSegwitP2SHWallet;
-      if (selectedIndex === 2) {
-        // zero index radio - HD segwit
-        w = new HDSegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details_title);
-      } else if (selectedIndex === 1) {
-        // btc was selected
-        // index 1 radio - segwit single address
-        w = new SegwitP2SHWallet();
-        w.setLabel(label || loc.wallets.details_title);
-      } else {
-        // btc was selected
-        // index 2 radio - hd bip84
-        w = new HDSegwitBech32Wallet();
-        w.setLabel(label || loc.wallets.details_title);
+      let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
+
+      for (let c = 0; c < Object.values(index2walletType).length; c++) {
+        if (c === selectedIndex) {
+          switch (index2walletType[c].walletType) {
+            case HDTaprootWallet.type:
+              w = new HDTaprootWallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+            case HDLegacyP2PKHWallet.type:
+              w = new HDLegacyP2PKHWallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+            case HDSegwitBech32Wallet.type:
+              w = new HDSegwitBech32Wallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+          }
+        }
       }
+
+      assert(w!, 'Internal error: could not decide which wallet to create');
+
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
@@ -342,7 +355,7 @@ const WalletsAdd: React.FC = () => {
         await saveToDisk();
         A(A.ENUM.CREATED_WALLET);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
+        if (w.type === HDLegacyP2PKHWallet.type || w.type === HDSegwitBech32Wallet.type || w.type === HDTaprootWallet.type) {
           navigate('PleaseBackup', {
             walletID: w.getID(),
           });
@@ -385,26 +398,6 @@ const WalletsAdd: React.FC = () => {
     }
     A(A.ENUM.CREATED_LIGHTNING_WALLET);
     await wallet.generate();
-    addWallet(wallet);
-    await saveToDisk();
-
-    A(A.ENUM.CREATED_WALLET);
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    navigate('PleaseBackupLNDHub', {
-      walletID: wallet.getID(),
-    });
-  };
-
-  const createLightningArkWallet = async () => {
-    const wallet = new LightningArkWallet();
-    try {
-      await wallet.generate();
-    } catch (Err: any) {
-      setIsLoading(false);
-      console.warn('lightning ark create failure', Err);
-      return presentAlert({ message: Err.message ?? '' });
-    }
-
     addWallet(wallet);
     await saveToDisk();
 
@@ -484,13 +477,6 @@ const WalletsAdd: React.FC = () => {
           testID="ActivateVaultButton"
           active={selectedWalletType === ButtonSelected.VAULT}
           onPress={handleOnVaultButtonPressed}
-          size={styles.button}
-        />
-        <WalletButton
-          buttonType="LightningArk"
-          testID="ActivateLightningArkButton"
-          active={selectedWalletType === ButtonSelected.ARK}
-          onPress={handleOnLightningArkButtonPressed}
           size={styles.button}
         />
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}

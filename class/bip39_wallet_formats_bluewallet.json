@@ -16,5 +16,11 @@
         "derivation_path": "m/84'/0'/0'",
         "script_type": "p2wpkh",
         "iterate_accounts": false
+    },
+    {
+        "description": "Standard BIP86 native taproot",
+        "derivation_path": "m/86'/0'/0'",
+        "script_type": "p2tr",
+        "iterate_accounts": false
     }
 ]
