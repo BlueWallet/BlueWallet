@@ -1,13 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
-import {
-  ArkadeLightning,
-  BoltzSwapProvider,
-  CreateLightningInvoiceResponse,
-  decodeInvoice,
-  PendingReverseSwap,
-  PendingSubmarineSwap,
-} from '@arkade-os/boltz-swap';
+import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
 import { SingleKey, VtxoManager, Wallet } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 
@@ -63,7 +56,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     assert(this.secret, 'No secret provided');
 
     if (!this._privateKeyCache) {
-      const mnemonic = this.secret;
+      const mnemonic = this.secret.replace('ark://', '').trim();
       const seed = bip39.mnemonicToSeedSync(mnemonic);
 
       const index = 0;
