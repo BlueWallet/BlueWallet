@@ -66,18 +66,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     if (!this._privateKeyCache) {
       const mnemonic = this.secret;
-      const m = new Measure('bip39.mnemonicToSeedSync');
       const seed = bip39.mnemonicToSeedSync(mnemonic);
-      m.end();
 
-      const mm = new Measure('derive path');
       const index = 0;
       const internal = 0;
       const accountNumber = 0;
       const root = bip32.fromSeed(seed);
       const path = `m/86'/0'/${accountNumber}'/${internal}/${index}`;
       const child = root.derivePath(path);
-      mm.end();
       assert(child.privateKey, 'Internal error: no private key for child');
 
       this._privateKeyCache = uint8ArrayToHex(child.privateKey);
@@ -92,11 +88,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async init() {
-    const m = new Measure('getIdentity');
     const identity = this._getIdentity();
-    m.end();
     const namespace = this.getNamespace();
-    console.log({ namespace });
 
     class ArkCustomStorage {
       async getItem(key: string): Promise<string | null> {
@@ -133,9 +126,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     mm.end();
     this._wallet = staticWalletCache[namespace];
 
-    const mmm = new Measure('_initLightningSwaps');
     await this._initLightningSwaps();
-    mmm.end();
 
     // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
     setTimeout(async () => {
@@ -252,7 +243,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._arkadeLightning) throw new Error('Ark Lightning not initialized');
 
     this._swapHistory = await this._arkadeLightning.getSwapHistory();
-    console.log('updated _swapHistory:', this._swapHistory);
     this._lastTxFetch = +new Date();
   }
 

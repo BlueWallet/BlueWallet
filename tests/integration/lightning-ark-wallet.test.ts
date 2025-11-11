@@ -113,11 +113,8 @@ beforeAll(async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  const start = +new Date();
   w.setSecret('ark://' + process.env.HD_MNEMONIC);
   await w.init();
-  const end = +new Date();
-  console.log('init took', (end - start) / 1000, 'seconds');
 });
 
 afterAll(async () => {
