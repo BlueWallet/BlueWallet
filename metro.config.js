@@ -15,6 +15,10 @@ const config = {
       tls: require.resolve('react-native-tcp-socket'),
     },
   },
+  transformer: {
+    // Enable inline requires for better performance with dynamic language loading
+    inlineRequires: true,
+  },
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

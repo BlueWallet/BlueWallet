@@ -4,6 +4,7 @@ import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
+import { useLanguage } from '../components/Context/LanguageProvider';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -105,10 +106,11 @@ const LazyScanQRCodeComponent = () => (
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
+  const { language } = useLanguage();
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator key={language} screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
