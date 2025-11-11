@@ -343,10 +343,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return await this._wallet.getAddress();
   }
 
-  async fetchInfo() {
-    throw new Error('not implemented');
-  }
-
   async fetchPendingTransactions() {
     // nop
   }
@@ -361,7 +357,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async fetchBtcAddress() {
     if (!this._wallet) await this.init();
-    assert(this._wallet,'Ark wallet not initialized');
+    assert(this._wallet, 'Ark wallet not initialized');
 
     this.refill_addressess = this.refill_addressess || [];
     const address = await this._wallet.getBoardingAddress();

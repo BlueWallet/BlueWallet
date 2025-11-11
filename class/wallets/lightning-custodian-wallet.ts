@@ -549,30 +549,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     return decoded;
   }
 
-  async fetchInfo() {
-    const response = await fetch(this.baseURI + '/getinfo', {
-      method: 'GET',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer' + ' ' + this.access_token,
-      },
-    });
-
-    const json = await response.json();
-    if (!json) {
-      throw new Error('API failure: ' + response.statusText);
-    }
-
-    if (json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-    }
-
-    if (!json.identity_pubkey) {
-      throw new Error('API unexpected response: ' + JSON.stringify(json));
-    }
-  }
-
   static async isValidNodeAddress(address: string): Promise<boolean> {
     const normalizedAddress = new URL('/getinfo', address.replace(/([^:]\/)\/+/g, '$1'));
 

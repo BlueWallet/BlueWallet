@@ -5,7 +5,6 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import {
   LNDCreateInvoiceComponent,
-  LNDViewAdditionalInvoiceInformationComponent,
   LNDViewAdditionalInvoicePreImageComponent,
   LNDViewInvoiceComponent,
   SelectWalletComponent,
@@ -44,11 +43,6 @@ const LNDCreateInvoiceRoot = () => {
             backgroundColor: theme.colors.customHeader,
           },
         })(theme)}
-      />
-      <Stack.Screen
-        name="LNDViewAdditionalInvoiceInformation"
-        component={LNDViewAdditionalInvoiceInformationComponent}
-        options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
       />
       <Stack.Screen
         name="LNDViewAdditionalInvoicePreImage"

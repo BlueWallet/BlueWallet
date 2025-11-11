@@ -39,7 +39,6 @@ describe.skip('LightningCustodianWallet', () => {
     await l1.authorize();
     await l1.fetchBtcAddress();
     await l1.fetchBalance();
-    await l1.fetchInfo();
     await l1.fetchTransactions();
     await l1.fetchPendingTransactions();
 
