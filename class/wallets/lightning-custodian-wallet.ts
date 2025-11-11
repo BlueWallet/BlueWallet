@@ -64,13 +64,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
   }
 
-  static fromJson(param: any) {
-    const obj = super.fromJson(param);
-    // @ts-ignore: local init
-    obj.init();
-    return obj;
-  }
-
   async init() {
     // un-cache refill onchain addresses on cold start. should help for cases when certain lndhub
     // is turned off permanently, so users cant pull refill address from cache and send money to a black hole

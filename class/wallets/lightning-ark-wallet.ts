@@ -23,6 +23,7 @@ const bip32 = BIP32Factory(ecc);
 const SERVICE_FEE = 1;
 
 const staticWalletCache: Record<string, Wallet> = {};
+const initLock: Record<string, boolean> = {};
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -79,8 +80,22 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async init() {
-    const identity = this._getIdentity();
     const namespace = this.getNamespace();
+
+    if (initLock[namespace]) {
+      let c = 0;
+      while (!this._wallet || !this._arkadeLightning) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // sleep
+        if (c++ > 30) {
+          throw new Error('Ark wallet initialization timed out');
+        }
+      }
+      return; // wallet is initialized, so we can return
+    }
+
+    initLock[namespace] = true;
+
+    const identity = this._getIdentity();
 
     class ArkCustomStorage {
       async getItem(key: string): Promise<string | null> {
