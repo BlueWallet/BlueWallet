@@ -48,7 +48,6 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(l1._access_token_created_ts > 0);
     assert.ok(l1.refill_addressess.length > 0);
     assert.ok(l1.balance === 0);
-    assert.ok(l1.info_raw);
     assert.ok(l1.pending_transactions_raw.length === 0);
     assert.ok(l1.transactions_raw.length === 0);
     assert.ok(l1.transactions_raw.length === l1.getTransactions().length);

@@ -52,9 +52,6 @@ const LNDViewInvoice = () => {
     expired: {
       backgroundColor: colors.success,
     },
-    additionalInfo: {
-      backgroundColor: colors.brandingColor,
-    },
   });
 
   useEffect(() => {

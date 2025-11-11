@@ -22,7 +22,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   pending_transactions_raw: any[] = [];
   transactions_raw: any[] = [];
   user_invoices_raw: any[] = [];
-  info_raw: false | { uris?: string[] } = false;
   preferredBalanceUnit = BitcoinUnit.SATS;
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
