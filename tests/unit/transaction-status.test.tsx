@@ -22,6 +22,13 @@ jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => mockStorageState,
 }));
 
+let mockWalletSubscribe: any = null;
+
+jest.mock('../../hooks/useWalletSubscribe', () => ({
+  __esModule: true,
+  default: () => mockWalletSubscribe,
+}));
+
 const routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
 
 jest.mock('@react-navigation/native', () => {
@@ -171,6 +178,8 @@ const setup = (confirmations: number, lastFetch: number) => {
     wallets: [walletMock],
   };
 
+  mockWalletSubscribe = walletMock;
+
   const view = render(<TransactionStatus />);
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
@@ -198,6 +207,7 @@ describe('TransactionStatus regression', () => {
       counterpartyMetadata: {},
       fetchAndSaveWalletTransactions: mockFetchAndSaveWalletTransactions,
     };
+    mockWalletSubscribe = null;
   });
 
   afterEach(() => {
