@@ -418,6 +418,7 @@ const WalletsAdd: React.FC = () => {
 
   const createLightningArkWallet = async () => {
     const wallet = new LightningArkWallet();
+    wallet.setLabel(label || loc.wallets.details_title);
     try {
       await wallet.generate();
     } catch (Err: any) {
