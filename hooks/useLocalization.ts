@@ -13,6 +13,5 @@ import { useLanguage } from '../components/Context/LanguageProvider';
  * };
  */
 export const useLocalization = () => {
-  const { language } = useLanguage();
-  return language;
+  useLanguage();
 };
