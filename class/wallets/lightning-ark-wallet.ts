@@ -24,6 +24,7 @@ const SERVICE_FEE = 1;
 
 const staticWalletCache: Record<string, Wallet> = {};
 const initLock: Record<string, boolean> = {};
+let boardingLock = false;
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -298,13 +299,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       await this._attemptToClaimPendingVHTLCs();
     }
 
-    try {
-      this._boardingUtxos = await this._wallet.getBoardingUtxos();
-      console.log('boardingUtxos=', this._boardingUtxos);
-      await new Ramps(this._wallet).onboard(this._boardingUtxos);
-    } catch (error: any) {
-      console.log('ark boarding failed:', error);
-    }
+    await this._attemptBoardUtxos();
 
     const balance = await this._wallet.getBalance();
     this._lastBalanceFetch = +new Date();
@@ -415,5 +410,29 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   refreshTokenExpired() {
     return false;
+  }
+
+  private async _attemptBoardUtxos() {
+    // executing in background since it can take a lot of time, but setting the lock so there wont be any races
+    // (for example, during another pull-to-refresh)
+    if (boardingLock) return;
+
+    if (!this._wallet) return;
+    this._boardingUtxos = await this._wallet.getBoardingUtxos(); // calling it here so fetchBalance will pick it up and then `getTransactions` will show it in tx list
+
+    boardingLock = true;
+    (async () => {
+      if (this._boardingUtxos.length > 0) {
+        if (!this._wallet) return;
+        // not instantiating, this is supposed to be called inside `fetchBalance`
+        console.log('attempting to board ', this._boardingUtxos.length, 'UTXOs...');
+        await new Ramps(this._wallet).onboard(this._boardingUtxos);
+        this._boardingUtxos = await this._wallet.getBoardingUtxos(); // refetch UTXOs, if we succeeded boarding previosuly the set should be reduced
+      }
+    })()
+      .catch(e => console.log('ark boarding failed:', e.message))
+      .finally(() => {
+        boardingLock = false;
+      });
   }
 }
