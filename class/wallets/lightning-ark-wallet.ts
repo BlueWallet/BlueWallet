@@ -24,7 +24,7 @@ const SERVICE_FEE = 1;
 
 const staticWalletCache: Record<string, Wallet> = {};
 const initLock: Record<string, boolean> = {};
-let boardingLock = false;
+const boardingLock: Record<string, boolean> = {};
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -238,7 +238,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         payment_request: bolt11invoice,
         amt: value,
         payment_preimage: swap.preimage,
-        expire_time: timestamp + expiry,
+        expire_time: expiry,
       });
     }
 
@@ -415,12 +415,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private async _attemptBoardUtxos() {
     // executing in background since it can take a lot of time, but setting the lock so there wont be any races
     // (for example, during another pull-to-refresh)
-    if (boardingLock) return;
+    const namespace = this.getNamespace();
+    if (boardingLock[namespace]) return;
 
     if (!this._wallet) return;
-    this._boardingUtxos = await this._wallet.getBoardingUtxos(); // calling it here so fetchBalance will pick it up and then `getTransactions` will show it in tx list
 
-    boardingLock = true;
+    boardingLock[namespace] = true;
+    this._boardingUtxos = await this._wallet.getBoardingUtxos(); // calling it here so fetchBalance will pick it up and then `getTransactions` will show it in tx list
     (async () => {
       if (this._boardingUtxos.length > 0) {
         if (!this._wallet) return;
@@ -432,7 +433,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     })()
       .catch(e => console.log('ark boarding failed:', e.message))
       .finally(() => {
-        boardingLock = false;
+        boardingLock[namespace] = false;
       });
   }
 }
