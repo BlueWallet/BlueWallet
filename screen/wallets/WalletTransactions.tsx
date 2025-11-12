@@ -19,7 +19,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
@@ -495,7 +495,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           onManageFundsPressed={id => {
             if (wallet.type === MultisigHDWallet.type) {
               navigateToViewEditCosigners();
-            } else if (wallet.type === LightningCustodianWallet.type) {
+            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
               if (wallet.getUserHasSavedExport()) {
                 if (!id) return;
                 onManageFundsPressed(id);

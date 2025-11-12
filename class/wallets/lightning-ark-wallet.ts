@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
-import { SingleKey, VtxoManager, Wallet } from '@arkade-os/sdk';
+import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 
 import BIP32Factory from 'bip32';
@@ -43,6 +43,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _swapHistory: (PendingReverseSwap | PendingSubmarineSwap)[] = [];
   private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
+  private _boardingUtxos: ExtendedCoin[] = [];
 
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
@@ -96,59 +97,62 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     initLock[namespace] = true;
 
-    const identity = this._getIdentity();
+    try {
+      const identity = this._getIdentity();
 
-    class ArkCustomStorage {
-      async getItem(key: string): Promise<string | null> {
-        return await AsyncStorage.getItem(`${namespace}_${key}`);
+      class ArkCustomStorage {
+        async getItem(key: string): Promise<string | null> {
+          return await AsyncStorage.getItem(`${namespace}_${key}`);
+        }
+
+        async setItem(key: string, value: string): Promise<void> {
+          return await AsyncStorage.setItem(`${namespace}_${key}`, value);
+        }
+
+        async removeItem(key: string): Promise<void> {
+          await AsyncStorage.removeItem(`${namespace}_${key}`);
+        }
+
+        async clear(): Promise<void> {
+          // nop
+        }
       }
 
-      async setItem(key: string, value: string): Promise<void> {
-        return await AsyncStorage.setItem(`${namespace}_${key}`, value);
+      const storage = new ArkCustomStorage();
+
+      const mm = new Measure('Wallet.create()');
+      if (!staticWalletCache[namespace]) {
+        const wallet = await Wallet.create({
+          storage,
+          identity,
+          arkProvider: new ExpoArkProvider(this._arkServerUrl),
+          indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
+          arkServerPublicKey: this._arkServerPublicKey,
+        });
+        staticWalletCache[namespace] = wallet;
       }
 
-      async removeItem(key: string): Promise<void> {
-        await AsyncStorage.removeItem(`${namespace}_${key}`);
-      }
+      mm.end();
+      this._wallet = staticWalletCache[namespace];
 
-      async clear(): Promise<void> {
-        // nop
-      }
+      await this._initLightningSwaps();
+
+      // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
+      setTimeout(async () => {
+        const manager = new VtxoManager(staticWalletCache[namespace], {
+          enabled: true, // Enable expiration monitoring
+          thresholdPercentage: 10, // Alert when 10% of lifetime remains (default)
+        });
+        try {
+          const txid = await manager.renewVtxos();
+          console.log('ARK VTXO Renewed:', txid);
+        } catch (error: any) {
+          console.log('ARK Error renewing VTXOs:', error.message);
+        }
+      }, 1_000);
+    } finally {
+      initLock[namespace] = false;
     }
-
-    const storage = new ArkCustomStorage();
-
-    const mm = new Measure('Wallet.create()');
-    if (!staticWalletCache[namespace]) {
-      const wallet = await Wallet.create({
-        storage,
-        identity,
-        arkProvider: new ExpoArkProvider(this._arkServerUrl),
-        indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
-        arkServerPublicKey: this._arkServerPublicKey,
-      });
-      staticWalletCache[namespace] = wallet;
-    }
-
-    mm.end();
-    this._wallet = staticWalletCache[namespace];
-
-    await this._initLightningSwaps();
-    initLock[namespace] = false;
-
-    // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
-    setTimeout(async () => {
-      const manager = new VtxoManager(staticWalletCache[namespace], {
-        enabled: true, // Enable expiration monitoring
-        thresholdPercentage: 10, // Alert when 10% of lifetime remains (default)
-      });
-      try {
-        const txid = await manager.renewVtxos();
-        console.log('ARK VTXO Renewed:', txid);
-      } catch (error: any) {
-        console.log('ARK Error renewing VTXOs:', error.message);
-      }
-    }, 1_000);
   }
 
   async _initLightningSwaps() {
@@ -237,6 +241,17 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
+    for (const boardingTx of this._boardingUtxos) {
+      ret.push({
+        type: 'bitcoind_tx',
+        walletID: this.getID(),
+        description: 'Pending top up',
+        memo: 'Pending top up',
+        value: boardingTx.value,
+        timestamp: boardingTx.status.block_time ?? -1,
+      });
+    }
+
     // @ts-ignore meh
     return ret;
   }
@@ -281,6 +296,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     if (this._arkadeLightning) {
       await this._attemptToClaimPendingVHTLCs();
+    }
+
+    try {
+      this._boardingUtxos = await this._wallet.getBoardingUtxos();
+      console.log('boardingUtxos=', this._boardingUtxos);
+      await new Ramps(this._wallet).onboard(this._boardingUtxos);
+    } catch (error: any) {
+      console.log('ark boarding failed:', error);
     }
 
     const balance = await this._wallet.getBalance();
@@ -391,10 +414,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   refreshTokenExpired() {
-    return false;
-  }
-
-  getAddress(): string | false {
     return false;
   }
 }
