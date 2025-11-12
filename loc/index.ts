@@ -214,7 +214,7 @@ const init = async () => {
 };
 init();
 
-const languageLoaders: Record<string, () => any> = {
+const languageLoaders: Record<string, () => typeof enJson> = {
   ar: () => require('./ar.json'),
   be: () => require('./be@tarask.json'),
   bg_bg: () => require('./bg_bg.json'),
