@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin } from '@arkade-os/sdk';
+import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 
 import BIP32Factory from 'bip32';
@@ -42,6 +42,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
 
   private _swapHistory: (PendingReverseSwap | PendingSubmarineSwap)[] = [];
+  private _transactionsHistory: ArkTransaction[] = [];
   private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
@@ -253,6 +254,20 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
+    for (const histTx of this._transactionsHistory) {
+      if (histTx.key.boardingTxid && histTx.type === 'RECEIVED' && histTx.settled) {
+        // for now putting on the list only onchain top-up transactions:
+        ret.push({
+          type: 'bitcoind_tx',
+          walletID: this.getID(),
+          description: 'Top-up',
+          memo: 'Top-up',
+          value: histTx.amount,
+          timestamp: Math.floor(histTx.createdAt / 1000),
+        });
+      }
+    }
+
     // @ts-ignore meh
     return ret;
   }
@@ -267,6 +282,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._arkadeLightning) throw new Error('Ark Lightning not initialized');
 
     this._swapHistory = await this._arkadeLightning.getSwapHistory();
+    this._transactionsHistory = await this._wallet.getTransactionHistory();
     this._lastTxFetch = +new Date();
   }
 
