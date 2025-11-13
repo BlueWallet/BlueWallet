@@ -15,6 +15,7 @@ import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -36,7 +37,8 @@ const LnurlAuth = () => {
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
-  const { setParams, navigate } = useNavigation();
+  const navigation = useExtendedNavigation();
+  const { setParams } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {
@@ -48,8 +50,8 @@ const LnurlAuth = () => {
   });
 
   const showSelectWalletScreen = useCallback(() => {
-    selectWallet(navigate, name, Chain.OFFCHAIN).then(w => setParams({ walletID: w.getID() }));
-  }, [navigate, name, setParams]);
+    selectWallet(navigation, name, Chain.OFFCHAIN).then(w => setParams({ walletID: w.getID() }));
+  }, [navigation, name, setParams]);
 
   const authenticate = useCallback(() => {
     wallet

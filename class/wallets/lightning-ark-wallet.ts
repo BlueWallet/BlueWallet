@@ -247,10 +247,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
       ret.push({
         type: 'bitcoind_tx',
         walletID: this.getID(),
-        description: 'Pending top up',
-        memo: 'Pending top up',
+        description: 'Pending refill',
+        memo: 'Pending refill',
         value: boardingTx.value,
-        timestamp: boardingTx.status.block_time ?? -1,
+        timestamp: boardingTx.status.block_time ?? Math.floor(Date.now() / 1000),
       });
     }
 
@@ -260,8 +260,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         ret.push({
           type: 'bitcoind_tx',
           walletID: this.getID(),
-          description: 'Top-up',
-          memo: 'Top-up',
+          description: 'Refill',
+          memo: 'Refill',
           value: histTx.amount,
           timestamp: Math.floor(histTx.createdAt / 1000),
         });

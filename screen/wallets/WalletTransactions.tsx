@@ -247,11 +247,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type,
         `internal error, wallet is not ${LightningCustodianWallet.type} or ${LightningArkWallet.type}`,
       );
-      navigate('WalletTransactions', {
-        walletType: wallet.type,
-        walletID,
-        key: `WalletTransactions-${walletID}`,
-      }); // navigating back to ln wallet screen
 
       // getting refill address, either cached or from the server:
       let toAddress;
@@ -276,7 +271,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         },
       });
     },
-    [navigate, wallet, walletID],
+    [navigate, wallet],
   );
 
   const navigateToViewEditCosigners = useCallback(() => {
@@ -292,13 +287,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if (availableWallets.length === 0) {
           presentAlert({ message: loc.lnd.refill_create });
         } else {
-          selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
+          selectWallet(navigation, name, Chain.ONCHAIN).then(onWalletSelect);
         }
       } else if (id === actionKeys.RefillWithExternalWallet) {
         navigate('ReceiveDetails', { walletID });
       }
     },
-    [name, navigate, onWalletSelect, walletID, wallets],
+    [name, navigate, navigation, onWalletSelect, walletID, wallets],
   );
 
   const getItemLayout = (_: any, index: number) => ({
