@@ -254,12 +254,6 @@ const WalletsAdd: React.FC = () => {
         onPressMenuItem={(id: string) => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-          for (let c = 0; c < Object.values(index2walletType).length; c++) {
-            if (index2walletType[c].walletType === id) {
-              // found our item that was pressed
-              setSelectedIndex(c);
-            }
-          }
           if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
           } else if (id === '12_words') {
@@ -268,6 +262,14 @@ const WalletsAdd: React.FC = () => {
             navigate('ProvideEntropy', { words: 24, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
           } else if (id === CommonToolTipActions.ResetToDefault.id) {
             confirmResetEntropy(ButtonSelected.ONCHAIN);
+          } else {
+            for (let c = 0; c < Object.values(index2walletType).length; c++) {
+              if (index2walletType[c].walletType === id) {
+                // found our item that was pressed
+                setSelectedIndex(c);
+                break;
+              }
+            }
           }
         }}
         actions={toolTipActions}

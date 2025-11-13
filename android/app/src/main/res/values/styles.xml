@@ -7,10 +7,6 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Status bar text color - dark content for light theme -->
         <item name="android:windowLightStatusBar">true</item>
-        <!-- Set the primary color to avoid Material default purple -->
-        <item name="colorPrimary">@color/button_background_color</item>
-        <item name="colorPrimaryVariant">@color/button_alternative_text_color</item>
-        <item name="colorOnPrimary">@color/button_text_color</item>
     </style>
     
     <!-- Widget text styles -->
