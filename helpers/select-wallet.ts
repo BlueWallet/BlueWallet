@@ -39,8 +39,6 @@ export default function (
       if (!selectedWallet) return;
 
       setTimeout(() => resolve(selectedWallet), 1);
-      console.warn('trying to navigate back to', currentScreenName);
-      navigateFunc({ name: currentScreenName, params: {}, merge: true });
     };
 
     navigateFunc('SelectWallet', params);

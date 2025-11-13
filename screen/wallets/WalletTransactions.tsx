@@ -243,7 +243,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const onWalletSelect = useCallback(
     async (selectedWallet: TWallet) => {
-      assert(wallet.type === LightningCustodianWallet.type, `internal error, wallet is not ${LightningCustodianWallet.type}`);
+      assert(
+        wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type,
+        `internal error, wallet is not ${LightningCustodianWallet.type} or ${LightningArkWallet.type}`,
+      );
       navigate('WalletTransactions', {
         walletType: wallet.type,
         walletID,
