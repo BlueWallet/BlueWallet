@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -114,6 +114,7 @@ const WalletsAdd: React.FC = () => {
 
   // State
   const [state, dispatch] = useReducer(walletReducer, initialState);
+  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const isLoading = state.isLoading;
   const walletBaseURI = state.walletBaseURI;
   const selectedIndex = state.selectedIndex;
@@ -447,6 +448,7 @@ const WalletsAdd: React.FC = () => {
   };
 
   const handleOnBitcoinButtonPressed = () => {
+    setBackdoorPressed(prevState => prevState + 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
@@ -508,13 +510,15 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        <WalletButton
-          buttonType="LightningArk"
-          testID="ActivateLightningArkButton"
-          active={selectedWalletType === ButtonSelected.ARK}
-          onPress={handleOnLightningArkButtonPressed}
-          size={styles.button}
-        />
+        {backdoorPressed >= 20 ? (
+          <WalletButton
+            buttonType="LightningArk"
+            testID="ActivateLightningArkButton"
+            active={selectedWalletType === ButtonSelected.ARK}
+            onPress={handleOnLightningArkButtonPressed}
+            size={styles.button}
+          />
+        ) : null}
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>
