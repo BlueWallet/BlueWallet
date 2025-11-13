@@ -217,6 +217,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
           direction = 1;
           ispaid = true;
           break;
+        case 'swap.created':
+          // nop, this is invoice that we created
+          break;
+        case 'invoice.set':
+          // dont return it, its an invoice we trief to pay but could not
+          continue;
       }
 
       if (this._claimedSwaps[swap.id]) {

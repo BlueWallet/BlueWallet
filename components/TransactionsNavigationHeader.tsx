@@ -151,6 +151,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const imageSource = useMemo(() => {
     switch (wallet.type) {
       case LightningCustodianWallet.type:
+      case LightningArkWallet.type:
         return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       case MultisigHDWallet.type:
         return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
