@@ -813,7 +813,7 @@ end
       UI.message("Cleaning previous simulator derived data at #{derived_data_path}")
       FileUtils.rm_rf(derived_data_path)
 
-      build_cmd = %Q(xcodebuild -workspace "#{workspace_path}" -scheme BlueWallet -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "#{derived_data_path}" build)
+      build_cmd = %Q(xcodebuild -workspace "#{workspace_path}" -scheme BlueWallet -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' TARGETED_DEVICE_FAMILY="1,2" SUPPORTS_MACCATALYST=NO -derivedDataPath "#{derived_data_path}" build)
       UI.message("Running simulator build:\n  #{build_cmd}")
       sh(build_cmd)
       UI.success("Simulator build completed successfully")
