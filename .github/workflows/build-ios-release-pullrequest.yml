@@ -364,6 +364,9 @@ jobs:
           fi
           echo -e "\033[1;34m========================================================\033[0m"
 
+        - name: Build iOS Simulator Artifact
+          run: bundle exec fastlane ios build_ios_simulator_lane
+
       - name: Debug Build Failure
         if: failure()
         run: |
@@ -427,6 +430,14 @@ jobs:
           BUGSNAG_RELEASE_STAGE: production
           PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
           NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+
+        - name: Upload iOS Simulator Artifact
+          if: success()
+          uses: actions/upload-artifact@v4
+          with:
+            name: BlueWallet_iOS_Simulator
+            path: ${{ env.SIMULATOR_APP_ZIP_PATH }}
+            retention-days: 7
 
       - name: Upload Build Logs
         if: always()
