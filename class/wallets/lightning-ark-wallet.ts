@@ -350,7 +350,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Payment Hash:', invoiceDetails.paymentHash);
 
     assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
-    assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMin} sat`);
+    assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMax} sat`);
 
     const paymentResult = await this._arkadeLightning.sendLightningPayment({ invoice });
 
