@@ -797,57 +797,86 @@ end
     end
   end
 
-  desc "Build the iOS simulator app and archive it for CI artifacts"
-  lane :build_ios_simulator_lane do
-    Dir.chdir(project_root) do
-      UI.message("Building the iOS simulator target from: #{Dir.pwd}")
-
-      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
-      derived_data_path = File.join(project_root, "ios", "build", "DerivedData-iphonesimulator")
-      products_path = File.join(derived_data_path, "Build", "Products", "Release-iphonesimulator")
-      app_name = "BlueWallet.app"
-      app_path = File.join(products_path, app_name)
-
-      UI.user_error!("Workspace not found at #{workspace_path}") unless File.exist?(workspace_path)
-
-      UI.message("Cleaning previous simulator derived data at #{derived_data_path}")
-      FileUtils.rm_rf(derived_data_path)
-
-      build_cmd = %Q(xcodebuild -workspace "#{workspace_path}" -scheme BlueWallet -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' TARGETED_DEVICE_FAMILY="1,2" SUPPORTS_MACCATALYST=NO -derivedDataPath "#{derived_data_path}" build)
-      UI.message("Running simulator build:\n  #{build_cmd}")
-      sh(build_cmd)
-      UI.success("Simulator build completed successfully")
-
-      UI.user_error!("Simulator app not found at #{app_path}") unless File.exist?(app_path)
-
-      final_products_path = File.join(project_root, "ios", "build", "Build", "Products", "Release-iphonesimulator")
-      FileUtils.mkdir_p(File.dirname(final_products_path))
-      FileUtils.rm_rf(final_products_path)
-      FileUtils.cp_r("#{products_path}/.", final_products_path)
-      UI.success("Copied simulator build products to #{final_products_path}")
-
-      zip_output_dir = File.join(project_root, "ios", "build")
-      FileUtils.mkdir_p(zip_output_dir)
-
-      version_component = (ENV["PROJECT_VERSION"] && !ENV["PROJECT_VERSION"].empty?) ? ENV["PROJECT_VERSION"] : "latest"
-      build_component = (ENV["NEW_BUILD_NUMBER"] && !ENV["NEW_BUILD_NUMBER"].empty?) ? ENV["NEW_BUILD_NUMBER"] : Time.now.to_i
-      zip_name = "BlueWallet_Simulator_#{version_component}_#{build_component}.zip"
-      zip_path = File.join(zip_output_dir, zip_name)
-
-      UI.message("Archiving simulator app to #{zip_path}")
-      FileUtils.rm_f(zip_path)
-      sh(%Q(cd "#{products_path}" && zip -qry "#{zip_path}" "#{app_name}"))
-      UI.success("Simulator app archived successfully")
-
-      ENV["SIMULATOR_APP_ZIP_PATH"] = zip_path
-      if ENV["GITHUB_ENV"]
-        sh(%Q(echo 'SIMULATOR_APP_ZIP_PATH=#{zip_path}' >> "$GITHUB_ENV"))
+    def temporarily_remove_watch_targets(project_path)
+      require 'xcodeproj'
+      project = Xcodeproj::Project.open(project_path)
+      removed = []
+      project.targets.select { |t| t.name.downcase.include?('watch') }.each do |target|
+        removed << target.name
+        target.remove_from_project
       end
-      if ENV["GITHUB_OUTPUT"]
-        sh(%Q(echo 'simulator_app_zip_path=#{zip_path}' >> "$GITHUB_OUTPUT"))
+      main_target = project.targets.find { |t| t.name == 'BlueWallet' }
+      if main_target
+        main_target.copy_files_build_phases.delete_if { |phase| phase.respond_to?(:name) && phase.name == 'Embed Watch Content' }
+        main_target.dependencies.delete_if { |dep| dep.target && dep.target.name.downcase.include?('watch') }
+      end
+      project.save
+      removed
+    end
+
+    desc "Build the iOS simulator app and archive it for CI artifacts"
+    lane :build_ios_simulator_lane do
+      Dir.chdir(project_root) do
+        UI.message("Building the iOS simulator target from: #{Dir.pwd}")
+
+        workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+        project_path = File.join(project_root, "ios", "BlueWallet.xcodeproj")
+        project_file = File.join(project_path, "project.pbxproj")
+        project_backup = "#{project_file}.simulator_backup"
+        derived_data_path = File.join(project_root, "ios", "build", "DerivedData-iphonesimulator")
+        products_path = File.join(derived_data_path, "Build", "Products", "Release-iphonesimulator")
+        app_name = "BlueWallet.app"
+        app_path = File.join(products_path, app_name)
+
+        UI.user_error!("Workspace not found at #{workspace_path}") unless File.exist?(workspace_path)
+
+        UI.message("Cleaning previous simulator derived data at #{derived_data_path}")
+        FileUtils.rm_rf(derived_data_path)
+
+        FileUtils.cp(project_file, project_backup) if File.exist?(project_file)
+        removed_watch_targets = []
+        begin
+          removed_watch_targets = temporarily_remove_watch_targets(project_path)
+          UI.message("Temporarily removed watch targets: #{removed_watch_targets.join(', ')}") unless removed_watch_targets.empty?
+
+          build_cmd = %Q(xcodebuild -workspace "#{workspace_path}" -scheme BlueWallet -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' TARGETED_DEVICE_FAMILY="1,2" SUPPORTS_MACCATALYST=NO -derivedDataPath "#{derived_data_path}" build)
+          UI.message("Running simulator build:\n  #{build_cmd}")
+          sh(build_cmd)
+          UI.success("Simulator build completed successfully")
+        ensure
+          FileUtils.mv(project_backup, project_file, force: true) if File.exist?(project_backup)
+        end
+
+        UI.user_error!("Simulator app not found at #{app_path}") unless File.exist?(app_path)
+
+        final_products_path = File.join(project_root, "ios", "build", "Build", "Products", "Release-iphonesimulator")
+        FileUtils.mkdir_p(File.dirname(final_products_path))
+        FileUtils.rm_rf(final_products_path)
+        FileUtils.cp_r("#{products_path}/.", final_products_path)
+        UI.success("Copied simulator build products to #{final_products_path}")
+
+        zip_output_dir = File.join(project_root, "ios", "build")
+        FileUtils.mkdir_p(zip_output_dir)
+
+        version_component = (ENV["PROJECT_VERSION"] && !ENV["PROJECT_VERSION"].empty?) ? ENV["PROJECT_VERSION"] : "latest"
+        build_component = (ENV["NEW_BUILD_NUMBER"] && !ENV["NEW_BUILD_NUMBER"].empty?) ? ENV["NEW_BUILD_NUMBER"] : Time.now.to_i
+        zip_name = "BlueWallet_Simulator_#{version_component}_#{build_component}.zip"
+        zip_path = File.join(zip_output_dir, zip_name)
+
+        UI.message("Archiving simulator app to #{zip_path}")
+        FileUtils.rm_f(zip_path)
+        sh(%Q(cd "#{products_path}" && zip -qry "#{zip_path}" "#{app_name}"))
+        UI.success("Simulator app archived successfully")
+
+        ENV["SIMULATOR_APP_ZIP_PATH"] = zip_path
+        if ENV["GITHUB_ENV"]
+          sh(%Q(echo 'SIMULATOR_APP_ZIP_PATH=#{zip_path}' >> "$GITHUB_ENV"))
+        end
+        if ENV["GITHUB_OUTPUT"]
+          sh(%Q(echo 'simulator_app_zip_path=#{zip_path}' >> "$GITHUB_OUTPUT"))
+        end
       end
     end
-  end
 
   desc "Delete temporary keychain"
   lane :delete_temp_keychain do
