@@ -1,0 +1,73 @@
+name: Build iOS Simulator
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    env:
+      NODE_ENV: production
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+
+      - name: Specify Node.js Version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Node Modules
+        run: npm ci --omit=dev --yes
+
+      - name: Set Up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest
+
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+
+      - name: Install Dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Install CocoaPods Dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Generate Build Number
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+
+      - name: Determine Marketing Version
+        working-directory: ios
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+
+      - name: Build iOS Simulator Artifact
+        run: bundle exec fastlane ios build_ios_simulator_lane
+
+      - name: Verify Simulator Artifact
+        run: |
+          if [ -z "$SIMULATOR_APP_ZIP_PATH" ] || [ ! -f "$SIMULATOR_APP_ZIP_PATH" ]; then
+            echo "❌ Simulator artifact not found"
+            exit 1
+          fi
+          ls -lh "$SIMULATOR_APP_ZIP_PATH"
+
+      - name: Upload iOS Simulator Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlueWallet_iOS_Simulator
+          path: ${{ env.SIMULATOR_APP_ZIP_PATH }}
+          retention-days: 7
