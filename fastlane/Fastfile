@@ -82,7 +82,7 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
-  skip_auth_lanes = ['register_devices_from_txt']
+  skip_auth_lanes = ['register_devices_from_txt', 'build_ios_simulator_lane']
   
   # Check if we need App Store Connect for this lane
   unless skip_auth_lanes.include?(lane)

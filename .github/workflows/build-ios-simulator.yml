@@ -30,6 +30,17 @@ jobs:
         with:
           xcode-version: latest
 
+      - name: Ensure iOS Simulator Runtime
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app
+          if ! xcrun simctl list runtimes | grep -q "iOS"; then
+            echo "No iOS runtimes found. Downloading iOS platform..."
+            sudo xcodebuild -downloadPlatform iOS
+          else
+            echo "iOS runtime already installed:"
+            xcrun simctl list runtimes | grep "iOS" | head -5
+          fi
+
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
         with:
