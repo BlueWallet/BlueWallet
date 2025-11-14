@@ -663,7 +663,7 @@ describe('import procedure', () => {
   it('can import lightning ark wallet', async () => {
     const store = createStore();
     const { promise } = startImport(
-      'ark://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
       false,
       false,
       false,
@@ -675,7 +675,7 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0].type, LightningArkWallet.type);
     assert.strictEqual(
       store.state.wallets[0].getSecret(),
-      'ark://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
     );
   });
 });

@@ -217,7 +217,7 @@ const startImport = (
 
     // is it lightning ark wallet?
     yield { progress: 'lightning ark' };
-    if (text.startsWith('ark://')) {
+    if (text.startsWith('arkade://')) {
       const ark = new LightningArkWallet();
       ark.setSecret(text);
       await ark.init();

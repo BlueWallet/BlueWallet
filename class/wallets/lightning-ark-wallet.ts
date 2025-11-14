@@ -61,7 +61,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     assert(this.secret, 'No secret provided');
 
     if (!this._privateKeyCache) {
-      const mnemonic = this.secret.replace('ark://', '').trim();
+      const mnemonic = this.secret.replace('arkade://', '').trim();
       const seed = bip39.mnemonicToSeedSync(mnemonic);
 
       const index = 0;
@@ -184,7 +184,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async generate(): Promise<void> {
     const buf = await randomBytes(16);
-    this.secret = 'ark://' + bip39.entropyToMnemonic(uint8ArrayToHex(buf));
+    this.secret = 'arkade://' + bip39.entropyToMnemonic(uint8ArrayToHex(buf));
 
     await this.init();
   }

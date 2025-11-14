@@ -113,7 +113,7 @@ beforeAll(async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  w.setSecret('ark://' + process.env.HD_MNEMONIC);
+  w.setSecret('arkade://' + process.env.HD_MNEMONIC);
   await w.init();
 });
 
@@ -126,9 +126,9 @@ describe('LightningArkWallet', () => {
     const wGenerated = new LightningArkWallet();
     await wGenerated.generate();
 
-    assert.ok(wGenerated.getSecret().startsWith('ark://'));
+    assert.ok(wGenerated.getSecret().startsWith('arkade://'));
 
-    const mnemonics = wGenerated.getSecret().replace('ark://', '');
+    const mnemonics = wGenerated.getSecret().replace('arkade://', '');
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonics);
     assert.ok(hd.validateMnemonic());
