@@ -3,6 +3,7 @@ import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
 import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
+import { fetch } from '../../util/fetch';
 
 import BIP32Factory from 'bip32';
 
@@ -16,11 +17,6 @@ import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 
 const bip32 = BIP32Factory(ecc);
-
-/**
- * fee taken by Boltz, currently hardcoded to 1 on their end
- */
-const SERVICE_FEE = 1;
 
 const staticWalletCache: Record<string, Wallet> = {};
 const initLock: Record<string, boolean> = {};
@@ -46,6 +42,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
+
+  // fees from Boltz:
+  private _limitMin: number = 0;
+  private _limitMax: number = 0;
+  private _feePercentage: number = 0;
 
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
@@ -160,6 +161,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async _initLightningSwaps() {
     assert(this._wallet, 'Ark wallet must be initialized first');
     assert(this._boltzApiUrl, 'Boltz Api Url is not set');
+
+    // fetching fees boltz takes:
+    const feesResponse = await fetch(this._boltzApiUrl + '/v2/swap/submarine');
+    const feesResponseJson = await feesResponse.json();
+    this._limitMin = feesResponseJson?.ark?.BTC?.limits?.minimal ?? 333;
+    this._limitMax = feesResponseJson?.ark?.BTC?.limits?.maximal ?? 1000000;
+    this._feePercentage = feesResponseJson?.ark?.BTC?.fees?.percentage ?? 0;
 
     // Initialize the Lightning swap provider
     const swapProvider = new BoltzSwapProvider({
@@ -341,6 +349,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Description:', invoiceDetails.description);
     console.log('Payment Hash:', invoiceDetails.paymentHash);
 
+    assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
+    assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMin} sat`);
+
     const paymentResult = await this._arkadeLightning.sendLightningPayment({ invoice });
 
     console.log('Payment successful!');
@@ -361,10 +372,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async addInvoice(amt: number, memo: string) {
     if (!this._wallet) await this.init();
     assert(this._arkadeLightning, 'Ark Lightning not initialized');
-    assert(amt > 333, 'Only invoices > 333 sat allowed');
+    assert(amt > this._limitMin, `Minimum to receive is ${this._limitMin} sat`);
+    assert(amt < this._limitMax, `Maximum to receive is ${this._limitMin} sat`);
+
+    // fee percentage is smth like `0.01`, but its not 1%, its one-hundredth of a percent, rounded up
+    const serviceFee = Math.ceil(new BigNumber(amt).multipliedBy(this._feePercentage).dividedBy(100).toNumber());
 
     const result = await this._arkadeLightning.createLightningInvoice({
-      amount: amt + SERVICE_FEE,
+      amount: amt + serviceFee,
       description: memo,
     });
 
