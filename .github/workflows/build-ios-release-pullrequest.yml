@@ -364,9 +364,6 @@ jobs:
           fi
           echo -e "\033[1;34m========================================================\033[0m"
 
-        - name: Build iOS Simulator Artifact
-          run: bundle exec fastlane ios build_ios_simulator_lane
-
       - name: Debug Build Failure
         if: failure()
         run: |
@@ -431,14 +428,6 @@ jobs:
           PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
           NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
 
-        - name: Upload iOS Simulator Artifact
-          if: success()
-          uses: actions/upload-artifact@v4
-          with:
-            name: BlueWallet_iOS_Simulator
-            path: ${{ env.SIMULATOR_APP_ZIP_PATH }}
-            retention-days: 7
-
       - name: Upload Build Logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -472,89 +461,145 @@ jobs:
         if: always()
         run: bundle exec fastlane ios delete_temp_keychain
 
-  testflight-upload:
-    needs: build
-    runs-on: macos-latest
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
-    steps:
-      - name: Checkout Project
-        uses: actions/checkout@v4
+    ios-simulator-build:
+      needs: build
+      runs-on: macos-latest
+      timeout-minutes: 120
+      env:
+        PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+        NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      steps:
+        - name: Checkout Project
+          uses: actions/checkout@v4
 
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          
-      - name: Install Dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+        - name: Specify Node.js Version
+          uses: actions/setup-node@v4
+          with:
+            node-version: 22
+            cache: 'npm'
+            cache-dependency-path: package-lock.json
 
-      - name: Download IPA from Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: BlueWallet_IPA
-          path: ./
+        - uses: maxim-lobanov/setup-xcode@v1
+          with:
+            xcode-version: latest
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        - name: Set Up Ruby
+          uses: ruby/setup-ruby@v1
+          with:
+            ruby-version: 3.1.6
 
-      - name: Set IPA Path Environment Variable
-        run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+        - name: Install Dependencies with Bundler
+          run: |
+            bundle config path vendor/bundle
+            bundle install --jobs 4 --retry 3 --quiet
 
-      - name: Verify IPA Path Before Upload
-        run: |
-          if [ ! -f "$IPA_OUTPUT_PATH" ]; then
-            echo "❌ IPA file not found at path: $IPA_OUTPUT_PATH"
-            ls -la $(pwd)
-            exit 1
-          else
-            echo "✅ Found IPA at: $IPA_OUTPUT_PATH"
-          fi
+        - name: Install Node Modules
+          run: npm ci --omit=dev --yes
 
-      - name: Print Environment Variables for Debugging
-        run: |
-          echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
-          echo "BRANCH_NAME: $BRANCH_NAME"
-          echo "PROJECT_VERSION: $PROJECT_VERSION"
-          echo "NEW_BUILD_NUMBER: $NEW_BUILD_NUMBER"
-          echo "IPA_OUTPUT_PATH: $IPA_OUTPUT_PATH"
+        - name: Install CocoaPods Dependencies
+          run: bundle exec fastlane ios install_pods
 
-      - name: Upload to TestFlight
-        run: bundle exec fastlane ios upload_to_testflight_lane
-        env:
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        - name: Build iOS Simulator Artifact
+          run: bundle exec fastlane ios build_ios_simulator_lane
 
-      - name: Post PR Comment
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const version = process.env.PROJECT_VERSION;
-            const message = `✅ Build ${version} (${buildNumber}) has been uploaded to TestFlight and will be available for testing soon.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+        - name: Verify Simulator Artifact
+          run: |
+            if [ -z "$SIMULATOR_APP_ZIP_PATH" ] || [ ! -f "$SIMULATOR_APP_ZIP_PATH" ]; then
+              echo "❌ Simulator artifact not found"
+              exit 1
+            fi
+            ls -lh "$SIMULATOR_APP_ZIP_PATH"
+
+        - name: Upload iOS Simulator Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: BlueWallet_iOS_Simulator
+            path: ${{ env.SIMULATOR_APP_ZIP_PATH }}
+            retention-days: 7
+
+    testflight-upload:
+      needs: build
+      runs-on: macos-latest
+      if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+        PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+        LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
+      steps:
+        - name: Checkout Project
+          uses: actions/checkout@v4
+
+        - name: Set Up Ruby
+          uses: ruby/setup-ruby@v1
+          with:
+            ruby-version: 3.1.6
+            
+        - name: Install Dependencies with Bundler
+          run: |
+            bundle config path vendor/bundle
+            bundle install --jobs 4 --retry 3 --quiet
+
+        - name: Download IPA from Artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: BlueWallet_IPA
+            path: ./
+
+        - name: Create App Store Connect API Key JSON
+          run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+
+        - name: Set IPA Path Environment Variable
+          run: echo "IPA_OUTPUT_PATH=$(pwd)/BlueWallet_${{ needs.build.outputs.project_version }}_${{ needs.build.outputs.new_build_number }}.ipa" >> $GITHUB_ENV
+
+        - name: Verify IPA Path Before Upload
+          run: |
+            if [ ! -f "$IPA_OUTPUT_PATH" ]; then
+              echo "❌ IPA file not found at path: $IPA_OUTPUT_PATH"
+              ls -la $(pwd)
+              exit 1
+            else
+              echo "✅ Found IPA at: $IPA_OUTPUT_PATH"
+            fi
+
+        - name: Print Environment Variables for Debugging
+          run: |
+            echo "LATEST_COMMIT_MESSAGE: $LATEST_COMMIT_MESSAGE"
+            echo "BRANCH_NAME: $BRANCH_NAME"
+            echo "PROJECT_VERSION: $PROJECT_VERSION"
+            echo "NEW_BUILD_NUMBER: $NEW_BUILD_NUMBER"
+            echo "IPA_OUTPUT_PATH: $IPA_OUTPUT_PATH"
+
+        - name: Upload to TestFlight
+          run: bundle exec fastlane ios upload_to_testflight_lane
+          env:
+            APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/appstore_api_key.p8
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+            GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+            GIT_URL: ${{ secrets.GIT_URL }}
+            ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+            ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+            APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+            APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+        - name: Post PR Comment
+          if: success() && github.event_name == 'pull_request'
+          uses: actions/github-script@v6
+          env:
+            BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+            PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+            LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+          with:
+            script: |
+              const buildNumber = process.env.BUILD_NUMBER;
+              const version = process.env.PROJECT_VERSION;
+              const message = `✅ Build ${version} (${buildNumber}) has been uploaded to TestFlight and will be available for testing soon.`;
+              const prNumber = context.payload.pull_request.number;
+              const repo = context.repo;
+              github.rest.issues.createComment({
+                ...repo,
+                issue_number: prNumber,
+                body: message,
+              });
