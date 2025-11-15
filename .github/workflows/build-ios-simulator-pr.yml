@@ -108,13 +108,14 @@ jobs:
             find ios/build -maxdepth 5 -name '*.app' || true
             exit 1
           fi
-          ZIP_PATH="BlueWallet-simulator.zip"
-          (cd "$(dirname "$APP_DIR")" && zip -r "$GITHUB_WORKSPACE/$ZIP_PATH" "$(basename "$APP_DIR")")
-          echo "ZIP_PATH=$ZIP_PATH" >> "$GITHUB_ENV"
+          OUTPUT_DIR="BlueWallet-simulator.app"
+          rm -rf "$OUTPUT_DIR"
+          cp -R "$APP_DIR" "$OUTPUT_DIR"
+          echo "APP_EXPORT_PATH=$OUTPUT_DIR" >> "$GITHUB_ENV"
 
       - name: Upload simulator build artifact
         uses: actions/upload-artifact@v4
         with:
           name: BlueWallet-iOS-simulator
-          path: ${{ env.ZIP_PATH }}
+          path: ${{ env.APP_EXPORT_PATH }}
           retention-days: 7
