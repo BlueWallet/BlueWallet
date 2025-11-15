@@ -1,0 +1,115 @@
+name: Build iOS Simulator (PR)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1.6"
+
+      - name: Install Ruby gems
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install CocoaPods dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Delete Apple Watch target
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'xcodeproj'
+
+          project_path = 'ios/BlueWallet.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+
+          target_names = %w[BlueWalletWatch]
+          removed_any = false
+
+          target_names.each do |target_name|
+            target = project.targets.find { |t| t.name == target_name }
+            next unless target
+
+            puts "Removing target #{target_name}"
+            target.dependencies.each(&:remove_from_project)
+            target.build_phases.each(&:remove_from_project)
+            project.targets.delete(target)
+            removed_any = true
+          end
+
+          main_target = project.targets.find { |t| t.name == 'BlueWallet' }
+          if main_target
+            main_target.build_phases.select { |phase| phase.display_name == 'Embed Watch Content' }.each do |phase|
+              puts "Removing build phase #{phase.display_name}"
+              main_target.build_phases.delete(phase)
+              removed_any = true
+            end
+          end
+
+          if removed_any
+            project.save
+            puts 'Apple Watch target references removed'
+          else
+            puts 'No Apple Watch targets found'
+          end
+          RUBY
+
+      - name: Remove Watch schemes
+        run: rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWalletWatch.xcscheme
+
+      - name: Build iOS simulator app
+        working-directory: ios
+        run: |
+          set -eo pipefail
+          xcodebuild \
+            -workspace BlueWallet.xcworkspace \
+            -scheme BlueWallet \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            clean build
+
+      - name: Package simulator app
+        run: |
+          APP_DIR="ios/build/Build/Products/Debug-iphonesimulator/BlueWallet.app"
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Simulator app not found at $APP_DIR"
+            find ios/build -name '*.app' -maxdepth 5 || true
+            exit 1
+          fi
+          ZIP_PATH="BlueWallet-simulator.zip"
+          (cd "$(dirname "$APP_DIR")" && zip -r "$GITHUB_WORKSPACE/$ZIP_PATH" "$(basename "$APP_DIR")")
+          echo "ZIP_PATH=$ZIP_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload simulator build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlueWallet-iOS-simulator
+          path: ${{ env.ZIP_PATH }}
+          retention-days: 7
