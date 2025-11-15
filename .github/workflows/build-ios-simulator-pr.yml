@@ -108,9 +108,10 @@ jobs:
             find ios/build -maxdepth 5 -name '*.app' || true
             exit 1
           fi
-          OUTPUT_DIR="BlueWallet-simulator.app"
+          OUTPUT_DIR="BlueWallet-simulator"
           rm -rf "$OUTPUT_DIR"
-          cp -R "$APP_DIR" "$OUTPUT_DIR"
+          mkdir -p "$OUTPUT_DIR"
+          cp -R "$APP_DIR" "$OUTPUT_DIR/BlueWallet.app"
           echo "APP_EXPORT_PATH=$OUTPUT_DIR" >> "$GITHUB_ENV"
 
       - name: Upload simulator build artifact
