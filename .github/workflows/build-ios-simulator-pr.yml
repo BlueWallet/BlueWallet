@@ -11,6 +11,8 @@ jobs:
   ios-simulator:
     runs-on: macos-latest
     timeout-minutes: 90
+    env:
+      BUILD_CONFIGURATION: Release
 
     steps:
       - name: Checkout
@@ -66,6 +68,7 @@ jobs:
           if main_target
             main_target.build_phases.select { |phase| phase.display_name == 'Embed Watch Content' }.each do |phase|
               puts "Removing build phase #{phase.display_name}"
+              phase.remove_from_project
               main_target.build_phases.delete(phase)
               removed_any = true
             end
@@ -84,12 +87,14 @@ jobs:
 
       - name: Build iOS simulator app
         working-directory: ios
+        env:
+          RCT_NO_LAUNCH_PACKAGER: "1"
         run: |
           set -eo pipefail
           xcodebuild \
             -workspace BlueWallet.xcworkspace \
             -scheme BlueWallet \
-            -configuration Debug \
+            -configuration "${BUILD_CONFIGURATION}" \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
@@ -97,10 +102,10 @@ jobs:
 
       - name: Package simulator app
         run: |
-          APP_DIR="ios/build/Build/Products/Debug-iphonesimulator/BlueWallet.app"
+          APP_DIR="ios/build/Build/Products/${BUILD_CONFIGURATION}-iphonesimulator/BlueWallet.app"
           if [ ! -d "$APP_DIR" ]; then
             echo "Simulator app not found at $APP_DIR"
-            find ios/build -name '*.app' -maxdepth 5 || true
+            find ios/build -maxdepth 5 -name '*.app' || true
             exit 1
           fi
           ZIP_PATH="BlueWallet-simulator.zip"
