@@ -71,7 +71,6 @@
     "additional_info": "其他信息",
     "for": "收款方：",
     "lightning_invoice": "闪电网络发票",
-    "open_direct_channel": "与此节点建立直连通道：",
     "please_pay_between_and": "请支付介于 {min} 与 {max} 之间的金额",
     "please_pay": "请支付",
     "preimage": "原像",
@@ -685,7 +684,7 @@
     "notification_tx_unconfirmed": "通知交易尚未确认，请稍等。",
     "failed_create_notif_tx": "创建链上交易失败",
     "onchain_tx_needed": "需要在链上交易",
-    "notif_tx_sent": "通知交易已发送。请等待确认",
+    "notif_tx_sent" : "通知交易已发送。请等待确认",
     "notif_tx": "通知交易",
     "not_found": "未找到支付码"
   }
