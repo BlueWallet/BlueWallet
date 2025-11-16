@@ -4,6 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { getProtocolForEncoding } from '../../blue_modules/bbqr';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -34,6 +35,7 @@ const PsbtWithHardwareWallet = () => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
+  const [protocol, setProtocol] = useState('bc-ur');
   const openScannerButton = useRef();
   const dynamicQRCode = useRef();
   const isFocused = useIsFocused();
@@ -104,6 +106,13 @@ const PsbtWithHardwareWallet = () => {
       dynamicQRCode.current?.stopAutoMove();
     }
   }, [isFocused]);
+
+  useEffect(() => {
+    // Fetch the preferred protocol
+    getProtocolForEncoding()
+      .then(setProtocol)
+      .catch(() => setProtocol('bc-ur'));
+  }, []);
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
@@ -233,7 +242,10 @@ const PsbtWithHardwareWallet = () => {
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt.toHex()}
         </Text>
-        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} protocol={protocol} />
+        <Text style={[styles.protocolLabel, { color: colors.alternativeTextColor }]}>
+          {loc.formatString(loc.send.qr_protocol_used, { protocol: protocol.toUpperCase() })}
+        </Text>
         <BlueSpacing20 />
         <SecondButton
           testID="PsbtTxScanButton"
@@ -344,5 +356,11 @@ const styles = StyleSheet.create({
   hidden: {
     width: 0,
     height: 0,
+  },
+  protocolLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 8,
+    fontWeight: '500',
   },
 });

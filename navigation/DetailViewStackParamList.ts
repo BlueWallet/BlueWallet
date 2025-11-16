@@ -78,6 +78,7 @@ export type DetailViewStackParamList = {
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
+  QRProtocol: undefined;
   PlausibleDeniability: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;

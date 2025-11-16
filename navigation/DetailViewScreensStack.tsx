@@ -35,6 +35,7 @@ import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
 import GeneralSettings from '../screen/settings/GeneralSettings';
+import QRProtocolSettings from '../screen/settings/QRProtocol';
 import PlausibleDeniability from '../screen/PlausibleDeniability';
 import Licensing from '../screen/settings/Licensing';
 import NetworkSettings from '../screen/settings/NetworkSettings';
@@ -251,6 +252,11 @@ const DetailViewStackScreensStack = () => {
         name="GeneralSettings"
         component={GeneralSettings}
         options={navigationStyle({ title: loc.settings.general })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="QRProtocol"
+        component={QRProtocolSettings}
+        options={navigationStyle({ title: loc.settings.qr_protocol })(theme)}
       />
       <DetailViewStack.Screen
         name="PlausibleDeniability"
