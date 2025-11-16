@@ -19,7 +19,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
@@ -243,12 +243,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const onWalletSelect = useCallback(
     async (selectedWallet: TWallet) => {
-      assert(wallet.type === LightningCustodianWallet.type, `internal error, wallet is not ${LightningCustodianWallet.type}`);
-      navigate('WalletTransactions', {
-        walletType: wallet.type,
-        walletID,
-        key: `WalletTransactions-${walletID}`,
-      }); // navigating back to ln wallet screen
+      assert(
+        wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type,
+        `internal error, wallet is not ${LightningCustodianWallet.type} or ${LightningArkWallet.type}`,
+      );
 
       // getting refill address, either cached or from the server:
       let toAddress;
@@ -273,7 +271,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         },
       });
     },
-    [navigate, wallet, walletID],
+    [navigate, wallet],
   );
 
   const navigateToViewEditCosigners = useCallback(() => {
@@ -289,13 +287,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if (availableWallets.length === 0) {
           presentAlert({ message: loc.lnd.refill_create });
         } else {
-          selectWallet(navigate, name, Chain.ONCHAIN).then(onWalletSelect);
+          selectWallet(navigation, name, Chain.ONCHAIN).then(onWalletSelect);
         }
       } else if (id === actionKeys.RefillWithExternalWallet) {
         navigate('ReceiveDetails', { walletID });
       }
     },
-    [name, navigate, onWalletSelect, walletID, wallets],
+    [name, navigate, navigation, onWalletSelect, walletID, wallets],
   );
 
   const getItemLayout = (_: any, index: number) => ({
@@ -495,7 +493,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           onManageFundsPressed={id => {
             if (wallet.type === MultisigHDWallet.type) {
               navigateToViewEditCosigners();
-            } else if (wallet.type === LightningCustodianWallet.type) {
+            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
               if (wallet.getUserHasSavedExport()) {
                 if (!id) return;
                 onManageFundsPressed(id);

@@ -16,7 +16,7 @@ import {
   UIManager,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, MultisigHDWallet } from '../class';
+import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
@@ -305,6 +305,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     let image;
     switch (item.type) {
       case LightningCustodianWallet.type:
+      case LightningArkWallet.type:
         image = direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
         break;
       case MultisigHDWallet.type:

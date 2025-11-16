@@ -13,6 +13,7 @@ export * from './wallets/hd-segwit-p2sh-wallet';
 export * from './wallets/hd-taproot-wallet';
 export * from './wallets/legacy-wallet';
 export * from './wallets/lightning-custodian-wallet';
+export * from './wallets/lightning-ark-wallet';
 export * from './wallets/multisig-hd-wallet';
 export * from './wallets/segwit-bech32-wallet';
 export * from './wallets/segwit-p2sh-wallet';

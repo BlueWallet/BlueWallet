@@ -71,7 +71,6 @@
     "additional_info": "Additional Information",
     "for": "For:",
     "lightning_invoice": "Lightning Invoice",
-    "open_direct_channel": "Open direct channel with this node:",
     "please_pay_between_and": "Please pay between {min} and {max}",
     "please_pay": "Please pay",
     "preimage": "Pre-image",

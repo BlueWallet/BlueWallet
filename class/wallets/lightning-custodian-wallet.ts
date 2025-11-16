@@ -22,7 +22,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   pending_transactions_raw: any[] = [];
   transactions_raw: any[] = [];
   user_invoices_raw: any[] = [];
-  info_raw: false | { uris?: string[] } = false;
   preferredBalanceUnit = BitcoinUnit.SATS;
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
@@ -62,13 +61,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   timeToRefreshTransaction() {
     return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
-  }
-
-  static fromJson(param: any) {
-    const obj = super.fromJson(param);
-    // @ts-ignore: local init
-    obj.init();
-    return obj;
   }
 
   async init() {
@@ -554,30 +546,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     return decoded;
-  }
-
-  async fetchInfo() {
-    const response = await fetch(this.baseURI + '/getinfo', {
-      method: 'GET',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer' + ' ' + this.access_token,
-      },
-    });
-
-    const json = await response.json();
-    if (!json) {
-      throw new Error('API failure: ' + response.statusText);
-    }
-
-    if (json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-    }
-
-    if (!json.identity_pubkey) {
-      throw new Error('API unexpected response: ' + JSON.stringify(json));
-    }
   }
 
   static async isValidNodeAddress(address: string): Promise<boolean> {
