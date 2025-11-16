@@ -64,30 +64,38 @@ describe('Watch only wallet', () => {
   });
 
   it('can create PSBT base64 without signature for HW wallet xpub', async () => {
-    const w = new WatchOnlyWallet();
-    w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
-    w.init();
-    const changeAddress = '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX';
-    // hardcoding so we wont have to call w.getChangeAddressAsync()
-    const utxos = [
-      {
-        height: 530926,
-        value: 1000,
-        address: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
-        txid: 'd0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96',
-        vout: 1,
-        txhex:
-          '0100000001b630ac364a04b83548994ded4705b98316b2d1fe18b9fffa2627be9eef11bf60000000006b48304502210096e68d94d374e3a688ed2e6605289f81172540abaab5f6cc431c231919860746022075ee4e64c867ed9d369d01a9b35d8b1689a821be8d729fff7fb3dfcc75d16f6401210281d2e40ba6422fc97b61fd5643bee83dd749d8369339edc795d7b3f00e96c681fdffffff02ef020000000000001976a914e4271ef9e9a03a89b981c73d3d6936d2f6fccc0688ace8030000000000001976a914120ad7854152901ebeb269acb6cef20e71b3cf5988acea190800',
-      },
-    ];
-    // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
+    for (const cleanupInternals of [false, true]) {
+      const w = new WatchOnlyWallet();
+      w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+      w.init();
+      const changeAddress = '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX';
+      // hardcoding so we wont have to call w.getChangeAddressAsync()
+      const utxos = [
+        {
+          height: 530926,
+          value: 1000,
+          address: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+          txid: 'd0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96',
+          vout: 1,
+          txhex:
+            '0100000001b630ac364a04b83548994ded4705b98316b2d1fe18b9fffa2627be9eef11bf60000000006b48304502210096e68d94d374e3a688ed2e6605289f81172540abaab5f6cc431c231919860746022075ee4e64c867ed9d369d01a9b35d8b1689a821be8d729fff7fb3dfcc75d16f6401210281d2e40ba6422fc97b61fd5643bee83dd749d8369339edc795d7b3f00e96c681fdffffff02ef020000000000001976a914e4271ef9e9a03a89b981c73d3d6936d2f6fccc0688ace8030000000000001976a914120ad7854152901ebeb269acb6cef20e71b3cf5988acea190800',
+        },
+      ];
+      // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
 
-    const { psbt } = await w.createTransaction(utxos, [{ address: '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5' }], 1, changeAddress);
+      const { psbt } = await w.createTransaction(utxos, [{ address: '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5' }], 1, changeAddress);
 
-    assert.strictEqual(
-      psbt.toBase64(),
-      'cHNidP8BAFUCAAAAAZaLfDcOPs2Jk1UefwZZOzPCdTJF+ugLOsYZYagnIEPQAQAAAAAAAACAASgDAAAAAAAAGXapFP6ZRvxlaU5S/9HQFr1i2lsgp58AiKwAAAAAAAEA4gEAAAABtjCsNkoEuDVImU3tRwW5gxay0f4Yuf/6Jie+nu8Rv2AAAAAAa0gwRQIhAJbmjZTTdOOmiO0uZgUon4EXJUCrqrX2zEMcIxkZhgdGAiB17k5kyGftnTadAamzXYsWiaghvo1yn/9/s9/MddFvZAEhAoHS5AumQi/Je2H9VkO+6D3XSdg2kzntx5XXs/AOlsaB/f///wLvAgAAAAAAABl2qRTkJx756aA6ibmBxz09aTbS9vzMBois6AMAAAAAAAAZdqkUEgrXhUFSkB6+smmsts7yDnGzz1mIrOoZCAAiBgPGm5BfckKzaIEi8GlRM5oe4A2mUvbsxlJ+pmMhRsrOYhgAAAAALAAAgAAAAIAAAACAAAAAAAAAAAAAAA==',
-    );
+      if (cleanupInternals) {
+        // these might be purged when preparing for serialization before saving to disk
+        w._hdWalletInstance._node0 = undefined;
+        w._hdWalletInstance._node1 = undefined;
+      }
+
+      assert.strictEqual(
+        psbt.toBase64(),
+        'cHNidP8BAFUCAAAAAZaLfDcOPs2Jk1UefwZZOzPCdTJF+ugLOsYZYagnIEPQAQAAAAAAAACAASgDAAAAAAAAGXapFP6ZRvxlaU5S/9HQFr1i2lsgp58AiKwAAAAAAAEA4gEAAAABtjCsNkoEuDVImU3tRwW5gxay0f4Yuf/6Jie+nu8Rv2AAAAAAa0gwRQIhAJbmjZTTdOOmiO0uZgUon4EXJUCrqrX2zEMcIxkZhgdGAiB17k5kyGftnTadAamzXYsWiaghvo1yn/9/s9/MddFvZAEhAoHS5AumQi/Je2H9VkO+6D3XSdg2kzntx5XXs/AOlsaB/f///wLvAgAAAAAAABl2qRTkJx756aA6ibmBxz09aTbS9vzMBois6AMAAAAAAAAZdqkUEgrXhUFSkB6+smmsts7yDnGzz1mIrOoZCAAiBgPGm5BfckKzaIEi8GlRM5oe4A2mUvbsxlJ+pmMhRsrOYhgAAAAALAAAgAAAAIAAAACAAAAAAAAAAAAAAA==',
+      );
+    }
   });
 
   it('can create PSBT base64 without signature for HW wallet ypub', async () => {
@@ -303,6 +311,29 @@ describe('Watch only wallet', () => {
     assert.ok(w.useWithHardwareWalletEnabled());
   });
 
+  it('can import taproot BIP86 from keystone with zpub instead of xpub', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      JSON.stringify({
+        ExtPubKey: 'zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4',
+        MasterFingerprint: 'B68AF6E4',
+        AccountKeyPath: "m/86'/0'/0'",
+      }),
+    );
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4',
+    );
+    assert.strictEqual(w.getMasterFingerprintHex(), 'B68AF6E4'.toLowerCase());
+    assert.strictEqual(w.getLabel(), 'Wallet');
+    assert.strictEqual(w.getDerivationPath(), "m/86'/0'/0'");
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), `not taproot address generated: ${w._getExternalAddressByIndex(0)}`);
+    assert.ok(w.allowMasterFingerprint());
+    // assert.ok(w.useWithHardwareWalletEnabled());
+  });
+
   it('can import zpub with master fingerprint and derivation path', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-walletdescriptor.txt', 'ascii'));
@@ -389,6 +420,72 @@ describe('Watch only wallet', () => {
       );
 
       assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), 'not taproot address, got: ' + w._getExternalAddressByIndex(0));
+      assert.ok(w.allowMasterFingerprint());
+      assert.ok(!w.useWithHardwareWalletEnabled());
+    }
+  });
+
+  it('can import BIP86 (taproot) wallet descriptor but with zpub instead of xpub', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      "tr([b68af6e4/86'/0'/0']zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4)",
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.getMasterFingerprintHex(), 'b68af6e4');
+    assert.strictEqual(w.getDerivationPath(), "m/86'/0'/0'");
+
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4',
+    );
+
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), 'not taproot address, got: ' + w._getExternalAddressByIndex(0));
+
+    assert.ok(!w.useWithHardwareWalletEnabled());
+  });
+
+  it('can import BIP86 (taproot) wallet descriptor and create transaction', async () => {
+    for (const cleanupInternals of [false, true]) {
+      const w = new WatchOnlyWallet();
+      // MNEMONICS_KEYSTONE
+      w.setSecret(
+        "tr([b68af6e4/86'/0'/0']zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4)",
+      );
+      w.init();
+      assert.ok(w.valid());
+
+      assert.strictEqual(w.getMasterFingerprintHex(), 'b68af6e4');
+      assert.strictEqual(w.getDerivationPath(), "m/86'/0'/0'");
+
+      assert.strictEqual(
+        w.getSecret(),
+        'zpub6rxQT4vrGrdLmFicJZnLxx1odj1C8xNtHW5pW84hMSXdtoFnCbqBFJm3bF5PrwYL5ScxFhdzRuv3pb9beyoraQLMuQWkV9faGuxstBPgLw4',
+      );
+
+      assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), 'not taproot address, got: ' + w._getExternalAddressByIndex(0));
+
+      const utxos = [
+        {
+          height: 923789,
+          value: 10108,
+          address: 'bc1pyren45uwytsghuxelahgyjflrx9dhq9zhavangrcmw2avfre6spqtwxgm4',
+          txid: 'dd8a90cfef8b5966781cfaddf8a5e8f1e2dce12e7ceed25c6d329c1df2e17c4f',
+          vout: 0,
+          wif: false,
+          confirmations: 7,
+        },
+      ];
+
+      if (cleanupInternals) {
+        // these might be purged when preparing for serialization before saving to disk
+        w._hdWalletInstance._node0 = undefined;
+        w._hdWalletInstance._node1 = undefined;
+      }
+
+      const { psbt } = w.createTransaction(utxos, [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], 1, w._getInternalAddressByIndex(0));
+      assert.ok(psbt);
 
       assert.ok(!w.useWithHardwareWalletEnabled());
     }
