@@ -75,13 +75,12 @@ export class WatchOnlyWallet extends LegacyWallet {
    */
   init() {
     let hdWalletInstance: THDWalletForWatchOnly;
-    if (this.secret.startsWith('xpub')) {
-      // its either legacy OR taproot HD since industry decided to not add new prefixes (like ypub or zpub)
-      if (this._derivationPath?.startsWith("m/86'")) {
-        hdWalletInstance = new HDTaprootWallet();
-      } else {
-        hdWalletInstance = new HDLegacyP2PKHWallet();
-      }
+
+    if (this._derivationPath?.startsWith("m/86'")) {
+      // if path is explicit taproot path - its definately BIP86
+      hdWalletInstance = new HDTaprootWallet();
+    } else if (this.secret.startsWith('xpub')) {
+      hdWalletInstance = new HDLegacyP2PKHWallet();
     } else if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
     else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
     else return this;
@@ -251,7 +250,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   allowMasterFingerprint() {
-    return this.getSecret().startsWith('zpub');
+    return this.getSecret().startsWith('zpub') || this.getSecret().startsWith('ypub') || this.getSecret().startsWith('xpub');
   }
 
   useWithHardwareWalletEnabled() {
