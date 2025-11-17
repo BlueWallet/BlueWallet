@@ -71,7 +71,6 @@
     "additional_info": "Дополнительная информация",
     "for": "Для:",
     "lightning_invoice": "Lightning инвойс",
-    "open_direct_channel": "Открыть канал с этой нодой:",
     "please_pay_between_and": "Оплатите от {min} до {max}",
     "please_pay": "Пожалуйста, оплатите",
     "preimage": "Преимидж",
