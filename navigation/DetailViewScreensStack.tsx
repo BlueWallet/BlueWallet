@@ -6,7 +6,6 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
-import LNDViewAdditionalInvoiceInformation from '../screen/lnd/LNDViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
 import LnurlAuth from '../screen/lnd/lnurlAuth';
@@ -168,11 +167,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
         })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="LNDViewAdditionalInvoiceInformation"
-        component={LNDViewAdditionalInvoiceInformation}
-        options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
       />
       <DetailViewStack.Screen
         name="LNDViewAdditionalInvoicePreImage"

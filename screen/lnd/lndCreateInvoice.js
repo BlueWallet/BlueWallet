@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useLocale, useNavigation, useRoute, CommonActions } from '@react-navigation/native';
+import { navigationRef } from '../../NavigationService';
 import {
   ActivityIndicator,
   Image,
@@ -88,10 +89,19 @@ const LNDCreateInvoice = () => {
       const { query } = parse(url, true);
 
       if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
-        navigate('LnurlAuth', {
-          lnurl: data,
-          walletID: walletID ?? wallet.current.getID(),
-        });
+        // Close the modal first, then navigate to LnurlAuth in the drawer
+        goBack();
+        setTimeout(() => {
+          navigationRef.dispatch(
+            CommonActions.navigate({
+              name: 'LnurlAuth',
+              params: {
+                lnurl: data,
+                walletID: walletID ?? wallet.current.getID(),
+              },
+            }),
+          );
+        }, 100);
         return;
       }
 

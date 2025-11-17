@@ -25,6 +25,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
+import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 
 enum ButtonStatus {
   Possible,
@@ -113,6 +114,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions } = useStorage();
   const { hash, walletID } = useRoute<RouteProps>().params;
+  const subscribedWallet = useWalletSubscribe(walletID!);
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
@@ -188,19 +190,18 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   }, [DetailsButton, colors, hash, setOptions]);
 
   useEffect(() => {
-    if (wallet) {
-      const transactions = wallet.getTransactions();
+    if (subscribedWallet) {
+      const transactions = subscribedWallet.getTransactions();
       const newTx = transactions.find((t: Transaction) => t.hash === hash);
       if (newTx) {
         setTX(newTx);
       }
     }
-  }, [hash, wallet]);
+  }, [hash, subscribedWallet]);
 
   useEffect(() => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) || null;
-    dispatch({ type: ActionType.SetWallet, payload: foundWallet });
-  }, [walletID, wallets]);
+    dispatch({ type: ActionType.SetWallet, payload: subscribedWallet });
+  }, [subscribedWallet]);
 
   // re-fetching tx status periodically
   useEffect(() => {

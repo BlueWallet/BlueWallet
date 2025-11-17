@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,6 +11,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+import assert from 'assert';
 
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -34,7 +35,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import assert from 'assert';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -42,6 +43,7 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
+  ARK = 'ARK',
 }
 
 interface State {
@@ -112,6 +114,7 @@ const WalletsAdd: React.FC = () => {
 
   // State
   const [state, dispatch] = useReducer(walletReducer, initialState);
+  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const isLoading = state.isLoading;
   const walletBaseURI = state.walletBaseURI;
   const selectedIndex = state.selectedIndex;
@@ -244,6 +247,10 @@ const WalletsAdd: React.FC = () => {
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
   }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
+  const handleOnLightningArkButtonPressed = useCallback(() => {
+    confirmResetEntropy(ButtonSelected.ARK);
+  }, [confirmResetEntropy]);
+
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
@@ -317,6 +324,8 @@ const WalletsAdd: React.FC = () => {
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
+    } else if (selectedWalletType === ButtonSelected.ARK) {
+      createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
@@ -410,6 +419,27 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
+  const createLightningArkWallet = async () => {
+    const wallet = new LightningArkWallet();
+    wallet.setLabel(label || loc.wallets.details_title);
+    try {
+      await wallet.generate();
+    } catch (Err: any) {
+      setIsLoading(false);
+      console.warn('lightning ark create failure', Err);
+      return presentAlert({ message: Err.message ?? '' });
+    }
+
+    addWallet(wallet);
+    await saveToDisk();
+
+    A(A.ENUM.CREATED_WALLET);
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    navigate('PleaseBackupLNDHub', {
+      walletID: wallet.getID(),
+    });
+  };
+
   const navigateToImportWallet = () => {
     navigate('ImportWallet');
   };
@@ -420,6 +450,7 @@ const WalletsAdd: React.FC = () => {
   };
 
   const handleOnBitcoinButtonPressed = () => {
+    setBackdoorPressed(prevState => prevState + 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
@@ -481,6 +512,15 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
+        {backdoorPressed >= 20 ? (
+          <WalletButton
+            buttonType="LightningArk"
+            testID="ActivateLightningArkButton"
+            active={selectedWalletType === ButtonSelected.ARK}
+            onPress={handleOnLightningArkButtonPressed}
+            size={styles.button}
+          />
+        ) : null}
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>

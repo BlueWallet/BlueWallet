@@ -564,6 +564,7 @@ const SendDetails = () => {
     } catch (Err: any) {
       setIsLoading(false);
       presentAlert({ title: loc.errors.error, message: Err.message });
+      console.log(Err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
@@ -864,6 +865,7 @@ const SendDetails = () => {
         psbt = bitcoin.Psbt.fromBase64(psbtBase64);
         tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
       } catch (e: any) {
+        console.log(e);
         presentAlert({ title: loc.errors.error, message: e.message });
         return;
       } finally {

@@ -13,6 +13,7 @@ import {
   HDTaprootWallet,
   LegacyWallet,
   LightningCustodianWallet,
+  LightningArkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -212,6 +213,19 @@ const startImport = (
         await lnd.fetchBalance();
       }
       yield { wallet: lnd };
+    }
+
+    // is it lightning ark wallet?
+    yield { progress: 'lightning ark' };
+    if (text.startsWith('arkade://')) {
+      const ark = new LightningArkWallet();
+      ark.setSecret(text);
+      await ark.init();
+      if (!offline) {
+        await ark.fetchBalance();
+        await ark.fetchTransactions();
+      }
+      yield { wallet: ark };
     }
 
     // check bip39 wallets
