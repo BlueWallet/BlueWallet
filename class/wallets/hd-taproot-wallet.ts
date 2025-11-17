@@ -62,12 +62,22 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
     index = index * 1; // cast to int
 
     if (node === 0 && !this._node0) {
-      const hdNode = bip32.fromBase58(this.getXpub());
+      let xpub = this.getXpub();
+      if (xpub.startsWith('zpub')) {
+        // bip32.fromBase58() wont work with zpub prefix, need to swap it for the traditional one
+        xpub = this._zpubToXpub(xpub);
+      }
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
-      const hdNode = bip32.fromBase58(this.getXpub());
+      let xpub = this.getXpub();
+      if (xpub.startsWith('zpub')) {
+        // bip32.fromBase58() wont work with zpub prefix, need to swap it for the traditional one
+        xpub = this._zpubToXpub(xpub);
+      }
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
