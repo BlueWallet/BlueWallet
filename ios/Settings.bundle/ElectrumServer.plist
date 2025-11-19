@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Offline Mode</string>
+			<key>Key</key>
+			<string>electrum_disabled</string>
+			<key>FooterText</key>
+			<string>When enabled, your Bitcoin wallets will not attempt to fetch balances or transactions.</string>
+		</dict>
+	</array>
+</dict>
+</plist>
