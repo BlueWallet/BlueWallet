@@ -893,12 +893,12 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[0].masterFingerprint).toUpperCase(), fp1cobo);
     assert.strictEqual(
-      psbt2.data.inputs[0].bip32Derivation[0].pubkey.toString('hex').toUpperCase(),
+      uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[0].pubkey).toUpperCase(),
       '02F73DC67739702AAE9006A7101F787F2D1A5228B124034231616CFF1120E651CB',
     );
     assert.strictEqual(uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[1].masterFingerprint).toUpperCase(), fp2coldcard);
     assert.strictEqual(
-      psbt2.data.inputs[0].bip32Derivation[1].pubkey.toString('hex').toUpperCase(),
+      uint8ArrayToHex(psbt2.data.inputs[0].bip32Derivation[1].pubkey).toUpperCase(),
       '03D50975097F0D887DF1E948F6DA2BBC484C1EC079A1452CAA26D6E67F0FA0D75A',
     );
   });

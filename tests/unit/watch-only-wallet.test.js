@@ -3,6 +3,7 @@ import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
 import { WatchOnlyWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Watch only wallet', () => {
   it('can validate address', async () => {
@@ -563,7 +564,7 @@ describe('Watch only wallet', () => {
     const { psbt } = w.createTransaction(utxos, [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }], 1, changeAddress);
 
     assert.strictEqual(
-      psbt.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
+      uint8ArrayToHex(psbt.data.outputs[1].bip32Derivation[0].pubkey),
       '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
     );
     assert.strictEqual(psbt.data.inputs[0].bip32Derivation[0].path, "m/49'/0'/0'/1/45");
@@ -584,7 +585,7 @@ describe('Watch only wallet', () => {
     );
 
     assert.strictEqual(
-      psbt2.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),
+      uint8ArrayToHex(psbt2.data.outputs[1].bip32Derivation[0].pubkey),
       '03e060c9b5bb85476caa53e3b8cd3d40c9dc2c36a8a5e8ed87e48bfc9bbe1760ad',
     );
     assert.strictEqual(psbt2.data.inputs[0].bip32Derivation[0].path, newPath + '/1/45');
