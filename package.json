@@ -115,7 +115,7 @@
     "bech32": "2.0.0",
     "bignumber.js": "9.3.1",
     "bip21": "2.0.3",
-    "bip32": "3.1.0",
+    "bip32": "5.0.0",
     "bip38": "github:BlueWallet/bip38",
     "bip39": "3.1.0",
     "bitcoinjs-lib": "^7.0.0-rc.0",

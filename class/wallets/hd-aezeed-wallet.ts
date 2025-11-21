@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { concatUint8Arrays, hexToUint8Array } from '../../blue_modules/uint8array-extras';
+import { concatUint8Arrays, hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 
 const bip32 = BIP32Factory(ecc);
@@ -172,7 +172,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     const root = bip32.fromSeed(this._getEntropyCached());
     const node = root.derivePath("m/1017'/0'/6'/0/0");
 
-    return node.publicKey.toString('hex');
+    return uint8ArrayToHex(node.publicKey);
   }
 
   // since its basically a bip84 wallet, we allow all other standard BIP84 features:

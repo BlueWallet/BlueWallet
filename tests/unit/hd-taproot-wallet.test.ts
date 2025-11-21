@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { HDTaprootWallet, TaprootWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const utxos = [
   {
@@ -48,14 +49,12 @@ describe('Taproot HD (BIP86)', () => {
 
     assert.strictEqual(hd.getMasterFingerprintHex(), '73C5DA0A');
 
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
-      'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115',
-    );
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
-      '399f1b2f4393f29a18c937859c5dd8a77350103157eb880f02e8c08214277cef',
-    );
+    let u8a = hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), 'cc8a4bc64d897bddc5fbc2f670f7a8ba0b386779106cf1223c6fc5d7cd6fc115');
+    u8a = hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), '399f1b2f4393f29a18c937859c5dd8a77350103157eb880f02e8c08214277cef');
   });
 
   it('can generate addresses only via zpub', function () {

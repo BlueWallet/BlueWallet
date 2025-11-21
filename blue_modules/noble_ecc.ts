@@ -6,7 +6,7 @@
  * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/1781
  */
 import * as necc from '@noble/secp256k1';
-import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32/types/bip32';
+import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32';
 import { XOnlyPointAddTweakResult } from 'bitcoinjs-lib/src/types';
 import { hmac } from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha2';

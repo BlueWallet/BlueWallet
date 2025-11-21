@@ -1098,9 +1098,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   /**
    *
    * @param address {string} Address that belongs to this wallet
-   * @returns {Buffer|false} Either buffer with pubkey or false
+   * @returns {Uint8Array|false} Either Uint8Array with pubkey or false
    */
-  _getPubkeyByAddress(address: string): Buffer | false {
+  _getPubkeyByAddress(address: string): Uint8Array | false {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(0, c);
     }

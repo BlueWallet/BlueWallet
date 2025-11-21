@@ -315,7 +315,7 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Not implemented');
   }
 
-  _getNodePubkeyByIndex(node: number, index: number): Buffer | undefined {
+  _getNodePubkeyByIndex(node: number, index: number): Uint8Array | undefined {
     throw new Error('Not implemented');
   }
 
