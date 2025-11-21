@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useLocalization } from '../../hooks/useLocalization';
 import A from '../../blue_modules/analytics';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
@@ -103,6 +104,7 @@ const WalletsList: React.FC = () => {
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
+  useLocalization();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();

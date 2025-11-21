@@ -4,6 +4,7 @@ import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
+import { LanguageProvider } from './components/Context/LanguageProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
@@ -17,15 +18,17 @@ const App = () => {
 
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-        <SafeAreaProvider>
-          <StorageProvider>
-            <SettingsProvider>
-              <MasterView />
-            </SettingsProvider>
-          </StorageProvider>
-        </SafeAreaProvider>
-      </NavigationContainer>
+      <LanguageProvider>
+        <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+          <SafeAreaProvider>
+            <StorageProvider>
+              <SettingsProvider>
+                <MasterView />
+              </SettingsProvider>
+            </StorageProvider>
+          </SafeAreaProvider>
+        </NavigationContainer>
+      </LanguageProvider>
     </SizeClassProvider>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -8,12 +8,14 @@ import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
+import { useLocalization } from '../../hooks/useLocalization';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
+  useLocalization();
   const stylesHook = StyleSheet.create({
     content: {
       backgroundColor: colors.background,
@@ -27,11 +29,6 @@ const Language = () => {
       },
     });
   }, [setOptions]);
-
-  useEffect(() => {
-    setOptions({ title: loc.settings.language });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
 
   const onLanguageSelect = (item: TLanguage) => {
     Keyboard.dismiss();

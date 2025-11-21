@@ -2,14 +2,12 @@ import React from 'react';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useLocalization } from '../../hooks/useLocalization';
 
 const Settings = () => {
   const { navigate } = useExtendedNavigation();
-  // By simply having it here, it'll re-render the UI if language is changed
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { language } = useSettings();
+  useLocalization();
 
   return (
     <SafeAreaScrollView>
