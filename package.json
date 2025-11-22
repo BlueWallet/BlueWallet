@@ -46,7 +46,7 @@
     "node-fetch": "^2.6.7",
     "prettier": "^3.2.5",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=20"
@@ -118,7 +118,7 @@
     "bip32": "5.0.0",
     "bip38": "github:BlueWallet/bip38",
     "bip39": "3.1.0",
-    "bitcoinjs-lib": "^7.0.0-rc.0",
+    "bitcoinjs-lib": "7.0.0",
     "bitcoinjs-message": "2.2.0",
     "bolt11": "1.4.1",
     "buffer": "6.0.3",
@@ -172,7 +172,7 @@
     "readable-stream": "3.6.2",
     "realm": "20.1.0",
     "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#731ed8eb445f65f3a659632232e18ff7e1ce56d6",
-    "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17",
+    "silent-payments": "github:BlueWallet/SilentPayments#59a037",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
     "stream-browserify": "3.0.0",
     "url": "0.11.4",
