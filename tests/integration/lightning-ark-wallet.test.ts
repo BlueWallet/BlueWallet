@@ -192,7 +192,7 @@ describe('LightningArkWallet', () => {
     const receiveTx = txs.find(t => t.value! > 0);
     assert.ok(receiveTx, 'Should have at least one receive transaction');
     assert.strictEqual(receiveTx.memo, 'test invoice');
-    assert.strictEqual(receiveTx.value, 9999);
+    assert.strictEqual(receiveTx.value, 10000);
     assert.strictEqual(receiveTx.timestamp, 1761224952);
     assert.strictEqual(receiveTx.ispaid, true);
     assert.ok(receiveTx.payment_hash);

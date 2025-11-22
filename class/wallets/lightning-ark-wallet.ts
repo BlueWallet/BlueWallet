@@ -241,9 +241,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (this._claimedSwaps[swap.id]) {
         ispaid = true;
       }
-
       // @ts-ignore properties do exist
-      value = value || swap.request.invoiceAmount || swap.response.expectedAmount || swap.response.onchainAmount || 0;
+      value = swap.response.expectedAmount || value || swap.request.invoiceAmount || swap.response.onchainAmount || 0;
       value = value * direction;
 
       ret.push({
