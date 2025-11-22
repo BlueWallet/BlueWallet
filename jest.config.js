@@ -7,6 +7,9 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'json', 'ts', 'tsx'],
   transformIgnorePatterns: ['node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|@rneui|silent-payments|@arkade-os)/'],
+  moduleNameMapper: {
+    '^expo/fetch$': '<rootDir>/util/expo-fetch.js',
+  },
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],
 };

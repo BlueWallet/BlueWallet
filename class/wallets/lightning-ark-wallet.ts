@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
@@ -165,9 +166,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // fetching fees boltz takes:
     const feesResponse = await fetch(this._boltzApiUrl + '/v2/swap/submarine');
     const feesResponseJson = await feesResponse.json();
-    this._limitMin = feesResponseJson?.ark?.BTC?.limits?.minimal ?? 333;
-    this._limitMax = feesResponseJson?.ark?.BTC?.limits?.maximal ?? 1000000;
-    this._feePercentage = feesResponseJson?.ark?.BTC?.fees?.percentage ?? 0;
+    this._limitMin = feesResponseJson?.ARK?.BTC?.limits?.minimal ?? 333;
+    this._limitMax = feesResponseJson?.ARK?.BTC?.limits?.maximal ?? 1000000;
+    this._feePercentage = feesResponseJson?.ARK?.BTC?.fees?.percentage ?? 0;
+    if (!feesResponseJson?.ARK?.BTC?.fees?.percentage) {
+      console.log('warning: unexpected fees response from boltz:', JSON.stringify(feesResponseJson, null, 2));
+    }
 
     // Initialize the Lightning swap provider
     const swapProvider = new BoltzSwapProvider({
@@ -209,6 +213,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // @ts-ignore properties do exist
         bolt11invoice = swap.request.invoice || swap.response.invoice;
         const invoiceDetails = this.decodeInvoice(bolt11invoice);
+        value = invoiceDetails.num_satoshis;
         memo = invoiceDetails.description;
         payment_hash = invoiceDetails.payment_hash;
         expiry = invoiceDetails.expiry;
@@ -236,9 +241,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (this._claimedSwaps[swap.id]) {
         ispaid = true;
       }
-
       // @ts-ignore properties do exist
-      value = swap.response.expectedAmount || swap.response.onchainAmount || swap.request.invoiceAmount /* doesnt account for fee */ || 0;
+      value = swap.response.expectedAmount || value || swap.request.invoiceAmount || swap.response.onchainAmount || 0;
       value = value * direction;
 
       ret.push({
