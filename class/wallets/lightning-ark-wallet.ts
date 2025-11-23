@@ -145,7 +145,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       setTimeout(async () => {
         const manager = new VtxoManager(staticWalletCache[namespace], {
           enabled: true, // Enable expiration monitoring
-          thresholdPercentage: 10, // Alert when 10% of lifetime remains (default)
         });
         try {
           const txid = await manager.renewVtxos();
