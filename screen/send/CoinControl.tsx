@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import {
   ActivityIndicator,
   Keyboard,
@@ -18,6 +17,9 @@ import {
 import * as RNLocalize from 'react-native-localize';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
+import { Avatar } from '../../components/Avatar';
+import { Badge } from '../../components/Badge';
+import { Icon } from '../../components/Icon';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import { FButton, FContainer } from '../../components/FloatButtons';

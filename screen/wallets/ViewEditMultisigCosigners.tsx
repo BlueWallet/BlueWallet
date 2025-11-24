@@ -15,7 +15,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Badge, Icon } from '@rneui/themed';
+import { Badge } from '../../components/Badge';
+import { Icon } from '../../components/Icon';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueCard, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';

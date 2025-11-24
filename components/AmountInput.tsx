@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Icon, Text } from '@rneui/themed';
 import BigNumber from 'bignumber.js';
+import { Badge } from './Badge';
+import { Icon } from './Icon';
 import dayjs from 'dayjs';
 import {
   Image,
@@ -8,6 +9,7 @@ import {
   NativeSyntheticEvent,
   Pressable,
   StyleSheet,
+  Text,
   TextInput,
   TextInputProps,
   TextInputSelectionChangeEventData,

@@ -1,7 +1,7 @@
 import { useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { Icon } from '../../components/Icon';
 import URL from 'url';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, View, Switch } from 'react-native';
-import { ListItem } from '@rneui/themed';
+import ListItem from './ListItem';
 import { useTheme } from './themes';
 import loc from '../loc';
 

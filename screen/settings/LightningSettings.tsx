@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { Alert, Linking, StyleSheet } from 'react-native';
-import { Button as ButtonRNElements } from '@rneui/themed';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -122,18 +121,15 @@ const LightningSettings: React.FC = () => {
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
-      <ButtonRNElements
+      <Button
         icon={{
           name: 'github',
           type: 'font-awesome',
           color: colors.foregroundColor,
         }}
         onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
-        titleStyle={{ color: colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
-        // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
-        // color={colors.buttonTextColor}
-        buttonStyle={stylesHook.buttonStyle}
+        style={stylesHook.buttonStyle}
       />
 
       <BlueCard>

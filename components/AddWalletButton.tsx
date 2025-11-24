@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, GestureResponderEvent, Pressable } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { Icon } from './Icon';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';

@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
-import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
+import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useLocale } from '@react-navigation/native';
-
+import { Avatar } from './Avatar';
+import { Icon } from './Icon';
 import { useTheme } from './themes';
+import { Divider } from './Divider';
 
 // Update the type for the props
 interface ListItemProps {

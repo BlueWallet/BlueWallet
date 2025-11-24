@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
 import { useTheme } from './themes';

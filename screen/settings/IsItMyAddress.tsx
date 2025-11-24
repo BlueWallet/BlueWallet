@@ -8,7 +8,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Divider } from '@rneui/themed';
+import { Divider } from '../../components/Divider';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';

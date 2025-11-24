@@ -100,7 +100,7 @@ jest.mock('../../components/icons/TransactionIncomingIcon', () => 'TransactionIn
 jest.mock('../../components/icons/TransactionOutgoingIcon', () => 'TransactionOutgoingIcon');
 jest.mock('../../components/icons/TransactionPendingIcon', () => 'TransactionPendingIcon');
 
-jest.mock('@rneui/themed', () => ({
+jest.mock('../../components/Icon', () => ({
   Icon: 'Icon',
 }));
 
