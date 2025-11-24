@@ -266,7 +266,7 @@
     "electrum_reset_to_default_and_clear_history": "重置为默认并清除历史记录",
     "encrypt_decrypt": "解密存储",
     "encrypt_decrypt_q": "您确定要解密存储吗？这将允许在无需密码的情况下访问您的钱包。",
-    "encrypt_enc_and_pass": "已加密并受密码保护",
+    "encrypt_enc_and_pass": "加密并使用密码保护",
     "encrypt_storage_explanation_headline": "启用存储加密",
     "encrypt_storage_explanation_description_line1": "启用“存储加密”可通过保护数据在设备上的存储方式，为应用增加额外的安全防护层。这使得未经许可的人员更难访问您的信息。",
     "encrypt_storage_explanation_description_line2": "但是，需要注意的是，此加密仅保护设备钥匙链中存储的钱包的访问权限，并不会为钱包本身设置密码或提供额外保护。",
