@@ -669,9 +669,9 @@
   "bip47": {
     "payment_code": "支付码",
     "contacts": "联系人",
-    "bip47_explain": "可重复使用并可共享的代码",
+    "bip47_explain": "可重复使用并共享的代码",
     "bip47_explain_subtitle": "BIP47",
-    "purpose": "可重复使用并可共享的代码（BIP47）",
+    "purpose": "可重复使用并共享的代码（BIP47）",
     "pay_this_contact": "向此联系人付款",
     "rename_contact": "重命名联系人",
     "copy_payment_code": "复制支付码",
