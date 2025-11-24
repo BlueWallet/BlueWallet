@@ -100,7 +100,7 @@
     "details_create": "创建",
     "details_label": "描述",
     "details_setAmount": "按金额接收",
-    "details_share": "分享……",
+    "details_share": "共享……",
     "address_not_found": " 无法生成接收地址。",
     "header": "接收",
     "reset": "重置",
