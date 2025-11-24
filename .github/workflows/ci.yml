@@ -11,7 +11,7 @@ env:
 on: [pull_request]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout project
@@ -28,7 +28,55 @@ jobs:
       run: npm ci
 
     - name: Run tests
-      run: npm test || npm test || npm test || npm test
+      run: npm run lint
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+
+    - name: Specify node version
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Install node_modules
+      run: npm ci
+
+    - name: Run tests
+      run: npm run unit
+      env:
+        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
+        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
+        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v4
+
+    - name: Specify node version
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Install node_modules
+      run: npm ci
+
+    - name: Run tests
+      run: npm run integration
       env:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
