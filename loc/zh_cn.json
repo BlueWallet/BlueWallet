@@ -302,7 +302,7 @@
     "electrum_suggested_description": "当未设置首选服务器时，将随机选择一个推荐的服务器使用。",
     "not_a_valid_uri": "无效的统一资源标识符（URI）",
     "notifications": "通知",
-    "open_link_in_explorer": "在区块浏览器中打开链接",
+    "open_link_in_explorer": "在区块链浏览器中打开链接",
     "password": "密码",
     "password_explain": "请输入用于解锁存储的密码。",
     "plausible_deniability": "可合理否认",
