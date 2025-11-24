@@ -272,7 +272,7 @@
     "encrypt_storage_explanation_description_line2": "但是，需要注意的是，此加密仅保护设备钥匙链中存储的钱包的访问权限，并不会为钱包本身设置密码或提供额外保护。",
     "i_understand": "我明白",
     "block_explorer": "区块链浏览器",
-    "block_explorer_preferred": "使用首选区块浏览器",
+    "block_explorer_preferred": "使用首选区块链浏览器",
     "block_explorer_error_saving_custom": "保存首选区块浏览器时出错",
     "encrypt_title": "安全",
     "encrypt_tstorage": "存储",
