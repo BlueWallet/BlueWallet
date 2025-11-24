@@ -307,22 +307,25 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async _attemptToClaimPendingVHTLCs() {
     assert(this._wallet, 'Ark wallet not initialized');
     assert(this._arkadeLightning, 'Ark Lightning not initialized');
+    const arkadeLightning = this._arkadeLightning;
 
     const pendingReverseSwaps = await this._arkadeLightning.getPendingReverseSwaps();
     if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? [], 'pending swaps');
 
-    for (const swap of pendingReverseSwaps ?? []) {
-      if (this._claimedSwaps[swap.id]) continue;
+    await Promise.all(
+      (pendingReverseSwaps ?? []).map(async swap => {
+        if (this._claimedSwaps[swap.id]) return;
 
-      console.log(`claiming ${swap.id}...`);
-      try {
-        await this._arkadeLightning.claimVHTLC(swap);
-        console.log('claimed!');
-        this._claimedSwaps[swap.id] = true;
-      } catch (error: any) {
-        console.log('could not claim:', error.message);
-      }
-    }
+        console.log(`claiming ${swap.id}...`);
+        try {
+          await arkadeLightning.claimVHTLC(swap);
+          console.log('claimed!');
+          this._claimedSwaps[swap.id] = true;
+        } catch (error: any) {
+          console.log(`could not claim ${swap.id}:`, error.message);
+        }
+      }),
+    );
   }
 
   async fetchBalance(noRetry?: boolean): Promise<void> {
