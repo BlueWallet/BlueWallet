@@ -197,6 +197,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   getTransactions(): (Transaction & LightningTransaction)[] {
+    const walletID = this.getID();
     const ret: LightningTransaction[] = [];
     for (const swap of this._swapHistory) {
       let memo = '';
@@ -246,7 +247,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
       ret.push({
         type: direction < 0 ? 'paid_invoice' : 'user_invoice',
-        walletID: this.getID(),
+        walletID,
         description: memo,
         memo,
         value,
@@ -263,7 +264,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const boardingTx of this._boardingUtxos) {
       ret.push({
         type: 'bitcoind_tx',
-        walletID: this.getID(),
+        walletID,
         description: 'Pending refill',
         memo: 'Pending refill',
         value: boardingTx.value,
@@ -276,7 +277,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // for now putting on the list only onchain top-up transactions:
         ret.push({
           type: 'bitcoind_tx',
-          walletID: this.getID(),
+          walletID,
           description: 'Refill',
           memo: 'Refill',
           value: histTx.amount,
