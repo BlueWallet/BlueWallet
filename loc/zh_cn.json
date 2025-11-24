@@ -185,7 +185,7 @@
     "input_done": "完成",
     "input_paste": "粘贴",
     "input_total": "总计：",
-    "permission_camera_message": "我们需要您的许可才能使用您的摄像头。",
+    "permission_camera_message": "我们需要使用权限才能使用您的摄像头。",
     "psbt_sign": "签署交易",
     "invalid_psbt": "提供的部分签名比特币交易（PSBT）无效。",
     "open_settings": "打开设置",
