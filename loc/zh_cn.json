@@ -273,7 +273,7 @@
     "i_understand": "我明白",
     "block_explorer": "区块链浏览器",
     "block_explorer_preferred": "使用首选区块链浏览器",
-    "block_explorer_error_saving_custom": "保存首选区块浏览器时出错",
+    "block_explorer_error_saving_custom": "保存首选区块链浏览器时出错",
     "encrypt_title": "安全",
     "encrypt_tstorage": "存储",
     "encrypt_use": "使用 {type}",
