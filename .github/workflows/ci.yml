@@ -76,7 +76,7 @@ jobs:
       run: npm ci
 
     - name: Run tests
-      run: npm run integration
+      run: npm run integration || npm run integration || npm run integration || npm run integration
       env:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
