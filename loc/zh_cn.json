@@ -18,7 +18,6 @@
     "seed": "助记词",
     "success": "成功",
     "wallet_key": "钱包密钥",
-    "invalid_animated_qr_code_fragment": "无效的动态二维码片段，请重试。",
     "close": "关闭",
     "change_input_currency": "切换输入货币",
     "refresh": "刷新",
