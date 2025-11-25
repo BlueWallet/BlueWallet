@@ -15,7 +15,6 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
-import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
@@ -117,12 +116,8 @@ const ScanQRCode = () => {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
       }
-    } catch (error) {
-      setIsLoading(true);
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 
@@ -159,13 +154,8 @@ const ScanQRCode = () => {
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
-    } catch (error) {
-      setIsLoading(true);
-
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 

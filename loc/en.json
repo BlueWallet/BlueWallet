@@ -18,7 +18,6 @@
     "seed": "Seed",
     "success": "Success",
     "wallet_key": "Wallet key",
-    "invalid_animated_qr_code_fragment": "Invalid animated QR Code fragment. Please try again.",
     "close": "Close",
     "change_input_currency": "Change input currency",
     "refresh": "Refresh",
