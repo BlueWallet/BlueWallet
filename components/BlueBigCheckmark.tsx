@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { Icon } from './Icon';
 import { useTheme } from './themes';
 
 interface BlueBigCheckmarkProps extends ViewProps {}

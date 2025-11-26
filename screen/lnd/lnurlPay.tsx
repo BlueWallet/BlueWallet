@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useLocale, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { Icon } from '../../components/Icon';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
