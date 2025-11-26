@@ -214,58 +214,162 @@ const init = async () => {
 };
 init();
 
-const loc: ILocalization = new Localization({
+const languageLoaders: Record<string, () => typeof enJson> = {
+  ar: () => require('./ar.json'),
+  be: () => require('./be@tarask.json'),
+  bg_bg: () => require('./bg_bg.json'),
+  bqi: () => require('./bqi.json'),
+  ca: () => require('./ca.json'),
+  cy: () => require('./cy.json'),
+  cs_cz: () => require('./cs_cz.json'),
+  da_dk: () => require('./da_dk.json'),
+  de_de: () => require('./de_de.json'),
+  el: () => require('./el.json'),
+  es: () => require('./es.json'),
+  es_419: () => require('./es_419.json'),
+  et: () => require('./et_EE.json'),
+  fa: () => require('./fa.json'),
+  fi_fi: () => require('./fi_fi.json'),
+  fr_fr: () => require('./fr_fr.json'),
+  he: () => require('./he.json'),
+  hr_hr: () => require('./hr_hr.json'),
+  hu_hu: () => require('./hu_hu.json'),
+  id_id: () => require('./id_id.json'),
+  it: () => require('./it.json'),
+  jp_jp: () => require('./jp_jp.json'),
+  ko_kr: () => require('./ko_KR.json'),
+  lrc: () => require('./lrc.json'),
+  ms: () => require('./ms.json'),
+  kn: () => require('./kn.json'),
+  ne: () => require('./ne.json'),
+  nb_no: () => require('./nb_no.json'),
+  nl_nl: () => require('./nl_nl.json'),
+  pt_br: () => require('./pt_br.json'),
+  pt_pt: () => require('./pt_pt.json'),
+  pl: () => require('./pl.json'),
+  ro: () => require('./ro.json'),
+  ru: () => require('./ru.json'),
+  si_lk: () => require('./si_LK.json'),
+  sk_sk: () => require('./sk_sk.json'),
+  sl_si: () => require('./sl_SI.json'),
+  sr_rs: () => require('./sr_RS.json'),
+  sv_se: () => require('./sv_se.json'),
+  th_th: () => require('./th_th.json'),
+  tr_tr: () => require('./tr_tr.json'),
+  ua: () => require('./ua.json'),
+  vi_vn: () => require('./vi_vn.json'),
+  zar_afr: () => require('./zar_afr.json'),
+  zar_xho: () => require('./zar_xho.json'),
+  zh_cn: () => require('./zh_cn.json'),
+  zh_tw: () => require('./zh_tw.json'),
+  pcm: () => require('./pcm.json'),
+  'kk@Cyrl': () => require('./kk@Cyrl.json'),
+};
+
+// Track which languages have been loaded
+const loadedLanguages = new Set<string>(['en']);
+const loadedTranslations: Record<string, any> = { en: enJson };
+
+// Debug helper to log loaded languages
+const logLoadedLanguages = () => {
+  if (__DEV__) {
+    console.debug('[Language] Currently loaded languages:', Array.from(loadedLanguages).join(', '));
+  }
+};
+
+// Log initial state
+if (__DEV__) {
+  console.debug('[Language] Initialized with English only');
+  logLoadedLanguages();
+}
+
+// Unload all languages except the base language (English)
+const unloadNonBaseLanguages = () => {
+  const languagesToRemove = Array.from(loadedLanguages).filter(lang => lang !== 'en');
+
+  if (languagesToRemove.length > 0) {
+    languagesToRemove.forEach(lang => {
+      delete loadedTranslations[lang];
+      loadedLanguages.delete(lang);
+    });
+
+    if (__DEV__) {
+      console.debug(`[Language] Unloaded languages: ${languagesToRemove.join(', ')}`);
+    }
+  }
+};
+
+// Dynamically load a language if not already loaded
+// Only keeps base language (English) + one user-selected language loaded at a time
+const loadLanguage = (lang: string) => {
+  // If selecting base language, unload any other languages
+  if (lang === 'en') {
+    unloadNonBaseLanguages();
+    if (__DEV__) {
+      console.debug(`[Language] Switched to base language, unloaded other languages`);
+      logLoadedLanguages();
+    }
+    // Update the localization object to reflect only base language
+    loc.setContent(loadedTranslations);
+    return;
+  }
+
+  if (loadedLanguages.has(lang)) {
+    if (__DEV__) {
+      console.debug(`[Language] "${lang}" already loaded, skipping`);
+    }
+    return; // Already loaded
+  }
+
+  const loader = languageLoaders[lang];
+  if (loader) {
+    try {
+      if (__DEV__) {
+        console.debug(`[Language] Loading new language: "${lang}"`);
+      }
+
+      // Unload any previously loaded language (except base language)
+      unloadNonBaseLanguages();
+
+      const translations = loader();
+      loadedTranslations[lang] = translations;
+      loadedLanguages.add(lang);
+      // Update the localization object with the new language
+      loc.setContent(loadedTranslations);
+      if (__DEV__) {
+        console.debug(`[Language] Successfully loaded "${lang}"`);
+        logLoadedLanguages();
+      }
+    } catch (error) {
+      console.warn(`[Language] Failed to load language: ${lang}`, error);
+    }
+  } else {
+    if (__DEV__) {
+      console.warn(`[Language] No loader found for language: ${lang}`);
+    }
+  }
+};
+
+const loc = new Localization({
   en: enJson,
-  ar: require('./ar.json'),
-  be: require('./be@tarask.json'),
-  bg_bg: require('./bg_bg.json'),
-  bqi: require('./bqi.json'),
-  ca: require('./ca.json'),
-  cy: require('./cy.json'),
-  cs_cz: require('./cs_cz.json'),
-  da_dk: require('./da_dk.json'),
-  de_de: require('./de_de.json'),
-  el: require('./el.json'),
-  es: require('./es.json'),
-  es_419: require('./es_419.json'),
-  et: require('./et_EE.json'),
-  fa: require('./fa.json'),
-  fi_fi: require('./fi_fi.json'),
-  fr_fr: require('./fr_fr.json'),
-  he: require('./he.json'),
-  hr_hr: require('./hr_hr.json'),
-  hu_hu: require('./hu_hu.json'),
-  id_id: require('./id_id.json'),
-  it: require('./it.json'),
-  jp_jp: require('./jp_jp.json'),
-  ko_kr: require('./ko_KR.json'),
-  lrc: require('./lrc.json'),
-  ms: require('./ms.json'),
-  kn: require('./kn.json'),
-  ne: require('./ne.json'),
-  nb_no: require('./nb_no.json'),
-  nl_nl: require('./nl_nl.json'),
-  pt_br: require('./pt_br.json'),
-  pt_pt: require('./pt_pt.json'),
-  pl: require('./pl.json'),
-  ro: require('./ro.json'),
-  ru: require('./ru.json'),
-  si_lk: require('./si_LK.json'),
-  sk_sk: require('./sk_sk.json'),
-  sl_si: require('./sl_SI.json'),
-  sr_rs: require('./sr_RS.json'),
-  sv_se: require('./sv_se.json'),
-  th_th: require('./th_th.json'),
-  tr_tr: require('./tr_tr.json'),
-  ua: require('./ua.json'),
-  vi_vn: require('./vi_vn.json'),
-  zar_afr: require('./zar_afr.json'),
-  zar_xho: require('./zar_xho.json'),
-  zh_cn: require('./zh_cn.json'),
-  zh_tw: require('./zh_tw.json'),
-});
+}) as ILocalization;
+
+type LanguageChangeListener = (language: string) => void;
+const languageChangeListeners = new Set<LanguageChangeListener>();
+
+export const addLanguageChangeListener = (listener: LanguageChangeListener) => {
+  languageChangeListeners.add(listener);
+  return () => languageChangeListeners.delete(listener);
+};
+
+const notifyLanguageChange = (language: string) => {
+  languageChangeListeners.forEach(listener => listener(language));
+};
 
 export const saveLanguage = async (lang: string) => {
+  // Load the language dynamically if not already loaded
+  loadLanguage(lang);
+
   await AsyncStorage.setItem(STORAGE_KEY, lang);
   loc.setLanguage(lang);
   // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
@@ -275,6 +379,8 @@ export const saveLanguage = async (lang: string) => {
     I18nManager.forceRTL(foundLang?.isRTL ?? false);
   }
   await setDateTimeLocale();
+
+  notifyLanguageChange(lang);
 };
 
 export const transactionTimeToReadable = (time: number | string) => {

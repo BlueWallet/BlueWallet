@@ -31,6 +31,10 @@ const config = {
       return context.resolveRequest(context, moduleName, platform);
     },
   },
+  transformer: {
+    // Enable inline requires for better performance with dynamic language loading
+    inlineRequires: true,
+  },
 };
 
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);
