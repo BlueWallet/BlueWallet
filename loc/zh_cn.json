@@ -288,7 +288,7 @@
     "header": "设置",
     "language": "语言",
     "last_updated": "最后更新",
-    "language_isRTL": "需要重启 BlueWallet 才能使显示语言设置生效。",
+    "language_isRTL": "需要重启 BlueWallet 才能使语言设置生效。",
     "license": "许可证",
     "lightning_error_lndhub_uri": "无效的闪电网络守护节点集线器 (LNDhub) 统一资源标识符 (URI) ",
     "lightning_error_lndhub_uri_tor": "无效的闪电网络守护节点集线器（LNDhub）统一资源标识符（URI）。请确保 Orbot 应用程序已连接，然后重试。",
