@@ -165,6 +165,13 @@ describe('LightningArkWallet', () => {
     assert.strictEqual(decoded.route_hints.length, 0); // decode function does not decode this yet cause we dont need it for now
   });
 
+  it('can tell if invoice expired', async () => {
+    const invoice =
+      'lnbc6670n1p5jp0p9pp5jmyumdwfejjxzwhxh7wnckeugcwcpkqtf5t6dh2fzykjjh4hkatqdq6235x2grhdaexggrs09exzmtfvscqz3txqyyzzssp5ae74xvmlk5q6vxsxe3sqm90w2x4x0ekejt7qp9ca5zzhu83ru8hq9qxpqysgql4dexpmwacw98va6v6smww69a3w6hs5ng0573v8skyhlj7lylt8r65jm5zqaa7hzx3vlrs2fr3h0rtqjw7x94xprdwqy6rr9ff5pnxsppnpr5q';
+    assert.strictEqual(w.isInvoiceExpired(invoice), true);
+    assert.strictEqual(w.isInvoiceExpired(invoice, 1763752997), false);
+  });
+
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can create invoice', async () => {
     if (!process.env.HD_MNEMONIC) {

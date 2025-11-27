@@ -197,6 +197,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   getTransactions(): (Transaction & LightningTransaction)[] {
+    const walletID = this.getID();
     const ret: LightningTransaction[] = [];
     for (const swap of this._swapHistory) {
       let memo = '';
@@ -246,7 +247,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
       ret.push({
         type: direction < 0 ? 'paid_invoice' : 'user_invoice',
-        walletID: this.getID(),
+        walletID,
         description: memo,
         memo,
         value,
@@ -263,7 +264,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const boardingTx of this._boardingUtxos) {
       ret.push({
         type: 'bitcoind_tx',
-        walletID: this.getID(),
+        walletID,
         description: 'Pending refill',
         memo: 'Pending refill',
         value: boardingTx.value,
@@ -276,7 +277,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // for now putting on the list only onchain top-up transactions:
         ret.push({
           type: 'bitcoind_tx',
-          walletID: this.getID(),
+          walletID,
           description: 'Refill',
           memo: 'Refill',
           value: histTx.amount,
@@ -306,22 +307,25 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async _attemptToClaimPendingVHTLCs() {
     assert(this._wallet, 'Ark wallet not initialized');
     assert(this._arkadeLightning, 'Ark Lightning not initialized');
+    const arkadeLightning = this._arkadeLightning;
 
     const pendingReverseSwaps = await this._arkadeLightning.getPendingReverseSwaps();
     if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? [], 'pending swaps');
 
-    for (const swap of pendingReverseSwaps ?? []) {
-      if (this._claimedSwaps[swap.id]) continue;
+    await Promise.all(
+      (pendingReverseSwaps ?? []).map(async swap => {
+        if (this._claimedSwaps[swap.id]) return;
 
-      console.log(`claiming ${swap.id}...`);
-      try {
-        await this._arkadeLightning.claimVHTLC(swap);
-        console.log('claimed!');
-        this._claimedSwaps[swap.id] = true;
-      } catch (error: any) {
-        console.log('could not claim:', error.message);
-      }
-    }
+        console.log(`claiming ${swap.id}...`);
+        try {
+          await arkadeLightning.claimVHTLC(swap);
+          console.log('claimed!');
+          this._claimedSwaps[swap.id] = true;
+        } catch (error: any) {
+          console.log(`could not claim ${swap.id}:`, error.message);
+        }
+      }),
+    );
   }
 
   async fetchBalance(noRetry?: boolean): Promise<void> {

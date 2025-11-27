@@ -4,6 +4,8 @@ import { fetch } from '../../util/fetch';
 import { LegacyWallet } from './legacy-wallet';
 import { DecodedInvoice, LightningTransaction, Transaction } from './types';
 
+const _staticDecodedInvoiceCache: Record<string, DecodedInvoice> = {};
+
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
   static readonly typeReadable = 'Lightning';
@@ -502,6 +504,8 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {DecodedInvoice}
    */
   decodeInvoice(invoice: string): DecodedInvoice {
+    if (_staticDecodedInvoiceCache[invoice]) return _staticDecodedInvoiceCache[invoice]; // cache hit
+
     const { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
     const decoded: DecodedInvoice = {
@@ -544,6 +548,8 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (decoded.num_satoshis === 0 && decoded.num_millisatoshis > 0) {
       decoded.num_satoshis = Math.floor(decoded.num_millisatoshis / 1000);
     }
+
+    _staticDecodedInvoiceCache[invoice] = decoded;
 
     return decoded;
   }
@@ -641,6 +647,12 @@ export class LightningCustodianWallet extends LegacyWallet {
       return 0;
     }
     return new Date(transactions.reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
+  }
+
+  isInvoiceExpired(invoice: string, currentTimestamp?: number): boolean {
+    currentTimestamp = currentTimestamp || Date.now() / 1000; // current ts in seconds
+    const decoded = this.decodeInvoice(invoice);
+    return decoded.timestamp + decoded.expiry < currentTimestamp;
   }
 }
 
