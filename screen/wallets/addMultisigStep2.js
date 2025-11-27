@@ -13,7 +13,6 @@ import {
   View,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
-import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
@@ -181,7 +180,7 @@ const WalletsAddMultisigStep2 = () => {
     }
 
     addAndSaveWallet(w);
-    A(A.ENUM.CREATED_WALLET);
+
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     navigation.getParent()?.goBack();
   };
