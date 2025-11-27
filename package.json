@@ -65,7 +65,7 @@
     "ios": "react-native run-ios",
     "postinstall": "npm run releasenotes2json; npm run branch2json; npm run patches",
     "patches": "",
-    "test": "npm run lint && npm run unit && npm run jest",
+    "test": "npm run lint && npm run unit && npm run integration",
     "integration": "jest tests/integration/*",
     "e2e:debug-build": "detox build -c android.debug",
     "e2e:debug-test": "detox test -c android.debug -d 200000 --loglevel error --reuse",

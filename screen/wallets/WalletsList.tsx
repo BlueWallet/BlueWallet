@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import A from '../../blue_modules/analytics';
+import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -101,7 +100,7 @@ const WalletsList: React.FC = () => {
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions } = useStorage();
+  const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -170,14 +169,6 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
-  const verifyBalance = useCallback(() => {
-    if (getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    } else {
-      A(A.ENUM.GOT_ZERO_BALANCE);
-    }
-  }, [getBalance]);
-
   useEffect(() => {
     const screenKey = route.name;
     console.log(`[WalletsList] Registering handler with key: ${screenKey}`);
@@ -200,18 +191,6 @@ const WalletsList: React.FC = () => {
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [unregisterTransactionsHandler]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        verifyBalance();
-      });
-
-      return () => {
-        task.cancel();
-      };
-    }, [verifyBalance]),
   );
 
   useEffect(() => {
