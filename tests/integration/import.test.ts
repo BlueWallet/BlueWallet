@@ -12,6 +12,7 @@ import {
   HDSegwitP2SHWallet,
   HDTaprootWallet,
   LegacyWallet,
+  LightningArkWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
@@ -657,5 +658,24 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '086ee178');
     assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1q5y4r767v5fzx74ez4nw36hjqrhr4ayeyut5px6');
+  });
+
+  it('can import lightning ark wallet', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      false,
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+
+    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets[0].type, LightningArkWallet.type);
+    assert.strictEqual(
+      store.state.wallets[0].getSecret(),
+      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+    );
   });
 });

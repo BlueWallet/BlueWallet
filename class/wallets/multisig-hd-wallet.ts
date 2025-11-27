@@ -13,7 +13,13 @@ import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
-import { uint8ArrayToHex, hexToUint8Array, concatUint8Arrays, uint8ArrayToString } from '../../blue_modules/uint8array-extras';
+import {
+  uint8ArrayToHex,
+  hexToUint8Array,
+  concatUint8Arrays,
+  uint8ArrayToString,
+  compareUint8Arrays,
+} from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1057,8 +1063,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   /**
    * @see https://github.com/bitcoin/bips/blob/master/bip-0067.mediawiki
    */
-  static sortBuffers(bufArr: Buffer[]): Buffer[] {
-    return bufArr.sort(Buffer.compare);
+  static sortBuffers(bufArr: Uint8Array[]): Uint8Array[] {
+    return bufArr.sort(compareUint8Arrays);
   }
 
   prepareForSerialization() {

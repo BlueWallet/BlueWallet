@@ -91,6 +91,7 @@ const PsbtWithHardwareWallet = () => {
           // (passed by reference)
         }
       } catch (Err) {
+        console.log('error in _combinePSBT():', Err);
         presentAlert({ message: Err.message });
       }
     },
@@ -116,6 +117,7 @@ const PsbtWithHardwareWallet = () => {
         const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
+        console.log('error in wallet.combinePsbt():', Err);
         presentAlert({ message: Err });
       }
     } else if (routeParamsTXHex) {
@@ -157,6 +159,7 @@ const PsbtWithHardwareWallet = () => {
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
+      console.log('error broadcasting:', error);
       presentAlert({ message: error.message });
     }
   };

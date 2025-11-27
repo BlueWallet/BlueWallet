@@ -4,6 +4,8 @@ import { fetch } from '../../util/fetch';
 import { LegacyWallet } from './legacy-wallet';
 import { DecodedInvoice, LightningTransaction, Transaction } from './types';
 
+const _staticDecodedInvoiceCache: Record<string, DecodedInvoice> = {};
+
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
   static readonly typeReadable = 'Lightning';
@@ -22,7 +24,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   pending_transactions_raw: any[] = [];
   transactions_raw: any[] = [];
   user_invoices_raw: any[] = [];
-  info_raw: false | { uris?: string[] } = false;
   preferredBalanceUnit = BitcoinUnit.SATS;
   chain = Chain.OFFCHAIN;
   last_paid_invoice_result?: any;
@@ -62,13 +63,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   timeToRefreshTransaction() {
     return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
-  }
-
-  static fromJson(param: any) {
-    const obj = super.fromJson(param);
-    // @ts-ignore: local init
-    obj.init();
-    return obj;
   }
 
   async init() {
@@ -510,6 +504,8 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {DecodedInvoice}
    */
   decodeInvoice(invoice: string): DecodedInvoice {
+    if (_staticDecodedInvoiceCache[invoice]) return _staticDecodedInvoiceCache[invoice]; // cache hit
+
     const { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
     const decoded: DecodedInvoice = {
@@ -553,31 +549,9 @@ export class LightningCustodianWallet extends LegacyWallet {
       decoded.num_satoshis = Math.floor(decoded.num_millisatoshis / 1000);
     }
 
+    _staticDecodedInvoiceCache[invoice] = decoded;
+
     return decoded;
-  }
-
-  async fetchInfo() {
-    const response = await fetch(this.baseURI + '/getinfo', {
-      method: 'GET',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer' + ' ' + this.access_token,
-      },
-    });
-
-    const json = await response.json();
-    if (!json) {
-      throw new Error('API failure: ' + response.statusText);
-    }
-
-    if (json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-    }
-
-    if (!json.identity_pubkey) {
-      throw new Error('API unexpected response: ' + JSON.stringify(json));
-    }
   }
 
   static async isValidNodeAddress(address: string): Promise<boolean> {
@@ -673,6 +647,12 @@ export class LightningCustodianWallet extends LegacyWallet {
       return 0;
     }
     return new Date(transactions.reduce((max: number, tx: any) => Math.max(max, tx.timestamp), 0) * 1000).toString();
+  }
+
+  isInvoiceExpired(invoice: string, currentTimestamp?: number): boolean {
+    currentTimestamp = currentTimestamp || Date.now() / 1000; // current ts in seconds
+    const decoded = this.decodeInvoice(invoice);
+    return decoded.timestamp + decoded.expiry < currentTimestamp;
   }
 }
 

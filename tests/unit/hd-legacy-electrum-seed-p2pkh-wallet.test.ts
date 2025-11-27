@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {
   it('wont accept BIP39 seed', () => {
@@ -39,14 +40,12 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
     wif = hd._getInternalWIFByIndex(0);
     assert.strictEqual(wif, 'L52d26QmYGW8ctHo1omM5fZeJMgaonSkEWCGpnEekNvkVUoqTsNF');
 
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
-      '02a6e6b674f82796cb4776673d824bf0673364fab24e62dcbfff4c1a5b69e3519b',
-    );
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
-      '0344708260d2a832fd430285a0b915859d73e6ed4c6c6a9cb73e9069a9de56fb23',
-    );
+    let u8a = hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), '02a6e6b674f82796cb4776673d824bf0673364fab24e62dcbfff4c1a5b69e3519b');
+    u8a = hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), '0344708260d2a832fd430285a0b915859d73e6ed4c6c6a9cb73e9069a9de56fb23');
 
     hd.setSecret('bs');
     assert.ok(!hd.validateMnemonic());

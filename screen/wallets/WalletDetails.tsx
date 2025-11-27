@@ -17,6 +17,7 @@ import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
   LegacyWallet,
+  LightningArkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -72,6 +73,7 @@ const WalletDetails: React.FC = () => {
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
+  const [arkAddress, setArkAddress] = useState<string>('');
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
@@ -87,6 +89,23 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet]);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
+
+  // Fetch ark address when wallet is a LightningArkWallet
+  useEffect(() => {
+    const fetchArkAddress = async () => {
+      if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
+        try {
+          const address = await wallet.getArkAddress();
+          console.log('ark address:', address);
+          setArkAddress(address);
+        } catch (error: any) {
+          setArkAddress(error.message);
+        }
+      }
+    };
+
+    fetchArkAddress();
+  }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -470,6 +489,14 @@ const WalletDetails: React.FC = () => {
               <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                 {wallet.typeReadable}
               </Text>
+              {wallet.type === LightningArkWallet.type && (
+                <>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Ark {loc.wallets.details_address.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {arkAddress}
+                  </Text>
+                </>
+              )}
 
               {wallet.type === MultisigHDWallet.type && (
                 <>

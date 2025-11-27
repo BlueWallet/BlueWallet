@@ -2,7 +2,7 @@
  * Helper function to select wallet.
  * Navigates to selector screen, and then navigates back while resolving promise with selected wallet.
  *
- * @param navigateFunc {function} Function that does navigatino should be passed from outside
+ * @param navigation - return value of useExtendedNavigation, so inside helper we can navigate to selector screen and back
  * @param currentScreenName {string} Current screen name, so we know to what screen to get back to
  * @param chainType {string} One of `Chain.` constant to be used to filter wallet panels to show
  * @param availableWallets {array} Wallets to be present in selector. If set, overrides `chainType`
@@ -11,9 +11,10 @@
  * @returns {Promise<TWallet>}
  */
 import { TWallet } from '../class/wallets/types';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 export default function (
-  navigateFunc: (scr: string | any, params?: any) => void,
+  navigation: ReturnType<typeof useExtendedNavigation>,
   currentScreenName: string,
   chainType: string | null,
   availableWallets?: TWallet[],
@@ -38,11 +39,10 @@ export default function (
     params.onWalletSelect = function (selectedWallet: TWallet) {
       if (!selectedWallet) return;
 
-      setTimeout(() => resolve(selectedWallet), 1);
-      console.warn('trying to navigate back to', currentScreenName);
-      navigateFunc({ name: currentScreenName, params: {}, merge: true });
+      setTimeout(() => resolve(selectedWallet), 100);
+      navigation.goBack();
     };
 
-    navigateFunc('SelectWallet', params);
+    navigation.navigate('SelectWallet', params);
   });
 }

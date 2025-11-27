@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, MultisigHDWallet } from '../class';
+import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { TWallet } from '../class/wallets/types';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
@@ -35,7 +35,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const { direction } = useLocale();
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
-    if (wallet.type === LightningCustodianWallet.type) {
+    if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
@@ -151,6 +151,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const imageSource = useMemo(() => {
     switch (wallet.type) {
       case LightningCustodianWallet.type:
+      case LightningArkWallet.type:
         return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       case MultisigHDWallet.type:
         return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
@@ -209,7 +210,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </Text>
         </TouchableOpacity>
       </View>
-      {wallet.type === LightningCustodianWallet.type && allowOnchainAddress && (
+      {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
         <ToolTipMenu
           isMenuPrimaryAction
           isButton

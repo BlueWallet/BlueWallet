@@ -92,6 +92,9 @@ const ImportWalletDiscovery: React.FC = () => {
         if (wallet.type === WatchOnlyWallet.type) {
           if (wallet.isHd() && wallet.getSecret()) {
             subtitle = wallet.getSecret(); // Display descriptor
+            if (wallet._hdWalletInstance) {
+              subtitle = `[${wallet._hdWalletInstance.typeReadable}]\n${subtitle}`;
+            }
           } else {
             subtitle = wallet.getAddress(); // Display address
           }

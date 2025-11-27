@@ -29,7 +29,7 @@ const TransactionExpiredIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingExpired, stylesHooks.ballOutgoingExpired]}>
-        <Icon name="clock" size={16} type="octicon" color="#9AA0AA" />
+        <Icon name="timer" size={16} type="font-awesome-6" color="#9AA0AA" />
       </View>
     </View>
   );
