@@ -1,6 +1,6 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { BackHandler, LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -8,15 +8,18 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+
+type PleaseBackupLNDHubRouteParams = {
+  walletID: string;
+};
 
 const PleaseBackupLNDHub = () => {
-  const { wallets } = useStorage();
-  const { walletID } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const { walletID } = useRoute<RouteProp<{ params: PleaseBackupLNDHubRouteParams }, 'params'>>().params;
+  const wallet = useWalletSubscribe(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
@@ -24,7 +27,7 @@ const PleaseBackupLNDHub = () => {
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const dismiss = useCallback(() => {
-    navigation.getParent().goBack();
+    navigation.getParent()?.goBack();
   }, [navigation]);
   const styles = StyleSheet.create({
     root: {
@@ -55,7 +58,7 @@ const PleaseBackupLNDHub = () => {
     };
   }, [dismiss, isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
-  const onLayout = e => {
+  const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
