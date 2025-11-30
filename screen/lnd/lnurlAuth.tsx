@@ -1,4 +1,4 @@
-import { useLocale, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useLocale, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
@@ -12,10 +12,12 @@ import selectWallet from '../../helpers/select-wallet';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
-import { useStorage } from '../../hooks/context/useStorage';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import assert from 'assert';
+import { LightningArkWallet, LightningCustodianWallet } from '../../class';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -24,21 +26,25 @@ const AuthState = {
   ERROR: 3,
 };
 
+type LnurlAuthRouteParams = {
+  walletID: string;
+  lnurl: string;
+};
+
 const LnurlAuth = () => {
-  const { wallets } = useStorage();
   const { name } = useRoute();
   const { direction } = useLocale();
-  const { walletID, lnurl } = useRoute().params;
-  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
+  const { lnurl, walletID } = useRoute<RouteProp<{ params: LnurlAuthRouteParams }, 'params'>>().params;
+  const wallet = useWalletSubscribe(walletID);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
-    () => (lnurl ? URL.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line n/no-deprecated-api
+    () => (lnurl ? URL.parse(String(Lnurl.getUrlFromLnurl(lnurl)), true) : ({} as any)), // eslint-disable-line n/no-deprecated-api
     [lnurl],
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
   const navigation = useExtendedNavigation();
-  const { setParams } = useNavigation();
+  const { setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {
@@ -54,13 +60,15 @@ const LnurlAuth = () => {
   }, [navigation, name, setParams]);
 
   const authenticate = useCallback(() => {
+    // @ts-ignore ffokc uf
+    assert(wallet instanceof LightningCustodianWallet || wallet instanceof LightningArkWallet);
     wallet
       .authenticate(LN)
       .then(() => {
         setAuthState(AuthState.SUCCESS);
         setErrMsg('');
       })
-      .catch(err => {
+      .catch((err: any) => {
         setAuthState(AuthState.ERROR);
         setErrMsg(err);
       });
@@ -78,7 +86,7 @@ const LnurlAuth = () => {
       {authState !== AuthState.IN_PROGRESS && (
         <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-          <Icon name={direction === 'rlt' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
+          <Icon name={direction === 'rtl' ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>
@@ -95,8 +103,10 @@ const LnurlAuth = () => {
         <>
           <ScrollView>
             <BlueCard>
+              {/* @ts-ignore this key exists */}
               <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_1`]}</BlueText>
               <BlueText style={styles.domainName}>{parsedLnurl.hostname}</BlueText>
+              {/* @ts-ignore this key exists */}
               <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_2`]}</BlueText>
               <BlueSpacing40 />
               <Button title={loc.lnurl_auth.authenticate} onPress={authenticate} />
@@ -112,6 +122,7 @@ const LnurlAuth = () => {
           <SuccessView />
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
+            {/* @ts-ignore this key exists */}
             {loc.formatString(loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_answer`], { hostname: parsedLnurl.hostname })}
           </BlueText>
           <BlueSpacing20 />

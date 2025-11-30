@@ -1,4 +1,4 @@
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -10,10 +10,13 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
+type LNDViewAdditionalInvoicePreImageRouteParams = {
+  preImageData: string;
+};
+
 const LNDViewAdditionalInvoicePreImage = () => {
-  // state = { walletInfo: undefined };
   const { colors } = useTheme();
-  const { preImageData } = useRoute().params;
+  const { preImageData } = useRoute<RouteProp<{ params: LNDViewAdditionalInvoicePreImageRouteParams }, 'params'>>().params;
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
