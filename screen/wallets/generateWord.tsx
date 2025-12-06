@@ -1,4 +1,3 @@
-import { useTheme } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
@@ -11,22 +10,12 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 const GenerateWord = () => {
-  const { colors } = useTheme();
-
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
 
-  const stylesHooks = StyleSheet.create({
-    input: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-  });
-
-  const handleUpdateMnemonic = nextValue => {
+  const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
-    setResult();
+    setResult('');
   };
 
   const checkMnemonic = async () => {
@@ -50,7 +39,7 @@ const GenerateWord = () => {
 
   const clearMnemonicInput = () => {
     setMnemonic('');
-    setResult();
+    setResult('');
   };
 
   return (
@@ -63,13 +52,9 @@ const GenerateWord = () => {
     >
       <View style={styles.wrapper}>
         <BlueCard style={styles.mainCard}>
-          <View style={[styles.input, stylesHooks.input]}>
+          <View style={styles.input}>
             <TextInput
               style={styles.text}
-              maxHeight={100}
-              minHeight={100}
-              maxWidth="100%"
-              minWidth="100%"
               multiline
               editable
               placeholder={loc.autofill_word.enter}
