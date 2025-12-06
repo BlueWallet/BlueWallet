@@ -32,6 +32,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import { LightningArkWallet, LightningCustodianWallet } from '../../class';
 import assert from 'assert';
+import { scanQrHelper } from '../../helpers/scan-qr.ts';
 
 type LNDCreateInvoiceRouteParams = {
   walletID: string;
@@ -330,11 +331,11 @@ const LNDCreateInvoice = () => {
     );
   };
 
-  const navigateToScanQRCode = () => {
-    navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-    Keyboard.dismiss();
+  const navigateToScanQRCode = async () => {
+    const data = await scanQrHelper();
+    if (data) {
+      await processLnurl(data);
+    }
   };
 
   const renderScanClickable = () => {
