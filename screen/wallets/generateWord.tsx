@@ -8,10 +8,21 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
+  const { colors } = useTheme();
+
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
+
+  const stylesHooks = StyleSheet.create({
+    input: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  });
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -52,7 +63,7 @@ const GenerateWord = () => {
     >
       <View style={styles.wrapper}>
         <BlueCard style={styles.mainCard}>
-          <View style={styles.input}>
+          <View style={[styles.input, stylesHooks.input]}>
             <TextInput
               style={styles.text}
               multiline
@@ -111,6 +122,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     alignItems: 'center',
     borderRadius: 4,
+    marginBottom: 10,
   },
   center: {
     textAlign: 'center',
@@ -119,5 +131,7 @@ const styles = StyleSheet.create({
     padding: 8,
     minHeight: 33,
     color: '#81868e',
+    width: '100%',
+    height: 150,
   },
 });
