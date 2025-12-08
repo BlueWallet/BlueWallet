@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InteractionManager, LayoutAnimation } from 'react-native';
-import A from '../../blue_modules/analytics';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
@@ -444,7 +443,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       addWallet(w);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       await saveToDisk();
-      A(A.ENUM.CREATED_WALLET);
+
       presentAlert({
         hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,

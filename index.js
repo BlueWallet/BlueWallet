@@ -6,7 +6,6 @@ import React, { useEffect } from 'react';
 import { AppRegistry, LogBox } from 'react-native';
 
 import App from './App';
-import A from './blue_modules/analytics';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
 
 if (!Error.captureStackTrace) {
@@ -24,7 +23,6 @@ LogBox.ignoreLogs([
 const BlueAppComponent = () => {
   useEffect(() => {
     restoreSavedPreferredFiatCurrencyAndExchangeFromStorage();
-    A(A.ENUM.INIT);
   }, []);
 
   return <App />;
