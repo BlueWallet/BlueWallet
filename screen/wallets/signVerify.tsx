@@ -205,26 +205,8 @@ const SignVerify = () => {
       {!isKeyboardVisible && (
         <>
           <FContainer inline>
-            <FButton
-              onPress={handleSign}
-              text={loc.addresses.sign_sign}
-              disabled={loading}
-              icon={
-                <View>
-                  <Icon name="arrow-down" type="font-awesome" color={colors.buttonAlternativeTextColor} />
-                </View>
-              }
-            />
-            <FButton
-              onPress={handleVerify}
-              text={loc.addresses.sign_verify}
-              disabled={loading}
-              icon={
-                <View>
-                  <Icon name="arrow-down" type="font-awesome" color={colors.buttonAlternativeTextColor} />
-                </View>
-              }
-            />
+            <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} icon={null} />
+            <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} icon={null} />
           </FContainer>
           <BlueSpacing10 />
         </>
