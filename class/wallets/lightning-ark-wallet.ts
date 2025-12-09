@@ -321,7 +321,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (this._claimedSwaps[swap.id]) return;
 
         console.log(`claiming ${swap.id}...`);
-        if (swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
+        if (swap?.response?.timeoutBlockHeights?.refund && swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
           console.log(`skipping ${swap.id} (too old)`);
           return;
         }
