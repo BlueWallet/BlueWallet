@@ -14,6 +14,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { stringToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -109,7 +110,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
             try {
               const walletXpub = await wallet.getXpub();
               if (walletXpub) {
-                const value = Buffer.from(walletXpub, 'ascii').toString('hex');
+                const value = uint8ArrayToHex(stringToUint8Array(walletXpub));
                 dispatch({ type: ActionType.SET_XPUB, xpub: walletXpub });
                 dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
               } else {

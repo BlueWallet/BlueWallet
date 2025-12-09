@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useLocale, useNavigation, useRoute, CommonActions } from '@react-navigation/native';
-import { navigationRef } from '../../NavigationService';
+import { CommonActions, RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import { navigationRef, pop } from '../../NavigationService';
 import {
   ActivityIndicator,
   Image,
@@ -25,26 +25,33 @@ import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueLoading } from '../../components/BlueLoading';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+import { LightningArkWallet, LightningCustodianWallet } from '../../class';
+import assert from 'assert';
+import { scanQrHelper } from '../../helpers/scan-qr.ts';
+
+type LNDCreateInvoiceRouteParams = {
+  walletID: string;
+  uri: string;
+};
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk } = useStorage();
-  const { walletID, uri } = useRoute().params;
+  const { uri, walletID } = useRoute<RouteProp<{ params: LNDCreateInvoiceRouteParams }, 'params'>>().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
-  const { params } = useRoute();
   const { colors } = useTheme();
-  const { navigate, getParent, goBack, pop, setParams } = useNavigation();
+  const { navigate, goBack, setParams } = useExtendedNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
-  const [amount, setAmount] = useState();
+  const [amount, setAmount] = useState<string>();
   const { direction } = useLocale();
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
-  const [lnurlParams, setLNURLParams] = useState();
+  const [lnurlParams, setLNURLParams] = useState<{ k1: any; callback: any; fixed: boolean; min: number; max: number }>();
 
   const styleHooks = StyleSheet.create({
     scanRoot: {
@@ -76,7 +83,7 @@ const LNDCreateInvoice = () => {
   });
 
   const processLnurl = useCallback(
-    async data => {
+    async (data: string) => {
       setIsLoading(true);
       if (!wallet.current) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -86,7 +93,7 @@ const LNDCreateInvoice = () => {
 
       // decoding the lnurl
       const url = Lnurl.getUrlFromLnurl(data);
-      const { query } = parse(url, true);
+      const { query } = parse(String(url), true);
 
       if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
         // Close the modal first, then navigate to LnurlAuth in the drawer
@@ -97,7 +104,7 @@ const LNDCreateInvoice = () => {
               name: 'LnurlAuth',
               params: {
                 lnurl: data,
-                walletID: walletID ?? wallet.current.getID(),
+                walletID: walletID ?? wallet.current?.getID(),
               },
             }),
           );
@@ -107,7 +114,7 @@ const LNDCreateInvoice = () => {
 
       // calling the url
       try {
-        const resp = await fetch(url, { method: 'GET' });
+        const resp = await fetch(String(url), { method: 'GET' });
         if (resp.status >= 300) {
           throw new Error('Bad response from server');
         }
@@ -141,10 +148,10 @@ const LNDCreateInvoice = () => {
             // nop
             break;
           case BitcoinUnit.BTC:
-            newAmount = satoshiToBTC(newAmount);
+            newAmount = satoshiToBTC(+newAmount);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            newAmount = formatBalancePlain(newAmount, BitcoinUnit.LOCAL_CURRENCY);
+            newAmount = formatBalancePlain(+newAmount, BitcoinUnit.LOCAL_CURRENCY);
             AmountInput.setCachedSatoshis(newAmount, sats);
             break;
         }
@@ -160,7 +167,7 @@ const LNDCreateInvoice = () => {
         setAmount(newAmount);
         setDescription(reply.defaultDescription);
         setIsLoading(false);
-      } catch (Err) {
+      } catch (Err: any) {
         Keyboard.dismiss();
         setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -169,14 +176,6 @@ const LNDCreateInvoice = () => {
     },
     [goBack, navigate, unit, walletID],
   );
-
-  useEffect(() => {
-    const data = params.onBarScanned;
-    if (data) {
-      processLnurl(data);
-      setParams({ onBarScanned: undefined });
-    }
-  }, [params.onBarScanned, processLnurl, setParams]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
@@ -189,7 +188,7 @@ const LNDCreateInvoice = () => {
 
   const renderReceiveDetails = async () => {
     try {
-      wallet.current.setUserHasSavedExport(true);
+      wallet.current?.setUserHasSavedExport(true);
       await saveToDisk();
       if (uri) {
         processLnurl(uri);
@@ -211,9 +210,9 @@ const LNDCreateInvoice = () => {
               renderReceiveDetails();
             })
             .catch(() => {
-              getParent().pop();
-              NavigationService.navigate('WalletExport', {
-                walletID: wallet.current.getID(),
+              pop();
+              navigate('WalletExport', {
+                walletID: wallet.current?.getID(),
               });
             });
         }
@@ -237,21 +236,22 @@ const LNDCreateInvoice = () => {
   const createInvoice = async () => {
     setIsLoading(true);
     try {
-      let invoiceAmount = amount;
+      let invoiceAmount: string | number = amount ?? 0;
       switch (unit) {
         case BitcoinUnit.SATS:
-          invoiceAmount = parseInt(invoiceAmount, 10); // basically nop
+          invoiceAmount = parseInt(String(invoiceAmount), 10); // basically nop
           break;
         case BitcoinUnit.BTC:
           invoiceAmount = btcToSatoshi(invoiceAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           // trying to fetch cached sat equivalent for this fiat amount
-          invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || btcToSatoshi(fiatToBTC(invoiceAmount));
+          invoiceAmount = AmountInput.getCachedSatoshis(String(invoiceAmount)) || btcToSatoshi(fiatToBTC(+invoiceAmount));
           break;
       }
 
       if (lnurlParams) {
+        invoiceAmount = +invoiceAmount;
         const { min, max } = lnurlParams;
         if (invoiceAmount < min || invoiceAmount > max) {
           let text;
@@ -273,12 +273,13 @@ const LNDCreateInvoice = () => {
         }
       }
 
-      const invoiceRequest = await wallet.current.addInvoice(invoiceAmount, description);
+      assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
+
+      const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-      /** @type LightningCustodianWallet */
-      const decoded = await wallet.current.decodeInvoice(invoiceRequest);
+      const decoded = await wallet.current?.decodeInvoice(invoiceRequest);
       tryToObtainPermissions()
         .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
         .catch(err => console.error(err.message));
@@ -301,16 +302,17 @@ const LNDCreateInvoice = () => {
       }
 
       setTimeout(async () => {
+        assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
         // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
-        await wallet.current.fetchUserInvoices(1);
+        await wallet.current?.fetchUserInvoices();
         await saveToDisk();
       }, 1000);
 
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
-        walletID: wallet.current.getID(),
+        walletID: wallet.current?.getID(),
       });
-    } catch (Err) {
+    } catch (Err: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       presentAlert({ message: Err.message });
@@ -320,16 +322,20 @@ const LNDCreateInvoice = () => {
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
-        {isLoading ? <ActivityIndicator /> : <Button disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />}
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <Button disabled={!(amount && +amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
+        )}
       </View>
     );
   };
 
-  const navigateToScanQRCode = () => {
-    navigate('ScanQRCode', {
-      showFileImportButton: true,
-    });
-    Keyboard.dismiss();
+  const navigateToScanQRCode = async () => {
+    const data = await scanQrHelper();
+    if (data) {
+      await processLnurl(data);
+    }
   };
 
   const renderScanClickable = () => {
@@ -364,9 +370,9 @@ const LNDCreateInvoice = () => {
         )}
         <View style={styles.walletNameWrap}>
           <TouchableOpacity accessibilityRole="button" style={styles.walletNameTouch} onPress={navigateToSelectWallet}>
-            <Text style={[styles.walletNameText, styleHooks.walletNameText]}>{wallet.current.getLabel()}</Text>
+            <Text style={[styles.walletNameText, styleHooks.walletNameText]}>{wallet.current?.getLabel()}</Text>
             <Text style={[styles.walletNameBalance, styleHooks.walletNameBalance]}>
-              {formatBalanceWithoutSuffix(wallet.current.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(wallet.current?.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={[styles.walletNameSats, styleHooks.walletNameSats]}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
@@ -375,7 +381,7 @@ const LNDCreateInvoice = () => {
     );
   };
 
-  const onWalletSelect = selectedWallet => {
+  const onWalletSelect = (selectedWallet: LightningCustodianWallet | LightningArkWallet) => {
     setParams({ walletID: selectedWallet.getID() });
     pop();
   };
