@@ -91,7 +91,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Language')).tap();
     await element(by.text('Chinese (ZH)')).tap();
     await device.pressBack();
-    await expect(element(by.text('显示语言'))).toBeVisible();
+    await expect(element(by.text('语言'))).toBeVisible();
     await element(by.id('Language')).tap();
     await element(by.text('English')).tap();
     await device.pressBack();
