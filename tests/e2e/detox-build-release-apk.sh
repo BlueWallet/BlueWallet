@@ -7,8 +7,8 @@ find android | grep '\.apk' --color=never | xargs -l rm
 rm detox.keystore
 keytool -genkeypair -v -keystore detox.keystore -alias detox  -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname  'cn=Unknown, ou=Unknown, o=Unknown, c=Unknown'
 
-# building release APK
-cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..
+# building release APK. Only build for x86_64 architecture because we are running on x86_64 emulator on github actions
+cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release -PreactNativeArchitectures=x86_64 && cd ..
 
 # signing
 echo wheres waldo?
