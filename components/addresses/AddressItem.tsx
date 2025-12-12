@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, View } from 'react-native';
-import { ListItem } from '@rneui/themed';
+import ListItem from '../ListItem';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import confirm from '../../helpers/confirm';

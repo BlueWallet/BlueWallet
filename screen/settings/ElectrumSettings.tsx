@@ -18,7 +18,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Divider } from '@rneui/themed';
+import { Divider } from '../../components/Divider';
 import { Header } from '../../components/Header';
 import AddressInput from '../../components/AddressInput';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';

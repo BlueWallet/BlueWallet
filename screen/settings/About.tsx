@@ -2,7 +2,7 @@ import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Alert, Image, Linking, Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import { Icon } from '@rneui/themed';
+import { Icon } from '../../components/Icon';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
 import { BlueCard, BlueTextCentered } from '../../BlueComponents';

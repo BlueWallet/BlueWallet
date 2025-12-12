@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Linking, StyleSheet, TextInput, View, Pressable, AppState } from 'react-native';
-import { Button as ButtonRNElements } from '@rneui/themed';
 import {
   getDefaultUri,
   getPushToken,
@@ -23,7 +22,7 @@ import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { Divider } from '@rneui/base';
+import { Divider } from '../../components/Divider';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
@@ -218,17 +217,15 @@ const NotificationSettings: React.FC = () => {
             <BlueText>{loc.settings.groundcontrol_explanation}</BlueText>
           </BlueCard>
 
-          <ButtonRNElements
+          <Button
             icon={{
               name: 'github',
               type: 'font-awesome',
               color: colors.foregroundColor,
             }}
             onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-            titleStyle={{ color: colors.buttonAlternativeTextColor }}
             title="github.com/BlueWallet/GroundControl"
-            color={colors.buttonTextColor}
-            buttonStyle={[styles.buttonStyle, stylesWithThemeHook.buttonStyles]}
+            style={[styles.buttonStyle, stylesWithThemeHook.buttonStyles]}
           />
 
           <BlueCard>
