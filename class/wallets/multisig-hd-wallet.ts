@@ -13,6 +13,13 @@ import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo } from './types';
+import {
+  uint8ArrayToHex,
+  hexToUint8Array,
+  concatUint8Arrays,
+  uint8ArrayToString,
+  compareUint8Arrays,
+} from '../../blue_modules/uint8array-extras';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -23,9 +30,9 @@ type SeedOpts = {
 };
 
 type TBip32Derivation = {
-  masterFingerprint: Buffer;
+  masterFingerprint: Uint8Array;
   path: string;
-  pubkey: Buffer;
+  pubkey: Uint8Array;
 }[];
 
 type TOutputData =
@@ -249,7 +256,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static convertMultisigXprvToRegularXprv(Zprv: string) {
     let data = b58.decode(Zprv);
     data = data.slice(4);
-    return b58.encode(Buffer.concat([Buffer.from('0488ade4', 'hex'), data]));
+    return b58.encode(concatUint8Arrays([hexToUint8Array('0488ade4'), data]));
   }
 
   static convertXprvToXpub(xprv: string) {
@@ -379,9 +386,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7ed3', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('02aa7ed3'), data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b43f', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('0295b43f'), data]));
     }
 
     return xpub;
@@ -391,9 +398,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7a99', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('02aa7a99'), data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b005', 'hex'), data]));
+      return b58.encode(concatUint8Arrays([hexToUint8Array('0295b005'), data]));
     }
 
     return xpub;
@@ -515,8 +522,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   setSecret(secret: string) {
     if (secret.toUpperCase().startsWith('UR:BYTES')) {
       const decoded = decodeUR([secret]) as string;
-      const b = Buffer.from(decoded, 'hex');
-      secret = b.toString();
+      const b = hexToUint8Array(decoded);
+      secret = uint8ArrayToString(b);
     }
 
     // is it Coldcard json file?
@@ -628,10 +635,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         const re = /\[([^\]]+)\](.*)/;
         const m = s3[c].match(re);
         if (m && m.length === 3) {
-          let hexFingerprint = m[1].split('/')[0];
-          if (hexFingerprint.length === 8) {
-            hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
-          }
+          const hexFingerprint = m[1].split('/')[0];
 
           let path = 'm/' + m[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
           if (path === 'm/') {
@@ -731,7 +735,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     throw new Error('Not applicable in multisig');
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Uint8Array) {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const pubkeys = [];
     for (const [cosignerIndex] of this._cosigners.entries()) {
@@ -743,7 +747,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
       );
       // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
-      const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
+      const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
 
       if (!path) {
         throw new Error('Could not find derivation path for address ' + input.address);
@@ -790,7 +794,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         witnessScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
         // some hw wallets attack vector
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else if (this.isWrappedSegwit()) {
       const p2shP2wsh = bitcoin.payments.p2sh({
@@ -818,7 +822,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         redeemScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
         // some hw wallets attack vector
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else if (this.isLegacy()) {
       const p2sh = bitcoin.payments.p2sh({
@@ -834,7 +838,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         sequence,
         bip32Derivation,
         redeemScript,
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     } else {
       throw new Error('Dont know how to add input');
@@ -852,7 +856,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
       );
       // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
-      const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
+      const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
 
       if (!path) {
         throw new Error('Could not find derivation path for address ' + address);
@@ -1059,8 +1063,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   /**
    * @see https://github.com/bitcoin/bips/blob/master/bip-0067.mediawiki
    */
-  static sortBuffers(bufArr: Buffer[]): Buffer[] {
-    return bufArr.sort(Buffer.compare);
+  static sortBuffers(bufArr: Uint8Array[]): Uint8Array[] {
+    return bufArr.sort(compareUint8Arrays);
   }
 
   prepareForSerialization() {
@@ -1105,7 +1109,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   getID() {
     const string2hash = [...this._cosigners].sort().join(',') + ';' + [...this._cosignersFingerprints].sort().join(',');
-    return Buffer.from(sha256(string2hash)).toString('hex');
+    return uint8ArrayToHex(sha256(string2hash));
   }
 
   calculateFeeFromPsbt(psbt: Psbt) {
@@ -1131,7 +1135,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
       // from non-segwit inputs
       for (const inp of psbt.txInputs) {
-        const cacheKey = Buffer.from(inp.hash).reverse().toString('hex') + ':' + inp.index;
+        const cacheKey = uint8ArrayToHex(new Uint8Array(inp.hash).reverse()) + ':' + inp.index;
         if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
       }
     }

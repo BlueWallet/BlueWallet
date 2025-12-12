@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.DETECT_SCREEN_CAPTURE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
 
     <application
         android:name=".MainApplication"
@@ -105,6 +107,29 @@
             </intent-filter>
         </activity>
 
+        <!-- Settings Activity - accessible from System Settings -->
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings_title"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <!-- Settings Activity alias for System Settings -->
+        <activity-alias
+            android:name=".SettingsActivityAlias"
+            android:label="BlueWallet Settings"
+            android:exported="true"
+            android:targetActivity=".SettingsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
         <service
             android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
             android:exported="false">
@@ -132,14 +157,6 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="file" android:mimeType="application/octet-stream" android:pathPattern=".*\\.psbt" />
-            </intent-filter>
-            
-              <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="file" android:mimeType="image/jpeg" />
-                <data android:scheme="file" android:mimeType="image/png" />
-                <data android:scheme="file" android:mimeType="image/jpg" />
             </intent-filter>
             
             <!-- Intent filter for other custom schemes (bitcoin, bluewallet, etc.) -->

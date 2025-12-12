@@ -13,18 +13,24 @@ enum WidgetCommunicationKeys {
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
 }
 
+const WIDGET_ENABLED = '1';
+const WIDGET_DISABLED = '0';
+const WIDGET_CLEARED_VALUE = '0';
+
+const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
+
 DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
     const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
-    if (displayBalance === '1') {
+    if (displayBalance === WIDGET_ENABLED) {
       return true;
-    } else if (displayBalance === '0') {
+    } else if (displayBalance === WIDGET_DISABLED) {
       return false;
     } else {
-      // Preference not set, initialize it to '1' (allowed) and return true
-      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+      // Preference not set, initialize to enabled by default
+      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, WIDGET_ENABLED);
       return true;
     }
   } catch (error) {
@@ -36,10 +42,16 @@ export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
 export const setBalanceDisplayAllowed = async (allowed: boolean): Promise<void> => {
   try {
     if (allowed) {
-      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, WIDGET_ENABLED);
     } else {
-      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '0');
+      await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, WIDGET_DISABLED);
+      // Clear widget data immediately when disabling
+      await Promise.all([
+        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, WIDGET_CLEARED_VALUE),
+        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, WIDGET_CLEARED_VALUE),
+      ]);
     }
+    console.debug('setBalanceDisplayAllowed:', allowed);
   } catch (error) {
     console.error('Failed to set DisplayBalanceAllowed:', error);
   }
@@ -65,7 +77,7 @@ export const calculateBalanceAndTransactionTime = async (
       const confirmedTransactions = transactions.filter(t => t.confirmations > 0);
       const latestTransactionTime =
         confirmedTransactions.length > 0
-          ? Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0))
+          ? secondsToMilliseconds(Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0)))
           : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
 
       return { balance, latestTransactionTime };
@@ -125,6 +137,28 @@ const useWidgetCommunication = (): void => {
   const cachedBalance = useRef<number>(0);
   const cachedLatestTransactionTime = useRef<number | string>(0);
 
+  // Handle widget data clearing when the setting is disabled
+  useEffect(() => {
+    const clearWidgetData = async () => {
+      if (walletsInitialized && !isWidgetBalanceDisplayAllowed) {
+        try {
+          await Promise.all([
+            DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, WIDGET_CLEARED_VALUE),
+            DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, WIDGET_CLEARED_VALUE),
+          ]);
+          cachedBalance.current = 0;
+          cachedLatestTransactionTime.current = 0;
+          console.debug('Widget data cleared due to setting being disabled');
+        } catch (error) {
+          console.error('Failed to clear widget data:', error);
+        }
+      }
+    };
+
+    clearWidgetData();
+  }, [isWidgetBalanceDisplayAllowed, walletsInitialized]);
+
+  // Sync widget data when wallets change or setting is enabled
   useEffect(() => {
     if (walletsInitialized) {
       debouncedSyncWidgetBalanceWithWallets(wallets, walletsInitialized, cachedBalance, cachedLatestTransactionTime);

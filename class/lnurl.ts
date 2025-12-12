@@ -3,10 +3,10 @@ import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
 import CryptoJS from 'crypto-js';
-// @ts-ignore theres no types for secp256k1
-import secp256k1 from 'secp256k1';
+import ecc from '../blue_modules/noble_ecc';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { fetch } from '../util/fetch';
+import { base64ToUint8Array, hexToUint8Array, uint8ArrayToHex, uint8ArrayToString } from '../blue_modules/uint8array-extras';
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 
@@ -93,7 +93,7 @@ export default class Lnurl {
     }
 
     const decoded = bech32.decode(found, 10000);
-    return Buffer.from(bech32.fromWords(decoded.words)).toString();
+    return uint8ArrayToString(new Uint8Array(bech32.fromWords(decoded.words)));
   }
 
   static isLnurl(url: string): boolean {
@@ -189,7 +189,7 @@ export default class Lnurl {
 
     // check pr description_hash, amount etc:
     const decoded = this.decodeInvoice(this._lnurlPayServiceBolt11Payload.pr);
-    const metadataHash = Buffer.from(sha256(this._lnurlPayServicePayload.metadata)).toString('hex');
+    const metadataHash = uint8ArrayToHex(sha256(this._lnurlPayServicePayload.metadata));
     if (metadataHash !== decoded.description_hash) {
       console.log(`Invoice description_hash doesn't match metadata.`);
     }
@@ -273,7 +273,7 @@ export default class Lnurl {
 
   async storeSuccess(paymentHash: string, preimage: string | { data: Buffer }): Promise<void> {
     if (typeof preimage === 'object') {
-      preimage = Buffer.from(preimage.data).toString('hex');
+      preimage = uint8ArrayToHex(new Uint8Array(preimage.data));
     }
     this._preimage = preimage;
 
@@ -323,7 +323,7 @@ export default class Lnurl {
   static decipherAES(ciphertextBase64: string, preimageHex: string, ivBase64: string): string {
     const iv = CryptoJS.enc.Base64.parse(ivBase64);
     const key = CryptoJS.enc.Hex.parse(preimageHex);
-    return CryptoJS.AES.decrypt(Buffer.from(ciphertextBase64, 'base64').toString('hex'), key, {
+    return CryptoJS.AES.decrypt(uint8ArrayToHex(base64ToUint8Array(ciphertextBase64)), key, {
       iv,
       mode: CryptoJS.mode.CBC,
       format: CryptoJS.format.Hex,
@@ -359,12 +359,13 @@ export default class Lnurl {
     }
 
     const privateKey = hmac(sha256, secret, url.hostname);
-    const privateKeyBuf = Buffer.from(privateKey);
-    const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-    const signatureObj = secp256k1.sign(Buffer.from(url.query.k1 as string, 'hex'), privateKeyBuf);
-    const derSignature = secp256k1.signatureExport(signatureObj.signature);
+    const publicKey = ecc.pointFromScalar(privateKey);
+    if (!publicKey) {
+      throw new Error('Failed to generate public key');
+    }
+    const signature = ecc.signDER(hexToUint8Array(url.query.k1 as string), privateKey);
 
-    const reply = await this.fetchGet(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
+    const reply = await this.fetchGet(`${url.href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`);
     if (reply.status === 'OK') {
       // Authentication successful
     } else {

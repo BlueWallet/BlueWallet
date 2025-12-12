@@ -29,6 +29,7 @@ import loc from '../../loc';
 import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -90,6 +91,21 @@ export default class SelfTest extends Component {
           }
           uniqs[w.getSecret()] = 1;
         }
+      } else {
+        // skipping RN-specific test
+      }
+
+      //
+
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const spkw = new LightningArkWallet();
+        spkw.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+        await spkw.init();
+        assertStrictEqual(
+          await spkw.getArkAddress(),
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t59s7u3fgnd3lyjda00ycjq53mgxl6wsxspe4s72t5dss3q6w5clv0xpgal',
+          'Ark failed',
+        );
       } else {
         // skipping RN-specific test
       }
@@ -198,7 +214,7 @@ export default class SelfTest extends Component {
 
       l = new TaprootWallet();
       l.setSecret('L4PKRVk1Peaar5WuH5LiKfkTygWtFfGrFeH2g2t3YVVqiwpJjMoF');
-      if (l.getAddress() !== 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf') {
+      if (l.getAddress() !== 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu') {
         throw new Error('failed to generate Taproot address from WIF');
       }
 
@@ -207,9 +223,9 @@ export default class SelfTest extends Component {
       const txNewTaproot = l.createTransaction(
         [
           {
-            value: 9778,
-            address: 'bc1payhxedzyjtu8w7ven7au9925pmhc5gl59m77ht9vqq0l5xq8fsgqtwg8vf',
-            txid: '511e007f9c96b6d713a72b730506198f61dd96046edee72f0dc636bfe1f3a9cf',
+            value: 10000,
+            address: 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu',
+            txid: '4dc4c9a03dd7005310a313c5ef1754e5e53888d587073f01a5a662501c12ac3b',
             vout: 0,
           },
         ],
@@ -325,7 +341,7 @@ export default class SelfTest extends Component {
       //
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        assertStrictEqual(await Linking.canOpenURL('https://github.com/BlueWallet/BlueWallet/'), true, 'Linking can not open https url');
+        assertStrictEqual(await Linking.canOpenURL('https://bluewallet.io/'), true, 'Linking can not open https url');
       } else {
         // skipping RN-specific test'
       }

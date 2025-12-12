@@ -52,9 +52,6 @@ const LNDViewInvoice = () => {
     expired: {
       backgroundColor: colors.success,
     },
-    additionalInfo: {
-      backgroundColor: colors.brandingColor,
-    },
   });
 
   useEffect(() => {
@@ -166,10 +163,6 @@ const LNDViewInvoice = () => {
     Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
   };
 
-  const handleOnViewAdditionalInformationPressed = () => {
-    navigate('LNDViewAdditionalInvoiceInformation', { walletID });
-  };
-
   useEffect(() => {
     if (typeof invoice === 'string') return;
     if (invoice.ispaid && invoiceStatusChanged) {
@@ -272,12 +265,6 @@ const LNDViewInvoice = () => {
               )}
               <CopyTextToClipboard truncated text={invoice.payment_request} />
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
-              <BlueSpacing20 />
-              <Button
-                style={stylesHook.additionalInfo}
-                onPress={handleOnViewAdditionalInformationPressed}
-                title={loc.lndViewInvoice.additional_info}
-              />
             </View>
           </ScrollView>
         );

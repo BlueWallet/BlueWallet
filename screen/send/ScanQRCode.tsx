@@ -15,10 +15,10 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
-import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
+import { hexToUint8Array, uint8ArrayToBase64, uint8ArrayToHex, uint8ArrayToString } from '../../blue_modules/uint8array-extras/index.js';
 
 let decoder: BlueURDecoder | undefined;
 
@@ -93,7 +93,7 @@ const ScanQRCode = () => {
   }, []);
 
   const HashIt = function (s: string): string {
-    return Buffer.from(sha256(s)).toString('hex');
+    return uint8ArrayToHex(sha256(s));
   };
 
   const _onReadUniformResourceV2 = (part: string) => {
@@ -116,12 +116,8 @@ const ScanQRCode = () => {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
       }
-    } catch (error) {
-      setIsLoading(true);
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 
@@ -139,12 +135,12 @@ const ScanQRCode = () => {
         const payload = decodeUR(Object.values(animatedQRCodeData));
         // lets look inside that data
         let data: false | string = false;
-        if (Buffer.from(String(payload), 'hex').toString().startsWith('psbt')) {
+        if (uint8ArrayToString(hexToUint8Array(String(payload))).startsWith('psbt')) {
           // its a psbt, and whoever requested it expects it encoded in base64
-          data = Buffer.from(String(payload), 'hex').toString('base64');
+          data = uint8ArrayToBase64(hexToUint8Array(String(payload)));
         } else {
           // its something else. probably plain text is expected
-          data = Buffer.from(String(payload), 'hex').toString();
+          data = uint8ArrayToString(hexToUint8Array(String(payload)));
         }
         if (launchedBy) {
           const merge = true;
@@ -158,13 +154,8 @@ const ScanQRCode = () => {
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
-    } catch (error) {
-      setIsLoading(true);
-
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 
@@ -203,7 +194,7 @@ const ScanQRCode = () => {
     try {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
-      const data = Buffer.from(hex, 'hex').toString('base64');
+      const data = uint8ArrayToBase64(hexToUint8Array(hex));
 
       if (launchedBy) {
         const merge = true;

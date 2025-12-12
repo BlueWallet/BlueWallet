@@ -38,9 +38,7 @@ class MarketWidgetConfigureActivity : AppCompatActivity() {
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_OK, resultValue)
 
-        // Schedule an immediate update for this widget
-        val widgetIds = intArrayOf(appWidgetId)
-        MarketWidgetUpdateWorker.scheduleMarketUpdate(this, widgetIds, true)
+        MarketWidgetUpdateWorker.scheduleMarketUpdate(this, forceUpdate = true)
 
         // Finish the activity
         finish()

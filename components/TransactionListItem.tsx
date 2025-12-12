@@ -285,6 +285,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             walletID: lightningWallet[0].getID(),
           });
         }
+      } else {
+        console.log('cant handle press');
       }
     }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress]);
 

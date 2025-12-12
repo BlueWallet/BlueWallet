@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 jest.setTimeout(150 * 1000);
 
@@ -118,7 +119,7 @@ describe('HDSegwitBech32Transaction', () => {
     const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
     assert.strictEqual(createdTx.outs.length, 1);
-    const addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    const addr = SegwitBech32Wallet.scriptPubKeyToAddress(uint8ArrayToHex(createdTx.outs[0].script));
     assert.ok(hd.weOwnAddress(addr));
 
     const actualFeerate = (108150 + 200000 - Number(createdTx.outs[0].value)) / tx.virtualSize();
@@ -146,10 +147,10 @@ describe('HDSegwitBech32Transaction', () => {
     const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
     assert.strictEqual(createdTx.outs.length, 2);
-    const addr0 = SegwitP2SHWallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    const addr0 = SegwitP2SHWallet.scriptPubKeyToAddress(uint8ArrayToHex(createdTx.outs[0].script));
     assert.ok(!hd.weOwnAddress(addr0));
     assert.strictEqual(addr0, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC'); // dest address
-    const addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
+    const addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(uint8ArrayToHex(createdTx.outs[1].script));
     assert.ok(hd.weOwnAddress(addr1));
 
     const actualFeerate = (108150 + 200000 - Number(createdTx.outs[0].value + createdTx.outs[1].value)) / tx.virtualSize();

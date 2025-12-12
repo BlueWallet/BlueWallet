@@ -3,12 +3,10 @@ package io.bluewallet.bluewallet
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.work.WorkManager
 
 class BitcoinPriceWidget : AppWidgetProvider() {
@@ -17,9 +15,6 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         private const val TAG = "BitcoinPriceWidget"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         
-        /**
-         * Update network status and apply proper theme
-         */
         fun updateNetworkStatus(context: Context, appWidgetIds: IntArray) {
             val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
             val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -27,26 +22,10 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             for (appWidgetId in appWidgetIds) {
                 val views = RemoteViews(context.packageName, R.layout.widget_layout)
                 views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
-                
-                updateWidgetTheme(context, views)
-                
                 appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
             }
         }
-        
-        /**
-         * Update widget with current theme settings
-         */
-        fun updateWidgetTheme(context: Context, views: RemoteViews) {
-            // With the proper use of theme-aware resource qualifiers,
-            // Android will automatically apply the right colors
-            // This method can be expanded if manual theme handling is needed
-            Log.d(TAG, "Updating widget theme, isDarkMode: ${ThemeHelper.isDarkModeActive(context)}")
-        }
 
-        /**
-         * Completely refresh widget appearance
-         */
         fun refreshWidget(context: Context, appWidgetId: Int) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             
@@ -57,20 +36,54 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
             views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
             
-            // Show loading state initially
-            views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-            views.setViewVisibility(R.id.price_value, View.GONE)
-            views.setViewVisibility(R.id.last_updated_label, View.GONE)
-            views.setViewVisibility(R.id.last_updated_time, View.GONE)
-            views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+            // Try to load cached data first
+            val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+            val cachedPrice = sharedPref.getString("previous_price", null)
             
-            // Update widget with current theme
-            updateWidgetTheme(context, views)
+            if (cachedPrice != null) {
+                // Show cached data immediately
+                val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
+                val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", "en-US")
+                
+                try {
+                    val localeParts = preferredCurrencyLocale?.split("-") ?: listOf("en", "US")
+                    val locale = if (localeParts.size == 2) {
+                        java.util.Locale(localeParts[0], localeParts[1])
+                    } else {
+                        java.util.Locale.getDefault()
+                    }
+                    val currencyFormat = java.text.NumberFormat.getCurrencyInstance(locale)
+                    val currency = java.util.Currency.getInstance(preferredCurrency ?: "USD")
+                    currencyFormat.currency = currency
+                    currencyFormat.maximumFractionDigits = 0
+                    
+                    views.setViewVisibility(R.id.loading_indicator, View.GONE)
+                    views.setViewVisibility(R.id.price_value, View.VISIBLE)
+                    views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+                    views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+                    views.setTextViewText(R.id.price_value, currencyFormat.format(cachedPrice.toDouble().toInt()))
+                    views.setTextViewText(R.id.last_updated_time, java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()))
+                    views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error displaying cached price", e)
+                    // Show loading state if cache display fails
+                    views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+                    views.setViewVisibility(R.id.price_value, View.GONE)
+                    views.setViewVisibility(R.id.last_updated_label, View.GONE)
+                    views.setViewVisibility(R.id.last_updated_time, View.GONE)
+                    views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+                }
+            } else {
+                // No cached data, show loading state
+                views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+                views.setViewVisibility(R.id.price_value, View.GONE)
+                views.setViewVisibility(R.id.last_updated_label, View.GONE)
+                views.setViewVisibility(R.id.last_updated_time, View.GONE)
+                views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+            }
             
-            // Update widget
             appWidgetManager.updateAppWidget(appWidgetId, views)
-            
-            // Schedule data update
+            WidgetUpdateWorker.scheduleImmediateUpdate(context)
             WidgetUpdateWorker.scheduleWork(context)
         }
     }
@@ -82,49 +95,23 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             Log.d(TAG, "Updating widget with ID: $widgetId")
             refreshWidget(context, widgetId)
         }
-        Log.d("BitcoinPriceWidget", "BitcoinPriceWidget updated. Confirming interaction with MainActivity.")
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        Log.d(TAG, "onEnabled called")
+        WidgetUpdateWorker.scheduleImmediateUpdate(context)
         WidgetUpdateWorker.scheduleWork(context)
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        Log.d(TAG, "onDisabled called")
-        clearCache(context)
+        context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
         WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.WORK_NAME)
     }
 
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        super.onDeleted(context, appWidgetIds)
-        Log.d(TAG, "onDeleted called for widgets: ${appWidgetIds.joinToString()}")
-    }
-
-    private fun clearCache(context: Context) {
-        val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-        sharedPref.edit().clear().apply()
-        Log.d(TAG, "Cache cleared from $SHARED_PREF_NAME")
-    }
-
-    /**
-     * Called when widget is receiving configuration changes
-     */
     override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, 
                                           appWidgetId: Int, newOptions: Bundle?) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-        // Update this specific widget with full refresh to ensure theme is applied
         refreshWidget(context, appWidgetId)
-    }
-
-    private fun launchMainActivity(context: Context) {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        context.startActivity(intent)
     }
 }

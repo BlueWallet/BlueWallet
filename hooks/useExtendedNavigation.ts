@@ -7,7 +7,7 @@ import { requestCameraAuthorization } from '../helpers/scan-qr';
 import { useCallback, useMemo } from 'react';
 
 // List of screens that require biometrics
-const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosigners', 'ExportMultisigCoordinationSetupRoot'];
+const requiresBiometrics = ['WalletExport', 'WalletXpub', 'ViewEditMultisigCosigners', 'ExportMultisigCoordinationSetupRoot'];
 
 // List of screens that require wallet export to be saved
 const requiresWalletExportIsSaved = ['ReceiveDetails', 'WalletAddresses'];
@@ -122,10 +122,7 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               await saveToDisk();
               proceedWithNavigation();
             } catch (error) {
-              originalNavigation.navigate('WalletExportRoot', {
-                screen: 'WalletExport',
-                params: { walletID },
-              });
+              originalNavigation.navigate('WalletExport', { walletID });
             }
             return;
           }

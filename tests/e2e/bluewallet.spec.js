@@ -282,14 +282,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
 
     // trying to decrypt with incorrect password
-    await waitForText('Your storage is encrypted. Password is required to decrypt it.');
-    await element(by.type('android.widget.EditText')).typeText('wrong');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).typeText('wrong\n');
+    await sleep(1000); // wait for shake animation and retry
 
     // correct password
-    await element(by.type('android.widget.EditText')).typeText('qqq');
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('qqq\n');
     await waitForId('WalletsList');
 
     // previously created wallet should be visible
@@ -353,9 +351,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     //
-    await waitForText('Your storage is encrypted. Password is required to decrypt it.');
-    await element(by.type('android.widget.EditText')).typeText('qqq');
-    await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).typeText('qqq\n');
     await waitForId('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible
@@ -364,9 +361,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     //
-    await waitForText('Your storage is encrypted. Password is required to decrypt it.');
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
-    await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
     await waitForId('WalletsList');
 
     // previously created wallet in FAKE storage should be visible
@@ -436,9 +432,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     //
-    await waitForText('Your storage is encrypted. Password is required to decrypt it.');
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).typeText('pass\n');
     await waitForId('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible

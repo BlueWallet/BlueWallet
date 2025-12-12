@@ -17,6 +17,8 @@ import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './slip39-wallets';
 import { WatchOnlyWallet } from './watch-only-wallet';
 import { TaprootWallet } from './taproot-wallet.ts';
+import { HDTaprootWallet } from './hd-taproot-wallet.ts';
+import { LightningArkWallet } from './lightning-ark-wallet.ts';
 
 export type Utxo = {
   // Returned by BlueElectrum
@@ -151,7 +153,9 @@ export type TWallet =
   | HDSegwitBech32Wallet
   | HDSegwitElectrumSeedP2WPKHWallet
   | HDSegwitP2SHWallet
+  | HDTaprootWallet
   | LegacyWallet
+  | LightningArkWallet
   | LightningCustodianWallet
   | MultisigHDWallet
   | SLIP39LegacyP2PKHWallet
@@ -162,4 +166,4 @@ export type TWallet =
   | TaprootWallet
   | WatchOnlyWallet;
 
-export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet;
+export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet | HDTaprootWallet;

@@ -18,7 +18,6 @@ const SeedWords = ({ seed }: { seed: string }) => {
     },
     secret: {
       flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
-      backgroundColor: colors.lightBorder,
     },
   });
 

@@ -4,8 +4,8 @@
  * source: https://github.com/sindresorhus/uint8array-extras
  */
 const objectToString = Object.prototype.toString;
-const uint8ArrayStringified = "[object Uint8Array]";
-const arrayBufferStringified = "[object ArrayBuffer]";
+const uint8ArrayStringified = '[object Uint8Array]';
+const arrayBufferStringified = '[object ArrayBuffer]';
 
 function isType(value, typeConstructor, typeStringified) {
   if (!value) {
@@ -126,9 +126,9 @@ export function compareUint8Arrays(a, b) {
 //   cachedDecoders[encoding] ??= new globalThis.TextDecoder(encoding);
 //   return cachedDecoders[encoding].decode(array);
 // }
-
+  
 function assertString(value) {
-  if (typeof value !== "string") {
+  if (typeof value !== 'string') {
     throw new TypeError(`Expected \`string\`, got \`${typeof value}\``);
   }
 }
@@ -141,11 +141,11 @@ export function stringToUint8Array(string) {
 }
 
 function base64ToBase64Url(base64) {
-  return base64.replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  return base64.replaceAll('+', '-').replaceAll('/', '_').replace(/[=]+$/, '');
 }
 
 function base64UrlToBase64(base64url) {
-  return base64url.replaceAll("-", "+").replaceAll("_", "/");
+  return base64url.replaceAll('-', '+').replaceAll('_', '/');
 }
 
 // Reference: https://phuoc.ng/collection/this-vs-that/concat-vs-push/
@@ -160,7 +160,7 @@ export function uint8ArrayToBase64(array, { urlSafe = false } = {}) {
     // Required as `btoa` and `atob` don't properly support Unicode: https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
     base64 = globalThis.btoa(String.fromCodePoint.apply(this, array));
   } else {
-    base64 = "";
+    base64 = '';
     for (const value of array) {
       base64 += String.fromCodePoint(value);
     }
@@ -173,7 +173,7 @@ export function uint8ArrayToBase64(array, { urlSafe = false } = {}) {
 
 export function base64ToUint8Array(base64String) {
   assertString(base64String);
-  return Uint8Array.from(globalThis.atob(base64UrlToBase64(base64String)), (x) => x.codePointAt(0));
+  return Uint8Array.from(globalThis.atob(base64UrlToBase64(base64String)), x => x.codePointAt(0));
 }
 
 export function stringToBase64(string, { urlSafe = false } = {}) {
@@ -186,13 +186,13 @@ export function stringToBase64(string, { urlSafe = false } = {}) {
 //   return uint8ArrayToString(base64ToUint8Array(base64String));
 // }
 
-const byteToHexLookupTable = Array.from({ length: 256 }, (_, index) => index.toString(16).padStart(2, "0"));
+const byteToHexLookupTable = Array.from({ length: 256 }, (_, index) => index.toString(16).padStart(2, '0'));
 
 export function uint8ArrayToHex(array) {
   assertUint8Array(array);
 
   // Concatenating a string is faster than using an array.
-  let hexString = "";
+  let hexString = '';
 
   // eslint-disable-next-line unicorn/no-for-loop -- Max performance is critical.
   for (let index = 0; index < array.length; index++) {
@@ -231,7 +231,7 @@ export function hexToUint8Array(hexString) {
   assertString(hexString);
 
   if (hexString.length % 2 !== 0) {
-    throw new Error("Invalid Hex string length.");
+    throw new Error('Invalid Hex string length.');
   }
 
   const resultLength = hexString.length / 2;
@@ -326,4 +326,85 @@ export function indexOf(array, value) {
 */
 export function includes(array, value) {
   return indexOf(array, value) !== -1;
+}
+
+// we can use this implementation when we will have TextDecoder in RN
+// const cachedDecoders = {
+//   utf8: new globalThis.TextDecoder("utf8"),
+// };
+// export function uint8ArrayToString(array, encoding = "utf8") {
+//   assertUint8ArrayOrArrayBuffer(array);
+//   cachedDecoders[encoding] ??= new globalThis.TextDecoder(encoding);
+//   return cachedDecoders[encoding].decode(array);
+// }
+// meanwhile:
+
+/**
+ * Convert a Uint8Array (or ArrayBuffer) of UTF-8 bytes into a JS string.
+ * Only "utf8" is supported. For any other encoding you’ll need a polyfill.
+ *
+ * @param {Uint8Array|ArrayBuffer} input
+ * @param {string} [encoding="utf8"]
+ * @returns {string}
+ */
+export function uint8ArrayToString(input, encoding = 'utf8') {
+  assertUint8ArrayOrArrayBuffer(input);
+
+  // Reject anything other than UTF-8
+  if (!/utf-?8/i.test(encoding)) {
+    throw new Error('Encoding "' + encoding + '" isn’t supported without a TextDecoder polyfill');
+  }
+
+  // Normalise to Uint8Array
+  const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
+  return decodeUtf8(bytes);
+}
+
+/**
+ * Minimal UTF-8 decoder
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+function decodeUtf8(bytes) {
+  let i = 0;
+  const l = bytes.length;
+  const codeUnits = [];
+  let result = '';
+
+  while (i < l) {
+    const byte1 = bytes[i++];
+
+    // 1-byte (ASCII)
+    if (byte1 < 0x80) {
+      codeUnits.push(byte1);
+    }
+    // 2-byte
+    else if (byte1 < 0xe0) {
+      const byte2 = bytes[i++] & 0x3f;
+      codeUnits.push(((byte1 & 0x1f) << 6) | byte2);
+    }
+    // 3-byte
+    else if (byte1 < 0xf0) {
+      const byte2 = bytes[i++] & 0x3f;
+      const byte3 = bytes[i++] & 0x3f;
+      codeUnits.push(((byte1 & 0x0f) << 12) | (byte2 << 6) | byte3);
+    }
+    // 4-byte (→ surrogate pair)
+    else {
+      const byte2 = bytes[i++] & 0x3f;
+      const byte3 = bytes[i++] & 0x3f;
+      const byte4 = bytes[i++] & 0x3f;
+      let cp = ((byte1 & 0x07) << 18) | (byte2 << 12) | (byte3 << 6) | byte4;
+      cp -= 0x10000;
+      codeUnits.push(0xd800 + (cp >> 10), 0xdc00 + (cp & 0x3ff));
+    }
+
+    // Flush periodically to avoid huge apply() calls
+    if (codeUnits.length > 0x8000) {
+      result += String.fromCharCode.apply(null, codeUnits);
+      codeUnits.length = 0;
+    }
+  }
+
+  return result + String.fromCharCode.apply(null, codeUnits);
 }

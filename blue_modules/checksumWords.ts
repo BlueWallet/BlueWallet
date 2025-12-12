@@ -55,7 +55,7 @@ export function generateChecksumWords(stringSeedPhrase: string) {
       }
     }
 
-    const hash = Buffer.from(sha256(Buffer.from(entropy)));
+    const hash = sha256(new Uint8Array(entropy));
 
     const hashBits = new Array(hash.length * 8);
     for (let iq = 0; iq < hash.length; ++iq) for (let jq = 0; jq < 8; ++jq) hashBits[iq * 8 + jq] = (hash[iq] & (1 << (7 - jq))) !== 0; // eslint-disable-line no-bitwise

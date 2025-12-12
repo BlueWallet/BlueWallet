@@ -9,18 +9,23 @@ const BlueApp = BlueAppClass.getInstance();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
 let unlockAttempt = 0;
 
-export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
-  console.log('startAndDecrypt');
+type PasswordPromptCallback = () => Promise<string | undefined>;
+
+export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: PasswordPromptCallback): Promise<boolean> => {
+  // If wallets are already loaded, no need to migrate, decrypt, or load from disk.
   if (BlueApp.getWallets().length > 0) {
-    console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
     return true;
   }
   await BlueApp.migrateKeys();
   let password: undefined | string;
   if (await BlueApp.storageIsEncrypted()) {
-    do {
-      password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
-    } while (!password);
+    if (passwordPrompt) {
+      password = await passwordPrompt();
+    } else {
+      do {
+        password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
+      } while (!password);
+    }
   }
   let success = false;
   let wasException = false;
@@ -45,7 +50,6 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
 
   if (success) {
     console.log('loaded from disk');
-    // We want to return true to let the UnlockWith screen that its ok to proceed.
     return true;
   }
 
@@ -53,7 +57,8 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
     // we had password and yet could not load/decrypt
     unlockAttempt++;
     if (unlockAttempt < 10 || Platform.OS !== 'ios') {
-      return startAndDecrypt(true);
+      // Return false to indicate wrong password, let UI show error and retry
+      return false;
     } else {
       unlockAttempt = 0;
       showKeychainWipeAlert();

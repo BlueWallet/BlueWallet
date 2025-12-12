@@ -16,18 +16,14 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
         const val TAG = "MarketWidgetUpdateWorker"
         const val WORK_NAME = "market_widget_update_work"
         const val NETWORK_RETRY_WORK_NAME = "market_network_retry_work"
-        private const val KEY_WIDGET_IDS = "widget_ids"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         private const val DEFAULT_CURRENCY = "USD"
         private const val KEY_LAST_UPDATE_TIME = "market_widget_last_update_time"
-        private const val MIN_UPDATE_INTERVAL_MS = 15L * 60 * 1000 // 15 minutes
-        private const val RATE_LIMIT_COOLDOWN_MS = 30L * 60 * 1000 // 30 minutes
+        private const val MIN_UPDATE_INTERVAL_MS = 15L * 60 * 1000
+        private const val RATE_LIMIT_COOLDOWN_MS = 30L * 60 * 1000
         private const val NETWORK_RETRY_DELAY_SECONDS = 30L
 
-        /**
-         * Schedule a market widget update
-         */
-        fun scheduleMarketUpdate(context: Context, appWidgetIds: IntArray, forceUpdate: Boolean = false) {
+        fun scheduleMarketUpdate(context: Context, forceUpdate: Boolean = false) {
             val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             val lastUpdateTime = sharedPrefs.getLong(KEY_LAST_UPDATE_TIME, 0)
             val currentTime = System.currentTimeMillis()
@@ -36,10 +32,6 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
                 Log.d(TAG, "Skipping update - too soon since last update")
                 return
             }
-            
-            val data = Data.Builder()
-                .putIntArray(KEY_WIDGET_IDS, appWidgetIds)
-                .build()
                 
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -49,7 +41,6 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
             
             val updateRequest = OneTimeWorkRequestBuilder<MarketWidgetUpdateWorker>()
                 .setConstraints(constraints)
-                .setInputData(data)
                 .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.MINUTES)
                 .build()
@@ -80,21 +71,13 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
             }
         }
 
-        /**
-         * Schedule a retry when network becomes available
-         */
-        fun scheduleRetryOnNetworkAvailable(context: Context, appWidgetIds: IntArray) {
-            val data = Data.Builder()
-                .putIntArray(KEY_WIDGET_IDS, appWidgetIds)
-                .build()
-                
+        fun scheduleRetryOnNetworkAvailable(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
                 
             val updateRequest = OneTimeWorkRequestBuilder<MarketWidgetUpdateWorker>()
                 .setConstraints(constraints)
-                .setInputData(data)
                 .setInitialDelay(NETWORK_RETRY_DELAY_SECONDS, TimeUnit.SECONDS)
                 .build()
                 
@@ -110,14 +93,12 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "MarketWidgetUpdateWorker running. Confirming interaction with MainActivity.")
-        return updateMarketWidgets(inputData.getIntArray(KEY_WIDGET_IDS) ?: intArrayOf())
+        return updateMarketWidgets()
     }
 
-    /**
-     * Update market widgets with latest data
-     */
-    private suspend fun updateMarketWidgets(widgetIds: IntArray): Result {
+    private suspend fun updateMarketWidgets(): Result {
         Log.d(TAG, "Starting market widget update work")
+        val widgetIds = MarketWidget.getAllWidgetIds(applicationContext)
         
         val currency = getPreferredCurrency(applicationContext)
         
@@ -131,32 +112,30 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
             }
             Log.i(TAG, "Received market data from API: $marketData with nextBlock=${marketData.nextBlock}")
             
-            // Store data regardless of rate (to ensure fee is stored even if price fails)
             storeMarketData(marketData)
             Log.i(TAG, "Stored market data including nextBlock=${marketData.nextBlock}")
             
-            val appWidgetManager = AppWidgetManager.getInstance(applicationContext)
             for (widgetId in widgetIds) {
                 MarketWidget.updateWidget(applicationContext, widgetId)
             }
             
             if (marketData.rate > 0) {
                 clearRateLimitFlag()
-                scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(30))
+                scheduleNextMarketUpdate(TimeUnit.MINUTES.toMillis(30))
                 return Result.success()
             } else {
                 Log.w(TAG, "Market data fetch returned invalid rate (${marketData.rate}), but fee may be available")
-                scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(15))
+                scheduleNextMarketUpdate(TimeUnit.MINUTES.toMillis(15))
                 return Result.retry()
             }
         } catch (e: RateLimitException) {
             Log.e(TAG, "Rate limit encountered", e)
             setRateLimitFlag()
-            scheduleNextMarketUpdate(widgetIds, RATE_LIMIT_COOLDOWN_MS)
+            scheduleNextMarketUpdate(RATE_LIMIT_COOLDOWN_MS)
             return Result.failure()
         } catch (e: Exception) {
             Log.e(TAG, "Error updating market widget", e)
-            scheduleNextMarketUpdate(widgetIds, TimeUnit.MINUTES.toMillis(15))
+            scheduleNextMarketUpdate(TimeUnit.MINUTES.toMillis(15))
             return Result.retry()
         }
     }
@@ -188,21 +167,13 @@ class MarketWidgetUpdateWorker(context: Context, workerParams: WorkerParameters)
         }
     }
     
-    /**
-     * Schedule next update
-     */
-    private fun scheduleNextMarketUpdate(widgetIds: IntArray, delayMs: Long) {
-        val data = Data.Builder()
-            .putIntArray(KEY_WIDGET_IDS, widgetIds)
-            .build()
-            
+    private fun scheduleNextMarketUpdate(delayMs: Long) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
             
         val updateRequest = OneTimeWorkRequestBuilder<MarketWidgetUpdateWorker>()
             .setConstraints(constraints)
-            .setInputData(data)
             .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
             .build()
             

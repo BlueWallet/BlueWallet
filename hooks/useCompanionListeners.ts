@@ -1,7 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
-import A from '../blue_modules/analytics';
 import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -282,8 +281,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     async (nextAppState: AppStateStatus | undefined) => {
       if (!shouldActivateListeners || wallets.length === 0) return;
 
-      if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
-        setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
+      if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
         updateExchangeRate();
         const processed = await processPushNotifications();
         if (processed) return;

@@ -55,6 +55,7 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
+import { Measure } from '../../class/measure';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -291,7 +292,9 @@ const SendDetails = () => {
     if (!wallet) return; // wait for it
     const fees = networkTransactionFees;
     const requestedSatPerByte = Number(feeRate);
+    const m = new Measure('getUtxo');
     const lutxo = utxos || wallet.getUtxo();
+    m.end();
     let frozen = 0;
     if (!utxos) {
       // if utxo is not limited search for frozen outputs and calc it's balance
@@ -561,6 +564,7 @@ const SendDetails = () => {
     } catch (Err: any) {
       setIsLoading(false);
       presentAlert({ title: loc.errors.error, message: Err.message });
+      console.log(Err);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
@@ -861,6 +865,7 @@ const SendDetails = () => {
         psbt = bitcoin.Psbt.fromBase64(psbtBase64);
         tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
       } catch (e: any) {
+        console.log(e);
         presentAlert({ title: loc.errors.error, message: e.message });
         return;
       } finally {

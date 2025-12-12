@@ -30,25 +30,42 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         private const val DEFAULT_CURRENCY = "USD"
         private const val NETWORK_RETRY_DELAY_SECONDS = 30L
 
-        /**
-         * Schedule periodic work for Bitcoin Price Widget
-         */
         fun scheduleWork(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(false)
+                .build()
+                
             val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
                 REPEAT_INTERVAL_MINUTES, TimeUnit.MINUTES
-            ).build()
+            )
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                .addTag(TAG)
+                .build()
+                
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE,
+                ExistingPeriodicWorkPolicy.KEEP,
                 workRequest
             )
-            Log.d(TAG, "Scheduling work for Bitcoin price widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
+        }
+        
+        fun scheduleImmediateUpdate(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+                
+            val updateRequest = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+                .addTag(TAG)
+                .build()
+                
+            WorkManager.getInstance(context).enqueue(updateRequest)
         }
 
-        /**
-         * Schedule a retry when network becomes available
-         */
-        fun scheduleRetryOnNetworkAvailable(context: Context, appWidgetIds: IntArray) {
+        fun scheduleRetryOnNetworkAvailable(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
@@ -63,32 +80,19 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
                 ExistingWorkPolicy.REPLACE,
                 updateRequest
             )
-            
-            Log.d(TAG, "Scheduled network retry in $NETWORK_RETRY_DELAY_SECONDS seconds")
         }
     }
 
     private lateinit var sharedPref: SharedPreferences
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "WidgetUpdateWorker running. Confirming interaction with MainActivity.")
-        Log.d(TAG, "Bitcoin price widget update worker running")
-        
         sharedPref = applicationContext.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         
-        // Check network connectivity first
         if (!NetworkUtils.isNetworkAvailable(applicationContext)) {
-            Log.d(TAG, "No network connection available")
-            
-            // Update all Bitcoin price widgets to show offline status
             val component = ComponentName(applicationContext, BitcoinPriceWidget::class.java)
             val widgetIds = AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(component)
-            
             BitcoinPriceWidget.updateNetworkStatus(applicationContext, widgetIds)
-            
-            // Schedule retry with network constraint
-            scheduleRetryOnNetworkAvailable(applicationContext, widgetIds)
-            
+            scheduleRetryOnNetworkAvailable(applicationContext)
             return Result.retry()
         }
 

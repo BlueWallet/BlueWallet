@@ -7,6 +7,7 @@ import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
+import { hexToUint8Array, concatUint8Arrays } from '../../blue_modules/uint8array-extras';
 import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
@@ -62,7 +63,7 @@ export class LegacyWallet extends AbstractWallet {
     this.secret = ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
-  async generateFromEntropy(user: Buffer): Promise<void> {
+  async generateFromEntropy(user: Uint8Array): Promise<void> {
     if (user.length !== 32) {
       throw new Error('Entropy should be 32 bytes');
     }
@@ -214,9 +215,10 @@ export class LegacyWallet extends AbstractWallet {
 
     // got all utxos we ever had. lets filter out the ones that are spent:
     const ret = [];
+    const txs = this.getTransactions();
     for (const utxo of utxos) {
       let spent = false;
-      for (const tx of this.getTransactions()) {
+      for (const tx of txs) {
         for (const input of tx.inputs) {
           if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
           // utxo we got previously was actually spent right here ^^
@@ -386,10 +388,18 @@ export class LegacyWallet extends AbstractWallet {
         continue;
       }
 
+      // counting the number of vbytes for each script type:
       if (this.segwitType === 'p2wpkh') {
+        // 72 (high R low S signature) + 1 + 33 (comp pubkey) + 1 = 107 / 4 = 26.75 rounded up.
         u.script = { length: 27 };
       } else if (this.segwitType === 'p2sh(p2wpkh)') {
+        // ((72 (high R low S signature) + 1 + 33 (comp pubkey) + 1) / 4) + 22 (P2WPKH output on scriptSig stack) + 1 = 49.75 rounded up
         u.script = { length: 50 };
+      } else if (this.segwitType === 'p2tr') {
+        // taproot key path spend is just a 64 or 65 byte signature on the witness stack.
+        // So it would be 65 bytes (assuming max size) + the pushbyte for 65 bytes on the stack, which makes 66.
+        // 66 / 4 = 16.5 round up to 17
+        u.script = { length: 17 };
       }
     }
 
@@ -459,7 +469,7 @@ export class LegacyWallet extends AbstractWallet {
         index: input.vout,
         sequence,
         // non-segwit inputs now require passing the whole previous tx as Buffer
-        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+        nonWitnessUtxo: hexToUint8Array(input.txhex),
       });
     });
 
@@ -522,7 +532,7 @@ export class LegacyWallet extends AbstractWallet {
       const decoded = bitcoin.address.fromBech32(address);
       if (decoded.version === 0) return true;
       if (decoded.version === 1 && decoded.data.length !== 32) return false;
-      if (decoded.version === 1 && !ecc.isPoint(Buffer.concat([Buffer.from([2]), decoded.data]))) return false;
+      if (decoded.version === 1 && !ecc.isPoint(concatUint8Arrays([new Uint8Array([2]), decoded.data]))) return false;
       if (decoded.version > 1) return false;
       // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
       return true;
@@ -539,7 +549,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
-      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      const scriptPubKey2 = hexToUint8Array(scriptPubKey);
       return (
         bitcoin.payments.p2pkh({
           output: scriptPubKey2,
@@ -608,7 +618,16 @@ export class LegacyWallet extends AbstractWallet {
     const keyPair = ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
-    const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;
+    let segwitType: 'p2wpkh' | 'p2sh(p2wpkh)';
+    switch (this.segwitType) {
+      case 'p2sh(p2wpkh)':
+        segwitType = 'p2sh(p2wpkh)';
+        break;
+      default:
+        segwitType = 'p2wpkh';
+        break;
+    }
+    const options = this.segwitType && useSegwit ? { segwitType } : undefined;
     const signature = bitcoinMessage.sign(message, Buffer.from(privateKey), keyPair.compressed, options);
     return signature.toString('base64');
   }

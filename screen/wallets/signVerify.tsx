@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
@@ -15,20 +15,28 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+
+type SignVerifyRouteParams = {
+  walletID: string;
+  address: string;
+  message: string;
+};
 
 const SignVerify = () => {
   const { colors } = useTheme();
-  const { wallets, sleep } = useStorage();
-  const { params } = useRoute();
+  const { sleep } = useStorage();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [address, setAddress] = useState(params.address ?? '');
-  const [message, setMessage] = useState(params.message ?? '');
+  const { address: _address, message: _message, walletID } = useRoute<RouteProp<{ params: SignVerifyRouteParams }, 'params'>>().params;
+
+  const [address, setAddress] = useState(_address ?? '');
+  const [message, setMessage] = useState(_message ?? '');
   const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageHasFocus, setMessageHasFocus] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
 
-  const wallet = wallets.find(w => w.getID() === params.walletID);
+  const wallet = useWalletSubscribe(walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
   useEffect(() => {
@@ -70,7 +78,7 @@ const SignVerify = () => {
       newSignature = wallet.signMessage(message, address);
       setSignature(newSignature);
       setIsShareVisible(true);
-    } catch (e) {
+    } catch (e: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: e.message });
     }
@@ -90,14 +98,14 @@ const SignVerify = () => {
       if (res) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
-    } catch (e) {
+    } catch (e: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: e.message });
     }
     setLoading(false);
   };
 
-  const handleFocus = value => {
+  const handleFocus = (value: boolean) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setMessageHasFocus(value);
   };
@@ -184,7 +192,7 @@ const SignVerify = () => {
               onPress={handleShare}
               text={loc.multisig.share}
               icon={
-                <View style={styles.buttonsIcon}>
+                <View>
                   <Icon name="external-link" size={16} type="font-awesome" color={colors.buttonAlternativeTextColor} />
                 </View>
               }
@@ -197,8 +205,8 @@ const SignVerify = () => {
       {!isKeyboardVisible && (
         <>
           <FContainer inline>
-            <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} />
-            <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} />
+            <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} icon={null} />
+            <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} icon={null} />
           </FContainer>
           <BlueSpacing10 />
         </>
