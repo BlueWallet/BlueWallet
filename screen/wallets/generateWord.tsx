@@ -1,4 +1,3 @@
-import { useTheme } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
@@ -9,6 +8,7 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
   const { colors } = useTheme();
@@ -24,9 +24,9 @@ const GenerateWord = () => {
     },
   });
 
-  const handleUpdateMnemonic = nextValue => {
+  const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
-    setResult();
+    setResult('');
   };
 
   const checkMnemonic = async () => {
@@ -50,7 +50,7 @@ const GenerateWord = () => {
 
   const clearMnemonicInput = () => {
     setMnemonic('');
-    setResult();
+    setResult('');
   };
 
   return (
@@ -66,10 +66,6 @@ const GenerateWord = () => {
           <View style={[styles.input, stylesHooks.input]}>
             <TextInput
               style={styles.text}
-              maxHeight={100}
-              minHeight={100}
-              maxWidth="100%"
-              minWidth="100%"
               multiline
               editable
               placeholder={loc.autofill_word.enter}
@@ -126,6 +122,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     alignItems: 'center',
     borderRadius: 4,
+    marginBottom: 10,
   },
   center: {
     textAlign: 'center',
@@ -134,5 +131,7 @@ const styles = StyleSheet.create({
     padding: 8,
     minHeight: 33,
     color: '#81868e',
+    width: '100%',
+    height: 150,
   },
 });

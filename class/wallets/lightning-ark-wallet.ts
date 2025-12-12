@@ -147,8 +147,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
           enabled: true, // Enable expiration monitoring
         });
         try {
-          const txid = await manager.renewVtxos();
-          console.log('ARK VTXO Renewed:', txid);
+          const expiringVtxos = await manager.getExpiringVtxos();
+          if (expiringVtxos.length > 0) {
+            console.log(`ARK renewing ${expiringVtxos.length} expiring VTXOs...`);
+            const renewTxid = await manager.renewVtxos();
+            console.log('ARK VTXO renewed:', renewTxid);
+          }
         } catch (error: any) {
           console.log('ARK Error renewing VTXOs:', error.message);
         }
@@ -242,7 +246,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         ispaid = true;
       }
       // @ts-ignore properties do exist
-      value = swap.response.expectedAmount || value || swap.request.invoiceAmount || swap.response.onchainAmount || 0;
+      value = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
       value = value * direction;
 
       ret.push({
@@ -317,6 +321,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (this._claimedSwaps[swap.id]) return;
 
         console.log(`claiming ${swap.id}...`);
+        if (swap?.response?.timeoutBlockHeights?.refund && swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
+          console.log(`skipping ${swap.id} (too old)`);
+          return;
+        }
         try {
           await arkadeLightning.claimVHTLC(swap);
           console.log('claimed!');

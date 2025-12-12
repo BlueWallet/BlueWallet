@@ -41,7 +41,6 @@ interface ManageWalletsListItemProps {
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => JSX.Element;
-  handleDeleteWallet: (wallet: TWallet) => void;
   handleToggleHideBalance: (wallet: TWallet) => void;
   isActive?: boolean;
   style?: ViewStyle;
@@ -65,17 +64,6 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
   </TouchableOpacity>
 );
 
-const RightSwipeContent: React.FC<Partial<SwipeContentProps>> = ({ onPress }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={styles.rightButtonContainer as ViewStyle}
-    accessibilityRole="button"
-    accessibilityLabel="Delete Wallet"
-  >
-    <Icon name={Platform.OS === 'android' ? 'delete' : 'delete-outline'} color="#FFFFFF" />
-  </TouchableOpacity>
-);
-
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
   isDraggingDisabled,
@@ -85,7 +73,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   navigateToWallet,
   navigateToAddress,
   renderHighlightedText,
-  handleDeleteWallet,
   handleToggleHideBalance,
   onPressIn,
   onPressOut,
@@ -153,19 +140,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     return <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />;
   };
 
-  const handleRightPress = (reset: () => void) => {
-    reset();
-
-    setTimeout(() => {
-      handleDeleteWallet(item.data as TWallet);
-    }, 100); // short delay to allow swipe reset animation to complete
-  };
-
-  const rightContent = (reset: () => void) => {
-    resetFunctionRef.current = reset;
-    return <RightSwipeContent onPress={() => handleRightPress(reset)} />;
-  };
-
   const startDrag = useCallback(() => {
     if (isSwipeActive) {
       return;
@@ -201,10 +175,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       <Animated.View style={animatedStyle}>
         <ListItem.Swipeable
           leftWidth={swipeDisabled ? 0 : 80}
-          rightWidth={swipeDisabled ? 0 : 90}
           containerStyle={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}
           leftContent={swipeDisabled ? null : leftContent}
-          rightContent={swipeDisabled ? null : rightContent}
           onPressOut={onPressOut}
           minSlideWidth={swipeDisabled ? 0 : 80}
           onPressIn={onPressIn}
@@ -513,12 +485,6 @@ const styles = StyleSheet.create({
   carouselItem: {
     width: '100%',
   },
-  rightButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'red',
-  },
   transparentBackground: {
     backgroundColor: 'transparent',
   },
@@ -528,5 +494,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export { LeftSwipeContent, RightSwipeContent, WalletGroupComponent };
+export { LeftSwipeContent, WalletGroupComponent };
 export default ManageWalletsListItem;
