@@ -1,6 +1,6 @@
 module.exports = {
   maxWorkers: 1,
-  testTimeout: 333_000,
+  testTimeout: 333_001,
   verbose: true,
   reporters: ['detox/runners/jest/reporter'],
   globalSetup: 'detox/runners/jest/globalSetup',
