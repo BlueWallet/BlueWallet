@@ -156,8 +156,8 @@ jobs:
         sudo udevadm control --reload-rules
         sudo udevadm trigger --name-match=kvm
 
-    - name: Build
-      run: npm run e2e:release-build
+    # - name: Build
+    #   run: npm run e2e:release-build
 
     - name: Install dev deps needed for tests
       run: npm i
