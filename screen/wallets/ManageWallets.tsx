@@ -84,12 +84,7 @@ interface SetManagedDataAction {
   payload: Item[];
 }
 
-type Action =
-  | SetSearchQueryAction
-  | SetIsSearchFocusedAction
-  | SetInitialDataAction
-  | SetManagedDataAction
-  | SaveChangesAction;
+type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SetManagedDataAction | SaveChangesAction;
 
 interface State {
   searchQuery: string;
@@ -478,14 +473,7 @@ const ManageWallets: React.FC = () => {
       dispatch({ type: SET_SEARCH_QUERY, payload: '' });
       dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
     }
-  }, [
-    setWalletsWithNewOrder,
-    state.searchQuery,
-    state.isSearchFocused,
-    state.managedWalletsData,
-    state.originalWallets,
-    handleWalletDeletion,
-  ]);
+  }, [setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.managedWalletsData]);
 
   const buttonOpacity = useMemo(() => ({ opacity: saveInProgress ? 0.5 : 1 }), [saveInProgress]);
   const HeaderLeftButton = useMemo(
