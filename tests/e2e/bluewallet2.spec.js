@@ -1,21 +1,24 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
+  countElements,
   extractTextFromElementById,
   getSwitchValue,
+  goBack,
   hashIt,
   helperImportWallet,
+  scanText,
+  scrollUpOnHomeScreen,
   sleep,
-  waitForText,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
   tapIfTextPresent,
+  typeTextIntoAlertInput,
   waitForId,
-  countElements,
-  scanText,
+  waitForText,
 } from './helperz';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 // if loglevel is set to `error`, this kind of logging will still get through
 console.warn = console.log = (...args) => {
@@ -36,19 +39,26 @@ beforeAll(async () => {
     return;
   }
   // reinstalling the app just for any case to clean up app's storage
-  await device.launchApp({ delete: true });
+  await device.clearKeychain();
+  await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
 
   console.log('before all - importing bip84...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
   console.log('...imported!');
-  await device.pressBack();
-  await sleep(15000);
+  await goBack();
+  // wait for transactions to be loaded
+  try {
+    await waitFor(element(by.id('NoTransactionsMessage')))
+      .not.toExist()
+      .withTimeout(15_000);
+    await sleep(1000);
+  } catch (_) {}
 }, 1200_000);
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can create a transaction; can scanQR with bip21; can switch units', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -74,7 +84,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('feeCustom')).typeText(feeRate.toString());
     await element(by.id('feeCustom')).tapReturnKey();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -101,21 +110,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
     assert.strictEqual(transactionFee.split(' ')[1] * 100000000, totalIns - totalOuts);
 
-    if (device.getPlatform() === 'ios') {
-      console.warn('rest of the test is Android only, skipped');
-      return;
-    }
-
     // now, testing scanQR with bip21:
-
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
     await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -130,8 +132,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // now, testing scanQR with just address after amount set to 1.1 USD. Denomination should not change after qrcode scan
 
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
     await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('changeAmountUnitButton')).tap(); // switched to FIAT
     await element(by.id('BitcoinAmountInput')).replaceText('1.1');
@@ -139,7 +141,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await scanText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -155,8 +156,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // now, testing units switching, and then creating tx with SATS:
 
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
     await element(by.id('changeAmountUnitButton')).tap(); // switched to BTC
     await element(by.id('BitcoinAmountInput')).replaceText('0.00015');
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
@@ -167,7 +168,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to sats
     await element(by.id('BitcoinAmountInput')).replaceText('50000');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -179,12 +179,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(transaction.outs[0].value, 50000n);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can batch send', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_batch_send');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -201,13 +201,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // Add a few recipients initially
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
 
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await waitForId('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
 
     // Now remove all recipients before proceeding
     await element(by.id('HeaderMenuButton')).tap();
@@ -217,7 +217,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // Now, let's proceed with the batch send process again
     // Let's create a real transaction again:
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
 
     // Setting fee rate:
     const feeRate = 2;
@@ -231,13 +231,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Add Recipient')).tap();
     await waitForId('Transaction1'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
 
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await waitForId('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
 
     // Remove last output, check if second output is shown
     await element(by.id('HeaderMenuButton')).tap();
@@ -249,7 +249,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Add Recipient')).tap();
     await waitForId('Transaction2'); // Adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
 
     // Remove second output
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
@@ -258,7 +258,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Remove Recipient')).tap();
 
     // Creating and verifying. tx should have 3 outputs
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -272,12 +271,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     assert.strictEqual(transaction.outs[1].value, 30000n, `got txhex ${txhex}`);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can sendMAX', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_sendMAX');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -306,7 +305,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -319,15 +317,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.ok(Number(transaction.outs[0].value) > 100000);
 
     // add second output with amount
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await waitForId('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -342,12 +339,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     assert.strictEqual(transaction.outs[1].value, 10000n);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can cosign psbt', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_cosign');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -365,16 +362,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Sign a transaction')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
     // 1 input, 2 outputs. wallet can fully sign this tx
     const psbt =
       'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
-    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText(psbt);
 
     // this is fully-signed tx, "this is tx hex" help text should appear
     await waitForId('DynamicCode');
@@ -387,12 +378,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw'); // to address
     assert.strictEqual(transaction.outs[0].value, 1000n);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('payment codes & manage contacts', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_manage_contacts');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -410,11 +401,14 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (!(await getSwitchValue('BIP47Switch'))) {
       await expect(element(by.text('Contacts'))).not.toBeVisible();
       await element(by.id('BIP47Switch')).tap();
-      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+      await waitFor(element(by.text('Contacts')))
+        .toBeVisible()
+        .whileElement(by.id('WalletDetailsScroll'))
+        .scroll(500, 'down');
       await expect(element(by.text('Contacts'))).toBeVisible();
-      await device.pressBack();
+      await goBack();
     } else {
-      await device.pressBack();
+      await goBack();
     }
 
     // go to receive screen and check that payment code is there
@@ -428,7 +422,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await element(by.text('Payment Code')).tap();
     await element(by.id('ReceiveDetailsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-
+    await sleep(200);
     await expect(
       element(
         by.text('PM8TJbcHbQFgBL5mAYUCxJEhsz8F66abWAnVqiq6Pa8Rav8qG6XjaJQmSzNqgc1k63ipiEnobNpAoxNJVzRkdoUEANj9KyBEjLt4hL99RMoa8iJXwwwM'),
@@ -436,20 +430,24 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     ).toBeVisible();
 
     // now, testing contacts list
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await waitFor(element(by.text('Contacts')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(500, 'down');
+
     await tapAndTapAgainIfTextIsNotVisible('Contacts', 'Add Contact');
 
     await expect(element(by.id('ContactListItem0'))).not.toBeVisible();
     await element(by.text('Add Contact')).tap();
-    await element(by.type('android.widget.EditText')).replaceText('13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
+    await typeTextIntoAlertInput('13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
     await sleep(1000);
     await element(by.text('OK')).tap();
     await element(by.text('Add Contact')).tap();
-    await element(by.type('android.widget.EditText')).replaceText(
+    await typeTextIntoAlertInput(
       'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv',
     );
     await element(by.text('OK')).tap();
@@ -458,7 +456,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('ContactListItem1'))).toBeVisible();
 
     await element(by.text('Add Contact')).tap();
-    await element(by.type('android.widget.EditText')).replaceText(
+    await typeTextIntoAlertInput(
       'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97',
     );
     await element(by.text('OK')).tap();
@@ -469,15 +467,17 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // testing renaming contact:
     await element(by.id('ContactListItem0')).tap();
     await element(by.text('Rename contact')).tap();
-    await element(by.type('android.widget.EditText')).replaceText('c0ntact');
+    await typeTextIntoAlertInput('c0ntact');
     await element(by.text('OK')).tap();
     await expect(element(by.text('c0ntact'))).toBeVisible();
 
     // now, doing a real transaction with our contacts
 
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
+    await goBack();
+    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
+
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');
 
@@ -512,12 +512,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx1.outs[1].script), '5120b81959cd9a4954cd525916cd636b4ffe9466600412ccd162653a0f464489f1a8');
     assert.strictEqual(tx1.outs[1].value, 20000n);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can do basic wallet-details operations', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_walletdetails');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -536,7 +536,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // rename test
     await element(by.id('WalletNameInput')).replaceText('testname');
     await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
-    await device.pressBack();
+    await goBack();
     await waitForText('testname');
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
@@ -544,29 +544,36 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // rename back
     await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
-    await device.pressBack();
+    await goBack();
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 
     // wallet export
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await waitFor(element(by.id('WalletExport')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(500, 'down');
     await tapAndTapAgainIfElementIsNotVisible('WalletExport', 'WalletExportScroll');
     await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
+    await sleep(200); // bounce animation
     await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
-    await device.pressBack();
+    await goBack();
 
     // XPUB
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await waitFor(element(by.id('XpubButton')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(500, 'down');
     await tapAndTapAgainIfElementIsNotVisible('XpubButton', 'CopyTextToClipboard');
-    await device.pressBack();
+    await goBack();
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('should handle URL successfully', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t22');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t22'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -588,7 +595,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('feeCustom')).typeText(feeRate.toString());
     await element(by.id('feeCustom')).tapReturnKey();
 
-    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -598,12 +604,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t23');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -623,8 +629,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('0.00069909')).atIndex(0).tap();
     await element(by.text('Details')).tap();
     await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).replaceText('test1');
-    await element(by.type('android.widget.EditText')).tapReturnKey();
+    await element(by.id('TransactionDetailsMemoInput')).typeText('test1');
+    await element(by.id('TransactionDetailsMemoInput')).tapReturnKey();
+    await sleep(1000); // wait for the note to be saved
 
     // Terminate and reopen the app to confirm the note is persisted
     await device.launchApp({ newInstance: true });
@@ -637,12 +644,29 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
       .withTimeout(300 * 1000);
-    await expect(element(by.text('test1')).atIndex(0)).toBeVisible();
+    if (device.getPlatform() === 'ios') {
+      // FIXME. For ios and android we need to ckeck if text present on the CC screen
+      await expect(element(by.text('test1')).atIndex(1)).toExist();
+    } else {
+      await expect(element(by.text('test1')).atIndex(0)).toBeVisible();
+    }
 
     // change output note and freeze it
-    await element(by.text('test1')).atIndex(0).tap();
-    await element(by.id('OutputMemo')).replaceText('test2');
-    await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
+    if (device.getPlatform() === 'ios') {
+      // FIXME. For ios and android we need to ckeck if text present on the CC screen
+      await element(by.text('test1')).atIndex(1).tap();
+    } else {
+      await element(by.text('test1')).atIndex(0).tap();
+    }
+    await element(by.id('OutputMemo')).clearText();
+    await element(by.id('OutputMemo')).typeText('test2');
+    await element(by.id('OutputMemo')).tapReturnKey();
+    if (device.getPlatform() === 'ios') {
+      // FIXME. Add testId to freez switch
+      await element(by.type('UISwitchModernVisualElement')).tap(); // freeze switch
+    } else {
+      await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
+    }
     await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
@@ -657,7 +681,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).replaceText('1');
+    await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     await sleep(3000);
     await element(by.id('CreateTransactionButton')).tap();
@@ -673,9 +697,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(tx1.ins[0].index, 0);
 
     // back to wallet screen
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
+    await goBack();
 
     // create tx with unfrozen input
     await waitForId('SendButton');
@@ -689,7 +713,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
-    if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
     await element(by.id('TransactionDetailsButton')).tap();
 
@@ -703,12 +726,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
     assert.strictEqual(tx2.ins[0].index, 0);
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
   it('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t24');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t24'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -724,26 +747,19 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // tapping backdoor button to purge txs and balance:
     for (let c = 0; c <= 10; c++) {
       await element(by.id('PurgeBackdoorButton')).tap();
-      await sleep(500);
     }
 
     await waitForText('OK');
     await tapIfTextPresent('OK');
-
-    if (device.getPlatform() === 'ios') {
-      console.warn('rest of the test is Android only, skipped');
-      return;
-    }
-
-    await device.pressBack();
+    await goBack();
 
     // asserting there are no transactions and balance is 0:
-
     await expect(element(by.id('WalletBalance'))).toHaveText('0');
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
-    await element(by.id('TransactionsListView')).swipe('down', 'slow'); // pul-to-refresh
+    await waitFor(element(by.id('TransactionsListEmpty'))).toBeVisible();
+    await element(by.id('TransactionsListEmpty')).swipe('down', 'slow'); // pul-to-refresh
 
     // asserting balance and txs loaded:
     await waitForText('0.00105526'); // the wait inside allows network request to propagate
@@ -752,13 +768,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       .withTimeout(25_000);
     await expect(element(by.id('WalletBalance'))).toHaveText('0.00105526');
     await expect(element(by.id('TransactionsListEmpty'))).not.toBeVisible();
-
     assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
   });
 
   it('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t25');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t25'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
@@ -774,18 +789,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // tapping backdoor button to purge txs and balance:
     for (let c = 0; c <= 10; c++) {
       await element(by.id('PurgeBackdoorButton')).tap();
-      await sleep(500);
     }
 
     await waitForText('OK');
     await tapIfTextPresent('OK');
-
-    if (device.getPlatform() === 'ios') {
-      console.warn('rest of the test is Android only, skipped');
-      return;
-    }
-
-    await device.pressBack();
+    await goBack();
 
     // asserting there are no transactions and balance is 0:
 

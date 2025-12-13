@@ -74,6 +74,8 @@
     "e2e:release-build": "detox build -c android.release",
     "e2e:release-test": "detox test -c android.release --loglevel error",
     "e2e:release-test-device": "detox test -c android.release.device  --loglevel info --record-videos all",
+    "e2e:build:ios-release": "detox build -c ios.release",
+    "e2e:test:ios-release": "detox test -c ios.release",
     "tslint": "tsc",
     "lint": " npm run tslint && node scripts/find-unused-loc.js && eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components navigation typings",
     "lint:fix": "npm run lint -- --fix",

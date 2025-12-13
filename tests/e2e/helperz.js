@@ -53,20 +53,25 @@ export async function getSwitchValue(switchId) {
 
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await waitForId('WalletsList');
-
-  await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
-  await sleep(500); // Wait until bounce animation finishes.
+  await waitFor(element(by.id('CreateAWallet')))
+    .toBeVisible()
+    .whileElement(by.id('WalletsList'))
+    .scroll(500, 'right'); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'ImportWallet');
   await element(by.id('ImportWallet')).tap();
+  await waitForId('SpeedBackdoor');
   // tapping 5 times invisible button is a backdoor:
   for (let c = 0; c < 5; c++) {
     await element(by.id('SpeedBackdoor')).tap();
-    await sleep(1000);
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  if (passphrase) await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
+  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  if (passphrase) {
+    await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
+    await element(by.id('SpeedPassphraseInput')).tapReturnKey();
+  }
   await element(by.id('SpeedDoImport')).tap();
 
   // waiting for import result
@@ -91,12 +96,14 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.text(label)).tap();
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+  await sleep(200);
   await element(by.id('HeaderMenuButton')).tap();
   await element(by.text('Delete')).tap();
   await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {
-    await element(by.type('android.widget.EditText')).typeText(remainingBalanceSat);
+    // await element(by.type('android.widget.EditText')).typeText(remainingBalanceSat);
+    await typeTextIntoAlertInput(remainingBalanceSat);
     await element(by.text('Delete')).tap();
   }
   await waitForId('NoTransactionsMessage');
@@ -114,34 +121,12 @@ module.exports.helperDeleteWallet = helperDeleteWallet;
 */
 
 /**
- * a hack to extract element text. warning, this might break in future
- * @see https://github.com/wix/detox/issues/445
- *
+ * Extracts element text or label using getAttributes()
  * @returns {Promise<string>}
  */
 export async function extractTextFromElementById(id) {
-  try {
-    await expect(element(by.id(id))).toHaveText('_unfoundable_text');
-  } catch (error) {
-    if (device.getPlatform() === 'ios') {
-      const start = `accessibilityLabel was "`;
-      const end = '" on ';
-      const errorMessage = error.message.toString();
-      const [, restMessage] = errorMessage.split(start);
-      const [label] = restMessage.split(end);
-      return label;
-    } else {
-      const start = 'Got:';
-      const end = '}"';
-      const errorMessage = error.message.toString();
-      const [, restMessage] = errorMessage.split(start);
-      const [label] = restMessage.split(end);
-      const value = label.split(',');
-      const combineText = value.find(i => i.includes('text=')).trim();
-      const [, elementText] = combineText.split('=');
-      return elementText;
-    }
-  }
+  const attributes = await element(by.id(id)).getAttributes();
+  return attributes.value || attributes.label;
 }
 
 export const expectToBeVisible = async id => {
@@ -154,7 +139,11 @@ export const expectToBeVisible = async id => {
 };
 
 export async function helperCreateWallet(walletName) {
-  await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+  await waitFor(element(by.id('CreateAWallet')))
+    .toBeVisible()
+    .whileElement(by.id('WalletsList'))
+    .scroll(500, 'right'); // in case emu screen is small and it doesnt fit
+
   await sleep(200); // Wait until bounce animation finishes.
   await tapAndTapAgainIfElementIsNotVisible('CreateAWallet', 'WalletNameInput');
   await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
@@ -164,12 +153,15 @@ export async function helperCreateWallet(walletName) {
   // why tf we need 2 taps for it to work..? mystery
   await tapAndTapAgainIfElementIsNotVisible('Create', 'PleaseBackupScrollView');
 
-  await element(by.id('PleaseBackupScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+  await waitFor(element(by.id('PleasebackupOk')))
+    .toBeVisible()
+    .whileElement(by.id('PleaseBackupScrollView'))
+    .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
 
-  await waitForId('PleasebackupOk');
   await element(by.id('PleasebackupOk')).tap();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
+  await sleep(200);
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
 }
 
@@ -233,7 +225,7 @@ export async function countElements(testId) {
   let count = 0;
   while (true) {
     try {
-      await expect(element(by.id(testId)).atIndex(count)).toExist();
+      await expect(element(by.id(testId)).atIndex(count)).toBeVisible();
       count++;
     } catch (_) {
       break;
@@ -243,11 +235,46 @@ export async function countElements(testId) {
 }
 
 export async function scanText(text) {
-  await sleep(5000); // wait for camera screen to initialize
   await waitForId('ScanQrBackdoorButton');
   for (let c = 0; c <= 5; c++) {
     await element(by.id('ScanQrBackdoorButton')).tap();
   }
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+}
+
+export async function goBack() {
+  if (device.getPlatform() === 'ios') {
+    try {
+      await element(by.id('BackButton')).atIndex(0).tap();
+    } catch (_) {
+      await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    }
+  } else {
+    await device.pressBack();
+  }
+}
+
+export async function typeTextIntoAlertInput(text) {
+  if (device.getPlatform() === 'android') {
+    await element(by.type('android.widget.EditText')).replaceText(text);
+  } else {
+    await element(by.type('_UIAlertControllerTextField')).replaceText(text);
+  }
+}
+
+/**
+ * Scrolls up on the home screen. This is needed on the iOS.
+ */
+export async function scrollUpOnHomeScreen() {
+  if (device.getPlatform() !== 'ios') {
+    return;
+  }
+  try {
+    await element(by.type('RCTCustomScrollView').withDescendant(by.type('RCTCustomScrollView'))).swipe('down', 'slow', 0.5);
+  } catch (_) {
+    // if no wallets there will be just one scroll
+    await element(by.type('RCTCustomScrollView')).swipe('down', 'slow', 0.5);
+  }
+  await sleep(200); // bounce animation
 }

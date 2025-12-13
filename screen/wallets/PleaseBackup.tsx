@@ -68,7 +68,7 @@ const PleaseBackup: React.FC = () => {
         <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
       </View>
       <View style={styles.list}>
-        <SeedWords seed={wallet.getSecret() ?? ''} />
+        <SeedWords seed={wallet.getSecret()} />
       </View>
       <View style={styles.bottom}>
         <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />

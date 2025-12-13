@@ -1,6 +1,6 @@
 module.exports = {
   maxWorkers: 1,
-  testTimeout: 333_000,
+  testTimeout: 600_000, // 10 minutes. iOS multisig and plausible deniability tests take a long time to run
   verbose: true,
   reporters: ['detox/runners/jest/reporter'],
   globalSetup: 'detox/runners/jest/globalSetup',
