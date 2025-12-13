@@ -1,4 +1,4 @@
-import { hashIt, helperDeleteWallet, helperImportWallet, sleep, waitForId } from './helperz';
+import { goBack, hashIt, helperDeleteWallet, helperImportWallet, scanText, scrollUpOnHomeScreen, sleep, waitForId } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
 console.warn = console.log = (...args) => {
@@ -7,11 +7,6 @@ console.warn = console.log = (...args) => {
 
   process.stdout.write('\n\t\t' + output + '\n');
 };
-
-beforeAll(async () => {
-  // reinstalling the app just for any case to clean up app's storage
-  await device.launchApp({ delete: true });
-}, 300_000);
 
 describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
   /**
@@ -25,10 +20,11 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
    */
   it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t31');
-    if (process.env.TRAVIS) {
+    if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
     }
-    await device.launchApp({ newInstance: true });
+    await device.clearKeychain();
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
     await helperImportWallet(
       // MNEMONICS_KEYSTONE
       'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
@@ -36,7 +32,14 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'Imported Watch-only',
       '0.0001',
     );
-    await sleep(15000);
+    // wait for transactions to be loaded
+    try {
+      await waitFor(element(by.id('NoTransactionsMessage')))
+        .not.toExist()
+        .withTimeout(14_000);
+      await sleep(1000);
+    } catch (_) {}
+
     await element(by.id('ReceiveButton')).tap();
     try {
       // in case emulator has no google services and doesnt support pushes
@@ -57,7 +60,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
     await expect(element(by.text('bitcoin:BC1QGRHR5XC5774MAPH97D73YDRJLQQMG2V6JJLR29?amount=1&label=Test'))).toBeVisible();
-    await device.pressBack();
+    await goBack();
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
@@ -70,38 +73,27 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     const signedPsbt =
       'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
 
-    // tapping 5 times invisible button is a backdoor:
-    await sleep(5000); // wait for camera screen to initialize
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText(unsignedPsbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText(unsignedPsbt);
 
     // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
 
-    await element(by.id('PsbtWithHardwareScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await waitFor(element(by.id('PsbtTxScanButton')))
+      .toBeVisible()
+      .whileElement(by.id('PsbtWithHardwareScrollView'))
+      .scroll(500, 'down');
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
-    // tapping 5 times invisible button is a backdoor:
-    await sleep(5000); // wait for camera screen to initialize
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-
-    await element(by.id('scanQrBackdoorInput')).replaceText(signedPsbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanText(signedPsbt);
     await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
     await waitForId('PsbtWithHardwareWalletBroadcastTransactionButton');
 
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
+    await goBack();
+    await goBack();
+    await goBack();
+    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
+
     await helperDeleteWallet('Imported Watch-only', '10000');
 
-    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 });

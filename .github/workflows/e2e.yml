@@ -1,0 +1,246 @@
+name: Tests e2e
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-15
+    env:
+      BUILD_CONFIGURATION: Release
+      HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+      HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1.6"
+
+      - name: Cache Ruby gems
+        uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-ruby-${{ hashFiles('Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-ruby-
+
+      - name: Install Ruby gems
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      - name: Install CocoaPods dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Delete Apple Watch target
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'xcodeproj'
+
+          project_path = 'ios/BlueWallet.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+
+          target_names = %w[BlueWalletWatch]
+          removed_any = false
+
+          target_names.each do |target_name|
+            target = project.targets.find { |t| t.name == target_name }
+            next unless target
+
+            puts "Removing target #{target_name}"
+            target.dependencies.each(&:remove_from_project)
+            target.build_phases.each(&:remove_from_project)
+            project.targets.delete(target)
+            removed_any = true
+          end
+
+          main_target = project.targets.find { |t| t.name == 'BlueWallet' }
+          if main_target
+            main_target.build_phases.select { |phase| phase.display_name == 'Embed Watch Content' }.each do |phase|
+              puts "Removing build phase #{phase.display_name}"
+              phase.remove_from_project
+              main_target.build_phases.delete(phase)
+              removed_any = true
+            end
+          end
+
+          if removed_any
+            project.save
+            puts 'Apple Watch target references removed'
+          else
+            puts 'No Apple Watch targets found'
+          end
+          RUBY
+
+      - name: Remove Watch schemes
+        run: rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWalletWatch.xcscheme
+
+      - name: Build iOS simulator app
+        working-directory: ios
+        env:
+          RCT_NO_LAUNCH_PACKAGER: "1"
+        run: |
+          set -eo pipefail
+          xcodebuild \
+            -workspace BlueWallet.xcworkspace \
+            -scheme BlueWallet \
+            -configuration "${BUILD_CONFIGURATION}" \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            build
+
+      - name: Package simulator app
+        run: |
+          APP_DIR="ios/build/Build/Products/${BUILD_CONFIGURATION}-iphonesimulator/BlueWallet.app"
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Simulator app not found at $APP_DIR"
+            find ios/build -maxdepth 5 -name '*.app' || true
+            exit 1
+          fi
+          OUTPUT_DIR="BlueWallet-simulator"
+          rm -rf "$OUTPUT_DIR"
+          mkdir -p "$OUTPUT_DIR"
+          cp -R "$APP_DIR" "$OUTPUT_DIR/BlueWallet.app"
+          echo "APP_EXPORT_PATH=$OUTPUT_DIR" >> "$GITHUB_ENV"
+
+      - name: Install applesimutils
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+
+      - name: Run detox tests
+        run: |
+          npm run e2e:test:ios-release -- \
+            --record-videos failing \
+            --record-logs failing \
+            --take-screenshots failing \
+            --headless \
+            --retries 3 \
+            --reuse \
+            --artifacts-location ./artifacts
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-test-videos
+          path: ./artifacts/
+
+
+  android:
+    runs-on: ubuntu-latest
+    env:
+      HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+      HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Free disk space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: true
+        android: false
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    - name: npm and gradle caches in /mnt
+      run: |
+        rm -rf ~/.npm
+        rm -rf ~/.gradle
+        sudo mkdir -p /mnt/.npm
+        sudo mkdir -p /mnt/.gradle
+        sudo chown -R runner /mnt/.npm
+        sudo chown -R runner /mnt/.gradle
+        ln -s /mnt/.npm /home/runner/
+        ln -s /mnt/.gradle /home/runner/
+
+    - name: Create artifacts directory on /mnt
+      run: |
+        sudo mkdir -p /mnt/artifacts
+        sudo chown -R runner /mnt/artifacts
+
+    - name: Specify node version
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Use gradle caches
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Install node_modules
+      run: npm ci --omit=dev --yes
+
+    - name: Use specific Java version for sdkmanager to work
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Enable KVM group perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Build
+      run: npm run e2e:release-build
+
+    - name: Install dev deps needed for tests
+      run: npm i
+
+    - name: Run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location /mnt/artifacts
+
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: e2e-test-videos
+        path: /mnt/artifacts/
