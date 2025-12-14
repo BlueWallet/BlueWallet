@@ -695,6 +695,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     paddingVertical: 14,
+    width: 100,
     borderRadius: 50,
     fontWeight: '700',
     flex: 0.5,
