@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -20,22 +20,24 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { WatchOnlyWallet } from '../../class';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation();
-  const route = useRoute();
+  const route = useRoute<RouteProp<SendDetailsStackParamList, 'PsbtWithHardwareWallet'>>();
   const { walletID, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID) as WatchOnlyWallet;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
-  const [txHex, setTxHex] = useState(route.params.txhex);
-  const openScannerButton = useRef();
-  const dynamicQRCode = useRef();
+  const [txHex, setTxHex] = useState<string | undefined>(route.params.txhex);
+  const openScannerButton = useRef<View | null>(null);
+  const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
@@ -62,37 +64,42 @@ const PsbtWithHardwareWallet = () => {
   });
 
   const _combinePSBT = useCallback(
-    receivedPSBT => {
+    (receivedPSBT: bitcoin.Psbt | string): bitcoin.Transaction | undefined => {
+      if (!psbt) {
+        console.error('No PSBT to combine');
+        return;
+      }
       return wallet.combinePsbt(psbt, receivedPSBT);
     },
     [psbt, wallet],
   );
 
   const onBarScanned = useCallback(
-    ret => {
-      if (ret && !ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
+    (ret: string | { data: string }) => {
+      const data = typeof ret === 'string' ? ret : ret.data;
+      if (data.toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       }
-      if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
-        setTxHex(ret.data);
+        setTxHex(data);
         return;
       }
       try {
-        const Tx = _combinePSBT(ret.data);
-        setTxHex(Tx.toHex());
+        const Tx = _combinePSBT(data);
+        setTxHex(Tx?.toHex());
         if (launchedBy) {
           // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
           // most likely for LN channel opening
-          const popToAction = StackActions.popTo(launchedBy, { psbt }, true);
+          const popToAction = StackActions.popTo(launchedBy, { psbt }, { merge: true });
           navigation.dispatch(popToAction);
           // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
           // (passed by reference)
         }
       } catch (Err) {
         console.log('error in _combinePSBT():', Err);
-        presentAlert({ message: Err.message });
+        const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
+        presentAlert({ message });
       }
     },
     [_combinePSBT, launchedBy, navigation, psbt],
@@ -114,11 +121,14 @@ const PsbtWithHardwareWallet = () => {
     if (deepLinkPSBT) {
       const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
-        setTxHex(Tx.toHex());
+        if (routeParamsPSBT.current) {
+          const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
+          setTxHex(Tx.toHex());
+        }
       } catch (Err) {
         console.log('error in wallet.combinePsbt():', Err);
-        presentAlert({ message: Err });
+        const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
+        presentAlert({ message });
       }
     } else if (routeParamsTXHex) {
       setTxHex(routeParamsTXHex);
@@ -139,6 +149,12 @@ const PsbtWithHardwareWallet = () => {
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
+
+      if (!txHex) {
+        presentAlert({ message: 'No transaction hex available' });
+        return;
+      }
+
       const result = await wallet.broadcastTx(txHex);
       if (result) {
         setIsLoading(false);
@@ -160,7 +176,8 @@ const PsbtWithHardwareWallet = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       console.log('error broadcasting:', error);
-      presentAlert({ message: error.message });
+      const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+      presentAlert({ message });
     }
   };
 
@@ -169,7 +186,9 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const copyHexToClipboard = () => {
-    Clipboard.setString(txHex);
+    if (txHex) {
+      Clipboard.setString(txHex);
+    }
   };
 
   const _renderBroadcastHex = () => {
@@ -177,7 +196,7 @@ const PsbtWithHardwareWallet = () => {
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
         <BlueCard style={[styles.hexWrap, stylesHook.hexWrap]}>
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
+          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable value={txHex} />
 
           <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
@@ -234,9 +253,9 @@ const PsbtWithHardwareWallet = () => {
         <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
         <BlueSpacing20 />
         <Text testID="PSBTHex" style={styles.hidden}>
-          {psbt.toHex()}
+          {psbt?.toHex()}
         </Text>
-        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />}
         <BlueSpacing20 />
         <SecondButton
           testID="PsbtTxScanButton"
@@ -260,26 +279,29 @@ const PsbtWithHardwareWallet = () => {
           title={loc.send.psbt_tx_open}
         />
         <BlueSpacing20 />
-        <SaveFileButton
-          fileName={`${Date.now()}.psbt`}
-          fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
-          style={styles.exportButton}
-          beforeOnPress={saveFileButtonBeforeOnPress}
-          afterOnPress={saveFileButtonAfterOnPress}
-        >
-          <SecondButton
-            icon={{
-              name: 'share-alternative',
-              type: 'entypo',
-              color: colors.secondButtonTextColor,
-            }}
-            title={loc.send.psbt_tx_export}
-          />
-        </SaveFileButton>
+        {psbt && (
+          <SaveFileButton
+            fileName={`${Date.now()}.psbt`}
+            fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
+            beforeOnPress={saveFileButtonBeforeOnPress}
+            afterOnPress={saveFileButtonAfterOnPress}
+          >
+            <SecondButton
+              icon={{
+                name: 'share-alternative',
+                type: 'entypo',
+                color: colors.secondButtonTextColor,
+              }}
+              title={loc.send.psbt_tx_export}
+            />
+          </SaveFileButton>
+        )}
         <BlueSpacing20 />
-        <View style={styles.copyToClipboard}>
-          <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
-        </View>
+        {psbt && (
+          <View style={styles.copyToClipboard}>
+            <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
+          </View>
+        )}
       </BlueCard>
     </View>
   );
