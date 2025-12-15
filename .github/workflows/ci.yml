@@ -7,6 +7,8 @@ env:
   TRAVIS: 1
   HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
   HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+  ANDROID_HOME: /usr/local/lib/android/sdk
 
 on: [pull_request]
 
@@ -162,15 +164,232 @@ jobs:
     - name: Install dev deps needed for tests
       run: npm i
 
+    # Generate complex animated QR sequences that marketplace action can't handle
+    - name: Generate animated QR codes using Node.js (for complex UR sequences)
+      run: |
+        cd tests/e2e
+        node generate-animated-qr-codes.js
+        ls -la qr-images/
+
+    # All static QR codes below are generated using marketplace action
+    # Previously handled by generate-qr-codes.js, now moved to CI for efficiency
+
+    - name: Generate Bitcoin address QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1qykcp2x3djgdtse0yzh4ej8gqwprwkr8j2jvmd7'
+        path: 'tests/e2e/qr-images/marketplace-bitcoin-address.png'
+
+    - name: Generate seed phrase QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'pipe goose bottom run seed curious thought kangaroo example family coral success'
+        path: 'tests/e2e/qr-images/seed-phrase-multisig.png'
+
+    - name: Generate BIP21 simple QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75'
+        path: 'tests/e2e/qr-images/bip21-simple.png'
+
+    - name: Generate Lightning invoice QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004'
+        path: 'tests/e2e/qr-images/lightning-invoice.png'
+
+    - name: Generate BIP21 with Lightning fallback QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4'
+        path: 'tests/e2e/qr-images/bip21-with-lightning.png'
+
+    - name: Generate Azteco voucher QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'https://azte.co/redeem?code=1111222233334444'
+        path: 'tests/e2e/qr-images/azteco-voucher.png'
+
+    - name: Generate LNDHub connection QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol'
+        path: 'tests/e2e/qr-images/lndhub-connection.png'
+
+    - name: Generate PSBT Base64 QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'cHNidP8BALQCAAAAAdhClgN5aG9FBrXH8OxlDV3LmXJc1V8N/BN1OEOdpR+iAAAAAAD9////AsxJCYUAAAAAABYAFMsEhUOQqAY3gGt9MJKJJqGxSMwR9e/X2gAAAAAWABTJWgSmRENWY2qv7PVkn8s9xWqUNQAAAAAAAAABAN8CAAAAAAEBpd7iMHFvAFLAEYbLkYO8l25fMILjS8TEvJLnk4Bl4HEBAAAAAABSRd3/AaKCLmkAAAAAIgAgdQmNS1nK/bz2wBLuuLUOIgm8Qyg2yAHyL5jLWOXDlmXLByJ5AQAAACoCACIWIJBhxgjCDlzTiLpVCRBLB7v6tqJlFyCTW6wQtBmFJaY3GwfgCQMOgAAAAAABBwAhFyCQYcYIwg5c04i6VQkQSwe7+raiZRcgk1usELQZhSWmNxsHqgBUAA=='
+        path: 'tests/e2e/qr-images/psbt-base64.png'
+
+    - name: Generate Unsigned PSBT UR QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-PSBT/HDRNJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWCPAMAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGACSRPLEYNVEGHAEAELAAEAEAELAAEAEAELAAEAEAEAEAEAEAEAEAEAEGETNJYFN'
+        path: 'tests/e2e/qr-images/unsigned-psbt-ur.png'
+
+    - name: Generate Signed PSBT UR QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTS'
+        path: 'tests/e2e/qr-images/signed-psbt-ur.png'
+
+    - name: Generate UR crypto-account QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst'
+        path: 'tests/e2e/qr-images/ur-crypto-account.png'
+
+    - name: Generate PayJoin BIP21 QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj'
+        path: 'tests/e2e/qr-images/payjoin-bip21.png'
+
+    - name: Generate plain Bitcoin address QR Code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7'
+        path: 'tests/e2e/qr-images/plain-bitcoin-address.png'
+
+    - name: Generate UR PSBT QR code  
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'ur:crypto-psbt/hdcxlkahssqzudfzdprpspvlrsbqhgtyehknmnnylsrfpdcadpdtlyrhmnhplnhgrfnymspalbrknsfhdmkpssgfnylnqzchdwceeyktcflfdtbwpkgauyryrnhkfdwlrmvwhkzecsehemtnspqzghjylnct'
+        path: 'tests/e2e/qr-images/marketplace-ur-psbt.png'
+
+    # Additional Bitcoin addresses from generate-qr-codes.js
+    - name: Generate Bitcoin address 1 QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'
+        path: 'tests/e2e/qr-images/bitcoin-address-1.png'
+
+    - name: Generate Bitcoin address 2 QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7'
+        path: 'tests/e2e/qr-images/bitcoin-address-2.png'
+
+    - name: Generate Bitcoin address 3 QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7'
+        path: 'tests/e2e/qr-images/bitcoin-address-3.png'
+
+    - name: Generate Bitcoin address 4 QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75'
+        path: 'tests/e2e/qr-images/bitcoin-address-4.png'
+
+    - name: Generate Bitcoin legacy address QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: '1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'
+        path: 'tests/e2e/qr-images/bitcoin-address-legacy.png'
+
+    - name: Generate Bitcoin legacy address 2 QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS'
+        path: 'tests/e2e/qr-images/bitcoin-address-legacy-2.png'
+
+    - name: Generate BIP21 PayJoin QR code
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj'
+        path: 'tests/e2e/qr-images/bip21-payjoin.png'
+
+    # Create animated frame directories before generating frames
+    - name: Create animated QR directories
+      run: |
+        mkdir -p tests/e2e/qr-images/animated-frames
+
+    # Generate animated QR code frames using marketplace action
+    - name: Generate animated PSBT frame 1
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-PSBT/1-3/LPADAOCFADYKOEADLOCSDYYKAEYKAEYKAOYKAOCYPDLOUEBGAOLYTAADMETAADDLOXAXHDCLAXFDYKSNWKUYPKFEVLFZFROYIYECOEOSBAKBPDCLDAWZHTCARKWSNDCPHPHSBSDSAYAAHDCX'
+        path: 'tests/e2e/qr-images/animated-frames/psbt-frame-001.png'
+
+    - name: Generate animated PSBT frame 2  
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-PSBT/2-3/FGJYCKRYOSMWTDPTLBFLONBKIMLSMOVOLSLBYTONAYISPRVOIEFTGEFLZCRTVESBAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYPDLOUEBGAXAAAYCYTTATRNOLIMVETSST'
+        path: 'tests/e2e/qr-images/animated-frames/psbt-frame-002.png'
+
+    - name: Generate animated PSBT frame 3
+      uses: snow-actions/qrcode@v1.2.0  
+      with:
+        text: 'UR:CRYPTO-PSBT/3-3/PADAOCFADYKOEADLOCSDYYKAEYKAEYKAOYKAOCYPDLOUEBGAXTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYPKGYQEWMRFLSTT'
+        path: 'tests/e2e/qr-images/animated-frames/psbt-frame-003.png'
+
+    - name: Generate animated Account frame 1
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-ACCOUNT/1-2/OEADCYPDLOUEBGAOLYTAADMETAADDLOXAXHDCLAXFDYKSNWKUYPKFEVLFZFROYIYECOEOSBAKBPDCLDAWZHTCARKWSNDCPHPHSBSDSAYAAHDCX'
+        path: 'tests/e2e/qr-images/animated-frames/account-frame-001.png'
+
+    - name: Generate animated Account frame 2
+      uses: snow-actions/qrcode@v1.2.0
+      with:
+        text: 'UR:CRYPTO-ACCOUNT/2-2/FGJYCKRYOSMWTDPTLBFLONBKIMLSMOVOLSLBYTONAYISPRVOIEFTGEFLZCRTVESBAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYPDLOUEBGAXAAAYCYTTATRNOLIMVETSST'
+        path: 'tests/e2e/qr-images/animated-frames/account-frame-002.png'
+
+    - name: Stitch animated QR sequences  
+      run: |
+        cd tests/e2e
+        node generate-animated-qr-codes.js
+
+    - name: Setup virtual scene camera with smaller QR codes
+      run: |
+        # Set up Android SDK path for virtual scene camera
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
+        echo "ANDROID_HOME: $ANDROID_HOME"
+        
+        # Create emulator resources directory
+        mkdir -p $ANDROID_HOME/emulator/resources
+        
+        # Copy QR images to emulator resources
+        cp tests/e2e/qr-images/marketplace-bitcoin-address.png $ANDROID_HOME/emulator/resources/
+        
+        # Create poster configuration for smaller QR codes (better for camera scanning)
+        cat > $ANDROID_HOME/emulator/resources/Toren1BD.posters << EOF
+        poster customsize 0.5 0.5
+        position 0 0 -1.2
+        rotation 0 0 0
+        default marketplace-bitcoin-address.png
+        EOF
+        
+        echo "✅ Virtual scene camera configured with smaller QR codes"
+        
+        # Also create fallback camera directory for compatibility
+        mkdir -p $HOME/.android/camera
+        cp tests/e2e/qr-images/marketplace-bitcoin-address.png $HOME/.android/camera/default-qr.png
+
+
+    - name: Ensure emulator path (fix emulator-2)
+      run: |
+        SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+        if [ -d "$SDK_ROOT/emulator-2" ]; then
+          sudo rm -rf "$SDK_ROOT/emulator"
+          sudo ln -s "$SDK_ROOT/emulator-2" "$SDK_ROOT/emulator"
+        fi
+        "$SDK_ROOT/emulator/emulator" -version || true
+    
+    
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 31
-        avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        target: google_apis
         arch: x86_64
-        script: npm run e2e:release-test --  --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: true
+        emulator-boot-timeout: 1200
+        emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -wipe-data -noaudio -no-boot-anim -camera-back virtualscene -camera-front none -partition-size 3072 -memory 3072 -netfast"
+        script: npm run e2e:release-test -- --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v4
       if: failure()

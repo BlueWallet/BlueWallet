@@ -13,7 +13,7 @@ import {
   tapIfTextPresent,
   waitForId,
   countElements,
-  scanText,
+  scanQRImage,
 } from './helperz';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
@@ -113,7 +113,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('changeAmountUnitButton')).tap(); // switched to SATS
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
+    await scanQRImage('payjoin-bip21.png');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -137,7 +137,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('1.1');
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
-    await scanText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await scanQRImage('plain-bitcoin-address.png');
 
     if (process.env.TRAVIS) await sleep(5000);
     try {
@@ -365,16 +365,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Sign a transaction')).tap();
 
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-    // 1 input, 2 outputs. wallet can fully sign this tx
-    const psbt =
-      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
-    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await scanQRImage('psbt-base64.png');
 
     // this is fully-signed tx, "this is tx hex" help text should appear
     await waitForId('DynamicCode');
