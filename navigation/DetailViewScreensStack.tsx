@@ -85,9 +85,9 @@ const DetailViewStackScreensStack = () => {
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
+      head: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
-      headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
+      headerLargeTitle: true,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
