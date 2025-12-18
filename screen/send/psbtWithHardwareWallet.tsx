@@ -66,8 +66,7 @@ const PsbtWithHardwareWallet = () => {
   const _combinePSBT = useCallback(
     (receivedPSBT: bitcoin.Psbt | string): bitcoin.Transaction | undefined => {
       if (!psbt) {
-        console.error('No PSBT to combine');
-        return;
+        throw new Error('No PSBT to combine');
       }
       return wallet.combinePsbt(psbt, receivedPSBT);
     },
@@ -151,6 +150,7 @@ const PsbtWithHardwareWallet = () => {
       await BlueElectrum.waitTillConnected();
 
       if (!txHex) {
+        setIsLoading(false);
         presentAlert({ message: 'No transaction hex available' });
         return;
       }
