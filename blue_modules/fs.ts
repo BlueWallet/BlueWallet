@@ -78,7 +78,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
     const [res] = await pick({
-      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.json] : [types.allFiles],
+      type: [types.allFiles],
     });
 
     return await _readPsbtFileIntoBase64(res.uri);
@@ -145,10 +145,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
 export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
   try {
     const [pickedFile] = await pick({
-      type:
-        Platform.OS === 'ios'
-          ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', 'io.bluewallet.backup', types.plainText, types.json, types.images]
-          : [types.allFiles],
+      type: [types.allFiles],
     });
 
     const [localCopy] = await keepLocalCopy({
@@ -230,7 +227,7 @@ export const readFileOutsideSandbox = (filePath: string) => {
 export const openSignedTransactionRaw: () => Promise<string> = async () => {
   try {
     const [res] = await pick({
-      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.json] : [types.allFiles],
+      type: [types.allFiles],
     });
     const file = await RNFS.readFile(res.uri);
     if (file) {
@@ -249,7 +246,7 @@ export const openSignedTransactionRaw: () => Promise<string> = async () => {
 
 export const pickTransaction = async () => {
   const [res] = await pick({
-    type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn', types.plainText, types.json] : [types.allFiles],
+    type: [types.allFiles],
   });
 
   return res;

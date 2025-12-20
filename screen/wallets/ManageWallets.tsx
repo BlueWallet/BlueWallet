@@ -7,7 +7,6 @@ import {
   Animated,
   FlatList,
   ActivityIndicator,
-  LayoutAnimation,
   UIManager,
   Platform,
   Keyboard,
@@ -58,7 +57,6 @@ const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
 const SET_INITIAL_DATA = 'SET_INITIAL_DATA';
 const SET_MANAGED_DATA = 'SET_MANAGED_DATA';
-const REMOVE_WALLET = 'REMOVE_WALLET';
 const SAVE_CHANGES = 'SAVE_CHANGES';
 
 interface SaveChangesAction {
@@ -86,18 +84,7 @@ interface SetManagedDataAction {
   payload: Item[];
 }
 
-interface RemoveWalletAction {
-  type: typeof REMOVE_WALLET;
-  payload: string; // Wallet ID
-}
-
-type Action =
-  | SetSearchQueryAction
-  | SetIsSearchFocusedAction
-  | SetInitialDataAction
-  | SetManagedDataAction
-  | SaveChangesAction
-  | RemoveWalletAction;
+type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SetManagedDataAction | SaveChangesAction;
 
 interface State {
   searchQuery: string;
@@ -160,17 +147,6 @@ const reducer = (state: State, action: Action): State => {
         walletsCopy: deepCopyWallets(action.payload),
       };
     }
-    case REMOVE_WALLET: {
-      const walletId = action.payload;
-      const updatedOrder = state.managedWalletsData.filter(item => item.type !== ItemType.WalletSection || item.data.getID() !== walletId);
-      const updatedWalletsCopy = state.walletsCopy.filter(wallet => wallet.getID() !== walletId);
-
-      return {
-        ...state,
-        managedWalletsData: updatedOrder,
-        walletsCopy: updatedWalletsCopy,
-      };
-    }
     default:
       throw new Error(`Unhandled action type: ${(action as Action).type}`);
   }
@@ -182,7 +158,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();
-  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, handleWalletDeletion } = useStorage();
+  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack, dispatch: navigationDispatch } = useExtendedNavigation();
   const { direction } = useLocale();
@@ -488,31 +464,16 @@ const ManageWallets: React.FC = () => {
         .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
         .map(item => item.data);
 
-      const walletsToDelete = state.originalWallets.filter(
-        originalWallet => !reorderedWallets.some(wallet => wallet.getID() === originalWallet.getID()),
-      );
-
       setWalletsWithNewOrder(reorderedWallets);
       dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
       initialWalletsRef.current = deepCopyWallets(reorderedWallets);
-
-      walletsToDelete.forEach(wallet => {
-        handleWalletDeletion(wallet.getID());
-      });
 
       setSaveInProgress(true);
     } else {
       dispatch({ type: SET_SEARCH_QUERY, payload: '' });
       dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
     }
-  }, [
-    setWalletsWithNewOrder,
-    state.searchQuery,
-    state.isSearchFocused,
-    state.managedWalletsData,
-    state.originalWallets,
-    handleWalletDeletion,
-  ]);
+  }, [setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.managedWalletsData]);
 
   const buttonOpacity = useMemo(() => ({ opacity: saveInProgress ? 0.5 : 1 }), [saveInProgress]);
   const HeaderLeftButton = useMemo(
@@ -558,45 +519,6 @@ const ManageWallets: React.FC = () => {
     },
     [bounceAnim],
   );
-
-  const handleDeleteWallet = useCallback(async (wallet: TWallet) => {
-    if (Platform.OS === 'ios') {
-      LayoutAnimation.configureNext({
-        duration: 300,
-        create: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-          property: LayoutAnimation.Properties.opacity,
-        },
-        update: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-        },
-        delete: {
-          type: LayoutAnimation.Types.spring,
-          property: LayoutAnimation.Properties.scaleXY,
-          springDamping: 0.9,
-          duration: 300,
-        },
-      });
-    } else {
-      LayoutAnimation.configureNext({
-        duration: 250,
-        create: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-          property: LayoutAnimation.Properties.opacity,
-        },
-        update: {
-          type: LayoutAnimation.Types.easeInEaseOut,
-        },
-        delete: {
-          type: LayoutAnimation.Types.easeOut,
-          property: LayoutAnimation.Properties.opacity,
-          duration: 200,
-        },
-      });
-    }
-
-    dispatch({ type: REMOVE_WALLET, payload: wallet.getID() });
-  }, []);
 
   const handleToggleHideBalance = useCallback(
     (wallet: TWallet) => {
@@ -674,7 +596,6 @@ const ManageWallets: React.FC = () => {
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
-          handleDeleteWallet={handleDeleteWallet}
           handleToggleHideBalance={handleToggleHideBalance}
           isActive={isActive}
           drag={onDragStart}
@@ -688,7 +609,6 @@ const ManageWallets: React.FC = () => {
       navigateToWallet,
       navigateToAddress,
       renderHighlightedText,
-      handleDeleteWallet,
       handleToggleHideBalance,
     ],
   );

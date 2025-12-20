@@ -166,11 +166,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   useAnimateOnChange(wallet.getID?.());
 
   return (
-    <LinearGradient
-      colors={WalletGradient.gradientsFor(wallet.type)}
-      style={styles.lineaderGradient}
-      {...WalletGradient.linearGradientProps(wallet.type)}
-    >
+    <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={styles.lineaderGradient}>
       <ImageBackground source={imageSource} style={styles.chainIcon} />
 
       <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>

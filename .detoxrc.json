@@ -7,10 +7,15 @@
     }
   },
   "apps": {
-    "ios": {
+    "ios.debug": {
       "type": "ios.app",
-      "binaryPath": "SPECIFY_PATH_TO_YOUR_APP_BINARY",
-      "build": "xcodebuild clean build -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -derivedDataPath ios/build -sdk iphonesimulator13.2"
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/BlueWallet.app",
+      "build": "xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+    },
+    "ios.release": {
+      "type": "ios.app",
+      "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BlueWallet.app",
+      "build": "npx react-native codegen && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "android.debug": {
       "type": "android.apk",
@@ -28,7 +33,7 @@
     "simulator": {
       "type": "ios.simulator",
       "device": {
-        "type": "iPhone 11"
+        "type": "iPhone 16"
       }
     },
     "emulator": {
@@ -39,9 +44,9 @@
     }
   },
   "configurations": {
-    "ios": {
+    "ios.release": {
       "device": "simulator",
-      "app": "ios"
+      "app": "ios.release"
     },
     "android.debug": {
       "device": "emulator",
