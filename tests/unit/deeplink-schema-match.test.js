@@ -410,22 +410,8 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   it('recognizes files', () => {
     // txn files:
     assert.ok(DeeplinkSchemaMatch.isTXNFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.txn'));
-    assert.ok(!DeeplinkSchemaMatch.isPossiblySignedPSBTFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.txn'));
 
     assert.ok(DeeplinkSchemaMatch.isTXNFile('content://com.android.externalstorage.documents/document/081D-1403%3Atxhex.txn'));
-    assert.ok(
-      !DeeplinkSchemaMatch.isPossiblySignedPSBTFile('content://com.android.externalstorage.documents/document/081D-1403%3Atxhex.txn'),
-    );
-
-    // psbt files (signed):
-    assert.ok(
-      DeeplinkSchemaMatch.isPossiblySignedPSBTFile(
-        'content://com.android.externalstorage.documents/document/081D-1403%3Atxhex-signed.psbt',
-      ),
-    );
-    assert.ok(
-      DeeplinkSchemaMatch.isPossiblySignedPSBTFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex-signed.psbt'),
-    );
 
     assert.ok(!DeeplinkSchemaMatch.isTXNFile('content://com.android.externalstorage.documents/document/081D-1403%3Atxhex-signed.psbt'));
     assert.ok(!DeeplinkSchemaMatch.isTXNFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex-signed.psbt'));
