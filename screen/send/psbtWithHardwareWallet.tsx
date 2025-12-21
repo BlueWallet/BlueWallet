@@ -282,7 +282,7 @@ const PsbtWithHardwareWallet = () => {
         {psbt && (
           <SaveFileButton
             fileName={`${Date.now()}.psbt`}
-            fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
+            fileContent={psbt.toBase64()}
             beforeOnPress={saveFileButtonBeforeOnPress}
             afterOnPress={saveFileButtonAfterOnPress}
           >
