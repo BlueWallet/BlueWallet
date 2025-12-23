@@ -434,6 +434,7 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <SafeAreaFlatList
+      testID="SettingsPrivacy"
       style={styles.container}
       data={settingsItems()}
       renderItem={renderItem}

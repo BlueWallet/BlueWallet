@@ -128,6 +128,17 @@ const EncryptStorage = () => {
     initializeState();
   }, [initializeState]);
 
+  // Present modal when modalType changes to CREATE_PASSWORD
+  useEffect(() => {
+    if (state.modalType === MODAL_TYPES.CREATE_PASSWORD && state.currentLoadingSwitch === 'encrypt') {
+      // Small delay to ensure modal component has received the updated modalType prop
+      const timer = setTimeout(() => {
+        promptRef.current?.present();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [state.modalType, state.currentLoadingSwitch]);
+
   const handleDecryptStorage = useCallback(async () => {
     dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
     promptRef.current?.present();
@@ -140,7 +151,7 @@ const EncryptStorage = () => {
 
       if (value) {
         dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
-        promptRef.current?.present();
+        // Modal will be presented by useEffect when modalType state updates
       } else {
         Alert.alert(
           loc.settings.encrypt_decrypt,
