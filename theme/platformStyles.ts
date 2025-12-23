@@ -188,7 +188,7 @@ const getStandardIconColors = (isDarkMode: boolean): IconColorSet => ({
   about: isDarkMode ? '#FFFFFF' : '#5F6368',
 });
 
-const getIOSColors = (): PlatformColors => {
+export const getIOSColors = (): PlatformColors => {
   return {
     titleColor: PlatformColor('label'),
     subtitleColor: PlatformColor('secondaryLabel'),
@@ -218,7 +218,7 @@ const getIOSColors = (): PlatformColors => {
   };
 };
 
-const getAndroidColors = (): PlatformColors => {
+export const getAndroidColors = (): PlatformColors => {
   const isDark = Appearance.getColorScheme() === 'dark';
 
   // Material Design colors for Android

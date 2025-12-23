@@ -39,7 +39,7 @@ import Licensing from '../screen/settings/Licensing';
 import NetworkSettings from '../screen/settings/NetworkSettings';
 import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
 import About from '../screen/settings/About';
-import DefaultView from '../screen/settings/DefaultView';
+// import DefaultView from '../screen/settings/DefaultView'; // Commented out - not accessible from UI
 import ElectrumSettings from '../screen/settings/ElectrumSettings';
 import EncryptStorage from '../screen/settings/EncryptStorage';
 import Language from '../screen/settings/Language';
@@ -47,7 +47,6 @@ import LightningSettings from '../screen/settings/LightningSettings';
 import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
-import ToolsScreen from '../screen/settings/tools';
 import SettingsTools from '../screen/settings/SettingsTools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
@@ -103,6 +102,8 @@ const DetailViewStackScreensStack = () => {
   const getSettingsHeaderOptions = (title: string) => {
     // Use PlatformColor for iOS to match the Settings component, fallback to theme color
     const titleColor = Platform.OS === 'ios' ? PlatformColor('label') : theme.colors.foregroundColor;
+    // Convert PlatformColor to string for TypeScript compatibility
+    const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
     return {
       title,
       headerBackButtonDisplayMode: 'minimal' as const,
@@ -111,10 +112,10 @@ const DetailViewStackScreensStack = () => {
       headerShadowVisible: false,
       headerLargeTitle: true,
       headerLargeTitleStyle: {
-        color: titleColor,
+        color: titleColorString,
       },
       headerTitleStyle: {
-        color: titleColor,
+        color: titleColorString,
       },
       headerTransparent: true,
       headerBlurEffect: undefined,
@@ -266,10 +267,10 @@ const DetailViewStackScreensStack = () => {
           headerShadowVisible: false,
           headerLargeTitle: true,
           headerLargeTitleStyle: {
-            color: theme.colors.foregroundColor,
+            color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
           headerTitleStyle: {
-            color: theme.colors.foregroundColor,
+            color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
           headerTransparent: true,
           headerBlurEffect: undefined,
@@ -303,11 +304,11 @@ const DetailViewStackScreensStack = () => {
       />
 
       <DetailViewStack.Screen name="About" component={About} options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)} />
-      <DetailViewStack.Screen
+      {/* <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.default_title))(theme)}
-      />
+      /> */}
       <DetailViewStack.Screen
         name="ElectrumSettings"
         component={ElectrumSettings}
@@ -336,7 +337,6 @@ const DetailViewStackScreensStack = () => {
         component={ReleaseNotes}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
       />
-      <DetailViewStack.Screen name="ToolsScreen" component={ToolsScreen} options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)} />
       <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)} />
       <DetailViewStack.Screen
         name="SettingsPrivacy"

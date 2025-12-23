@@ -361,8 +361,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
               checkedIcon="check"
               checked
               importantForAccessibility="no"
-              iconStyle={{ fontSize: 16 }}
-              size={20}
               containerStyle={{ backgroundColor: 'transparent' }}
             />
           )}
