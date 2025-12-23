@@ -17,8 +17,10 @@ import {
 } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import type { IconProps } from '../theme/platformStyles';
 import { usePlatformStyles } from '../theme/platformStyles';
+import { useTheme } from '../components/themes';
 
 // Platform-specific horizontal padding constants
 const HORIZONTAL_PADDING = {
@@ -147,6 +149,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 }) => {
   // Use the consolidated styling hook
   const { colors, sizing, layout, isAndroid } = usePlatformStyles();
+  const { colors: themeColors } = useTheme(); // For successCheck color
   const { fontScale } = useWindowDimensions();
 
   // Set default component based on platform
@@ -355,13 +358,12 @@ const PlatformListItem: React.FC<ListItemProps> = ({
             />
           )}
           {checkmark && (
-            <RNElementsListItem.CheckBox
-              iconRight
-              iconType="font-awesome-5"
-              checkedIcon="check"
-              checked
+            <MaterialIcon
+              name="check"
+              size={20}
+              color={themeColors.successCheck}
+              style={{ marginLeft: 8 }}
               importantForAccessibility="no"
-              containerStyle={{ backgroundColor: 'transparent' }}
             />
           )}
         </>
