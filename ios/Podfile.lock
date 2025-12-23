@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - BugsnagReactNative (8.4.0):
+  - BugsnagReactNative (8.7.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1320,7 +1320,7 @@ PODS:
     - Yoga
   - react-native-menu (1.2.4):
     - React
-  - react-native-safe-area-context (5.5.2):
+  - react-native-safe-area-context (5.6.2):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -1670,7 +1670,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.25.0):
+  - RNGestureHandler (2.30.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1714,7 +1714,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNLocalize (3.5.4):
+  - RNLocalize (3.6.0):
     - React-Core
   - RNPermissions (5.4.4):
     - React-Core
@@ -1887,7 +1887,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (12.1.0):
+  - RNShare (12.2.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1908,9 +1908,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.12.1):
+  - RNSVG (15.15.1):
     - React-Core
-  - RNVectorIcons (10.2.0):
+  - RNVectorIcons (10.3.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2267,7 +2267,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  BugsnagReactNative: f2731e875074768796910d51fab561dfde4a20be
+  BugsnagReactNative: a5ffc01b44e9fe9d12e6c13855d61e3dafbeabf2
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
@@ -2316,7 +2316,7 @@ SPEC CHECKSUMS:
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb
   react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
-  react-native-safe-area-context: 0f7bf11598f9a61b7ceac8dc3f59ef98697e99e1
+  react-native-safe-area-context: 6c8805194166a9d6b3e53ba69ca76756c9bfb052
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
@@ -2356,10 +2356,10 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 92e89a04cd0d1c77f383a55d14c15e7f423f4c00
+  RNGestureHandler: 1bbdb4b4c48ccca85434278e8626b848f37d146d
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
-  RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
+  RNLocalize: 5c5e0454cb8a73f173f27a6353630e17684f07dd
   RNPermissions: 3f86a2c7cd6d76b307cc57ac774038e4571b4722
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
@@ -2367,9 +2367,9 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
   RNReanimated: 76e3bdba62bb728ea8d8d23b451e8070e6c2c2bc
   RNScreens: 42312201faf5ff8ddc169d47cf828b340b60a0d4
-  RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
-  RNSVG: cd580f422f3c4f0ffa490b6ac479c6602ae54bca
-  RNVectorIcons: f7a99433a71f4b38891c14c64b21fc521d064392
+  RNShare: 5c1d4978f57eb9a6b647a103459830d17f049371
+  RNSVG: dc0d173e7dbb006a8082d465e5eab5b6c1ea9392
+  RNVectorIcons: 0e379edcd28e94c210760bd2badbecd97f8ac08a
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: e14bad835e12b6c7e2260fc320bd00e0f4b45add
