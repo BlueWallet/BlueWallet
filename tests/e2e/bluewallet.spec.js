@@ -278,6 +278,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // first, trying to mistype second password:
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
 
     await element(by.id('PasswordInput')).replaceText('08902');
@@ -416,6 +417,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // lets put correct passwords and encrypt the storage
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
