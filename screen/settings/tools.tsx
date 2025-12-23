@@ -2,7 +2,7 @@ import React from 'react';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const ToolsScreen = () => {
   const { navigate } = useExtendedNavigation();
