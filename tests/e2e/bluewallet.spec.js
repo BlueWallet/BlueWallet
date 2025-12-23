@@ -391,6 +391,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // correct password
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
@@ -463,6 +464,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // putting FAKE storage password. should not succeed
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
