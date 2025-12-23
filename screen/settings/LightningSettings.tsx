@@ -70,9 +70,6 @@ const LightningSettings: React.FC = () => {
       minHeight: 44,
       height: 'auto',
     },
-    iconContainer: {
-      justifyContent: 'center',
-    },
   });
 
   useEffect(() => {
@@ -155,15 +152,15 @@ const LightningSettings: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView 
+    <SafeAreaScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
-      automaticallyAdjustContentInsets 
+      automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
     >
       <View style={styles.card}>
         <Text style={styles.explanationText}>{loc.settings.lightning_settings_explain}</Text>
-        
+
         <View style={styles.githubContainer}>
           <PlatformListItem
             title="GitHub Repository"
@@ -190,7 +187,7 @@ const LightningSettings: React.FC = () => {
             style={styles.addressInput}
           />
         </View>
-        
+
         <View style={styles.buttonContainer}>
           {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
         </View>

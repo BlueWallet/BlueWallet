@@ -45,6 +45,11 @@ const About: React.FC = () => {
     headerCard: {
       backgroundColor: 'transparent',
     },
+    xIcon: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.textColor,
+    },
   });
 
   const handleOnReleaseNotesPress = useCallback(() => {
@@ -130,7 +135,7 @@ const About: React.FC = () => {
       {
         id: 'x',
         title: '@bluewalletio',
-        leftIcon: <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.textColor }}>𝕏</Text>,
+        leftIcon: <Text style={localStyles.xIcon}>𝕏</Text>,
         onPress: handleOnXPress,
         section: 2,
       },
@@ -238,12 +243,13 @@ const About: React.FC = () => {
     styles.logo,
     styles.textFree,
     styles.textBackup,
-    styles.buildWith,
     styles.sectionSpacing,
     styles.footerContainer,
     styles.footerText,
     styles.copyToClipboard,
     styles.copyToClipboardText,
+    localStyles.headerCard,
+    localStyles.xIcon,
     handleOnRatePress,
     colors.textColor,
     handleOnXPress,

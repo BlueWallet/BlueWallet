@@ -1,6 +1,6 @@
 /**
  * @deprecated Use theme/platformStyles.ts instead
- * 
+ *
  * This file is kept for backwards compatibility and re-exports
  * everything from the new consolidated platformStyles.ts
  */
@@ -9,7 +9,7 @@ import {
   // Core exports
   usePlatformStyles,
   PlatformStylesManager,
-  
+
   // Type exports
   type IconProps,
   type PlatformTheme,
@@ -18,12 +18,12 @@ import {
   type PlatformLayout,
   type IconColorSet,
   type StandardIconSet,
-  
+
   // Compatibility hooks
   usePlatformTheme,
   useSettingsStyles,
   useStandardIcons,
-  
+
   // Helper functions
   getAndroidColor,
   getIOSColors,
@@ -31,7 +31,7 @@ import {
   getIOSSizing,
   getAndroidSizing,
   getIOSLayout,
-  getAndroidLayout
+  getAndroidLayout,
 } from '../theme/platformStyles';
 
 export {
@@ -46,16 +46,8 @@ export {
   getIOSSizing,
   getAndroidSizing,
   getIOSLayout,
-  getAndroidLayout
+  getAndroidLayout,
 };
 
 // Re-export types
-export type {
-  IconProps,
-  PlatformTheme,
-  PlatformColors,
-  PlatformSizing,
-  PlatformLayout,
-  IconColorSet,
-  StandardIconSet
-};
+export type { IconProps, PlatformTheme, PlatformColors, PlatformSizing, PlatformLayout, IconColorSet, StandardIconSet };

@@ -259,14 +259,14 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         <>
           {React.isValidElement(leftIcon) ? (
             // If leftIcon is a React element, render it directly with some margin
-            <View 
+            <View
               style={[
                 styles.iconContainerBase,
                 {
                   marginLeft: isAndroid ? sizing.leftIconMarginLeft : sizing.leftIconMarginLeft,
                   marginRight: isAndroid ? sizing.leftIconMarginRight : sizing.leftIconMarginRight,
-                }
-              ]} 
+                },
+              ]}
               importantForAccessibility="no"
             >
               {leftIcon}
@@ -362,7 +362,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
               name="check"
               size={20}
               color={themeColors.successCheck}
-              style={{ marginLeft: 8 }}
+              style={styles.checkmarkIcon}
               importantForAccessibility="no"
             />
           )}
@@ -440,14 +440,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         accessibilityHint={accessibilityHint || (subtitle && typeof subtitle === 'string' ? subtitle : undefined)}
         testID={testID}
       >
-        <View
-          style={[
-            stylesHook.containerStyle,
-            dynamicContainerStyle,
-            containerStyle,
-            styles.androidRippleContainer,
-          ]}
-        >
+        <View style={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle, styles.androidRippleContainer]}>
           {renderContent()}
         </View>
       </TouchableNativeFeedback>
@@ -493,6 +486,9 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 };
 
 const styles = StyleSheet.create({
+  checkmarkIcon: {
+    marginLeft: 8,
+  },
   rightButton: {
     minHeight: '100%',
     backgroundColor: 'red',

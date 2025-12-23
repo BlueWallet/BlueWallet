@@ -8,14 +8,7 @@ import { usePlatformStyles } from '../../theme/platformStyles';
 
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
-  const { 
-    colors, 
-    styles, 
-    layout, 
-    isAndroid, 
-    getIcon,
-    sizing
-  } = usePlatformStyles();
+  const { colors, styles, layout, isAndroid, getIcon, sizing } = usePlatformStyles();
 
   useLayoutEffect(() => {
     setOptions({

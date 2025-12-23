@@ -45,7 +45,6 @@ const Language = () => {
     headerOffset: {
       height: sizing.firstSectionContainerPaddingTop,
     },
-
   });
 
   const onLanguageSelect = useCallback(
@@ -76,7 +75,6 @@ const Language = () => {
         borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
         borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
         paddingHorizontal: 16,
-        
       };
 
       return (

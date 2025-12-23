@@ -83,7 +83,7 @@ const EncryptStorage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
   const { colors, sizing, layout } = usePlatformStyles();
-  
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -239,7 +239,7 @@ const EncryptStorage = () => {
         section: loc.settings.multiple_storages,
         showItem: true,
       });
-      
+
       items.push({
         id: 'plausibleDeniability',
         title: loc.settings.plausible_deniability,
@@ -266,8 +266,8 @@ const EncryptStorage = () => {
   ]);
 
   const renderItem = useCallback(
-    (props: { item: SettingItem; index: number }) => {
-      const { item, index } = props;
+    (props: { item: SettingItem }) => {
+      const { item } = props;
       const items = settingsItems();
 
       // Handle section headers
@@ -291,7 +291,7 @@ const EncryptStorage = () => {
       const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
 
       const isFirst: boolean = itemIndex === 0 || !!items[itemIndex - 1]?.section;
-      const isLast: boolean = immediateNextIsSectionHeader || (nextRegularItemIndex >= items.length);
+      const isLast: boolean = immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
 
       // Apply greater corner radius to first and last items
       const containerStyle = {

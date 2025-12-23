@@ -278,7 +278,11 @@ const DetailViewStackScreensStack = () => {
           animationTypeForReplace: 'push',
         })(theme)}
       />
-      <DetailViewStack.Screen name="Currency" component={Currency} options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)} />
+      <DetailViewStack.Screen
+        name="Currency"
+        component={Currency}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
+      />
       <DetailViewStack.Screen
         name="GeneralSettings"
         component={GeneralSettings}
@@ -289,7 +293,11 @@ const DetailViewStackScreensStack = () => {
         component={PlausibleDeniability}
         options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
       />
-      <DetailViewStack.Screen name="Licensing" component={Licensing} options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)} />
+      <DetailViewStack.Screen
+        name="Licensing"
+        component={Licensing}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
+      />
       <DetailViewStack.Screen
         name="NetworkSettings"
         component={NetworkSettings}
@@ -301,7 +309,11 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
       />
 
-      <DetailViewStack.Screen name="About" component={About} options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)} />
+      <DetailViewStack.Screen
+        name="About"
+        component={About}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
+      />
       {/* <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
@@ -318,7 +330,11 @@ const DetailViewStackScreensStack = () => {
         component={EncryptStorage}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
       />
-      <DetailViewStack.Screen name="Language" component={Language} options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)} />
+      <DetailViewStack.Screen
+        name="Language"
+        component={Language}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
+      />
       <DetailViewStack.Screen
         name="LightningSettings"
         component={LightningSettings}
@@ -329,13 +345,21 @@ const DetailViewStackScreensStack = () => {
         component={NotificationSettings}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
       />
-      <DetailViewStack.Screen name="SelfTest" component={SelfTest} options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)} />
+      <DetailViewStack.Screen
+        name="SelfTest"
+        component={SelfTest}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
+      />
       <DetailViewStack.Screen
         name="ReleaseNotes"
         component={ReleaseNotes}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
       />
-      <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)} />
+      <DetailViewStack.Screen
+        name="SettingsTools"
+        component={SettingsTools}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
+      />
       <DetailViewStack.Screen
         name="SettingsPrivacy"
         component={SettingsPrivacy}

@@ -355,21 +355,22 @@ const GeneralSettings: React.FC = () => {
       // System Settings should always start a new container
       const isSystemSettings = item.id === 'privacySystemSettings';
       const isBeforeSystemSettings = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'privacySystemSettings';
-      
+
       // Continuity should always start a new container (iOS only)
       const isContinuity = item.id === 'continuity';
       const isBeforeContinuity = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'continuity';
-      
+
       // Check if previous item was a section header (to avoid double spacing)
       const previousItem = itemIndex > 0 ? items[itemIndex - 1] : null;
       const hasSectionHeaderAbove = previousItem?.section !== undefined;
-      
+
       // Check if immediate next item is a section header (means current item is last in its section)
       const immediateNextItem = itemIndex + 1 < items.length ? items[itemIndex + 1] : null;
       const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
 
-      const isFirst: boolean = isSystemSettings || isContinuity || (itemIndex === 0 || !!items[itemIndex - 1]?.section);
-      const isLast: boolean = isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || (nextRegularItemIndex >= items.length);
+      const isFirst: boolean = isSystemSettings || isContinuity || itemIndex === 0 || !!items[itemIndex - 1]?.section;
+      const isLast: boolean =
+        isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
 
       // Apply greater corner radius to first and last items
       // Add margin top for System Settings to create spacing from previous container

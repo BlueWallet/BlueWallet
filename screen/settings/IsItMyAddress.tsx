@@ -117,7 +117,7 @@ const IsItMyAddress: React.FC = () => {
         // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
-          <Text key={`bold-${index++}`} selectable style={isLabel ? { fontWeight: 'bold' } : undefined}>
+          <Text key={`bold-${index++}`} selectable style={isLabel ? localStyles.boldText : undefined}>
             {value}
           </Text>,
         );
@@ -191,6 +191,9 @@ const IsItMyAddress: React.FC = () => {
     walletCardStyle: {
       width: '100%',
       maxWidth: '100%',
+    },
+    boldText: {
+      fontWeight: 'bold',
     },
   });
 
