@@ -319,6 +319,7 @@ const GeneralSettings: React.FC = () => {
     isWidgetBalanceDisplayAllowed,
     isLoading,
     storageIsEncrypted,
+    wallets.length,
     styles.subtitleText,
     setIsClipboardGetContentEnabledStorage,
     onDoNotTrackValueChange,

@@ -16,6 +16,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
 import { usePlatformStyles } from '../../theme/platformStyles';
+import type { IconProps } from '../../theme/platformStyles';
 
 const branch = require('../../current-branch.json');
 
@@ -23,7 +24,7 @@ interface AboutItem {
   id: string;
   title: string;
   subtitle?: React.ReactNode;
-  leftIcon?: any;
+  leftIcon?: IconProps | React.ReactElement;
   onPress?: () => void;
   chevron?: boolean;
   section?: number;

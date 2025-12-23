@@ -20,7 +20,7 @@ import { useTheme } from '../../components/themes';
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const { styles: platformStyles, colors, sizing, layout } = usePlatformStyles();
+  const { colors, sizing, layout } = usePlatformStyles();
   const theme = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);

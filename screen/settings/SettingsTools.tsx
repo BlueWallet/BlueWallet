@@ -4,15 +4,13 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import PlatformListItem from '../../components/PlatformListItem';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../theme';
 import { usePlatformStyles } from '../../theme/platformStyles';
 import { useTheme } from '../../components/themes';
 
 const SettingsTools = () => {
   const { navigate } = useExtendedNavigation();
-  const { colors: platformColors, layout } = usePlatformTheme();
+  const { colors: platformColors, layout, styles } = usePlatformStyles();
   const { colors } = useTheme();
-  const { styles } = usePlatformStyles();
 
   const navigateToIsItMyAddress = () => {
     navigate('IsItMyAddress');
