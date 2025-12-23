@@ -280,6 +280,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
+    await waitForId('PasswordInput');
 
     await element(by.id('PasswordInput')).replaceText('08902');
     await element(by.id('PasswordInput')).tapReturnKey();
@@ -325,6 +326,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
+    await waitForId('PasswordInput');
 
     // trying MAIN password: should fail, obviously
     await element(by.id('PasswordInput')).replaceText('qqq');
@@ -420,6 +422,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
@@ -431,6 +434,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
