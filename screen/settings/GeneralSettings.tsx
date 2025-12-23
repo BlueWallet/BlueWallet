@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View, ListRenderItem } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -39,7 +38,6 @@ interface SettingItem {
 
 const GeneralSettings: React.FC = () => {
   const { wallets, isStorageEncrypted } = useStorage();
-  const { navigate } = useNavigation();
   const { colors, sizing, layout } = usePlatformStyles();
   const {
     isDoNotTrackEnabled,

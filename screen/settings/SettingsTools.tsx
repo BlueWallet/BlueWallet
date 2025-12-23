@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import PlatformListItem from '../../components/PlatformListItem';

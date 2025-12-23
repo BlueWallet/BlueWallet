@@ -1,3 +1,7 @@
+/**
+ * @deprecated This screen is not accessible from the UI and has been disabled.
+ * The default view feature has been removed. This file is kept for potential future use.
+ */
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useReducer } from 'react';

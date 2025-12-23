@@ -1,3 +1,8 @@
+/**
+ * @deprecated This screen's functionality has been merged into GeneralSettings.tsx
+ * This file is kept for backwards compatibility and may be used in tests.
+ * New code should use GeneralSettings.tsx instead.
+ */
 import React, { useCallback, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
