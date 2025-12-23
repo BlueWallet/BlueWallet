@@ -73,17 +73,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // general
     await element(by.id('GeneralSettings')).tap();
+    await sleep(100); // Wait for screen to mount and render
     await waitForId('SettingsPrivacy');
 
-    // privacy
+    // privacy switches are now directly in GeneralSettings
     // trigger switches
-    await element(by.id('SettingsPrivacy')).tap();
     await waitForId('ClipboardSwitch');
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
-    await goBack();
     await goBack();
 
     //
@@ -278,7 +277,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // first, trying to mistype second password:
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
-    await waitForId('IUnderstandButton');
+    await sleep(200); // Wait for modal to be presented and rendered
     await element(by.id('IUnderstandButton')).tap();
     await waitForId('PasswordInput');
 
@@ -420,7 +419,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // lets put correct passwords and encrypt the storage
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
-    await waitForId('IUnderstandButton');
+    await sleep(200); // Wait for modal to be presented and rendered
     await element(by.id('IUnderstandButton')).tap();
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('pass');
