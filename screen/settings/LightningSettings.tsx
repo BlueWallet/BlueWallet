@@ -62,7 +62,7 @@ const LightningSettings: React.FC = () => {
       marginTop: 16,
     },
     githubItemContainer: {
-      backgroundColor: platformColors.cardSecondaryBackground || platformColors.cardBackground,
+      backgroundColor: platformColors.cardBackground,
       borderRadius: 8,
       marginBottom: 0,
     },

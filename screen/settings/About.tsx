@@ -5,7 +5,7 @@ import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVe
 import Rate, { AndroidMarket } from 'react-native-rate';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import A from '../../blue_modules/analytics';
-import { BlueSpacing20, BlueSpacing10 } from '../../components/BlueSpacing';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';

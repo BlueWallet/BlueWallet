@@ -163,7 +163,6 @@ const Currency: React.FC = () => {
           isLast={isLast}
           bottomDivider={layout.showBorderBottom && !isLast}
           accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
-          accessibilityHint={isSelected ? item.endPointKey : loc.settings.tap_to_select_currency}
         />
       );
     },

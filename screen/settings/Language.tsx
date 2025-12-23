@@ -90,7 +90,6 @@ const Language = () => {
           isLast={isLast}
           bottomDivider={layout.showBorderBottom && !isLast}
           accessibilityLabel={item.label}
-          accessibilityHint={isSelected ? language : loc.settings.tap_to_select_language}
         />
       );
     },

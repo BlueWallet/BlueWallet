@@ -16,7 +16,7 @@ import {
   checkNotificationPermissionStatus,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
-import { BlueSpacing20 } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';

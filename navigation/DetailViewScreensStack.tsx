@@ -108,7 +108,6 @@ const DetailViewStackScreensStack = () => {
       title,
       headerBackButtonDisplayMode: 'minimal' as const,
       headerBackTitle: '',
-      headerBackTitleVisible: false,
       headerShadowVisible: false,
       headerLargeTitle: true,
       headerLargeTitleStyle: {
@@ -263,7 +262,6 @@ const DetailViewStackScreensStack = () => {
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'minimal',
           headerBackTitle: '',
-          headerBackTitleVisible: false,
           headerShadowVisible: false,
           headerLargeTitle: true,
           headerLargeTitleStyle: {
