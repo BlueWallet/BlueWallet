@@ -25,7 +25,7 @@ import loc from '../../loc';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import PlatformListItem from '../../components/PlatformListItem';
 
 interface SettingItem {
@@ -52,7 +52,7 @@ const NotificationSettings: React.FC = () => {
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
 
   const styles = StyleSheet.create({
     container: {

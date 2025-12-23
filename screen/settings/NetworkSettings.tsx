@@ -4,12 +4,12 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import PlatformListItem from '../../components/PlatformListItem';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import { useTheme } from '../../components/themes';
 
 const NetworkSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { colors } = useTheme();
   const isNotificationsCapable = Platform.OS !== 'web';
 

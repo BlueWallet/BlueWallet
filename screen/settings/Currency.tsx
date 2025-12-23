@@ -17,7 +17,7 @@ import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../model
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 
 dayjs.extend(calendar);
 
@@ -35,7 +35,7 @@ const Currency: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
 
   const styles = StyleSheet.create({
     container: {

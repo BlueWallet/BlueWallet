@@ -7,12 +7,12 @@ import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const [search, setSearch] = useState('');
 
   useLayoutEffect(() => {

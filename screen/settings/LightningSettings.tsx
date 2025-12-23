@@ -9,7 +9,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import loc from '../../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
@@ -27,7 +27,7 @@ const LightningSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { setParams } = useExtendedNavigation();
 
   const styles = StyleSheet.create({
