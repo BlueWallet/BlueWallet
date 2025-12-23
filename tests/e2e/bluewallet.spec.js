@@ -272,8 +272,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to Security page where we will enable encryption
     await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/@rneui/themed/@rneui/themed/issues/2519
-    await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
+\    await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
 
     // lets encrypt the storage.
     // first, trying to mistype second password:
@@ -318,7 +317,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
     await expect(element(by.id('SecurityButton'))).toBeVisible();
     await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/@rneui/themed/@rneui/themed/issues/2519
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeVisible();
     await element(by.id('PlausibleDeniabilityButton')).tap();
 

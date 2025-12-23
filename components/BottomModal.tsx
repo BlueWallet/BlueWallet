@@ -3,7 +3,7 @@ import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/
 import { Keyboard, Image, StyleSheet, View, Pressable, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Icon } from '@rneui/base';
+import { Icon } from './Icon';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
