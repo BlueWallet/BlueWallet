@@ -350,6 +350,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           {switchProps && (
             <Switch
               {...memoizedSwitchProps}
+              testID={testID}
               style={[styles.margin16, isAndroid && { transform: [{ scaleX: 1.0 }, { scaleY: 1.0 }] }]}
               accessibilityLabel={accessibilityLabel || title}
               accessible
@@ -453,7 +454,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         Component={Component as any}
         bottomDivider={shouldShowBottomDivider}
         topDivider={topDivider}
-        testID={testID}
+        testID={switchProps ? undefined : testID}
         onPress={onPress}
         onLongPress={onLongPress}
         disabled={disabled}
@@ -472,7 +473,7 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       Component={Component as any}
       bottomDivider={shouldShowBottomDivider}
       topDivider={topDivider}
-      testID={testID}
+      testID={switchProps ? undefined : testID}
       onPress={onPress}
       onLongPress={onLongPress}
       disabled={disabled}
