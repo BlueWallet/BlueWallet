@@ -1,29 +1,41 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useCallback, useState, useMemo } from "react";
+import * as bitcoin from "bitcoinjs-lib";
+import {
+  ActivityIndicator,
+  Keyboard,
+  Linking,
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  Platform,
+  StatusBar,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink } from '../../BlueComponents';
-import { HDSegwitBech32Wallet } from '../../class';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { useTheme } from '../../components/themes';
-import { usePlatformTheme } from '../../theme';
-import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
-import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueBigCheckmark } from '../../components/BlueBigCheckmark';
+import * as BlueElectrum from "../../blue_modules/BlueElectrum";
+import triggerHapticFeedback, {
+  HapticFeedbackTypes,
+} from "../../blue_modules/hapticFeedback";
+import { BlueButtonLink } from "../../BlueComponents";
+import { HDSegwitBech32Wallet } from "../../class";
+import presentAlert from "../../components/Alert";
+import Button from "../../components/Button";
+import SafeAreaScrollView from "../../components/SafeAreaScrollView";
+import { useTheme } from "../../components/themes";
+import { usePlatformTheme } from "../../theme";
+import loc from "../../loc";
+import { useSettings } from "../../hooks/context/useSettings";
+import { majorTomToGroundControl } from "../../blue_modules/notifications";
+import { scanQrHelper } from "../../helpers/scan-qr";
+import { BlueSpacing10, BlueSpacing20 } from "../../components/BlueSpacing";
+import { BlueBigCheckmark } from "../../components/BlueBigCheckmark";
 
 const BROADCAST_RESULT = Object.freeze({
-  none: 'Input transaction hex',
-  pending: 'pending',
-  success: 'success',
-  error: 'error',
+  none: "Input transaction hex",
+  pending: "pending",
+  success: "success",
+  error: "error",
 });
 
 const Broadcast: React.FC = () => {
@@ -31,13 +43,15 @@ const Broadcast: React.FC = () => {
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
-  const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
+  const [broadcastResult, setBroadcastResult] = useState<string>(
+    BROADCAST_RESULT.none,
+  );
   const { selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
+    if (Platform.OS === "android" && insets.top > 0) {
       return 56 + (StatusBar.currentHeight || insets.top);
     }
     return 0;
@@ -59,9 +73,9 @@ const Broadcast: React.FC = () => {
       ...layout.cardShadow,
     },
     topFormRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       paddingBottom: 10,
       paddingTop: 0,
       marginBottom: 10,
@@ -69,13 +83,13 @@ const Broadcast: React.FC = () => {
     labelText: {
       color: platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
-      fontWeight: '500',
+      fontWeight: "500",
     },
     input: {
-      flexDirection: 'row',
+      flexDirection: "row",
       borderWidth: 1,
       borderBottomWidth: 0.5,
-      alignItems: 'center',
+      alignItems: "center",
       borderRadius: 4,
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
@@ -91,7 +105,11 @@ const Broadcast: React.FC = () => {
   });
 
   const handleScannedData = useCallback((scannedData: string) => {
-    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
+    if (
+      scannedData.indexOf("+") === -1 &&
+      scannedData.indexOf("=") === -1 &&
+      scannedData.indexOf("=") === -1
+    ) {
       // this looks like NOT base64, so maybe its transaction's hex
       return handleUpdateTxHex(scannedData);
     }
@@ -159,12 +177,19 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeAreaScrollView style={localStyles.container} contentContainerStyle={localStyles.contentContainer} testID="BroadcastView" headerHeight={headerHeight}>
+    <SafeAreaScrollView
+      style={localStyles.container}
+      contentContainerStyle={localStyles.contentContainer}
+      testID="BroadcastView"
+      headerHeight={headerHeight}
+    >
       {BROADCAST_RESULT.success !== broadcastResult && (
         <View style={localStyles.card}>
           <View style={localStyles.topFormRow}>
             <Text style={localStyles.labelText}>{status}</Text>
-            {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
+            {BROADCAST_RESULT.pending === broadcastResult && (
+              <ActivityIndicator size="small" />
+            )}
           </View>
 
           <View style={localStyles.input}>
@@ -181,19 +206,28 @@ const Broadcast: React.FC = () => {
           </View>
           <BlueSpacing20 />
 
-          <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+          <Button
+            title={loc.multisig.scan_or_open_file}
+            onPress={handleQRScan}
+          />
           <BlueSpacing20 />
 
           <Button
             title={loc.send.broadcastButton}
             onPress={handleBroadcast}
-            disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
+            disabled={
+              broadcastResult === BROADCAST_RESULT.pending ||
+              txHex?.length === 0 ||
+              txHex === undefined
+            }
             testID="BroadcastButton"
           />
           <BlueSpacing20 />
         </View>
       )}
-      {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
+      {BROADCAST_RESULT.success === broadcastResult && tx && (
+        <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />
+      )}
     </SafeAreaScrollView>
   );
 };
@@ -213,15 +247,15 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       ...layout.cardShadow,
     },
     broadcastResultWrapper: {
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
       paddingVertical: sizing.basePadding,
     },
     successText: {
       color: platformColors.titleColor,
       fontSize: sizing.subtitleFontSize,
-      textAlign: 'center',
+      textAlign: "center",
     },
   });
 
@@ -230,9 +264,14 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       <View style={successStyles.broadcastResultWrapper}>
         <BlueBigCheckmark />
         <BlueSpacing20 />
-        <Text style={successStyles.successText}>{loc.settings.success_transaction_broadcasted}</Text>
+        <Text style={successStyles.successText}>
+          {loc.settings.success_transaction_broadcasted}
+        </Text>
         <BlueSpacing10 />
-        <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
+        <BlueButtonLink
+          title={loc.settings.open_link_in_explorer}
+          onPress={() => Linking.openURL(url)}
+        />
       </View>
     </View>
   );

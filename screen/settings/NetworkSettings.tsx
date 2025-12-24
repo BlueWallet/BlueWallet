@@ -36,18 +36,9 @@ const NetworkSettings: React.FC = () => {
     itemContainer: {
       backgroundColor: platformColors.cardBackground,
     },
-    firstItem: {
-      // Border radius will be applied conditionally based on layout.showBorderRadius
-    },
     lastItemWithNotifications: {
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
-    },
-    lastItemWithoutNotifications: {
-      // Border radius will be applied conditionally based on layout.showBorderRadius
-    },
-    notificationsItem: {
-      // Border radius will be applied conditionally based on layout.showBorderRadius
     },
   });
 

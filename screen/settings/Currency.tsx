@@ -1,8 +1,24 @@
-import dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard, Text, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import dayjs from "dayjs";
+import calendar from "dayjs/plugin/calendar";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
+import {
+  NativeSyntheticEvent,
+  StyleSheet,
+  View,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+  Keyboard,
+  Text,
+  StatusBar,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   CurrencyRate,
@@ -10,19 +26,27 @@ import {
   initCurrencyDaemon,
   mostRecentFetchedRate,
   setPreferredCurrency,
-} from '../../blue_modules/currency';
-import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc from '../../loc';
-import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../hooks/context/useSettings';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformStyles } from '../../theme/platformStyles';
+} from "../../blue_modules/currency";
+import presentAlert from "../../components/Alert";
+import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
+import loc from "../../loc";
+import {
+  FiatUnit,
+  FiatUnitSource,
+  FiatUnitType,
+  getFiatRate,
+} from "../../models/fiatUnit";
+import { useSettings } from "../../hooks/context/useSettings";
+import SafeAreaFlatList from "../../components/SafeAreaFlatList";
+import PlatformListItem from "../../components/PlatformListItem";
+import { usePlatformStyles } from "../../theme/platformStyles";
 
 dayjs.extend(calendar);
 
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -30,18 +54,24 @@ const MAX_DISPLAY_ITEMS = 50;
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
-  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
-  const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
-  const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
+  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] =
+    useState<FiatUnitType | undefined>();
+  const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(
+    FiatUnit.USD,
+  );
+  const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({
+    LastUpdated: null,
+    Rate: null,
+  });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
+    if (Platform.OS === "android" && insets.top > 0) {
       return 56 + (StatusBar.currentHeight || insets.top);
     }
     return 0;
@@ -55,7 +85,7 @@ const Currency: React.FC = () => {
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
       minHeight: 77,
-      ...(Platform.OS === 'android' && {
+      ...(Platform.OS === "android" && {
         paddingHorizontal: 16,
       }),
     },
@@ -89,7 +119,11 @@ const Currency: React.FC = () => {
 
     const searchLower = search.toLowerCase();
     return Object.values(FiatUnit)
-      .filter(item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower))
+      .filter(
+        (item) =>
+          item.endPointKey.toLowerCase().includes(searchLower) ||
+          item.country.toLowerCase().includes(searchLower),
+      )
       .slice(0, MAX_DISPLAY_ITEMS);
   }, [search]);
 
@@ -112,9 +146,12 @@ const Currency: React.FC = () => {
     fetchCurrency();
   }, [fetchCurrency]);
 
-  const handleSearchChange = useCallback((event: NativeSyntheticEvent<{ text: string }>) => {
-    setSearch(event.nativeEvent.text);
-  }, []);
+  const handleSearchChange = useCallback(
+    (event: NativeSyntheticEvent<{ text: string }>) => {
+      setSearch(event.nativeEvent.text);
+    },
+    [],
+  );
 
   useLayoutEffect(() => {
     setOptions({
@@ -127,7 +164,10 @@ const Currency: React.FC = () => {
   }, [setOptions, handleSearchChange]);
 
   const selectedCurrencyVisible = useMemo(
-    () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),
+    () =>
+      filteredCurrencies.some(
+        (item) => item.endPointKey === selectedCurrency.endPointKey,
+      ),
     [filteredCurrencies, selectedCurrency.endPointKey],
   );
 
@@ -163,7 +203,9 @@ const Currency: React.FC = () => {
             } catch (error: any) {
               console.log(error);
               presentAlert({
-                message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
+                message: error.message
+                  ? `${loc.settings.currency_fetch_error}: ${error.message}`
+                  : loc.settings.currency_fetch_error,
               });
             } finally {
               setIsSavingNewPreferredCurrency(undefined);
@@ -187,7 +229,10 @@ const Currency: React.FC = () => {
     ],
   );
 
-  const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
+  const keyExtractor = useCallback(
+    (item: FiatUnitType) => `${item.endPointKey}-${item.locale}`,
+    [],
+  );
 
   const ListHeaderComponent = useCallback(() => {
     return (
@@ -197,13 +242,15 @@ const Currency: React.FC = () => {
           <View style={styles.infoWrapper}>
             <View style={styles.infoContainer}>
               <Text style={styles.infoText}>
-                {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+                {loc.settings.currency_source}{" "}
+                {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
               </Text>
               <Text style={styles.infoText}>
                 {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
               </Text>
               <Text style={styles.infoText}>
-                {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+                {loc.settings.last_updated}:{" "}
+                {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
               </Text>
             </View>
           </View>
@@ -222,8 +269,8 @@ const Currency: React.FC = () => {
   ]);
 
   return (
-      <SafeAreaFlatList
-        headerHeight={headerHeight}
+    <SafeAreaFlatList
+      headerHeight={headerHeight}
       style={styles.container}
       data={filteredCurrencies}
       renderItem={renderItem}

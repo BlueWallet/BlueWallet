@@ -361,7 +361,7 @@ const EncryptStorage = () => {
         />
       );
     },
-    [styles, layout.showBorderBottom, settingsItems, sizing.containerBorderRadius],
+    [styles, layout.showBorderBottom, layout.showBorderRadius, settingsItems, sizing.containerBorderRadius],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

@@ -434,6 +434,7 @@ const GeneralSettings: React.FC = () => {
     },
     [
       layout.showBorderBottom,
+      layout.showBorderRadius,
       styles.listItemContainer,
       styles.sectionHeaderContainer,
       styles.sectionHeaderText,

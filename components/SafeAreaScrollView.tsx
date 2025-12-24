@@ -1,5 +1,5 @@
 import React, { useMemo, forwardRef } from 'react';
-import { StyleSheet, ScrollView, ScrollViewProps, Platform, StatusBar } from 'react-native';
+import { StyleSheet, ScrollView, ScrollViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';

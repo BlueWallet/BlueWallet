@@ -1,5 +1,14 @@
 import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
-import { StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation, Platform, StatusBar } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  SectionListRenderItemInfo,
+  SectionListData,
+  View,
+  LayoutAnimation,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
@@ -64,7 +73,9 @@ const SettingsBlockExplorer: React.FC = () => {
         setIsCustomEnabled(false);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+        presentAlert({
+          message: loc.settings.block_explorer_error_saving_custom,
+        });
       }
     },
     [setBlockExplorerStorage],
@@ -98,7 +109,9 @@ const SettingsBlockExplorer: React.FC = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+      presentAlert({
+        message: loc.settings.block_explorer_error_saving_custom,
+      });
     }
     setIsSubmitting(false);
   }, [customUrl, setBlockExplorerStorage, isSubmitting]);
@@ -118,7 +131,9 @@ const SettingsBlockExplorer: React.FC = () => {
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           if (!isSubmitting) {
-            presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+            presentAlert({
+              message: loc.settings.block_explorer_error_saving_custom,
+            });
           }
         }
       }
@@ -135,7 +150,9 @@ const SettingsBlockExplorer: React.FC = () => {
             const success = await setBlockExplorerStorage(BLOCK_EXPLORERS.default);
             if (!success) {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+              presentAlert({
+                message: loc.settings.block_explorer_error_saving_custom,
+              });
             }
           })();
         }

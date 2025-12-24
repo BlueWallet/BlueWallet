@@ -16,7 +16,6 @@ import {
   TouchableNativeFeedback,
 } from 'react-native';
 import { Avatar, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import type { IconProps } from '../theme/platformStyles';
 import { usePlatformStyles } from '../theme/platformStyles';

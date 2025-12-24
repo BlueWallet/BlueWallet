@@ -488,7 +488,7 @@ const NotificationSettings: React.FC = () => {
         />
       );
     },
-    [styles.listItemContainer, layout.showBorderBottom, settingsItems, sizing.containerBorderRadius],
+    [styles.listItemContainer, layout.showBorderBottom, layout.showBorderRadius, settingsItems, sizing.containerBorderRadius],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);

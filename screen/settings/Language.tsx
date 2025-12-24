@@ -103,7 +103,7 @@ const Language = () => {
         />
       );
     },
-    [language, filteredLanguages.length, layout.showBorderBottom, styles.listItemContainer, onLanguageSelect, sizing.containerBorderRadius],
+    [language, filteredLanguages.length, layout.showBorderBottom, layout.showBorderRadius, styles.listItemContainer, onLanguageSelect, sizing.containerBorderRadius],
   );
 
   const keyExtractor = useCallback((item: TLanguage) => item.value, []);

@@ -1,21 +1,22 @@
-import React, { useMemo, useLayoutEffect } from 'react';
-import { View, StyleSheet, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import PlatformListItem from '../../components/PlatformListItem';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import loc from '../../loc';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformStyles } from '../../theme/platformStyles';
+import React, { useMemo, useLayoutEffect } from "react";
+import { View, StyleSheet, Platform, StatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import PlatformListItem from "../../components/PlatformListItem";
+import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
+import loc from "../../loc";
+import SafeAreaScrollView from "../../components/SafeAreaScrollView";
+import { usePlatformStyles } from "../../theme/platformStyles";
 
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
-  const { colors, styles, layout, isAndroid, getIcon, sizing } = usePlatformStyles();
+  const { colors, styles, layout, isAndroid, getIcon, sizing } =
+    usePlatformStyles();
   const insets = useSafeAreaInsets();
-  
+
   // Calculate header height for Android with transparent header
   // Standard Android header is 56dp + status bar height
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
+    if (Platform.OS === "android" && insets.top > 0) {
       return 56 + (StatusBar.currentHeight || insets.top);
     }
     return 0;
@@ -26,29 +27,29 @@ const Settings = () => {
       title: loc.settings.header,
       headerLargeTitle: true,
       headerLargeTitleStyle: {
-        color: colors.titleColor || '#000000',
+        color: colors.titleColor || "#000000",
       },
       headerTitleStyle: {
-        color: colors.titleColor || '#000000',
+        color: colors.titleColor || "#000000",
       },
-      headerBackButtonDisplayMode: 'minimal',
-      headerBackTitle: '',
+      headerBackButtonDisplayMode: "minimal",
+      headerBackTitle: "",
       headerBackTitleVisible: false,
       headerTransparent: true,
       headerBlurEffect: undefined,
       headerStyle: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
       },
     });
   }, [setOptions, colors.titleColor]);
 
-  const settingsIcon = useMemo(() => getIcon('settings'), [getIcon]);
-  const currencyIcon = useMemo(() => getIcon('currency'), [getIcon]);
-  const languageIcon = useMemo(() => getIcon('language'), [getIcon]);
-  const securityIcon = useMemo(() => getIcon('security'), [getIcon]);
-  const networkIcon = useMemo(() => getIcon('network'), [getIcon]);
-  const toolsIcon = useMemo(() => getIcon('tools'), [getIcon]);
-  const aboutIcon = useMemo(() => getIcon('about'), [getIcon]);
+  const settingsIcon = useMemo(() => getIcon("settings"), [getIcon]);
+  const currencyIcon = useMemo(() => getIcon("currency"), [getIcon]);
+  const languageIcon = useMemo(() => getIcon("language"), [getIcon]);
+  const securityIcon = useMemo(() => getIcon("security"), [getIcon]);
+  const networkIcon = useMemo(() => getIcon("network"), [getIcon]);
+  const toolsIcon = useMemo(() => getIcon("tools"), [getIcon]);
+  const aboutIcon = useMemo(() => getIcon("about"), [getIcon]);
 
   const localStyles = StyleSheet.create({
     firstSectionContainer: {
@@ -89,7 +90,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('GeneralSettings')}
+          onPress={() => navigate("GeneralSettings")}
           testID="GeneralSettings"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -106,7 +107,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('Currency')}
+          onPress={() => navigate("Currency")}
           testID="Currency"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -122,7 +123,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('Language')}
+          onPress={() => navigate("Language")}
           testID="Language"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -138,7 +139,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('EncryptStorage')}
+          onPress={() => navigate("EncryptStorage")}
           testID="SecurityButton"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -154,7 +155,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('NetworkSettings')}
+          onPress={() => navigate("NetworkSettings")}
           testID="NetworkSettings"
           chevron
           bottomDivider={false}
@@ -173,7 +174,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('SettingsTools')}
+          onPress={() => navigate("SettingsTools")}
           testID="Tools"
           chevron
           bottomDivider={false}
@@ -193,7 +194,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate('About')}
+          onPress={() => navigate("About")}
           testID="AboutButton"
           chevron
           bottomDivider={false}

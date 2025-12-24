@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, FlatList, FlatListProps, Platform, StatusBar } from 'react-native';
+import { StyleSheet, FlatList, FlatListProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
