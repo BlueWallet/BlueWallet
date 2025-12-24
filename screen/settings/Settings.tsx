@@ -15,9 +15,11 @@ const Settings = () => {
 
   // Calculate header height for Android with transparent header
   // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === "android" && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === "android") {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
@@ -25,16 +27,18 @@ const Settings = () => {
   useLayoutEffect(() => {
     setOptions({
       title: loc.settings.header,
-      headerLargeTitle: true,
-      headerLargeTitleStyle: {
+      // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
+      headerLargeTitle: Platform.OS === 'ios',
+      headerLargeTitleStyle: Platform.OS === 'ios' ? {
         color: colors.titleColor || "#000000",
-      },
+      } : undefined,
       headerTitleStyle: {
         color: colors.titleColor || "#000000",
       },
       headerBackButtonDisplayMode: "minimal",
       headerBackTitle: "",
-      headerBackTitleVisible: false,
+      headerBackVisible: true, // Show back button on Android
+      // Transparent header on both iOS and Android
       headerTransparent: true,
       headerBlurEffect: undefined,
       headerStyle: {

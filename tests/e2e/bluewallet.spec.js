@@ -1,6 +1,6 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
-import { element } from 'detox';
+import { element, waitFor } from 'detox';
 
 import {
   expectToBeVisible,
@@ -71,7 +71,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
 
-    // general
+    // general - wait for it to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('GeneralSettings')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down');
     await element(by.id('GeneralSettings')).tap();
     await sleep(100); // Wait for screen to mount and render
     await waitForId('SettingsPrivacy');
@@ -276,6 +280,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // lets encrypt the storage.
     // first, trying to mistype second password:
+    // Wait for switch to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await sleep(200); // Wait for modal to be presented and rendered
     await waitForId('IUnderstandButton');
@@ -390,7 +399,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
     await element(by.id('SecurityButton')).tap();
 
-    // correct password
+    // correct password - scroll to switch if needed
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
     await waitForId('PasswordInput');
@@ -467,6 +480,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SecurityButton')).tap();
 
     // putting FAKE storage password. should not succeed
+    // Wait for switch to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
     await waitForId('PasswordInput');

@@ -87,9 +87,11 @@ const EncryptStorage = () => {
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
@@ -371,6 +373,7 @@ const EncryptStorage = () => {
   return (
     <>
       <SafeAreaFlatList
+        testID="EncryptStorageScrollView"
         headerHeight={headerHeight}
         style={styles.container}
         data={settingsItems()}

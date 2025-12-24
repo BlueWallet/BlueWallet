@@ -108,14 +108,17 @@ const DetailViewStackScreensStack = () => {
       title,
       headerBackButtonDisplayMode: 'minimal' as const,
       headerBackTitle: '',
+      headerBackVisible: true, // Show back button on Android
       headerShadowVisible: false,
-      headerLargeTitle: true,
-      headerLargeTitleStyle: {
+      // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
+      headerLargeTitle: Platform.OS === 'ios',
+      headerLargeTitleStyle: Platform.OS === 'ios' ? {
         color: titleColorString,
-      },
+      } : undefined,
       headerTitleStyle: {
         color: titleColorString,
       },
+      // Transparent header on both iOS and Android
       headerTransparent: true,
       headerBlurEffect: undefined,
       headerStyle: {
@@ -262,14 +265,17 @@ const DetailViewStackScreensStack = () => {
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'minimal',
           headerBackTitle: '',
+          headerBackVisible: true, // Show back button on Android
           headerShadowVisible: false,
-          headerLargeTitle: true,
-          headerLargeTitleStyle: {
+          // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
+          headerLargeTitle: Platform.OS === 'ios',
+          headerLargeTitleStyle: Platform.OS === 'ios' ? {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-          },
+          } : undefined,
           headerTitleStyle: {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
+          // Transparent header on both iOS and Android
           headerTransparent: true,
           headerBlurEffect: undefined,
           headerStyle: {
