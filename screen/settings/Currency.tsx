@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard, Text } from 'react-native';
+import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard, Text, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   CurrencyRate,
@@ -36,6 +37,15 @@ const Currency: React.FC = () => {
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const styles = StyleSheet.create({
     container: {
@@ -212,7 +222,8 @@ const Currency: React.FC = () => {
   ]);
 
   return (
-    <SafeAreaFlatList
+      <SafeAreaFlatList
+        headerHeight={headerHeight}
       style={styles.container}
       data={filteredCurrencies}
       renderItem={renderItem}

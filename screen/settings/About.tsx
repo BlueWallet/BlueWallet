@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
+import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -37,6 +38,15 @@ const About: React.FC = () => {
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
   const { styles, colors } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const localStyles = StyleSheet.create({
     sectionSpacing: {
@@ -44,6 +54,12 @@ const About: React.FC = () => {
     },
     headerCard: {
       backgroundColor: 'transparent',
+      ...(Platform.OS === 'android' && {
+        borderRadius: 0,
+        elevation: 0,
+        marginHorizontal: 0,
+        marginVertical: 0,
+      }),
     },
     xIcon: {
       fontSize: 24,
@@ -351,6 +367,7 @@ const About: React.FC = () => {
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
+      headerHeight={headerHeight}
     />
   );
 };

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Keyboard, StyleSheet, TextInput, View, Text } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { Keyboard, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
@@ -13,6 +14,15 @@ import { usePlatformTheme } from '../../theme';
 const GenerateWord = () => {
   const { colors } = useTheme();
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
@@ -94,6 +104,7 @@ const GenerateWord = () => {
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
+      headerHeight={headerHeight}
     >
       <View style={localStyles.card}>
         <View style={localStyles.input}>

@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { Alert, Platform, StyleSheet, Text, View, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -83,6 +84,15 @@ const EncryptStorage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
   const { colors, sizing, layout } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const styles = StyleSheet.create({
     container: {
@@ -96,7 +106,8 @@ const EncryptStorage = () => {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     subtitleText: {
       fontSize: 14,
@@ -307,10 +318,12 @@ const EncryptStorage = () => {
       // Apply greater corner radius to first and last items
       const containerStyle = {
         ...styles.listItemContainer,
-        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        ...(layout.showBorderRadius && {
+          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        }),
       };
 
       if (item.isSwitch) {
@@ -358,6 +371,7 @@ const EncryptStorage = () => {
   return (
     <>
       <SafeAreaFlatList
+        headerHeight={headerHeight}
         style={styles.container}
         data={settingsItems()}
         renderItem={renderItem}

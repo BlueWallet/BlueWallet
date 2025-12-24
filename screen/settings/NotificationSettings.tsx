@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState, Text } from 'react-native';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button as ButtonRNElements } from '@rneui/themed';
 import {
   getDefaultUri,
@@ -48,6 +49,15 @@ interface SettingItem {
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
@@ -66,7 +76,8 @@ const NotificationSettings: React.FC = () => {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     card: {
       backgroundColor: platformColors.cardBackground,
@@ -443,7 +454,7 @@ const NotificationSettings: React.FC = () => {
             subtitle={item.subtitle}
             containerStyle={[
               styles.listItemContainer,
-              {
+              layout.showBorderRadius && {
                 borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
                 borderTopRightRadius: sizing.containerBorderRadius * 1.5,
               },
@@ -486,6 +497,7 @@ const NotificationSettings: React.FC = () => {
 
   return (
     <SafeAreaFlatList
+      headerHeight={headerHeight}
       style={styles.container}
       data={settingsItems()}
       renderItem={renderItem}

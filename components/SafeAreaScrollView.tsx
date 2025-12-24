@@ -1,15 +1,16 @@
 import React, { useMemo, forwardRef } from 'react';
-import { StyleSheet, ScrollView, ScrollViewProps } from 'react-native';
+import { StyleSheet, ScrollView, ScrollViewProps, Platform, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
 
 interface SafeAreaScrollViewProps extends ScrollViewProps {
   floatingButtonHeight?: number;
+  headerHeight?: number; // Additional header height to account for (e.g., when headerTransparent is true)
 }
 
 const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((props, ref) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 0, ...otherProps } = props;
+  const { style, contentContainerStyle, floatingButtonHeight = 0, headerHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -26,7 +27,14 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
       paddingRight?: number;
     } = {
       paddingBottom: insets.bottom + floatingButtonHeight, // Add extra padding for the floating button
-      paddingTop: insets.top > 0 ? 5 : 0, // Small padding if we have a safe area at top
+      paddingTop: (() => {
+        // If explicit headerHeight is provided, use it
+        if (headerHeight > 0) {
+          return headerHeight;
+        }
+        // iOS safe area or no status bar
+        return insets.top > 0 ? 5 : 0;
+      })(),
     };
 
     // Only add horizontal paddings if they aren't explicitly defined in contentContainerStyle
@@ -40,7 +48,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
 
     // Now compose with contentContainerStyle to ensure passed styles override defaults
     return StyleSheet.compose(basePadding, contentContainerStyle);
-  }, [insets, contentContainerStyle, floatingButtonHeight]);
+  }, [insets, contentContainerStyle, floatingButtonHeight, headerHeight]);
 
   return (
     <ScrollView

@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -32,6 +33,15 @@ const Broadcast: React.FC = () => {
   const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const localStyles = StyleSheet.create({
     container: {
@@ -149,7 +159,7 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeAreaScrollView style={localStyles.container} contentContainerStyle={localStyles.contentContainer} testID="BroadcastView">
+    <SafeAreaScrollView style={localStyles.container} contentContainerStyle={localStyles.contentContainer} testID="BroadcastView" headerHeight={headerHeight}>
       {BROADCAST_RESULT.success !== broadcastResult && (
         <View style={localStyles.card}>
           <View style={localStyles.topFormRow}>

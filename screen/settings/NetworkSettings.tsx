@@ -1,5 +1,6 @@
-import React from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import PlatformListItem from '../../components/PlatformListItem';
@@ -12,6 +13,15 @@ const NetworkSettings: React.FC = () => {
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { colors } = useTheme();
   const isNotificationsCapable = Platform.OS !== 'web';
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const styles = StyleSheet.create({
     container: {
@@ -20,27 +30,24 @@ const NetworkSettings: React.FC = () => {
     },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
       marginBottom: sizing.sectionContainerMarginBottom,
     },
     itemContainer: {
       backgroundColor: platformColors.cardBackground,
     },
     firstItem: {
-      borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+      // Border radius will be applied conditionally based on layout.showBorderRadius
     },
     lastItemWithNotifications: {
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
     },
     lastItemWithoutNotifications: {
-      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+      // Border radius will be applied conditionally based on layout.showBorderRadius
     },
     notificationsItem: {
-      borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-      borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+      // Border radius will be applied conditionally based on layout.showBorderRadius
     },
   });
 
@@ -61,17 +68,23 @@ const NetworkSettings: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView style={styles.container}>
+    <SafeAreaScrollView style={styles.container} headerHeight={headerHeight}>
       <View style={styles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.block_explorer}
           leftIcon={{
-            type: layout.iconType,
+            type: 'font-awesome-5',
             name: 'search',
             color: colors.buttonAlternativeTextColor,
             backgroundColor: platformColors.blueIconBg,
           }}
-          containerStyle={[styles.itemContainer, styles.firstItem]}
+          containerStyle={[
+            styles.itemContainer,
+            layout.showBorderRadius && {
+              borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+            },
+          ]}
           onPress={navigateToBlockExplorerSettings}
           testID="BlockExplorerSettings"
           chevron
@@ -82,7 +95,7 @@ const NetworkSettings: React.FC = () => {
         <PlatformListItem
           title={loc.settings.network_electrum}
           leftIcon={{
-            type: layout.iconType,
+            type: 'font-awesome-5',
             name: 'server',
             color: colors.successColor,
             backgroundColor: platformColors.greenIconBg,
@@ -97,14 +110,19 @@ const NetworkSettings: React.FC = () => {
         <PlatformListItem
           title={loc.settings.lightning_settings}
           leftIcon={{
-            type: layout.iconType,
-            name: 'flash',
+            type: 'font-awesome-5',
+            name: 'bolt',
             color: colors.lnborderColor,
             backgroundColor: platformColors.yellowIconBg,
           }}
           containerStyle={[
             styles.itemContainer,
-            !isNotificationsCapable ? styles.lastItemWithoutNotifications : styles.lastItemWithNotifications,
+            !isNotificationsCapable
+              ? layout.showBorderRadius && {
+                  borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+                  borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+                }
+              : styles.lastItemWithNotifications,
           ]}
           onPress={navigateToLightningSettings}
           testID="LightningSettings"
@@ -117,12 +135,18 @@ const NetworkSettings: React.FC = () => {
           <PlatformListItem
             title={loc.settings.notifications}
             leftIcon={{
-              type: layout.iconType,
-              name: 'notifications',
+              type: 'font-awesome-5',
+              name: 'bell',
               color: colors.redText,
               backgroundColor: platformColors.redIconBg,
             }}
-            containerStyle={[styles.itemContainer, styles.notificationsItem]}
+            containerStyle={[
+              styles.itemContainer,
+              layout.showBorderRadius && {
+                borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+                borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+              },
+            ]}
             onPress={navigateToNotificationSettings}
             testID="NotificationSettings"
             chevron

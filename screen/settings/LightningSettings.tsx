@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Alert, Linking, StyleSheet, View, Text } from 'react-native';
+import { Alert, Linking, StyleSheet, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -29,6 +30,15 @@ const LightningSettings: React.FC = () => {
   const { colors } = useTheme();
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { setParams } = useExtendedNavigation();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const styles = StyleSheet.create({
     container: {
@@ -157,6 +167,7 @@ const LightningSettings: React.FC = () => {
       contentContainerStyle={styles.contentContainer}
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
+      headerHeight={headerHeight}
     >
       <View style={styles.card}>
         <Text style={styles.explanationText}>{loc.settings.lightning_settings_explain}</Text>

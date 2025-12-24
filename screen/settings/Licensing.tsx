@@ -1,11 +1,21 @@
-import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { Text, View, StyleSheet, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { usePlatformStyles } from '../../theme/platformStyles';
 
 const Licensing = () => {
   const { styles, colors, sizing } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const cardStyles = StyleSheet.create({
     card: {
@@ -22,7 +32,7 @@ const Licensing = () => {
   });
 
   return (
-    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer} headerHeight={headerHeight}>
       <View style={cardStyles.card}>
         <Text style={cardStyles.infoText}>MIT License</Text>
         <BlueSpacing20 />

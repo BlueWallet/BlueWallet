@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, Text, View, ListRenderItem } from 'react-native';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { Platform, StyleSheet, Text, View, ListRenderItem, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -39,6 +40,16 @@ interface SettingItem {
 const GeneralSettings: React.FC = () => {
   const { wallets, isStorageEncrypted } = useStorage();
   const { colors, sizing, layout } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+  
+  // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
@@ -70,7 +81,8 @@ const GeneralSettings: React.FC = () => {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     subtitleText: {
       fontSize: 14,
@@ -377,10 +389,12 @@ const GeneralSettings: React.FC = () => {
       // Don't add marginTop for items that have a section header above them (they get spacing from the header)
       const containerStyle = {
         ...styles.listItemContainer,
-        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        ...(layout.showBorderRadius && {
+          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        }),
         ...(isSystemSettings && !hasSectionHeaderAbove && { marginTop: 32 }),
       };
 
@@ -444,6 +458,7 @@ const GeneralSettings: React.FC = () => {
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
+      headerHeight={headerHeight}
     />
   );
 };

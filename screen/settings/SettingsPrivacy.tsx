@@ -72,7 +72,8 @@ const SettingsPrivacy: React.FC = () => {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     subtitleText: {
       fontSize: 14,
@@ -326,10 +327,12 @@ const SettingsPrivacy: React.FC = () => {
       // Apply greater corner radius to first and last items
       const containerStyle = {
         ...styles.listItemContainer,
-        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        ...(layout.showBorderRadius && {
+          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        }),
       };
 
       if (item.isSwitch) {

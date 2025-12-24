@@ -517,50 +517,50 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
   const colors = getStandardIconColors(isDarkMode);
 
   return {
-    // Settings
+    // Settings - using FontAwesome5 icons for better Android compatibility
     settings: {
-      name: 'settings-outline',
-      type: 'ionicon',
+      name: 'cog',
+      type: 'font-awesome-5',
       color: colors.settings,
     },
     currency: {
-      name: 'cash-outline',
-      type: 'ionicon',
+      name: 'dollar-sign',
+      type: 'font-awesome-5',
       color: colors.currency,
     },
     language: {
-      name: 'language-outline',
-      type: 'ionicon',
+      name: 'language',
+      type: 'font-awesome-5',
       color: colors.language,
     },
     security: {
-      name: 'shield-outline',
-      type: 'ionicon',
+      name: 'shield-alt',
+      type: 'font-awesome-5',
       color: colors.security,
     },
     network: {
-      name: 'globe-outline',
-      type: 'ionicon',
+      name: 'globe',
+      type: 'font-awesome-5',
       color: colors.network,
     },
     lightning: {
-      name: 'flash-outline',
-      type: 'ionicon',
+      name: 'bolt',
+      type: 'font-awesome-5',
       color: colors.lightning,
     },
     privacy: {
-      name: 'lock-closed-outline',
-      type: 'ionicon',
+      name: 'lock',
+      type: 'font-awesome-5',
       color: colors.privacy,
     },
     tools: {
-      name: 'construct-outline',
-      type: 'ionicon',
+      name: 'wrench',
+      type: 'font-awesome-5',
       color: colors.tools,
     },
     about: {
-      name: 'information-circle-outline',
-      type: 'ionicon',
+      name: 'info-circle',
+      type: 'font-awesome-5',
       color: colors.about,
     },
     // About screen

@@ -1,5 +1,6 @@
-import React, { useEffect, useLayoutEffect, useState, useCallback } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState, useCallback, useMemo } from 'react';
+import { Keyboard, NativeSyntheticEvent, StyleSheet, View, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -14,6 +15,15 @@ const Language = () => {
   const { setOptions } = useExtendedNavigation();
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const [search, setSearch] = useState('');
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   useLayoutEffect(() => {
     setOptions({
@@ -70,10 +80,12 @@ const Language = () => {
       // Create a container style that applies corner radius only to first and last items
       const containerStyle = {
         ...styles.listItemContainer,
-        borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        ...(layout.showBorderRadius && {
+          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
+        }),
         paddingHorizontal: 16,
       };
 
@@ -102,6 +114,7 @@ const Language = () => {
 
   return (
     <SafeAreaFlatList
+      headerHeight={headerHeight}
       style={styles.container}
       data={filteredLanguages}
       renderItem={renderItem}

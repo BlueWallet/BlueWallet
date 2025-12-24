@@ -60,7 +60,8 @@ const DefaultView: React.FC = () => {
       backgroundColor: platformColors.background,
     },
     contentContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,

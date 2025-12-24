@@ -1,5 +1,6 @@
 import React, { useMemo, useLayoutEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PlatformListItem from '../../components/PlatformListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -9,6 +10,16 @@ import { usePlatformStyles } from '../../theme/platformStyles';
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const { colors, styles, layout, isAndroid, getIcon, sizing } = usePlatformStyles();
+  const insets = useSafeAreaInsets();
+  
+  // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   useLayoutEffect(() => {
     setOptions({
@@ -44,17 +55,18 @@ const Settings = () => {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginBottom: sizing.sectionContainerMarginBottom || 16,
       marginTop: isAndroid ? 8 : 0,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
     },
     sectionContainer: {
       marginTop: isAndroid ? 16 : 8,
       marginBottom: sizing.sectionContainerMarginBottom || 16,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
     },
     contentContainer: {
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-      marginHorizontal: 0,
     },
     itemContainer: {
-      marginHorizontal: 16,
+      marginHorizontal: 0,
     },
   });
 
@@ -64,6 +76,7 @@ const Settings = () => {
       style={styles.container}
       contentContainerStyle={localStyles.contentContainer}
       nestedScrollEnabled={true}
+      headerHeight={headerHeight}
     >
       <View style={localStyles.firstSectionContainer}>
         <PlatformListItem
