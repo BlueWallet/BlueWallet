@@ -38,7 +38,7 @@ export const useSettingsStyles = () => {
  * @deprecated Use usePlatformStyles instead
  */
 export const usePlatformTheme = () => {
-  const { colors, sizing, layout, platformTheme } = usePlatformStyles();
+  const { platformTheme } = usePlatformStyles();
   
   return platformTheme;
 };
