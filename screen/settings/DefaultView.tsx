@@ -1,13 +1,18 @@
+/**
+ * @deprecated This screen is not accessible from the UI and has been disabled.
+ * The default view feature has been removed. This file is kept for potential future use.
+ */
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useReducer } from 'react';
-import { TouchableWithoutFeedback, View } from 'react-native';
+import React, { useCallback, useEffect, useReducer } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
-import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { usePlatformTheme } from '../../theme';
+import PlatformListItem from '../../components/PlatformListItem';
 
 type RootStackParamList = {
   SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };
@@ -47,6 +52,27 @@ const DefaultView: React.FC = () => {
   const { navigate, pop } = useNavigation<DefaultViewNavigationProp>();
   const { wallets } = useStorage();
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet, setSelectedDefaultWallet, setViewAllWalletsEnabled } = useOnAppLaunch();
+  const { colors: platformColors, sizing } = usePlatformTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
+    },
+    contentContainer: {
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+    },
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginBottom: 16,
+    },
+    separator: {
+      height: 1,
+      backgroundColor: 'rgba(0,0,0,0.05)',
+      marginLeft: 16,
+    },
+  });
 
   useEffect(() => {
     (async () => {
@@ -61,59 +87,75 @@ const DefaultView: React.FC = () => {
       dispatch({ type: ActionType.SetDefaultWalletLabel, payload: newDefaultWalletLabel });
       dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: newViewAllWalletsEnabled });
     })();
-  }, [wallets, getSelectedDefaultWallet, isViewAllWalletsEnabled]);
+  }, [isViewAllWalletsEnabled, getSelectedDefaultWallet, wallets]);
 
-  const onViewAllWalletsSwitchValueChanged = async (value: boolean) => {
-    await setViewAllWalletsEnabled(value);
-    dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
+  const onWalletSelectValueChanged = useCallback(
+    async (wallet: TWallet) => {
+      await setViewAllWalletsEnabled(false);
+      await setSelectedDefaultWallet(wallet.getID());
+      dispatch({ type: ActionType.SetDefaultWalletLabel, payload: wallet.getLabel() });
+      dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: false });
+      pop();
+    },
+    [setViewAllWalletsEnabled, setSelectedDefaultWallet, pop],
+  );
 
-    if (!value && wallets.length === 1) {
-      // Automatically select the wallet if there is only one
-      const selectedWallet = wallets[0];
-      await setSelectedDefaultWallet(selectedWallet.getID());
-      dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
-    } else if (!value) {
-      const selectedWalletID = await getSelectedDefaultWallet();
-      const selectedWallet = wallets.find(wallet => wallet.getID() === selectedWalletID);
-      if (selectedWallet) {
+  const onViewAllWalletsSwitchValueChanged = useCallback(
+    async (value: boolean) => {
+      await setViewAllWalletsEnabled(value);
+      dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
+
+      if (!value && wallets.length === 1) {
+        const selectedWallet = wallets[0];
+        await setSelectedDefaultWallet(selectedWallet.getID());
         dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
+      } else if (!value) {
+        const selectedWalletID = await getSelectedDefaultWallet();
+        const selectedWallet = wallets.find(wallet => wallet.getID() === selectedWalletID);
+        if (selectedWallet) {
+          dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
+        }
       }
-    }
-  };
+    },
+    [setViewAllWalletsEnabled, wallets, setSelectedDefaultWallet, getSelectedDefaultWallet],
+  );
 
-  const selectWallet = () => {
-    navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false });
-  };
-
-  const onWalletSelectValueChanged = async (wallet: TWallet) => {
-    await setViewAllWalletsEnabled(false);
-    await setSelectedDefaultWallet(wallet.getID());
-    dispatch({ type: ActionType.SetDefaultWalletLabel, payload: wallet.getLabel() });
-    dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: false });
-    pop();
-  };
+  const renderSeparator = <View style={styles.separator} />;
 
   return (
-    <SafeAreaScrollView automaticallyAdjustContentInsets={false} contentInsetAdjustmentBehavior="automatic">
-      <View>
-        <ListItem
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <View style={styles.firstSectionContainer}>
+        <PlatformListItem
           title={loc.settings.default_wallets}
-          Component={TouchableWithoutFeedback}
+          subtitle={loc.settings.default_desc}
+          containerStyle={{
+            backgroundColor: platformColors.cardBackground,
+          }}
+          Component={View}
+          isFirst
+          isLast={state.isViewAllWalletsSwitchEnabled}
+          bottomDivider={!state.isViewAllWalletsSwitchEnabled}
           switch={{
-            onValueChange: onViewAllWalletsSwitchValueChanged,
             value: state.isViewAllWalletsSwitchEnabled,
+            onValueChange: onViewAllWalletsSwitchValueChanged,
             disabled: wallets.length <= 0,
           }}
-          subtitle={loc.settings.default_desc}
         />
 
+        {!state.isViewAllWalletsSwitchEnabled && renderSeparator}
+
         {!state.isViewAllWalletsSwitchEnabled && (
-          <ListItem
+          <PlatformListItem
             title={loc.settings.default_info}
-            onPress={selectWallet}
             rightTitle={state.defaultWalletLabel}
-            chevron
+            containerStyle={{
+              backgroundColor: platformColors.cardBackground,
+            }}
+            onPress={() => navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false })}
             disabled={wallets.length <= 1}
+            isLast
+            chevron
+            bottomDivider={false}
           />
         )}
       </View>

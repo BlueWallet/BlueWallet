@@ -5,7 +5,6 @@ import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import { TWallet } from '../class/wallets/types';
-import useOnAppLaunch from '../hooks/useOnAppLaunch';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
@@ -33,7 +32,6 @@ export async function getEnabled(): Promise<boolean> {
 const useDeviceQuickActions = () => {
   const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { preferredFiatCurrency, isQuickActionsEnabled } = useSettings();
-  const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -94,22 +92,6 @@ const useDeviceQuickActions = () => {
       if (url) {
         if (DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
-        }
-      } else {
-        if (!(await isViewAllWalletsEnabled())) {
-          const selectedDefaultWalletID = (await getSelectedDefaultWallet()) as string;
-          const selectedDefaultWallet = wallets.find((w: TWallet) => w.getID() === selectedDefaultWalletID);
-          if (selectedDefaultWallet) {
-            NavigationService.dispatch(
-              CommonActions.navigate({
-                name: 'WalletTransactions',
-                params: {
-                  walletID: selectedDefaultWalletID,
-                  walletType: selectedDefaultWallet.type,
-                },
-              }),
-            );
-          }
         }
       }
     }

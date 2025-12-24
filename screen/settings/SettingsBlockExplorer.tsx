@@ -1,5 +1,15 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation } from 'react-native';
+import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
+import {
+  StyleSheet,
+  TextInput,
+  SectionListRenderItemInfo,
+  SectionListData,
+  View,
+  LayoutAnimation,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
@@ -32,6 +42,15 @@ const SettingsBlockExplorer: React.FC = () => {
   const [customUrl, setCustomUrl] = useState<string>(selectedBlockExplorer.key === 'custom' ? selectedBlockExplorer.url : '');
   const [isCustomEnabled, setIsCustomEnabled] = useState<boolean>(selectedBlockExplorer.key === 'custom');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const predefinedExplorers = getBlockExplorersList().filter(explorer => explorer.key !== 'custom');
 
@@ -54,7 +73,9 @@ const SettingsBlockExplorer: React.FC = () => {
         setIsCustomEnabled(false);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+        presentAlert({
+          message: loc.settings.block_explorer_error_saving_custom,
+        });
       }
     },
     [setBlockExplorerStorage],
@@ -88,7 +109,9 @@ const SettingsBlockExplorer: React.FC = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+      presentAlert({
+        message: loc.settings.block_explorer_error_saving_custom,
+      });
     }
     setIsSubmitting(false);
   }, [customUrl, setBlockExplorerStorage, isSubmitting]);
@@ -108,7 +131,9 @@ const SettingsBlockExplorer: React.FC = () => {
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           if (!isSubmitting) {
-            presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+            presentAlert({
+              message: loc.settings.block_explorer_error_saving_custom,
+            });
           }
         }
       }
@@ -125,7 +150,9 @@ const SettingsBlockExplorer: React.FC = () => {
             const success = await setBlockExplorerStorage(BLOCK_EXPLORERS.default);
             if (!success) {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+              presentAlert({
+                message: loc.settings.block_explorer_error_saving_custom,
+              });
             }
           })();
         }
@@ -201,6 +228,7 @@ const SettingsBlockExplorer: React.FC = () => {
       automaticallyAdjustContentInsets
       style={[styles.root, { backgroundColor: colors.background }]}
       stickySectionHeadersEnabled={false}
+      headerHeight={headerHeight}
     />
   );
 };

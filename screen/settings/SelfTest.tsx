@@ -26,10 +26,10 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';
 import loc from '../../loc';
-import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
+import { CreateTransactionUtxo } from '../../class/wallets/types';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading.tsx';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { BlueLoading } from '../../components/BlueLoading';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 
 const bip32 = BIP32Factory(ecc);
 
