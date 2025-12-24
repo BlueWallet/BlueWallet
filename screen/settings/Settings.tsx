@@ -6,11 +6,13 @@ import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
 import loc from "../../loc";
 import SafeAreaScrollView from "../../components/SafeAreaScrollView";
 import { usePlatformStyles } from "../../theme/platformStyles";
+import { useSettings } from "../../hooks/context/useSettings";
 
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const { colors, styles, layout, isAndroid, getIcon, sizing } =
     usePlatformStyles();
+  const { language } = useSettings(); // Subscribe to language changes to trigger re-render
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
@@ -45,7 +47,7 @@ const Settings = () => {
         backgroundColor: "transparent",
       },
     });
-  }, [setOptions, colors.titleColor]);
+  }, [setOptions, colors.titleColor, language]); // Include language to trigger re-render when language changes
 
   const settingsIcon = useMemo(() => getIcon("settings"), [getIcon]);
   const currencyIcon = useMemo(() => getIcon("currency"), [getIcon]);
