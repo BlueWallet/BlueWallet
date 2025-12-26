@@ -1,10 +1,9 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import PropTypes from 'prop-types';
 import React, { useCallback, useEffect } from 'react';
-import { Alert, FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ListRenderItemInfo } from 'react-native';
 import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
@@ -20,9 +19,19 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { CreateTransactionTarget } from '../../class/wallets/types';
 
 const SendCreate = () => {
-  const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
+  const {
+    fee,
+    recipients,
+    memo = '',
+    satoshiPerByte,
+    psbt,
+    showAnimatedQr,
+    tx,
+  } = useRoute<RouteProp<SendDetailsStackParamList, 'CreateTransaction'>>().params;
   const transaction = bitcoin.Transaction.fromHex(tx);
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
@@ -84,7 +93,8 @@ const SendCreate = () => {
           presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath }) });
         } catch (e) {
           console.log(e);
-          presentAlert({ message: e.message });
+          const message = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Unknown error';
+          presentAlert({ message });
         }
       } else {
         console.log('Storage Permission: Denied');
@@ -113,7 +123,7 @@ const SendCreate = () => {
     });
   }, [colors, exportTXN, setOptions]);
 
-  const _renderItem = ({ index, item }) => {
+  const _renderItem = ({ index, item }: ListRenderItemInfo<CreateTransactionTarget>) => {
     return (
       <>
         <View>
@@ -121,7 +131,7 @@ const SendCreate = () => {
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{item.address}</Text>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_amount}</Text>
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>
-            {satoshiToBTC(item.value)} {BitcoinUnit.BTC}
+            {item.value != null ? `${satoshiToBTC(item.value)} ${BitcoinUnit.BTC}` : '-'}
           </Text>
           {recipients.length > 1 && (
             <BlueText style={styles.itemOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>
@@ -129,13 +139,6 @@ const SendCreate = () => {
         </View>
       </>
     );
-  };
-  _renderItem.propTypes = {
-    index: PropTypes.number,
-    item: PropTypes.shape({
-      address: PropTypes.string,
-      value: PropTypes.number,
-    }),
   };
 
   const renderSeparator = () => {
@@ -152,7 +155,7 @@ const SendCreate = () => {
         </>
       ) : null}
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
-      <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable={false} value={tx} />
+      <TextInput testID="TxhexInput" style={styles.cardTx} multiline editable={false} value={tx} />
 
       <TouchableOpacity accessibilityRole="button" style={styles.actionTouch} onPress={() => Clipboard.setString(tx)}>
         <Text style={styles.actionText}>{loc.send.create_copy}</Text>
@@ -187,7 +190,7 @@ const SendCreate = () => {
   );
 
   return (
-    <FlatList
+    <FlatList<CreateTransactionTarget>
       contentContainerStyle={[styles.root, styleHooks.root]}
       extraData={recipients}
       data={recipients}
@@ -239,6 +242,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     paddingTop: 16,
+    height: 72,
   },
   actionTouch: {
     marginVertical: 24,
