@@ -75,5 +75,10 @@ subprojects {
             }
         }
 
+        if (project.name == "react-native-reanimated" && project.hasProperty("android")) {
+            // Wire Reanimated's generated codegen sources so WorkletsModule spec is visible under new architecture
+            project.android.sourceSets.main.java.srcDir("${project.buildDir}/generated/source/codegen/java")
+        }
+
     }
 }

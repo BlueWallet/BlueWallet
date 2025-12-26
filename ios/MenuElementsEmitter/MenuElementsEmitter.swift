@@ -1,8 +1,18 @@
 import Foundation
 import React
 
+// Minimal TurboModule spec to avoid relying on generated header when building Swift
+@objc protocol NativeMenuElementsEmitterSpec: RCTBridgeModule {
+    func addListener(_ eventName: String!)
+    func removeListeners(_ count: Double)
+    func openSettings()
+    func addWalletMenuAction()
+    func importWalletMenuAction()
+    func reloadTransactionsMenuAction()
+}
+
 @objc(MenuElementsEmitter)
-class MenuElementsEmitter: RCTEventEmitter {
+class MenuElementsEmitter: RCTEventEmitter, NativeMenuElementsEmitterSpec {
     
     private static var instance: MenuElementsEmitter?
     private var hasListeners = false
@@ -10,6 +20,10 @@ class MenuElementsEmitter: RCTEventEmitter {
     override init() {
         super.init()
         MenuElementsEmitter.instance = self
+    }
+    
+    override class func moduleName() -> String! {
+        return "MenuElementsEmitter"
     }
     
     @objc
@@ -26,6 +40,14 @@ class MenuElementsEmitter: RCTEventEmitter {
     
     override class func requiresMainQueueSetup() -> Bool {
         return true
+    }
+    
+    override func addListener(_ eventName: String!) {
+        // Required for TurboModule event emitters; JS handles bookkeeping
+    }
+
+    override func removeListeners(_ count: Double) {
+        // Required for TurboModule event emitters; JS handles bookkeeping
     }
     
     override func startObserving() {

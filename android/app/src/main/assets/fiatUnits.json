@@ -16,7 +16,7 @@
     "AMD": {
         "endPointKey": "AMD",
         "locale": "hy-AM",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "֏",
         "country": "Armenia (Armenian Dram)"
     },
@@ -44,7 +44,7 @@
     "AWG": {
         "endPointKey": "AWG",
         "locale": "nl-AW",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "ƒ",
         "country": "Aruba (Aruban Florin)"
     },
@@ -142,7 +142,7 @@
     "HRK": {
         "endPointKey": "HRK",
         "locale": "hr-HR",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "HRK",
         "country": "Croatia (Croatian Kuna)"
     },
@@ -191,7 +191,7 @@
     "ISK": {
         "endPointKey": "ISK",
         "locale": "is-IS",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "kr",
         "country": "Iceland (Icelandic Króna)"
     },
@@ -254,7 +254,7 @@
     "MZN": {
         "endPointKey": "MZN",
         "locale": "seh-MZ",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "MTn",
         "country": "Mozambique (Mozambican Metical)"
     },
@@ -282,7 +282,7 @@
     "OMR": {
         "endPointKey": "OMR",
         "locale": "ar-OM",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "ر.ع.",
         "country": "Oman (Omani Rial)"
     },
@@ -303,14 +303,14 @@
     "PYG": {
         "endPointKey": "PYG",
         "locale": "es-PY",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "₲",
         "country": "Paraguay (Paraguayan Guarani)"
     },
     "QAR": {
         "endPointKey": "QAR",
         "locale": "ar-QA",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "ر.ق.",
         "country": "Qatar (Qatari Riyal)"
     },
@@ -324,7 +324,7 @@
     "RSD": {
         "endPointKey": "RSD",
         "locale": "sr-RS",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "DIN",
         "country": "Serbia (Serbian Dinar)"
     },
@@ -380,7 +380,7 @@
     "TZS": {
         "endPointKey": "TZS",
         "locale": "en-TZ",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "TSh",
         "country": "Tanzania (Tanzanian Shilling)"
     },
@@ -394,14 +394,14 @@
     "UGX": {
         "endPointKey": "UGX",
         "locale": "en-UG",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "USh",
         "country": "Uganda (Ugandan Shilling)"
     },
     "UYU": {
         "endPointKey": "UYU",
         "locale": "es-UY",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "$",
         "country": "Uruguay (Uruguayan Peso)"
     },
@@ -422,7 +422,7 @@
     "XAF": {
         "endPointKey": "XAF",
         "locale": "fr-CF",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "Fr",
         "country": "Central African Republic (Central African Franc)"
     },
@@ -436,7 +436,7 @@
     "GHS": {
         "endPointKey": "GHS",
         "locale": "en-GH",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "₵",
         "country": "Ghana (Ghanaian Cedi)"
     }

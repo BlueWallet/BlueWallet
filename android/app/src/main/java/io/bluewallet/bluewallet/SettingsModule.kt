@@ -4,12 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
-import java.util.UUID
+import com.facebook.react.module.annotations.ReactModule
+import io.bluewallet.bluewallet.NativeSettingsModuleSpec
 
-class SettingsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+@ReactModule(name = SettingsModule.NAME)
+class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModuleSpec(reactContext) {
 
     private val sharedPref: SharedPreferences = reactContext.getSharedPreferences(
         "group.io.bluewallet.bluewallet",
@@ -22,10 +23,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : ReactContextBaseJa
         private const val DEVICE_UID_COPY_KEY = "deviceUIDCopy"
         private const val CLEAR_FILES_ON_LAUNCH_KEY = "clearFilesOnLaunch"
         private const val DO_NOT_TRACK_KEY = "donottrack"
-    }
-
-    override fun getName(): String {
-        return "SettingsModule"
+        const val NAME = "SettingsModule"
     }
 
     /**

@@ -42,28 +42,38 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             
             if (cachedPrice != null) {
                 // Show cached data immediately
-                val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
-                val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", "en-US")
-                
                 try {
-                    val localeParts = preferredCurrencyLocale?.split("-") ?: listOf("en", "US")
-                    val locale = if (localeParts.size == 2) {
-                        java.util.Locale(localeParts[0], localeParts[1])
-                    } else {
-                        java.util.Locale.getDefault()
-                    }
+                    val locale = preferredCurrencyLocale
+                        ?.let { runCatching { java.util.Locale.forLanguageTag(it) }.getOrNull() }
+                        ?.takeIf { it.language.isNotBlank() }
+                        ?: java.util.Locale.getDefault()
+
                     val currencyFormat = java.text.NumberFormat.getCurrencyInstance(locale)
                     val currency = java.util.Currency.getInstance(preferredCurrency ?: "USD")
                     currencyFormat.currency = currency
                     currencyFormat.maximumFractionDigits = 0
-                    
+
+                    val parsedCached = cachedPrice.toDoubleOrNull()?.toInt()
+
                     views.setViewVisibility(R.id.loading_indicator, View.GONE)
-                    views.setViewVisibility(R.id.price_value, View.VISIBLE)
-                    views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-                    views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
-                    views.setTextViewText(R.id.price_value, currencyFormat.format(cachedPrice.toDouble().toInt()))
-                    views.setTextViewText(R.id.last_updated_time, java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date()))
                     views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+
+                    if (parsedCached != null) {
+                        views.setViewVisibility(R.id.price_value, View.VISIBLE)
+                        views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+                        views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+                        views.setTextViewText(R.id.price_value, currencyFormat.format(parsedCached))
+                        views.setTextViewText(
+                            R.id.last_updated_time,
+                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
+                        )
+                    } else {
+                        // If parsing fails, show loading state
+                        views.setViewVisibility(R.id.price_value, View.GONE)
+                        views.setViewVisibility(R.id.last_updated_label, View.GONE)
+                        views.setViewVisibility(R.id.last_updated_time, View.GONE)
+                        views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error displaying cached price", e)
                     // Show loading state if cache display fails

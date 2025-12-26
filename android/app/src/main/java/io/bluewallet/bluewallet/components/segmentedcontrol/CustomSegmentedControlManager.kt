@@ -5,8 +5,12 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.react.module.annotations.ReactModule
+import com.facebook.react.viewmanagers.CustomSegmentedControlManagerInterface
 
-class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>() {
+@ReactModule(name = CustomSegmentedControlManager.REACT_CLASS)
+class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(),
+    CustomSegmentedControlManagerInterface<CustomSegmentedControl> {
 
     companion object {
         const val REACT_CLASS = "CustomSegmentedControl"
@@ -20,7 +24,7 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
     }
 
     @ReactProp(name = "values")
-    fun setValues(view: CustomSegmentedControl, values: ReadableArray?) {
+    override fun setValues(view: CustomSegmentedControl, values: ReadableArray?) {
         val valuesArray = values?.let { array ->
             Array(array.size()) { index ->
                 array.getString(index) ?: ""
@@ -31,7 +35,7 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
     }
 
     @ReactProp(name = "selectedIndex", defaultInt = 0)
-    fun setSelectedIndex(view: CustomSegmentedControl, selectedIndex: Int) {
+    override fun setSelectedIndex(view: CustomSegmentedControl, selectedIndex: Int) {
         view.selectedIndex = selectedIndex
     }
 
