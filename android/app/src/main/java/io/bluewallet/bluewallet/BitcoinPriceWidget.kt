@@ -39,6 +39,8 @@ class BitcoinPriceWidget : AppWidgetProvider() {
             // Try to load cached data first
             val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             val cachedPrice = sharedPref.getString("previous_price", null)
+            val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
+            val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null)
             
             if (cachedPrice != null) {
                 // Show cached data immediately

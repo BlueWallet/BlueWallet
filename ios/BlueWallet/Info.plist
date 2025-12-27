@@ -194,6 +194,8 @@
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>
