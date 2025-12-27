@@ -90,7 +90,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     await setTotalBalancePreferredUnitStorage(nextUnit);
   }, [totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage]);
 
-  if (wallets.length <= 1 || !isTotalBalanceEnabled) return null;
+  if (!isTotalBalanceEnabled) return null;
 
   return (
     <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
