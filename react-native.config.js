@@ -5,7 +5,7 @@ module.exports = {
   },
   codegenConfig: {
     name: 'BlueWalletSpec',
-    type: 'app',
+    type: 'all',
     jsSrcsDir: './codegen',
     android: {
       javaPackageName: 'io.bluewallet.bluewallet',
