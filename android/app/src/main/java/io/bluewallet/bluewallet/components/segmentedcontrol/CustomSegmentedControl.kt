@@ -24,6 +24,11 @@ class CustomSegmentedControl @JvmOverloads constructor(
     private val toggleGroup: MaterialButtonToggleGroup
     private var currentSelectedIndex: Int = 0
     private var onChangeEvent: ((WritableMap) -> Unit)? = null
+    private var backgroundColorProp: Int? = null
+    private var tintColorProp: Int? = null
+    private var textColorProp: Int? = null
+    private var momentaryProp: Boolean = false
+    private var isEnabledProp: Boolean = true
 
     var values: Array<String> = emptyArray()
         set(value) {
@@ -55,6 +60,9 @@ class CustomSegmentedControl @JvmOverloads constructor(
                 if (newIndex != -1 && newIndex != currentSelectedIndex) {
                     currentSelectedIndex = newIndex
                     emitChangeEvent(newIndex)
+                    if (momentaryProp) {
+                        toggleGroup.clearChecked()
+                    }
                 }
             }
         }
@@ -79,6 +87,7 @@ class CustomSegmentedControl @JvmOverloads constructor(
                 isCheckable = true
                 
                 strokeWidth = 2
+                applyEnabledState()
                 
                 val cornerRadius = resources.getDimensionPixelSize(
                     com.google.android.material.R.dimen.mtrl_btn_corner_radius
@@ -111,10 +120,11 @@ class CustomSegmentedControl @JvmOverloads constructor(
         for (i in 0 until toggleGroup.childCount) {
             val button = toggleGroup.getChildAt(i) as? MaterialButton ?: continue
             
-            val selectedBgColor = ContextCompat.getColor(context, R.color.button_background_color)
-            val unselectedBgColor = ContextCompat.getColor(context, R.color.button_disabled_background_color)
-            val selectedTextColor = ContextCompat.getColor(context, R.color.button_text_color)
-            val unselectedTextColor = ContextCompat.getColor(context, R.color.button_disabled_text_color)
+            val selectedBgColor = tintColorProp ?: ContextCompat.getColor(context, R.color.button_background_color)
+            val unselectedBgColor = backgroundColorProp ?: ContextCompat.getColor(context, R.color.button_disabled_background_color)
+            val resolvedTextColor = textColorProp ?: ContextCompat.getColor(context, R.color.button_text_color)
+            val selectedTextColor = resolvedTextColor
+            val unselectedTextColor = textColorProp ?: ContextCompat.getColor(context, R.color.button_disabled_text_color)
             val borderColor = ContextCompat.getColor(context, R.color.form_border_color)
             val rippleColor = ContextCompat.getColor(context, R.color.ripple_color)
             val rippleColorSelected = ContextCompat.getColor(context, R.color.ripple_color_selected)
@@ -155,7 +165,34 @@ class CustomSegmentedControl @JvmOverloads constructor(
             button.setTextColor(textColorStateList)
             button.strokeColor = strokeColorStateList
             button.rippleColor = rippleColorStateList
+            button.isEnabled = isEnabledProp
         }
+    }
+
+    fun setBackgroundColorProp(color: String?) {
+        backgroundColorProp = parseColor(color)
+        updateButtonColors()
+    }
+
+    fun setTintColorProp(color: String?) {
+        tintColorProp = parseColor(color)
+        updateButtonColors()
+    }
+
+    fun setTextColorProp(color: String?) {
+        textColorProp = parseColor(color)
+        updateButtonColors()
+    }
+
+    fun setMomentaryProp(momentary: Boolean) {
+        momentaryProp = momentary
+        toggleGroup.isSelectionRequired = !momentary
+    }
+
+    fun setEnabledProp(enabled: Boolean) {
+        isEnabledProp = enabled
+        toggleGroup.isEnabled = enabled
+        applyEnabledState()
     }
 
     private fun updateSelectedSegment() {
@@ -194,6 +231,21 @@ class CustomSegmentedControl @JvmOverloads constructor(
         }
         
         eventDispatcher?.dispatchEvent(ChangeEvent(surfaceId, id, event))
+    }
+
+    private fun applyEnabledState() {
+        for (i in 0 until toggleGroup.childCount) {
+            val button = toggleGroup.getChildAt(i) as? MaterialButton ?: continue
+            button.isEnabled = isEnabledProp
+        }
+    }
+
+    private fun parseColor(color: String?): Int? {
+        return try {
+            color?.let { Color.parseColor(it) }
+        } catch (_: IllegalArgumentException) {
+            null
+        }
     }
 
     private inner class ChangeEvent(

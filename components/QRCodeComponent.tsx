@@ -63,7 +63,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   ecl = 'H',
   onError = () => {},
 }) => {
-  const qrCode = useRef<any>();
+  const qrCode = useRef<any>(null);
   const { colors, dark } = useTheme();
 
   const handleShareQRCode = () => {

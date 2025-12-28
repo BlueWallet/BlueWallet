@@ -39,6 +39,31 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
         view.selectedIndex = selectedIndex
     }
 
+    @ReactProp(name = "backgroundColor")
+    override fun setBackgroundColor(view: CustomSegmentedControl, value: String?) {
+        view.setBackgroundColorProp(value)
+    }
+
+    @ReactProp(name = "tintColor")
+    override fun setTintColor(view: CustomSegmentedControl, value: String?) {
+        view.setTintColorProp(value)
+    }
+
+    @ReactProp(name = "textColor")
+    override fun setTextColor(view: CustomSegmentedControl, value: String?) {
+        view.setTextColorProp(value)
+    }
+
+    @ReactProp(name = "momentary", defaultBoolean = false)
+    override fun setMomentary(view: CustomSegmentedControl, value: Boolean) {
+        view.setMomentaryProp(value)
+    }
+
+    @ReactProp(name = "enabled", defaultBoolean = true)
+    override fun setEnabled(view: CustomSegmentedControl, value: Boolean) {
+        view.setEnabledProp(value)
+    }
+
     override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
         return MapBuilder.builder<String, Any>()
             .put(ON_CHANGE_EVENT, MapBuilder.of("registrationName", ON_CHANGE_EVENT))

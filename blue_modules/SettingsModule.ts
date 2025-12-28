@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import NativeSettingsModule from './NativeSettingsModule';
+import NativeSettingsModule from '../codegen/NativeSettingsModule';
 
 interface SettingsModuleInterface {
   /**

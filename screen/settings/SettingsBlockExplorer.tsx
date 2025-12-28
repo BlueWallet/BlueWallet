@@ -28,7 +28,7 @@ interface SectionData extends SectionListData<BlockExplorerItem> {
 const SettingsBlockExplorer: React.FC = () => {
   const { colors } = useTheme();
   const { selectedBlockExplorer, setBlockExplorerStorage } = useSettings();
-  const customUrlInputRef = useRef<TextInput>(null);
+  const customUrlInputRef = useRef<TextInput | null>(null);
   const [customUrl, setCustomUrl] = useState<string>(selectedBlockExplorer.key === 'custom' ? selectedBlockExplorer.url : '');
   const [isCustomEnabled, setIsCustomEnabled] = useState<boolean>(selectedBlockExplorer.key === 'custom');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

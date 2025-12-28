@@ -138,7 +138,7 @@ const WalletExport: React.FC = () => {
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ children }: { children: React.ReactNode | React.ReactNodeArray }) => (
+    ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
       <ScrollView
         automaticallyAdjustContentInsets
         contentInsetAdjustmentBehavior="automatic"

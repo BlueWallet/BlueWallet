@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, NativeSyntheticEvent } from 'react-native';
-import NativeSegmentedControl from './SegmentControlNativeComponent';
+import NativeSegmentedControl from '../codegen/SegmentControlNativeComponent';
 
 interface SegmentedControlProps {
   values: string[];
@@ -11,7 +11,6 @@ interface SegmentedControlProps {
 interface SegmentedControlEvent {
   selectedIndex: number;
 }
-
 
 const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange }) => {
   const handleChange = useMemo(
@@ -29,7 +28,17 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
 
   return (
     <View style={styles.container}>
-      <NativeSegmentedControl values={values} selectedIndex={selectedIndex} style={styles.segmentedControl} onChangeEvent={handleChange} />
+      <NativeSegmentedControl
+        values={values}
+        selectedIndex={selectedIndex}
+        enabled
+        backgroundColor="transparent"
+        tintColor="#007AFF"
+        textColor="#007AFF"
+        momentary={false}
+        style={styles.segmentedControl}
+        onChange={handleChange}
+      />
     </View>
   );
 };

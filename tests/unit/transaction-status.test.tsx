@@ -78,6 +78,7 @@ jest.mock('../../components/themes', () => ({
 }));
 
 jest.mock('../../BlueComponents', () => {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   const React = require('react');
   const { Text, View } = require('react-native');
   return {

@@ -31,7 +31,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Uses the same Android ID as react-native-device-info's getUniqueId()
      */
     @ReactMethod
-    fun initializeDeviceUID(promise: Promise) {
+    override fun initializeDeviceUID(promise: Promise) {
         try {
             val isDoNotTrackEnabled = sharedPref.getString(DO_NOT_TRACK_KEY, "0") == "1"
             
@@ -84,7 +84,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the device UID
      */
     @ReactMethod
-    fun getDeviceUID(promise: Promise) {
+    override fun getDeviceUID(promise: Promise) {
         try {
             val isDoNotTrackEnabled = sharedPref.getString(DO_NOT_TRACK_KEY, "0") == "1"
             
@@ -105,7 +105,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the device UID copy (for Settings display)
      */
     @ReactMethod
-    fun getDeviceUIDCopy(promise: Promise) {
+    override fun getDeviceUIDCopy(promise: Promise) {
         try {
             val deviceUIDCopy = sharedPref.getString(DEVICE_UID_COPY_KEY, "")
             promise.resolve(deviceUIDCopy)
@@ -119,7 +119,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Set the clearFilesOnLaunch preference
      */
     @ReactMethod
-    fun setClearFilesOnLaunch(value: Boolean, promise: Promise) {
+    override fun setClearFilesOnLaunch(value: Boolean, promise: Promise) {
         try {
             sharedPref.edit()
                 .putBoolean(CLEAR_FILES_ON_LAUNCH_KEY, value)
@@ -136,7 +136,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the clearFilesOnLaunch preference
      */
     @ReactMethod
-    fun getClearFilesOnLaunch(promise: Promise) {
+    override fun getClearFilesOnLaunch(promise: Promise) {
         try {
             val value = sharedPref.getBoolean(CLEAR_FILES_ON_LAUNCH_KEY, false)
             promise.resolve(value)
@@ -150,7 +150,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Set Do Not Track setting
      */
     @ReactMethod
-    fun setDoNotTrack(enabled: Boolean, promise: Promise) {
+    override fun setDoNotTrack(enabled: Boolean, promise: Promise) {
         try {
             val value = if (enabled) "1" else "0"
             sharedPref.edit()
@@ -182,7 +182,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get Do Not Track setting
      */
     @ReactMethod
-    fun getDoNotTrack(promise: Promise) {
+    override fun getDoNotTrack(promise: Promise) {
         try {
             val value = sharedPref.getString(DO_NOT_TRACK_KEY, "0")
             val enabled = value == "1"
@@ -197,7 +197,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Open the settings activity from JavaScript
      */
     @ReactMethod
-    fun openSettings(promise: Promise) {
+    override fun openSettings(promise: Promise) {
         try {
             val intent = android.content.Intent(reactApplicationContext, SettingsActivity::class.java)
             intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)

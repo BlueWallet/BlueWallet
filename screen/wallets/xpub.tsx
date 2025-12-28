@@ -38,7 +38,7 @@ const WalletXpub: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
   const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const lastWalletIdRef = useRef<string | undefined>();
+  const lastWalletIdRef = useRef<string | undefined>(undefined);
 
   useFocusEffect(
     useCallback(() => {
