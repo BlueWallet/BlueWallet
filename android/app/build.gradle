@@ -88,6 +88,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 900000
         versionName "7.2.4"
+		    missingDimensionStrategy "react-native-capture-protection", "callbackTiramisu"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
