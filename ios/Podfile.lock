@@ -1909,35 +1909,6 @@ PODS:
   - react-native-tcp-socket (6.3.0):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-true-sheet (2.0.0):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-hermes
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - SocketRocket
-    - Yoga
   - react-native-worklets-core (1.6.2):
     - boost
     - DoubleConversion
@@ -3054,6 +3025,35 @@ PODS:
     - SocketRocket
     - Yoga
   - SocketRocket (0.7.1)
+  - TrueSheet (2.0.6):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - Yoga (0.0.0)
   - ZXingObjC (3.6.9):
     - ZXingObjC/All (= 3.6.9)
@@ -3115,7 +3115,6 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
-  - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
   - react-native-worklets-core (from `../node_modules/react-native-worklets-core`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -3173,6 +3172,7 @@ DEPENDENCIES:
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - SocketRocket (~> 0.7.1)
+  - "TrueSheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -3293,8 +3293,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
-  react-native-true-sheet:
-    :path: "../node_modules/@lodev09/react-native-true-sheet"
   react-native-worklets-core:
     :path: "../node_modules/react-native-worklets-core"
   React-NativeModulesApple:
@@ -3407,6 +3405,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-watch-connectivity"
   RNWorklets:
     :path: "../node_modules/react-native-worklets"
+  TrueSheet:
+    :path: "../node_modules/@lodev09/react-native-true-sheet"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -3468,7 +3468,6 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 01f6d357d42395422eed7c3bfe715614728f2989
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
-  react-native-true-sheet: 49c7c957207024cdd7cc7f00d6018c26ec3055c1
   react-native-worklets-core: 985aba233b66be8abdf02a264649858f0f460ea1
   React-NativeModulesApple: 37c08c3c54db55854de816b0df0f3683832be35a
   React-oscompat: 56d6de59f9ae95cd006a1c40be2cde83bc06a4e1
@@ -3499,7 +3498,7 @@ SPEC CHECKSUMS:
   React-timing: 4f97958cc918f0af9444f93e4a7083415e6f5daf
   React-utils: f491e2726eb8ced8af13893e1f77317f0fa9a954
   ReactAppDependencyProvider: 8df342c127fd0c1e30e8b9f71ff814c22414a7c0
-  ReactCodegen: 7a1de2e7c89e577d7a0ff371f93b658d879aab3e
+  ReactCodegen: a8f632625a67c523cdd7303e9a0a49e4b9f3457a
   ReactCommon: 592ef441605638b95e533653259254b4bd35ff4f
   ReactNativeCameraKit: 9cac10f64dbf2dd0363a66843df19058eb089f6a
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
@@ -3526,6 +3525,7 @@ SPEC CHECKSUMS:
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   RNWorklets: f30fbe64f3c77870cdd8f889a3912a176b3fd513
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  TrueSheet: f7e2c95b9399a463a41f59ffd9e8d6f26c15484e
   Yoga: a742cc68e8366fcfc681808162492bc0aa7a9498
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
