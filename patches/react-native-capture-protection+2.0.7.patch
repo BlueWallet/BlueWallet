@@ -1,15 +1,21 @@
 diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
-index 0d4650b..1f2b83b 100644
+index 135b5e3..05d31d0 100644
 --- a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
 +++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
-@@ -25,7 +25,8 @@ class FileUtils {
-                                 null
+@@ -4,6 +4,7 @@ import android.database.Cursor
+ import android.net.Uri
+ import android.provider.MediaStore
+ import com.facebook.react.bridge.*
++import java.util.Locale
+ 
+ class FileUtils {
+     companion object {
+@@ -26,7 +27,8 @@ class FileUtils {
                          )
                  if (cursor != null && cursor.moveToFirst()) {
--                    val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
--                    return path?.toLowerCase(Locale.ROOT)?.contains("screenshots") == true
-+                    val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-+                    // Avoid deprecated toLowerCase() which fails under Kotlin warning-as-error builds
+                     val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+-                    return (path != null && path.toLowerCase().contains("screenshots"))
++                    // Avoid deprecated toLowerCase() to prevent warning-as-error failures
 +                    return path?.lowercase(Locale.ROOT)?.contains("screenshots") == true
                  }
                  return false
