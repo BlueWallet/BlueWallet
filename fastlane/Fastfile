@@ -82,6 +82,9 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
+  # Skip Apple auth entirely for Android lanes
+  next if lane_context[:PLATFORM_NAME] == :android
+
   skip_auth_lanes = ['register_devices_from_txt']
   
   # Check if we need App Store Connect for this lane
