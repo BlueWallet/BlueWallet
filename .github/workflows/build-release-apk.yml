@@ -19,6 +19,18 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - name: Free disk space (Android build)
+        shell: bash
+        run: |
+          df -h
+          sudo rm -rf /usr/local/lib/android/sdk/system-images || true
+          sudo rm -rf /usr/local/lib/android/sdk/emulator || true
+          rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
+          rm -rf ~/.gradle/caches/build-cache || true
+          rm -rf ~/.npm/_cacache ~/.cache || true
+          sudo rm -rf /home/runner/work/_temp || true
+          df -h
+
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
