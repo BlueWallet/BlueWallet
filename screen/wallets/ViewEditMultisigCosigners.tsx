@@ -544,7 +544,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <ToolTipMenu
             isButton
-            isMenuPrimaryAction
+            shouldOpenOnLongPress
             onPressMenuItem={(id: string) => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);

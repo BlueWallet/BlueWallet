@@ -137,6 +137,7 @@ export const AddressInputScanButton = ({
       testID={testID}
       disabled={isLoading}
       onPress={toolTipOnPress}
+      shouldOpenOnLongPress
       buttonStyle={type === 'default' ? buttonStyle : undefined}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}

@@ -25,7 +25,7 @@ export interface ToolTipMenuProps {
   dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
-  isMenuPrimaryAction?: boolean;
+  shouldOpenOnLongPress?: boolean;
   isButton?: boolean;
   renderPreview?: () => React.ReactNode;
   onPress?: () => void;

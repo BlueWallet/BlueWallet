@@ -190,6 +190,7 @@ const AddressItem = ({
       renderPreview={renderPreview}
       onPress={navigateToReceive}
       isButton
+      shouldOpenOnLongPress
     >
       <ListItem key={item.key} containerStyle={stylesHook.container}>
         <ListItem.Content>

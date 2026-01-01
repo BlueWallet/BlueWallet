@@ -395,11 +395,13 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
         onPress={onPress}
+        shouldOpenOnLongPress
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
         accessibilityRole="button"
         accessibilityState={accessibilityState}
       >
         <ListItem
+          Component={View}
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
@@ -418,7 +420,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
               )
             ) : undefined
           }
-          Component={View}
           subtitleProps={subtitleProps}
           chevron={false}
           rightTitle={rowTitle}

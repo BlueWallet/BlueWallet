@@ -691,7 +691,7 @@ const WalletsAddMultisigStep2 = () => {
         header={
           <ToolTipMenu
             isButton
-            isMenuPrimaryAction
+            shouldOpenOnLongPress
             onPressMenuItem={_id => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);

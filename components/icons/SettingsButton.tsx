@@ -29,16 +29,18 @@ const SettingsButton = () => {
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (
-    <ToolTipMenu onPressMenuItem={onPressMenuItem} actions={actions}>
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc.settings.default_title}
-        testID="SettingsButton"
-        style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
-        onPress={onPress}
-      >
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-      </TouchableOpacity>
+    <ToolTipMenu
+      isButton
+      onPress={onPress}
+      buttonStyle={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
+      accessibilityRole="button"
+      accessibilityLabel={loc.settings.default_title}
+      testID="SettingsButton"
+      onPressMenuItem={onPressMenuItem}
+      actions={actions}
+      shouldOpenOnLongPress
+    >
+      <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
     </ToolTipMenu>
   );
 };

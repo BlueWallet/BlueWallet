@@ -36,7 +36,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       testID="HeaderMenuButton"
       disabled={disabled}
       isButton
-      isMenuPrimaryAction
+      shouldOpenOnLongPress
       onPressMenuItem={onPressMenuItem}
       actions={menuActions}
       title={title}

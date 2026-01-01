@@ -115,7 +115,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
           {renderQRCode}
         </ToolTipMenu>
       ) : (
