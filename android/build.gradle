@@ -54,6 +54,29 @@ allprojects {
     }
 }
 
+// Remove any jcenter repositories that might slip in from transitive Gradle files
+gradle.allprojects { proj ->
+    // Remove already-added jcenter repos
+    def jcenterRepos = proj.repositories.findAll { repo ->
+        repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                repo.url?.toString()?.contains('jcenter')
+    }
+    jcenterRepos.each { repo ->
+        proj.logger.lifecycle("Removing jcenter() from ${proj.path}")
+        proj.repositories.remove(repo)
+    }
+
+    // Prevent future additions of jcenter
+    proj.repositories.whenObjectAdded { repo ->
+        if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                repo.url?.toString()?.contains('jcenter')) {
+            proj.logger.lifecycle("Blocking jcenter() from ${proj.path}")
+            proj.repositories.remove(repo)
+            proj.repositories.mavenCentral()
+        }
+    }
+}
+
 subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
