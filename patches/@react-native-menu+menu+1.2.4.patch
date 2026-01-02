@@ -1,0 +1,68 @@
+diff --git a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
+index 17ed7c6..f4206ca 100644
+--- a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
++++ b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
+@@ -47,12 +47,17 @@ class MenuView(private val mContext: ReactContext) : ReactViewGroup(mContext) {
+     prepareMenu()
+   }
+
+-  override fun setHitSlopRect(rect: Rect?) {
+-    super.setHitSlopRect(rect)
++  fun applyHitSlop(rect: Rect?) {
+     mHitSlopRect = rect
+     updateTouchDelegate()
+   }
+
+  // Keep backward compatibility with older RN signatures that expected a setter method
+  // instead of the public `hitSlopRect` property.
+  fun setHitSlopRect(rect: Rect?) {
+    applyHitSlop(rect)
+  }
+
+   override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+     return true
+   }
+diff --git a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt
+index 4731e1a..8415cb7 100644
+--- a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt
++++ b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt
+@@ -120,12 +120,12 @@ abstract class MenuViewManagerBase : ReactClippingViewManager<MenuView>() {
+   }
+
+   @ReactProp(name = "hitSlop")
+-  fun setHitSlop(view: ReactViewGroup, @Nullable hitSlop: ReadableMap?) {
++  fun setHitSlop(view: MenuView, @Nullable hitSlop: ReadableMap?) {
+     if (hitSlop == null) {
+       // We should keep using setters as `Val cannot be reassigned`
+-      view.setHitSlopRect(null)
++      view.applyHitSlop(null)
+     } else {
+-      view.setHitSlopRect(
++      view.applyHitSlop(
+               Rect(
+                       if (hitSlop.hasKey("left"))
+                               PixelUtil.toPixelFromDIP(hitSlop.getDouble("left")).toInt()
+@@ -206,7 +206,22 @@ abstract class MenuViewManagerBase : ReactClippingViewManager<MenuView>() {
+
+   @ReactProp(name = ViewProps.OVERFLOW)
+   fun setOverflow(view: ReactViewGroup, overflow: String?) {
+-    view.setOverflow(overflow)
++    // ReactViewGroup#setOverflow was removed; best-effort via reflection to keep behavior on older versions
++    try {
++      val method = view.javaClass.getMethod("setOverflow", String::class.java)
++      method.invoke(view, overflow)
++      return
++    } catch (_: Exception) {
++      // Older/newer React Native versions may expose `overflow` as a property instead of a setter.
++    }
++
++    try {
++      val field = view.javaClass.getDeclaredField("_overflow")
++      field.isAccessible = true
++      field.set(view, overflow)
++    } catch (_: Exception) {
++      // Swallow; overflow support is optional and should not break builds.
++    }
+   }
+
+   @ReactProp(name = "backfaceVisibility")
