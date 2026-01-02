@@ -27,17 +27,30 @@ buildscript {
     }
 }
 
-// Gradle 9 removes jcenter(); provide a no-op shim that redirects to mavenCentral
-def repoHandlerClass = org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
-if (!repoHandlerClass.metaClass.respondsTo(repoHandlerClass, 'jcenter')) {
-    repoHandlerClass.metaClass.jcenter << { Closure config = null ->
-        def repo = delegate.mavenCentral()
-        if (config != null) {
-            config.delegate = repo
-            config.resolveStrategy = Closure.DELEGATE_FIRST
-            config.call(repo)
+// Gradle 9 removes jcenter(); add a shim that redirects any jcenter() call to mavenCentral()
+def addJcenterShim = { repoContainer, logger ->
+    def mc = repoContainer.metaClass
+    if (!mc.respondsTo(repoContainer, 'jcenter')) {
+        mc.jcenter << { Closure config = null ->
+            def repo = repoContainer.mavenCentral()
+            if (config != null) {
+                config.delegate = repo
+                config.resolveStrategy = Closure.DELEGATE_FIRST
+                config.call(repo)
+            }
+            logger.lifecycle("Redirected jcenter() to mavenCentral()")
+            return repo
         }
-        return repo
+    }
+    if (!mc.respondsTo(repoContainer, 'methodMissing')) {
+        mc.methodMissing = { String name, args ->
+            if (name == 'jcenter') {
+                def repo = repoContainer.mavenCentral()
+                logger.lifecycle("Redirected jcenter() (methodMissing) to mavenCentral()")
+                return repo
+            }
+            throw new MissingMethodException(name, repoContainer.class, args)
+        }
     }
 }
 
@@ -66,6 +79,20 @@ allprojects {
         google()
                 maven { url 'https://www.jitpack.io' }
     }
+}
+
+// Apply jcenter shim very early for every project before its build.gradle is evaluated
+gradle.beforeProject { project ->
+    addJcenterShim(project.repositories, project.logger)
+    if (project.buildscript != null) {
+        addJcenterShim(project.buildscript.repositories, project.logger)
+    }
+}
+
+// Apply to root as well
+addJcenterShim(repositories, logger)
+if (buildscript != null) {
+    addJcenterShim(buildscript.repositories, logger)
 }
 
 subprojects { project ->
