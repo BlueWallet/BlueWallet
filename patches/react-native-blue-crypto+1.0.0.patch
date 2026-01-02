@@ -1,12 +1,9 @@
 diff --git a/node_modules/react-native-blue-crypto/android/build.gradle b/node_modules/react-native-blue-crypto/android/build.gradle
-index 2d38a175c..4f9813ab3 100644
+index 3711bba..4f9813a 100644
 --- a/node_modules/react-native-blue-crypto/android/build.gradle
 +++ b/node_modules/react-native-blue-crypto/android/build.gradle
-@@ -1,14 +1,14 @@
- buildscript {
-   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
-   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['ReactNativeBlueCrypto_kotlinVersion']
-+
+@@ -4,12 +4,11 @@ buildscript {
+ 
    repositories {
      google()
 -    jcenter()
@@ -20,7 +17,7 @@ index 2d38a175c..4f9813ab3 100644
      classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
    }
  }
-@@ -44,14 +44,13 @@ android {
+@@ -45,14 +44,13 @@ android {
      disable 'GradleCompatible'
    }
    compileOptions {
