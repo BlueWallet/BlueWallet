@@ -54,26 +54,33 @@ allprojects {
     }
 }
 
-subprojects {
-    // Remove and block any jcenter() repositories at the project level
-    repositories.all { repo ->
-        if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
-                repo.url?.toString()?.contains('jcenter')) {
-            logger.lifecycle("Removing jcenter() from ${project.path}")
-            project.repositories.remove(repo)
+subprojects { project ->
+    // Remove and block any jcenter() repositories at both project and buildscript levels
+    def scrub = { repoContainer ->
+        repoContainer.all { repo ->
+            if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')) {
+                project.logger.lifecycle("Removing jcenter() from ${project.path}")
+                repoContainer.remove(repo)
+            }
         }
-    }
-    repositories.whenObjectAdded { repo ->
-        if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
-                repo.url?.toString()?.contains('jcenter')) {
-            logger.lifecycle("Blocking jcenter() from ${project.path}")
-            project.repositories.remove(repo)
-            project.repositories.mavenCentral()
+        repoContainer.whenObjectAdded { repo ->
+            if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')) {
+                project.logger.lifecycle("Blocking jcenter() from ${project.path}")
+                repoContainer.remove(repo)
+                repoContainer.mavenCentral()
+            }
         }
     }
 
-    afterEvaluate {project ->
-        if (project.hasProperty("android")) {
+    scrub(project.repositories)
+    if (project.buildscript != null) {
+        scrub(project.buildscript.repositories)
+    }
+
+    afterEvaluate {proj ->
+        if (proj.hasProperty("android")) {
             android {
                 buildToolsVersion "36.0.0"
                 compileSdkVersion 36
@@ -85,16 +92,16 @@ subprojects {
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
             // FIXME: next line should be removed when https://github.com/wix/Detox/issues/4678 is fixed
             kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.ExperimentalStdlibApi"]
-            if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+            if (proj.plugins.hasPlugin("com.android.application") || proj.plugins.hasPlugin("com.android.library")) {
                 kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
             } else {
                 kotlinOptions.jvmTarget = sourceCompatibility
             }
         }
 
-        if (project.name == "react-native-reanimated" && project.hasProperty("android")) {
+        if (proj.name == "react-native-reanimated" && proj.hasProperty("android")) {
             // Wire Reanimated's generated codegen sources so WorkletsModule spec is visible under new architecture
-            project.android.sourceSets.main.java.srcDir("${project.buildDir}/generated/source/codegen/java")
+            proj.android.sourceSets.main.java.srcDir("${proj.buildDir}/generated/source/codegen/java")
         }
 
     }
