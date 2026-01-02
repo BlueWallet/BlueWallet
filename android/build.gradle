@@ -106,3 +106,16 @@ subprojects { project ->
 
     }
 }
+
+// Final guard: fail fast if any jcenter repository slips through
+gradle.projectsEvaluated {
+    allprojects { proj ->
+        def offenders = proj.repositories.findAll { repo ->
+            repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')
+        }
+        if (!offenders.isEmpty()) {
+            throw new GradleException("jcenter() detected in ${proj.path}; remove or replace with mavenCentral()");
+        }
+    }
+}
