@@ -70,9 +70,8 @@ class MainApplication : Application(), ReactApplication {
                 add(CustomSegmentedControlPackage())
                 add(SettingsPackage())
             },
-            useDeveloperSupport = BuildConfig.DEBUG,
-            isNewArchEnabled = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
-            isHermesEnabled = BuildConfig.IS_HERMES_ENABLED,
+            useDevSupport = BuildConfig.DEBUG,
+            jsMainModulePath = "index",
         )
     }
 

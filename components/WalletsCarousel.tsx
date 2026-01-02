@@ -362,7 +362,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                 <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>
-                    <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}> 
+                    <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
                       {renderHighlightedText && searchQuery ? (
                         <HighlightedText
                           text={item.getLabel()}
@@ -391,7 +391,10 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                       )}
                     </View>
                     <Text style={iStyles.br} />
-                    <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}> 
+                    <Text
+                      numberOfLines={1}
+                      style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                    >
                       {loc.wallets.list_latest_transaction}
                     </Text>
                     <Text

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, TouchableOpacity } from 'react-native';
+import { Platform, Pressable, GestureResponderEvent } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -118,46 +118,48 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   };
 
   const renderMenuView = () => {
+    if (!isButton && !onPress) {
+      return null;
+    }
+
     return (
-      <MenuView
-        title={title}
-        isAnchoredToRight
-        onOpenMenu={() => {
-          openedRef.current = true;
-          onMenuWillShow?.();
+      <Pressable
+        android_ripple={{ color: '#d9d9d9', foreground: true }}
+        style={({ pressed }) => [{ flex: 1, alignSelf: 'stretch' }, buttonStyle, pressed && { opacity: 0.6 }]}
+        disabled={disabled}
+        onPress={(event: GestureResponderEvent) => {
+          onPress?.(event);
         }}
-        onCloseMenu={() => {
-          if (!openedRef.current) {
-            return;
-          }
-          openedRef.current = false;
-          onMenuWillHide?.();
-        }}
-        onPressAction={handlePressMenuItemForMenuView}
-        actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
-        shouldOpenOnLongPress={shouldOpenOnLongPress} // Ensuring this prop is respected
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
         accessibilityState={accessibilityState}
         accessibilityLanguage={language}
         testID={testID}
+        hitSlop={8}
       >
-        {isButton || onPress ? (
-          <TouchableOpacity
-            style={buttonStyle}
-            disabled={disabled}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            onPress={event => {
-              onPress?.(event);
-            }}
-          >
-            {children}
-          </TouchableOpacity>
-        ) : (
-          children
-        )}
-      </MenuView>
+        <MenuView
+          title={title}
+          isAnchoredToRight
+          onOpenMenu={() => {
+            openedRef.current = true;
+            onMenuWillShow?.();
+          }}
+          onCloseMenu={() => {
+            if (!openedRef.current) {
+              return;
+            }
+            openedRef.current = false;
+            onMenuWillHide?.();
+          }}
+          onPressAction={handlePressMenuItemForMenuView}
+          actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
+          shouldOpenOnLongPress={shouldOpenOnLongPress}
+          style={{ flex: 1 }}
+        >
+          {children}
+        </MenuView>
+      </Pressable>
     );
   };
 

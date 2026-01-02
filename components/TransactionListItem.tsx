@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, View, ViewStyle, StyleSheet } from 'react-native';
+import { Linking, View, ViewStyle, StyleSheet, Text, Pressable, TextStyle } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -14,9 +14,8 @@ import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
-import ListItem from './ListItem';
 import { useTheme } from './themes';
-import { Action, ToolTipMenuProps } from './types';
+import { Action } from './types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
@@ -25,18 +24,41 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HighlightedText from './HighlightedText';
 
 const styles = StyleSheet.create({
-  subtitle: {
-    color: 'colors.foregroundColor',
-    fontSize: 13,
+  pressable: {
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  highlight: {
-    backgroundColor: '#FFF5C0',
-    color: '#000000',
-    fontSize: 13,
-    fontWeight: '600',
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  avatarContainer: {
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textContainer: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  subtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  rightColumn: {
+    marginLeft: 8,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  rightTitle: {
+    textAlign: 'right',
   },
 });
 
@@ -65,7 +87,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
-    const menuRef = useRef<ToolTipMenuProps | null>(null);
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
     const { language, selectedBlockExplorer } = useSettings();
     const insets = useSafeAreaInsets();
@@ -127,7 +148,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return formattedAmount;
     }, [item, formattedAmount]);
 
-    const rowTitleStyle = useMemo(() => {
+    const rowTitleStyle = useMemo<TextStyle>(() => {
       let color = colors.successColor;
 
       if (item.type === 'user_invoice' || item.type === 'payment_request') {
@@ -151,7 +172,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return {
         color,
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '600' as TextStyle['fontWeight'],
         textAlign: 'right',
         paddingRight: insets.right,
         paddingLeft: insets.left,
@@ -242,7 +263,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     }, [subtitle]);
 
     const onPress = useCallback(async () => {
-      menuRef?.current?.dismissMenu?.();
       // If a custom onPress handler was provided, use it and return
       if (customOnPress) {
         customOnPress();
@@ -387,7 +407,38 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       };
     }, [subtitleNumberOfLines]);
 
-    const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
+    const titleStyle = useMemo(() => ({ color: colors.foregroundColor }), [colors.foregroundColor]);
+    const subtitleStyle = useMemo(() => ({ color: colors.alternativeTextColor }), [colors.alternativeTextColor]);
+
+    const subtitleContent = useMemo(() => {
+      if (!subtitle) return null;
+      const maxLines = subtitleNumberOfLines === 0 ? undefined : subtitleNumberOfLines;
+
+      if (renderHighlightedText && searchQuery) {
+        const highlighted = renderHighlightedText(subtitle, searchQuery);
+        if (React.isValidElement(highlighted)) {
+          const highlightedElement = highlighted as React.ReactElement<{ numberOfLines?: number; style?: TextStyle | TextStyle[] }>;
+          const existingStyle = highlightedElement.props?.style;
+          const mergedStyle: TextStyle[] = (
+            Array.isArray(existingStyle)
+              ? [styles.subtitle, subtitleStyle, ...existingStyle]
+              : [styles.subtitle, subtitleStyle, existingStyle]
+          ).filter(Boolean) as TextStyle[];
+
+          return React.cloneElement(highlightedElement, {
+            numberOfLines: maxLines,
+            style: mergedStyle,
+          });
+        }
+        return highlighted;
+      }
+
+      return (
+        <Text style={[styles.subtitle, subtitleStyle]} numberOfLines={maxLines}>
+          {subtitle}
+        </Text>
+      );
+    }, [subtitle, subtitleNumberOfLines, renderHighlightedText, searchQuery, subtitleStyle]);
 
     return (
       <ToolTipMenu
@@ -400,33 +451,34 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         accessibilityRole="button"
         accessibilityState={accessibilityState}
       >
-        <ListItem
-          Component={View}
-          leftAvatar={avatar}
-          title={title}
-          subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={
-            subtitle ? (
-              renderHighlightedText ? (
-                renderHighlightedText(subtitle, searchQuery ?? '')
-              ) : (
-                <HighlightedText
-                  text={subtitle}
-                  query={searchQuery ?? ''}
-                  caseSensitive={false}
-                  highlightOnlyFirstMatch={searchQuery ? searchQuery.length === 1 : false}
-                  style={styles.subtitle}
-                />
-              )
-            ) : undefined
-          }
-          subtitleProps={subtitleProps}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          containerStyle={combinedStyle}
+        <Pressable
+          onPress={onPress}
+          style={({ pressed }) => [
+            combinedStyle,
+            styles.pressable,
+            { width: '100%', borderBottomColor: colors.lightBorder },
+            pressed && { opacity: 0.7 },
+          ]}
           testID="TransactionListItem"
-        />
+          accessibilityRole="button"
+          accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+          accessibilityState={accessibilityState}
+        >
+          <View style={styles.row}>
+            <View style={styles.avatarContainer}>{avatar}</View>
+            <View style={styles.textContainer}>
+              <Text style={[styles.title, titleStyle]} numberOfLines={1}>
+                {title}
+              </Text>
+              {subtitleContent}
+            </View>
+            <View style={styles.rightColumn}>
+              <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
+                {rowTitle}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
       </ToolTipMenu>
     );
   },
