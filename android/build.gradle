@@ -27,6 +27,20 @@ buildscript {
     }
 }
 
+// Gradle 9 removes jcenter(); provide a no-op shim that redirects to mavenCentral
+def repoHandlerClass = org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
+if (!repoHandlerClass.metaClass.respondsTo(repoHandlerClass, 'jcenter')) {
+    repoHandlerClass.metaClass.jcenter << { Closure config = null ->
+        def repo = delegate.mavenCentral()
+        if (config != null) {
+            config.delegate = repo
+            config.resolveStrategy = Closure.DELEGATE_FIRST
+            config.call(repo)
+        }
+        return repo
+    }
+}
+
 allprojects {
     repositories {
         maven {
