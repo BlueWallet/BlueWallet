@@ -71,6 +71,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
+    await sleep(200); // wait for keyboard to close
   }
   await element(by.id('SpeedDoImport')).tap();
 

@@ -44,7 +44,7 @@ jobs:
           bundle install --jobs 4 --retry 3 --quiet
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm ci || npm ci
 
       - name: Cache CocoaPods
         uses: actions/cache@v4
@@ -55,7 +55,7 @@ jobs:
             ${{ runner.os }}-pods-
 
       - name: Install CocoaPods dependencies
-        run: bundle exec fastlane ios install_pods
+        run: bundle exec fastlane ios install_pods || bundle exec fastlane ios install_pods
 
       - name: Delete Apple Watch target
         run: |
@@ -106,14 +106,17 @@ jobs:
           RCT_NO_LAUNCH_PACKAGER: "1"
         run: |
           set -eo pipefail
-          xcodebuild \
-            -workspace BlueWallet.xcworkspace \
-            -scheme BlueWallet \
-            -configuration "${BUILD_CONFIGURATION}" \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build \
-            build
+          build() {
+            xcodebuild \
+              -workspace BlueWallet.xcworkspace \
+              -scheme BlueWallet \
+              -configuration "${BUILD_CONFIGURATION}" \
+              -sdk iphonesimulator \
+              -destination 'generic/platform=iOS Simulator' \
+              -derivedDataPath build \
+              build
+          }
+          build || build
 
       - name: Package simulator app
         run: |
@@ -141,14 +144,13 @@ jobs:
             --record-logs failing \
             --take-screenshots failing \
             --headless \
-            --retries 3 \
             --reuse \
             --artifacts-location ./artifacts
 
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-test-videos
+          name: e2e-ios-videos
           path: ./artifacts/
 
 
@@ -209,7 +211,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Install node_modules
-      run: npm ci --omit=dev --yes
+      run: npm ci --omit=dev --yes || npm ci --omit=dev --yes
 
     - name: Use specific Java version for sdkmanager to work
       uses: actions/setup-java@v4
@@ -224,10 +226,10 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Build
-      run: npm run e2e:release-build
+      run: npm run e2e:release-build || npm run e2e:release-build
 
     - name: Install dev deps needed for tests
-      run: npm i
+      run: npm i || npm i
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
@@ -237,10 +239,10 @@ jobs:
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location /mnt/artifacts
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --reuse --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: e2e-test-videos
+        name: e2e-android-videos
         path: /mnt/artifacts/

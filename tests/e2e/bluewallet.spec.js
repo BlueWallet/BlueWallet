@@ -177,7 +177,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     if (await expectToBeVisible('NotificationSettings')) {
       await element(by.id('NotificationSettings')).tap();
       await element(by.id('NotificationsSwitch')).tap();
-      await sleep(3_000);
+      await sleep(1000);
       await element(by.id('NotificationsSwitch')).tap();
       await goBack();
       await goBack();
@@ -295,7 +295,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work the first time
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
 
     // relaunch app
     await device.launchApp({ newInstance: true });
@@ -332,7 +332,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // first time might not always work
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
     await element(by.text('OK')).atIndex(0).tap();
 
@@ -354,7 +354,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // first time might not always work
-    await sleep(3_000); // propagate
+    await sleep(1000); // propagate
     await scrollUpOnHomeScreen();
 
     // created fake storage.
@@ -394,7 +394,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // in case it didnt work first time
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
     await scrollUpOnHomeScreen();
     await expect(element(by.text('fake_wallet'))).toBeVisible();
 
@@ -423,7 +423,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
     await element(by.id('PlausibleDeniabilityButton')).tap();
 
     // trying to enable plausible denability
@@ -439,7 +439,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitForId('Wallets');
       await scrollUpOnHomeScreen();
     }
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
     // created fake storage.
     // creating a wallet inside this fake storage
     await helperCreateWallet('fake_wallet');
@@ -465,14 +465,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
     // correct password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
-    await sleep(3000); // propagate
+    await sleep(1000); // propagate
 
     // relaunch app
     await device.launchApp({ newInstance: true });
@@ -601,13 +601,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('feeCustom')).tapReturnKey();
     await sleep(1_000); // propagate
 
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
+    await element(by.id('CreateTransactionButton')).tap();
 
     await waitFor(element(by.id('ItemUnsigned'))).toBeVisible();
     await waitFor(element(by.id('ItemSigned'))).toBeNotVisible(); // not a single green checkmark
 
+    await waitForId('ProvideSignature');
     await element(by.id('ProvideSignature')).tap();
     await waitFor(element(by.id('CosignedScanOrImportFile')))
       .toBeVisible()
