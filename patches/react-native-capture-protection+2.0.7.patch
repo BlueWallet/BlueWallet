@@ -1,22 +1,50 @@
-diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
-index 135b5e3..05d31d0 100644
---- a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
-+++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
-@@ -4,6 +4,7 @@ import android.database.Cursor
- import android.net.Uri
- import android.provider.MediaStore
- import com.facebook.react.bridge.*
-+import java.util.Locale
+diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
+index 40bebef..47d5e7c 100644
+--- a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
++++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
+@@ -22,7 +22,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
+   }
  
- class FileUtils {
-     companion object {
-@@ -26,7 +27,8 @@ class FileUtils {
-                         )
-                 if (cursor != null && cursor.moveToFirst()) {
-                     val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
--                    return (path != null && path.toLowerCase().contains("screenshots"))
-+                    // Avoid deprecated toLowerCase() to prevent warning-as-error failures
-+                    return path?.lowercase(Locale.ROOT)?.contains("screenshots") == true
-                 }
-                 return false
-             } finally {
+   @ReactMethod
+   fun hasListener(promise: Promise) {
+-    currentActivity?.runOnUiThread {
++    reactContext.currentActivity?.runOnUiThread {
+       try {
+         val params = super.hasScreenCaptureListener()
+         promise.resolve(params)
+@@ -33,7 +33,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
+   }
+ 
+   @ReactMethod
+   fun isScreenRecording(promise: Promise) {
+-    currentActivity?.runOnUiThread {
++    reactContext.currentActivity?.runOnUiThread {
+       try {
+         promise.resolve(super.screens.size > 1)
+@@ -44,7 +44,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
+   }
+ 
+   @ReactMethod
+   fun prevent(promise: Promise) {
+-    currentActivity?.runOnUiThread {
++    reactContext.currentActivity?.runOnUiThread {
+       try {
+         val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
+@@ -60,7 +60,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
+   }
+ 
+   @ReactMethod
+   fun allow(promise: Promise) {
+-    currentActivity?.runOnUiThread {
++    reactContext.currentActivity?.runOnUiThread {
+       try {
+         val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
+@@ -75,7 +75,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
+   }
+ 
+   @ReactMethod
+   fun protectionStatus(promise: Promise) {
+-    currentActivity?.runOnUiThread {
++    reactContext.currentActivity?.runOnUiThread {
+       try {
+         val flags = ActivityUtils.isSecureFlag(reactContext)
