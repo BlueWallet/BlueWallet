@@ -6,7 +6,7 @@ import { useSettings } from '../hooks/context/useSettings';
 
 const styles = {
   menuView: { flex: 1 } as const,
-  pressable: { flex: 1, alignSelf: 'stretch' } as const,
+  pressable: { alignSelf: 'flex-start' } as const,
   pressed: { opacity: 0.6 } as const,
 };
 
@@ -132,7 +132,14 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       <Pressable
         android_ripple={{ color: '#d9d9d9', foreground: true }}
         style={({ pressed }) => {
-          const base: ViewStyle[] = buttonStyle ? (Array.isArray(buttonStyle) ? [...buttonStyle] : [buttonStyle]) : [styles.pressable];
+          const base: ViewStyle[] = [styles.pressable];
+          if (buttonStyle) {
+            if (Array.isArray(buttonStyle)) {
+              base.push(...buttonStyle);
+            } else {
+              base.push(buttonStyle);
+            }
+          }
           if (pressed) base.push(styles.pressed);
           return base;
         }}
