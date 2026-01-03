@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  fullWidthButton: {
+    width: '100%',
+    alignSelf: 'stretch',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -447,6 +451,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         onPressMenuItem={onToolTipPress}
         onPress={onPress}
         shouldOpenOnLongPress
+        buttonStyle={styles.fullWidthButton}
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
         accessibilityRole="button"
         accessibilityState={accessibilityState}
