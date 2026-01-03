@@ -1,19 +1,42 @@
+diff --git a/node_modules/react-native-capture-protection/android/.project b/node_modules/react-native-capture-protection/android/.project
+new file mode 100644
+index 0000000..00ca8b4
+--- /dev/null
++++ b/node_modules/react-native-capture-protection/android/.project
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-capture-protection</name>
++	<comment>Project react-native-capture-protection created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1755396509616</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
 diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
-index 40bebef..47d5e7c 100644
+index 5c885f6..2720606 100644
 --- a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
 +++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt
-@@ -22,7 +22,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
-   }
- 
-   @ReactMethod
-   fun hasListener(promise: Promise) {
--    currentActivity?.runOnUiThread {
-+    reactContext.currentActivity?.runOnUiThread {
-       try {
-         val params = super.hasScreenCaptureListener()
-         promise.resolve(params)
-@@ -33,7 +33,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
-   }
+@@ -34,7 +34,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
  
    @ReactMethod
    fun isScreenRecording(promise: Promise) {
@@ -21,8 +44,8 @@ index 40bebef..47d5e7c 100644
 +    reactContext.currentActivity?.runOnUiThread {
        try {
          promise.resolve(super.screens.size > 1)
-@@ -44,7 +44,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
-   }
+       } catch (e: Exception) {
+@@ -45,7 +45,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
  
    @ReactMethod
    fun prevent(promise: Promise) {
@@ -30,8 +53,8 @@ index 40bebef..47d5e7c 100644
 +    reactContext.currentActivity?.runOnUiThread {
        try {
          val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
-@@ -60,7 +60,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
-   }
+         currentActivity!!.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+@@ -65,7 +65,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
  
    @ReactMethod
    fun allow(promise: Promise) {
@@ -39,8 +62,8 @@ index 40bebef..47d5e7c 100644
 +    reactContext.currentActivity?.runOnUiThread {
        try {
          val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
-@@ -75,7 +75,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
-   }
+         currentActivity!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+@@ -83,7 +83,7 @@ class CaptureProtectionModule(private val reactContext: ReactApplicationContext)
  
    @ReactMethod
    fun protectionStatus(promise: Promise) {
@@ -48,3 +71,139 @@ index 40bebef..47d5e7c 100644
 +    reactContext.currentActivity?.runOnUiThread {
        try {
          val flags = ActivityUtils.isSecureFlag(reactContext)
+         promise.resolve(flags)
+diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt.orig b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt.orig
+new file mode 100644
+index 0000000..2e1c525
+--- /dev/null
++++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/CaptureProtectionModule.kt.orig
+@@ -0,0 +1,107 @@
++package com.captureprotection
++
++import android.view.WindowManager
++import com.captureprotection.constants.CaptureEventType
++import com.captureprotection.constants.Constants
++import com.facebook.react.bridge.*
++import com.facebook.react.module.annotations.ReactModule
++
++@ReactModule(name = Constants.NAME)
++class CaptureProtectionModule(private val reactContext: ReactApplicationContext) :
++        CaptureProtectionLifecycleListener(reactContext) {
++
++  @ReactMethod
++  fun addListener(eventName: String) {
++    super.addScreenCaptureListener()
++  }
++
++  @ReactMethod
++  fun removeListeners(count: Int) {
++    // super.removeScreenCaptureListener()
++  }
++
++  @ReactMethod
++  fun hasListener(promise: Promise) {
++    reactContext.currentActivity?.runOnUiThread {
++      try {
++        val params = super.hasScreenCaptureListener()
++        promise.resolve(params)
++      } catch (e: Exception) {
++        promise.reject("hasListener", e)
++      }
++    }
++  }
++
++  @ReactMethod
++  fun isScreenRecording(promise: Promise) {
++    reactContext.currentActivity?.runOnUiThread {
++      try {
++        promise.resolve(super.screens.size > 1)
++      } catch (e: Exception) {
++        promise.reject("isScreenRecording", e)
++      }
++    }
++  }
++
++  @ReactMethod
++  fun prevent(promise: Promise) {
++    reactContext.currentActivity?.runOnUiThread {
++      try {
++        val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
++        currentActivity!!.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
++        Response.sendEvent(
++                reactContext,
++                Constants.LISTENER_EVENT_NAME,
++                CaptureEventType.PREVENT_SCREEN_CAPTURE.value +
++                        CaptureEventType.PREVENT_SCREEN_RECORDING.value +
++                        CaptureEventType.PREVENT_SCREEN_APP_SWITCHING.value
++        )
++        promise.resolve(true)
++      } catch (e: Exception) {
++        promise.reject("prevent", e)
++      }
++    }
++  }
++
++  @ReactMethod
++  fun allow(promise: Promise) {
++    reactContext.currentActivity?.runOnUiThread {
++      try {
++        val currentActivity = ActivityUtils.getReactCurrentActivity(reactContext)
++        currentActivity!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
++        Response.sendEvent(
++                reactContext,
++                Constants.LISTENER_EVENT_NAME,
++                CaptureEventType.ALLOW.value
++        )
++        promise.resolve(true)
++      } catch (e: Exception) {
++        promise.reject("allow", e)
++      }
++    }
++  }
++
++  @ReactMethod
++  fun protectionStatus(promise: Promise) {
++    reactContext.currentActivity?.runOnUiThread {
++      try {
++        val flags = ActivityUtils.isSecureFlag(reactContext)
++        promise.resolve(flags)
++      } catch (e: Exception) {
++        promise.reject("protectionStatus", e)
++      }
++    }
++  }
++
++  @ReactMethod
++  fun requestPermission(promise: Promise) {
++    val isPermission = super.requestStoragePermission()
++    promise.resolve(isPermission)
++  }
++
++  @ReactMethod
++  fun checkPermission(promise: Promise) {
++    val isPermission = super.checkStoragePermission()
++    promise.resolve(isPermission)
++  }
++}
+diff --git a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
+index 135b5e3..05d31d0 100644
+--- a/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
++++ b/node_modules/react-native-capture-protection/android/src/main/java/com/captureprotection/android/utils/FileUtils.kt
+@@ -4,6 +4,7 @@ import android.database.Cursor
+ import android.net.Uri
+ import android.provider.MediaStore
+ import com.facebook.react.bridge.*
++import java.util.Locale
+ 
+ class FileUtils {
+     companion object {
+@@ -26,7 +27,8 @@ class FileUtils {
+                         )
+                 if (cursor != null && cursor.moveToFirst()) {
+                     val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+-                    return (path != null && path.toLowerCase().contains("screenshots"))
++                    // Avoid deprecated toLowerCase() to prevent warning-as-error failures
++                    return path?.lowercase(Locale.ROOT)?.contains("screenshots") == true
+                 }
+                 return false
+             } finally {
