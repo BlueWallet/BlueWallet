@@ -180,7 +180,7 @@ platform :android do
     end
   end
 
-  desc "Build and sign release APK (CI replacement for build-release-apk.sh)"
+  desc "Build and sign release APK"
   lane :build_release_apk do
     Dir.chdir(project_root) do
       build_number = ENV['BUILD_NUMBER']
