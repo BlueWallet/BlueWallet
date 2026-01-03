@@ -1,8 +1,8 @@
 diff --git a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
-index 17ed7c6..f4206ca 100644
+index 17ed7c6..9769384 100644
 --- a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
 +++ b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuView.kt
-@@ -47,12 +47,17 @@ class MenuView(private val mContext: ReactContext) : ReactViewGroup(mContext) {
+@@ -47,8 +47,7 @@ class MenuView(private val mContext: ReactContext) : ReactViewGroup(mContext) {
      prepareMenu()
    }
  
@@ -11,16 +11,6 @@ index 17ed7c6..f4206ca 100644
 +  fun applyHitSlop(rect: Rect?) {
      mHitSlopRect = rect
      updateTouchDelegate()
-   }
- 
-+  // Keep backward compatibility with older RN signatures that expected a setter method
-+  // instead of the public `hitSlopRect` property.
-+  fun setHitSlopRect(rect: Rect?) {
-+    applyHitSlop(rect)
-+  }
-+
-   override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-     return true
    }
 diff --git a/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt b/node_modules/@react-native-menu/menu/android/src/main/java/com/reactnativemenu/MenuViewManagerBase.kt
 index 4731e1a..8415cb7 100644
