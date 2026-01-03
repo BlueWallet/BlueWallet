@@ -178,6 +178,63 @@ platform :android do
       UI.message("APK signed successfully: #{signed_apk_path}")
     end
   end
+
+  desc "Build and sign release APK (CI replacement for build-release-apk.sh)"
+  lane :build_release_apk do
+    Dir.chdir(project_root) do
+      build_number = ENV['BUILD_NUMBER']
+      keystore_hex = ENV['KEYSTORE_FILE_HEX']
+      keystore_password = ENV['KEYSTORE_PASSWORD']
+
+      UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil? || build_number.empty?
+      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_hex.nil? || keystore_hex.empty?
+      UI.user_error!("KEYSTORE_PASSWORD environment variable is missing") if keystore_password.nil? || keystore_password.empty?
+
+      keystore_hex_path = "bluewallet-release-key.keystore.hex"
+      keystore_path = "android/bluewallet-release-key.keystore"
+
+      UI.message("Creating keystore from HEX...")
+      File.write(keystore_hex_path, keystore_hex)
+      sh("xxd -plain -revert #{keystore_hex_path} > #{keystore_path}") do |status|
+        UI.user_error!("Error reverting hex to keystore") unless status.success?
+      end
+      File.delete(keystore_hex_path)
+
+      build_gradle_path = "android/app/build.gradle"
+      build_gradle_contents = File.read(build_gradle_path)
+      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, new_build_gradle_contents)
+
+      version_name = sh("grep versionName #{build_gradle_path} | awk '{print $2}' | tr -d '"'"'").strip
+      UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
+
+      logs_dir = File.join('fastlane', 'logs')
+      FileUtils.mkdir_p(logs_dir)
+      gradle_log = File.join(logs_dir, 'gradle-build.log')
+
+      UI.message("Building release APK...")
+      sh("bash -lc 'set -o pipefail; cd android && ./gradlew assembleRelease --no-daemon | tee ../#{gradle_log}'")
+
+      apk_dir = "android/app/build/outputs/apk/release"
+      unsigned_apk_path = File.join(apk_dir, "app-release-unsigned.apk")
+      signed_apk_name = "BlueWallet-#{version_name}(#{build_number}).apk"
+      signed_apk_path = File.join(apk_dir, signed_apk_name)
+
+      UI.user_error!("Unsigned APK not found at path: #{unsigned_apk_path}") unless File.exist?(unsigned_apk_path)
+      UI.message("Renaming APK to #{signed_apk_name}...")
+      FileUtils.mv(unsigned_apk_path, signed_apk_path)
+
+      apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/36.0.0/apksigner").first || Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
+      UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
+
+      # Capture Gradle output to a log for CI artifact upload
+      UI.message("Signing APK with apksigner...")
+      sh("#{apksigner_path} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{signed_apk_path}")
+      UI.success("APK signed successfully: #{signed_apk_path}")
+
+      ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+    end
+  end
 end
 
   desc "Upload APK to BrowserStack and post result as PR comment"
