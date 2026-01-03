@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from '../themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -40,7 +40,9 @@ const SettingsButton = () => {
       actions={actions}
       shouldOpenOnLongPress
     >
-      <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+      <View style={style.iconContainer}>
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} iconStyle={style.icon} />
+      </View>
     </ToolTipMenu>
   );
 };
@@ -54,5 +56,22 @@ const style = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     alignContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+  },
+  iconContainer: {
+    padding: 0,
+    margin: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  icon: {
+    padding: 0,
+    margin: 0,
+    lineHeight: 22,
+    textAlignVertical: 'center',
+    textAlign: 'center',
   },
 });

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { StyleSheet, GestureResponderEvent } from 'react-native';
+import { StyleSheet, GestureResponderEvent, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
@@ -16,8 +16,23 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignContent: 'center',
+  },
+  iconContainer: {
+    padding: 0,
+    margin: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  icon: {
+    padding: 0,
+    margin: 0,
+    lineHeight: 22,
+    textAlignVertical: 'center',
+    textAlign: 'center',
   },
 });
 
@@ -58,7 +73,9 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
       actions={actions}
       shouldOpenOnLongPress
     >
-      <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} />
+      <View style={styles.iconContainer}>
+        <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} iconStyle={styles.icon} />
+      </View>
     </ToolTipMenu>
   );
 };
