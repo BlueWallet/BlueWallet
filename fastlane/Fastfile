@@ -183,16 +183,16 @@ platform :android do
   desc "Build and sign release APK"
   lane :build_release_apk do
     Dir.chdir(project_root) do
+      required_env = %w[BUILD_NUMBER KEYSTORE_FILE_HEX KEYSTORE_PASSWORD]
+      missing = required_env.select { |key| ENV[key].nil? || ENV[key].empty? }
+      UI.user_error!("Missing required env vars: #{missing.join(', ')}") unless missing.empty?
+
       build_number = ENV['BUILD_NUMBER']
       keystore_hex = ENV['KEYSTORE_FILE_HEX']
       keystore_password = ENV['KEYSTORE_PASSWORD']
 
-      UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil? || build_number.empty?
-      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_hex.nil? || keystore_hex.empty?
-      UI.user_error!("KEYSTORE_PASSWORD environment variable is missing") if keystore_password.nil? || keystore_password.empty?
-
       keystore_hex_path = "bluewallet-release-key.keystore.hex"
-      keystore_path = "android/bluewallet-release-key.keystore"
+      keystore_path = File.join('android', 'bluewallet-release-key.keystore')
 
       UI.message("Creating keystore from HEX...")
       File.write(keystore_hex_path, keystore_hex)
@@ -202,12 +202,21 @@ platform :android do
       File.delete(keystore_hex_path)
 
       build_gradle_path = "android/app/build.gradle"
-      build_gradle_contents = File.read(build_gradle_path)
-      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
-      File.write(build_gradle_path, new_build_gradle_contents)
+      UI.message("Setting versionCode in build.gradle to #{build_number}...")
+      increment_version_code(
+        gradle_file_path: build_gradle_path,
+        version_code: build_number.to_i
+      )
 
-      version_name = sh("grep versionName #{build_gradle_path} | awk '{print $2}' | tr -d '"'"'").strip
-      UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
+      version_name = begin
+        match = File.read(build_gradle_path).match(/versionName\s+"(?<name>[^\"]+)"/)
+        match ? match[:name] : nil
+      end
+      UI.user_error!("Failed to extract versionName from #{build_gradle_path}") if version_name.nil? || version_name.empty?
+
+      branch_name = ENV['GITHUB_HEAD_REF'] || ENV['GITHUB_REF_NAME'] || `git rev-parse --abbrev-ref HEAD`.strip
+      branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '_')
+      branch_name = 'master' if branch_name.nil? || branch_name.empty?
 
       logs_dir = File.join('fastlane', 'logs')
       FileUtils.mkdir_p(logs_dir)
@@ -216,24 +225,39 @@ platform :android do
       UI.message("Building release APK...")
       sh("bash -lc 'set -o pipefail; cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee ../#{gradle_log}'")
 
-      apk_dir = "android/app/build/outputs/apk/release"
-      unsigned_apk_path = File.join(apk_dir, "app-release-unsigned.apk")
-      signed_apk_name = "BlueWallet-#{version_name}(#{build_number}).apk"
+      apk_dir = File.join('android', 'app', 'build', 'outputs', 'apk', 'release')
+      unsigned_apk_path = File.join(apk_dir, 'app-release-unsigned.apk')
+      signed_apk_name = branch_name != 'master' ?
+        "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" :
+        "BlueWallet-#{version_name}-#{build_number}.apk"
       signed_apk_path = File.join(apk_dir, signed_apk_name)
 
       UI.user_error!("Unsigned APK not found at path: #{unsigned_apk_path}") unless File.exist?(unsigned_apk_path)
       UI.message("Renaming APK to #{signed_apk_name}...")
       FileUtils.mv(unsigned_apk_path, signed_apk_path)
 
-      apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/36.0.0/apksigner").first || Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
+      sdk_root = ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT']
+      apksigner_path = Dir.glob(File.join(sdk_root.to_s, 'build-tools', '36.0.0', 'apksigner')).first || Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
       UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
 
-      # Capture Gradle output to a log for CI artifact upload
       UI.message("Signing APK with apksigner...")
       sh("#{apksigner_path} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{signed_apk_path}")
       UI.success("APK signed successfully: #{signed_apk_path}")
 
-      ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+      FileUtils.rm_f(keystore_path)
+
+      apk_absolute_path = File.expand_path(signed_apk_path)
+      ENV['APK_OUTPUT_PATH'] = apk_absolute_path
+      ENV['APK_VERSION_NAME'] = version_name
+      ENV['APK_VERSION_CODE'] = build_number
+
+      if ENV['GITHUB_OUTPUT'] && !ENV['GITHUB_OUTPUT'].empty?
+        File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
+          f.puts("apk_output_path=#{apk_absolute_path}")
+          f.puts("apk_version_name=#{version_name}")
+          f.puts("apk_version_code=#{build_number}")
+        end
+      end
     end
   end
 end
