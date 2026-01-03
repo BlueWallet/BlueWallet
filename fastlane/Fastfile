@@ -137,13 +137,12 @@ platform :android do
       end
       UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
  
-      # Update versionCode in build.gradle
+      # Update versionCode in build.gradle without fastlane action dependency
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
       build_gradle_path = "android/app/build.gradle"
-      increment_version_code(
-        gradle_file_path: build_gradle_path,
-        version_code: build_number.to_i
-      )
+      gradle_contents = File.read(build_gradle_path)
+      updated = gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, updated)
  
       # Determine branch name and sanitize it
       branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
@@ -206,10 +205,9 @@ platform :android do
 
       build_gradle_path = "android/app/build.gradle"
       UI.message("Setting versionCode in build.gradle to #{build_number}...")
-      increment_version_code(
-        gradle_file_path: build_gradle_path,
-        version_code: build_number.to_i
-      )
+      gradle_contents = File.read(build_gradle_path)
+      updated = gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, updated)
 
       version_name = begin
         match = File.read(build_gradle_path).match(/versionName\s+"(?<name>[^\"]+)"/)
