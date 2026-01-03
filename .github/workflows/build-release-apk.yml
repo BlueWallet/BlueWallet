@@ -45,6 +45,11 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0" "ndk;27.1.12297006"
+
       - name: Install node_modules
         run: npm ci --omit=dev --yes
 
@@ -67,31 +72,39 @@ jobs:
         run: |
           NEW_BUILD_NUMBER="$(date +%s)"
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-      - name: Prepare Keystore
-        run: bundle exec fastlane android prepare_keystore
-        env:
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-
-      - name: Update Version Code, Build, and Sign APK
+      - name: Build and sign APK
         id: build_and_sign_apk
-        run: |
-          bundle exec fastlane android update_version_build_and_sign_apk
+        run: bundle exec fastlane android build_release_apk
         env:
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-logs
+          path: |
+            fastlane/logs/gradle-build.log
+            android/app/build/reports/**
+            android/build/reports/**
+          if-no-files-found: warn
 
       - name: Determine APK Filename and Path
         id: determine_apk_path
         run: |
+          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
 
           if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
           else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
           fi
       
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
