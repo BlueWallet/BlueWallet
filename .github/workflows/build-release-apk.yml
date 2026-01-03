@@ -91,9 +91,11 @@ jobs:
         with:
           name: android-build-logs
           path: |
-            fastlane/logs/gradle-build.log
+            fastlane/logs/**
             android/app/build/reports/**
             android/build/reports/**
+            android/app/build/outputs/logs/**
+            android/**/build/outputs/logs/**
           if-no-files-found: warn
 
       - name: Determine APK Filename and Path
