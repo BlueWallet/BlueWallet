@@ -137,9 +137,10 @@ platform :android do
       # Update versionCode in build.gradle
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
       build_gradle_path = "android/app/build.gradle"
-      build_gradle_contents = File.read(build_gradle_path)
-      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
-      File.write(build_gradle_path, new_build_gradle_contents)
+      increment_version_code(
+        gradle_file_path: build_gradle_path,
+        version_code: build_number.to_i
+      )
  
       # Determine branch name and sanitize it
       branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
@@ -213,7 +214,7 @@ platform :android do
       gradle_log = File.join(logs_dir, 'gradle-build.log')
 
       UI.message("Building release APK...")
-      sh("bash -lc 'set -o pipefail; cd android && ./gradlew assembleRelease --no-daemon | tee ../#{gradle_log}'")
+      sh("bash -lc 'set -o pipefail; cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee ../#{gradle_log}'")
 
       apk_dir = "android/app/build/outputs/apk/release"
       unsigned_apk_path = File.join(apk_dir, "app-release-unsigned.apk")
