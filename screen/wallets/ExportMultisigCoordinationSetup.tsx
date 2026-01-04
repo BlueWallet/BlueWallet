@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -104,32 +104,38 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     useCallback(() => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet) {
-          setTimeout(async () => {
-            try {
-              const walletXpub = await wallet.getXpub();
-              if (walletXpub) {
-                const value = uint8ArrayToHex(stringToUint8Array(walletXpub));
-                dispatch({ type: ActionType.SET_XPUB, xpub: walletXpub });
-                dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
-              } else {
-                dispatch({ type: ActionType.SET_ERROR, error: 'xpub not found' });
-              }
-            } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-              dispatch({ type: ActionType.SET_ERROR, error: errorMessage });
-            }
-            dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
-          }, 0);
-        } else {
+      let cancelled = false;
+
+      (async () => {
+        if (!wallet) {
           dispatch({ type: ActionType.SET_ERROR, error: 'Wallet not found' });
           dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
+          return;
         }
-      });
+
+        try {
+          const walletXpub = await wallet.getXpub();
+          if (cancelled) return;
+          if (walletXpub) {
+            const value = uint8ArrayToHex(stringToUint8Array(walletXpub));
+            dispatch({ type: ActionType.SET_XPUB, xpub: walletXpub });
+            dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
+          } else {
+            dispatch({ type: ActionType.SET_ERROR, error: 'xpub not found' });
+          }
+        } catch (error) {
+          if (cancelled) return;
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          dispatch({ type: ActionType.SET_ERROR, error: errorMessage });
+        } finally {
+          if (!cancelled) {
+            dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
+          }
+        }
+      })();
 
       return () => {
-        task.cancel();
+        cancelled = true;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),

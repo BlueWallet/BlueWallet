@@ -3,7 +3,6 @@ import { useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
-  InteractionManager,
   Keyboard,
   LayoutAnimation,
   Platform,
@@ -495,13 +494,11 @@ const WalletsAddMultisigStep2 = () => {
   }, [askPassphrase, cosigners, importText, tryUsingXpub]);
 
   useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      const scannedData = params.onBarScanned;
-      if (scannedData) {
-        onBarScanned(scannedData);
-        navigation.setParams({ onBarScanned: undefined });
-      }
-    });
+    const scannedData = params.onBarScanned;
+    if (scannedData) {
+      onBarScanned(scannedData);
+      navigation.setParams({ onBarScanned: undefined });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation, params.onBarScanned]);
 

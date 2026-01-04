@@ -6,7 +6,6 @@ import {
   findNodeHandle,
   FlatList,
   GestureResponderEvent,
-  InteractionManager,
   Keyboard,
   LayoutAnimation,
   ListRenderItemInfo,
@@ -188,22 +187,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
       setIsLoading(true);
       if (isPrivacyBlurEnabled) enableScreenProtect();
 
-      const task = InteractionManager.runAfterInteractions(async () => {
+      let cancelled = false;
+      (async () => {
         if (!w.current) {
-          // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();
           w.current.setNativeSegwit();
         } else {
           tempWallet.current.setSecret(w.current.getSecret());
-          setWalletData(new Array(tempWallet.current.getN()));
-          setWallet(tempWallet.current);
+          if (!cancelled) {
+            setWalletData(new Array(tempWallet.current.getN()));
+            setWallet(tempWallet.current);
+          }
         }
         hasLoaded.current = true;
-        setIsLoading(false);
-      });
+        if (!cancelled) setIsLoading(false);
+      })();
       return () => {
         disableScreenProtect();
-        task.cancel();
+        cancelled = true;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
@@ -498,18 +499,16 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
-      InteractionManager.runAfterInteractions(() => {
-        try {
-          wallet?.replaceCosignerSeedWithXpub(index);
-        } catch (e: any) {
-          reject(e);
-          return presentAlert({ message: e.message });
-        }
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setWallet(wallet);
-        setIsSaveButtonDisabled(false);
-        resolve();
-      });
+      try {
+        wallet?.replaceCosignerSeedWithXpub(index);
+      } catch (e: any) {
+        reject(e);
+        return presentAlert({ message: e.message });
+      }
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setWallet(wallet);
+      setIsSaveButtonDisabled(false);
+      resolve();
     });
   };
 

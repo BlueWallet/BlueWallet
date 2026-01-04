@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, InteractionManager, LayoutAnimation, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, LayoutAnimation, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
@@ -432,7 +432,8 @@ const ReceiveDetails = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(async () => {
+      let cancelled = false;
+      (async () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
@@ -440,11 +441,13 @@ const ReceiveDetails = () => {
             setAddressBIP21Encoded(address);
           }
         } catch (error) {
-          console.error('Error during focus effect:', error);
+          if (!cancelled) {
+            console.error('Error during focus effect:', error);
+          }
         }
-      });
+      })();
       return () => {
-        task.cancel();
+        cancelled = true;
       };
     }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
