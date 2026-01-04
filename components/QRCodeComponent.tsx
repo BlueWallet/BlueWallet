@@ -63,7 +63,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   ecl = 'H',
   onError = () => {},
 }) => {
-  const qrCode = useRef<any>();
+  const qrCode = useRef<any>(null);
   const { colors, dark } = useTheme();
 
   const handleShareQRCode = () => {
@@ -115,7 +115,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
           {renderQRCode}
         </ToolTipMenu>
       ) : (

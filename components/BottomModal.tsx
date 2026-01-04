@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
-import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, Image, StyleSheet, View, Pressable, Platform, GestureResponderEvent, Text } from 'react-native';
+import { SheetDetent, DetentChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
+import { Keyboard, Image, StyleSheet, View, Pressable, Platform, GestureResponderEvent, Text, StyleProp, ViewStyle } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
 import { Icon } from '@rneui/base';
@@ -10,17 +10,18 @@ interface BottomModalProps extends TrueSheetProps {
   onClose?: () => void;
   onCloseModalPressed?: () => Promise<void>;
   isGrabberVisible?: boolean;
-  sizes?: SheetSize[] | undefined;
-  footer?: ReactElement | ComponentType<any> | null;
+  detents?: SheetDetent[];
+  footer?: ReactElement | ComponentType<any>;
   footerDefaultMargins?: boolean | number;
   onPresent?: () => void;
-  onSizeChange?: (event: SizeChangeEvent) => void;
+  onDetentChange?: (event: DetentChangeEvent) => void;
   showCloseButton?: boolean;
   shareContent?: BottomModalShareContent;
   shareButtonOnPress?: (event: GestureResponderEvent) => void;
-  header?: ReactElement | ComponentType<any> | null;
+  header?: ReactElement | ComponentType<any>;
   headerTitle?: string;
   headerSubtitle?: string;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 }
 
 type BottomModalShareContent = {
@@ -39,18 +40,19 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       onClose,
       onCloseModalPressed,
       onPresent,
-      onSizeChange,
       showCloseButton = true,
       isGrabberVisible = true,
       shareContent,
       shareButtonOnPress,
-      sizes = ['auto'],
+      detents = ['auto'],
       footer,
       footerDefaultMargins,
       header,
       headerTitle,
       headerSubtitle,
       children,
+      onDetentChange,
+      contentContainerStyle,
       ...props
     },
     ref,
@@ -195,15 +197,15 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     return (
       <TrueSheet
         ref={trueSheetRef}
-        sizes={sizes}
-        onDismiss={onClose}
-        onPresent={onPresent}
-        onSizeChange={onSizeChange}
+        detents={detents}
+        onDidDismiss={onClose}
+        onDidPresent={onPresent}
+        onDetentChange={onDetentChange}
         grabber={isGrabberVisible}
-        FooterComponent={FooterComponent as ReactElement}
+        footer={FooterComponent as ReactElement}
         {...props}
       >
-        <View style={styles.childrenContainer}>{children}</View>
+        <View style={[styles.childrenContainer, contentContainerStyle]}>{children}</View>
         {renderHeader()}
       </TrueSheet>
     );

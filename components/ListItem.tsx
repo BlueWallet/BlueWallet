@@ -9,7 +9,7 @@ import { useTheme } from './themes';
 interface ListItemProps {
   swipeable?: boolean;
   rightIcon?: any;
-  leftAvatar?: React.JSX.Element;
+  leftAvatar?: React.ReactElement;
   containerStyle?: object;
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;

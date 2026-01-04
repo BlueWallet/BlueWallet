@@ -256,7 +256,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         backgroundColor={colors.modal}
         isGrabberVisible={!isSuccess}
         dismissible={false}
-        sizes={Platform.OS === 'ios' ? ['auto'] : [460, '90%']}
+        detents={Platform.OS === 'ios' ? ['auto'] : [460, 0.9]}
         footer={
           !isSuccess ? (
             showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
@@ -284,7 +284,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </Animated.View>
             )
-          ) : null
+          ) : undefined
         }
       >
         {!isSuccess && (

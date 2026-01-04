@@ -115,7 +115,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         style={[
           nStyles.container,
           nStylesHooks.container,
-          { backgroundColor: WalletGradient.createWallet() },
+          { backgroundColor: colors.borderTopColor },
           isLarge ? {} : { width: itemWidth },
           { transform: [{ scale }] },
         ]}
@@ -139,7 +139,7 @@ interface WalletCarouselItemProps {
   horizontal?: boolean;
   isPlaceHolder?: boolean;
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   animationsEnabled?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
@@ -151,9 +151,11 @@ const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
   rootLargeDevice: { marginVertical: 20 },
   grad: {
-    padding: 15,
     borderRadius: 12,
     minHeight: 164,
+  },
+  gradContent: {
+    padding: 15,
   },
   balanceContainer: {
     height: 40,
@@ -355,50 +357,55 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-              <ImageBackground source={image} style={iStyles.image} />
-              <Text style={iStyles.br} />
-              {!isPlaceHolder && (
-                <>
-                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
-                    {renderHighlightedText && searchQuery ? (
-                      <HighlightedText
-                        text={item.getLabel()}
-                        query={searchQuery}
-                        style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                      />
-                    ) : (
-                      item.getLabel()
-                    )}
-                  </Text>
-                  <View style={iStyles.balanceContainer}>
-                    {item.hideBalance ? (
-                      <>
-                        <BlueSpacing10 />
-                        <BlurredBalanceView />
-                      </>
-                    ) : (
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                        style={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                      >
-                        {`${balance} `}
-                      </Text>
-                    )}
-                  </View>
-                  <Text style={iStyles.br} />
-                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
-                    {loc.wallets.list_latest_transaction}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                  >
-                    {latestTransactionText}
-                  </Text>
-                </>
-              )}
+              <View style={iStyles.gradContent}>
+                <ImageBackground source={image} style={iStyles.image} />
+                <Text style={iStyles.br} />
+                {!isPlaceHolder && (
+                  <>
+                    <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
+                      {renderHighlightedText && searchQuery ? (
+                        <HighlightedText
+                          text={item.getLabel()}
+                          query={searchQuery}
+                          style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                        />
+                      ) : (
+                        item.getLabel()
+                      )}
+                    </Text>
+                    <View style={iStyles.balanceContainer}>
+                      {item.hideBalance ? (
+                        <>
+                          <BlueSpacing10 />
+                          <BlurredBalanceView />
+                        </>
+                      ) : (
+                        <Text
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                          style={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                        >
+                          {`${balance} `}
+                        </Text>
+                      )}
+                    </View>
+                    <Text style={iStyles.br} />
+                    <Text
+                      numberOfLines={1}
+                      style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                    >
+                      {loc.wallets.list_latest_transaction}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                    >
+                      {latestTransactionText}
+                    </Text>
+                  </>
+                )}
+              </View>
             </LinearGradient>
           </View>
         </Pressable>
@@ -417,7 +424,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   data: TWallet[];
   scrollEnabled?: boolean;
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   animateChanges?: boolean;
 }
 
@@ -467,7 +474,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const isInitialMount = useRef(true);
 
   const flatListRef = useRef<FlatList<any>>(null);
-  const walletRefs = useRef<Record<string, React.RefObject<View>>>({});
+  const walletRefs = useRef<Record<string, React.RefObject<View | null>>>({});
 
   const { sizeClass } = useSizeClass();
 
@@ -530,7 +537,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   useEffect(() => {
     data.forEach(wallet => {
       if (!walletRefs.current[wallet.getID()]) {
-        walletRefs.current[wallet.getID()] = createRef<View>();
+        walletRefs.current[wallet.getID()] = createRef<View | null>();
       }
     });
   }, [data]);

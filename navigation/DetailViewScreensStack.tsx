@@ -138,7 +138,7 @@ const DetailViewStackScreensStack = () => {
           },
           headerTitle: '',
           headerRight: () => DetailButton,
-          headerBackButtonDisplayMode: 'default',
+          headerBackButtonDisplayMode: 'minimal',
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
@@ -234,7 +234,7 @@ const DetailViewStackScreensStack = () => {
         component={Settings}
         options={navigationStyle({
           title: loc.settings.header,
-          headerBackButtonDisplayMode: 'default',
+          headerBackButtonDisplayMode: 'minimal',
           headerShadowVisible: false,
           headerLargeTitle: true,
           animationTypeForReplace: 'push',

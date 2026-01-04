@@ -218,7 +218,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         shareButtonOnPress={() => {
           shareModalRef.current?.present();
         }}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '50%']}
+        detents={[Platform.OS === 'ios' ? 'auto' : 0.5]}
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -544,7 +544,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <ToolTipMenu
             isButton
-            isMenuPrimaryAction
+            shouldOpenOnLongPress
             onPressMenuItem={(id: string) => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);

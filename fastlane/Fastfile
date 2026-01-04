@@ -82,6 +82,9 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
+  # Skip Apple auth entirely for Android lanes
+  next if lane_context[:PLATFORM_NAME] == :android
+
   skip_auth_lanes = ['register_devices_from_txt']
   
   # Check if we need App Store Connect for this lane
@@ -127,16 +130,19 @@ platform :android do
       build_number = ENV['BUILD_NUMBER']
       UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
  
-      # Extract versionName from build.gradle
-      version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
+      # Extract versionName from build.gradle without shelling out
+      version_name = begin
+        match = File.read('android/app/build.gradle').match(/versionName\s+"(?<name>[^\"]+)"/)
+        match ? match[:name] : nil
+      end
       UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
  
-      # Update versionCode in build.gradle
+      # Update versionCode in build.gradle without fastlane action dependency
       UI.message("Updating versionCode in build.gradle to #{build_number}...")
       build_gradle_path = "android/app/build.gradle"
-      build_gradle_contents = File.read(build_gradle_path)
-      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
-      File.write(build_gradle_path, new_build_gradle_contents)
+      gradle_contents = File.read(build_gradle_path)
+      updated = gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, updated)
  
       # Determine branch name and sanitize it
       branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
@@ -173,6 +179,93 @@ platform :android do
       UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
       sh("#{apksigner_path} sign --ks #{project_root}/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
       UI.message("APK signed successfully: #{signed_apk_path}")
+    end
+  end
+
+  desc "Build and sign release APK"
+  lane :build_release_apk do
+    Dir.chdir(project_root) do
+      required_env = %w[BUILD_NUMBER KEYSTORE_FILE_HEX KEYSTORE_PASSWORD]
+      missing = required_env.select { |key| ENV[key].nil? || ENV[key].empty? }
+      UI.user_error!("Missing required env vars: #{missing.join(', ')}") unless missing.empty?
+
+      build_number = ENV['BUILD_NUMBER']
+      keystore_hex = ENV['KEYSTORE_FILE_HEX']
+      keystore_password = ENV['KEYSTORE_PASSWORD']
+
+      keystore_hex_path = "bluewallet-release-key.keystore.hex"
+      keystore_path = File.join('android', 'bluewallet-release-key.keystore')
+
+      UI.message("Creating keystore from HEX...")
+      File.write(keystore_hex_path, keystore_hex)
+      sh("xxd -plain -revert #{keystore_hex_path} > #{keystore_path}") do |status|
+        UI.user_error!("Error reverting hex to keystore") unless status.success?
+      end
+      File.delete(keystore_hex_path)
+
+      build_gradle_path = "android/app/build.gradle"
+      UI.message("Setting versionCode in build.gradle to #{build_number}...")
+      gradle_contents = File.read(build_gradle_path)
+      updated = gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
+      File.write(build_gradle_path, updated)
+
+      version_name = begin
+        match = File.read(build_gradle_path).match(/versionName\s+"(?<name>[^\"]+)"/)
+        match ? match[:name] : nil
+      end
+      UI.user_error!("Failed to extract versionName from #{build_gradle_path}") if version_name.nil? || version_name.empty?
+
+      branch_name = ENV['GITHUB_HEAD_REF'] || ENV['GITHUB_REF_NAME'] || `git rev-parse --abbrev-ref HEAD`.strip
+      branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '_')
+      branch_name = 'master' if branch_name.nil? || branch_name.empty?
+
+      logs_dir = File.join('fastlane', 'logs')
+      FileUtils.mkdir_p(logs_dir)
+      gradle_log = File.join(logs_dir, 'gradle-build.log')
+
+      UI.message("Building release APK...")
+      gradle(
+        task: "assembleRelease",
+        project_dir: File.join(project_root, "android"),
+        flags: "--no-daemon --stacktrace --console=plain",
+        print_command: true
+      )
+
+      apk_dir = File.join('android', 'app', 'build', 'outputs', 'apk', 'release')
+      unsigned_apk_path = File.join(apk_dir, 'app-release-unsigned.apk')
+      fallback_apk_path = File.join(apk_dir, 'app-release.apk')
+      candidate_apk_path = File.exist?(unsigned_apk_path) ? unsigned_apk_path : fallback_apk_path
+      signed_apk_name = branch_name != 'master' ?
+        "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" :
+        "BlueWallet-#{version_name}-#{build_number}.apk"
+      signed_apk_path = File.join(apk_dir, signed_apk_name)
+
+      UI.user_error!("Unsigned APK not found at path: #{unsigned_apk_path} or #{fallback_apk_path}") unless File.exist?(candidate_apk_path)
+      UI.message("Renaming APK to #{signed_apk_name}...")
+      FileUtils.mv(candidate_apk_path, signed_apk_path)
+
+      sdk_root = ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT']
+      apksigner_path = Dir.glob(File.join(sdk_root.to_s, 'build-tools', '36.0.0', 'apksigner')).first || Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
+      UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
+
+      UI.message("Signing APK with apksigner...")
+      sh("#{apksigner_path} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{signed_apk_path}")
+      UI.success("APK signed successfully: #{signed_apk_path}")
+
+      FileUtils.rm_f(keystore_path)
+
+      apk_absolute_path = File.expand_path(signed_apk_path)
+      ENV['APK_OUTPUT_PATH'] = apk_absolute_path
+      ENV['APK_VERSION_NAME'] = version_name
+      ENV['APK_VERSION_CODE'] = build_number
+
+      if ENV['GITHUB_OUTPUT'] && !ENV['GITHUB_OUTPUT'].empty?
+        File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
+          f.puts("apk_output_path=#{apk_absolute_path}")
+          f.puts("apk_version_name=#{version_name}")
+          f.puts("apk_version_code=#{build_number}")
+        end
+      end
     end
   end
 end

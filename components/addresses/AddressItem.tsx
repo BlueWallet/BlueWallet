@@ -27,7 +27,7 @@ interface AddressItemProps {
   allowSignVerifyMessage: boolean;
   onPress?: () => void; // example: ManageWallets uses this
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
@@ -190,6 +190,7 @@ const AddressItem = ({
       renderPreview={renderPreview}
       onPress={navigateToReceive}
       isButton
+      shouldOpenOnLongPress
     >
       <ListItem key={item.key} containerStyle={stylesHook.container}>
         <ListItem.Content>

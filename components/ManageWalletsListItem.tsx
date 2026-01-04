@@ -39,7 +39,7 @@ interface ManageWalletsListItemProps {
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
   handleToggleHideBalance: (wallet: TWallet) => void;
   isActive?: boolean;
   style?: ViewStyle;
@@ -294,7 +294,7 @@ interface WalletGroupProps {
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
   isSearching: boolean;
 }
 
