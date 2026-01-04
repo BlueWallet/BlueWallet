@@ -6,7 +6,7 @@ import { useSettings } from '../hooks/context/useSettings';
 
 const styles = {
   menuView: { flex: 1 } as const,
-  pressable: { alignSelf: 'flex-start' } as const,
+  pressable: { alignSelf: 'center' } as const,
   pressed: { opacity: 0.6 } as const,
 };
 
