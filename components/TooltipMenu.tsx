@@ -28,6 +28,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     testID,
     onMenuWillShow,
     onMenuWillHide,
+    enableAndroidRipple = true,
   } = props;
 
   const { language } = useSettings();
@@ -130,7 +131,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
     return (
       <Pressable
-        android_ripple={{ color: '#d9d9d9', foreground: true }}
+        android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
         style={({ pressed }) => {
           const base: ViewStyle[] = [styles.pressable];
           if (buttonStyle) {
@@ -140,7 +141,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
               base.push(buttonStyle);
             }
           }
-          if (pressed) base.push(styles.pressed);
+          if (pressed && enableAndroidRipple) base.push(styles.pressed);
           return base;
         }}
         disabled={disabled}

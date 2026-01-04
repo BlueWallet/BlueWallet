@@ -90,6 +90,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     container: { borderWidth: dark ? BORDER_WIDTH : 0 },
   });
 
+  const qrButtonStyle = {
+    width: newSize,
+    height: newSize,
+    justifyContent: 'center',
+    alignItems: 'center',
+  } as const;
+
   const renderQRCode = (
     <QRCode
       value={value}
@@ -115,7 +122,14 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
+        <ToolTipMenu
+          actions={menuActions}
+          onPressMenuItem={onPressMenuItem}
+          shouldOpenOnLongPress
+          isButton
+          enableAndroidRipple={false}
+          buttonStyle={qrButtonStyle}
+        >
           {renderQRCode}
         </ToolTipMenu>
       ) : (
@@ -128,5 +142,5 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  container: { borderColor: '#FFFFFF' },
+  container: { borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
 });
