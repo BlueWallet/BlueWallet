@@ -95,3 +95,5 @@ android/app/.settings/org.eclipse.jdt.core.prefs
 android/.settings/org.eclipse.buildship.core.prefs
 android/app/.classpath
 android/app/.project
+fastlane/README.md
+fastlane/report.xml

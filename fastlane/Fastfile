@@ -233,14 +233,16 @@ platform :android do
 
       apk_dir = File.join('android', 'app', 'build', 'outputs', 'apk', 'release')
       unsigned_apk_path = File.join(apk_dir, 'app-release-unsigned.apk')
+      fallback_apk_path = File.join(apk_dir, 'app-release.apk')
+      candidate_apk_path = File.exist?(unsigned_apk_path) ? unsigned_apk_path : fallback_apk_path
       signed_apk_name = branch_name != 'master' ?
         "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" :
         "BlueWallet-#{version_name}-#{build_number}.apk"
       signed_apk_path = File.join(apk_dir, signed_apk_name)
 
-      UI.user_error!("Unsigned APK not found at path: #{unsigned_apk_path}") unless File.exist?(unsigned_apk_path)
+      UI.user_error!("Unsigned APK not found at path: #{unsigned_apk_path} or #{fallback_apk_path}") unless File.exist?(candidate_apk_path)
       UI.message("Renaming APK to #{signed_apk_name}...")
-      FileUtils.mv(unsigned_apk_path, signed_apk_path)
+      FileUtils.mv(candidate_apk_path, signed_apk_path)
 
       sdk_root = ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT']
       apksigner_path = Dir.glob(File.join(sdk_root.to_s, 'build-tools', '36.0.0', 'apksigner')).first || Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last

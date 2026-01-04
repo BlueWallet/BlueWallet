@@ -11,7 +11,7 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
       - name: Checkout project
@@ -124,7 +124,7 @@ jobs:
           if-no-files-found: error
 
   browserstack:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: buildReleaseApk
     if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack') }}
 
