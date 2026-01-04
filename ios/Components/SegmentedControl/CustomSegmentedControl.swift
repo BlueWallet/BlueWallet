@@ -3,7 +3,7 @@ import React
 
 @objc(CustomSegmentedControl)
 class CustomSegmentedControl: UISegmentedControl {
-    @objc var onChangeEvent: RCTDirectEventBlock?
+    @objc var onChange: RCTBubblingEventBlock?
 
     @objc var values: [String] = [] {
         didSet {
@@ -31,7 +31,7 @@ class CustomSegmentedControl: UISegmentedControl {
     }
 
     @objc func onChange(_ sender: UISegmentedControl) {
-        onChangeEvent?(["selectedIndex": sender.selectedSegmentIndex])
+        onChange?(["selectedIndex": sender.selectedSegmentIndex])
     }
 }
 

@@ -14,7 +14,8 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
 
     companion object {
         const val REACT_CLASS = "CustomSegmentedControl"
-        private const val ON_CHANGE_EVENT = "onChangeEvent"
+        private const val TOP_CHANGE = "topChange"
+        private const val REGISTRATION_NAME = "onChange"
     }
 
     override fun getName(): String = REACT_CLASS
@@ -64,9 +65,15 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
         view.setEnabledProp(value)
     }
 
-    override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
+    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
         return MapBuilder.builder<String, Any>()
-            .put(ON_CHANGE_EVENT, MapBuilder.of("registrationName", ON_CHANGE_EVENT))
+            .put(
+                TOP_CHANGE,
+                MapBuilder.of(
+                    "phasedRegistrationNames",
+                    MapBuilder.of("bubbled", REGISTRATION_NAME, "captured", "${REGISTRATION_NAME}Capture")
+                )
+            )
             .build()
     }
 

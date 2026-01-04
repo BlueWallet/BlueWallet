@@ -23,7 +23,6 @@ class CustomSegmentedControl @JvmOverloads constructor(
 
     private val toggleGroup: MaterialButtonToggleGroup
     private var currentSelectedIndex: Int = 0
-    private var onChangeEvent: ((WritableMap) -> Unit)? = null
     private var backgroundColorProp: Int? = null
     private var tintColorProp: Int? = null
     private var textColorProp: Int? = null
@@ -254,12 +253,8 @@ class CustomSegmentedControl @JvmOverloads constructor(
         private val eventData: WritableMap
     ) : Event<ChangeEvent>(surfaceId, viewId) {
         
-        override fun getEventName(): String = "onChangeEvent"
+        override fun getEventName(): String = "topChange"
         
         override fun getEventData(): WritableMap = eventData
-    }
-
-    fun setOnChangeEvent(callback: ((WritableMap) -> Unit)?) {
-        onChangeEvent = callback
     }
 }
