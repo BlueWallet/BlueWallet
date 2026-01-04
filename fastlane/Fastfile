@@ -226,10 +226,9 @@ platform :android do
       UI.message("Building release APK...")
       gradle(
         task: "assembleRelease",
-        project_dir: "android",
+        project_dir: File.join(project_root, "android"),
         flags: "--no-daemon --stacktrace --console=plain",
-        print_command: true,
-        log_file: gradle_log
+        print_command: true
       )
 
       apk_dir = File.join('android', 'app', 'build', 'outputs', 'apk', 'release')
