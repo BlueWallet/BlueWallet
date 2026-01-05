@@ -77,19 +77,6 @@ android {
         noCompress += ["bundle"]
     }
 
-    // Guard prefab so older/newer plugin versions without the DSL won't crash
-    if (project.android.hasProperty('buildFeatures') && project.android.buildFeatures.hasProperty('prefab')) {
-        project.android.buildFeatures.prefab = true
-
-        if (project.android.hasProperty('prefab')) {
-            project.android.prefab {
-                hermes-engine {
-                    transitiveHeaders true
-                }
-            }
-        }
-    }
-
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
