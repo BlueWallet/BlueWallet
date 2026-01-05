@@ -1,5 +1,5 @@
-import React, { useMemo, useLayoutEffect } from "react";
-import { View, StyleSheet, Platform, StatusBar } from "react-native";
+import React, { useMemo, useLayoutEffect, useCallback } from "react";
+import { View, StyleSheet, Platform, StatusBar, Linking, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import PlatformListItem from "../../components/PlatformListItem";
 import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
@@ -57,7 +57,25 @@ const Settings = () => {
   const toolsIcon = useMemo(() => getIcon("tools"), [getIcon]);
   const aboutIcon = useMemo(() => getIcon("about"), [getIcon]);
 
+  const handleDonatePress = useCallback(() => {
+    Linking.openURL("https://donate.bluewallet.io/");
+  }, []);
+
   const localStyles = StyleSheet.create({
+    donateIconContainer: {
+      padding: 4,
+    },
+    donateIconImage: {
+      width: 48,
+      height: 48,
+    },
+    donateSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginBottom: sizing.sectionContainerMarginBottom,
+      marginTop: isAndroid ? 8 : 0,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      
+    },
     firstSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginBottom: sizing.sectionContainerMarginBottom || 16,
@@ -77,6 +95,15 @@ const Settings = () => {
     },
   });
 
+  const donateIcon = useMemo(
+    () => (
+      <View style={localStyles.donateIconContainer}>
+        <Image source={require("../../img/bluebeast.png")} style={localStyles.donateIconImage} resizeMode="contain" />
+      </View>
+    ),
+    [localStyles.donateIconContainer, localStyles.donateIconImage],
+  );
+
   return (
     <SafeAreaScrollView
       testID="SettingsRoot"
@@ -85,7 +112,28 @@ const Settings = () => {
       nestedScrollEnabled={true}
       headerHeight={headerHeight}
     >
-      <View style={localStyles.firstSectionContainer}>
+      <View style={localStyles.donateSectionContainer}>
+        <PlatformListItem
+          title="Donate"
+          subtitle="Let's keep Blue free!"
+          leftIcon={donateIcon}
+          containerStyle={[
+            localStyles.itemContainer,
+            {
+              backgroundColor: colors.cardBackground,
+              ...(isAndroid && { height: sizing.itemMinHeight }),
+            },
+          ]}
+          onPress={handleDonatePress}
+          testID="Donate"
+          chevron
+          bottomDivider={false}
+          isFirst
+          isLast
+        />
+      </View>
+
+      <View style={localStyles.sectionContainer}>
         <PlatformListItem
           title={loc.settings.general}
           leftIcon={settingsIcon}
