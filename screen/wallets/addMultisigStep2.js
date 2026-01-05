@@ -1,16 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
-import {
-  ActivityIndicator,
-  FlatList,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
