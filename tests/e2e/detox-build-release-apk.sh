@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # script thats used to build & sign release APK in preparation for Detox e2e testing.
 # Usage: USE_FASTLANE=1 ./tests/e2e/detox-build-release-apk.sh or ./tests/e2e/detox-build-release-apk.sh --fastlane
 
