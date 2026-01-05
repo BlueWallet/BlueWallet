@@ -740,6 +740,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
 
     await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
@@ -782,6 +783,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
 
     await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();

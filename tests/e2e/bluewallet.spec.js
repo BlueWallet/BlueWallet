@@ -44,6 +44,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
+    // scroll to AboutButton as it may be below the visible area (especially with the new Donate section)
+    await waitFor(element(by.id('AboutButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(500, 'down');
+    await sleep(200); // Wait for scroll animation to finish
     await element(by.id('AboutButton')).tap();
     await waitFor(element(by.id('RunSelfTestButton')))
       .toBeVisible()
@@ -107,6 +113,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Language')).tap();
     await element(by.text('English')).tap();
     await goBack();
+    // Language change may cause navigation to go back twice (to Home), so re-navigate to Settings if needed
+    try {
+      await waitFor(element(by.id('SettingsRoot')))
+        .toBeVisible()
+        .withTimeout(2000);
+    } catch (_) {
+      // If SettingsRoot is not visible, we're probably on Home screen, so navigate to Settings
+      await element(by.id('SettingsButton')).tap();
+      await waitForId('SettingsRoot');
+    }
 
     // security
     await waitFor(element(by.id('SecurityButton')))
@@ -382,7 +398,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    //
+    // Wait for unlock screen to load, then wait for password input to appear
+    // (password input appears after promptForPassword is called asynchronously)
+    await sleep(1000); // Give time for unlock screen to initialize and async chain to complete
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).typeText('qqq\n');
     await waitForId('WalletsList');
@@ -392,7 +410,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    //
+    // Wait for unlock screen to load, then wait for password input to appear
+    await sleep(1000); // Give time for unlock screen to initialize and async chain to complete
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
     await waitForId('WalletsList');
