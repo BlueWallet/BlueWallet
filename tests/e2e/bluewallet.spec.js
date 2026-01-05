@@ -203,6 +203,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // IsItMyAddress
     await element(by.id('IsItMyAddress')).tap();
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('CheckAddress')).tap();
     await expect(element(by.text('None of the available wallets own the provided address.'))).toBeVisible();
