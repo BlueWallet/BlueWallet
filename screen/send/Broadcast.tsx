@@ -64,7 +64,6 @@ const Broadcast: React.FC = () => {
     },
     contentContainer: {
       paddingHorizontal: sizing.basePadding,
-      paddingTop: sizing.basePadding,
     },
     card: {
       backgroundColor: platformColors.cardBackground,

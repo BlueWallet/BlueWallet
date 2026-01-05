@@ -147,7 +147,6 @@ const IsItMyAddress: React.FC = () => {
     },
     contentContainer: {
       paddingHorizontal: sizing.basePadding,
-      paddingTop: sizing.basePadding,
     },
     isItMyAddressCard: {
       backgroundColor: colors.cardBackground,
