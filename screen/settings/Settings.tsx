@@ -1,17 +1,16 @@
-import React, { useMemo, useLayoutEffect, useCallback } from "react";
-import { View, StyleSheet, Platform, StatusBar, Linking, Image } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import PlatformListItem from "../../components/PlatformListItem";
-import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
-import loc from "../../loc";
-import SafeAreaScrollView from "../../components/SafeAreaScrollView";
-import { usePlatformStyles } from "../../theme/platformStyles";
-import { useSettings } from "../../hooks/context/useSettings";
+import React, { useMemo, useLayoutEffect, useCallback } from 'react';
+import { View, StyleSheet, Platform, StatusBar, Linking, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PlatformListItem from '../../components/PlatformListItem';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { usePlatformStyles } from '../../theme/platformStyles';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
-  const { colors, styles, layout, isAndroid, getIcon, sizing } =
-    usePlatformStyles();
+  const { colors, styles, layout, isAndroid, getIcon, sizing } = usePlatformStyles();
   const { language } = useSettings(); // Subscribe to language changes to trigger re-render
   const insets = useSafeAreaInsets();
 
@@ -19,7 +18,7 @@ const Settings = () => {
   // Standard Android header is 56dp + status bar height
   // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
       return 56 + statusBarHeight;
     }
@@ -31,34 +30,37 @@ const Settings = () => {
       title: loc.settings.header,
       // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
       headerLargeTitle: Platform.OS === 'ios',
-      headerLargeTitleStyle: Platform.OS === 'ios' ? {
-        color: colors.titleColor || "#000000",
-      } : undefined,
+      headerLargeTitleStyle:
+        Platform.OS === 'ios'
+          ? {
+              color: colors.titleColor || '#000000',
+            }
+          : undefined,
       headerTitleStyle: {
-        color: colors.titleColor || "#000000",
+        color: colors.titleColor || '#000000',
       },
-      headerBackButtonDisplayMode: "minimal",
-      headerBackTitle: "",
+      headerBackButtonDisplayMode: 'minimal',
+      headerBackTitle: '',
       headerBackVisible: true, // Show back button on Android
       // Transparent header on both iOS and Android
       headerTransparent: true,
       headerBlurEffect: undefined,
       headerStyle: {
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
     });
   }, [setOptions, colors.titleColor, language]); // Include language to trigger re-render when language changes
 
-  const settingsIcon = useMemo(() => getIcon("settings"), [getIcon]);
-  const currencyIcon = useMemo(() => getIcon("currency"), [getIcon]);
-  const languageIcon = useMemo(() => getIcon("language"), [getIcon]);
-  const securityIcon = useMemo(() => getIcon("security"), [getIcon]);
-  const networkIcon = useMemo(() => getIcon("network"), [getIcon]);
-  const toolsIcon = useMemo(() => getIcon("tools"), [getIcon]);
-  const aboutIcon = useMemo(() => getIcon("about"), [getIcon]);
+  const settingsIcon = useMemo(() => getIcon('settings'), [getIcon]);
+  const currencyIcon = useMemo(() => getIcon('currency'), [getIcon]);
+  const languageIcon = useMemo(() => getIcon('language'), [getIcon]);
+  const securityIcon = useMemo(() => getIcon('security'), [getIcon]);
+  const networkIcon = useMemo(() => getIcon('network'), [getIcon]);
+  const toolsIcon = useMemo(() => getIcon('tools'), [getIcon]);
+  const aboutIcon = useMemo(() => getIcon('about'), [getIcon]);
 
   const handleDonatePress = useCallback(() => {
-    Linking.openURL("https://donate.bluewallet.io/");
+    Linking.openURL('https://donate.bluewallet.io/');
   }, []);
 
   const localStyles = StyleSheet.create({
@@ -72,13 +74,6 @@ const Settings = () => {
     donateSectionContainer: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginBottom: sizing.sectionContainerMarginBottom,
-      marginTop: isAndroid ? 8 : 0,
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-      
-    },
-    firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginBottom: sizing.sectionContainerMarginBottom || 16,
       marginTop: isAndroid ? 8 : 0,
       marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
     },
@@ -98,7 +93,7 @@ const Settings = () => {
   const donateIcon = useMemo(
     () => (
       <View style={localStyles.donateIconContainer}>
-        <Image source={require("../../img/bluebeast.png")} style={localStyles.donateIconImage} resizeMode="contain" />
+        <Image source={require('../../img/bluebeast.png')} style={localStyles.donateIconImage} resizeMode="contain" />
       </View>
     ),
     [localStyles.donateIconContainer, localStyles.donateIconImage],
@@ -144,7 +139,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("GeneralSettings")}
+          onPress={() => navigate('GeneralSettings')}
           testID="GeneralSettings"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -161,7 +156,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("Currency")}
+          onPress={() => navigate('Currency')}
           testID="Currency"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -177,7 +172,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("Language")}
+          onPress={() => navigate('Language')}
           testID="Language"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -193,7 +188,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("EncryptStorage")}
+          onPress={() => navigate('EncryptStorage')}
           testID="SecurityButton"
           chevron
           bottomDivider={layout.showBorderBottom}
@@ -209,7 +204,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("NetworkSettings")}
+          onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
           chevron
           bottomDivider={false}
@@ -228,7 +223,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("SettingsTools")}
+          onPress={() => navigate('SettingsTools')}
           testID="Tools"
           chevron
           bottomDivider={false}
@@ -248,7 +243,7 @@ const Settings = () => {
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
           ]}
-          onPress={() => navigate("About")}
+          onPress={() => navigate('About')}
           testID="AboutButton"
           chevron
           bottomDivider={false}
