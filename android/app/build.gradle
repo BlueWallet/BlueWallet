@@ -77,13 +77,16 @@ android {
         noCompress += ["bundle"]
     }
 
-    buildFeatures {
-        prefab true
-    }
+    // Guard prefab so older/newer plugin versions without the DSL won't crash
+    if (project.android.hasProperty('buildFeatures') && project.android.buildFeatures.hasProperty('prefab')) {
+        project.android.buildFeatures.prefab = true
 
-    prefab {
-        hermes-engine {
-            transitiveHeaders true
+        if (project.android.hasProperty('prefab')) {
+            project.android.prefab {
+                hermes-engine {
+                    transitiveHeaders true
+                }
+            }
         }
     }
 
@@ -98,7 +101,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 900001
         versionName "7.2.4"
-		    missingDimensionStrategy "react-native-capture-protection", "callbackTiramisu"
+        missingDimensionStrategy "react-native-capture-protection", "base"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
