@@ -140,7 +140,6 @@ const AddWalletStack = () => {
           presentation: 'formSheet',
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
-          contentStyle: { flex: 1 },
           headerShown: true,
           headerTitle: loc.multisig.vault_advanced_customize,
         })(theme)}
