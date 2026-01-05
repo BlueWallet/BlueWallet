@@ -714,6 +714,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     await element(by.id('CreateTransactionButton')).tap();
+    await waitForId('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex2 = await extractTextFromElementById('TxhexInput');
