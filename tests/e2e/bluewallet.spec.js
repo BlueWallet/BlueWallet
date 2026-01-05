@@ -109,6 +109,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     // security
+    await waitFor(element(by.id('SecurityButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down');
     await element(by.id('SecurityButton')).tap();
     await goBack();
 
