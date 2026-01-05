@@ -52,7 +52,7 @@ module AndroidHelpers
   def write_keystore_from_hex!(hex_value, paths)
     UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if hex_value.nil? || hex_value.empty?
     File.write(paths[:hex], hex_value)
-    sh("xxd -plain -revert #{paths[:hex]} > #{paths[:file]}") do |status|
+    Actions.sh("xxd -plain -revert #{paths[:hex]} > #{paths[:file]}") do |status|
       UI.user_error!("Error reverting hex to keystore") unless status.success?
     end
     File.delete(paths[:hex])
@@ -88,7 +88,7 @@ module AndroidHelpers
   end
 
   def assemble_release!(log_path:)
-    sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
+    Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
       UI.user_error!("Gradle assembleRelease failed") unless status.success?
     end
   end
@@ -111,7 +111,7 @@ module AndroidHelpers
   def sign_apk!(apk_path, keystore_path, keystore_password)
     signer = apksigner_path
     UI.user_error!("apksigner not found in Android build-tools") if signer.nil? || signer.empty?
-    sh("#{signer} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{apk_path}")
+    Actions.sh("#{signer} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{apk_path}")
   end
 
   def write_github_output(hash)
@@ -130,7 +130,7 @@ module AndroidHelpers
     password = "temp#{SecureRandom.hex(6)}"
     alias_name = "bluewallet-temp"
 
-    sh(
+    Actions.sh(
       "keytool -genkeypair -v -keystore #{keystore_path} -storepass #{password} -keypass #{password} " \
       "-alias #{alias_name} -keyalg RSA -keysize 2048 -validity 10000 " \
       "-dname \"CN=Temp,O=BlueWallet,OU=CI,L=NY,ST=NY,C=US\""
