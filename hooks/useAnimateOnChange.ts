@@ -5,11 +5,9 @@ const useAnimateOnChange = <T>(value: T) => {
 
   useAnimatedReaction(
     () => {
-      'worklet';
       return value;
     },
     (current, previous) => {
-      'worklet';
       if (previous === null || previous === undefined) {
         return;
       }
