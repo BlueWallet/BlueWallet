@@ -18,6 +18,9 @@ const PromptPasswordConfirmationStack = () => {
         component={PromptPasswordConfirmationSheet}
         options={navigationStyle({
           title: loc.settings.password,
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
           closeButtonPosition: CloseButtonPosition.Right,
           headerBackButtonDisplayMode: 'minimal',
         })(theme)}

@@ -7,12 +7,10 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { MODAL_TYPES } from '../PromptPasswordConfirmationSheet.types';
-import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
-import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -61,11 +59,10 @@ const reducer = (state: State, action: Action): State => {
 };
 
 const EncryptStorage = () => {
-  const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
+  const { isStorageEncrypted } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const route = useRoute<RouteProp<DetailViewStackParamList, 'EncryptStorage'>>();
   const { colors } = useTheme();
 
   const styleHooks = StyleSheet.create({
@@ -86,52 +83,13 @@ const EncryptStorage = () => {
     initializeState();
   }, [initializeState]);
 
-  useEffect(() => {
-    const sheetResult = route.params?.passwordSheetResult;
-    if (!sheetResult) return;
-
-    navigation.setParams({ passwordSheetResult: undefined });
-
-    const resetLoadingState = () => {
+  useFocusEffect(
+    useCallback(() => {
+      initializeState();
       dispatch({ type: ActionType.SetLoading, payload: false });
       dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-    };
-
-    if (sheetResult.status !== 'success' || !sheetResult.password) {
-      resetLoadingState();
-      return;
-    }
-
-    const handleResult = async () => {
-      let success = false;
-      if (sheetResult.modalType === MODAL_TYPES.CREATE_PASSWORD) {
-        try {
-          await encryptStorage(sheetResult.password!);
-          await saveToDisk();
-          dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
-          success = true;
-        } catch (error) {
-          presentAlert({ message: (error as Error).message });
-        }
-      } else if (sheetResult.modalType === MODAL_TYPES.ENTER_PASSWORD) {
-        try {
-          await decryptStorage(sheetResult.password!);
-          await saveToDisk();
-          const action = StackActions.popToTop();
-          navigation.dispatch(action);
-          success = true;
-        } catch {
-          success = false;
-        }
-      }
-
-      resetLoadingState();
-      initializeState();
-      return success;
-    };
-
-    handleResult();
-  }, [decryptStorage, encryptStorage, initializeState, navigation, route.params?.passwordSheetResult, saveToDisk]);
+    }, [initializeState]),
+  );
 
   const handleDecryptStorage = async () => {
     dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });

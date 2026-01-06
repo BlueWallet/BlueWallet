@@ -1,7 +1,7 @@
 import { AztecoVoucher } from '../class/azteco';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { PasswordSheetResult, PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
+import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 
@@ -85,8 +85,8 @@ export type DetailViewStackParamList = {
   DefaultView: undefined;
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
-  PlausibleDeniability: { passwordSheetResult?: PasswordSheetResult } | undefined;
-  EncryptStorage: { passwordSheetResult?: PasswordSheetResult } | undefined;
+  PlausibleDeniability: undefined;
+  EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
     url?: string;

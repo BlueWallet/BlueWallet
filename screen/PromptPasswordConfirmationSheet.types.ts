@@ -11,9 +11,3 @@ export type PromptPasswordConfirmationParams = {
   modalType: ModalType;
   returnTo: 'PlausibleDeniability' | 'EncryptStorage';
 };
-
-export type PasswordSheetResult = {
-  status: 'success' | 'failure' | 'cancel';
-  password?: string;
-  modalType: ModalType;
-};
