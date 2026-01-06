@@ -3,7 +3,7 @@ import bip38 from 'bip38';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component, useMemo } from 'react';
-import { Linking, ScrollView, StyleSheet, View, Platform, StatusBar } from 'react-native';
+import { Linking, StyleSheet, View, Platform, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // @ts-ignore theres no type declaration for this
 import BlueCrypto from 'react-native-blue-crypto';
