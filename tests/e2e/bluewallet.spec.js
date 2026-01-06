@@ -128,9 +128,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('SettingsButton')).tap();
       await waitForId('SettingsRoot');
     }
-    // Wait for language to change back to English by verifying English text appears
-    await waitFor(element(by.text('Language')))
+    // Wait for language to change back to English by verifying the Language button (testID) is visible
+    // Using testID instead of text since the text might still be in Chinese
+    await waitFor(element(by.id('Language')))
       .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down')
       .withTimeout(3000);
     await sleep(500); // Give extra time for language change to fully propagate
 
