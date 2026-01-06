@@ -93,7 +93,7 @@ const WalletsAddMultisigStep2 = () => {
       backgroundColor: colors.elevated,
     },
     askPassphrase: {
-      backgroundColor: colors.lightButton,
+      backgroundColor: colors.formBorder,
     },
     textDestination: {
       color: colors.foregroundColor,
@@ -678,15 +678,14 @@ const WalletsAddMultisigStep2 = () => {
         header={
           <ToolTipMenu
             isButton
-            shouldOpenOnLongPress
+            shouldOpenOnLongPress={false}
             onPressMenuItem={_id => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);
             }}
             actions={toolTipActions}
-            style={[styles.askPassprase, stylesHook.askPassphrase]}
+            buttonStyle={[styles.askPassprase, stylesHook.askPassphrase, styles.askPassphraseBackground]}
           >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+            <Icon size={26} name="more-horiz" type="material" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
       >
@@ -838,7 +837,18 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  askPassprase: { marginLeft: 32, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: {
+    alignSelf: 'flex-start',
+    marginLeft: 0,
+    marginRight: 'auto',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  askPassphraseBackground: {
+    backgroundColor: '#ffffff22',
+  },
 
   secretContainer: {
     justifyContent: 'flex-start',

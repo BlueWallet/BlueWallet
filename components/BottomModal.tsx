@@ -96,8 +96,17 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       }
     };
 
-    const renderTopRightButton = () => {
-      const buttons = [];
+    const renderHeaderButtons = (headerNode: React.ReactNode, hasTextHeader: boolean) => {
+      const buttons = [] as React.ReactNode[];
+
+      if (headerNode && !hasTextHeader) {
+        buttons.push(
+          <View key="ModalHeaderNode" style={[styles.topRightButton, styles.headerNodeWrapper]}>
+            {headerNode}
+          </View>,
+        );
+      }
+
       if (shareContent || shareButtonOnPress) {
         if (shareContent) {
           buttons.push(
@@ -111,7 +120,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               <Icon
                 name={Platform.OS === 'android' ? 'share' : 'file-upload'}
                 type="font-awesome6"
-                size={20}
+                size={24}
                 color={colors.buttonTextColor}
               />
             </SaveFileButton>,
@@ -127,13 +136,14 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               <Icon
                 name={Platform.OS === 'android' ? 'share' : 'file-upload'}
                 type="font-awesome6"
-                size={20}
+                size={24}
                 color={colors.buttonTextColor}
               />
             </Pressable>,
           );
         }
       }
+
       if (showCloseButton) {
         buttons.push(
           <Pressable
@@ -146,39 +156,36 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
           </Pressable>,
         );
       }
-      return <View style={styles.topRightButtonContainer}>{buttons}</View>;
+
+      return buttons.length > 0 ? <View style={styles.topRightButtonContainer}>{buttons}</View> : null;
     };
 
     const renderHeader = () => {
-      if (headerTitle || headerSubtitle) {
-        return (
-          <View style={styles.headerContainer}>
+      const headerNode = React.isValidElement(header)
+        ? header
+        : typeof header === 'function'
+        ? React.createElement(header as ComponentType)
+        : null;
+
+      const hasButtons = showCloseButton || shareContent || headerNode;
+      const hasTextHeader = headerTitle || headerSubtitle;
+      const hasAnyHeader = hasTextHeader || headerNode || hasButtons;
+
+      if (!hasAnyHeader) return null;
+
+      const containerStyle = hasButtons ? styles.headerContainer : styles.headerContainerWithCloseButton;
+
+      return (
+        <View style={containerStyle}>
+          {hasTextHeader && (
             <View style={styles.headerContent}>
               {headerTitle && <Text style={[styles.headerTitle, stylesHook.headerTitle]}>{headerTitle}</Text>}
               {headerSubtitle && <Text style={[styles.headerSubtitle, stylesHook.headerTitle]}>{headerSubtitle}</Text>}
             </View>
-            {renderTopRightButton()}
-          </View>
-        );
-      }
-
-      if (showCloseButton || shareContent)
-        return (
-          <View style={styles.headerContainer}>
-            <View style={styles.headerContent}>{typeof header === 'function' ? <header /> : header}</View>
-            {renderTopRightButton()}
-          </View>
-        );
-
-      if (React.isValidElement(header)) {
-        return (
-          <View style={styles.headerContainerWithCloseButton}>
-            {header}
-            {renderTopRightButton()}
-          </View>
-        );
-      }
-      return null;
+          )}
+          {hasButtons && renderHeaderButtons(headerNode, Boolean(hasTextHeader))}
+        </View>
+      );
     };
 
     const renderFooter = (): ReactElement | undefined => {
@@ -254,14 +261,19 @@ const styles = StyleSheet.create({
   topRightButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginLeft: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 8,
   },
   topRightButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  headerNodeWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 0,
   },
   childrenContainer: {
     paddingTop: 66,
