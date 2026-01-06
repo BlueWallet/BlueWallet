@@ -672,7 +672,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
     await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
-    await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
+    // Wait for the UI to update and show the Freeze badge after closing the modal
+    await waitFor(element(by.text('Freeze')).atIndex(0))
+      .toBeVisible()
+      .withTimeout(3000);
 
     // use frozen output to create tx using "Use coin" feature
     await element(by.text('test2')).atIndex(0).tap();
