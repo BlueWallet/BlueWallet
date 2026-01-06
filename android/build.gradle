@@ -94,3 +94,13 @@ subprojects {
         }
     }
 }
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        // ✅ mirror FIRST
+        maven { url "https://maven-central.storage-download.googleapis.com/maven2" }
+        mavenCentral()
+    }
+}
