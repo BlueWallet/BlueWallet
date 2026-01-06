@@ -164,8 +164,8 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       const headerNode = React.isValidElement(header)
         ? header
         : typeof header === 'function'
-        ? React.createElement(header as ComponentType)
-        : null;
+          ? React.createElement(header as ComponentType)
+          : null;
 
       const hasButtons = showCloseButton || shareContent || headerNode;
       const hasTextHeader = headerTitle || headerSubtitle;

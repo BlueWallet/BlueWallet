@@ -54,6 +54,7 @@ import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
+import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -322,6 +323,17 @@ const DetailViewStackScreensStack = () => {
           statusBarStyle: 'light',
           headerShown: true,
           presentation: 'modal',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ReceiveCustomAmount"
+        component={ReceiveCustomAmountSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          headerTitle: '',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
     </DetailViewStack.Navigator>
