@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, LayoutAnimation, Platform, StyleSheet, Text, View } from 'react-native';
+import { BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
+import Animated, { Layout } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
@@ -202,7 +203,6 @@ const ReceiveDetails = () => {
   }, [isBIP47Enabled]);
 
   const onPressMenuItem = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onEnablePaymentsCodeSwitchValue();
   }, [onEnablePaymentsCodeSwitchValue]);
 
@@ -530,7 +530,7 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <View style={[styles.flex, stylesHook.root]}>
+    <Animated.View layout={Layout.duration(200)} style={[styles.flex, stylesHook.root]}>
       <SafeAreaScrollView
         centerContent
         contentInsetAdjustmentBehavior="automatic"
@@ -584,7 +584,7 @@ const ReceiveDetails = () => {
           </BlueCard>
         </View>
       </SafeAreaScrollView>
-    </View>
+    </Animated.View>
   );
 };
 
