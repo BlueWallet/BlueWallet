@@ -17,11 +17,11 @@ buildscript {
     repositories {
         google()
 
+        // Official Maven Central
+        mavenCentral()
+
         // Maven Central mirror (use first to avoid 403 on repo.maven.apache.org)
         maven { url "https://maven-central.storage-download.googleapis.com/maven2" }
-
-        // Fallback to official Maven Central
-        mavenCentral()
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
@@ -38,20 +38,20 @@ allprojects {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
 
+        mavenCentral {
+            // We don't want to fetch react-native from Maven Central as there are
+            // older versions over there.
+            content {
+                excludeGroup "com.facebook.react"
+            }
+        }
+
         // Maven Central mirror (same content filter as mavenCentral below)
         maven {
             url "https://maven-central.storage-download.googleapis.com/maven2"
             content {
                 // We don't want to fetch react-native from Maven Central (or its mirrors)
                 // as there are older versions over there.
-                excludeGroup "com.facebook.react"
-            }
-        }
-
-        mavenCentral {
-            // We don't want to fetch react-native from Maven Central as there are
-            // older versions over there.
-            content {
                 excludeGroup "com.facebook.react"
             }
         }
