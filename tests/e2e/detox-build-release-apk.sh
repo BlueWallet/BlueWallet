@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# ensure patched node_modules before building
+npm run patches
+
 USE_FASTLANE=${USE_FASTLANE:-0}
 if [[ "${1:-}" == "--fastlane" ]]; then
 	USE_FASTLANE=1
