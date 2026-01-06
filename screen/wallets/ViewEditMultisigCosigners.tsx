@@ -543,7 +543,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <ToolTipMenu
             isButton
-            shouldOpenOnLongPress
+            shouldOpenOnLongPress={false}
             onPressMenuItem={(id: string) => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);
@@ -551,7 +551,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             actions={toolTipActions}
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+            <Icon size={26} name="more-horiz" type="material" color={colors.foregroundColor} />
           </ToolTipMenu>
         }
         footer={
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 48, height: 48, borderRadius: 24 },
 });
 
 export default ViewEditMultisigCosigners;
