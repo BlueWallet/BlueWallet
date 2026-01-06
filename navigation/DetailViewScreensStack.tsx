@@ -49,6 +49,7 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import ToolsScreen from '../screen/settings/tools';
 import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
+import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
@@ -303,6 +304,18 @@ const DetailViewStackScreensStack = () => {
         name="SettingsPrivacy"
         component={SettingsPrivacy}
         options={navigationStyle({ title: loc.settings.privacy })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="PromptPasswordConfirmationSheet"
+        component={PromptPasswordConfirmationSheet}
+        options={navigationStyle({
+          title: loc.settings.password,
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerBackButtonDisplayMode: 'minimal',
+        })(theme)}
       />
       <DetailViewStack.Screen
         name="ManageWallets"

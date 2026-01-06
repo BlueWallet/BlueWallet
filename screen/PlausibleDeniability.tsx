@@ -1,19 +1,17 @@
-import React, { useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
+import { StackActions, RouteProp, useRoute } from '@react-navigation/native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../BlueComponents';
 import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
-import PromptPasswordConfirmationModal, {
-  PromptPasswordConfirmationModalHandle,
-  MODAL_TYPES,
-} from '../components/PromptPasswordConfirmationModal';
+import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import { StackActions } from '@react-navigation/native';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../components/BlueSpacing';
 import { BlueLoading } from '../components/BlueLoading';
+import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -50,47 +48,68 @@ const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
+  const route = useRoute<RouteProp<DetailViewStackParamList, 'PlausibleDeniability'>>();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
     dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
-    await promptRef.current?.present();
+    navigation.navigate('PromptPasswordConfirmationSheet', {
+      modalType: MODAL_TYPES.CREATE_FAKE_STORAGE,
+      returnTo: 'PlausibleDeniability',
+    });
   };
 
-  const handleConfirmationSuccess = async (password: string) => {
-    let success = false;
-    const isProvidedPasswordInUse = password === cachedPassword || (await isPasswordInUse(password));
-    if (isProvidedPasswordInUse) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.plausibledeniability.password_should_not_match });
-      return false;
-    }
+  const handleConfirmationSuccess = useCallback(
+    async (password: string, modalType: keyof typeof MODAL_TYPES) => {
+      let success = false;
+      const isProvidedPasswordInUse = password === cachedPassword || (await isPasswordInUse(password));
+      if (isProvidedPasswordInUse) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: loc.plausibledeniability.password_should_not_match });
+        return false;
+      }
 
-    try {
-      await createFakeStorage(password);
-      resetWallets();
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      if (modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
+        try {
+          await createFakeStorage(password);
+          resetWallets();
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
+          success = true;
+          setTimeout(async () => {
+            const popToTop = StackActions.popToTop();
+            navigation.dispatch(popToTop);
+          }, 3000);
+        } catch {
+          success = false;
+          dispatch({ type: SET_LOADING, payload: false });
+        }
+      }
 
-      // Set the modal type to SUCCESS to show the success animation instead of the alert
-      dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
+      return success;
+    },
+    [cachedPassword, createFakeStorage, isPasswordInUse, navigation, resetWallets],
+  );
 
-      success = true;
-      setTimeout(async () => {
-        const popToTop = StackActions.popToTop();
-        navigation.dispatch(popToTop);
-      }, 3000);
-    } catch {
-      success = false;
-      dispatch({ type: SET_LOADING, payload: false });
-    }
-
-    return success;
-  };
-
-  const handleConfirmationFailure = () => {
+  const handleConfirmationFailure = useCallback(() => {
     dispatch({ type: SET_LOADING, payload: false });
-  };
+  }, []);
+
+  useEffect(() => {
+    const sheetResult = route.params?.passwordSheetResult;
+    if (!sheetResult) return;
+
+    navigation.setParams({ passwordSheetResult: undefined });
+
+    if (sheetResult.status !== 'success' || !sheetResult.password) {
+      handleConfirmationFailure();
+      return;
+    }
+
+    handleConfirmationSuccess(sheetResult.password, sheetResult.modalType).finally(() => {
+      dispatch({ type: SET_LOADING, payload: false });
+    });
+  }, [handleConfirmationFailure, handleConfirmationSuccess, navigation, route.params?.passwordSheetResult]);
 
   return (
     <SafeAreaScrollView centerContent={state.isLoading}>
@@ -110,12 +129,6 @@ const PlausibleDeniability: React.FC = () => {
           />
         </BlueCard>
       )}
-      <PromptPasswordConfirmationModal
-        ref={promptRef}
-        modalType={state.modalType}
-        onConfirmationSuccess={handleConfirmationSuccess}
-        onConfirmationFailure={handleConfirmationFailure}
-      />
     </SafeAreaScrollView>
   );
 };

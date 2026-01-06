@@ -30,6 +30,8 @@ export const NavigationDefaultOptions: NativeStackNavigationOptions = {
 export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
+  sheetAllowedDetents: 'fitToContents',
+  sheetGrabberVisible: true,
 };
 
 export const NavigationFormNoSwipeDefaultOptions: NativeStackNavigationOptions = {

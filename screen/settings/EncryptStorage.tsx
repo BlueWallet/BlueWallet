@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -6,15 +6,13 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
-import PromptPasswordConfirmationModal, {
-  MODAL_TYPES,
-  PromptPasswordConfirmationModalHandle,
-} from '../../components/PromptPasswordConfirmationModal';
+import { MODAL_TYPES } from '../PromptPasswordConfirmationSheet.types';
 import presentAlert from '../../components/Alert';
 import { Header } from '../../components/Header';
-import { StackActions } from '@react-navigation/native';
+import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -67,8 +65,8 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
+  const route = useRoute<RouteProp<DetailViewStackParamList, 'EncryptStorage'>>();
   const { colors } = useTheme();
-  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const styleHooks = StyleSheet.create({
     root: {
@@ -88,9 +86,59 @@ const EncryptStorage = () => {
     initializeState();
   }, [initializeState]);
 
+  useEffect(() => {
+    const sheetResult = route.params?.passwordSheetResult;
+    if (!sheetResult) return;
+
+    navigation.setParams({ passwordSheetResult: undefined });
+
+    const resetLoadingState = () => {
+      dispatch({ type: ActionType.SetLoading, payload: false });
+      dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+    };
+
+    if (sheetResult.status !== 'success' || !sheetResult.password) {
+      resetLoadingState();
+      return;
+    }
+
+    const handleResult = async () => {
+      let success = false;
+      if (sheetResult.modalType === MODAL_TYPES.CREATE_PASSWORD) {
+        try {
+          await encryptStorage(sheetResult.password!);
+          await saveToDisk();
+          dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
+          success = true;
+        } catch (error) {
+          presentAlert({ message: (error as Error).message });
+        }
+      } else if (sheetResult.modalType === MODAL_TYPES.ENTER_PASSWORD) {
+        try {
+          await decryptStorage(sheetResult.password!);
+          await saveToDisk();
+          const action = StackActions.popToTop();
+          navigation.dispatch(action);
+          success = true;
+        } catch {
+          success = false;
+        }
+      }
+
+      resetLoadingState();
+      initializeState();
+      return success;
+    };
+
+    handleResult();
+  }, [decryptStorage, encryptStorage, initializeState, navigation, route.params?.passwordSheetResult, saveToDisk]);
+
   const handleDecryptStorage = async () => {
     dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
-    promptRef.current?.present();
+    navigation.navigate('PromptPasswordConfirmationSheet', {
+      modalType: MODAL_TYPES.ENTER_PASSWORD,
+      returnTo: 'EncryptStorage',
+    });
   };
 
   const onEncryptStorageSwitch = async (value: boolean) => {
@@ -99,7 +147,10 @@ const EncryptStorage = () => {
 
     if (value) {
       dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.CREATE_PASSWORD });
-      promptRef.current?.present();
+      navigation.navigate('PromptPasswordConfirmationSheet', {
+        modalType: MODAL_TYPES.CREATE_PASSWORD,
+        returnTo: 'EncryptStorage',
+      });
     } else {
       Alert.alert(
         loc.settings.encrypt_decrypt,
@@ -136,11 +187,6 @@ const EncryptStorage = () => {
 
   const navigateToPlausibleDeniability = () => {
     navigation.navigate('PlausibleDeniability');
-  };
-
-  const popToTop = () => {
-    const action = StackActions.popToTop();
-    navigation.dispatch(action);
   };
 
   return (
@@ -195,41 +241,6 @@ const EncryptStorage = () => {
           containerStyle={[styles.row, styleHooks.root]}
         />
       )}
-      <PromptPasswordConfirmationModal
-        ref={promptRef}
-        modalType={state.modalType}
-        onConfirmationSuccess={async (password: string) => {
-          let success = false;
-          if (state.modalType === MODAL_TYPES.CREATE_PASSWORD) {
-            try {
-              await encryptStorage(password);
-              await saveToDisk();
-              dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
-              success = true;
-            } catch (error) {
-              presentAlert({ message: (error as Error).message });
-              success = false;
-            }
-          } else if (state.modalType === MODAL_TYPES.ENTER_PASSWORD) {
-            try {
-              await decryptStorage(password);
-              await saveToDisk();
-              popToTop();
-              return true;
-            } catch (error) {
-              success = false;
-            }
-          }
-          dispatch({ type: ActionType.SetLoading, payload: false });
-          dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-          initializeState();
-          return success;
-        }}
-        onConfirmationFailure={() => {
-          dispatch({ type: ActionType.SetLoading, payload: false });
-          dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
-        }}
-      />
     </SafeAreaScrollView>
   );
 };

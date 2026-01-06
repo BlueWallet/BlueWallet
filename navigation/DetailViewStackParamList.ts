@@ -1,6 +1,7 @@
 import { AztecoVoucher } from '../class/azteco';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { PasswordSheetResult, PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 
@@ -78,14 +79,14 @@ export type DetailViewStackParamList = {
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
-  PlausibleDeniability: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
   DefaultView: undefined;
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
-  EncryptStorage: undefined;
+  PlausibleDeniability: { passwordSheetResult?: PasswordSheetResult } | undefined;
+  EncryptStorage: { passwordSheetResult?: PasswordSheetResult } | undefined;
   Language: undefined;
   LightningSettings: {
     url?: string;
@@ -97,6 +98,7 @@ export type DetailViewStackParamList = {
   ToolsScreen: undefined;
   SettingsPrivacy: undefined;
   ViewEditMultisigCosigners: { walletID: string; cosigners: string[]; onBarScanned?: string };
+  PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams;
   WalletXpub: { walletID: string; xpub: string };
   SignVerifyRoot: {
     screen: 'SignVerify';

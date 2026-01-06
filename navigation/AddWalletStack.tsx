@@ -17,6 +17,9 @@ import {
   MultisigAdvancedComponent,
   WalletsAddMultisigHelpComponent,
   WalletsAddMultisigStep2Component,
+  WalletsAddMultisigVaultKeySheetComponent,
+  WalletsAddMultisigProvideMnemonicsSheetComponent,
+  WalletsAddMultisigCosignerXpubSheetComponent,
 } from './LazyLoadAddWalletStack';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
@@ -66,6 +69,22 @@ export type AddWalletStackParamList = {
     walletLabel: string;
     format: string;
     onBarScanned?: string;
+    sheetAction?: string;
+    sheetImportText?: string;
+    sheetAskPassphrase?: boolean;
+  };
+  WalletsAddMultisigVaultKeySheet: {
+    keyIndex: number;
+    seed: string;
+  };
+  WalletsAddMultisigProvideMnemonicsSheet: {
+    importText: string;
+    askPassphrase: boolean;
+  };
+  WalletsAddMultisigCosignerXpubSheet: {
+    cosignerXpub: string;
+    cosignerXpubURv2: string;
+    cosignerXpubFilename: string;
   };
   WalletsAddMultisigHelp: undefined;
   ScanQRCode: ScanQRCodeParamList;
@@ -148,6 +167,42 @@ const AddWalletStack = () => {
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
         options={navigationStyle({ title: '', gestureEnabled: false })(theme)}
+      />
+      <Stack.Screen
+        name="WalletsAddMultisigVaultKeySheet"
+        component={WalletsAddMultisigVaultKeySheetComponent}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          headerShown: true,
+          headerTitle: loc.multisig.wallet_key_created,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="WalletsAddMultisigProvideMnemonicsSheet"
+        component={WalletsAddMultisigProvideMnemonicsSheetComponent}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          headerShown: true,
+          headerTitle: loc.wallets.import_title,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="WalletsAddMultisigCosignerXpubSheet"
+        component={WalletsAddMultisigCosignerXpubSheetComponent}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          headerShown: true,
+          headerTitle: loc.multisig.this_is_cosigners_xpub,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigHelp"
