@@ -56,6 +56,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('AboutScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
+    // Wait for the self-test to complete (loading disappears)
+    await waitFor(element(by.id('SelfTestLoading')))
+      .not.toBeVisible()
+      .withTimeout(300 * 1000);
+    // Then wait for the OK button to appear
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
