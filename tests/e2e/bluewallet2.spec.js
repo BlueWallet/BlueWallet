@@ -588,6 +588,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
     });
 
+    // Wait for the send screen to load after deep link
+    await waitForId('chooseFee');
+
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
