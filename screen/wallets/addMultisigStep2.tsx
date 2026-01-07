@@ -46,7 +46,7 @@ import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
 const staticCache: Record<string, string> = {};
-type CosignerEntry = [key: string, fingerprint: string, path: string, passphrase: string];
+type CosignerEntry = [key: string, fingerprint?: string, path?: string, passphrase?: string];
 
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
@@ -222,7 +222,7 @@ const WalletsAddMultisigStep2 = () => {
     const w = new HDSegwitBech32Wallet();
     w.generate().then(() => {
       const cosignersCopy = [...cosigners];
-      cosignersCopy.push([w.getSecret(), '', '', '']);
+      cosignersCopy.push([w.getSecret()]);
       if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
       setVaultKeyData({ keyIndex: cosignersCopy.length, seed: w.getSecret(), xpub: w.getXpub(), isLoading: false });
@@ -239,8 +239,16 @@ const WalletsAddMultisigStep2 = () => {
 
   const viewKey = (cosigner: CosignerEntry) => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
-      setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));
-      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]))[0]);
+      const fingerprint = cosigner[1];
+      const path = cosigner[2];
+
+      if (!fingerprint || !path) {
+        presentAlert({ message: 'Cosigner data incomplete. Cannot display Xpub.' });
+        return;
+      }
+
+      setCosignerXpub(MultisigCosigner.exportToJson(fingerprint, cosigner[0], path));
+      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fingerprint, cosigner[0], path))[0]);
       setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.bwcosigner');
       renderCosignersXpubModalRef.current?.present();
     } else {
@@ -256,14 +264,14 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const getXpubCacheForMnemonics = useCallback(
-    (seed: string, passphrase: string) => {
+    (seed: string, passphrase?: string) => {
       const path = getPath();
       return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
     },
     [getPath, setXpubCacheForMnemonics],
   );
 
-  const getFpCacheForMnemonics = (seed: string, passphrase: string) => {
+  const getFpCacheForMnemonics = (seed: string, passphrase?: string) => {
     return staticCache[seed + (passphrase ?? '')] || setFpCacheForMnemonics(seed, passphrase);
   };
 
@@ -317,7 +325,7 @@ const WalletsAddMultisigStep2 = () => {
       setAskPassphrase(false);
 
       const cosignersCopy = [...cosigners];
-      cosignersCopy.push([xpub, fp, path, '']);
+      cosignersCopy.push([xpub, fp, path]);
       if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setCosigners(cosignersCopy);
     },
@@ -435,7 +443,7 @@ const WalletsAddMultisigStep2 = () => {
           return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
         }
         const cosignersCopy = [...cosigners];
-        cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath(), '']);
+        cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setCosigners(cosignersCopy);
       }
@@ -487,7 +495,7 @@ const WalletsAddMultisigStep2 = () => {
     }
 
     const cosignersCopy = [...cosigners];
-    cosignersCopy.push([hd.getSecret(), '', '', passphrase || '']);
+    cosignersCopy.push([hd.getSecret(), undefined, undefined, passphrase]);
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
 
