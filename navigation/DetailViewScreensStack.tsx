@@ -56,9 +56,6 @@ import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
-import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
-import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -350,39 +347,6 @@ const DetailViewStackScreensStack = () => {
           headerTitle: '',
           sheetGrabberVisible: true,
           closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ViewEditMultisigCosignerViewSheet"
-        component={ViewEditMultisigCosignerViewSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerTitle: '',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ViewEditMultisigProvideMnemonicsSheet"
-        component={ViewEditMultisigProvideMnemonicsSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerTitle: '',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ViewEditMultisigShareCosignerSheet"
-        component={ViewEditMultisigShareCosignerSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerTitle: '',
         })(theme)}
       />
     </DetailViewStack.Navigator>

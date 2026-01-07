@@ -9,6 +9,9 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
+import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
+import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
+import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -149,6 +152,42 @@ const MainRoot = () => {
               headerShown: true,
               gestureEnabled: false,
               closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigCosignerViewSheet"
+            component={ViewEditMultisigCosignerViewSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigProvideMnemonicsSheet"
+            component={ViewEditMultisigProvideMnemonicsSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigShareCosignerSheet"
+            component={ViewEditMultisigShareCosignerSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: 'fitToContents',
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
             })(theme)}
           />
           <DetailViewStack.Screen
