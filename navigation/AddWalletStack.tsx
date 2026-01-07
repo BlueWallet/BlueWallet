@@ -176,7 +176,7 @@ const AddWalletStack = () => {
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
           headerShown: true,
-          headerTitle: loc.multisig.wallet_key_created,
+          headerTitle: '',
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
