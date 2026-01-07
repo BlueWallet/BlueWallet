@@ -132,9 +132,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Using testID instead of text since the text might still be in Chinese
     await waitFor(element(by.id('Language')))
       .toBeVisible()
+      .withTimeout(3000)
       .whileElement(by.id('SettingsRoot'))
-      .scroll(200, 'down')
-      .withTimeout(3000);
+      .scroll(200, 'down');
     await sleep(500); // Give extra time for language change to fully propagate
 
     // security
@@ -425,7 +425,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     // Wait for unlock screen to load, then wait for password input to appear
-    await sleep(1000); // Give time for unlock screen to initialize and async chain to complete
+    // (password input appears after promptForPassword is called asynchronously)
+    await sleep(1500); // Give extra time for unlock screen to initialize after fake storage unlock
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
     await waitForId('WalletsList');
