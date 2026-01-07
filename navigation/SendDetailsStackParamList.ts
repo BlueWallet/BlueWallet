@@ -1,5 +1,5 @@
 import { Psbt } from 'bitcoinjs-lib';
-import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
+import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
@@ -44,6 +44,10 @@ export type TNavigationWrapper = {
 
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
+  CoinControlOutput: {
+    walletID: string;
+    utxo: Utxo;
+  };
   SelectFee: {
     networkTransactionFees: {
       fastestFee: number;

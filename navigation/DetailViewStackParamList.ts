@@ -97,7 +97,40 @@ export type DetailViewStackParamList = {
   ReleaseNotes: undefined;
   ToolsScreen: undefined;
   SettingsPrivacy: undefined;
-  ViewEditMultisigCosigners: { walletID: string; cosigners: string[]; onBarScanned?: string };
+  ViewEditMultisigCosigners: {
+    walletID: string;
+    cosigners: string[];
+    onBarScanned?: string;
+    sheetAction?: 'importMnemonic';
+    sheetImportText?: string;
+    sheetAskPassphrase?: boolean;
+  };
+  ViewEditMultisigCosignerViewSheet: {
+    walletID: string;
+    vaultKeyData: {
+      keyIndex: number;
+      xpub?: string;
+      seed?: string;
+      passphrase?: string;
+      path?: string;
+      fp?: string;
+      cosignerXpubURv2?: string;
+      exportFilename?: string;
+      exportString?: string;
+    };
+  };
+  ViewEditMultisigProvideMnemonicsSheet: {
+    walletID: string;
+    currentlyEditingCosignerNum: number;
+    importText?: string;
+    askPassphrase?: boolean;
+  };
+  ViewEditMultisigShareCosignerSheet: {
+    walletID: string;
+    cosignerXpub: string;
+    cosignerXpubURv2: string;
+    exportFilename: string;
+  };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams;
   WalletXpub: { walletID: string; xpub: string };
   SignVerifyRoot: {

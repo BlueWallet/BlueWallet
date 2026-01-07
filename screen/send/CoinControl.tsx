@@ -2,27 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
-import {
-  ActivityIndicator,
-  Keyboard,
-  LayoutAnimation,
-  PixelRatio,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableWithoutFeedback,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import * as RNLocalize from 'react-native-localize';
+import { ActivityIndicator, Keyboard, LayoutAnimation, PixelRatio, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
-import Button from '../../components/Button';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
-import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -32,10 +16,8 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { useKeyboard } from '../../hooks/useKeyboard';
 import TipBox from '../../components/TipBox';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -128,138 +110,6 @@ const OutputList: React.FC<TOutputListProps> = ({
   );
 };
 
-type TOutputModalProps = {
-  item: Utxo;
-  balanceUnit: string;
-  oMemo?: string;
-};
-
-const OutputModal: React.FC<TOutputModalProps> = ({
-  item: { address, txid, value, vout, confirmations = 0 },
-  balanceUnit = BitcoinUnit.BTC,
-  oMemo,
-}) => {
-  const { colors } = useTheme();
-  const { txMetadata } = useStorage();
-  const memo = oMemo || txMetadata[txid]?.memo || '';
-  const fullId = `${txid}:${vout}`;
-  const color = `#${txid.substring(0, 6)}`;
-  const amount = formatBalance(value, balanceUnit, true);
-
-  const oStyles = StyleSheet.create({
-    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
-    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
-    amount: { fontWeight: 'bold', color: colors.foregroundColor },
-    tranContainer: { paddingLeft: 20 },
-    tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
-    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
-  });
-  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
-    confirmations,
-  );
-
-  return (
-    <RNElementsListItem bottomDivider containerStyle={oStyles.container}>
-      <Avatar rounded size={40} containerStyle={oStyles.avatar} />
-      <RNElementsListItem.Content>
-        <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
-          {amount}
-          <View style={oStyles.tranContainer}>
-            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
-          </View>
-        </RNElementsListItem.Title>
-        {memo ? (
-          <>
-            <RNElementsListItem.Subtitle style={oStyles.memo}>{memo}</RNElementsListItem.Subtitle>
-            <BlueSpacing10 />
-          </>
-        ) : null}
-        <RNElementsListItem.Subtitle style={oStyles.memo}>{address}</RNElementsListItem.Subtitle>
-        <BlueSpacing10 />
-        <RNElementsListItem.Subtitle style={oStyles.memo}>{fullId}</RNElementsListItem.Subtitle>
-      </RNElementsListItem.Content>
-    </RNElementsListItem>
-  );
-};
-
-const mStyles = StyleSheet.create({
-  memoTextInput: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#81868e',
-  },
-  buttonContainer: {
-    height: 45,
-    marginBottom: 36,
-    marginHorizontal: 24,
-  },
-});
-
-type TOutputModalContentProps = {
-  output: Utxo;
-  wallet: TWallet;
-  onUseCoin: (u: Utxo[]) => void;
-  frozen: boolean;
-  setFrozen: (value: boolean) => void;
-};
-
-const transparentBackground = { backgroundColor: 'transparent' };
-const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
-  const { colors } = useTheme();
-  const { txMetadata, saveToDisk } = useStorage();
-  const [memo, setMemo] = useState<string>(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
-  const switchValue = useMemo(() => ({ value: frozen, onValueChange: (value: boolean) => setFrozen(value) }), [frozen, setFrozen]);
-
-  const onMemoChange = (value: string) => setMemo(value);
-
-  // save on form change. Because effect called on each event, debounce it.
-  const debouncedSaveMemo = useRef(
-    debounce(async m => {
-      wallet.setUTXOMetadata(output.txid, output.vout, { memo: m });
-      await saveToDisk();
-    }, 500),
-  );
-  useEffect(() => {
-    debouncedSaveMemo.current(memo);
-  }, [memo]);
-
-  return (
-    <View>
-      <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
-      <BlueSpacing20 />
-      <TextInput
-        testID="OutputMemo"
-        placeholder={loc.send.details_note_placeholder}
-        value={memo}
-        placeholderTextColor="#81868e"
-        style={[
-          mStyles.memoTextInput,
-          {
-            borderColor: colors.formBorder,
-            borderBottomColor: colors.formBorder,
-            backgroundColor: colors.inputBackgroundColor,
-          },
-        ]}
-        onChangeText={onMemoChange}
-      />
-      <ListItem
-        title={loc.cc.freezeLabel}
-        containerStyle={transparentBackground}
-        Component={TouchableWithoutFeedback}
-        switch={switchValue}
-      />
-      <BlueSpacing20 />
-    </View>
-  );
-};
-
 enum ESortDirections {
   asc = 'asc',
   desc = 'desc',
@@ -276,7 +126,6 @@ const CoinControl: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { width } = useWindowDimensions();
-  const bottomModalRef = useRef<BottomModalHandle | null>(null);
   const { walletID } = useRoute<RouteProps>().params;
   const { wallets, saveToDisk, sleep } = useStorage();
   const [sortDirection, setSortDirection] = useState<ESortDirections>(ESortDirections.asc);
@@ -312,10 +161,8 @@ const CoinControl: React.FC = () => {
     // invert if descending
     return sortDirection === ESortDirections.desc ? res.reverse() : res;
   }, [sortDirection, sortType, wallet, frozen]);
-  const [output, setOutput] = useState<Utxo | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
-  const { isVisible } = useKeyboard();
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
@@ -370,10 +217,9 @@ const CoinControl: React.FC = () => {
     return <TipBox description={text} containerStyle={stylesHook.tip} />;
   };
 
-  const handleChoose = (item: Utxo) => setOutput(item);
+  const handleChoose = (item: Utxo) => navigation.navigate('CoinControlOutput', { walletID, utxo: item });
 
   const handleUseCoin = async (u: Utxo[]) => {
-    setOutput(undefined);
     const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, { merge: true });
     navigation.dispatch(popToAction);
   };
@@ -432,27 +278,6 @@ const CoinControl: React.FC = () => {
     );
   };
 
-  const renderOutputModalContent = (o: Utxo | undefined) => {
-    if (!o) {
-      return null;
-    }
-    const oFrozen = frozen.includes(`${o.txid}:${o.vout}`);
-    const setOFrozen = (value: boolean) => {
-      if (value) {
-        setFrozen(f => [...f, `${o.txid}:${o.vout}`]);
-      } else {
-        setFrozen(f => f.filter(i => i !== `${o.txid}:${o.vout}`));
-      }
-    };
-    return <OutputModalContent output={o} wallet={wallet} onUseCoin={handleUseCoin} frozen={oFrozen} setFrozen={setOFrozen} />;
-  };
-
-  useEffect(() => {
-    if (output) {
-      bottomModalRef.current?.present();
-    }
-  }, [output]);
-
   const toolTipActions = useMemo((): Action[] | Action[][] => {
     return [
       [sortDirection === ESortDirections.asc ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
@@ -509,33 +334,6 @@ const CoinControl: React.FC = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
-
-      <BottomModal
-        ref={bottomModalRef}
-        onClose={() => {
-          Keyboard.dismiss();
-          setOutput(undefined);
-        }}
-        backgroundColor={colors.elevated}
-        contentContainerStyle={styles.modalMinHeight}
-        footer={
-          <View style={mStyles.buttonContainer}>
-            {!isVisible && (
-              <Button
-                testID="UseCoin"
-                title={loc.cc.use_coin}
-                onPress={async () => {
-                  if (!output) throw new Error('output is not set');
-                  await bottomModalRef.current?.dismiss();
-                  handleUseCoin([output]);
-                }}
-              />
-            )}
-          </View>
-        }
-      >
-        {renderOutputModalContent(output)}
-      </BottomModal>
       <SafeAreaFlatList
         ListHeaderComponent={tipCoins}
         data={utxos}
@@ -574,7 +372,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 530 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
