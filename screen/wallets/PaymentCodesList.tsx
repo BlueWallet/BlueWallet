@@ -228,6 +228,7 @@ export default function PaymentCodesList() {
         onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
         isButton={true}
         shouldOpenOnLongPress={true}
+        buttonStyle={styles.tooltipButton}
       >
         <View style={styles.contactRowContainer}>
           <View style={[styles.circle, { backgroundColor: '#' + color }]} />
@@ -397,4 +398,5 @@ const styles = StyleSheet.create({
   contactRowNameText: { marginLeft: 10, fontSize: 16 },
   contactRowContainer: { flexDirection: 'row', padding: 15 },
   stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
+  tooltipButton: { width: '100%', alignSelf: 'stretch' },
 });
