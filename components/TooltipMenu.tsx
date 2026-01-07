@@ -33,6 +33,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
   const { language } = useSettings();
   const openedRef = useRef(false);
+  const menuRef = useRef<any>(null);
 
   const normalizeMenuState = useCallback((menuState?: Action['menuState']): MenuAction['state'] | undefined => {
     if (menuState === undefined) {
@@ -125,7 +126,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   };
 
   const renderMenuView = () => {
-    if (!isButton && !onPress) {
+    if (disabled || (!isButton && !onPress)) {
       return null;
     }
 
@@ -146,7 +147,14 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         }}
         disabled={disabled}
         onPress={(event: GestureResponderEvent) => {
-          onPress?.(event);
+          if (onPress) {
+            onPress(event);
+            return;
+          }
+          // For buttons that only need the menu, show it on tap when long-press is disabled.
+          if (!shouldOpenOnLongPress) {
+            menuRef.current?.show?.();
+          }
         }}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
@@ -157,6 +165,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         hitSlop={8}
       >
         <MenuView
+          ref={menuRef}
           title={title}
           isAnchoredToRight
           onOpenMenu={() => {

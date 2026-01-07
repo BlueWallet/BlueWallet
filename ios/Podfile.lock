@@ -2730,7 +2730,7 @@ PODS:
     - React-perflogger (= 0.83.1)
     - React-utils (= 0.83.1)
     - SocketRocket
-  - ReactNativeCameraKit (16.1.3):
+  - ReactNativeCameraKit (16.2.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3124,7 +3124,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNShare (12.2.1):
+  - RNShare (12.2.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3792,7 +3792,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 0eb286cc274abb059ee601b862ebddac2e681d01
   ReactCodegen: fe64d526ea30773d2266b4d33ecb3883b3f044fa
   ReactCommon: ac934cb340aee91282ecd6f273a26d24d4c55cae
-  ReactNativeCameraKit: 269e2abf46202f729ac49a07829d0b6d1b5a91ad
+  ReactNativeCameraKit: 9a5c627808ea152bc4c7e5574a89ced9ca196e40
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCClipboard: 4b58c780f63676367640f23c8e114e9bd0cf86ac
@@ -3811,7 +3811,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: be4f1b4bf0398c30b59b76ed92ecb0a2ff3a69c6
   RNReanimated: 292cd58688552a22b3fc1cefcfbc49b336dfed68
   RNScreens: ffbb0296608eb3560de641a711bbdb663ed1f6b4
-  RNShare: 70ae97841ace4522b91cf4b54281493ba3ae16e0
+  RNShare: d1c1b7238eac733cb5185513e64cf14db9999637
   RNSVG: ba3c3bc3cf413f32d1a7012274fe503c6fc1eadd
   RNVectorIcons: 791f13226ec4a3fd13062eda9e892159f0981fae
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f

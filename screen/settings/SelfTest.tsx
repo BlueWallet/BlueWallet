@@ -49,6 +49,20 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
   },
+  content: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  actions: {
+    marginTop: 16,
+    alignItems: 'stretch',
+  },
+  actionItem: {
+    width: '100%',
+  },
+  actionSpacer: {
+    height: 12,
+  },
 });
 
 export default class SelfTest extends Component {
@@ -366,7 +380,7 @@ export default class SelfTest extends Component {
 
   render() {
     return (
-      <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
         <BlueSpacing20 />
 
         {this.state.isLoading ? (
@@ -395,11 +409,17 @@ export default class SelfTest extends Component {
           })()
         )}
         <BlueSpacing20 />
-        <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
-          <Button title="Test Save to Storage" />
-        </SaveFileButton>
-        <BlueSpacing20 />
-        <Button title="Test File Import" onPress={this.onPressImportDocument} />
+        <View style={styles.actions}>
+          <View style={styles.actionItem}>
+            <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
+              <Button title="Test Save to Storage" />
+            </SaveFileButton>
+          </View>
+          <View style={styles.actionSpacer} />
+          <View style={styles.actionItem}>
+            <Button title="Test File Import" onPress={this.onPressImportDocument} />
+          </View>
+        </View>
       </ScrollView>
     );
   }
