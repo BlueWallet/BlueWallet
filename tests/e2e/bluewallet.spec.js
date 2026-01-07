@@ -132,7 +132,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Using testID instead of text since the text might still be in Chinese
     await waitFor(element(by.id('Language')))
       .toBeVisible()
-      .withTimeout(3000)
       .whileElement(by.id('SettingsRoot'))
       .scroll(200, 'down');
     await sleep(500); // Give extra time for language change to fully propagate
