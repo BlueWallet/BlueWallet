@@ -15,7 +15,7 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
 });
 
 const Wrapper = ({ children }) => (
-  <SafeAreaProvider>
+  <SafeAreaProvider initialSafeAreaInsets={{ top: 0, bottom: 0, left: 0, right: 0 }}>
     <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>
   </SafeAreaProvider>
 );
@@ -46,10 +46,14 @@ it('SelfTest work', async () => {
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  // Wait for OK to appear - self-tests can take a long time to complete
-  // (crypto operations, wallet generation, etc.)
-  // If tests fail, an error message will be shown instead of OK
+  
+  // Self-tests can complete very quickly or take a while
+  // Wait for OK to appear (it might be there immediately or after tests complete)
   await waitFor(() => {
     expect(queryByTestId('SelfTestOk')).toBeTruthy();
   }, { timeout: 120000 });
+  
+  // Verify OK is present and visible
+  const okElement = queryByTestId('SelfTestOk');
+  expect(okElement).toBeTruthy();
 }, 180000);
