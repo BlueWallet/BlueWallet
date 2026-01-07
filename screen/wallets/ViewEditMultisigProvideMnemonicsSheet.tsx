@@ -20,12 +20,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const { colors } = useTheme();
-  const {
-    importText: initialImportText = '',
-    askPassphrase: initialAskPassphrase = false,
-    currentlyEditingCosignerNum,
-    walletID,
-  } = route.params;
+  const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false, walletID } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);

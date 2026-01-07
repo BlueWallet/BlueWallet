@@ -5,10 +5,8 @@ import {
   findNodeHandle,
   FlatList,
   GestureResponderEvent,
-  Keyboard,
   LayoutAnimation,
   ListRenderItemInfo,
-  Platform,
   StyleSheet,
   Text,
   View,
@@ -72,18 +70,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
-    },
-    vaultKeyText: {
-      color: colors.alternativeTextColor,
-    },
-    askPassphrase: {
-      backgroundColor: colors.lightButton,
-    },
-    vaultKeyCircleSuccess: {
-      backgroundColor: colors.msSuccessBG,
     },
     tipKeys: {
       color: colors.alternativeTextColor,
@@ -546,36 +532,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 22 },
-  textDestination: { fontWeight: '600' },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    minHeight: 350,
-  },
-  paddingTop44: { paddingTop: 44 },
-  multiLineTextInput: {
-    minHeight: 200,
-  },
   contentContainerStyle: {
     padding: 16,
   },
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-  },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  headerText: { fontSize: 15, color: '#13244D' },
-  alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
-  shareModalHeight: { minHeight: 370 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
@@ -590,8 +549,6 @@ const styles = StyleSheet.create({
   tipLabelText: {
     fontWeight: '500',
   },
-
-  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 48, height: 48, borderRadius: 24 },
 });
 
 export default ViewEditMultisigCosigners;
