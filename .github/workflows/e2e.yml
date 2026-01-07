@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   ios:
-    runs-on: macos-15
+    runs-on: macos-latest
     env:
       BUILD_CONFIGURATION: Release
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup Node.js (React Native 0.83)
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
 
       - name: Setup Ruby
@@ -153,7 +153,7 @@ jobs:
 
 
   android:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
@@ -164,37 +164,14 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Free disk space
-      uses: jlumbroso/free-disk-space@main
-      with:
-        tool-cache: true
-        android: false
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
-
-    - name: npm and gradle caches in /mnt
+    - name: Ensure artifacts directory
       run: |
-        rm -rf ~/.npm
-        rm -rf ~/.gradle
-        sudo mkdir -p /mnt/.npm
-        sudo mkdir -p /mnt/.gradle
-        sudo chown -R runner /mnt/.npm
-        sudo chown -R runner /mnt/.gradle
-        ln -s /mnt/.npm /home/runner/
-        ln -s /mnt/.gradle /home/runner/
+        mkdir -p ${{ github.workspace }}/artifacts
 
-    - name: Create artifacts directory on /mnt
-      run: |
-        sudo mkdir -p /mnt/artifacts
-        sudo chown -R runner /mnt/artifacts
-
-    - name: Specify node version
+    - name: Specify node version (React Native 0.83)
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 20
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
@@ -232,15 +209,15 @@ jobs:
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 31
+        api-level: 36
         avd-name: Pixel_API_29_AOSP
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location /mnt/artifacts
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: e2e-test-videos
-        path: /mnt/artifacts/
+        path: ${{ github.workspace }}/artifacts
