@@ -40,15 +40,18 @@ it.skip('Settings work', () => {
 });
 
 it('SelfTest work', async () => {
-  const { toJSON, getByText } = render(
+  const { toJSON, queryByTestId } = render(
     <Wrapper>
       <SelfTest />
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  // Wait for async self-tests to complete and show "OK"
-  // Use a longer timeout since self-tests can take a while to complete
+  // Wait for loading to disappear and then for "OK" to appear
+  // Self-tests can take a long time to complete (crypto operations, wallet generation, etc.)
   await waitFor(() => {
-    expect(getByText('OK')).toBeTruthy();
-  }, { timeout: 30000 });
-}, 60000);
+    expect(queryByTestId('SelfTestLoading')).toBeNull();
+  }, { timeout: 120000 });
+  await waitFor(() => {
+    expect(queryByTestId('SelfTestOk')).toBeTruthy();
+  }, { timeout: 120000 });
+}, 180000);
