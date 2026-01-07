@@ -115,9 +115,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('Chinese (ZH)')).tap();
     await goBack();
     await expect(element(by.text('语言'))).toBeVisible();
+    
+    // Switch back to English
     await element(by.id('Language')).tap();
     await element(by.text('English')).tap();
+    // Wait for the language change to be saved (setLanguageStorage is async)
+    await sleep(1000);
     await goBack();
+    
     // Language change may cause navigation to go back twice (to Home), so re-navigate to Settings if needed
     try {
       await waitFor(element(by.id('SettingsRoot')))
@@ -128,13 +133,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('SettingsButton')).tap();
       await waitForId('SettingsRoot');
     }
-    // Wait for language to change back to English by verifying the Language button (testID) is visible
-    // Using testID instead of text since the text might still be in Chinese
-    await waitFor(element(by.id('Language')))
+    
+    // Wait for language change to fully propagate by checking for English text "Security"
+    // This ensures the UI has actually updated before proceeding with tests that expect English text
+    // Try to find it with scrolling since it might be below the fold
+    await waitFor(element(by.text('Security')))
       .toBeVisible()
       .whileElement(by.id('SettingsRoot'))
       .scroll(200, 'down');
-    await sleep(500); // Give extra time for language change to fully propagate
+    
+    // Additional wait to ensure language change has propagated throughout the app
+    await sleep(1000);
 
     // security
     await waitFor(element(by.id('SecurityButton')))
