@@ -399,6 +399,7 @@ const ManageWallets: React.FC = () => {
     () => getFilteredWalletsData(state.searchQuery, state.walletsCopy, state.txMetadata),
     [getFilteredWalletsData, state.searchQuery, state.walletsCopy, state.txMetadata],
   );
+  const isDragDisabled = state.walletsCopy.length <= 1 || state.searchQuery.length > 0 || state.isSearchFocused;
 
   useEffect(() => {
     dispatch({ type: SET_INITIAL_DATA, payload: { wallets: initialWalletsRef.current, txMetadata } });
@@ -630,7 +631,7 @@ const ManageWallets: React.FC = () => {
         );
       }
 
-      const draggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused;
+      const draggingDisabled = isDragDisabled;
 
       return (
         <ManageWalletsListItem
@@ -658,6 +659,7 @@ const ManageWallets: React.FC = () => {
       renderHighlightedText,
       handleToggleHideBalance,
       dragging,
+      isDragDisabled,
     ],
   );
 

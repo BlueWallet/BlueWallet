@@ -35,6 +35,9 @@ import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
+// Horizontal carousel shows a small peek of the next card; adjust overlap to control that spacing.
+const CARD_OVERLAP = 24;
+
 interface NewWalletPanelProps {
   onPress: () => void;
 }
@@ -128,8 +131,6 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   );
 };
 
-const CARD_OVERLAP = 14;
-
 interface WalletCarouselItemProps {
   item: TWallet;
   onPress: (item: TWallet) => void;
@@ -147,20 +148,32 @@ interface WalletCarouselItemProps {
   isExiting?: boolean;
   isDraggingActive?: boolean;
   dragActiveScale?: number;
+  sizeVariant?: 'default' | 'compact';
 }
 
 const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
   rootLargeDevice: { marginVertical: 20 },
+  rootCompact: { paddingRight: 12, marginVertical: 12 },
   grad: {
     borderRadius: 12,
     minHeight: 164,
   },
+  gradCompact: {
+    borderRadius: 10,
+    minHeight: 132,
+  },
   gradContent: {
     padding: 15,
   },
+  gradContentCompact: {
+    padding: 12,
+  },
   balanceContainer: {
     height: 40,
+  },
+  balanceContainerCompact: {
+    height: 32,
   },
   image: {
     width: 99,
@@ -169,6 +182,12 @@ const iStyles = StyleSheet.create({
     bottom: 0,
     right: 0,
   },
+  imageCompact: {
+    width: 78,
+    height: 74,
+    right: 4,
+    bottom: 4,
+  },
   br: {
     backgroundColor: 'transparent',
   },
@@ -176,19 +195,32 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontSize: 19,
   },
+  labelCompact: {
+    fontSize: 16,
+  },
   balance: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
   },
+  balanceCompact: {
+    fontSize: 28,
+    lineHeight: 34,
+  },
   latestTx: {
     backgroundColor: 'transparent',
     fontSize: 13,
+  },
+  latestTxCompact: {
+    fontSize: 12,
   },
   latestTxTime: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  latestTxTimeCompact: {
+    fontSize: 14,
   },
   shadowContainer: {
     ...Platform.select({
@@ -201,6 +233,20 @@ const iStyles = StyleSheet.create({
       android: {
         elevation: 8,
         borderRadius: 12,
+      },
+    }),
+  },
+  shadowContainerCompact: {
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 20 / 100,
+        shadowRadius: 6,
+        borderRadius: 10,
+      },
+      android: {
+        elevation: 6,
+        borderRadius: 10,
       },
     }),
   },
@@ -224,6 +270,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     isExiting = false,
     isDraggingActive = false,
     dragActiveScale = 1.02,
+    sizeVariant = 'default',
   }: WalletCarouselItemProps) => {
     const walletLabel = item.getLabel ? item.getLabel() : '';
     const pressScale = useSharedValue(1.0);
@@ -237,6 +284,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { sizeClass } = useSizeClass();
+    const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
     const previousBalance = useRef<string | undefined>(undefined);
     const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
@@ -365,17 +413,33 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           delayHoverIn={0}
           delayHoverOut={0}
         >
-          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-              <View style={iStyles.gradContent}>
-                <ImageBackground source={image} style={iStyles.image} />
+          <View
+            style={[
+              iStyles.shadowContainer,
+              isCompact && iStyles.shadowContainerCompact,
+              { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+            ]}
+          >
+            <LinearGradient
+              colors={WalletGradient.gradientsFor(item.type)}
+              style={[iStyles.grad, isCompact && iStyles.gradCompact]}
+            >
+              <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
+                <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
                 <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>
-                    <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        iStyles.label,
+                        isCompact && iStyles.labelCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
+                    >
                       {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
                     </Text>
-                    <View style={iStyles.balanceContainer}>
+                    <View style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact]}>
                       {item.hideBalance ? (
                         <>
                           <BlueSpacing10 />
@@ -388,6 +452,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                           key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
                           style={[
                             iStyles.balance,
+                            isCompact && iStyles.balanceCompact,
                             { color: colors.inverseForegroundColor, writingDirection: direction },
                             animatedBalanceStyle,
                           ]}
@@ -399,13 +464,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                     <Text style={iStyles.br} />
                     <Text
                       numberOfLines={1}
-                      style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                      style={[
+                        iStyles.latestTx,
+                        isCompact && iStyles.latestTxCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
                     >
                       {loc.wallets.list_latest_transaction}
                     </Text>
                     <Text
                       numberOfLines={1}
-                      style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                      style={[
+                        iStyles.latestTxTime,
+                        isCompact && iStyles.latestTxTimeCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
                     >
                       {latestTransactionText}
                     </Text>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
@@ -16,6 +16,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import HeaderRightButton from '../../components/HeaderRightButton';
 
 const mStyles = StyleSheet.create({
   memoTextInput: {
@@ -99,9 +100,33 @@ const CoinControlOutputSheet: React.FC = () => {
 
   const handleUseCoin = useCallback(async () => {
     if (!wallet) return;
+    debouncedSaveMemo.current.cancel();
+    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
+    await saveToDisk();
     const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: [utxo] }, { merge: true });
     navigation.dispatch(popToAction);
-  }, [navigation, utxo, wallet, walletID]);
+  }, [memo, navigation, saveToDisk, utxo, wallet, walletID]);
+
+  const applyChangesAndClose = useCallback(async () => {
+    if (!wallet) return;
+    debouncedSaveMemo.current.cancel();
+    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
+    await saveToDisk();
+    navigation.goBack();
+  }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <HeaderRightButton
+          title={loc.send.input_done}
+          onPress={applyChangesAndClose}
+          disabled={loading || !wallet}
+          testID="CoinControlOutputDone"
+        />
+      ),
+    });
+  }, [applyChangesAndClose, loading, navigation, wallet]);
 
   if (!wallet) {
     return (

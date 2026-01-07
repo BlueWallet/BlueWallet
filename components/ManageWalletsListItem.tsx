@@ -95,7 +95,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const [isSwipeActive, setIsSwipeActive] = useState(false);
   const resetFunctionRef = useRef<(() => void) | null>(null);
 
-  const CARD_SORT_ACTIVE = 1.03;
+  const CARD_SORT_ACTIVE = 1.0;
   const HANDLE_WIDTH = 28;
   const HANDLE_MARGIN_RIGHT = 4;
   const scaleValue = useRef(new Animated.Value(1)).current;
@@ -180,8 +180,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   if (item.type === ItemType.WalletSection) {
     const animatedStyle = {
       marginVertical: DEFAULT_VERTICAL_MARGIN,
-      minHeight: 120,
-      paddingHorizontal: 10,
+      minHeight: 110,
+      paddingHorizontal: 6,
       transform: [{ scale: scaleValue }],
     };
 
@@ -236,11 +236,12 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
                 onPressOut={onPressOut}
                 animationsEnabled
                 isDraggingActive={Boolean(isActive)}
-                dragActiveScale={1.03}
+                dragActiveScale={1}
                 searchQuery={state.searchQuery}
                 isPlaceHolder={isPlaceHolder}
                 renderHighlightedText={renderHighlightedText}
                 customStyle={styles.carouselItem}
+                sizeVariant="compact"
               />
             </View>
           </ListItem.Content>
@@ -436,6 +437,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
             isPlaceHolder={false}
             renderHighlightedText={renderHighlightedText}
             customStyle={styles.carouselItem}
+            sizeVariant="compact"
           />
         </View>
 
@@ -537,7 +539,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     width: '100%',
-    minHeight: 120,
+    minHeight: 112,
   },
   dragHandle: {
     alignItems: 'center',

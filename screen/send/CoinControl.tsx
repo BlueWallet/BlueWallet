@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import { ActivityIndicator, Keyboard, LayoutAnimation, PixelRatio, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -189,6 +189,20 @@ const CoinControl: React.FC = () => {
       setLoading(false);
     })();
   }, [wallet, setLoading, sleep]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!wallet) return;
+      const refreshedFrozen = wallet
+        .getUtxo(true)
+        .filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen)
+        .map(({ txid, vout }) => `${txid}:${vout}`);
+
+      setFrozen(refreshedFrozen);
+      // Clear any stale selection that might reference outdated frozen state.
+      setSelected([]);
+    }, [wallet]),
+  );
 
   const stylesHook = StyleSheet.create({
     tip: {
