@@ -19,8 +19,9 @@ const Language = () => {
 
   // Calculate header height for Android with transparent header
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
