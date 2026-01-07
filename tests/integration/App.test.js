@@ -2,6 +2,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Header } from '../../components/Header';
 import SelfTest from '../../screen/settings/SelfTest';
 import Settings from '../../screen/settings/Settings';
@@ -13,7 +14,11 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
-const Wrapper = ({ children }) => <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>;
+const Wrapper = ({ children }) => (
+  <SafeAreaProvider>
+    <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>
+  </SafeAreaProvider>
+);
 
 it('Header works', () => {
   const { toJSON } = render(
@@ -34,12 +39,14 @@ it.skip('Settings work', () => {
   expect(toJSON()).toBeTruthy();
 });
 
-it('SelfTest work', () => {
-  const { toJSON, getByText } = render(
+it('SelfTest work', async () => {
+  const { toJSON, findByText } = render(
     <Wrapper>
       <SelfTest />
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  expect(getByText('OK')).toBeTruthy();
+  // Wait for async self-tests to complete and show "OK"
+  const okElement = await findByText('OK');
+  expect(okElement).toBeTruthy();
 });
