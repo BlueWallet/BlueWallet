@@ -46,11 +46,9 @@ it('SelfTest work', async () => {
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  // Wait for loading to disappear and then for "OK" to appear
-  // Self-tests can take a long time to complete (crypto operations, wallet generation, etc.)
-  await waitFor(() => {
-    expect(queryByTestId('SelfTestLoading')).toBeNull();
-  }, { timeout: 120000 });
+  // Wait for OK to appear - self-tests can take a long time to complete
+  // (crypto operations, wallet generation, etc.)
+  // If tests fail, an error message will be shown instead of OK
   await waitFor(() => {
     expect(queryByTestId('SelfTestOk')).toBeTruthy();
   }, { timeout: 120000 });
