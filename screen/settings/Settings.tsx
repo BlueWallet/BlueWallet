@@ -110,7 +110,7 @@ const Settings = () => {
       <View style={localStyles.donateSectionContainer}>
         <PlatformListItem
           title="Donate"
-          subtitle="Let's keep Blue free!"
+          subtitle="Help us keep Blue free!"
           leftIcon={donateIcon}
           containerStyle={[
             localStyles.itemContainer,
