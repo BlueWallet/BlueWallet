@@ -37,13 +37,16 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
-  const { styles, colors } = usePlatformStyles();
+  const { styles, colors, sizing, layout } = usePlatformStyles();
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
@@ -135,7 +138,20 @@ const About: React.FC = () => {
         id: 'header',
         title: '',
         customContent: (
-          <View style={[styles.card, localStyles.headerCard]}>
+          <View
+            style={[
+              styles.card,
+              localStyles.headerCard,
+              {
+                ...(Platform.OS === 'ios' && {
+                  marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+                }),
+                ...(layout.showBorderRadius && {
+                  borderRadius: sizing.containerBorderRadius * 1.5,
+                }),
+              },
+            ]}
+          >
             <View style={styles.center}>
               <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
               <Text style={styles.textFree}>{loc.settings.about_free}</Text>
@@ -173,7 +189,19 @@ const About: React.FC = () => {
         id: 'builtWith',
         title: '',
         customContent: (
-          <View style={styles.card}>
+          <View
+            style={[
+              styles.card,
+              {
+                ...(Platform.OS === 'ios' && {
+                  marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+                }),
+                ...(layout.showBorderRadius && {
+                  borderRadius: sizing.containerBorderRadius * 1.5,
+                }),
+              },
+            ]}
+          >
             <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
             <BlueSpacing20 />
             <BlueTextCentered>React Native</BlueTextCentered>
@@ -266,6 +294,10 @@ const About: React.FC = () => {
     styles.copyToClipboardText,
     localStyles.headerCard,
     localStyles.xIcon,
+    sizing.contentContainerMarginHorizontal,
+    sizing.contentContainerPaddingHorizontal,
+    sizing.containerBorderRadius,
+    layout.showBorderRadius,
     handleOnRatePress,
     colors.textColor,
     handleOnXPress,
@@ -308,9 +340,25 @@ const About: React.FC = () => {
           <PlatformListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={{
-              backgroundColor: colors.cardBackground,
-            }}
+            containerStyle={[
+              {
+                backgroundColor: colors.cardBackground,
+                marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+                ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
+                  paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+                }),
+              },
+              layout.showBorderRadius &&
+                isFirstInSection && {
+                  borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+                  borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+                },
+              layout.showBorderRadius &&
+                isLastInSection && {
+                  borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+                  borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+                },
+            ]}
             leftIcon={item.leftIcon}
             onPress={item.onPress}
             testID={item.testID}
@@ -333,9 +381,25 @@ const About: React.FC = () => {
         <PlatformListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={{
-            backgroundColor: colors.cardBackground,
-          }}
+            containerStyle={[
+              {
+                backgroundColor: colors.cardBackground,
+                marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+                ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
+                  paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+                }),
+              },
+            layout.showBorderRadius &&
+              isFirstInSection && {
+                borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+                borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+              },
+            layout.showBorderRadius &&
+              isLastInSection && {
+                borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+                borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+              },
+          ]}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
@@ -345,7 +409,16 @@ const About: React.FC = () => {
         />
       );
     },
-    [styles.sectionHeaderContainer, styles.sectionHeaderText, aboutItems, colors.cardBackground],
+    [
+      styles.sectionHeaderContainer,
+      styles.sectionHeaderText,
+      aboutItems,
+      colors.cardBackground,
+      sizing.contentContainerMarginHorizontal,
+      sizing.contentContainerPaddingHorizontal,
+      sizing.containerBorderRadius,
+      layout.showBorderRadius,
+    ],
   );
 
   const keyExtractor = useCallback((item: AboutItem) => item.id, []);
@@ -363,7 +436,9 @@ const About: React.FC = () => {
       testID="AboutScrollView"
       ListHeaderComponent={ListHeaderComponent}
       ListFooterComponent={ListFooterComponent}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={{
+        paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+      }}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews

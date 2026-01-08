@@ -23,7 +23,7 @@ import presentAlert from "../../components/Alert";
 import Button from "../../components/Button";
 import SafeAreaScrollView from "../../components/SafeAreaScrollView";
 import { useTheme } from "../../components/themes";
-import { usePlatformTheme } from "../../theme";
+import { usePlatformStyles } from "../../theme/platformStyles";
 import loc from "../../loc";
 import { useSettings } from "../../hooks/context/useSettings";
 import { majorTomToGroundControl } from "../../blue_modules/notifications";
@@ -42,7 +42,7 @@ const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const [broadcastResult, setBroadcastResult] = useState<string>(
     BROADCAST_RESULT.none,
   );
@@ -50,20 +50,28 @@ const Broadcast: React.FC = () => {
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === "android" && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === "android") {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
 
-  const localStyles = StyleSheet.create({
+  const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: platformColors.background,
     },
     contentContainer: {
-      paddingHorizontal: sizing.basePadding,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+    },
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      marginBottom: sizing.sectionContainerMarginBottom,
     },
     card: {
       backgroundColor: platformColors.cardBackground,
@@ -177,23 +185,24 @@ const Broadcast: React.FC = () => {
 
   return (
     <SafeAreaScrollView
-      style={localStyles.container}
-      contentContainerStyle={localStyles.contentContainer}
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       testID="BroadcastView"
       headerHeight={headerHeight}
     >
-      {BROADCAST_RESULT.success !== broadcastResult && (
-        <View style={localStyles.card}>
-          <View style={localStyles.topFormRow}>
-            <Text style={localStyles.labelText}>{status}</Text>
+      <View style={styles.firstSectionContainer}>
+        {BROADCAST_RESULT.success !== broadcastResult && (
+          <View style={styles.card}>
+          <View style={styles.topFormRow}>
+            <Text style={styles.labelText}>{status}</Text>
             {BROADCAST_RESULT.pending === broadcastResult && (
               <ActivityIndicator size="small" />
             )}
           </View>
 
-          <View style={localStyles.input}>
+          <View style={styles.input}>
             <TextInput
-              style={localStyles.text}
+              style={styles.text}
               multiline
               editable
               placeholderTextColor={colors.placeholderTextColor}
@@ -222,17 +231,18 @@ const Broadcast: React.FC = () => {
             testID="BroadcastButton"
           />
           <BlueSpacing20 />
-        </View>
-      )}
-      {BROADCAST_RESULT.success === broadcastResult && tx && (
-        <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />
-      )}
+          </View>
+        )}
+        {BROADCAST_RESULT.success === broadcastResult && tx && (
+          <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />
+        )}
+      </View>
     </SafeAreaScrollView>
   );
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
 
   if (!tx) {
     return null;

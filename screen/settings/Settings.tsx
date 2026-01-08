@@ -118,6 +118,12 @@ const Settings = () => {
               backgroundColor: colors.cardBackground,
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
+            layout.showBorderRadius && {
+              borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+            },
           ]}
           onPress={handleDonatePress}
           testID="Donate"
@@ -137,6 +143,10 @@ const Settings = () => {
             {
               backgroundColor: colors.cardBackground,
               ...(isAndroid && { height: sizing.itemMinHeight }),
+            },
+            layout.showBorderRadius && {
+              borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderTopRightRadius: sizing.containerBorderRadius * 1.5,
             },
           ]}
           onPress={() => navigate('GeneralSettings')}
@@ -203,6 +213,10 @@ const Settings = () => {
               backgroundColor: colors.cardBackground,
               ...(isAndroid && { height: sizing.itemMinHeight }),
             },
+            layout.showBorderRadius && {
+              borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+            },
           ]}
           onPress={() => navigate('NetworkSettings')}
           testID="NetworkSettings"
@@ -221,6 +235,12 @@ const Settings = () => {
             {
               backgroundColor: colors.cardBackground,
               ...(isAndroid && { height: sizing.itemMinHeight }),
+            },
+            layout.showBorderRadius && {
+              borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
             },
           ]}
           onPress={() => navigate('SettingsTools')}
@@ -241,6 +261,12 @@ const Settings = () => {
             {
               backgroundColor: colors.cardBackground,
               ...(isAndroid && { height: sizing.itemMinHeight }),
+            },
+            layout.showBorderRadius && {
+              borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderTopRightRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
             },
           ]}
           onPress={() => navigate('About')}
