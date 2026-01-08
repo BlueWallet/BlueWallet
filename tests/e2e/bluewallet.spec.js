@@ -225,9 +225,37 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // await sleep(300000);
     if (await expectToBeVisible('NotificationSettings')) {
       await element(by.id('NotificationSettings')).tap();
+      await waitFor(element(by.id('NotificationsSwitch')))
+        .toBeVisible()
+        .withTimeout(10000);
       await element(by.id('NotificationsSwitch')).tap();
-      await sleep(3_000);
+      await sleep(1_000);
+      // If notifications are not enabled on the device, an alert will appear
+      // Check if alert is visible and dismiss it
+      try {
+        await waitFor(element(by.text('OK')))
+          .toBeVisible()
+          .withTimeout(3000);
+        await element(by.text('OK')).tap();
+      } catch (_) {
+        // Alert not shown, which is fine - notifications might be enabled
+      }
+      // Wait for switch to be visible again after async operations complete
+      // The switch might be replaced by ActivityIndicator during loading
+      await waitFor(element(by.id('NotificationsSwitch')))
+        .toBeVisible()
+        .withTimeout(15000);
       await element(by.id('NotificationsSwitch')).tap();
+      await sleep(1_000);
+      // Check if alert appeared again and dismiss it
+      try {
+        await waitFor(element(by.text('OK')))
+          .toBeVisible()
+          .withTimeout(3000);
+        await element(by.text('OK')).tap();
+      } catch (_) {
+        // Alert not shown, which is fine
+      }
       await goBack();
       await goBack();
     } else {

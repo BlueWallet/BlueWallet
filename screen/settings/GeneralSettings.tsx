@@ -41,7 +41,7 @@ const GeneralSettings: React.FC = () => {
   const { wallets, isStorageEncrypted } = useStorage();
   const { colors, sizing, layout } = usePlatformStyles();
   const insets = useSafeAreaInsets();
-  
+
   // Calculate header height for Android with transparent header
   // Standard Android header is 56dp + status bar height
   // For older Android versions, use a fallback if StatusBar.currentHeight is not available
@@ -391,9 +391,10 @@ const GeneralSettings: React.FC = () => {
       // Don't add marginTop for items that have a section header above them (they get spacing from the header)
       const containerStyle = {
         ...styles.listItemContainer,
-        ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
-          paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-        }),
+        ...(Platform.OS === 'android' &&
+          sizing.contentContainerPaddingHorizontal !== undefined && {
+            paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+          }),
         ...(layout.showBorderRadius && {
           borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
           borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
@@ -445,6 +446,7 @@ const GeneralSettings: React.FC = () => {
       styles.sectionHeaderText,
       settingsItems,
       sizing.containerBorderRadius,
+      sizing.contentContainerPaddingHorizontal,
     ],
   );
 
