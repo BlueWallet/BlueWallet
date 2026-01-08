@@ -241,7 +241,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
         // Alert not shown, which is fine - notifications might be enabled
       }
       // Wait for switch to be visible again after async operations complete
-      // The switch might be replaced by ActivityIndicator during loading
       await waitFor(element(by.id('NotificationsSwitch')))
         .toBeVisible()
         .withTimeout(15000);
@@ -287,6 +286,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     // about
+    await waitFor(element(by.id('AboutButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(500, 'down');
+    await sleep(200); // Wait for scroll animation to finish
     await element(by.id('AboutButton')).tap();
     await goBack();
     await goBack();
