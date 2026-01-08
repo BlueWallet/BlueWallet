@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState, useCallback, useMemo } from 'react';
+import React, { useLayoutEffect, useState, useCallback, useMemo } from 'react';
 import { Keyboard, NativeSyntheticEvent, StyleSheet, View, Platform, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import presentAlert from '../../components/Alert';
@@ -27,6 +27,7 @@ const Language = () => {
   }, [insets.top]);
 
   // Set header options - navigation stack already handles transparent header,
+  // we just need to configure the search bar and ensure title is updated when language changes
   useLayoutEffect(() => {
     setOptions({
       title: loc.settings.language,
@@ -34,7 +35,6 @@ const Language = () => {
         onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
       },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setOptions, language]);
 
   const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
@@ -102,7 +102,15 @@ const Language = () => {
         />
       );
     },
-    [language, filteredLanguages.length, layout.showBorderBottom, layout.showBorderRadius, styles.listItemContainer, onLanguageSelect, sizing.containerBorderRadius],
+    [
+      language,
+      filteredLanguages.length,
+      layout.showBorderBottom,
+      layout.showBorderRadius,
+      styles.listItemContainer,
+      onLanguageSelect,
+      sizing.containerBorderRadius,
+    ],
   );
 
   const keyExtractor = useCallback((item: TLanguage) => item.value, []);
