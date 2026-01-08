@@ -118,6 +118,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     
     // Switch back to English
     await element(by.id('Language')).tap();
+    // Scroll to the top before selecting English (after selecting Chinese, the list might be scrolled down)
+    await waitFor(element(by.text('English')))
+      .toBeVisible()
+      .whileElement(by.id('LanguageFlatList'))
+      .scroll(500, 'up');
     await element(by.text('English')).tap();
     // Wait for the language change to be saved (setLanguageStorage is async)
     await sleep(1000);

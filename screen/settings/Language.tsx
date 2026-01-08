@@ -26,18 +26,16 @@ const Language = () => {
     return 0;
   }, [insets.top]);
 
+  // Set header options - navigation stack already handles transparent header,
   useLayoutEffect(() => {
     setOptions({
+      title: loc.settings.language,
       headerSearchBarOptions: {
         onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
       },
     });
-  }, [setOptions]);
-
-  useEffect(() => {
-    setOptions({ title: loc.settings.language });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [language]);
+  }, [setOptions, language]);
 
   const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
 
@@ -115,6 +113,7 @@ const Language = () => {
 
   return (
     <SafeAreaFlatList
+      testID="LanguageFlatList"
       headerHeight={headerHeight}
       style={styles.container}
       data={filteredLanguages}
