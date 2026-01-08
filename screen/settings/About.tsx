@@ -295,7 +295,6 @@ const About: React.FC = () => {
     localStyles.headerCard,
     localStyles.xIcon,
     sizing.contentContainerMarginHorizontal,
-    sizing.contentContainerPaddingHorizontal,
     sizing.containerBorderRadius,
     layout.showBorderRadius,
     handleOnRatePress,
@@ -344,9 +343,10 @@ const About: React.FC = () => {
               {
                 backgroundColor: colors.cardBackground,
                 marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-                ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
-                  paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-                }),
+                ...(Platform.OS === 'android' &&
+                  sizing.contentContainerPaddingHorizontal !== undefined && {
+                    paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+                  }),
               },
               layout.showBorderRadius &&
                 isFirstInSection && {
@@ -381,14 +381,15 @@ const About: React.FC = () => {
         <PlatformListItem
           title={item.title}
           subtitle={item.subtitle}
-            containerStyle={[
-              {
-                backgroundColor: colors.cardBackground,
-                marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-                ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
+          containerStyle={[
+            {
+              backgroundColor: colors.cardBackground,
+              marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+              ...(Platform.OS === 'android' &&
+                sizing.contentContainerPaddingHorizontal !== undefined && {
                   paddingHorizontal: sizing.contentContainerPaddingHorizontal,
                 }),
-              },
+            },
             layout.showBorderRadius &&
               isFirstInSection && {
                 borderTopLeftRadius: sizing.containerBorderRadius * 1.5,

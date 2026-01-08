@@ -66,11 +66,7 @@ const NetworkSettings: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      headerHeight={headerHeight}
-    >
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer} headerHeight={headerHeight}>
       <View style={styles.firstSectionContainer}>
         <PlatformListItem
           title={loc.settings.block_explorer}

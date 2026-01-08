@@ -57,11 +57,7 @@ const SettingsTools: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      headerHeight={headerHeight}
-    >
+    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer} headerHeight={headerHeight}>
       <View style={styles.firstSectionContainer}>
         <PlatformListItem
           title={loc.is_it_my_address.title}
