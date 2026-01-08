@@ -33,9 +33,12 @@ const LightningSettings: React.FC = () => {
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
@@ -46,7 +49,7 @@ const LightningSettings: React.FC = () => {
       backgroundColor: platformColors.background,
     },
     contentContainer: {
-      paddingHorizontal: sizing.basePadding,
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     card: {
       backgroundColor: platformColors.cardBackground,

@@ -44,9 +44,11 @@ const GeneralSettings: React.FC = () => {
   
   // Calculate header height for Android with transparent header
   // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android' && insets.top > 0) {
-      return 56 + (StatusBar.currentHeight || insets.top);
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
     }
     return 0;
   }, [insets.top]);
@@ -76,12 +78,12 @@ const GeneralSettings: React.FC = () => {
     },
     listItemContainer: {
       backgroundColor: colors.cardBackground,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
     },
     headerOffset: {
       height: sizing.firstSectionContainerPaddingTop,
     },
     contentContainer: {
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
     subtitleText: {
@@ -389,6 +391,9 @@ const GeneralSettings: React.FC = () => {
       // Don't add marginTop for items that have a section header above them (they get spacing from the header)
       const containerStyle = {
         ...styles.listItemContainer,
+        ...(Platform.OS === 'android' && sizing.contentContainerPaddingHorizontal !== undefined && {
+          paddingHorizontal: sizing.contentContainerPaddingHorizontal,
+        }),
         ...(layout.showBorderRadius && {
           borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
           borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
