@@ -1,21 +1,23 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueCard, BlueFormLabel, BlueTextCentered } from '../../BlueComponents';
+import { BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueBigCheckmark } from '../../components/BlueBigCheckmark.tsx';
+import { BlueBigCheckmark } from '../../components/BlueBigCheckmark';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -28,14 +30,70 @@ const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
+  const insets = useSafeAreaInsets();
 
-  const stylesHooks = StyleSheet.create({
+  // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
+    }
+    return 0;
+  }, [insets.top]);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
+    },
+    contentContainer: {
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+    },
+    firstSectionContainer: {
+      paddingTop: sizing.firstSectionContainerPaddingTop,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      marginBottom: sizing.sectionContainerMarginBottom,
+    },
+    card: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: sizing.containerBorderRadius,
+      padding: sizing.basePadding,
+      ...layout.cardShadow,
+    },
+    topFormRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: 10,
+      paddingTop: 0,
+      marginBottom: 10,
+    },
+    labelText: {
+      color: platformColors.titleColor,
+      fontSize: sizing.subtitleFontSize,
+      fontWeight: '500',
+    },
     input: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderBottomWidth: 0.5,
+      alignItems: 'center',
+      borderRadius: 4,
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
+    },
+    text: {
+      flex: 1,
+      padding: 8,
+      color: colors.foregroundColor,
+      maxHeight: 100,
+      minHeight: 100,
     },
   });
 
@@ -108,21 +166,26 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeArea>
-      <View style={styles.wrapper} testID="BroadcastView">
+    <SafeAreaScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      testID="BroadcastView"
+      headerHeight={headerHeight}
+    >
+      <View style={styles.firstSectionContainer}>
         {BROADCAST_RESULT.success !== broadcastResult && (
-          <BlueCard style={styles.mainCard}>
+          <View style={styles.card}>
             <View style={styles.topFormRow}>
-              <BlueFormLabel>{status}</BlueFormLabel>
+              <Text style={styles.labelText}>{status}</Text>
               {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
             </View>
 
-            <View style={[styles.input, stylesHooks.input]}>
+            <View style={styles.input}>
               <TextInput
                 style={styles.text}
                 multiline
                 editable
-                placeholderTextColor="#81868e"
+                placeholderTextColor={colors.placeholderTextColor}
                 value={txHex}
                 onChangeText={handleUpdateTxHex}
                 onSubmitEditing={Keyboard.dismiss}
@@ -141,78 +204,52 @@ const Broadcast: React.FC = () => {
               testID="BroadcastButton"
             />
             <BlueSpacing20 />
-          </BlueCard>
+          </View>
         )}
         {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
       </View>
-    </SafeArea>
+    </SafeAreaScrollView>
   );
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
+
   if (!tx) {
     return null;
   }
 
+  const successStyles = StyleSheet.create({
+    card: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: sizing.containerBorderRadius,
+      padding: sizing.basePadding,
+      ...layout.cardShadow,
+    },
+    broadcastResultWrapper: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: sizing.basePadding,
+    },
+    successText: {
+      color: platformColors.titleColor,
+      fontSize: sizing.subtitleFontSize,
+      textAlign: 'center',
+    },
+  });
+
   return (
-    <View style={styles.wrapper}>
-      <BlueCard>
-        <View style={styles.broadcastResultWrapper}>
-          <BlueBigCheckmark />
-          <BlueSpacing20 />
-          <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
-          <BlueSpacing10 />
-          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
-        </View>
-      </BlueCard>
+    <View style={successStyles.card}>
+      <View style={successStyles.broadcastResultWrapper}>
+        <BlueBigCheckmark />
+        <BlueSpacing20 />
+        <Text style={successStyles.successText}>{loc.settings.success_transaction_broadcasted}</Text>
+        <BlueSpacing10 />
+        <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
+      </View>
     </View>
   );
 };
 
 export default Broadcast;
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  broadcastResultWrapper: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-  },
-  mainCard: {
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  topFormRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingTop: 0,
-    paddingRight: 100,
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  text: {
-    padding: 8,
-    color: '#81868e',
-    maxHeight: 100,
-    minHeight: 100,
-    maxWidth: '100%',
-    minWidth: '100%',
-  },
-});

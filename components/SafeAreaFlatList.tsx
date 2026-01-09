@@ -4,8 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
 
-const SafeAreaFlatList = <ItemT,>(props: FlatListProps<ItemT>) => {
-  const { style, contentContainerStyle, ...otherProps } = props;
+interface SafeAreaFlatListProps<ItemT> extends FlatListProps<ItemT> {
+  headerHeight?: number; // Additional header height to account for (e.g., when headerTransparent is true)
+}
+
+const SafeAreaFlatList = <ItemT,>(props: SafeAreaFlatListProps<ItemT>) => {
+  const { style, contentContainerStyle, headerHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -14,15 +18,27 @@ const SafeAreaFlatList = <ItemT,>(props: FlatListProps<ItemT>) => {
   }, [colors.background, style]);
 
   const contentStyle = useMemo(() => {
+    // Calculate top padding
+    const topPadding = (() => {
+      // If explicit headerHeight is provided, use it
+      if (headerHeight > 0) {
+        return headerHeight;
+      }
+      // iOS safe area handling is done via ListHeaderComponent typically
+      // Android screens should explicitly pass headerHeight if needed
+      return 0;
+    })();
+
     return StyleSheet.compose(
       {
         paddingBottom: insets.bottom,
         paddingLeft: insets.left,
         paddingRight: insets.right,
+        paddingTop: topPadding,
       },
       contentContainerStyle,
     );
-  }, [insets, contentContainerStyle]);
+  }, [insets, contentContainerStyle, headerHeight]);
 
   return <FlatList style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
 };

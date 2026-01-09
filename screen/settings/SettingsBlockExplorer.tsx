@@ -1,8 +1,19 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { StyleSheet, TextInput, SectionListRenderItemInfo, SectionListData, View, LayoutAnimation } from 'react-native';
+import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
+import {
+  StyleSheet,
+  TextInput,
+  SectionListRenderItemInfo,
+  SectionListData,
+  View,
+  LayoutAnimation,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ListItem from '../../components/ListItem';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import {
   getBlockExplorersList,
   BlockExplorer,
@@ -28,10 +39,23 @@ interface SectionData extends SectionListData<BlockExplorerItem> {
 const SettingsBlockExplorer: React.FC = () => {
   const { colors } = useTheme();
   const { selectedBlockExplorer, setBlockExplorerStorage } = useSettings();
+  const { sizing } = usePlatformStyles();
   const customUrlInputRef = useRef<TextInput>(null);
   const [customUrl, setCustomUrl] = useState<string>(selectedBlockExplorer.key === 'custom' ? selectedBlockExplorer.url : '');
   const [isCustomEnabled, setIsCustomEnabled] = useState<boolean>(selectedBlockExplorer.key === 'custom');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
+    }
+    return 0;
+  }, [insets.top]);
 
   const predefinedExplorers = getBlockExplorersList().filter(explorer => explorer.key !== 'custom');
 
@@ -54,7 +78,9 @@ const SettingsBlockExplorer: React.FC = () => {
         setIsCustomEnabled(false);
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+        presentAlert({
+          message: loc.settings.block_explorer_error_saving_custom,
+        });
       }
     },
     [setBlockExplorerStorage],
@@ -88,7 +114,9 @@ const SettingsBlockExplorer: React.FC = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+      presentAlert({
+        message: loc.settings.block_explorer_error_saving_custom,
+      });
     }
     setIsSubmitting(false);
   }, [customUrl, setBlockExplorerStorage, isSubmitting]);
@@ -108,7 +136,9 @@ const SettingsBlockExplorer: React.FC = () => {
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           if (!isSubmitting) {
-            presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+            presentAlert({
+              message: loc.settings.block_explorer_error_saving_custom,
+            });
           }
         }
       }
@@ -125,7 +155,9 @@ const SettingsBlockExplorer: React.FC = () => {
             const success = await setBlockExplorerStorage(BLOCK_EXPLORERS.default);
             if (!success) {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-              presentAlert({ message: loc.settings.block_explorer_error_saving_custom });
+              presentAlert({
+                message: loc.settings.block_explorer_error_saving_custom,
+              });
             }
           })();
         }
@@ -199,8 +231,12 @@ const SettingsBlockExplorer: React.FC = () => {
       renderSectionHeader={renderSectionHeader}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
+      contentContainerStyle={{
+        paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+      }}
       style={[styles.root, { backgroundColor: colors.background }]}
       stickySectionHeadersEnabled={false}
+      headerHeight={headerHeight}
     />
   );
 };

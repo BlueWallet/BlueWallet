@@ -588,6 +588,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
     });
 
+    // Wait for the send screen to load after deep link
+    await waitForId('chooseFee');
+
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
@@ -669,7 +672,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
     await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
-    await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
+    // Wait for the UI to update and show the Freeze badge after closing the modal
+    await waitFor(element(by.text('Freeze')).atIndex(0))
+      .toBeVisible()
+      .withTimeout(3000);
 
     // use frozen output to create tx using "Use coin" feature
     await element(by.text('test2')).atIndex(0).tap();
@@ -714,6 +720,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('feeCustom')).typeText('1');
     await element(by.id('feeCustom')).tapReturnKey();
     await element(by.id('CreateTransactionButton')).tap();
+    await waitForId('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex2 = await extractTextFromElementById('TxhexInput');
@@ -740,6 +747,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
 
     await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
@@ -782,6 +790,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
 
     await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
