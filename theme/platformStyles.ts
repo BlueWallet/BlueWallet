@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { Platform, StyleSheet, PlatformColor, Appearance, OpaqueColorValue, View, Text } from 'react-native';
+import { Platform, StyleSheet, PlatformColor, Appearance, OpaqueColorValue } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 
 // ===============================================
