@@ -14,6 +14,8 @@ import { decodeUR as origDecodeUr, encodeUR as origEncodeUR, extractSingleWorklo
 import { MultisigCosigner, MultisigHDWallet } from '../../class';
 import { Psbt } from 'bitcoinjs-lib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { joinQRs } from '../bbqr/join';
+import { uint8ArrayToBase64, uint8ArrayToString } from '../uint8array-extras';
 
 const USE_UR_V1 = 'USE_UR_V1';
 
@@ -212,7 +214,21 @@ function decodeUR(arg) {
 }
 
 class BlueURDecoder extends URDecoder {
+  bbqrParts = {}; // key-value, payload->1
+
   toString() {
+    if (Object.keys(this.bbqrParts).length > 0) {
+      // its BBQR, handle differently
+      const decodedBbqr = joinQRs(Object.keys(this.bbqrParts));
+      if (decodedBbqr.fileType === 'P') {
+        // if its psbt we return base64:
+        return uint8ArrayToBase64(decodedBbqr.raw);
+      }
+
+      // for everything else we covnert bytes to string directly
+      return uint8ArrayToString(decodedBbqr.raw);
+    }
+
     const decoded = this.resultUR();
 
     if (decoded.type === 'crypto-psbt') {
@@ -288,6 +304,51 @@ class BlueURDecoder extends URDecoder {
     }
 
     throw new Error('unsupported data format');
+  }
+
+  isComplete() {
+    if (Object.keys(this.bbqrParts).length > 0) {
+      // its BBQR, handle differently
+      const bbqrPayload = Object.keys(this.bbqrParts)[0];
+      if (bbqrPayload.slice(0, 2) !== 'B$') {
+        throw new Error('fixed header not found, expected B$');
+      }
+
+      const numParts = parseInt(bbqrPayload.slice(4, 6), 36);
+      // console.log({ numParts });
+      return Object.keys(this.bbqrParts).length >= numParts;
+    }
+
+    // fallback to old BC-UR mechanism
+    return super.isComplete();
+  }
+
+  estimatedPercentComplete() {
+    if (Object.keys(this.bbqrParts).length > 0) {
+      // its BBQR, handle differently
+      const bbqrPayload = Object.keys(this.bbqrParts)[0];
+      if (bbqrPayload.slice(0, 2) !== 'B$') {
+        throw new Error('fixed header not found, expected B$');
+      }
+
+      const numParts = parseInt(bbqrPayload.slice(4, 6), 36);
+      // console.log({ numParts });
+      return Object.keys(this.bbqrParts).length / numParts;
+    }
+
+    // fallback to old BC-UR mechanism
+    return super.estimatedPercentComplete();
+  }
+
+  receivePart(s) {
+    if (s.startsWith('B$')) {
+      // its BBQR, handle differently
+      this.bbqrParts[s] = true;
+      return true;
+    }
+
+    // fallback to old BC-UR mechanism
+    return super.receivePart(s);
   }
 }
 

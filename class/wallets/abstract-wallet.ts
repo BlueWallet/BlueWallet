@@ -255,6 +255,8 @@ export class AbstractWallet {
 
       if (this.secret.startsWith('wpkh(')) {
         this.secret = this._xpubToZpub(xpub);
+      } else if (this.secret.startsWith('sh(wpkh(')) {
+        this.secret = this._xpubToYpub(xpub);
       } else {
         // nop
         this.secret = xpub;
@@ -351,19 +353,6 @@ export class AbstractWallet {
         this.secret = this._xpubToZpub(json.ExtPubKey);
         const mfp = uint8ArrayToHex(hexToUint8Array(json.MasterFingerprint).reverse());
         this.masterFingerprint = parseInt(mfp, 16);
-        return this;
-      }
-    } catch (_) {}
-
-    // is it sparrow-export ?
-    try {
-      const json = JSON.parse(origSecret);
-      if (json.chain && json.chain === 'BTC' && json.xfp && json.bip84) {
-        // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
-        this.secret = json.bip84._pub;
-        const mfp = uint8ArrayToHex(hexToUint8Array(json.xfp).reverse());
-        this.masterFingerprint = parseInt(mfp, 16);
-        this._derivationPath = json.bip84.deriv;
         return this;
       }
     } catch (_) {}
