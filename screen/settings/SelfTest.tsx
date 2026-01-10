@@ -13,6 +13,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import * as encryption from '../../blue_modules/encryption';
 import * as fs from '../../blue_modules/fs';
 import ecc from '../../blue_modules/noble_ecc';
+import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -348,9 +349,9 @@ export default class SelfTest extends Component {
         // skipping RN-specific test'
       }
 
-      //
-
+      // Buffer and Uint8Array tests
       assertStrictEqual(Buffer.from('00ff0f', 'hex').reverse().toString('hex'), '0fff00');
+      assertStrictEqual(uint8ArrayToHex(hexToUint8Array('00ff0f').reverse()), '0fff00');
 
       //
     } catch (Err) {
