@@ -114,7 +114,6 @@ describe('BlueURDecoder', () => {
     // now, checking:
 
     const parsed = JSON.parse(data);
-    // console.log(parsed);
     assert.ok(parsed.xfp);
     assert.ok(parsed.xpub);
   });
