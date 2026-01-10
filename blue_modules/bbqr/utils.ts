@@ -5,6 +5,7 @@
  */
 
 import { base32 } from '@scure/base';
+// @ts-ignore not installing types
 import pako from 'pako';
 import { QR_DATA_CAPACITY } from './consts';
 import type { Encoding, SplitOptions, Version } from './types';

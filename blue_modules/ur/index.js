@@ -315,7 +315,6 @@ class BlueURDecoder extends URDecoder {
       }
 
       const numParts = parseInt(bbqrPayload.slice(4, 6), 36);
-      // console.log({ numParts });
       return Object.keys(this.bbqrParts).length >= numParts;
     }
 
@@ -332,7 +331,6 @@ class BlueURDecoder extends URDecoder {
       }
 
       const numParts = parseInt(bbqrPayload.slice(4, 6), 36);
-      // console.log({ numParts });
       return Object.keys(this.bbqrParts).length / numParts;
     }
 
