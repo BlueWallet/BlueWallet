@@ -1,6 +1,23 @@
-import { Dimensions, Platform, AppState, AppStateStatus } from 'react-native';
-import { useState, useEffect } from 'react';
+import { AppState, AppStateStatus, Dimensions, NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import { useEffect, useState } from 'react';
 import { isDesktop } from './environment';
+
+type NativeSizeClassPayload = {
+  horizontal?: number;
+  vertical?: number;
+  sizeClass?: number;
+  orientation?: string;
+  isLargeScreen?: boolean;
+};
+
+const sizeClassNativeModule = NativeModules.SizeClassEmitter as
+  | {
+      getCurrentSizeClass?: () => Promise<NativeSizeClassPayload>;
+    }
+  | undefined;
+
+const sizeClassNativeEmitter = sizeClassNativeModule ? new NativeEventEmitter(sizeClassNativeModule) : null;
+const NATIVE_EVENT_NAME = 'sizeClassDidChange';
 
 // Size class definitions following iOS conventions
 export enum SizeClass {
@@ -29,63 +46,46 @@ export interface SizeClassInfo {
   isLargeScreen: boolean;
 }
 
-/**
- * Get current size class information based on device dimensions
- */
-export function getSizeClass(): SizeClassInfo {
-  // Get device dimensions
+const normalizeOrientation = (orientation?: string): 'portrait' | 'landscape' =>
+  orientation === 'landscape' ? 'landscape' : 'portrait';
+
+const coerceSizeClassValue = (value?: number): SizeClass => {
+  if (value === SizeClass.Compact || value === SizeClass.Regular || value === SizeClass.Large) {
+    return value;
+  }
+  return SizeClass.Regular;
+};
+
+const calculateFromDimensions = (): SizeClassInfo => {
   const { width, height } = Dimensions.get('window');
   const isLandscape = width > height;
   const orientation = isLandscape ? 'landscape' : 'portrait';
 
-  // Determine horizontal size class (following iOS conventions)
   let horizontalSizeClass: SizeClass;
 
   if (Platform.OS === 'ios' && Platform.isPad) {
-    // iPads always have Regular width
     horizontalSizeClass = SizeClass.Regular;
   } else if (isDesktop) {
-    // Desktop systems get Large width
     horizontalSizeClass = SizeClass.Large;
   } else if (isLandscape && width >= 667) {
-    // iPhone Plus models (and modern equivalent sizes) in landscape: Regular width
-    // 667 points corresponds roughly to iPhone Plus models
     horizontalSizeClass = SizeClass.Regular;
   } else {
-    // Regular iPhones: Compact width
     horizontalSizeClass = SizeClass.Compact;
   }
 
-  // Determine vertical size class (following iOS conventions)
   let verticalSizeClass: SizeClass;
 
   if (Platform.OS === 'ios' && Platform.isPad) {
-    // iPads always have Regular height
     verticalSizeClass = SizeClass.Regular;
   } else if (isDesktop) {
-    // Desktop systems get Large height
     verticalSizeClass = SizeClass.Large;
   } else if (isLandscape) {
-    // All iPhones in landscape: Compact height
     verticalSizeClass = SizeClass.Compact;
   } else {
-    // iPhones in portrait: Regular height
     verticalSizeClass = SizeClass.Regular;
   }
 
-  // Derive overall size class - simplified logic to avoid redundant comparisons
-  let sizeClass: SizeClass;
-
-  if (horizontalSizeClass === SizeClass.Compact) {
-    // If width is compact, overall is compact
-    sizeClass = SizeClass.Compact;
-  } else {
-    // Otherwise, width is Regular or Large, so overall is Large
-    // (per requirements that any non-Compact width device is considered Large)
-    sizeClass = SizeClass.Large;
-  }
-
-  // Determine isLargeScreen property (true for Regular and Large widths)
+  const sizeClass = horizontalSizeClass === SizeClass.Compact ? SizeClass.Compact : SizeClass.Large;
   const isLargeScreen = horizontalSizeClass !== SizeClass.Compact;
 
   return {
@@ -97,43 +97,117 @@ export function getSizeClass(): SizeClassInfo {
     isLarge: sizeClass === SizeClass.Large,
     isLargeScreen,
   };
+};
+
+const normalizeNativePayload = (payload?: NativeSizeClassPayload | null): SizeClassInfo | null => {
+  if (!payload) {
+    return null;
+  }
+
+  const horizontalSizeClass = coerceSizeClassValue(payload.horizontal);
+  const verticalSizeClass = coerceSizeClassValue(payload.vertical);
+  const sizeClass = payload.sizeClass === SizeClass.Compact ? SizeClass.Compact : SizeClass.Large;
+  const isLargeScreen = payload.isLargeScreen ?? horizontalSizeClass !== SizeClass.Compact;
+  const orientation = normalizeOrientation(payload.orientation);
+
+  return {
+    horizontalSizeClass,
+    verticalSizeClass,
+    sizeClass,
+    orientation,
+    isCompact: sizeClass === SizeClass.Compact,
+    isLarge: sizeClass === SizeClass.Large,
+    isLargeScreen,
+  };
+};
+
+let cachedSizeClassInfo: SizeClassInfo = calculateFromDimensions();
+
+const fetchNativeSizeClass = async (): Promise<SizeClassInfo | null> => {
+  if (!sizeClassNativeModule?.getCurrentSizeClass) {
+    return null;
+  }
+
+  try {
+    const result = await sizeClassNativeModule.getCurrentSizeClass();
+    return normalizeNativePayload(result);
+  } catch (error) {
+    console.debug('[SizeClass] Failed to read native size class', error);
+    return null;
+  }
+};
+
+/**
+ * Get current size class information.
+ */
+export function getSizeClass(): SizeClassInfo {
+  if (!sizeClassNativeModule) {
+    cachedSizeClassInfo = calculateFromDimensions();
+  }
+
+  return cachedSizeClassInfo;
 }
 
 /**
  * React hook to use size classes in components
  */
 export function useSizeClass(): SizeClassInfo {
-  const [sizeClassInfo, setSizeClassInfo] = useState<SizeClassInfo>(getSizeClass());
+  const [sizeClassInfo, setSizeClassInfo] = useState<SizeClassInfo>(cachedSizeClassInfo);
 
   useEffect(() => {
-    // Update size class when dimensions change
-    const updateSizeClass = () => {
-      const newInfo = getSizeClass();
-      setSizeClassInfo(newInfo);
+    let isMounted = true;
+
+    const applySizeClass = (info: SizeClassInfo) => {
+      if (!isMounted) return;
+      cachedSizeClassInfo = info;
+      setSizeClassInfo(info);
       console.debug(
         `[SizeClass] Updated:`,
-        `horizontal=${SizeClass[newInfo.horizontalSizeClass]}`,
-        `vertical=${SizeClass[newInfo.verticalSizeClass]}`,
-        `orientation=${newInfo.orientation}`,
-        `isLargeScreen=${newInfo.isLargeScreen}`,
+        `horizontal=${SizeClass[info.horizontalSizeClass]}`,
+        `vertical=${SizeClass[info.verticalSizeClass]}`,
+        `orientation=${info.orientation}`,
+        `isLargeScreen=${info.isLargeScreen}`,
       );
     };
 
-    const dimensionSubscription = Dimensions.addEventListener('change', updateSizeClass);
+    const updateFromDimensions = () => {
+      const calculated = calculateFromDimensions();
+      applySizeClass(calculated);
+    };
 
-    // Also update when app becomes active
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
-      if (nextAppState === 'active') {
-        updateSizeClass();
+    const requestNativeUpdate = async () => {
+      const nativeInfo = await fetchNativeSizeClass();
+      if (nativeInfo) {
+        applySizeClass(nativeInfo);
       }
     };
 
-    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+    const dimensionSubscription = Dimensions.addEventListener('change', () => {
+      updateFromDimensions();
+      requestNativeUpdate();
+    });
 
-    // Clean up
+    const appStateSubscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        requestNativeUpdate();
+      }
+    });
+
+    const nativeSubscription = sizeClassNativeEmitter?.addListener(NATIVE_EVENT_NAME, (payload: NativeSizeClassPayload) => {
+      const normalized = normalizeNativePayload(payload);
+      if (normalized) {
+        applySizeClass(normalized);
+      }
+    });
+
+    // Kick off an initial native fetch to override the heuristic when available.
+    requestNativeUpdate();
+
     return () => {
+      isMounted = false;
       dimensionSubscription.remove();
       appStateSubscription.remove();
+      nativeSubscription?.remove();
     };
   }, []);
 

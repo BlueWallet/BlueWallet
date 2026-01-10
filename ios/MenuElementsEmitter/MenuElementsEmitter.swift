@@ -1,29 +1,14 @@
 import Foundation
 import React
 
-// Minimal TurboModule spec to avoid relying on generated header when building Swift
-@objc protocol NativeMenuElementsEmitterSpec: RCTBridgeModule {
-    func addListener(_ eventName: String!)
-    func removeListeners(_ count: Double)
-    func openSettings()
-    func addWalletMenuAction()
-    func importWalletMenuAction()
-    func reloadTransactionsMenuAction()
-}
-
 @objc(MenuElementsEmitter)
 class MenuElementsEmitter: RCTEventEmitter, NativeMenuElementsEmitterSpec {
-    
     private static var instance: MenuElementsEmitter?
     private var hasListeners = false
     
     override init() {
         super.init()
         MenuElementsEmitter.instance = self
-    }
-    
-    override class func moduleName() -> String! {
-        return "MenuElementsEmitter"
     }
     
     @objc
@@ -33,13 +18,15 @@ class MenuElementsEmitter: RCTEventEmitter, NativeMenuElementsEmitterSpec {
         }
         return instance!
     }
+
+    // NativeMenuElementsEmitterSpec expects an instance method; bridge it to the singleton above.
+    @objc
+    func sharedInstance() {
+        _ = MenuElementsEmitter.sharedInstance()
+    }
     
     override func supportedEvents() -> [String]! {
         return ["openSettings", "addWalletMenuAction", "importWalletMenuAction", "reloadTransactionsMenuAction"]
-    }
-    
-    override class func requiresMainQueueSetup() -> Bool {
-        return true
     }
     
     override func addListener(_ eventName: String!) {

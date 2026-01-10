@@ -1,6 +1,5 @@
 #import <React/RCTBridgeModule.h>
-#import <React/RCTTurboModule.h>
 
-@protocol NativeWidgetHelperSpec <RCTTurboModule>
+@protocol NativeWidgetHelperSpec <RCTBridgeModule>
 - (void)reloadAllWidgets;
 @end
