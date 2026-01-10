@@ -283,12 +283,7 @@ const DetailViewStackScreensStack = () => {
           headerTitleStyle: {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
-          // Transparent header on both iOS and Android
-          headerTransparent: true,
-          headerBlurEffect: undefined,
-          headerStyle: {
-            backgroundColor: 'transparent',
-          },
+          headerBlurEffect: 'regular',
           animationTypeForReplace: 'push',
         })(theme)}
       />
