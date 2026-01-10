@@ -115,18 +115,23 @@ const CoinControlOutputSheet: React.FC = () => {
     navigation.goBack();
   }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
 
+  const renderDoneButton = useCallback(
+    () => (
+      <HeaderRightButton
+        title={loc.send.input_done}
+        onPress={applyChangesAndClose}
+        disabled={loading || !wallet}
+        testID="CoinControlOutputDone"
+      />
+    ),
+    [applyChangesAndClose, loading, wallet],
+  );
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <HeaderRightButton
-          title={loc.send.input_done}
-          onPress={applyChangesAndClose}
-          disabled={loading || !wallet}
-          testID="CoinControlOutputDone"
-        />
-      ),
+      headerRight: renderDoneButton,
     });
-  }, [applyChangesAndClose, loading, navigation, wallet]);
+  }, [navigation, renderDoneButton]);
 
   if (!wallet) {
     return (

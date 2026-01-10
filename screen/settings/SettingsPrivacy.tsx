@@ -301,7 +301,7 @@ const SettingsPrivacy: React.FC = () => {
   }
 
   const renderItem = useCallback(
-    (props: RenderItemProps): JSX.Element => {
+    (props: RenderItemProps): React.ReactElement => {
       const item: SettingItem = props.item;
       const items: SettingItem[] = settingsItems();
 

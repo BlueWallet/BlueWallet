@@ -51,20 +51,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
   },
-  content: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-  },
-  actions: {
-    marginTop: 16,
-    alignItems: 'stretch',
-  },
-  actionItem: {
-    width: '100%',
-  },
-  actionSpacer: {
-    height: 12,
-  },
 });
 
 export default class SelfTest extends Component {

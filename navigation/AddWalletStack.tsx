@@ -188,7 +188,7 @@ const AddWalletStack = () => {
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
           headerShown: true,
-          headerTitle: loc.wallets.import_title,
+          headerTitle: '',
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
@@ -200,7 +200,7 @@ const AddWalletStack = () => {
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
           headerShown: true,
-          headerTitle: loc.multisig.this_is_cosigners_xpub,
+          headerTitle: '',
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />

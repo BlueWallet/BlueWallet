@@ -46,13 +46,16 @@ it('SelfTest work', async () => {
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  
+
   // Self-tests can complete very quickly or take a while
   // Wait for OK to appear (it might be there immediately or after tests complete)
-  await waitFor(() => {
-    expect(queryByTestId('SelfTestOk')).toBeTruthy();
-  }, { timeout: 120000 });
-  
+  await waitFor(
+    () => {
+      expect(queryByTestId('SelfTestOk')).toBeTruthy();
+    },
+    { timeout: 120000 },
+  );
+
   // Verify OK is present and visible
   const okElement = queryByTestId('SelfTestOk');
   expect(okElement).toBeTruthy();

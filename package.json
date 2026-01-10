@@ -141,7 +141,7 @@
     "electrum-client": "github:BlueWallet/rn-electrum-client#d9f511d",
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
-    "lottie-react-native": "7.3.4",
+    "lottie-react-native": "7.3.5",
     "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
     "react": "19.2.3",

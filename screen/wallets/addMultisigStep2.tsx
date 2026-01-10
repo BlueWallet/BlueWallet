@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { Icon } from '@rneui/themed';
@@ -22,25 +22,40 @@ import MultipleStepsListItem, {
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
-const staticCache = {};
+type MultisigStep2Params = {
+  m: number;
+  n: number;
+  format: number | string;
+  walletLabel: string;
+  onBarScanned?: { data?: string } | string;
+  sheetAction?: string;
+  sheetImportText?: string;
+  sheetAskPassphrase?: boolean;
+};
+
+type CosignerTuple = [string, string | false, string | false, string?];
+type StaticCache = Record<string, string>;
+
+const staticCache: StaticCache = {};
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const WalletsAddMultisigStep2 = () => {
-  const { addAndSaveWallet, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
+  const { addAndSaveWallet, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
   const navigation = useExtendedNavigation();
-  const params = useRoute().params;
+  const route = useRoute<RouteProp<{ WalletsAddMultisigStep2: MultisigStep2Params }, 'WalletsAddMultisigStep2'>>();
+  const params = route.params;
   const { m, n, format, walletLabel } = params;
-  const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
+  const [cosigners, setCosigners] = useState<CosignerTuple[]>([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const { isPrivacyBlurEnabled } = useSettings();
-  const data = useRef(new Array(n));
+  const { isPrivacyBlurEnabled, isElectrumDisabled } = useSettings();
+  const data = useRef<Array<null | undefined>>(new Array(n));
 
   useFocusEffect(
     useCallback(() => {
@@ -105,7 +120,8 @@ const WalletsAddMultisigStep2 = () => {
     } catch (e) {
       setIsLoading(false);
       navigation.setOptions({ headerBackVisible: true });
-      presentAlert({ message: e.message });
+      const message = e instanceof Error ? e.message : String(e);
+      presentAlert({ message });
       console.log('create MS wallet error', e);
     }
   };
@@ -132,8 +148,9 @@ const WalletsAddMultisigStep2 = () => {
         throw new Error('This should never happen');
     }
     for (const cc of cosigners) {
-      const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
-      w.addCosigner(cc[0], fp, cc[2], cc[3]);
+      const fp = (cc[1] || getFpCacheForMnemonics(cc[0], cc[3])) as string;
+      const path = typeof cc[2] === 'string' && cc[2] ? cc[2] : getPath();
+      w.addCosigner(cc[0], fp, path, cc[3]);
     }
     w.setLabel(walletLabel);
     if (!isElectrumDisabled) {
@@ -167,7 +184,7 @@ const WalletsAddMultisigStep2 = () => {
   }, [format]);
 
   const setXpubCacheForMnemonics = useCallback(
-    (seed, passphrase) => {
+    (seed: string, passphrase?: string) => {
       const path = getPath();
       const w = new MultisigHDWallet();
       w.setDerivationPath(path);
@@ -175,6 +192,26 @@ const WalletsAddMultisigStep2 = () => {
       return staticCache[seed + path + passphrase];
     },
     [getPath],
+  );
+
+  const setFpCacheForMnemonics = useCallback((seed: string, passphrase?: string) => {
+    staticCache[seed + (passphrase ?? '')] = MultisigHDWallet.mnemonicToFingerprint(seed, passphrase);
+    return staticCache[seed + (passphrase ?? '')];
+  }, []);
+
+  const getXpubCacheForMnemonics = useCallback(
+    (seed: string, passphrase?: string) => {
+      const path = getPath();
+      return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
+    },
+    [getPath, setXpubCacheForMnemonics],
+  );
+
+  const getFpCacheForMnemonics = useCallback(
+    (seed: string, passphrase?: string) => {
+      return staticCache[seed + (passphrase ?? '')] || setFpCacheForMnemonics(seed, passphrase);
+    },
+    [setFpCacheForMnemonics],
   );
 
   const generateNewKey = useCallback(() => {
@@ -199,9 +236,9 @@ const WalletsAddMultisigStep2 = () => {
   }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics]);
 
   const viewKey = useCallback(
-    cosigner => {
+    (cosigner: CosignerTuple) => {
       if (MultisigHDWallet.isXpubValid(cosigner[0])) {
-        const cosignerJson = MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]);
+        const cosignerJson = MultisigCosigner.exportToJson(cosigner[1] as string, cosigner[0], cosigner[2] as string);
         const cosignerUR = encodeUR(cosignerJson)[0];
         const filename = 'bw-cosigner-' + cosigner[1] + '.bwcosigner';
         navigation.navigate('WalletsAddMultisigCosignerXpubSheet', {
@@ -227,26 +264,6 @@ const WalletsAddMultisigStep2 = () => {
     [getPath, getFpCacheForMnemonics, getXpubCacheForMnemonics, navigation],
   );
 
-  const getXpubCacheForMnemonics = useCallback(
-    (seed, passphrase) => {
-      const path = getPath();
-      return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
-    },
-    [getPath, setXpubCacheForMnemonics],
-  );
-
-  const setFpCacheForMnemonics = useCallback((seed, passphrase) => {
-    staticCache[seed + (passphrase ?? '')] = MultisigHDWallet.mnemonicToFingerprint(seed, passphrase);
-    return staticCache[seed + (passphrase ?? '')];
-  }, []);
-
-  const getFpCacheForMnemonics = useCallback(
-    (seed, passphrase) => {
-      return staticCache[seed + (passphrase ?? '')] || setFpCacheForMnemonics(seed, passphrase);
-    },
-    [setFpCacheForMnemonics],
-  );
-
   const iHaveMnemonics = useCallback(() => {
     navigation.navigate('WalletsAddMultisigProvideMnemonicsSheet', {
       importText,
@@ -255,7 +272,7 @@ const WalletsAddMultisigStep2 = () => {
   }, [askPassphrase, importText, navigation]);
 
   const tryUsingXpub = useCallback(
-    async (xpub, fp, path) => {
+    async (xpub: string, fp?: string, path?: string) => {
       if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
         setIsLoading(false);
         setImportText('');
@@ -295,51 +312,56 @@ const WalletsAddMultisigStep2 = () => {
       setAskPassphrase(false);
 
       const cosignersCopy = [...cosigners];
-      cosignersCopy.push([xpub, fp, path]);
+      cosignersCopy.push([xpub, fp ?? false, path ?? false]);
       setCosigners(cosignersCopy);
     },
     [cosigners, getPath],
   );
 
-  const isValidMnemonicSeed = mnemonicSeed => {
+  const isValidMnemonicSeed = (mnemonicSeed: string) => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonicSeed);
     return hd.validateMnemonic();
   };
 
   const onBarScanned = useCallback(
-    async ret => {
-      if (!ret.data) ret = { data: ret };
+    async (ret: { data?: string } | string) => {
+      const payload = typeof ret === 'string' ? { data: ret } : ret;
+      const dataString = payload.data ?? '';
 
       try {
-        let retData = JSON.parse(ret.data);
+        let retData = JSON.parse(dataString);
         if (Array.isArray(retData) && retData.length === 1) {
           // UR:CRYPTO-ACCOUNT now parses as an array of accounts, even if it is just one,
           // so in case of cosigner data its gona be an array of 1 cosigner account. lets pop it for
           // the code that expects it
           retData = retData.pop();
-          ret.data = JSON.stringify(retData);
+          payload.data = JSON.stringify(retData);
         }
       } catch (e) {
         console.debug('JSON parsing failed for ret.data:', e);
       }
 
-      if (ret.data.toUpperCase().startsWith('UR')) {
+      if ((payload.data ?? '').toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
-      } else if (isValidMnemonicSeed(ret.data)) {
-        setImportText(ret.data);
+      } else if (isValidMnemonicSeed(payload.data ?? '')) {
+        setImportText(payload.data ?? '');
         navigation.navigate('WalletsAddMultisigProvideMnemonicsSheet', {
-          importText: ret.data,
+          importText: payload.data ?? '',
           askPassphrase,
         });
       } else {
-        if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
+        if (payload.data && MultisigHDWallet.isXpubValid(payload.data) && !MultisigHDWallet.isXpubForMultisig(payload.data)) {
           return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
         }
-        if (MultisigHDWallet.isXpubValid(ret.data)) {
-          return tryUsingXpub(ret.data);
+        if (payload.data && MultisigHDWallet.isXpubValid(payload.data)) {
+          return tryUsingXpub(payload.data);
         }
-        let cosigner = new MultisigCosigner(ret.data);
+        if (!payload.data) {
+          return presentAlert({ message: loc.multisig.invalid_cosigner });
+        }
+
+        let cosigner = new MultisigCosigner(payload.data);
         if (!cosigner.isValid()) {
           return presentAlert({ message: loc.multisig.invalid_cosigner });
         }
@@ -421,7 +443,7 @@ const WalletsAddMultisigStep2 = () => {
   );
 
   const utilizeMnemonicPhrase = useCallback(
-    async (overrideText, overrideAskPassphrase) => {
+    async (overrideText?: string, overrideAskPassphrase?: boolean) => {
       const textToUse = overrideText ?? importText;
       const askForPassphrase = overrideAskPassphrase ?? askPassphrase;
       setIsLoading(true);
@@ -450,12 +472,13 @@ const WalletsAddMultisigStep2 = () => {
         return presentAlert({ message: loc.multisig.invalid_mnemonics });
       }
 
-      let passphrase;
+      let passphrase: string | undefined;
       if (askForPassphrase) {
         try {
           passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
         } catch (e) {
-          if (e.message === 'Cancel Pressed') {
+          const message = e instanceof Error ? e.message : String(e);
+          if (message === 'Cancel Pressed') {
             setIsLoading(false);
             return;
           }
@@ -496,24 +519,21 @@ const WalletsAddMultisigStep2 = () => {
     navigation.setParams({ sheetAction: undefined, sheetImportText: undefined, sheetAskPassphrase: undefined });
   }, [askPassphrase, navigation, params, utilizeMnemonicPhrase]);
 
-  const dashType = useCallback(({ index, lastIndex, isChecked, isFocus }) => {
-    if (isChecked) {
-      if (index === lastIndex) {
-        return MultipleStepsListItemDashType;
-      } else {
-        return MultipleStepsListItemDashType.TopAndBottom;
+  const dashType = useCallback(
+    ({ index, lastIndex, isChecked, isFocus }: { index: number; lastIndex: number; isChecked: boolean; isFocus: boolean }) => {
+      if (isChecked) {
+        return index === lastIndex ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom;
       }
-    } else {
       if (index === lastIndex) {
         return isFocus ? MultipleStepsListItemDashType.TopAndBottom : MultipleStepsListItemDashType.Top;
-      } else {
-        return MultipleStepsListItemDashType.TopAndBottom;
       }
-    }
-  }, []);
+      return MultipleStepsListItemDashType.TopAndBottom;
+    },
+    [],
+  );
 
   const _renderKeyItem = useCallback(
-    el => {
+    (el: { index: number }) => {
       const renderProvideKeyButtons = el.index === cosigners.length;
       const isChecked = el.index < cosigners.length;
       return (
@@ -586,6 +606,7 @@ const WalletsAddMultisigStep2 = () => {
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
           extraData={cosigners}
+          // @ts-expect-error Reanimated itemLayoutAnimation prop not in RN types
           itemLayoutAnimation={LinearTransition}
         />
       </View>
