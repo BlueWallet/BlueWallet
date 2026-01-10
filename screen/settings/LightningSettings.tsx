@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
-import { Alert, Linking, StyleSheet } from 'react-native';
-import { Button as ButtonRNElements } from '@rneui/themed';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { Alert, Linking, StyleSheet, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import { BlueLoading } from '../../components/BlueLoading';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
+import { usePlatformStyles } from '../../theme/platformStyles';
 import loc from '../../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
@@ -17,30 +19,74 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { BlueSpacing40 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
+import PlatformListItem from '../../components/PlatformListItem';
 
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
-  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { setParams } = useExtendedNavigation();
+  const insets = useSafeAreaInsets();
 
-  const stylesHook = StyleSheet.create({
-    buttonStyle: {
-      backgroundColor: 'transparent',
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+  // Calculate header height for Android with transparent header
+  // Standard Android header is 56dp + status bar height
+  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android') {
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      return 56 + statusBarHeight;
+    }
+    return 0;
+  }, [insets.top]);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
+    },
+    contentContainer: {
+      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+    },
+    card: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: 8,
+      padding: sizing.basePadding,
+      marginBottom: sizing.baseMargin,
+      ...layout.cardShadow,
+    },
+    explanationText: {
+      color: colors.foregroundColor,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    inputContainer: {
+      marginTop: sizing.baseMargin,
+      marginBottom: sizing.baseMargin,
+    },
+    buttonContainer: {
+      marginTop: sizing.baseMargin,
+    },
+    githubContainer: {
+      marginTop: 16,
+    },
+    githubItemContainer: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: 8,
+      marginBottom: 0,
+    },
+    addressInput: {
+      minHeight: 44,
+      height: 'auto',
     },
   });
 
   useEffect(() => {
     const fetchURI = async () => {
       try {
-        // Try fetching from DefaultPreference first as DefaultPreference uses truly native storage
         const value = await getLNDHub();
         setURI(value ?? undefined);
       } catch (error) {
@@ -72,16 +118,14 @@ const LightningSettings: React.FC = () => {
       });
     };
 
-    // Call the initialize function
     initialize();
   }, [params?.url]);
 
   const setLndhubURI = (value: string) => {
-    // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
     const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
-
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
+
   const save = useCallback(async () => {
     setIsLoading(true);
     let normalizedURI;
@@ -90,7 +134,6 @@ const LightningSettings: React.FC = () => {
       if (URI) {
         normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
         await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
-
         await setLNDHub(normalizedURI);
       } else {
         await clearLNDHub();
@@ -116,38 +159,52 @@ const LightningSettings: React.FC = () => {
     }
   }, [params?.onBarScanned, setParams]);
 
+  const handleOpenGithub = () => {
+    Linking.openURL('https://github.com/BlueWallet/LndHub');
+  };
+
   return (
-    <SafeAreaScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <BlueCard>
-        <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
-      </BlueCard>
+    <SafeAreaScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      headerHeight={headerHeight}
+    >
+      <View style={styles.card}>
+        <Text style={styles.explanationText}>{loc.settings.lightning_settings_explain}</Text>
 
-      <ButtonRNElements
-        icon={{
-          name: 'github',
-          type: 'font-awesome',
-          color: colors.foregroundColor,
-        }}
-        onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
-        titleStyle={{ color: colors.buttonAlternativeTextColor }}
-        title="github.com/BlueWallet/LndHub"
-        // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
-        // color={colors.buttonTextColor}
-        buttonStyle={stylesHook.buttonStyle}
-      />
+        <View style={styles.githubContainer}>
+          <PlatformListItem
+            title="GitHub Repository"
+            subtitle="github.com/BlueWallet/LndHub"
+            onPress={handleOpenGithub}
+            leftIcon={<Icon name="github" color={platformColors.textColor} size={24} />}
+            containerStyle={styles.githubItemContainer}
+            isFirst
+            isLast
+            bottomDivider={false}
+          />
+        </View>
+      </View>
 
-      <BlueCard>
-        <AddressInput
-          isLoading={isLoading}
-          address={URI}
-          placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
-          onChangeText={setLndhubURI}
-          testID="URIInput"
-          editable={!isLoading}
-        />
-        <BlueSpacing40 />
-        {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
-      </BlueCard>
+      <View style={styles.card}>
+        <View style={styles.inputContainer}>
+          <AddressInput
+            isLoading={isLoading}
+            address={URI}
+            placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
+            onChangeText={setLndhubURI}
+            testID="URIInput"
+            editable={!isLoading}
+            style={styles.addressInput}
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+        </View>
+      </View>
     </SafeAreaScrollView>
   );
 };

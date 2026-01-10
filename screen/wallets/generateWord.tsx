@@ -1,26 +1,68 @@
-import React, { useState } from 'react';
-import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { Keyboard, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
-import { BlueCard, BlueText } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { useTheme } from '../../components/themes';
+import { usePlatformTheme } from '../../theme';
 
 const GenerateWord = () => {
   const { colors } = useTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const insets = useSafeAreaInsets();
+
+  // Calculate header height for Android with transparent header
+  const headerHeight = useMemo(() => {
+    if (Platform.OS === 'android' && insets.top > 0) {
+      return 56 + (StatusBar.currentHeight || insets.top);
+    }
+    return 0;
+  }, [insets.top]);
 
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
 
-  const stylesHooks = StyleSheet.create({
+  const localStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: platformColors.background,
+    },
+    contentContainer: {
+      paddingHorizontal: sizing.basePadding,
+    },
+    card: {
+      backgroundColor: platformColors.cardBackground,
+      borderRadius: sizing.containerBorderRadius,
+      padding: sizing.basePadding,
+      ...layout.cardShadow,
+    },
     input: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderBottomWidth: 0.5,
+      alignItems: 'center',
+      borderRadius: 4,
+      marginBottom: 10,
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
+    },
+    text: {
+      flex: 1,
+      padding: 8,
+      minHeight: 33,
+      color: colors.foregroundColor,
+      height: 150,
+    },
+    resultText: {
+      textAlign: 'center',
+      color: platformColors.titleColor,
+      fontSize: sizing.subtitleFontSize,
     },
   });
 
@@ -55,83 +97,47 @@ const GenerateWord = () => {
 
   return (
     <SafeAreaScrollView
-      style={styles.blueArea}
+      style={localStyles.container}
+      contentContainerStyle={localStyles.contentContainer}
       keyboardShouldPersistTaps="handled"
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
+      headerHeight={headerHeight}
     >
-      <View style={styles.wrapper}>
-        <BlueCard style={styles.mainCard}>
-          <View style={[styles.input, stylesHooks.input]}>
-            <TextInput
-              style={styles.text}
-              multiline
-              editable
-              placeholder={loc.autofill_word.enter}
-              placeholderTextColor="#81868e"
-              value={mnemonic}
-              onChangeText={handleUpdateMnemonic}
-              testID="MnemonicInput"
-            />
-          </View>
+      <View style={localStyles.card}>
+        <View style={localStyles.input}>
+          <TextInput
+            style={localStyles.text}
+            multiline
+            editable
+            placeholder={loc.autofill_word.enter}
+            placeholderTextColor={colors.placeholderTextColor}
+            value={mnemonic}
+            onChangeText={handleUpdateMnemonic}
+            testID="MnemonicInput"
+          />
+        </View>
 
-          <BlueSpacing10 />
-          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-          <BlueSpacing20 />
-          <BlueText style={styles.center} testID="Result">
-            {result}
-          </BlueText>
-          <BlueSpacing20 />
-          <View>
-            <Button
-              disabled={mnemonic.trim().length === 0}
-              title={loc.autofill_word.generate_word}
-              onPress={checkMnemonic}
-              testID="GenerateWord"
-            />
-          </View>
-          <BlueSpacing20 />
-        </BlueCard>
+        <BlueSpacing10 />
+        <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+        <BlueSpacing20 />
+        <Text style={localStyles.resultText} testID="Result">
+          {result}
+        </Text>
+        <BlueSpacing20 />
+        <View>
+          <Button
+            disabled={mnemonic.trim().length === 0}
+            title={loc.autofill_word.generate_word}
+            onPress={checkMnemonic}
+            testID="GenerateWord"
+          />
+        </View>
+        <BlueSpacing20 />
       </View>
     </SafeAreaScrollView>
   );
 };
 
 export default GenerateWord;
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  blueArea: {
-    paddingTop: 19,
-  },
-  mainCard: {
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-    marginBottom: 10,
-  },
-  center: {
-    textAlign: 'center',
-  },
-  text: {
-    padding: 8,
-    minHeight: 33,
-    color: '#81868e',
-    width: '100%',
-    height: 150,
-  },
-});

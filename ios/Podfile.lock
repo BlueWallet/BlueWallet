@@ -3427,7 +3427,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios/ReactAppDependencyProvider`)
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
+  - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit-no-google`)
   - RealmJS (from `../node_modules/realm`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
@@ -3647,7 +3647,7 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeCameraKit:
-    :path: "../node_modules/react-native-camera-kit"
+    :path: "../node_modules/react-native-camera-kit-no-google"
   RealmJS:
     :path: "../node_modules/realm"
   RNCAsyncStorage:
@@ -3792,7 +3792,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 0eb286cc274abb059ee601b862ebddac2e681d01
   ReactCodegen: fe64d526ea30773d2266b4d33ecb3883b3f044fa
   ReactCommon: ac934cb340aee91282ecd6f273a26d24d4c55cae
-  ReactNativeCameraKit: 9a5c627808ea152bc4c7e5574a89ced9ca196e40
+  ReactNativeCameraKit: f0f16aa7f60b7392161b57b09d24073e71e29123
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCClipboard: 4b58c780f63676367640f23c8e114e9bd0cf86ac

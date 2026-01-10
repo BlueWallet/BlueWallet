@@ -82,7 +82,7 @@ export type DetailViewStackParamList = {
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
-  DefaultView: undefined;
+  // DefaultView: undefined; // Commented out - not accessible from UI
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
@@ -95,7 +95,7 @@ export type DetailViewStackParamList = {
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
-  ToolsScreen: undefined;
+  SettingsTools: undefined;
   SettingsPrivacy: undefined;
   ViewEditMultisigCosigners: {
     walletID: string;

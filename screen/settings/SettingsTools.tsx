@@ -8,11 +8,10 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { usePlatformStyles } from '../../theme/platformStyles';
 import { useTheme } from '../../components/themes';
 
-const NetworkSettings: React.FC = () => {
+const SettingsTools: React.FC = () => {
   const navigation = useExtendedNavigation();
   const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const { colors } = useTheme();
-  const isNotificationsCapable = Platform.OS !== 'web';
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
@@ -43,38 +42,30 @@ const NetworkSettings: React.FC = () => {
       backgroundColor: platformColors.cardBackground,
       marginHorizontal: 0,
     },
-    lastItemWithNotifications: {
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-    },
   });
 
-  const navigateToElectrumSettings = () => {
-    navigation.navigate('ElectrumSettings');
+  const navigateToIsItMyAddress = () => {
+    navigation.navigate('IsItMyAddress');
   };
 
-  const navigateToLightningSettings = () => {
-    navigation.navigate('LightningSettings');
+  const navigateToBroadcast = () => {
+    navigation.navigate('Broadcast');
   };
 
-  const navigateToBlockExplorerSettings = () => {
-    navigation.navigate('SettingsBlockExplorer');
-  };
-
-  const navigateToNotificationSettings = () => {
-    navigation.navigate('NotificationSettings');
+  const navigateToGenerateWord = () => {
+    navigation.navigate('GenerateWord');
   };
 
   return (
     <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer} headerHeight={headerHeight}>
       <View style={styles.firstSectionContainer}>
         <PlatformListItem
-          title={loc.settings.block_explorer}
+          title={loc.is_it_my_address.title}
           leftIcon={{
             type: 'font-awesome-5',
             name: 'search',
-            color: colors.buttonAlternativeTextColor,
-            backgroundColor: platformColors.blueIconBg,
+            color: colors.lnborderColor,
+            backgroundColor: platformColors.yellowIconBg,
           }}
           containerStyle={[
             styles.itemContainer,
@@ -83,78 +74,50 @@ const NetworkSettings: React.FC = () => {
               borderTopRightRadius: sizing.containerBorderRadius * 1.5,
             },
           ]}
-          onPress={navigateToBlockExplorerSettings}
-          testID="BlockExplorerSettings"
+          onPress={navigateToIsItMyAddress}
+          testID="IsItMyAddress"
           chevron
           bottomDivider={layout.showBorderBottom}
           isFirst
         />
-
         <PlatformListItem
-          title={loc.settings.network_electrum}
+          title={loc.settings.network_broadcast}
           leftIcon={{
             type: 'font-awesome-5',
-            name: 'server',
-            color: colors.successColor,
-            backgroundColor: platformColors.greenIconBg,
+            name: 'paper-plane',
+            color: colors.buttonAlternativeTextColor,
+            backgroundColor: platformColors.blueIconBg,
           }}
           containerStyle={styles.itemContainer}
-          onPress={navigateToElectrumSettings}
-          testID="ElectrumSettings"
+          onPress={navigateToBroadcast}
+          testID="Broadcast"
           chevron
           bottomDivider={layout.showBorderBottom}
         />
-
         <PlatformListItem
-          title={loc.settings.lightning_settings}
+          title={loc.autofill_word.title}
           leftIcon={{
             type: 'font-awesome-5',
-            name: 'bolt',
-            color: colors.lnborderColor,
-            backgroundColor: platformColors.yellowIconBg,
+            name: 'key',
+            color: colors.successColor,
+            backgroundColor: platformColors.greenIconBg,
           }}
           containerStyle={[
             styles.itemContainer,
-            !isNotificationsCapable
-              ? layout.showBorderRadius && {
-                  borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-                  borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-                }
-              : styles.lastItemWithNotifications,
+            layout.showBorderRadius && {
+              borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
+              borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
+            },
           ]}
-          onPress={navigateToLightningSettings}
-          testID="LightningSettings"
+          onPress={navigateToGenerateWord}
+          testID="GenerateWord"
           chevron
-          bottomDivider={layout.showBorderBottom && isNotificationsCapable}
-          isLast={!isNotificationsCapable}
+          bottomDivider={layout.showBorderBottom}
+          isLast
         />
-
-        {isNotificationsCapable && (
-          <PlatformListItem
-            title={loc.settings.notifications}
-            leftIcon={{
-              type: 'font-awesome-5',
-              name: 'bell',
-              color: colors.redText,
-              backgroundColor: platformColors.redIconBg,
-            }}
-            containerStyle={[
-              styles.itemContainer,
-              layout.showBorderRadius && {
-                borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-                borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-              },
-            ]}
-            onPress={navigateToNotificationSettings}
-            testID="NotificationSettings"
-            chevron
-            bottomDivider={layout.showBorderBottom}
-            isLast
-          />
-        )}
       </View>
     </SafeAreaScrollView>
   );
 };
 
-export default NetworkSettings;
+export default SettingsTools;

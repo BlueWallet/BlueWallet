@@ -1,6 +1,6 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
-import { element } from 'detox';
+import { element, waitFor } from 'detox';
 
 import {
   expectToBeVisible,
@@ -44,12 +44,23 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
+    // scroll to AboutButton as it may be below the visible area (especially with the new Donate section)
+    await waitFor(element(by.id('AboutButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(500, 'down');
+    await sleep(200); // Wait for scroll animation to finish
     await element(by.id('AboutButton')).tap();
     await waitFor(element(by.id('RunSelfTestButton')))
       .toBeVisible()
       .whileElement(by.id('AboutScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
+    // Wait for the self-test to complete (loading disappears)
+    await waitFor(element(by.id('SelfTestLoading')))
+      .not.toBeVisible()
+      .withTimeout(300 * 1000);
+    // Then wait for the OK button to appear
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
@@ -71,19 +82,22 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
 
-    // general
+    // general - wait for it to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('GeneralSettings')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down');
     await element(by.id('GeneralSettings')).tap();
+    await sleep(100); // Wait for screen to mount and render
     await waitForId('SettingsPrivacy');
 
-    // privacy
+    // privacy switches are now directly in GeneralSettings
     // trigger switches
-    await element(by.id('SettingsPrivacy')).tap();
     await waitForId('ClipboardSwitch');
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
-    await goBack();
     await goBack();
 
     //
@@ -101,11 +115,46 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('Chinese (ZH)')).tap();
     await goBack();
     await expect(element(by.text('语言'))).toBeVisible();
+
+    // Switch back to English
     await element(by.id('Language')).tap();
+    // Scroll to the top before selecting English (after selecting Chinese, the list might be scrolled down)
+    await waitFor(element(by.text('English')))
+      .toBeVisible()
+      .whileElement(by.id('LanguageFlatList'))
+      .scroll(500, 'up');
     await element(by.text('English')).tap();
+    // Wait for the language change to be saved (setLanguageStorage is async)
+    await sleep(1000);
     await goBack();
 
+    // Language change may cause navigation to go back twice (to Home), so re-navigate to Settings if needed
+    try {
+      await waitFor(element(by.id('SettingsRoot')))
+        .toBeVisible()
+        .withTimeout(2000);
+    } catch (_) {
+      // If SettingsRoot is not visible, we're probably on Home screen, so navigate to Settings
+      await element(by.id('SettingsButton')).tap();
+      await waitForId('SettingsRoot');
+    }
+
+    // Wait for language change to fully propagate by checking for English text "Security"
+    // This ensures the UI has actually updated before proceeding with tests that expect English text
+    // Try to find it with scrolling since it might be below the fold
+    await waitFor(element(by.text('Security')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down');
+
+    // Additional wait to ensure language change has propagated throughout the app
+    await sleep(1000);
+
     // security
+    await waitFor(element(by.id('SecurityButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(200, 'down');
     await element(by.id('SecurityButton')).tap();
     await goBack();
 
@@ -176,9 +225,36 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // await sleep(300000);
     if (await expectToBeVisible('NotificationSettings')) {
       await element(by.id('NotificationSettings')).tap();
+      await waitFor(element(by.id('NotificationsSwitch')))
+        .toBeVisible()
+        .withTimeout(10000);
       await element(by.id('NotificationsSwitch')).tap();
-      await sleep(3_000);
+      await sleep(1_000);
+      // If notifications are not enabled on the device, an alert will appear
+      // Check if alert is visible and dismiss it
+      try {
+        await waitFor(element(by.text('OK')))
+          .toBeVisible()
+          .withTimeout(3000);
+        await element(by.text('OK')).tap();
+      } catch (_) {
+        // Alert not shown, which is fine - notifications might be enabled
+      }
+      // Wait for switch to be visible again after async operations complete
+      await waitFor(element(by.id('NotificationsSwitch')))
+        .toBeVisible()
+        .withTimeout(15000);
       await element(by.id('NotificationsSwitch')).tap();
+      await sleep(1_000);
+      // Check if alert appeared again and dismiss it
+      try {
+        await waitFor(element(by.text('OK')))
+          .toBeVisible()
+          .withTimeout(3000);
+        await element(by.text('OK')).tap();
+      } catch (_) {
+        // Alert not shown, which is fine
+      }
       await goBack();
       await goBack();
     } else {
@@ -200,6 +276,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // IsItMyAddress
     await element(by.id('IsItMyAddress')).tap();
+    await sleep(100); // Wait for screen to mount and render
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('CheckAddress')).tap();
     await expect(element(by.text('None of the available wallets own the provided address.'))).toBeVisible();
@@ -208,6 +286,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     // about
+    await waitFor(element(by.id('AboutButton')))
+      .toBeVisible()
+      .whileElement(by.id('SettingsRoot'))
+      .scroll(500, 'down');
+    await sleep(200); // Wait for scroll animation to finish
     await element(by.id('AboutButton')).tap();
     await goBack();
     await goBack();
@@ -277,8 +360,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // lets encrypt the storage.
     // first, trying to mistype second password:
+    // Wait for switch to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await sleep(200); // Wait for modal to be presented and rendered
+    await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
+    await waitForId('PasswordInput');
 
     await element(by.id('PasswordInput')).replaceText('08902');
     await element(by.id('PasswordInput')).tapReturnKey();
@@ -324,6 +415,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
+    await waitForId('PasswordInput');
 
     // trying MAIN password: should fail, obviously
     await element(by.id('PasswordInput')).replaceText('qqq');
@@ -365,7 +457,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    //
+    // Wait for unlock screen to load, then wait for password input to appear
+    // (password input appears after promptForPassword is called asynchronously)
+    await sleep(1000); // Give time for unlock screen to initialize and async chain to complete
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).typeText('qqq\n');
     await waitForId('WalletsList');
@@ -375,7 +469,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // relaunch app
     await device.launchApp({ newInstance: true });
-    //
+    // Wait for unlock screen to load, then wait for password input to appear
+    // (password input appears after promptForPassword is called asynchronously)
+    await sleep(1500); // Give extra time for unlock screen to initialize after fake storage unlock
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).typeText('passwordForFakeStorage\n');
     await waitForId('WalletsList');
@@ -387,9 +483,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
     await element(by.id('SecurityButton')).tap();
 
-    // correct password
+    // correct password - scroll to switch if needed
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
@@ -416,7 +517,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // lets put correct passwords and encrypt the storage
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await sleep(200); // Wait for modal to be presented and rendered
+    await waitForId('IUnderstandButton');
     await element(by.id('IUnderstandButton')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
@@ -428,6 +532,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
@@ -459,8 +564,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SecurityButton')).tap();
 
     // putting FAKE storage password. should not succeed
+    // Wait for switch to be visible and scroll to it if needed (for older Android versions where it's below the header)
+    await waitFor(element(by.id('EncyptedAndPasswordProtectedSwitch')))
+      .toBeVisible()
+      .whileElement(by.id('EncryptStorageScrollView'))
+      .scroll(200, 'down');
     await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
     await element(by.text('OK')).tap();
+    await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
@@ -596,6 +707,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // setting fee rate:
     const feeRate = 3;
     await element(by.id('chooseFee')).tap();
+    await waitForId('feeCustomContainerButton');
     await element(by.id('feeCustomContainerButton')).tap();
     await element(by.id('feeCustom')).typeText(feeRate.toString());
     await element(by.id('feeCustom')).tapReturnKey();

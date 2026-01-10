@@ -1,7 +1,8 @@
 /* eslint react/prop-types: "off" */
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Header } from '../../components/Header';
 import SelfTest from '../../screen/settings/SelfTest';
 import Settings from '../../screen/settings/Settings';
@@ -13,7 +14,11 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
-const Wrapper = ({ children }) => <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>;
+const Wrapper = ({ children }) => (
+  <SafeAreaProvider initialSafeAreaInsets={{ top: 0, bottom: 0, left: 0, right: 0 }}>
+    <NavigationContainer theme={BlueDefaultTheme}>{children}</NavigationContainer>
+  </SafeAreaProvider>
+);
 
 it('Header works', () => {
   const { toJSON } = render(
@@ -34,12 +39,21 @@ it.skip('Settings work', () => {
   expect(toJSON()).toBeTruthy();
 });
 
-it('SelfTest work', () => {
-  const { toJSON, getByText } = render(
+it('SelfTest work', async () => {
+  const { toJSON, queryByTestId } = render(
     <Wrapper>
       <SelfTest />
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
-  expect(getByText('OK')).toBeTruthy();
-});
+  
+  // Self-tests can complete very quickly or take a while
+  // Wait for OK to appear (it might be there immediately or after tests complete)
+  await waitFor(() => {
+    expect(queryByTestId('SelfTestOk')).toBeTruthy();
+  }, { timeout: 120000 });
+  
+  // Verify OK is present and visible
+  const okElement = queryByTestId('SelfTestOk');
+  expect(okElement).toBeTruthy();
+}, 180000);
