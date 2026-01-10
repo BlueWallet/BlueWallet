@@ -106,7 +106,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
     let hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed1 = hd._getSeed().toString('hex');
+    const seed1 = uint8ArrayToHex(hd._getSeed());
     assert.ok(hd.validateMnemonic());
 
     mnemonic = 'hell';
@@ -120,7 +120,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor Bounce remind\nhorse \n traffic exotic since escape mimic ramp skin judge owner topple erode ';
     hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed2 = hd._getSeed().toString('hex');
+    const seed2 = uint8ArrayToHex(hd._getSeed());
     assert.strictEqual(seed1, seed2);
     assert.ok(hd.validateMnemonic());
   });
