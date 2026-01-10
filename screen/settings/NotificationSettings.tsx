@@ -74,8 +74,11 @@ const NotificationSettings: React.FC = () => {
     },
     listItemContainer: {
       backgroundColor: platformColors.cardBackground,
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+    },
+    contentContainer: {
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
+      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
+      paddingBottom: sizing.sectionContainerMarginBottom || 0,
     },
     headerOffset: {
       height: sizing.firstSectionContainerPaddingTop,
@@ -504,6 +507,7 @@ const NotificationSettings: React.FC = () => {
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       ListHeaderComponent={ListHeaderComponent}
+      contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
