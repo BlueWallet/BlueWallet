@@ -1,0 +1,41 @@
+{
+  "name": "pako",
+  "description": "zlib port to javascript - fast, modularized, with browser support",
+  "version": "2.1.0",
+  "keywords": [
+    "zlib",
+    "deflate",
+    "inflate",
+    "gzip"
+  ],
+  "contributors": [
+    "Andrei Tuputcyn (https://github.com/andr83)",
+    "Vitaly Puzrin (https://github.com/puzrin)",
+    "Friedel Ziegelmayer (https://github.com/dignifiedquire)",
+    "Kirill Efimov (https://github.com/Kirill89)",
+    "Jean-loup Gailly",
+    "Mark Adler"
+  ],
+  "files": [
+    "index.js",
+    "dist/",
+    "lib/"
+  ],
+  "license": "(MIT AND Zlib)",
+  "repository": "nodeca/pako",
+  "module": "./dist/pako.esm.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/pako.esm.mjs",
+      "require": "./index.js"
+    },
+    "./package.json": "./package.json",
+    "./dist/*": "./dist/*",
+    "./lib/*": "./lib/*",
+    "./lib/zlib/*": "./lib/zlib/*",
+    "./lib/utils/*": "./lib/utils/*"
+  },
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {}
+}

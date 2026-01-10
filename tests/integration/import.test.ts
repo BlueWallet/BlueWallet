@@ -513,6 +513,39 @@ describe('import procedure', () => {
     );
   });
 
+  it('can import multi-account watch-only generic JSON', async () => {
+    const store = createStore();
+    const json = require('../unit/fixtures/nunchuk-export.json');
+    // console.log(JSON.stringify(json));
+    const { promise } = startImport(JSON.stringify(json), false, false, false, ...store.callbacks);
+    await promise;
+
+    assert.strictEqual(store.state.wallets.length, 3);
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), 'b68af6e4');
+    assert.strictEqual(
+      store.state.wallets[0].getSecret(),
+      'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
+    );
+
+    assert.strictEqual(store.state.wallets[1].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[1].getDerivationPath(), "m/49'/0'/0'");
+    assert.strictEqual(store.state.wallets[1].getMasterFingerprintHex(), 'b68af6e4');
+    assert.strictEqual(
+      store.state.wallets[1].getSecret(),
+      'ypub6XPx9oD6rLKvKS94NmFTeBPN38TUtkqSL2vk7hpxvdfy6GqnV6gsYri7JtYs47VBpfUsYn52BWpkgxkHgbmeZKszLYuzgrdNipsFproGpSu',
+    );
+
+    assert.strictEqual(store.state.wallets[2].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[2].getDerivationPath(), "m/44'/0'/0'");
+    assert.strictEqual(store.state.wallets[2].getMasterFingerprintHex(), 'b68af6e4');
+    assert.strictEqual(
+      store.state.wallets[2].getSecret(),
+      'xpub6CMpeBXdEKC3kxA96LeyvJgxQfPbxXuJu91wVcLjYKMcSf1dMr9HEkNUydPTxM1SkmutnYjFikr27JUtUSqP9gq1299SP7eKrKFr9YjsrPE',
+    );
+  });
+
   it('can import watch-only Keystone vault export', async () => {
     const store = createStore();
     const { promise } = startImport(
@@ -653,11 +686,13 @@ describe('import procedure', () => {
     );
     await promise;
 
-    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets.length, 3);
     assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
     assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '086ee178');
     assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1q5y4r767v5fzx74ez4nw36hjqrhr4ayeyut5px6');
+
+    // not checking other 2 wallets
   });
 
   it('can import lightning ark wallet', async () => {

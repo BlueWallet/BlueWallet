@@ -179,6 +179,10 @@ const ScanQRCode = () => {
       return _onReadUniformResourceV2(ret.data);
     }
 
+    if (ret.data.toUpperCase().startsWith('B$')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
     if (ret.data.toUpperCase().startsWith('UR:BYTES')) {
       const splitted = ret.data.split('/');
       if (splitted.length === 3 && splitted[1].includes('-')) {

@@ -496,6 +496,23 @@ const startImport = (
         }
       }
     } catch (_) {}
+
+    // is it a generic JSON with multiple accounts?
+    yield { progress: 'multi-account generic JSON' };
+    try {
+      const json = JSON.parse(text);
+
+      if (json.chain === 'BTC' && json.xfp) {
+        for (const account of ['bip86', 'bip84', 'bip49', 'bip44']) {
+          if (json[account] && json[account].desc) {
+            const wallet = new WatchOnlyWallet();
+            wallet.setSecret(json[account].desc);
+            wallet.init();
+            yield { wallet };
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   // POEHALI

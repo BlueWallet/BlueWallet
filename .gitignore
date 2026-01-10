@@ -82,6 +82,7 @@ artifacts/
 # Editors
 .vscode/
 /.vs
+.claude
 
 *.mx
 *.realm
