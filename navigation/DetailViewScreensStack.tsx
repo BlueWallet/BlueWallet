@@ -112,9 +112,12 @@ const DetailViewStackScreensStack = () => {
       headerShadowVisible: false,
       // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
       headerLargeTitle: Platform.OS === 'ios',
-      headerLargeTitleStyle: Platform.OS === 'ios' ? {
-        color: titleColorString,
-      } : undefined,
+      headerLargeTitleStyle:
+        Platform.OS === 'ios'
+          ? {
+              color: titleColorString,
+            }
+          : undefined,
       headerTitleStyle: {
         color: titleColorString,
       },
@@ -269,9 +272,13 @@ const DetailViewStackScreensStack = () => {
           headerShadowVisible: false,
           // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
           headerLargeTitle: Platform.OS === 'ios',
-          headerLargeTitleStyle: Platform.OS === 'ios' ? {
-            color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-          } : undefined,
+          headerLargeTitleStyle:
+            Platform.OS === 'ios'
+              ? {
+                  color:
+                    typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
+                }
+              : undefined,
           headerTitleStyle: {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
