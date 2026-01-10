@@ -15,15 +15,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
-          cache: npm
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -31,7 +32,7 @@ jobs:
           ruby-version: "3.1.6"
 
       - name: Cache Ruby gems
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-ruby-${{ hashFiles('Gemfile.lock') }}
@@ -47,7 +48,7 @@ jobs:
         run: npm ci
 
       - name: Cache CocoaPods
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
@@ -145,7 +146,7 @@ jobs:
             --reuse \
             --artifacts-location ./artifacts
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: e2e-test-videos
@@ -194,7 +195,7 @@ jobs:
     - name: Specify node version
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 24
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
@@ -212,7 +213,7 @@ jobs:
       run: npm ci --omit=dev --yes
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '17'

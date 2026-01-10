@@ -14,7 +14,7 @@ jobs:
     steps:
 
       - name: Checkout master branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: master  # Ensures we're checking out the master branch
           fetch-depth: 0 # Ensures full history to enable branch deletion and recreation
@@ -28,9 +28,9 @@ jobs:
         run: git checkout -b pod-update-branch  # Create a new branch from the master branch
 
       - name: Specify node version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: package-lock.json
 

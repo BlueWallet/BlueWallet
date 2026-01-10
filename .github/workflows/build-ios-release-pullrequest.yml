@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Ensures the full Git history is 
 
@@ -65,9 +65,9 @@ jobs:
           echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
@@ -430,7 +430,7 @@ jobs:
 
       - name: Upload Build Logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build_logs
           path: ./ios/build_logs/
@@ -451,7 +451,7 @@ jobs:
           
       - name: Upload IPA as Artifact
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: BlueWallet_IPA
           path: ${{ env.IPA_OUTPUT_PATH }}
@@ -463,7 +463,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-15
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -473,7 +473,7 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set Up Ruby
         uses: ruby/setup-ruby@v1
@@ -486,7 +486,7 @@ jobs:
           bundle install --jobs 4 --retry 3 --quiet
 
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: BlueWallet_IPA
           path: ./
@@ -530,7 +530,7 @@ jobs:
 
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
