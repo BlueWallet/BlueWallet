@@ -5,7 +5,7 @@ import { InteractionManager, StyleSheet, View, ViewStyle, Animated, ScrollView }
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
@@ -94,7 +94,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   const drawerNavigation = props.navigation;
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const walletsCarousel = useRef<any>(null);
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();

@@ -45,9 +45,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;
 
-  // @ts-ignore
   _txs_by_external_index: Record<number, Transaction[]>;
-  // @ts-ignore
   _txs_by_internal_index: Record<number, Transaction[]>;
 
   _utxo: any[];
@@ -195,70 +193,37 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return child.toWIF();
   }
 
-  _getNodeAddressByIndex(node: number, index: number): string {
-    index = index * 1; // cast to int
+  _getNodeByIndex(node: 0 | 1, index: number): BIP32Interface {
+    const cachedNode = node === 0 ? this._node0 : this._node1;
+    if (cachedNode) {
+      return cachedNode.derive(index);
+    }
+
+    const xpub = this._zpubToXpub(this.getXpub());
+    const hdNode = bip32.fromBase58(xpub).derive(node);
+
     if (node === 0) {
-      if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 1) {
-      if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 0 && !this._node0) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node0 = hdNode.derive(node);
-    }
-
-    if (node === 1 && !this._node1) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node1 = hdNode.derive(node);
-    }
-
-    let address: string;
-    if (node === 0) {
-      // @ts-ignore
-      address = this._hdNodeToAddress(this._node0.derive(index));
+      this._node0 = hdNode;
     } else {
-      // tbh the only possible else is node === 1
-      // @ts-ignore
-      address = this._hdNodeToAddress(this._node1.derive(index));
+      this._node1 = hdNode;
     }
 
-    if (node === 0) {
-      return (this.external_addresses_cache[index] = address);
-    } else {
-      // tbh the only possible else option is node === 1
-      return (this.internal_addresses_cache[index] = address);
-    }
+    return hdNode.derive(index);
   }
 
-  _getNodePubkeyByIndex(node: number, index: number) {
-    index = index * 1; // cast to int
+  _getNodeAddressByIndex(node: 0 | 1, index: number): string {
+    const cache = node === 0 ? this.external_addresses_cache : this.internal_addresses_cache;
 
-    if (node === 0 && !this._node0) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node0 = hdNode.derive(node);
-    }
+    if (cache[index]) return cache[index]; // cache hit
 
-    if (node === 1 && !this._node1) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node1 = hdNode.derive(node);
-    }
+    const hdNode = this._getNodeByIndex(node, index);
+    const address = this._hdNodeToAddress(hdNode);
 
-    if (node === 0 && this._node0) {
-      return this._node0.derive(index).publicKey;
-    }
+    return (cache[index] = address);
+  }
 
-    if (node === 1 && this._node1) {
-      return this._node1.derive(index).publicKey;
-    }
-
-    throw new Error('Internal error: this._node0 or this._node1 is undefined');
+  _getNodePubkeyByIndex(node: 0 | 1, index: number) {
+    return this._getNodeByIndex(node, index).publicKey;
   }
 
   _getExternalAddressByIndex(index: number): string {
@@ -644,8 +609,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;
@@ -687,8 +651,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;
@@ -730,8 +693,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(generateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;

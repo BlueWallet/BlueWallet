@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -97,7 +97,7 @@ const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
-  const walletsCarousel = useRef<any>();
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
@@ -109,7 +109,7 @@ const WalletsList: React.FC = () => {
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
-  const walletActionButtonsRef = useRef<any>();
+  const walletActionButtonsRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -357,7 +357,7 @@ const WalletsList: React.FC = () => {
   const renderScanButton = useCallback(() => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef.current}>
+        <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={sendButtonLongPress}
