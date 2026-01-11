@@ -15,15 +15,29 @@ import { MultisigCosigner, MultisigHDWallet } from '../../class';
 import { Psbt } from 'bitcoinjs-lib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { joinQRs } from '../bbqr/join';
-import { uint8ArrayToBase64, uint8ArrayToString } from '../uint8array-extras';
+import { base64ToUint8Array, hexToUint8Array, uint8ArrayToBase64, uint8ArrayToString } from '../uint8array-extras';
+import { splitQRs } from '../bbqr/split';
 
 const USE_UR_V1 = 'USE_UR_V1';
+const USE_BBQR_WALLET_IDS = 'USE_BBQR_WALLET_IDS';
 
 let useURv1 = false;
+let useBBQRWalletIDs = [];
 
 (async () => {
   try {
     useURv1 = !!(await AsyncStorage.getItem(USE_UR_V1));
+  } catch (_) {}
+})();
+
+(async () => {
+  try {
+    // initial load of wallets that must use BBQR for animated QR codes
+    const json = await AsyncStorage.getItem(USE_BBQR_WALLET_IDS);
+    const parsed = JSON.parse(json);
+    if (Array.isArray(parsed)) {
+      useBBQRWalletIDs = parsed;
+    }
   } catch (_) {}
 })();
 
@@ -40,12 +54,25 @@ async function setUseURv1() {
   return AsyncStorage.setItem(USE_UR_V1, '1');
 }
 
+async function setWalletIdMustUseBBQR(walletID) {
+  console.log('setting walletID to useBBQR:', walletID);
+  useBBQRWalletIDs.push(walletID);
+  await AsyncStorage.setItem(USE_BBQR_WALLET_IDS, JSON.stringify(useBBQRWalletIDs));
+}
+
 async function clearUseURv1() {
   useURv1 = false;
   return AsyncStorage.removeItem(USE_UR_V1);
 }
 
-function encodeUR(arg1, arg2) {
+function encodeUR(arg1, arg2, walletID) {
+  if (walletID && useBBQRWalletIDs.includes(walletID)) {
+    // assume arg1 is hex of a PSBT, arg2 is capacity per frame
+    const minSplit = Math.max(1, Math.ceil(arg1.length / 2 / arg2));
+    const ret = splitQRs(hexToUint8Array(arg1), 'P', { minSplit });
+    return ret.parts;
+  }
+
   return useURv1 ? encodeURv1(arg1, arg2) : encodeURv2(arg1, arg2);
 }
 
@@ -350,4 +377,4 @@ class BlueURDecoder extends URDecoder {
   }
 }
 
-export { decodeUR, encodeUR, extractSingleWorkload, BlueURDecoder, isURv1Enabled, setUseURv1, clearUseURv1 };
+export { decodeUR, encodeUR, extractSingleWorkload, BlueURDecoder, isURv1Enabled, setUseURv1, clearUseURv1, setWalletIdMustUseBBQR };

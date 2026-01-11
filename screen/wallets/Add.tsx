@@ -35,6 +35,7 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { resetLastScanWasBBQR } from '../../helpers/scan-qr.ts';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -292,6 +293,10 @@ const WalletsAdd: React.FC = () => {
   }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
 
   useEffect(() => {
+    // resetting format of last camera qr scan, in case user will use camera to
+    // scan his wallet backup to import wallet
+    resetLastScanWasBBQR();
+
     getLNDHub()
       .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
       .catch(() => setWalletBaseURI(''))
