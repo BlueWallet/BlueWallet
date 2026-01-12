@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect, createRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect } from 'react';
 import {
   FlatList,
   ImageBackground,
@@ -6,8 +6,8 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
+  useWindowDimensions,
   FlatListProps,
   ListRenderItemInfo,
   ViewStyle,
@@ -551,7 +551,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const isInitialMount = useRef(true);
 
   const flatListRef = useRef<FlatList<any>>(null);
-  const walletRefs = useRef<Record<string, React.RefObject<View | null>>>({});
+  const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
   const { sizeClass } = useSizeClass();
 
@@ -592,7 +592,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           const walletRef = walletRefs.current[walletId];
           if (walletRef?.current) {
             return new Promise<{ x: number; y: number; width: number; height: number }>(resolve => {
-              walletRef.current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
+              walletRef.current?.measure((x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
                 resolve({ x: pageX, y: pageY, width: widthVal, height: heightVal });
               });
             });
@@ -614,7 +614,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   useEffect(() => {
     data.forEach(wallet => {
       if (!walletRefs.current[wallet.getID()]) {
-        walletRefs.current[wallet.getID()] = createRef<View | null>();
+        walletRefs.current[wallet.getID()] = { current: null };
       }
     });
   }, [data]);
@@ -775,12 +775,18 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       const content = (
         <View
           key={!animateChanges ? item.getID() : undefined}
-          ref={walletRefs.current[item.getID()]}
+          ref={(node: View | null) => {
+            // Keep existing ref object in map
+            walletRefs.current[item.getID()] ??= { current: null };
+            walletRefs.current[item.getID()].current = node;
+          }}
           onLayout={() => {
             if (walletRefs.current[item.getID()]?.current && newWalletsMap.current[item.getID()]) {
-              walletRefs.current[item.getID()].current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
-                console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
-              });
+              walletRefs.current[item.getID()].current?.measure(
+                (x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
+                  console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
+                },
+              );
             }
           }}
         >

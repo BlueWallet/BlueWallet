@@ -41,7 +41,11 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
       {isCustomEnabled && (
         <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
           <TextInput
-            ref={inputRef}
+            ref={node => {
+              if (inputRef) {
+                (inputRef as React.MutableRefObject<TextInput | null>).current = node;
+              }
+            }}
             value={customUrl}
             placeholder={loc._.enter_url}
             onChangeText={onCustomUrlChange}

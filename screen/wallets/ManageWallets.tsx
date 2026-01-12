@@ -23,7 +23,7 @@ import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
+import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
 import { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
@@ -723,7 +723,7 @@ const ManageWallets: React.FC = () => {
                 }
                 setDragging(true);
               }}
-              onDragEnd={({ from, to, data }) => {
+              onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);
                 setDragSnapshot(data);
 

@@ -13,6 +13,8 @@ type NativeSizeClassPayload = {
 const sizeClassNativeModule = NativeModules.SizeClassEmitter as
   | {
       getCurrentSizeClass?: () => Promise<NativeSizeClassPayload>;
+      addListener: (eventType: string) => any;
+      removeListeners: (count: number) => void;
     }
   | undefined;
 
@@ -46,8 +48,7 @@ export interface SizeClassInfo {
   isLargeScreen: boolean;
 }
 
-const normalizeOrientation = (orientation?: string): 'portrait' | 'landscape' =>
-  orientation === 'landscape' ? 'landscape' : 'portrait';
+const normalizeOrientation = (orientation?: string): 'portrait' | 'landscape' => (orientation === 'landscape' ? 'landscape' : 'portrait');
 
 const coerceSizeClassValue = (value?: number): SizeClass => {
   if (value === SizeClass.Compact || value === SizeClass.Regular || value === SizeClass.Large) {
