@@ -165,6 +165,14 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Free disk space (Ubuntu)
+      run: |
+        echo "Disk before cleanup:" && df -h
+        sudo rm -rf /usr/share/dotnet /opt/ghc
+        sudo docker image prune -af || true
+        sudo apt-get clean
+        echo "Disk after cleanup:" && df -h
+
     - name: Ensure artifacts directory
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
