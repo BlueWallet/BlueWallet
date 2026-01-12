@@ -154,7 +154,7 @@ jobs:
 
 
   android:
-    runs-on: macos-latest
+    runs-on: ubuntu-22.04
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
