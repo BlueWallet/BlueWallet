@@ -223,9 +223,7 @@
     "about_selftest_electrum_disabled": "Deaktiviere den Electrum Offline-Modus, um den Selbsttest durchführen zu können.",
     "about_selftest_ok": "Alle internen Tests verliefen erfolgreich. Das Wallet funktioniert gut.",
     "about_sm_github": "GitHub",
-    "about_sm_discord": "Discord Server",
     "about_sm_telegram": "Telegram-Channel",
-    "about_sm_twitter": "Folgt uns auf Twitter",
     "privacy_temporary_screenshots": "Bildschirmaufnahme erlauben",
     "privacy_temporary_screenshots_instructions": "Der Schutz vor Bildschirmaufnahmen wird vorübergehend deaktiviert, wodurch Screenshots und Bildschirmaufzeichnungen möglich sind. Der Schutz wird automatisch reaktiviert, wenn Sie BlueWallet schließen und erneut öffnen.",
     "biometrics": "Biometrie",
@@ -265,7 +263,6 @@
     "electrum_reset_to_default_and_clear_history": "Auf die Standardeinstellungen zurücksetzen und den Verlauf löschen.",
     "encrypt_decrypt": "Speicher entschlüsseln",
     "encrypt_decrypt_q": "Die Speicherverschlüsselung wirklich aufheben? Hiermit werden die Wallet ohne Passwortschutz direkt benutzbar. ",
-    "encrypt_enc_and_pass": "Verschlüsselt und passwortgeschützt",
     "encrypt_storage_explanation_headline": "Speicherverschlüsselung aktivieren",
     "encrypt_storage_explanation_description_line1": "Die Aktivierung der Speicherverschlüsselung fügt Ihrer App ein zusätzlicher Schutz hinzu. Die Art und Weise, wie die Daten auf Ihrem Gerät gespeichert werden, macht es anderen damit schwieriger, ohne Erlaubnis darauf zuzugreifen.",
     "encrypt_storage_explanation_description_line2": "Diese Verschlüsselung betrifft den Zugriff auf die im Gerät gespeicherten Schlüssel, schützt also die Wallets. Die Wallet selbst werden dabei nicht mit einem Passwort oder einem anderen zusätzlichen Schutz versehen.",
@@ -279,7 +276,6 @@
     "set_as_preferred": "Als bevorzugt festlegen",
     "set_as_preferred_electrum": "Mit der Wahl von {host}:{port} als präferierten Server wird die zufällige Verbindung zu einem der vorgeschlagenen Servern abgeschaltet.",
     "encrypted_feature_disabled": "Diese Funktion kann bei verschlüsseltem Speicher nicht genutzt werden.",
-    "encrypt_use_expl": "{type} wird zur Transaktionsdurchführung, zum Entsperren, dem Export oder der Löschung einer Wallet benötigt. {type} ersetzt nicht die Passworteingabe bei verschlüsseltem Speicher.",
     "biometrics_fail": "Wenn {type} nicht aktiviert ist oder entsperrt werden kann, alternativ Ihren Gerätepasscode verwenden.",
     "general": "Allgemein",
     "general_continuity": "Kontinuität",
@@ -600,7 +596,6 @@
     "view_qrcode": "QR-Code anzeigen"
   },
   "autofill_word": {
-    "title": "Das letzte mnemonische Wort generieren",
     "enter": "Die unvollendete mnemonische Phrase eingeben",
     "generate_word": "Erzeuge das letzte Word",
     "error": "Die Eingabe ist keine unvollendete 11- oder 23 Wort Phrase. Bitte erneut versuchen."
@@ -683,7 +678,7 @@
     "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
     "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
     "onchain_tx_needed": "On-Chain Transaktion benötigt.",
-    "notif_tx_sent" : "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx_sent": "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
     "notif_tx": "Benachrichtigungstransaktion",
     "not_found": "Zahlungscode nicht gefunden"
   }
