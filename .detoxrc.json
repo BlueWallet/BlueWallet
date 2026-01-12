@@ -10,17 +10,17 @@
     "ios.debug": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/BlueWallet.app",
-      "build": "npm run patches && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+      "build": "xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "ios.release": {
       "type": "ios.app",
       "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BlueWallet.app",
-      "build": "npm run patches && npx react-native codegen && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build"
+      "build": "npx react-native codegen && xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build"
     },
     "android.debug": {
       "type": "android.apk",
       "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
-      "build": "npm run patches && cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."
     },
     "android.release": {
       "type": "android.apk",
