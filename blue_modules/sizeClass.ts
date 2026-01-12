@@ -62,32 +62,26 @@ const calculateFromDimensions = (): SizeClassInfo => {
   const isLandscape = width > height;
   const orientation = isLandscape ? 'landscape' : 'portrait';
 
-  let horizontalSizeClass: SizeClass;
+  const horizontalSizeClass =
+    Platform.OS === 'ios' && Platform.isPad
+      ? SizeClass.Regular
+      : isDesktop
+        ? SizeClass.Large
+        : isLandscape && width >= 667
+          ? SizeClass.Regular
+          : SizeClass.Compact;
 
-  if (Platform.OS === 'ios' && Platform.isPad) {
-    horizontalSizeClass = SizeClass.Regular;
-  } else if (isDesktop) {
-    horizontalSizeClass = SizeClass.Large;
-  } else if (isLandscape && width >= 667) {
-    horizontalSizeClass = SizeClass.Regular;
-  } else {
-    horizontalSizeClass = SizeClass.Compact;
-  }
+  const verticalSizeClass =
+    Platform.OS === 'ios' && Platform.isPad
+      ? SizeClass.Regular
+      : isDesktop
+        ? SizeClass.Large
+        : isLandscape
+          ? SizeClass.Compact
+          : SizeClass.Regular;
 
-  let verticalSizeClass: SizeClass;
-
-  if (Platform.OS === 'ios' && Platform.isPad) {
-    verticalSizeClass = SizeClass.Regular;
-  } else if (isDesktop) {
-    verticalSizeClass = SizeClass.Large;
-  } else if (isLandscape) {
-    verticalSizeClass = SizeClass.Compact;
-  } else {
-    verticalSizeClass = SizeClass.Regular;
-  }
-
-  const sizeClass = horizontalSizeClass === SizeClass.Compact ? SizeClass.Compact : SizeClass.Large;
-  const isLargeScreen = horizontalSizeClass !== SizeClass.Compact;
+  const sizeClass = coerceSizeClassValue(horizontalSizeClass);
+  const isLargeScreen = sizeClass === SizeClass.Large;
 
   return {
     horizontalSizeClass,
@@ -107,8 +101,9 @@ const normalizeNativePayload = (payload?: NativeSizeClassPayload | null): SizeCl
 
   const horizontalSizeClass = coerceSizeClassValue(payload.horizontal);
   const verticalSizeClass = coerceSizeClassValue(payload.vertical);
-  const sizeClass = payload.sizeClass === SizeClass.Compact ? SizeClass.Compact : SizeClass.Large;
-  const isLargeScreen = payload.isLargeScreen ?? horizontalSizeClass !== SizeClass.Compact;
+  const sizeClass = coerceSizeClassValue(payload.sizeClass);
+
+  const isLargeScreen = payload.isLargeScreen ?? sizeClass === SizeClass.Large;
   const orientation = normalizeOrientation(payload.orientation);
 
   return {
@@ -123,6 +118,7 @@ const normalizeNativePayload = (payload?: NativeSizeClassPayload | null): SizeCl
 };
 
 let cachedSizeClassInfo: SizeClassInfo = calculateFromDimensions();
+let nativeInitRequested = false;
 
 const fetchNativeSizeClass = async (): Promise<SizeClassInfo | null> => {
   if (!sizeClassNativeModule?.getCurrentSizeClass) {
@@ -144,6 +140,13 @@ const fetchNativeSizeClass = async (): Promise<SizeClassInfo | null> => {
 export function getSizeClass(): SizeClassInfo {
   if (!sizeClassNativeModule) {
     cachedSizeClassInfo = calculateFromDimensions();
+  } else if (!nativeInitRequested) {
+    nativeInitRequested = true;
+    fetchNativeSizeClass().then(nativeInfo => {
+      if (nativeInfo) {
+        cachedSizeClassInfo = nativeInfo;
+      }
+    });
   }
 
   return cachedSizeClassInfo;
