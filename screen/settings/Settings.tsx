@@ -127,7 +127,6 @@ const Settings = () => {
           ]}
           onPress={handleDonatePress}
           testID="Donate"
-          chevron
           bottomDivider={false}
           isFirst
           isLast
