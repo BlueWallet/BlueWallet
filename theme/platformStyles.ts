@@ -26,11 +26,11 @@ export interface IconProps {
   backgroundColor?: string | OpaqueColorValue;
 }
 
-export interface IconColorSet {
+interface IconColorSet {
   [key: string]: string | OpaqueColorValue;
 }
 
-export interface PlatformColors {
+interface PlatformColors {
   titleColor: string | OpaqueColorValue;
   subtitleColor: string | OpaqueColorValue;
   chevronColor: string | OpaqueColorValue;
@@ -55,7 +55,7 @@ export interface PlatformColors {
   rippleColor?: string | OpaqueColorValue;
 }
 
-export interface PlatformSizing {
+interface PlatformSizing {
   basePadding?: number;
   baseMargin?: number;
   titleFontSize: number;
@@ -85,7 +85,7 @@ export interface PlatformSizing {
   contentContainerPaddingHorizontal?: number;
 }
 
-export interface PlatformLayout {
+interface PlatformLayout {
   showBorderBottom: boolean;
   showElevation: boolean;
   showBorderRadius: boolean;
@@ -103,38 +103,17 @@ export interface PlatformLayout {
   cardShadow?: object;
 }
 
-export interface StandardIconSet {
-  // Settings icons
+interface StandardIconSet {
   settings: IconProps;
   currency: IconProps;
   language: IconProps;
   security: IconProps;
   network: IconProps;
-  lightning: IconProps;
-  privacy: IconProps;
   tools: IconProps;
   about: IconProps;
-
-  // About screen icons
-  x: IconProps;
-  twitter: IconProps;
-  telegram: IconProps;
-  github: IconProps;
-  releaseNotes: IconProps;
-  licensing: IconProps;
-  selfTest: IconProps;
-  performance: IconProps;
-
-  // Block explorer icons
-  blockExplorer: IconProps;
-
-  // Accessibility icons
-  qrCode: IconProps;
-  share: IconProps;
-  copy: IconProps;
 }
 
-export interface PlatformTheme {
+interface PlatformTheme {
   colors: PlatformColors;
   sizing: PlatformSizing;
   layout: PlatformLayout;
@@ -146,7 +125,7 @@ export interface PlatformTheme {
 // Helper Functions
 // ===============================================
 
-export const getAndroidColor = (colorName: string) => {
+const getAndroidColor = (colorName: string) => {
   try {
     return PlatformColor(colorName);
   } catch {
@@ -168,27 +147,16 @@ export const getAndroidColor = (colorName: string) => {
 // ===============================================
 
 const getStandardIconColors = (isDarkMode: boolean): IconColorSet => ({
-  x: isDarkMode ? '#FFFFFF' : '#1da1f2',
-  twitter: isDarkMode ? '#FFFFFF' : '#1da1f2',
-  telegram: isDarkMode ? '#FFFFFF' : '#0088cc',
-  discord: isDarkMode ? '#FFFFFF' : '#7289da',
-  github: isDarkMode ? '#FFFFFF' : '#24292e',
-  releaseNotes: isDarkMode ? '#FFFFFF' : '#9AA0AA',
-  licensing: isDarkMode ? '#FFFFFF' : '#24292e',
-  selfTest: isDarkMode ? '#FFFFFF' : '#FC0D44',
-  performance: isDarkMode ? '#FFFFFF' : '#FC0D44',
   settings: isDarkMode ? '#FFFFFF' : '#5F6368',
   currency: isDarkMode ? '#7EE0A4' : '#0F9D58',
   language: isDarkMode ? '#FFD580' : '#F4B400',
   security: isDarkMode ? '#FF8E8E' : '#DB4437',
   network: isDarkMode ? '#82B1FF' : '#1A73E8',
-  lightning: isDarkMode ? '#FFD580' : '#F4B400',
-  privacy: isDarkMode ? '#FFFFFF' : '#000000',
   tools: isDarkMode ? '#D0BCFF' : '#673AB7',
   about: isDarkMode ? '#FFFFFF' : '#5F6368',
 });
 
-export const getIOSColors = (): PlatformColors => {
+const getIOSColors = (): PlatformColors => {
   return {
     titleColor: PlatformColor('label'),
     subtitleColor: PlatformColor('secondaryLabel'),
@@ -218,7 +186,7 @@ export const getIOSColors = (): PlatformColors => {
   };
 };
 
-export const getAndroidColors = (): PlatformColors => {
+const getAndroidColors = (): PlatformColors => {
   const isDark = Appearance.getColorScheme() === 'dark';
 
   // Material Design colors for Android
@@ -267,7 +235,7 @@ export const getAndroidColors = (): PlatformColors => {
 // Sizing Definitions
 // ===============================================
 
-export const getIOSSizing = (): PlatformSizing => ({
+const getIOSSizing = (): PlatformSizing => ({
   basePadding: 16,
   baseMargin: 16,
   titleFontSize: 17,
@@ -297,7 +265,7 @@ export const getIOSSizing = (): PlatformSizing => ({
   contentContainerPaddingHorizontal: 0,
 });
 
-export const getAndroidSizing = (): PlatformSizing => ({
+const getAndroidSizing = (): PlatformSizing => ({
   basePadding: 16,
   baseMargin: 16,
   titleFontSize: 16,
@@ -331,7 +299,7 @@ export const getAndroidSizing = (): PlatformSizing => ({
 // Layout Definitions
 // ===============================================
 
-export const getIOSLayout = (): PlatformLayout => ({
+const getIOSLayout = (): PlatformLayout => ({
   showBorderBottom: true,
   showElevation: false,
   showBorderRadius: true,
@@ -354,7 +322,7 @@ export const getIOSLayout = (): PlatformLayout => ({
   },
 });
 
-export const getAndroidLayout = (): PlatformLayout => ({
+const getAndroidLayout = (): PlatformLayout => ({
   showBorderBottom: false, // Remove borders between items
   showElevation: true, // Use elevation for section cards
   showBorderRadius: true, // Add slight border radius for better visual separation
@@ -381,7 +349,6 @@ const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
   const platformColors = getIOSColors();
 
   return {
-    // Settings
     settings: {
       name: 'settings-outline',
       type: 'ionicon',
@@ -412,18 +379,6 @@ const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       color: colors.network,
       backgroundColor: platformColors.blueIconBg,
     },
-    lightning: {
-      name: 'flash-outline',
-      type: 'ionicon',
-      color: colors.lightning,
-      backgroundColor: platformColors.yellowIconBg,
-    },
-    privacy: {
-      name: 'lock-closed-outline',
-      type: 'ionicon',
-      color: colors.privacy,
-      backgroundColor: platformColors.grayIconBg,
-    },
     tools: {
       name: 'construct-outline',
       type: 'ionicon',
@@ -436,80 +391,6 @@ const getIOSStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       color: colors.about,
       backgroundColor: platformColors.grayIconBg,
     },
-    // About screen
-    x: {
-      name: 'logo-twitter',
-      type: 'ionicon',
-      color: colors.x,
-      backgroundColor: 'rgba(29, 161, 242, 0.2)',
-    },
-    twitter: {
-      name: 'logo-twitter',
-      type: 'ionicon',
-      color: colors.twitter,
-      backgroundColor: 'rgba(29, 161, 242, 0.2)',
-    },
-    telegram: {
-      name: 'paper-plane-outline',
-      type: 'ionicon',
-      color: colors.telegram,
-      backgroundColor: 'rgba(0, 136, 204, 0.2)',
-    },
-    github: {
-      name: 'logo-github',
-      type: 'ionicon',
-      color: colors.github,
-      backgroundColor: 'rgba(24, 23, 23, 0.1)',
-    },
-    releaseNotes: {
-      name: 'document-text-outline',
-      type: 'ionicon',
-      color: colors.releaseNotes,
-      backgroundColor: platformColors.grayIconBg,
-    },
-    licensing: {
-      name: 'shield-checkmark-outline',
-      type: 'ionicon',
-      color: colors.licensing,
-      backgroundColor: platformColors.grayIconBg,
-    },
-    selfTest: {
-      name: 'flask-outline',
-      type: 'ionicon',
-      color: colors.selfTest,
-      backgroundColor: platformColors.redIconBg,
-    },
-    performance: {
-      name: 'speedometer-outline',
-      type: 'ionicon',
-      color: colors.performance,
-      backgroundColor: platformColors.redIconBg,
-    },
-    // Explorers and accessibility
-    blockExplorer: {
-      name: 'search-outline',
-      type: 'ionicon',
-      color: colors.network,
-      backgroundColor: platformColors.blueIconBg,
-    },
-    qrCode: {
-      name: 'qr-code-outline',
-      type: 'ionicon',
-      color: colors.settings,
-      backgroundColor: platformColors.grayIconBg,
-    },
-    share: {
-      name: 'share-outline',
-      type: 'ionicon',
-      color: colors.settings,
-      backgroundColor: platformColors.grayIconBg,
-    },
-    copy: {
-      name: 'copy-outline',
-      type: 'ionicon',
-      color: colors.settings,
-      backgroundColor: platformColors.grayIconBg,
-    },
   };
 };
 
@@ -517,7 +398,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
   const colors = getStandardIconColors(isDarkMode);
 
   return {
-    // Settings - using FontAwesome5 icons for better Android compatibility
     settings: {
       name: 'cog',
       type: 'font-awesome-5',
@@ -543,16 +423,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       type: 'font-awesome-5',
       color: colors.network,
     },
-    lightning: {
-      name: 'bolt',
-      type: 'font-awesome-5',
-      color: colors.lightning,
-    },
-    privacy: {
-      name: 'lock',
-      type: 'font-awesome-5',
-      color: colors.privacy,
-    },
     tools: {
       name: 'wrench',
       type: 'font-awesome-5',
@@ -562,68 +432,6 @@ const getAndroidStandardIcons = (isDarkMode: boolean): StandardIconSet => {
       name: 'info-circle',
       type: 'font-awesome-5',
       color: colors.about,
-    },
-    // About screen
-    x: {
-      name: 'close',
-      type: 'ionicon',
-      color: colors.x,
-    },
-    twitter: {
-      name: 'logo-twitter',
-      type: 'ionicon',
-      color: colors.twitter,
-    },
-    telegram: {
-      name: 'paper-plane-outline',
-      type: 'ionicon',
-      color: colors.telegram,
-    },
-    github: {
-      name: 'logo-github',
-      type: 'ionicon',
-      color: colors.github,
-    },
-    releaseNotes: {
-      name: 'document-text-outline',
-      type: 'ionicon',
-      color: colors.releaseNotes,
-    },
-    licensing: {
-      name: 'shield-checkmark-outline',
-      type: 'ionicon',
-      color: colors.licensing,
-    },
-    selfTest: {
-      name: 'flask-outline',
-      type: 'ionicon',
-      color: colors.selfTest,
-    },
-    performance: {
-      name: 'speedometer-outline',
-      type: 'ionicon',
-      color: colors.performance,
-    },
-    // Explorers and accessibility
-    blockExplorer: {
-      name: 'search-outline',
-      type: 'ionicon',
-      color: colors.network,
-    },
-    qrCode: {
-      name: 'qr-code-outline',
-      type: 'ionicon',
-      color: colors.settings,
-    },
-    share: {
-      name: 'share-social-outline',
-      type: 'ionicon',
-      color: colors.settings,
-    },
-    copy: {
-      name: 'copy-outline',
-      type: 'ionicon',
-      color: colors.settings,
     },
   };
 };
@@ -1014,79 +822,3 @@ export const usePlatformStyles = () => {
   };
 };
 
-// ===============================================
-// Static Manager for Non-Hook Access
-// ===============================================
-
-/**
- * Static manager for accessing theme properties without hooks
- * Useful for files that can't use hooks or need theme access outside of components
- */
-export class PlatformStylesManager {
-  static colors: PlatformColors;
-  static sizing: PlatformSizing;
-  static layout: PlatformLayout;
-  static getIconColors: (isDarkMode: boolean) => IconColorSet;
-  static getStandardIcons: (isDarkMode: boolean) => StandardIconSet;
-
-  static updateColorScheme(): void {
-    const isDarkMode = Appearance.getColorScheme() === 'dark';
-    const isAndroid = Platform.OS === 'android';
-
-    if (isAndroid) {
-      PlatformStylesManager.colors = getAndroidColors();
-      PlatformStylesManager.sizing = getAndroidSizing();
-      PlatformStylesManager.layout = getAndroidLayout();
-      PlatformStylesManager.getStandardIcons = (forceDarkMode?: boolean) =>
-        getAndroidStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
-    } else {
-      PlatformStylesManager.colors = getIOSColors();
-      PlatformStylesManager.sizing = getIOSSizing();
-      PlatformStylesManager.layout = getIOSLayout();
-      PlatformStylesManager.getStandardIcons = (forceDarkMode?: boolean) =>
-        getIOSStandardIcons(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
-    }
-
-    PlatformStylesManager.getIconColors = (forceDarkMode?: boolean) =>
-      getStandardIconColors(forceDarkMode !== undefined ? forceDarkMode : isDarkMode);
-  }
-}
-
-// Initialize the static theme manager
-PlatformStylesManager.updateColorScheme();
-
-// Listen for appearance changes
-Appearance.addChangeListener(() => {
-  PlatformStylesManager.updateColorScheme();
-});
-
-// ===============================================
-// Backwards Compatibility Layer
-// ===============================================
-
-/**
- * Compatibility hook for previous useSettingsStyles
- * @deprecated Use usePlatformStyles instead
- */
-export const useSettingsStyles = () => {
-  const { styles, isAndroid, getConditionalCornerRadius, renderSeparator } = usePlatformStyles();
-  return { styles, isAndroid, getConditionalCornerRadius, renderSeparator };
-};
-
-/**
- * Compatibility hook for previous usePlatformTheme
- * @deprecated Use usePlatformStyles instead
- */
-export const usePlatformTheme = () => {
-  const { platformTheme } = usePlatformStyles();
-  return platformTheme;
-};
-
-/**
- * Compatibility hook for previous useStandardIcons
- * @deprecated Use usePlatformStyles().getIcon instead
- */
-export const useStandardIcons = () => {
-  const { getIcon } = usePlatformStyles();
-  return getIcon;
-};

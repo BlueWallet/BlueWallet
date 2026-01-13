@@ -39,7 +39,6 @@ import Licensing from '../screen/settings/Licensing';
 import NetworkSettings from '../screen/settings/NetworkSettings';
 import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
 import About from '../screen/settings/About';
-// import DefaultView from '../screen/settings/DefaultView'; // Commented out - not accessible from UI
 import ElectrumSettings from '../screen/settings/ElectrumSettings';
 import EncryptStorage from '../screen/settings/EncryptStorage';
 import Language from '../screen/settings/Language';
@@ -48,7 +47,6 @@ import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
-import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
@@ -327,11 +325,6 @@ const DetailViewStackScreensStack = () => {
         component={About}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
       />
-      {/* <DetailViewStack.Screen
-        name="DefaultView"
-        component={DefaultView}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.default_title))(theme)}
-      /> */}
       <DetailViewStack.Screen
         name="ElectrumSettings"
         component={ElectrumSettings}
@@ -372,11 +365,6 @@ const DetailViewStackScreensStack = () => {
         name="SettingsTools"
         component={SettingsTools}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SettingsPrivacy"
-        component={SettingsPrivacy}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.privacy))(theme)}
       />
       <DetailViewStack.Screen
         name="ManageWallets"

@@ -2,8 +2,6 @@ import React, { useMemo, ComponentType, ReactElement } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
-  Pressable,
-  PressableProps,
   StyleSheet,
   Switch,
   SwitchProps,
@@ -58,39 +56,9 @@ interface ListItemProps {
   accessibilityLabel?: string;
   accessibilityHint?: string;
   accessibilityState?: AccessibilityState;
-  sectionMap?: Record<number, string[]>;
-  sectionId?: string;
-  sectionNumber?: number;
 }
 
-export const determineSectionPosition = (
-  sectionMap: Record<number, string[]> | undefined,
-  id: string,
-  sectionNumber: number | undefined,
-): { isFirstInSection: boolean; isLastInSection: boolean } => {
-  if (!sectionMap || !sectionNumber || !id) {
-    return { isFirstInSection: false, isLastInSection: false };
-  }
-
-  const sectionItems = sectionMap[Math.floor(sectionNumber)];
-  if (!sectionItems || !sectionItems.includes(id)) {
-    return { isFirstInSection: false, isLastInSection: false };
-  }
-
-  const indexInSection = sectionItems.indexOf(id);
-  return {
-    isFirstInSection: indexInSection === 0,
-    isLastInSection: indexInSection === sectionItems.length - 1,
-  };
-};
-
-export class PressableWrapper extends React.Component<PressableProps> {
-  render() {
-    return <Pressable {...this.props} />;
-  }
-}
-
-export class TouchableOpacityWrapper extends React.Component {
+class TouchableOpacityWrapper extends React.Component {
   render() {
     return <TouchableOpacity {...this.props} />;
   }
@@ -142,9 +110,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   accessibilityLabel,
   accessibilityHint,
   accessibilityState,
-  sectionMap,
-  sectionId,
-  sectionNumber,
 }) => {
   // Use the consolidated styling hook
   const { colors, sizing, layout, isAndroid } = usePlatformStyles();
@@ -372,15 +337,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   );
 
   let dynamicContainerStyle = {};
-
-  if (sectionMap && sectionId && sectionNumber) {
-    const { isFirstInSection, isLastInSection } = determineSectionPosition(sectionMap, sectionId, sectionNumber);
-
-    if (isFirstInSection || isLastInSection) {
-      isFirst = isFirstInSection;
-      isLast = isLastInSection;
-    }
-  }
 
   if (layout.useRoundedListItems) {
     dynamicContainerStyle = {

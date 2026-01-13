@@ -9,11 +9,11 @@ import loc from '../../loc';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { useTheme } from '../../components/themes';
-import { usePlatformTheme } from '../../theme';
+import { usePlatformStyles } from '../../theme/platformStyles';
 
 const GenerateWord = () => {
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
+  const { colors: platformColors, sizing, layout } = usePlatformStyles();
   const insets = useSafeAreaInsets();
 
   // Calculate header height for Android with transparent header
