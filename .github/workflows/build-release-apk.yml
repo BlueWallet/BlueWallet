@@ -42,7 +42,7 @@ jobs:
           echo "Post-clean disk usage:"
           df -h
           echo "Largest folders (workspace, android, caches):"
-          du -sh . android ~/.gradle ~/.android /usr/local/lib/android/sdk 2>/dev/null | sort -hr
+          du -sh . android ~/.gradle ~/.android /usr/local/lib/android/sdk 2>/dev/null | sort -hr || true
           echo "Android SDK contents:"
           ls -lh /usr/local/lib/android/sdk || true
 
