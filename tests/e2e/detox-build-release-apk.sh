@@ -29,8 +29,7 @@ if [[ "$USE_FASTLANE" == "1" ]]; then
 	TEST_APK=android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 else
 	# Build release and androidTest APKs using Gradle (x86_64 only for GitHub Actions emulator)
-	(cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release -PreactNativeArchitectures=x86_64)
-	mv ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release.apk
+	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release -PreactNativeArchitectures=x86_64)
 	RELEASE_APK=./android/app/build/outputs/apk/release/app-release.apk
 	TEST_APK=./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 fi
