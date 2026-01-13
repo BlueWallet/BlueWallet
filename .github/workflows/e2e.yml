@@ -149,7 +149,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -157,8 +157,17 @@ jobs:
       run: |
         echo "Disk before cleanup:" && df -h
         sudo rm -rf /usr/share/dotnet /opt/ghc
-        sudo docker image prune -af || true
         sudo apt-get clean
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf /usr/local/share/boost || true
+        sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+        sudo docker system prune -af || true
+        sudo rm -rf /usr/local/lib/android/sdk/system-images || true
+        sudo rm -rf /usr/local/lib/android/sdk/emulator || true
+        rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
+        rm -rf ~/.gradle/caches/build-cache || true
+        rm -rf ~/.npm/_cacache ~/.cache || true
+        sudo rm -rf /home/runner/work/_temp || true
         echo "Disk after cleanup:" && df -h
 
     - name: Ensure artifacts directory
@@ -166,14 +175,14 @@ jobs:
         mkdir -p ${{ github.workspace }}/artifacts
 
     - name: Specify node version (React Native 0.83)
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 24
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
     - name: Use gradle caches
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches

@@ -36,16 +36,6 @@ jobs:
           sudo rm -rf /home/runner/work/_temp || true
           df -h
 
-      - name: Disk space diagnostics
-        shell: bash
-        run: |
-          echo "Post-clean disk usage:"
-          df -h
-          echo "Largest folders (workspace, android, caches):"
-          du -sh . android ~/.gradle ~/.android /usr/local/lib/android/sdk 2>/dev/null | sort -hr || true
-          echo "Android SDK contents:"
-          ls -lh /usr/local/lib/android/sdk || true
-
       - name: Specify node version
         uses: actions/setup-node@v6
         with:
