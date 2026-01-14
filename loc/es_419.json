@@ -223,9 +223,7 @@
     "about_selftest_electrum_disabled": "La autocomprobación no está disponible con el modo sin conexión de Electrum. Desactiva el modo sin conexión y vuelve a intentarlo. ",
     "about_selftest_ok": "Todas las pruebas internas han pasado satisfactoriamente. La billetera funciona bien.",
     "about_sm_github": "GitHub",
-    "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
-    "about_sm_twitter": "Siguenos en Twitter",
     "privacy_temporary_screenshots": "Permitir captura de pantalla",
     "privacy_temporary_screenshots_instructions": "La protección contra capturas de pantalla se desactivará temporalmente, lo que permitirá realizar capturas y grabaciones de pantalla. La protección se reactivará automáticamente cuando cierre y vuelva a abrir BlueWallet.",
     "biometrics": "Biometría",
@@ -265,7 +263,8 @@
     "electrum_reset_to_default_and_clear_history": "Restablecer valores predeterminados y borrar historial",
     "encrypt_decrypt": "Descifrar Almacenamiento",
     "encrypt_decrypt_q": "¿Estás seguro de que deseas descifrar tu almacenamiento? Esto permitirá acceder a tus billeteras sin una contraseña.",
-    "encrypt_enc_and_pass": "Encriptado y protegido con contraseña",
+    "encrypt_enc_and_pass": "Protegido con contraseña",
+    "encrypt_enc_and_pass_description": "Almacenamiento cifrado con contraseña. No se utilizarán datos biométricos para desbloquear el almacenamiento cifrado.",
     "encrypt_storage_explanation_headline": "Habilitar cifrado de almacenamiento",
     "encrypt_storage_explanation_description_line1": "Habilitar el cifrado de almacenamiento agrega una capa adicional de protección a tu aplicación al proteger la forma en que se almacenan tus datos en tu dispositivo. Esto hace que sea más difícil para cualquier persona acceder a tu información sin permiso.",
     "encrypt_storage_explanation_description_line2": "Sin embargo, es importante saber que este cifrado sólo protege el acceso a tus billeteras almacenadas en el llavero del dispositivo. No pone una contraseña ni ninguna protección adicional en las billeteras.",
@@ -279,7 +278,7 @@
     "set_as_preferred": "Establecer como preferido",
     "set_as_preferred_electrum": "Establecer {host}:{port} como servidor preferido deshabilitará la conexión a un servidor sugerido al azar.",
     "encrypted_feature_disabled": "Esta función no se puede utilizar con el almacenamiento cifrado habilitado.",
-    "encrypt_use_expl": "{type} se utilizará para confirmar tu identidad antes de realizar una transacción, desbloquear, exportar o eliminar una billetera. {type} no se utilizará para desbloquear el almacenamiento encriptado.",
+    "encrypt_use_expl": "{type} se utilizará para confirmar tu identidad antes de realizar una transacción, desbloquear, exportar o eliminar una billetera.",
     "biometrics_fail": "Si {type} no está activado o no se desbloquea, puedes utilizar el código de acceso de tu dispositivo como alternativa.",
     "general": "General",
     "general_continuity": "Continuidad",
@@ -305,6 +304,8 @@
     "password": "Contraseña",
     "password_explain": "Ingresa la contraseña que usarás para desbloquear tu almacenamiento.",
     "plausible_deniability": "Negación Plausible",
+    "plausible_deniability_description": "Protección avanzada, proceder con precaución.",
+    "multiple_storages": "Almacenamientos múltiples",
     "privacy": "Privacidad",
     "privacy_read_clipboard": "Leer portapapeles",
     "privacy_system_settings": "Configuración de sistema",
@@ -600,7 +601,7 @@
     "view_qrcode": "Ver código QR"
   },
   "autofill_word": {
-    "title": "Generar la palabra mnemotécnica final.",
+    "title": "Semilla palabra final",
     "enter": "Ingresa tu frase mnemotécnica parcial",
     "generate_word": "Generar la palabra final",
     "error": "La entrada no es una mnemónica parcial de 11 o 23 palabras. Inténtalo de nuevo."
@@ -683,7 +684,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

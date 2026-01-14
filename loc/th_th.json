@@ -48,7 +48,6 @@
     "additional_info": "ข้อมูลเพิ่มเติม",
     "for": "สำหรับ:",
     "lightning_invoice": "ใบแจ้งหนี้ไลท์นิง",
-    "open_direct_channel": "เปิดช่องโดยตรงไปที่โหนดนี้",
     "please_pay": "กรุณาจ่าย",
     "sats": "แซท",
     "wasnt_paid_and_expired": "ใบวางบิลนี้ไม่ได้จ่ายและหมดอายุแล้ว"
@@ -142,7 +141,6 @@
     "about_selftest": "ทำการทดสอบ",
     "about_sm_github": "กิตฮับ",
     "about_sm_telegram": "เทเลแกรมแช็ท",
-    "about_sm_twitter": "ติดตามเราในทวิตเตอร์",
     "biometrics": "Biometrics",
     "biom_conf_identity": "กรุณายืนยันตัวตนของท่าน",
     "currency": "สกุลเงิน",
