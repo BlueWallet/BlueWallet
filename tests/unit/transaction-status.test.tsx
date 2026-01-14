@@ -78,7 +78,6 @@ jest.mock('../../components/themes', () => ({
 }));
 
 jest.mock('../../BlueComponents', () => {
-  const React = require('react');
   const { Text, View } = require('react-native');
   return {
     BlueCard: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
