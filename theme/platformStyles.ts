@@ -122,27 +122,6 @@ interface PlatformTheme {
 }
 
 // ===============================================
-// Helper Functions
-// ===============================================
-
-const getAndroidColor = (colorName: string) => {
-  try {
-    return PlatformColor(colorName);
-  } catch {
-    const fallbacks: { [key: string]: string } = {
-      '@android:color/primary_text_light': '#000000',
-      '@android:color/secondary_text_light': '#757575',
-      '@android:color/background_light': '#FFFFFF',
-      '@android:color/darker_gray': '#AAAAAA',
-      '@android:color/transparent': 'transparent',
-      '@android:color/holo_blue_light': '#33B5E5',
-      '@android:color/holo_green_light': '#99CC00',
-    };
-    return fallbacks[colorName] || '#000000';
-  }
-};
-
-// ===============================================
 // Color Definitions
 // ===============================================
 

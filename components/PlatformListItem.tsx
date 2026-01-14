@@ -13,7 +13,7 @@ import {
   Platform,
   TouchableNativeFeedback,
 } from 'react-native';
-import { Avatar, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
+import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import type { IconProps } from '../theme/platformStyles';
 import { usePlatformStyles } from '../theme/platformStyles';
@@ -26,7 +26,6 @@ const HORIZONTAL_PADDING = {
 };
 
 interface ListItemProps {
-  swipeable?: boolean;
   rightIcon?: any;
   leftAvatar?: React.JSX.Element;
   containerStyle?: object;
@@ -36,7 +35,6 @@ interface ListItemProps {
   testID?: string;
   onPress?: () => void;
   onLongPress?: () => void;
-  onDeletePressed?: () => void;
   disabled?: boolean;
   switch?: SwitchProps;
   leftIcon?: IconProps | ReactElement;
@@ -49,8 +47,6 @@ interface ListItemProps {
   chevron?: boolean;
   checkmark?: boolean;
   subtitleProps?: object;
-  swipeableLeftContent?: React.ReactNode;
-  swipeableRightContent?: React.ReactNode;
   isFirst?: boolean;
   isLast?: boolean;
   accessibilityLabel?: string;
@@ -64,24 +60,7 @@ class TouchableOpacityWrapper extends React.Component {
   }
 }
 
-const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () => void }> = ({ reset, onDeletePressed }) => (
-  <TouchableOpacity
-    style={styles.rightButton}
-    onPress={() => {
-      reset();
-      onDeletePressed?.();
-    }}
-    accessible
-    accessibilityLabel="Delete"
-    accessibilityRole="button"
-    accessibilityHint="Deletes this item"
-  >
-    <Icon name="trash-outline" size={24} color="white" />
-  </TouchableOpacity>
-);
-
 const PlatformListItem: React.FC<ListItemProps> = ({
-  swipeable = false,
   Component,
   rightIcon,
   leftAvatar,
@@ -91,7 +70,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   testID,
   onPress,
   onLongPress,
-  onDeletePressed,
   disabled,
   switch: switchProps,
   leftIcon,
@@ -103,8 +81,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   isLoading,
   chevron,
   checkmark,
-  swipeableLeftContent,
-  swipeableRightContent,
   isLast = false,
   isFirst = false,
   accessibilityLabel,
@@ -357,21 +333,12 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     };
   } else {
     // Android style
-    if (swipeable) {
-      dynamicContainerStyle = {
-        borderRadius: 0,
-        overflow: 'hidden',
-        elevation: layout.showElevation ? 2 : 0,
-        marginVertical: 1,
-      };
-    } else {
-      dynamicContainerStyle = {
-        borderRadius: 0,
-        elevation: layout.showElevation ? sizing.containerElevation : 0,
-        marginVertical: isAndroid ? 0 : 1, // No vertical margin for Android settings items
-        backgroundColor: colors.cardBackground,
-      };
-    }
+    dynamicContainerStyle = {
+      borderRadius: 0,
+      elevation: layout.showElevation ? sizing.containerElevation : 0,
+      marginVertical: isAndroid ? 0 : 1, // No vertical margin for Android settings items
+      backgroundColor: colors.cardBackground,
+    };
   }
 
   const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
@@ -403,26 +370,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     );
   }
 
-  if (swipeable) {
-    return (
-      <RNElementsListItem.Swipeable
-        containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
-        Component={Component as any}
-        bottomDivider={shouldShowBottomDivider}
-        topDivider={topDivider}
-        testID={switchProps ? undefined : testID}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        disabled={disabled}
-        leftContent={swipeableLeftContent}
-        rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
-        {...accessibilityProps}
-      >
-        {renderContent()}
-      </RNElementsListItem.Swipeable>
-    );
-  }
-
   return (
     <RNElementsListItem
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
@@ -444,13 +391,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 const styles = StyleSheet.create({
   checkmarkIcon: {
     marginLeft: 8,
-  },
-  rightButton: {
-    minHeight: '100%',
-    backgroundColor: 'red',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 75,
   },
   margin8: {
     margin: 8,
