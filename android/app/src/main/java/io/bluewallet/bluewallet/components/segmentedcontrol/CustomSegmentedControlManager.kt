@@ -5,12 +5,17 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.react.module.annotations.ReactModule
+import com.facebook.react.viewmanagers.CustomSegmentedControlManagerInterface
 
-class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>() {
+@ReactModule(name = CustomSegmentedControlManager.REACT_CLASS)
+class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(),
+    CustomSegmentedControlManagerInterface<CustomSegmentedControl> {
 
     companion object {
         const val REACT_CLASS = "CustomSegmentedControl"
-        private const val ON_CHANGE_EVENT = "onChangeEvent"
+        private const val TOP_CHANGE = "topChange"
+        private const val REGISTRATION_NAME = "onChange"
     }
 
     override fun getName(): String = REACT_CLASS
@@ -20,7 +25,7 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
     }
 
     @ReactProp(name = "values")
-    fun setValues(view: CustomSegmentedControl, values: ReadableArray?) {
+    override fun setValues(view: CustomSegmentedControl, values: ReadableArray?) {
         val valuesArray = values?.let { array ->
             Array(array.size()) { index ->
                 array.getString(index) ?: ""
@@ -31,13 +36,44 @@ class CustomSegmentedControlManager : SimpleViewManager<CustomSegmentedControl>(
     }
 
     @ReactProp(name = "selectedIndex", defaultInt = 0)
-    fun setSelectedIndex(view: CustomSegmentedControl, selectedIndex: Int) {
+    override fun setSelectedIndex(view: CustomSegmentedControl, selectedIndex: Int) {
         view.selectedIndex = selectedIndex
     }
 
-    override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any>? {
+    @ReactProp(name = "backgroundColor")
+    override fun setBackgroundColor(view: CustomSegmentedControl, value: String?) {
+        view.setBackgroundColorProp(value)
+    }
+
+    @ReactProp(name = "tintColor")
+    override fun setTintColor(view: CustomSegmentedControl, value: String?) {
+        view.setTintColorProp(value)
+    }
+
+    @ReactProp(name = "textColor")
+    override fun setTextColor(view: CustomSegmentedControl, value: String?) {
+        view.setTextColorProp(value)
+    }
+
+    @ReactProp(name = "momentary", defaultBoolean = false)
+    override fun setMomentary(view: CustomSegmentedControl, value: Boolean) {
+        view.setMomentaryProp(value)
+    }
+
+    @ReactProp(name = "enabled", defaultBoolean = true)
+    override fun setEnabled(view: CustomSegmentedControl, value: Boolean) {
+        view.setEnabledProp(value)
+    }
+
+    override fun getExportedCustomBubblingEventTypeConstants(): Map<String, Any>? {
         return MapBuilder.builder<String, Any>()
-            .put(ON_CHANGE_EVENT, MapBuilder.of("registrationName", ON_CHANGE_EVENT))
+            .put(
+                TOP_CHANGE,
+                MapBuilder.of(
+                    "phasedRegistrationNames",
+                    MapBuilder.of("bubbled", REGISTRATION_NAME, "captured", "${REGISTRATION_NAME}Capture")
+                )
+            )
             .build()
     }
 

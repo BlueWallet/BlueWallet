@@ -70,6 +70,7 @@ export const BlueFormLabel = props => {
 
 export const BlueFormMultiInput = props => {
   const { colors } = useTheme();
+  const { style, ...restProps } = props;
 
   return (
     <TextInput
@@ -77,25 +78,28 @@ export const BlueFormMultiInput = props => {
       underlineColorAndroid="transparent"
       numberOfLines={4}
       editable={!props.editable}
-      style={{
-        paddingHorizontal: 8,
-        paddingVertical: 16,
-        flex: 1,
-        marginTop: 5,
-        marginHorizontal: 20,
-        borderColor: colors.formBorder,
-        borderBottomColor: colors.formBorder,
-        borderWidth: 1,
-        borderBottomWidth: 0.5,
-        borderRadius: 4,
-        backgroundColor: colors.inputBackgroundColor,
-        color: colors.foregroundColor,
-        textAlignVertical: 'top',
-      }}
+      style={[
+        {
+          paddingHorizontal: 8,
+          paddingVertical: 16,
+          flex: 1,
+          marginTop: 5,
+          marginHorizontal: 20,
+          borderColor: colors.formBorder,
+          borderBottomColor: colors.formBorder,
+          borderWidth: 1,
+          borderBottomWidth: 0.5,
+          borderRadius: 4,
+          backgroundColor: colors.inputBackgroundColor,
+          color: colors.foregroundColor,
+          textAlignVertical: 'top',
+        },
+        style,
+      ]}
       autoCorrect={false}
       autoCapitalize="none"
       spellCheck={false}
-      {...props}
+      {...restProps}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />

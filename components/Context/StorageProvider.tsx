@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { InteractionManager, LayoutAnimation } from 'react-native';
+import { LayoutAnimation } from 'react-native';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
@@ -153,13 +153,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         console.debug('Not saving empty wallets array');
         return;
       }
-      await InteractionManager.runAfterInteractions(async () => {
-        BlueApp.tx_metadata = txMetadata.current;
-        BlueApp.counterparty_metadata = counterpartyMetadata.current;
-        await BlueApp.saveToDisk();
-        const w: TWallet[] = [...BlueApp.getWallets()];
-        setWallets(w);
-      });
+      BlueApp.tx_metadata = txMetadata.current;
+      BlueApp.counterparty_metadata = counterpartyMetadata.current;
+      await BlueApp.saveToDisk();
+      const w: TWallet[] = [...BlueApp.getWallets()];
+      setWallets(w);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [txMetadata.current, counterpartyMetadata.current],
@@ -322,8 +320,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
 
-      await new Promise<void>(resolve => InteractionManager.runAfterInteractions(() => resolve()));
-
       const TIMEOUT_DURATION = 30000;
       let refreshTimeout;
       const timeoutPromise = new Promise<never>(
@@ -396,36 +392,34 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const fetchAndSaveWalletTransactions = useCallback(
     async (walletID: string) => {
-      await InteractionManager.runAfterInteractions(async () => {
-        const index = wallets.findIndex(wallet => wallet.getID() === walletID);
-        let noErr = true;
-        try {
-          if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
-            console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
-            return;
-          }
-          _lastTimeTriedToRefetchWallet[walletID] = Date.now();
-
-          await BlueElectrum.waitTillConnected();
-          setWalletTransactionUpdateStatus(walletID);
-
-          const balanceStart = Date.now();
-          await BlueApp.fetchWalletBalances(index);
-          const balanceEnd = Date.now();
-          console.debug('[fetchAndSaveWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-
-          const txStart = Date.now();
-          await BlueApp.fetchWalletTransactions(index);
-          const txEnd = Date.now();
-          console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
-        } catch (err) {
-          noErr = false;
-          console.error('[fetchAndSaveWalletTransactions] Error:', err);
-        } finally {
-          setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      const index = wallets.findIndex(wallet => wallet.getID() === walletID);
+      let noErr = true;
+      try {
+        if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
+          console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
+          return;
         }
-        if (noErr) await saveToDisk();
-      });
+        _lastTimeTriedToRefetchWallet[walletID] = Date.now();
+
+        await BlueElectrum.waitTillConnected();
+        setWalletTransactionUpdateStatus(walletID);
+
+        const balanceStart = Date.now();
+        await BlueApp.fetchWalletBalances(index);
+        const balanceEnd = Date.now();
+        console.debug('[fetchAndSaveWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+
+        const txStart = Date.now();
+        await BlueApp.fetchWalletTransactions(index);
+        const txEnd = Date.now();
+        console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
+      } catch (err) {
+        noErr = false;
+        console.error('[fetchAndSaveWalletTransactions] Error:', err);
+      } finally {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      }
+      if (noErr) await saveToDisk();
     },
     [saveToDisk, wallets],
   );

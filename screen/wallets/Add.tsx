@@ -1,16 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Keyboard,
-  LayoutAnimation,
-  Linking,
-  Platform,
-  StyleSheet,
-  TextInput,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Keyboard, Linking, Platform, StyleSheet, TextInput, useColorScheme, View } from 'react-native';
+import Animated, { Layout } from 'react-native-reanimated';
 import assert from 'assert';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -110,6 +100,7 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'AddWallet'>;
 
 const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
+  const layoutTransition = useMemo(() => Layout.springify().damping(16).stiffness(180), []);
 
   // State
   const [state, dispatch] = useReducer(walletReducer, initialState);
@@ -179,7 +170,6 @@ const WalletsAdd: React.FC = () => {
           { cancelable: true },
         );
       } else {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedWalletType(newWalletType);
       }
     },
@@ -258,8 +248,6 @@ const WalletsAdd: React.FC = () => {
     () => (
       <HeaderMenuButton
         onPressMenuItem={(id: string) => {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
           if (id === LightningCustodianWallet.type) {
             handleOnLightningButtonPressed();
           } else if (id === '12_words') {
@@ -448,7 +436,6 @@ const WalletsAdd: React.FC = () => {
 
   const handleOnBitcoinButtonPressed = () => {
     setBackdoorPressed(prevState => prevState + 1);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
@@ -471,112 +458,115 @@ const WalletsAdd: React.FC = () => {
   );
 
   return (
-    <SafeAreaScrollView
-      style={stylesHook.root}
-      testID="ScrollView"
-      automaticallyAdjustKeyboardInsets
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      automaticallyAdjustsScrollIndicatorInsets
-    >
-      <BlueSpacing20 />
-      <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
-      <View style={[styles.label, stylesHook.label]}>
-        <TextInput
-          testID="WalletNameInput"
-          value={label}
-          placeholderTextColor="#81868e"
-          placeholder={loc.wallets.add_placeholder}
-          onChangeText={setLabel}
-          style={styles.textInputCommon}
-          editable={!isLoading}
-          underlineColorAndroid="transparent"
-        />
-      </View>
-      <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-      <View style={styles.buttons}>
-        <WalletButton
-          buttonType="Bitcoin"
-          testID="ActivateBitcoinButton"
-          active={selectedWalletType === ButtonSelected.ONCHAIN}
-          onPress={handleOnBitcoinButtonPressed}
-          size={styles.button}
-        />
-        <WalletButton
-          buttonType="Vault"
-          testID="ActivateVaultButton"
-          active={selectedWalletType === ButtonSelected.VAULT}
-          onPress={handleOnVaultButtonPressed}
-          size={styles.button}
-        />
-        {backdoorPressed >= 20 ? (
+    <Animated.View layout={layoutTransition} style={styles.flex1}>
+      <SafeAreaScrollView
+        style={stylesHook.root}
+        testID="ScrollView"
+        automaticallyAdjustKeyboardInsets
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
+        automaticallyAdjustsScrollIndicatorInsets
+      >
+        <BlueSpacing20 />
+        <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
+        <View style={[styles.label, stylesHook.label]}>
+          <TextInput
+            testID="WalletNameInput"
+            value={label}
+            placeholderTextColor="#81868e"
+            placeholder={loc.wallets.add_placeholder}
+            onChangeText={setLabel}
+            style={styles.textInputCommon}
+            editable={!isLoading}
+            underlineColorAndroid="transparent"
+          />
+        </View>
+        <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
+        <View style={styles.buttons}>
           <WalletButton
-            buttonType="LightningArk"
-            testID="ActivateLightningArkButton"
-            active={selectedWalletType === ButtonSelected.ARK}
-            onPress={handleOnLightningArkButtonPressed}
+            buttonType="Bitcoin"
+            testID="ActivateBitcoinButton"
+            active={selectedWalletType === ButtonSelected.ONCHAIN}
+            onPress={handleOnBitcoinButtonPressed}
             size={styles.button}
           />
-        ) : null}
-        {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
-      </View>
-      <View style={styles.advanced}>
-        {selectedWalletType === ButtonSelected.OFFCHAIN && (
-          <>
-            <BlueSpacing20 />
-            <View style={styles.lndhubTitle}>
-              <BlueText>{loc.wallets.add_lndhub}</BlueText>
-              <BlueButtonLink title={loc.wallets.learn_more} onPress={onLearnMorePressed} />
-            </View>
+          <WalletButton
+            buttonType="Vault"
+            testID="ActivateVaultButton"
+            active={selectedWalletType === ButtonSelected.VAULT}
+            onPress={handleOnVaultButtonPressed}
+            size={styles.button}
+          />
+          {backdoorPressed >= 20 ? (
+            <WalletButton
+              buttonType="LightningArk"
+              testID="ActivateLightningArkButton"
+              active={selectedWalletType === ButtonSelected.ARK}
+              onPress={handleOnLightningArkButtonPressed}
+              size={styles.button}
+            />
+          ) : null}
+          {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+        </View>
+        <View style={styles.advanced}>
+          {selectedWalletType === ButtonSelected.OFFCHAIN && (
+            <>
+              <BlueSpacing20 />
+              <View style={styles.lndhubTitle}>
+                <BlueText>{loc.wallets.add_lndhub}</BlueText>
+                <BlueButtonLink title={loc.wallets.learn_more} onPress={onLearnMorePressed} />
+              </View>
 
-            <View style={[styles.lndUri, stylesHook.lndUri]}>
-              <TextInput
-                value={walletBaseURI}
-                onChangeText={setWalletBaseURI}
-                onSubmitEditing={Keyboard.dismiss}
-                placeholder={loc.wallets.add_lndhub_placeholder}
-                clearButtonMode="while-editing"
-                autoCapitalize="none"
-                textContentType="URL"
-                autoCorrect={false}
-                placeholderTextColor="#81868e"
-                style={styles.textInputCommon}
-                editable={!isLoading}
-                underlineColorAndroid="transparent"
+              <View style={[styles.lndUri, stylesHook.lndUri]}>
+                <TextInput
+                  value={walletBaseURI}
+                  onChangeText={setWalletBaseURI}
+                  onSubmitEditing={Keyboard.dismiss}
+                  placeholder={loc.wallets.add_lndhub_placeholder}
+                  clearButtonMode="while-editing"
+                  autoCapitalize="none"
+                  textContentType="URL"
+                  autoCorrect={false}
+                  placeholderTextColor="#81868e"
+                  style={styles.textInputCommon}
+                  editable={!isLoading}
+                  underlineColorAndroid="transparent"
+                />
+              </View>
+            </>
+          )}
+
+          <BlueSpacing20 />
+          {!isLoading ? (
+            <>
+              <Button
+                testID="Create"
+                title={loc.wallets.add_create}
+                disabled={
+                  !selectedWalletType || (selectedWalletType === ButtonSelected.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)
+                }
+                onPress={createWallet}
               />
-            </View>
-          </>
-        )}
 
-        <BlueSpacing20 />
-        {!isLoading ? (
-          <>
-            <Button
-              testID="Create"
-              title={loc.wallets.add_create}
-              disabled={
-                !selectedWalletType || (selectedWalletType === ButtonSelected.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)
-              }
-              onPress={createWallet}
-            />
-
-            <BlueButtonLink
-              testID="ImportWallet"
-              style={styles.import}
-              title={loc.wallets.add_import_wallet}
-              onPress={navigateToImportWallet}
-            />
-            <BlueSpacing40 />
-          </>
-        ) : (
-          <ActivityIndicator />
-        )}
-      </View>
-    </SafeAreaScrollView>
+              <BlueButtonLink
+                testID="ImportWallet"
+                style={styles.import}
+                title={loc.wallets.add_import_wallet}
+                onPress={navigateToImportWallet}
+              />
+              <BlueSpacing40 />
+            </>
+          ) : (
+            <ActivityIndicator />
+          )}
+        </View>
+      </SafeAreaScrollView>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  flex1: { flex: 1 },
   label: {
     flexDirection: 'row',
     borderWidth: 1,
