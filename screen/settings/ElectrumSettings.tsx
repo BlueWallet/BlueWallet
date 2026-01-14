@@ -55,6 +55,7 @@ const ElectrumSettings: React.FC = () => {
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
+  const [serverBanner, setServerBanner] = useState<string>('');
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
@@ -65,11 +66,9 @@ const ElectrumSettings: React.FC = () => {
   });
 
   // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
   const headerHeight = useMemo(() => {
     if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
+      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; 
       return 56 + statusBarHeight;
     }
     return 0;
@@ -106,19 +105,14 @@ const ElectrumSettings: React.FC = () => {
   const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = useCallback(async () => {
-    console.log('Fetching data...');
     const preferredServer = await BlueElectrum.getPreferredServer();
     const savedHost = preferredServer?.host;
     const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
     const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
     const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
 
-    console.log('Preferred server:', preferredServer);
-    console.log('Server history string:', serverHistoryStr);
-
     const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
-    // Allow duplicates for same host if ssl/tcp differs. Only skip if host, ssl, and tcp are all the same:
     const newServerHistoryArray: ElectrumServerItem[] = [];
     for (const item of parsedServerHistory) {
       const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
@@ -136,8 +130,6 @@ const ElectrumSettings: React.FC = () => {
           !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
       ),
     );
-
-    console.log('Filtered server history:', filteredServerHistory);
 
     setHost(savedHost || '');
     setPort(savedPort);
@@ -168,6 +160,17 @@ const ElectrumSettings: React.FC = () => {
       if (configIntervalRef.current) clearInterval(configIntervalRef.current);
     };
   }, [fetchData]);
+
+  // Fetch banner when connected
+  useEffect(() => {
+    if (config.connected === 1 && config.host && !isElectrumDisabled) {
+      BlueElectrum.getServerBanner()
+        .then(setServerBanner)
+        .catch(() => setServerBanner(''));
+    } else {
+      setServerBanner('');
+    }
+  }, [config.connected, config.host, config.port, isElectrumDisabled]);
 
   useEffect(() => {
     if (server) {
@@ -209,14 +212,10 @@ const ElectrumSettings: React.FC = () => {
           }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
-          // Clear current data for the preferred host
-          console.log('Clearing current data for the preferred host');
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
 
-          // Save the new preferred host
-          console.log('Saving new preferred host');
           await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
@@ -463,11 +462,9 @@ const ElectrumSettings: React.FC = () => {
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
     if (value) {
-      // Move the current port to sslPort
       setSslPort(port);
       setPort(undefined);
     } else {
-      // Move the current sslPort to port
       setPort(sslPort);
       setSslPort(undefined);
     }
@@ -515,6 +512,12 @@ const ElectrumSettings: React.FC = () => {
             {config.host}:{config.port}
           </BlueText>
         </BlueCard>
+
+        {serverBanner.length > 0 && (
+          <>
+            <BlueText style={[styles.bannerText, { color: colors.foregroundColor }]}>{serverBanner}</BlueText>
+          </>
+        )}
         <BlueSpacing20 />
 
         <Divider />
@@ -546,7 +549,6 @@ const ElectrumSettings: React.FC = () => {
                 onChangeText={text => {
                   const parsed = Number(text.trim());
                   if (Number.isNaN(parsed)) {
-                    // Handle invalid input
                     sslPort === undefined ? setPort(undefined) : setSslPort(undefined);
                     return;
                   }
@@ -685,7 +687,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   usePort: {
-    marginHorizontal: 16,
+    marginHorizontal: 14,
+  },
+  bannerText: {
+    marginTop: 24,
+    alignSelf: 'center',
+    fontFamily: 'monospace',
+    marginBottom: 8,
   },
 });
 
