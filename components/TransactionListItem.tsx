@@ -387,8 +387,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       };
     }, [subtitleNumberOfLines]);
 
-    const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
-
     return (
       <ToolTipMenu
         isButton
@@ -419,7 +417,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             ) : undefined
           }
           Component={View}
-          subtitleProps={subtitleProps}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}

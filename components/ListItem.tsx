@@ -1,33 +1,27 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
-import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
+import { Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { ListItem as RNElementsListItem } from '@rneui/themed';
 import { useLocale } from '@react-navigation/native';
 
 import { useTheme } from './themes';
 
 // Update the type for the props
 interface ListItemProps {
-  rightIcon?: any;
   leftAvatar?: React.JSX.Element;
   containerStyle?: object;
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;
-  topDivider?: boolean;
   testID?: string;
   onPress?: () => void;
-  onLongPress?: () => void;
   disabled?: boolean;
   switch?: object; // Define more specific type if needed
-  leftIcon?: any; // Define more specific type if needed
   title: string;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
   rightTitle?: string;
   rightTitleStyle?: object;
-  isLoading?: boolean;
   chevron?: boolean;
   checkmark?: boolean;
-  subtitleProps?: object;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {
@@ -45,23 +39,18 @@ export class TouchableOpacityWrapper extends React.Component {
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
     Component = TouchableOpacityWrapper,
-    rightIcon,
     leftAvatar,
     containerStyle,
     bottomDivider = true,
-    topDivider = false,
     testID,
     onPress,
-    onLongPress,
     disabled,
     switch: switchProps,
-    leftIcon,
     title,
     subtitle,
     subtitleNumberOfLines,
     rightTitle,
     rightTitleStyle,
-    isLoading,
     chevron,
     checkmark,
   }: ListItemProps) => {
@@ -95,12 +84,6 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     const renderContent = () => (
       <>
-        {leftIcon && (
-          <>
-            <View style={styles.width16} />
-            <Avatar icon={leftIcon} />
-          </>
-        )}
         {leftAvatar && (
           <>
             {leftAvatar}
@@ -129,25 +112,18 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             </RNElementsListItem.Title>
           </View>
         )}
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <>
-            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
-            {rightIcon && <Avatar icon={rightIcon} />}
-            {switchProps && (
-              <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
-            )}
-            {checkmark && (
-              <RNElementsListItem.CheckBox
-                iconRight
-                containerStyle={stylesHook.containerStyle}
-                iconType="octaicon"
-                checkedIcon="check"
-                checked
-              />
-            )}
-          </>
+        {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
+        {switchProps && (
+          <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+        )}
+        {checkmark && (
+          <RNElementsListItem.CheckBox
+            iconRight
+            containerStyle={stylesHook.containerStyle}
+            iconType="octaicon"
+            checkedIcon="check"
+            checked
+          />
         )}
       </>
     );
@@ -157,10 +133,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         containerStyle={containerStyle ?? stylesHook.containerStyle}
         Component={Component}
         bottomDivider={bottomDivider}
-        topDivider={topDivider}
         testID={testID}
         onPress={onPress}
-        onLongPress={onLongPress}
         disabled={disabled}
         accessible={switchProps === undefined}
       >

@@ -26,27 +26,19 @@ const HORIZONTAL_PADDING = {
 };
 
 interface ListItemProps {
-  rightIcon?: any;
-  leftAvatar?: React.JSX.Element;
   containerStyle?: object;
   Component?: ComponentType<any> | React.ElementType;
   bottomDivider?: boolean;
-  topDivider?: boolean;
   testID?: string;
   onPress?: () => void;
-  onLongPress?: () => void;
   disabled?: boolean;
   switch?: SwitchProps;
   leftIcon?: IconProps | ReactElement;
   title: string;
   subtitle?: string | React.ReactNode;
-  subtitleNumberOfLines?: number;
-  rightTitle?: string;
-  rightTitleStyle?: object;
   isLoading?: boolean;
   chevron?: boolean;
   checkmark?: boolean;
-  subtitleProps?: object;
   isFirst?: boolean;
   isLast?: boolean;
   accessibilityLabel?: string;
@@ -62,22 +54,15 @@ class TouchableOpacityWrapper extends React.Component {
 
 const PlatformListItem: React.FC<ListItemProps> = ({
   Component,
-  rightIcon,
-  leftAvatar,
   containerStyle,
   bottomDivider = true,
-  topDivider = false,
   testID,
   onPress,
-  onLongPress,
   disabled,
   switch: switchProps,
   leftIcon,
   title,
   subtitle,
-  subtitleNumberOfLines,
-  rightTitle,
-  rightTitleStyle,
   isLoading,
   chevron,
   checkmark,
@@ -245,34 +230,16 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           )}
         </>
       )}
-      {leftAvatar && (
-        <>
-          {leftAvatar}
-          <View style={styles.width16} importantForAccessibility="no" />
-        </>
-      )}
       <RNElementsListItem.Content style={styles.flexGrow}>
         <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
           {title}
         </RNElementsListItem.Title>
         {subtitle && (
-          <RNElementsListItem.Subtitle
-            numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 0)}
-            accessibilityRole="text"
-            style={stylesHook.subtitle}
-          >
+          <RNElementsListItem.Subtitle numberOfLines={0} accessibilityRole="text" style={stylesHook.subtitle}>
             {subtitle}
           </RNElementsListItem.Subtitle>
         )}
       </RNElementsListItem.Content>
-
-      {rightTitle && (
-        <View style={styles.margin8} importantForAccessibility="no">
-          <RNElementsListItem.Title style={[stylesHook.subtitle, rightTitleStyle]} numberOfLines={0} accessibilityRole="text">
-            {rightTitle}
-          </RNElementsListItem.Title>
-        </View>
-      )}
       {isLoading ? (
         <ActivityIndicator accessibilityRole="progressbar" accessibilityLabel="Loading" />
       ) : (
@@ -287,7 +254,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
               importantForAccessibility="no"
             />
           )}
-          {rightIcon && <Avatar icon={rightIcon} />}
           {switchProps && (
             <Switch
               {...memoizedSwitchProps}
@@ -356,7 +322,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         background={TouchableNativeFeedback.Ripple(androidRippleConfig.color, androidRippleConfig.borderless)}
         useForeground={androidRippleConfig.foreground}
         onPress={onPress}
-        onLongPress={onLongPress}
         disabled={disabled}
         accessibilityLabel={accessibilityLabel || title}
         accessibilityRole="button"
@@ -375,10 +340,8 @@ const PlatformListItem: React.FC<ListItemProps> = ({
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
       Component={Component as any}
       bottomDivider={shouldShowBottomDivider}
-      topDivider={topDivider}
       testID={switchProps ? undefined : testID}
       onPress={onPress}
-      onLongPress={onLongPress}
       disabled={disabled}
       pad={isAndroid ? 0 : 16} // No padding for Android
       {...accessibilityProps}
@@ -392,13 +355,9 @@ const styles = StyleSheet.create({
   checkmarkIcon: {
     marginLeft: 8,
   },
-  margin8: {
-    margin: 8,
-  },
   margin16: {
     marginLeft: 16,
   },
-  width16: { width: 16 },
   iconContainerBase: {
     alignItems: 'center',
     justifyContent: 'center',
