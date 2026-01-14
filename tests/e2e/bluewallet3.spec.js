@@ -1,4 +1,14 @@
-import { goBack, hashIt, helperDeleteWallet, helperImportWallet, scanText, scrollUpOnHomeScreen, sleep, waitForId } from './helperz';
+import {
+  goBack,
+  hashIt,
+  helperDeleteWallet,
+  helperImportWallet,
+  scanText,
+  scrollUpOnHomeScreen,
+  sleep,
+  waitForId,
+  waitForKeyboardToClose,
+} from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
 console.warn = console.log = (...args) => {
@@ -53,6 +63,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountDescription')).tapReturnKey();
+    await waitForKeyboardToClose();
     await element(by.id('CustomAmountSaveButton')).tap();
     await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('Test');
     await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');

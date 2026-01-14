@@ -71,6 +71,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
+    await waitForKeyboardToClose();
   }
   await element(by.id('SpeedDoImport')).tap();
 
@@ -277,4 +278,14 @@ export async function scrollUpOnHomeScreen() {
     await element(by.type('RCTCustomScrollView')).swipe('down', 'slow', 0.5);
   }
   await sleep(200); // bounce animation
+}
+
+// We really only need this function when running tests locally.
+// In GitHub Actions, we run Android tests with a hardware keyboard, so the onscreen keyboard doesn’t appear.
+// On iOS, it doesn’t cause any known issues.
+export async function waitForKeyboardToClose() {
+  if (device.getPlatform() === 'ios' || process.env.CI) {
+    return;
+  }
+  await sleep(500);
 }
