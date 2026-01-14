@@ -76,10 +76,27 @@ export class WatchOnlyWallet extends LegacyWallet {
   init() {
     let hdWalletInstance: THDWalletForWatchOnly;
 
-    if (this._derivationPath?.startsWith("m/86'")) {
+    // Check script type first (most reliable - parsed from descriptor)
+    if (this._scriptType === 'tr') {
+      hdWalletInstance = new HDTaprootWallet();
+    } else if (this._scriptType === 'wpkh') {
+      hdWalletInstance = new HDSegwitBech32Wallet();
+    } else if (this._scriptType === 'sh_wpkh') {
+      hdWalletInstance = new HDSegwitP2SHWallet();
+    } else if (this._scriptType === 'pkh') {
+      hdWalletInstance = new HDLegacyP2PKHWallet();
+    }
+    // Fallback to path-based detection (for bare [fingerprint/path]xpub without descriptor wrapper)
+    else if (this._derivationPath?.startsWith("m/86'")) {
       // if path is explicit taproot path - its definately BIP86
       hdWalletInstance = new HDTaprootWallet();
-    } else if (this.secret.startsWith('xpub')) {
+    } else if (this._derivationPath?.startsWith("m/84'")) {
+      hdWalletInstance = new HDSegwitBech32Wallet();
+    } else if (this._derivationPath?.startsWith("m/49'")) {
+      hdWalletInstance = new HDSegwitP2SHWallet();
+    }
+    // Final fallback to xpub prefix (legacy behavior for bare xpub/ypub/zpub)
+    else if (this.secret.startsWith('xpub')) {
       hdWalletInstance = new HDLegacyP2PKHWallet();
     } else if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
     else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
@@ -89,6 +106,11 @@ export class WatchOnlyWallet extends LegacyWallet {
     // if derivation path recovered from JSON file it should be moved to hdWalletInstance
     if (this._derivationPath) {
       hdWalletInstance._derivationPath = this._derivationPath;
+    }
+
+    // if script type recovered from JSON file it should be moved to hdWalletInstance
+    if (this._scriptType) {
+      hdWalletInstance._scriptType = this._scriptType;
     }
 
     if (this._hdWalletInstance) {
