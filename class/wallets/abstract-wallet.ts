@@ -33,6 +33,7 @@ export class AbstractWallet {
 
   segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)' | 'p2tr';
   _derivationPath?: string;
+  _scriptType?: 'tr' | 'wpkh' | 'sh_wpkh' | 'pkh';
   label: string;
   secret: string;
   balance: number;
@@ -243,7 +244,7 @@ export class AbstractWallet {
         // old (or broken) format..? no square brackets, only "()"
         fpAndPath = this.secret.substring(this.secret.indexOf('('), xpubIndex).replace(/[()]/g, '');
       }
-      const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '').split('/')[0];
+      const xpub = this.secret.substring(xpubIndex).replace(/[()]/g, '').split('/')[0];
 
       const pathIndex = fpAndPath.indexOf('/');
       const path = 'm' + fpAndPath.substring(pathIndex).replace(/h/g, "'");
@@ -253,12 +254,18 @@ export class AbstractWallet {
       const mfp = uint8ArrayToHex(hexToUint8Array(fp).reverse());
       this.masterFingerprint = parseInt(mfp, 16);
 
-      if (this.secret.startsWith('wpkh(')) {
+      // Store the script type for later use
+      if (this.secret.startsWith('tr(')) {
+        this._scriptType = 'tr';
+        this.secret = xpub;
+      } else if (this.secret.startsWith('wpkh(')) {
+        this._scriptType = 'wpkh';
         this.secret = this._xpubToZpub(xpub);
       } else if (this.secret.startsWith('sh(wpkh(')) {
+        this._scriptType = 'sh_wpkh';
         this.secret = this._xpubToYpub(xpub);
-      } else {
-        // nop
+      } else if (this.secret.startsWith('pkh(')) {
+        this._scriptType = 'pkh';
         this.secret = xpub;
       }
 
