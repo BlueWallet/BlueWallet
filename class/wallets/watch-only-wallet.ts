@@ -77,13 +77,13 @@ export class WatchOnlyWallet extends LegacyWallet {
     let hdWalletInstance: THDWalletForWatchOnly;
 
     // Check script type first (most reliable - parsed from descriptor)
-    if (this._scriptType === 'tr') {
+    if (this.segwitType === 'p2tr') {
       hdWalletInstance = new HDTaprootWallet();
-    } else if (this._scriptType === 'wpkh') {
+    } else if (this.segwitType === 'p2wpkh') {
       hdWalletInstance = new HDSegwitBech32Wallet();
-    } else if (this._scriptType === 'sh_wpkh') {
+    } else if (this.segwitType === 'p2sh(p2wpkh)') {
       hdWalletInstance = new HDSegwitP2SHWallet();
-    } else if (this._scriptType === 'pkh') {
+    } else if (this.segwitType === 'p2pkh') {
       hdWalletInstance = new HDLegacyP2PKHWallet();
     }
     // Fallback to path-based detection (for bare [fingerprint/path]xpub without descriptor wrapper)
@@ -106,11 +106,6 @@ export class WatchOnlyWallet extends LegacyWallet {
     // if derivation path recovered from JSON file it should be moved to hdWalletInstance
     if (this._derivationPath) {
       hdWalletInstance._derivationPath = this._derivationPath;
-    }
-
-    // if script type recovered from JSON file it should be moved to hdWalletInstance
-    if (this._scriptType) {
-      hdWalletInstance._scriptType = this._scriptType;
     }
 
     if (this._hdWalletInstance) {
