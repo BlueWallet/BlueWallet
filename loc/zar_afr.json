@@ -55,7 +55,6 @@
   "lndViewInvoice": {
     "additional_info": "Bykomende Inligting",
     "lightning_invoice": "Lightning Faktuur",
-    "open_direct_channel": "Open direkte kanaal met hierdie knoop-punt:",
     "please_pay_between_and": "Betaal asseblief tussen {min} en {max}",
     "please_pay": "Betaal asseblief",
     "sats": "sats.",

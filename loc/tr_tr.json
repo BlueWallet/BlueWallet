@@ -17,7 +17,6 @@
     "seed": "Seed",
     "success": "Başarılı",
     "wallet_key": "Cüzdan anahtarı",
-    "invalid_animated_qr_code_fragment": "Geçersiz animasyonlu QR Kod parçası. Lütfen tekrar deneyin.",
     "close": "Kapat",
     "change_input_currency": "Giriş para birimini değiştir"
   },
@@ -53,7 +52,6 @@
     "additional_info": "Ek Bilgi",
     "for": "İçin: ",
     "lightning_invoice": "Lightning faturası",
-    "open_direct_channel": "Bu noda direkt kanal aç: ",
     "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
     "please_pay": "Lütfen ödeyin",
     "sats": "sats.",
@@ -140,9 +138,7 @@
   },
   "settings": {
     "about": "Hakkında",
-    "about_sm_discord": "Discord Sunucusu",
     "about_sm_telegram": "Telegram Kanalı",
-    "about_sm_twitter": "Bizi Twitter'da takip edin",
     "biometrics": "Biyometrikler",
     "currency": "Para Birimi",
     "header": "ayarlar",

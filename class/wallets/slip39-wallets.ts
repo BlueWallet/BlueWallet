@@ -13,10 +13,10 @@ type TWalletThis = Omit<HDLegacyP2PKHWallet | HDSegwitP2SHWallet | HDSegwitBech3
 
 // collection of SLIP39 functions
 const SLIP39Mixin = {
-  _getSeed() {
+  _getSeed(): Uint8Array {
     const self = this as unknown as TWalletThis;
     const master = slip39.recoverSecret(self.secret, self.passphrase);
-    return Buffer.from(master);
+    return Uint8Array.from(master);
   },
 
   validateMnemonic() {

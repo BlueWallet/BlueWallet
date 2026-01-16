@@ -684,7 +684,7 @@
     "notification_tx_unconfirmed": "通知交易尚未确认，请稍等。",
     "failed_create_notif_tx": "创建链上交易失败",
     "onchain_tx_needed": "需要在链上交易",
-    "notif_tx_sent" : "通知交易已发送。请等待确认",
+    "notif_tx_sent": "通知交易已发送。请等待确认",
     "notif_tx": "通知交易",
     "not_found": "未找到支付码"
   }

@@ -52,7 +52,6 @@
     "additional_info": "دونسمنیا بؽشتر",
     "for": "سی:",
     "lightning_invoice": "سۊرت هساو لایتنینگ",
-    "open_direct_channel": "تورگه موستقیمی وا اؽ گره واز بکو:",
     "sats": "ساتۊشی پرداخت بکو.",
     "wasnt_paid_and_expired": "اؽ سۊرت هساو پرداخت نبیه ۉ مونقزی بیه."
   },
@@ -98,7 +97,6 @@
     "about_selftest": "ر ونن خوش آزمایی",
     "about_selftest_electrum_disabled": "خوش آزمایی د هالت آفلاین د دسرس نؽ. هالت آفلاینن قیر فعال بکو ۉ دۏورته تفره بکو.",
     "about_sm_github": "گیت هاب",
-    "about_sm_discord": "سرور دیسکورد",
     "about_sm_telegram": "تورگه تلگرام",
     "biometrics": "بیومتریک",
     "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",

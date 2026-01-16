@@ -1,22 +1,30 @@
-import { URDecoder } from '@ngraveio/bc-ur';
-import b58 from 'bs58check';
 import {
+  Bytes,
+  CryptoAccount,
   CryptoHDKey,
   CryptoKeypath,
   CryptoOutput,
+  CryptoPSBT,
   PathComponent,
   ScriptExpressions,
-  CryptoPSBT,
-  CryptoAccount,
-  Bytes,
 } from '@keystonehq/bc-ur-registry/dist';
-import { decodeUR as origDecodeUr, encodeUR as origEncodeUR, extractSingleWorkload as origExtractSingleWorkload } from '../bc-ur/dist';
-import { MultisigCosigner, MultisigHDWallet } from '../../class';
-import { Psbt } from 'bitcoinjs-lib';
+import { URDecoder } from '@ngraveio/bc-ur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Psbt } from 'bitcoinjs-lib';
+import b58 from 'bs58check';
+
+import { MultisigCosigner, MultisigHDWallet } from '../../class';
 import { joinQRs } from '../bbqr/join';
-import { base64ToUint8Array, hexToUint8Array, uint8ArrayToBase64, uint8ArrayToString } from '../uint8array-extras';
+import {
+  concatUint8Arrays,
+  hexToUint8Array,
+  stringToUint8Array,
+  uint8ArrayToHex,
+  uint8ArrayToBase64,
+  uint8ArrayToString,
+} from '../uint8array-extras';
 import { splitQRs } from '../bbqr/split';
+import { decodeUR as origDecodeUr, encodeUR as origEncodeUR, extractSingleWorkload as origExtractSingleWorkload } from '../bc-ur/dist';
 
 const USE_UR_V1 = 'USE_UR_V1';
 const USE_BBQR_WALLET_IDS = 'USE_BBQR_WALLET_IDS';
@@ -154,7 +162,6 @@ function encodeURv2(str, len) {
   } catch (_) {}
 
   // fail. fallback to bytes
-
   const bytes = new Bytes(Buffer.from(str, 'hex'));
   const encoder = bytes.toUREncoder(len);
 
@@ -215,29 +222,29 @@ function decodeUR(arg) {
     derivationPath === MultisigHDWallet.PATH_LEGACY ||
     derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
     derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
-  const version = Buffer.from(isMultisig ? '02aa7ed3' : '04b24746', 'hex');
+  const version = hexToUint8Array(isMultisig ? '02aa7ed3' : '04b24746');
   const parentFingerprint = hdKey.getParentFingerprint();
   const depth = hdKey.getOrigin().getDepth();
-  const depthBuf = Buffer.alloc(1);
-  depthBuf.writeUInt8(depth);
+  const depthBuf = new Uint8Array(1);
+  depthBuf[0] = depth;
   const components = hdKey.getOrigin().getComponents();
   const lastComponents = components[components.length - 1];
   const index = lastComponents.isHardened() ? lastComponents.getIndex() + 0x80000000 : lastComponents.getIndex();
-  const indexBuf = Buffer.alloc(4);
-  indexBuf.writeUInt32BE(index);
+  const indexBuf = new Uint8Array(4);
+  new DataView(indexBuf.buffer).setUint32(0, index, false); // big-endian
   const chainCode = hdKey.getChainCode();
   const key = hdKey.getKey();
-  const data = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+  const data = concatUint8Arrays([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
 
   const zpub = b58.encode(data);
 
   const result = {};
   result.ExtPubKey = zpub;
-  result.MasterFingerprint = cryptoAccount.getMasterFingerprint().toString('hex').toUpperCase();
+  result.MasterFingerprint = uint8ArrayToHex(cryptoAccount.getMasterFingerprint()).toUpperCase();
   result.AccountKeyPath = derivationPath;
 
   const str = JSON.stringify(result);
-  return Buffer.from(str, 'ascii').toString('hex'); // we are expected to return hex-encoded string
+  return uint8ArrayToHex(stringToUint8Array(str)); // we are expected to return hex-encoded string
 }
 
 class BlueURDecoder extends URDecoder {
@@ -265,7 +272,8 @@ class BlueURDecoder extends URDecoder {
 
     if (decoded.type === 'bytes') {
       const bytes = Bytes.fromCBOR(decoded.cbor);
-      return Buffer.from(bytes.getData(), 'hex').toString('ascii');
+      const data = bytes.getData();
+      return uint8ArrayToString(data);
     }
 
     if (decoded.type === 'crypto-account') {
@@ -284,39 +292,39 @@ class BlueURDecoder extends URDecoder {
           derivationPath === MultisigHDWallet.PATH_LEGACY ||
           derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
           derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
-        const version = Buffer.from(isMultisig ? '02aa7ed3' : '04b24746', 'hex');
+        const version = hexToUint8Array(isMultisig ? '02aa7ed3' : '04b24746');
         const parentFingerprint = hdKey.getParentFingerprint();
         const depth = hdKey.getOrigin().getDepth();
-        const depthBuf = Buffer.alloc(1);
-        depthBuf.writeUInt8(depth);
+        const depthBuf = new Uint8Array(1);
+        depthBuf[0] = depth;
         const components = hdKey.getOrigin().getComponents();
         const lastComponents = components[components.length - 1];
         const index = lastComponents.isHardened() ? lastComponents.getIndex() + 0x80000000 : lastComponents.getIndex();
-        const indexBuf = Buffer.alloc(4);
-        indexBuf.writeUInt32BE(index);
+        const indexBuf = new Uint8Array(4);
+        new DataView(indexBuf.buffer).setUint32(0, index, false); // big-endian
         const chainCode = hdKey.getChainCode();
         const key = hdKey.getKey();
-        const data = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+        const data = concatUint8Arrays([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
 
         const zpub = b58.encode(data);
 
         const result = {};
         result.ExtPubKey = zpub;
-        result.MasterFingerprint = cryptoAccount.getMasterFingerprint().toString('hex').toUpperCase();
+        result.MasterFingerprint = uint8ArrayToHex(cryptoAccount.getMasterFingerprint()).toUpperCase();
         result.AccountKeyPath = derivationPath;
 
         if (derivationPath.startsWith("m/49'/0'/")) {
           // converting to ypub
           let data = b58.decode(result.ExtPubKey);
           data = data.slice(4);
-          result.ExtPubKey = b58.encode(Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]));
+          result.ExtPubKey = b58.encode(concatUint8Arrays([hexToUint8Array('049d7cb2'), data]));
         }
 
         if (derivationPath.startsWith("m/44'/0'/")) {
           // converting to xpub
           let data = b58.decode(result.ExtPubKey);
           data = data.slice(4);
-          result.ExtPubKey = b58.encode(Buffer.concat([Buffer.from('0488b21e', 'hex'), data]));
+          result.ExtPubKey = b58.encode(concatUint8Arrays([hexToUint8Array('0488b21e'), data]));
         }
 
         results.push(result);

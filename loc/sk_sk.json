@@ -42,7 +42,6 @@
   "lndViewInvoice": {
     "additional_info": "Doplňujúce informácie",
     "for": "Za:",
-    "open_direct_channel": "Otvoriť priamy kanál s týmto uzlom:",
     "please_pay": "Prosím zaplaťte",
     "sats": "sats"
   },
@@ -116,7 +115,6 @@
     "about_review": "Napíšte nám recenziu",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Telegram chat",
-    "about_sm_twitter": "Sledujte nás na Twitteri",
     "currency": "Mena",
     "default_wallets": "Zobraziť všetky peňaženky",
     "electrum_saved": "Vaše zmeny boli úspešne uložené. Aby sa zmeny prejavili, môže byť potrebný reštart.",
@@ -124,7 +122,6 @@
     "electrum_status": "Stav",
     "encrypt_decrypt": "Dešifrovať úložisko",
     "encrypt_decrypt_q": "Naozaj chcete dešifrovať úložisko? Peňaženky budú prístupné bez hesla.",
-    "encrypt_enc_and_pass": "Zašifrované a chránené heslom",
     "encrypt_title": "Bezpečnosť",
     "encrypt_tstorage": "úložisko",
     "encrypt_use": "Použiť {type}",
