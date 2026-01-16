@@ -76,10 +76,27 @@ export class WatchOnlyWallet extends LegacyWallet {
   init() {
     let hdWalletInstance: THDWalletForWatchOnly;
 
-    if (this._derivationPath?.startsWith("m/86'")) {
+    // Check script type first (most reliable - parsed from descriptor)
+    if (this.segwitType === 'p2tr') {
+      hdWalletInstance = new HDTaprootWallet();
+    } else if (this.segwitType === 'p2wpkh') {
+      hdWalletInstance = new HDSegwitBech32Wallet();
+    } else if (this.segwitType === 'p2sh(p2wpkh)') {
+      hdWalletInstance = new HDSegwitP2SHWallet();
+    } else if (this.segwitType === 'p2pkh') {
+      hdWalletInstance = new HDLegacyP2PKHWallet();
+    }
+    // Fallback to path-based detection (for bare [fingerprint/path]xpub without descriptor wrapper)
+    else if (this._derivationPath?.startsWith("m/86'")) {
       // if path is explicit taproot path - its definately BIP86
       hdWalletInstance = new HDTaprootWallet();
-    } else if (this.secret.startsWith('xpub')) {
+    } else if (this._derivationPath?.startsWith("m/84'")) {
+      hdWalletInstance = new HDSegwitBech32Wallet();
+    } else if (this._derivationPath?.startsWith("m/49'")) {
+      hdWalletInstance = new HDSegwitP2SHWallet();
+    }
+    // Final fallback to xpub prefix (legacy behavior for bare xpub/ypub/zpub)
+    else if (this.secret.startsWith('xpub')) {
       hdWalletInstance = new HDLegacyP2PKHWallet();
     } else if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
     else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();

@@ -447,6 +447,68 @@ describe('Watch only wallet', () => {
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
+  it('can import taproot descriptor with non-BIP86 path', async () => {
+    // Regression test: tr() descriptors should be identified by script type, not just path
+    // Previously, tr([fp/0/0]xpub...) would incorrectly create a Legacy wallet because
+    // the path didn't start with m/86'
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      'tr([97311f91/0/0]xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw/<0;1>/*)',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.getMasterFingerprintHex(), '97311f91');
+    assert.strictEqual(w.getDerivationPath(), 'm/0/0');
+    assert.strictEqual(w.segwitType, 'p2tr');
+
+    // Critical: Should create Taproot wallet, not Legacy
+    assert.strictEqual(w._hdWalletInstance.type, 'HDtaproot');
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1p'), 'not taproot address, got: ' + w._getExternalAddressByIndex(0));
+  });
+
+  it('can import wpkh descriptor with custom path', async () => {
+    // Test that wpkh() descriptors are identified by script type, not path
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      'wpkh([97311f91/0/0]xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.segwitType, 'p2wpkh');
+    assert.strictEqual(w._hdWalletInstance.type, 'HDsegwitBech32');
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1q'), 'not segwit address, got: ' + w._getExternalAddressByIndex(0));
+  });
+
+  it('can import pkh descriptor with custom path', async () => {
+    // Test that pkh() descriptors are identified by script type, not path
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      'pkh([97311f91/0/0]xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.segwitType, 'p2pkh');
+    assert.strictEqual(w._hdWalletInstance.type, 'HDlegacyP2PKH');
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('1'), 'not legacy address, got: ' + w._getExternalAddressByIndex(0));
+  });
+
+  it('can import sh(wpkh) descriptor with custom path', async () => {
+    // Test that sh(wpkh()) descriptors are identified by script type, not path
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      'sh(wpkh([97311f91/0/0]xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw))',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.segwitType, 'p2sh(p2wpkh)');
+    assert.strictEqual(w._hdWalletInstance.type, 'HDsegwitP2SH');
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('3'), 'not wrapped segwit address, got: ' + w._getExternalAddressByIndex(0));
+  });
+
   it('can import BIP86 (taproot) wallet descriptor and create transaction', async () => {
     for (const cleanupInternals of [false, true]) {
       const w = new WatchOnlyWallet();
