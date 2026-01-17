@@ -102,7 +102,7 @@
     "@react-native-documents/picker": "10.1.7",
     "@react-native-menu/menu": "github:BlueWallet/menu#9933468",
     "@react-native/gradle-plugin": "0.78.2",
-    "@react-native/metro-config": "0.78.2",
+    "@react-native/metro-config": "0.83.1",
     "@react-navigation/devtools": "7.0.24",
     "@react-navigation/drawer": "7.3.7",
     "@react-navigation/native": "7.1.4",
