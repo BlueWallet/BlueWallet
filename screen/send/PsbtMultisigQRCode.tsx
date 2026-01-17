@@ -1,7 +1,7 @@
 import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
@@ -22,7 +22,7 @@ type RouteParams = RouteProp<SendDetailsStackParamList, 'PsbtMultisigQRCode'>;
 const PsbtMultisigQRCode: React.FC = () => {
   const navigation = useExtendedNavigation();
   const { colors } = useTheme();
-  const openScannerButton = useRef<any>(null);
+  const openScannerButton = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
   const { params } = useRoute<RouteParams>();
   const { psbtBase64, isShowOpenScanner } = params;
   const [isLoading, setIsLoading] = useState<boolean>(false);

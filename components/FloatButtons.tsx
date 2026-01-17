@@ -379,6 +379,13 @@ interface FContainerProps {
   inline?: boolean;
 }
 
+interface PendingAnimationParams {
+  buttonRadius: number;
+  singleRadius: number;
+  shouldBeVertical: boolean;
+  calculatedWidth: number;
+}
+
 interface FButtonProps {
   text: string;
   icon: ReactNode;
@@ -537,7 +544,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const layoutCalculated = useRef(false);
   const orientationChangeTimestamp = useRef<number>(0);
   const animationInProgress = useRef(false);
-  const pendingAnimationParams = useRef<any>(null);
+  const pendingAnimationParams = useRef<PendingAnimationParams | null>(null);
 
   const bottomInsets = useMemo(
     () => ({
