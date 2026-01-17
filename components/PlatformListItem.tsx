@@ -2,8 +2,6 @@ import React, { useMemo, ComponentType, ReactElement } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
-  Pressable,
-  PressableProps,
   StyleSheet,
   Switch,
   SwitchProps,
@@ -15,7 +13,7 @@ import {
   Platform,
   TouchableNativeFeedback,
 } from 'react-native';
-import { Avatar, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
+import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import type { IconProps } from '../theme/platformStyles';
 import { usePlatformStyles } from '../theme/platformStyles';
@@ -28,123 +26,51 @@ const HORIZONTAL_PADDING = {
 };
 
 interface ListItemProps {
-  swipeable?: boolean;
-  rightIcon?: any;
-  leftAvatar?: React.JSX.Element;
   containerStyle?: object;
   Component?: ComponentType<any> | React.ElementType;
   bottomDivider?: boolean;
-  topDivider?: boolean;
   testID?: string;
   onPress?: () => void;
-  onLongPress?: () => void;
-  onDeletePressed?: () => void;
   disabled?: boolean;
   switch?: SwitchProps;
   leftIcon?: IconProps | ReactElement;
   title: string;
   subtitle?: string | React.ReactNode;
-  subtitleNumberOfLines?: number;
-  rightTitle?: string;
-  rightTitleStyle?: object;
   isLoading?: boolean;
   chevron?: boolean;
   checkmark?: boolean;
-  subtitleProps?: object;
-  swipeableLeftContent?: React.ReactNode;
-  swipeableRightContent?: React.ReactNode;
   isFirst?: boolean;
   isLast?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
   accessibilityState?: AccessibilityState;
-  sectionMap?: Record<number, string[]>;
-  sectionId?: string;
-  sectionNumber?: number;
 }
 
-export const determineSectionPosition = (
-  sectionMap: Record<number, string[]> | undefined,
-  id: string,
-  sectionNumber: number | undefined,
-): { isFirstInSection: boolean; isLastInSection: boolean } => {
-  if (!sectionMap || !sectionNumber || !id) {
-    return { isFirstInSection: false, isLastInSection: false };
-  }
-
-  const sectionItems = sectionMap[Math.floor(sectionNumber)];
-  if (!sectionItems || !sectionItems.includes(id)) {
-    return { isFirstInSection: false, isLastInSection: false };
-  }
-
-  const indexInSection = sectionItems.indexOf(id);
-  return {
-    isFirstInSection: indexInSection === 0,
-    isLastInSection: indexInSection === sectionItems.length - 1,
-  };
-};
-
-export class PressableWrapper extends React.Component<PressableProps> {
-  render() {
-    return <Pressable {...this.props} />;
-  }
-}
-
-export class TouchableOpacityWrapper extends React.Component {
+class TouchableOpacityWrapper extends React.Component {
   render() {
     return <TouchableOpacity {...this.props} />;
   }
 }
 
-const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () => void }> = ({ reset, onDeletePressed }) => (
-  <TouchableOpacity
-    style={styles.rightButton}
-    onPress={() => {
-      reset();
-      onDeletePressed?.();
-    }}
-    accessible
-    accessibilityLabel="Delete"
-    accessibilityRole="button"
-    accessibilityHint="Deletes this item"
-  >
-    <Icon name="trash-outline" size={24} color="white" />
-  </TouchableOpacity>
-);
-
 const PlatformListItem: React.FC<ListItemProps> = ({
-  swipeable = false,
   Component,
-  rightIcon,
-  leftAvatar,
   containerStyle,
   bottomDivider = true,
-  topDivider = false,
   testID,
   onPress,
-  onLongPress,
-  onDeletePressed,
   disabled,
   switch: switchProps,
   leftIcon,
   title,
   subtitle,
-  subtitleNumberOfLines,
-  rightTitle,
-  rightTitleStyle,
   isLoading,
   chevron,
   checkmark,
-  swipeableLeftContent,
-  swipeableRightContent,
   isLast = false,
   isFirst = false,
   accessibilityLabel,
   accessibilityHint,
   accessibilityState,
-  sectionMap,
-  sectionId,
-  sectionNumber,
 }) => {
   // Use the consolidated styling hook
   const { colors, sizing, layout, isAndroid } = usePlatformStyles();
@@ -304,34 +230,16 @@ const PlatformListItem: React.FC<ListItemProps> = ({
           )}
         </>
       )}
-      {leftAvatar && (
-        <>
-          {leftAvatar}
-          <View style={styles.width16} importantForAccessibility="no" />
-        </>
-      )}
       <RNElementsListItem.Content style={styles.flexGrow}>
         <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
           {title}
         </RNElementsListItem.Title>
         {subtitle && (
-          <RNElementsListItem.Subtitle
-            numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 0)}
-            accessibilityRole="text"
-            style={stylesHook.subtitle}
-          >
+          <RNElementsListItem.Subtitle numberOfLines={0} accessibilityRole="text" style={stylesHook.subtitle}>
             {subtitle}
           </RNElementsListItem.Subtitle>
         )}
       </RNElementsListItem.Content>
-
-      {rightTitle && (
-        <View style={styles.margin8} importantForAccessibility="no">
-          <RNElementsListItem.Title style={[stylesHook.subtitle, rightTitleStyle]} numberOfLines={0} accessibilityRole="text">
-            {rightTitle}
-          </RNElementsListItem.Title>
-        </View>
-      )}
       {isLoading ? (
         <ActivityIndicator accessibilityRole="progressbar" accessibilityLabel="Loading" />
       ) : (
@@ -346,7 +254,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
               importantForAccessibility="no"
             />
           )}
-          {rightIcon && <Avatar icon={rightIcon} />}
           {switchProps && (
             <Switch
               {...memoizedSwitchProps}
@@ -373,15 +280,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
 
   let dynamicContainerStyle = {};
 
-  if (sectionMap && sectionId && sectionNumber) {
-    const { isFirstInSection, isLastInSection } = determineSectionPosition(sectionMap, sectionId, sectionNumber);
-
-    if (isFirstInSection || isLastInSection) {
-      isFirst = isFirstInSection;
-      isLast = isLastInSection;
-    }
-  }
-
   if (layout.useRoundedListItems) {
     dynamicContainerStyle = {
       borderRadius: 0,
@@ -401,21 +299,12 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     };
   } else {
     // Android style
-    if (swipeable) {
-      dynamicContainerStyle = {
-        borderRadius: 0,
-        overflow: 'hidden',
-        elevation: layout.showElevation ? 2 : 0,
-        marginVertical: 1,
-      };
-    } else {
-      dynamicContainerStyle = {
-        borderRadius: 0,
-        elevation: layout.showElevation ? sizing.containerElevation : 0,
-        marginVertical: isAndroid ? 0 : 1, // No vertical margin for Android settings items
-        backgroundColor: colors.cardBackground,
-      };
-    }
+    dynamicContainerStyle = {
+      borderRadius: 0,
+      elevation: layout.showElevation ? sizing.containerElevation : 0,
+      marginVertical: isAndroid ? 0 : 1, // No vertical margin for Android settings items
+      backgroundColor: colors.cardBackground,
+    };
   }
 
   const shouldShowBottomDivider = layout.showBorderBottom && bottomDivider && !isLast;
@@ -433,7 +322,6 @@ const PlatformListItem: React.FC<ListItemProps> = ({
         background={TouchableNativeFeedback.Ripple(androidRippleConfig.color, androidRippleConfig.borderless)}
         useForeground={androidRippleConfig.foreground}
         onPress={onPress}
-        onLongPress={onLongPress}
         disabled={disabled}
         accessibilityLabel={accessibilityLabel || title}
         accessibilityRole="button"
@@ -447,35 +335,13 @@ const PlatformListItem: React.FC<ListItemProps> = ({
     );
   }
 
-  if (swipeable) {
-    return (
-      <RNElementsListItem.Swipeable
-        containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
-        Component={Component as any}
-        bottomDivider={shouldShowBottomDivider}
-        topDivider={topDivider}
-        testID={switchProps ? undefined : testID}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        disabled={disabled}
-        leftContent={swipeableLeftContent}
-        rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
-        {...accessibilityProps}
-      >
-        {renderContent()}
-      </RNElementsListItem.Swipeable>
-    );
-  }
-
   return (
     <RNElementsListItem
       containerStyle={[stylesHook.containerStyle, dynamicContainerStyle, containerStyle]}
       Component={Component as any}
       bottomDivider={shouldShowBottomDivider}
-      topDivider={topDivider}
       testID={switchProps ? undefined : testID}
       onPress={onPress}
-      onLongPress={onLongPress}
       disabled={disabled}
       pad={isAndroid ? 0 : 16} // No padding for Android
       {...accessibilityProps}
@@ -489,20 +355,9 @@ const styles = StyleSheet.create({
   checkmarkIcon: {
     marginLeft: 8,
   },
-  rightButton: {
-    minHeight: '100%',
-    backgroundColor: 'red',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 75,
-  },
-  margin8: {
-    margin: 8,
-  },
   margin16: {
     marginLeft: 16,
   },
-  width16: { width: 16 },
   iconContainerBase: {
     alignItems: 'center',
     justifyContent: 'center',
