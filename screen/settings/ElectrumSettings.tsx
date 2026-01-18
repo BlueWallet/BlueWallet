@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Alert, Keyboard, LayoutAnimation, Platform, StatusBar, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInput, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -15,7 +14,7 @@ import {
 import DefaultPreference from 'react-native-default-preference';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { useTheme } from '../../components/themes';
-import { usePlatformStyles } from '../../theme/platformStyles';
+import { SettingsScrollView } from '../../components/platform';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -29,7 +28,6 @@ import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useSettings } from '../../hooks/context/useSettings';
 import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
@@ -44,11 +42,9 @@ const SET_PREFERRED_PREFIX = 'set_preferred_';
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
-  const { sizing } = usePlatformStyles();
   const params = useRoute<RouteProps>().params;
   const { server } = params;
   const navigation = useExtendedNavigation();
-  const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
@@ -64,15 +60,6 @@ const ElectrumSettings: React.FC = () => {
     tcp: '',
     ssl: '',
   });
-
-  // Calculate header height for Android with transparent header
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; 
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -615,16 +602,12 @@ const ElectrumSettings: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
+    <SettingsScrollView
       keyboardShouldPersistTaps="always"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
       testID="ElectrumSettingsScrollView"
-      contentContainerStyle={{
-        paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-      }}
-      headerHeight={headerHeight}
     >
       <ListItem
         Component={PressableWrapper}
@@ -639,7 +622,7 @@ const ElectrumSettings: React.FC = () => {
       />
 
       {!isElectrumDisabled && renderElectrumSettings()}
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 

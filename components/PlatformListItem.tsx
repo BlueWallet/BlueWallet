@@ -17,9 +17,15 @@ import {
 } from 'react-native';
 import { Avatar, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import type { IconProps } from '../theme/platformStyles';
-import { usePlatformStyles } from '../theme/platformStyles';
+import { platformColors, platformSizing, platformLayout, isAndroid as isAndroidPlatform } from './platform/utils';
 import { useTheme } from '../components/themes';
+
+type IconProps = {
+  name: string;
+  type?: string;
+  color?: string;
+  backgroundColor?: string;
+};
 
 // Platform-specific horizontal padding constants
 const HORIZONTAL_PADDING = {
@@ -147,7 +153,10 @@ const PlatformListItem: React.FC<ListItemProps> = ({
   sectionNumber,
 }) => {
   // Use the consolidated styling hook
-  const { colors, sizing, layout, isAndroid } = usePlatformStyles();
+  const colors = platformColors;
+  const sizing = platformSizing;
+  const layout = platformLayout;
+  const isAndroid = isAndroidPlatform;
   const { colors: themeColors } = useTheme(); // For successCheck color
   const { fontScale } = useWindowDimensions();
 

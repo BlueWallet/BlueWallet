@@ -4,16 +4,14 @@
  * New code should use GeneralSettings.tsx instead.
  */
 import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, View, ListRenderItemInfo } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
-import { usePlatformTheme } from '../../theme';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
+import { SettingsFlatList, SettingsListItem, SettingsSectionHeader, SettingsSubtitle } from '../../components/platform';
 
 enum SettingsPrivacySection {
   None,
@@ -41,7 +39,6 @@ interface SettingItem {
 }
 
 const SettingsPrivacy: React.FC = () => {
-  const { colors: platformColors, sizing, layout } = usePlatformTheme();
   const { isStorageEncrypted, wallets } = useStorage();
   const {
     isDoNotTrackEnabled,
@@ -59,38 +56,6 @@ const SettingsPrivacy: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-    },
-    subtitleText: {
-      fontSize: 14,
-      color: platformColors.subtitleColor,
-      marginTop: 5,
-    },
-    sectionHeaderContainer: {
-      marginTop: 16,
-      marginBottom: 8,
-      paddingHorizontal: 16,
-    },
-    sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: platformColors.titleColor,
-    },
-  });
 
   useEffect(() => {
     (async () => {
@@ -174,7 +139,7 @@ const SettingsPrivacy: React.FC = () => {
       {
         id: 'readClipboard',
         title: loc.settings.privacy_read_clipboard,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_clipboard_explanation}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.privacy_clipboard_explanation}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: isClipboardGetContentEnabled,
         onSwitchValueChange: setIsClipboardGetContentEnabledStorage,
@@ -187,8 +152,8 @@ const SettingsPrivacy: React.FC = () => {
         title: loc.settings.privacy_quickactions,
         subtitle: (
           <>
-            <Text style={styles.subtitleText}>{loc.settings.privacy_quickactions_explanation}</Text>
-            {storageIsEncrypted && <Text style={styles.subtitleText}>{loc.settings.encrypted_feature_disabled}</Text>}
+            <SettingsSubtitle>{loc.settings.privacy_quickactions_explanation}</SettingsSubtitle>
+            {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
         isSwitch: true,
@@ -201,7 +166,7 @@ const SettingsPrivacy: React.FC = () => {
       {
         id: 'totalBalance',
         title: loc.total_balance_view.title,
-        subtitle: <Text style={styles.subtitleText}>{loc.total_balance_view.explanation}</Text>,
+        subtitle: <SettingsSubtitle>{loc.total_balance_view.explanation}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: isTotalBalanceEnabled,
         onSwitchValueChange: onTotalBalanceEnabledValueChange,
@@ -215,7 +180,7 @@ const SettingsPrivacy: React.FC = () => {
       items.push({
         id: 'temporaryScreenshots',
         title: loc.settings.privacy_temporary_screenshots,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.privacy_temporary_screenshots_instructions}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: !isPrivacyBlurEnabled,
         onSwitchValueChange: onTemporaryScreenshotsValueChange,
@@ -227,7 +192,7 @@ const SettingsPrivacy: React.FC = () => {
     items.push({
       id: 'doNotTrack',
       title: loc.settings.privacy_do_not_track,
-      subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_do_not_track_explanation}</Text>,
+      subtitle: <SettingsSubtitle>{loc.settings.privacy_do_not_track_explanation}</SettingsSubtitle>,
       isSwitch: true,
       switchValue: isDoNotTrackEnabled,
       onSwitchValueChange: onDoNotTrackValueChange,
@@ -248,8 +213,8 @@ const SettingsPrivacy: React.FC = () => {
         title: loc.settings.total_balance,
         subtitle: (
           <>
-            <Text style={styles.subtitleText}>{loc.settings.total_balance_explanation}</Text>
-            {storageIsEncrypted && <Text style={styles.subtitleText}>{loc.settings.encrypted_feature_disabled}</Text>}
+            <SettingsSubtitle>{loc.settings.total_balance_explanation}</SettingsSubtitle>
+            {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
         isSwitch: true,
@@ -280,7 +245,6 @@ const SettingsPrivacy: React.FC = () => {
     isLoading,
     storageIsEncrypted,
     wallets.length,
-    styles.subtitleText,
     setIsClipboardGetContentEnabledStorage,
     onDoNotTrackValueChange,
     onQuickActionsValueChange,
@@ -290,31 +254,15 @@ const SettingsPrivacy: React.FC = () => {
     openApplicationSettings,
   ]);
 
-  interface RenderItemProps {
-    item: SettingItem;
-    index: number;
-    separators: {
-      highlight: () => void;
-      unhighlight: () => void;
-      updateProps: (select: 'leading' | 'trailing', newProps: object) => void;
-    };
-  }
-
   const renderItem = useCallback(
-    (props: RenderItemProps): JSX.Element => {
-      const item: SettingItem = props.item;
+    (info: ListRenderItemInfo<SettingItem>): JSX.Element => {
+      const item = info.item;
       const items: SettingItem[] = settingsItems();
 
-      // Handle section headers
       if (item.section) {
-        return (
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeaderText}>{item.section}</Text>
-          </View>
-        );
+        return <SettingsSectionHeader title={item.section} />;
       }
 
-      // Find next non-section item to determine isLast
       const index: number = items.findIndex(i => i.id === item.id);
       let nextRegularItemIndex = index + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
@@ -323,28 +271,15 @@ const SettingsPrivacy: React.FC = () => {
 
       const isFirst: boolean = index === 0 || !!items[index - 1].section;
       const isLast: boolean = nextRegularItemIndex >= items.length || !!items[nextRegularItemIndex].section;
-
-      // Apply greater corner radius to first and last items
-      const containerStyle = {
-        ...styles.listItemContainer,
-        ...(layout.showBorderRadius && {
-          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        }),
-      };
+      const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
 
       if (item.isSwitch) {
         return (
-          <PlatformListItem
+          <SettingsListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={containerStyle}
-            isFirst={isFirst}
-            isLast={isLast}
             Component={item.Component}
-            bottomDivider={layout.showBorderBottom && !isLast}
+            position={position}
             switch={{
               value: item.switchValue || false,
               onValueChange: item.onSwitchValueChange,
@@ -356,42 +291,26 @@ const SettingsPrivacy: React.FC = () => {
       }
 
       return (
-        <PlatformListItem
+        <SettingsListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={containerStyle}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          isFirst={isFirst}
-          isLast={isLast}
-          bottomDivider={layout.showBorderBottom && !isLast}
+          position={position}
         />
       );
     },
-    [
-      layout.showBorderBottom,
-      layout.showBorderRadius,
-      styles.listItemContainer,
-      styles.sectionHeaderContainer,
-      styles.sectionHeaderText,
-      settingsItems,
-      sizing.containerBorderRadius,
-    ],
+    [settingsItems],
   );
 
-  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
-
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
+  const keyExtractor = useCallback((item: SettingItem, index: number) => `${item.id}-${index}`, []);
 
   return (
-    <SafeAreaFlatList
-      style={styles.container}
+    <SettingsFlatList
       data={settingsItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews

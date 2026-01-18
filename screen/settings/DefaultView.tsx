@@ -5,14 +5,12 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { usePlatformTheme } from '../../theme';
-import PlatformListItem from '../../components/PlatformListItem';
+import { SettingsScrollView, SettingsSection, SettingsListItem } from '../../components/platform';
 
 type RootStackParamList = {
   SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };
@@ -52,28 +50,6 @@ const DefaultView: React.FC = () => {
   const { navigate, pop } = useNavigation<DefaultViewNavigationProp>();
   const { wallets } = useStorage();
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet, setSelectedDefaultWallet, setViewAllWalletsEnabled } = useOnAppLaunch();
-  const { colors: platformColors, sizing } = usePlatformTheme();
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    contentContainer: {
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-    },
-    firstSectionContainer: {
-      paddingTop: sizing.firstSectionContainerPaddingTop,
-      marginBottom: 16,
-    },
-    separator: {
-      height: 1,
-      backgroundColor: 'rgba(0,0,0,0.05)',
-      marginLeft: 16,
-    },
-  });
-
   useEffect(() => {
     (async () => {
       const newViewAllWalletsEnabled: boolean = await isViewAllWalletsEnabled();
@@ -120,21 +96,14 @@ const DefaultView: React.FC = () => {
     [setViewAllWalletsEnabled, wallets, setSelectedDefaultWallet, getSelectedDefaultWallet],
   );
 
-  const renderSeparator = <View style={styles.separator} />;
-
   return (
-    <SafeAreaScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.firstSectionContainer}>
-        <PlatformListItem
+    <SettingsScrollView>
+      <SettingsSection>
+        <SettingsListItem
           title={loc.settings.default_wallets}
           subtitle={loc.settings.default_desc}
-          containerStyle={{
-            backgroundColor: platformColors.cardBackground,
-          }}
           Component={View}
-          isFirst
-          isLast={state.isViewAllWalletsSwitchEnabled}
-          bottomDivider={!state.isViewAllWalletsSwitchEnabled}
+          position={state.isViewAllWalletsSwitchEnabled ? 'single' : 'first'}
           switch={{
             value: state.isViewAllWalletsSwitchEnabled,
             onValueChange: onViewAllWalletsSwitchValueChanged,
@@ -142,24 +111,18 @@ const DefaultView: React.FC = () => {
           }}
         />
 
-        {!state.isViewAllWalletsSwitchEnabled && renderSeparator}
-
         {!state.isViewAllWalletsSwitchEnabled && (
-          <PlatformListItem
+          <SettingsListItem
             title={loc.settings.default_info}
             rightTitle={state.defaultWalletLabel}
-            containerStyle={{
-              backgroundColor: platformColors.cardBackground,
-            }}
             onPress={() => navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false })}
             disabled={wallets.length <= 1}
-            isLast
             chevron
-            bottomDivider={false}
+            position="last"
           />
         )}
-      </View>
-    </SafeAreaScrollView>
+      </SettingsSection>
+    </SettingsScrollView>
   );
 };
 
