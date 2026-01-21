@@ -45,7 +45,7 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
   componentDidMount() {
     const { value, capacity = 175, hideControls = true, walletID } = this.props;
     try {
-      this.fragments = encodeUR(value, capacity, walletID);
+      this.fragments = encodeUR(value, capacity, walletID ?? null);
       this.setState(
         {
           total: this.fragments.length,
@@ -72,6 +72,38 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
       this.setState(state => ({
         index: state.index + 1,
       }));
+    }
+  };
+
+  forceUseBBQR = () => {
+    const { value, capacity = 175, hideControls = true, walletID } = this.props;
+    console.log({ value, capacity, walletID });
+
+    try {
+      this.fragments = encodeUR(value, capacity, walletID ?? null, 'BBQR');
+      this.setState({
+        total: this.fragments.length,
+        displayQRCode: true,
+      });
+    } catch (e) {
+      console.log(e);
+      this.setState({ displayQRCode: false, hideControls });
+    }
+  };
+
+  forceUseURv2 = () => {
+    const { value, capacity = 175, hideControls = true, walletID } = this.props;
+    console.log({ value, capacity, walletID });
+
+    try {
+      this.fragments = encodeUR(value, capacity, walletID ?? null, 'URv2');
+      this.setState({
+        total: this.fragments.length,
+        displayQRCode: true,
+      });
+    } catch (e) {
+      console.log(e);
+      this.setState({ displayQRCode: false, hideControls });
     }
   };
 
@@ -174,6 +206,15 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
                 <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
               </TouchableOpacity>
             </View>
+
+            <View style={animatedQRCodeStyle.controller2}>
+              <TouchableOpacity accessibilityRole="button" style={animatedQRCodeStyle.buttonUseFormat} onPress={this.forceUseBBQR}>
+                <Text style={animatedQRCodeStyle.text}>Force use BBQR</Text>
+              </TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" style={animatedQRCodeStyle.buttonUseFormat} onPress={this.forceUseURv2}>
+                <Text style={animatedQRCodeStyle.text}>Force use URv2</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -200,6 +241,9 @@ const animatedQRCodeStyle = StyleSheet.create({
     height: 45,
     paddingHorizontal: 18,
   },
+  controller2: {
+    flexDirection: 'column',
+  },
   button: {
     alignItems: 'center',
     height: 45,
@@ -208,6 +252,10 @@ const animatedQRCodeStyle = StyleSheet.create({
   buttonPrev: {
     width: '25%',
     alignItems: 'flex-start',
+  },
+  buttonUseFormat: {
+    alignItems: 'center',
+    paddingTop: 25,
   },
   buttonStopStart: {
     width: '50%',
