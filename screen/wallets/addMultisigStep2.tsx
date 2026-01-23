@@ -44,6 +44,7 @@ import { AddressInputScanButton } from '../../components/AddressInputScanButton'
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
+import { extractColdcardQCosigner } from '../../util/extractColdcardQCosigner';
 
 const staticCache: Record<string, string> = {};
 type CosignerEntry = [key: string, fingerprint?: string, path?: string, passphrase?: string];
@@ -352,37 +353,12 @@ const WalletsAddMultisigStep2 = () => {
           returnedData = JSON.stringify(retData);
         }
 
-        // Detect Coldcard  export
-        if (retData?.chain === 'BTC' && retData?.xfp && (retData?.bip48_1 || retData?.bip48_2 || retData?.bip45)) {
-          let entry;
-
-          // Coldcard exports multiple BIP branches, select multisig branch based on wallet format
-          switch (format) {
-            case MultisigHDWallet.FORMAT_P2WSH:
-              entry = retData.bip48_2;
-              break;
-
-            case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-            case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-              entry = retData.bip48_1;
-              break;
-
-            case MultisigHDWallet.FORMAT_P2SH:
-              entry = retData.bip45;
-              break;
-
-            default:
-              entry = undefined;
-          }
-
-          if (entry?.xpub && entry?.deriv) {
-            const path = entry.deriv.replace(/^m/i, '');
-            const mfp = retData.xfp;
-            returnedData = `[${mfp}${path}]${entry.xpub}`;
-          }
+        const coldcardQCosigner = extractColdcardQCosigner(retData, format);
+        if (coldcardQCosigner) {
+          returnedData = `[${coldcardQCosigner.xfp}${coldcardQCosigner.path}]${coldcardQCosigner.xpub}`;
         }
       } catch (e) {
-        console.debug('JSON parsing failed for retData:', e);
+        console.debug('JSON parsing failed for returnedData:', e);
       }
 
       if (returnedData.toUpperCase().startsWith('UR')) {
