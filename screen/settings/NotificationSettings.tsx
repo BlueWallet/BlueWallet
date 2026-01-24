@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { I18nManager, Linking, StyleSheet, TextInput, View, Pressable, AppState, Text, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button as ButtonRNElements } from '@rneui/themed';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Linking, StyleSheet, TextInput, View, Pressable, AppState, Text } from 'react-native';
 import {
   getDefaultUri,
   getPushToken,
@@ -25,9 +23,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { usePlatformStyles } from '../../theme/platformStyles';
-import PlatformListItem from '../../components/PlatformListItem';
+import { SettingsCard, SettingsFlatList, SettingsListItem, SettingsSubtitle, isAndroid } from '../../components/platform';
 
 interface SettingItem {
   id: string;
@@ -49,54 +45,32 @@ interface SettingItem {
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
-  const insets = useSafeAreaInsets();
 
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformStyles();
+  const horizontalPadding = isAndroid ? 20 : 16;
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-    },
-    contentContainer: {
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-      paddingBottom: sizing.sectionContainerMarginBottom || 0,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
     card: {
-      backgroundColor: platformColors.cardBackground,
-      borderRadius: sizing.containerBorderRadius,
-      padding: 16,
-      marginVertical: 8,
+      marginVertical: isAndroid ? 8 : 0,
+    },
+    cardNoRadius: {
+      borderRadius: 0,
+    },
+    cardContent: {
+      paddingHorizontal: horizontalPadding,
+      paddingVertical: isAndroid ? 12 : 10,
     },
     multilineText: {
-      color: platformColors.titleColor,
+      color: colors.foregroundColor,
       lineHeight: 20,
       paddingBottom: 10,
     },
     centered: {
       textAlign: 'center',
-      color: platformColors.titleColor,
+      color: colors.foregroundColor,
       marginVertical: 4,
     },
     uri: {
@@ -106,45 +80,24 @@ const NotificationSettings: React.FC = () => {
       minHeight: 44,
       height: 44,
       alignItems: 'center',
-      borderRadius: 4,
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
       backgroundColor: colors.inputBackgroundColor,
     },
     uriText: {
       flex: 1,
-      color: platformColors.subtitleColor,
+      color: colors.alternativeTextColor,
       marginHorizontal: 8,
       minHeight: 36,
       height: 36,
     },
-    buttonStyle: {
-      backgroundColor: 'transparent',
-      flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    },
     divider: {
-      marginVertical: 16,
+      marginVertical: isAndroid ? 16 : 12,
       height: 0.5,
-      backgroundColor: platformColors.separatorColor,
+      backgroundColor: colors.lightBorder ?? colors.borderTopColor,
     },
     sectionSpacing: {
-      height: 24,
-    },
-
-    explanationContainer: {
-      paddingTop: 12,
-      paddingHorizontal: 16,
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: platformColors.separatorColor,
-      backgroundColor: platformColors.cardBackground,
-      borderBottomLeftRadius: sizing.containerBorderRadius,
-      borderBottomRightRadius: sizing.containerBorderRadius,
-    },
-    explanationText: {
-      color: platformColors.subtitleColor,
-      fontSize: sizing.subtitleFontSize,
-      lineHeight: 20,
-      paddingBottom: 16,
+      height: isAndroid ? 24 : 12,
     },
   });
 
@@ -301,67 +254,64 @@ const NotificationSettings: React.FC = () => {
     return (
       <View>
         <View style={styles.divider} />
-        <View style={styles.card}>
-          <Pressable onPress={handleTap}>
-            <Text style={styles.multilineText}>{loc.settings.groundcontrol_explanation}</Text>
-          </Pressable>
-        </View>
+        <SettingsCard style={styles.card}>
+          <View style={styles.cardContent}>
+            <Pressable onPress={handleTap}>
+              <Text style={styles.multilineText}>{loc.settings.groundcontrol_explanation}</Text>
+            </Pressable>
+          </View>
+        </SettingsCard>
 
-        <ButtonRNElements
-          icon={{
-            name: 'github',
-            type: 'font-awesome',
-            color: colors.foregroundColor,
-          }}
-          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-          titleStyle={{ color: colors.buttonAlternativeTextColor }}
+        <SettingsListItem
           title="github.com/BlueWallet/GroundControl"
-          color={colors.buttonTextColor}
-          buttonStyle={styles.buttonStyle}
+          iconName="github"
+          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
+          chevron
+          position="single"
+          spacingTop
         />
 
-        <View style={styles.card}>
-          <View style={styles.uri}>
-            <TextInput
-              placeholder={getDefaultUri()}
-              value={URI}
-              onChangeText={setURI}
-              numberOfLines={1}
-              style={styles.uriText}
-              placeholderTextColor="#81868e"
-              editable={!isLoading}
-              textContentType="URL"
-              autoCapitalize="none"
-              underlineColorAndroid="transparent"
-            />
+        <SettingsCard style={styles.card}>
+          <View style={styles.cardContent}>
+            <View style={styles.uri}>
+              <TextInput
+                placeholder={getDefaultUri()}
+                value={URI}
+                onChangeText={setURI}
+                numberOfLines={1}
+                style={styles.uriText}
+                placeholderTextColor="#81868e"
+                editable={!isLoading}
+                textContentType="URL"
+                autoCapitalize="none"
+                underlineColorAndroid="transparent"
+              />
+            </View>
+
+            <BlueSpacing20 />
+            <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+              ♪ Ground Control to Major Tom ♪
+            </Text>
+            <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+              ♪ Commencing countdown, engines on ♪
+            </Text>
+
+            <View>
+              <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+            </View>
+
+            <BlueSpacing20 />
+            <Button onPress={save} title={loc.settings.save} />
           </View>
-
-          <BlueSpacing20 />
-          <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
-            ♪ Ground Control to Major Tom ♪
-          </Text>
-          <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
-            ♪ Commencing countdown, engines on ♪
-          </Text>
-
-          <View>
-            <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
-          </View>
-
-          <BlueSpacing20 />
-          <Button onPress={save} title={loc.settings.save} />
-        </View>
+        </SettingsCard>
       </View>
     );
   }, [
     tapCount,
-    colors.foregroundColor,
-    colors.buttonAlternativeTextColor,
-    colors.buttonTextColor,
     styles.divider,
     styles.card,
+    styles.cardContent,
     styles.multilineText,
-    styles.buttonStyle,
     styles.uri,
     styles.uriText,
     styles.centered,
@@ -391,9 +341,11 @@ const NotificationSettings: React.FC = () => {
         id: 'notificationsExplanation',
         title: '',
         customContent: (
-          <View style={styles.explanationContainer}>
-            <Text style={styles.explanationText}>{loc.settings.push_notifications_explanation}</Text>
-          </View>
+          <SettingsCard compact style={!isAndroid ? styles.cardNoRadius : undefined}>
+            <View style={styles.cardContent}>
+              <SettingsSubtitle>{loc.settings.push_notifications_explanation}</SettingsSubtitle>
+            </View>
+          </SettingsCard>
         ),
         section: 1,
       },
@@ -429,9 +381,9 @@ const NotificationSettings: React.FC = () => {
     isNotificationsEnabledState,
     onNotificationsSwitch,
     isLoading,
-    styles.explanationContainer,
-    styles.explanationText,
     styles.sectionSpacing,
+    styles.cardContent,
+    styles.cardNoRadius,
     renderDeveloperSettings,
     onSystemSettings,
   ]);
@@ -440,29 +392,23 @@ const NotificationSettings: React.FC = () => {
     (props: { item: SettingItem }) => {
       const item = props.item;
       const items = settingsItems();
+      const contentPadding = !isAndroid ? { paddingHorizontal: horizontalPadding } : undefined;
+
+      const listItems = items.filter(i => !i.customContent);
+      const firstListItemId = listItems[0]?.id;
+      const lastListItemId = listItems[listItems.length - 1]?.id;
 
       if (item.customContent) {
-        return <>{item.customContent}</>;
+        return <View style={contentPadding}>{item.customContent}</View>;
       }
 
-      const isStandaloneItem = item.id === 'privacySystemSettings';
-
-      const currentSectionItems = items.filter(i => i.section === item.section);
-      const indexInSection = currentSectionItems.indexOf(item);
-      const isFirstInSection = indexInSection === 0;
+      const position = item.subtitle ? 'single' : item.id === firstListItemId || item.id === lastListItemId ? 'single' : 'middle';
 
       if (item.isSwitch) {
         return (
-          <PlatformListItem
+          <SettingsListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={[
-              styles.listItemContainer,
-              layout.showBorderRadius && {
-                borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-                borderTopRightRadius: sizing.containerBorderRadius * 1.5,
-              },
-            ]}
             Component={item.Component}
             switch={{
               value: item.switchValue || false,
@@ -471,43 +417,32 @@ const NotificationSettings: React.FC = () => {
             }}
             isLoading={item.isLoading}
             testID={item.testID}
-            isFirst={isFirstInSection}
-            isLast={false}
-            bottomDivider={false}
+            position={position}
           />
         );
       }
 
       return (
-        <PlatformListItem
+        <SettingsListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={styles.listItemContainer}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          isFirst={isStandaloneItem}
-          isLast={isStandaloneItem}
-          bottomDivider={layout.showBorderBottom && !isStandaloneItem}
+          position={position}
         />
       );
     },
-    [styles.listItemContainer, layout.showBorderBottom, layout.showBorderRadius, settingsItems, sizing.containerBorderRadius],
+    [settingsItems, horizontalPadding],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);
 
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
-
   return (
-    <SafeAreaFlatList
-      headerHeight={headerHeight}
-      style={styles.container}
+    <SettingsFlatList
       data={settingsItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews

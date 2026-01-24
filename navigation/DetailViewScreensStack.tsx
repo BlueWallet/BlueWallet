@@ -48,7 +48,6 @@ import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
-import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
@@ -110,22 +109,15 @@ const DetailViewStackScreensStack = () => {
       headerBackTitle: '',
       headerBackVisible: true, // Show back button on Android
       headerShadowVisible: false,
-      // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-      headerLargeTitle: Platform.OS === 'ios',
-      headerLargeTitleStyle:
-        Platform.OS === 'ios'
-          ? {
-              color: titleColorString,
-            }
-          : undefined,
+      headerLargeTitle: false,
+      headerLargeTitleStyle: undefined,
       headerTitleStyle: {
         color: titleColorString,
       },
-      // Transparent header on both iOS and Android
-      headerTransparent: true,
+      headerTransparent: false,
       headerBlurEffect: undefined,
       headerStyle: {
-        backgroundColor: 'transparent',
+        backgroundColor: theme.colors.customHeader,
       },
     };
   };
@@ -282,11 +274,10 @@ const DetailViewStackScreensStack = () => {
           headerTitleStyle: {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
-          // Transparent header on both iOS and Android
-          headerTransparent: true,
+          headerTransparent: false,
           headerBlurEffect: undefined,
           headerStyle: {
-            backgroundColor: 'transparent',
+            backgroundColor: theme.colors.customHeader,
           },
           animationTypeForReplace: 'push',
         })(theme)}
@@ -372,11 +363,6 @@ const DetailViewStackScreensStack = () => {
         name="SettingsTools"
         component={SettingsTools}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SettingsPrivacy"
-        component={SettingsPrivacy}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.privacy))(theme)}
       />
       <DetailViewStack.Screen
         name="ManageWallets"

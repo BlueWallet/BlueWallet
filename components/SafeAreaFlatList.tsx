@@ -5,11 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
 
 interface SafeAreaFlatListProps<ItemT> extends FlatListProps<ItemT> {
-  headerHeight?: number; // Additional header height to account for (e.g., when headerTransparent is true)
+  headerHeight?: number;
+  floatingButtonHeight?: number;
 }
 
 const SafeAreaFlatList = <ItemT,>(props: SafeAreaFlatListProps<ItemT>) => {
-  const { style, contentContainerStyle, headerHeight = 0, ...otherProps } = props;
+  const { style, contentContainerStyle, headerHeight = 0, floatingButtonHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -31,14 +32,14 @@ const SafeAreaFlatList = <ItemT,>(props: SafeAreaFlatListProps<ItemT>) => {
 
     return StyleSheet.compose(
       {
-        paddingBottom: insets.bottom,
+        paddingBottom: insets.bottom + floatingButtonHeight,
         paddingLeft: insets.left,
         paddingRight: insets.right,
         paddingTop: topPadding,
       },
       contentContainerStyle,
     );
-  }, [insets, contentContainerStyle, headerHeight]);
+  }, [insets, contentContainerStyle, headerHeight, floatingButtonHeight]);
 
   return <FlatList style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
 };

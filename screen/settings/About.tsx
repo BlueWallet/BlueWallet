@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -14,18 +13,31 @@ import Button from '../../components/Button';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformStyles } from '../../theme/platformStyles';
-import type { IconProps } from '../../theme/platformStyles';
+import {
+  SettingsCard,
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsSection,
+  SettingsSectionHeader,
+  SettingsIconName,
+} from '../../components/platform';
+import { useTheme } from '../../components/themes';
 
 const branch = require('../../current-branch.json');
+
+type IconProps = {
+  name: string;
+  type: string;
+  color: string;
+  backgroundColor?: string;
+};
 
 interface AboutItem {
   id: string;
   title: string;
   subtitle?: React.ReactNode;
   leftIcon?: IconProps | React.ReactElement;
+  iconName?: SettingsIconName;
   onPress?: () => void;
   chevron?: boolean;
   section?: number;
@@ -37,20 +49,7 @@ const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
-  const { styles, colors, sizing, layout } = usePlatformStyles();
-  const insets = useSafeAreaInsets();
-
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
-
+  const { colors } = useTheme();
   const localStyles = StyleSheet.create({
     sectionSpacing: {
       height: 16,
@@ -67,7 +66,58 @@ const About: React.FC = () => {
     xIcon: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.textColor,
+      color: colors.foregroundColor,
+    },
+  });
+
+  const styles = StyleSheet.create({
+    card: {
+      marginVertical: 8,
+    },
+    center: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logo: {
+      width: 120,
+      height: 120,
+      marginBottom: 8,
+      resizeMode: 'contain',
+    },
+    textFree: {
+      marginTop: 12,
+      fontSize: 16,
+      color: colors.foregroundColor,
+      textAlign: 'center',
+    },
+    textBackup: {
+      marginTop: 8,
+      fontSize: 14,
+      color: colors.alternativeTextColor,
+      textAlign: 'center',
+    },
+    headerButton: {
+      marginTop: 12,
+    },
+    sectionSpacing: {
+      height: 16,
+    },
+    footerContainer: {
+      marginTop: 16,
+    },
+    footerText: {
+      fontSize: 12,
+      color: colors.alternativeTextColor,
+      textAlign: 'center',
+      marginBottom: 4,
+    },
+    copyToClipboard: {
+      marginTop: 8,
+      alignItems: 'center',
+    },
+    copyToClipboardText: {
+      fontSize: 12,
+      color: colors.foregroundColor,
     },
   });
 
@@ -108,7 +158,7 @@ const About: React.FC = () => {
       openAppStoreIfInAppFails: true,
       fallbackPlatformURL: 'https://bluewallet.io',
     };
-    Rate.rate(options, success => {
+    Rate.rate(options, (success: boolean) => {
       if (success) {
         console.log('User Rated.');
       }
@@ -138,29 +188,20 @@ const About: React.FC = () => {
         id: 'header',
         title: '',
         customContent: (
-          <View
-            style={[
-              styles.card,
-              localStyles.headerCard,
-              {
-                ...(Platform.OS === 'ios' && {
-                  marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-                }),
-                ...(layout.showBorderRadius && {
-                  borderRadius: sizing.containerBorderRadius * 1.5,
-                }),
-              },
-            ]}
-          >
-            <View style={styles.center}>
-              <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
-              <Text style={styles.textFree}>{loc.settings.about_free}</Text>
-              <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
-              {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
-                <Button onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
-              )}
-            </View>
-          </View>
+          <SettingsSection compact>
+            <SettingsCard style={[styles.card, localStyles.headerCard]}>
+              <View style={styles.center}>
+                <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+                <Text style={styles.textFree}>{loc.settings.about_free}</Text>
+                <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
+                {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
+                  <View style={styles.headerButton}>
+                    <Button onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
+                  </View>
+                )}
+              </View>
+            </SettingsCard>
+          </SettingsSection>
         ),
         section: 1,
       },
@@ -174,14 +215,14 @@ const About: React.FC = () => {
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: <Icon name="telegram-plane" size={24} color={colors.textColor} />,
+        leftIcon: <Icon name="telegram-plane" size={24} color={colors.foregroundColor} />,
         onPress: handleOnTelegramPress,
         section: 2,
       },
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: <Icon name="github" size={24} color={colors.textColor} />,
+        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} />,
         onPress: handleOnGithubPress,
         section: 2,
       },
@@ -189,26 +230,16 @@ const About: React.FC = () => {
         id: 'builtWith',
         title: '',
         customContent: (
-          <View
-            style={[
-              styles.card,
-              {
-                ...(Platform.OS === 'ios' && {
-                  marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-                }),
-                ...(layout.showBorderRadius && {
-                  borderRadius: sizing.containerBorderRadius * 1.5,
-                }),
-              },
-            ]}
-          >
-            <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
-            <BlueSpacing20 />
-            <BlueTextCentered>React Native</BlueTextCentered>
-            <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
-            <BlueTextCentered>Nodejs</BlueTextCentered>
-            <BlueTextCentered>Electrum server</BlueTextCentered>
-          </View>
+          <SettingsSection compact>
+            <SettingsCard style={styles.card}>
+              <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
+              <BlueSpacing20 />
+              <BlueTextCentered>React Native</BlueTextCentered>
+              <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
+              <BlueTextCentered>Nodejs</BlueTextCentered>
+              <BlueTextCentered>Electrum server</BlueTextCentered>
+            </SettingsCard>
+          </SettingsSection>
         ),
         section: 2.5,
       },
@@ -221,6 +252,7 @@ const About: React.FC = () => {
       {
         id: 'releaseNotes',
         title: loc.settings.about_release_notes,
+        iconName: 'releaseNotes',
         chevron: true,
         onPress: handleOnReleaseNotesPress,
         section: 3,
@@ -228,6 +260,7 @@ const About: React.FC = () => {
       {
         id: 'licensing',
         title: loc.settings.about_license,
+        iconName: 'licensing',
         chevron: true,
         onPress: handleOnLicensingPress,
         section: 3,
@@ -235,6 +268,7 @@ const About: React.FC = () => {
       {
         id: 'selfTest',
         title: loc.settings.about_selftest,
+        iconName: 'selfTest',
         chevron: true,
         onPress: handleOnSelfTestPress,
         testID: 'RunSelfTestButton',
@@ -243,6 +277,7 @@ const About: React.FC = () => {
       {
         id: 'performanceTest',
         title: loc.settings.run_performance_test,
+        iconName: 'performance',
         chevron: true,
         onPress: handlePerformanceTest,
         section: 3,
@@ -292,13 +327,11 @@ const About: React.FC = () => {
     styles.footerText,
     styles.copyToClipboard,
     styles.copyToClipboardText,
+    styles.headerButton,
     localStyles.headerCard,
     localStyles.xIcon,
-    sizing.contentContainerMarginHorizontal,
-    sizing.containerBorderRadius,
-    layout.showBorderRadius,
+    colors.foregroundColor,
     handleOnRatePress,
-    colors.textColor,
     handleOnXPress,
     handleOnTelegramPress,
     handleOnGithubPress,
@@ -319,131 +352,48 @@ const About: React.FC = () => {
       }
 
       if (item.title && !item.leftIcon && !item.onPress && item.section) {
-        return (
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeaderText}>{item.title}</Text>
-          </View>
-        );
-      }
-
-      if (item.leftIcon && item.onPress) {
-        const currentSection = Math.floor(item.section || 0);
-        const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection && i.leftIcon && i.onPress);
-
-        const indexInSection = sectionItems.findIndex(i => i.id === item.id);
-
-        const isFirstInSection = indexInSection === 0;
-        const isLastInSection = indexInSection === sectionItems.length - 1;
-
-        return (
-          <PlatformListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            containerStyle={[
-              {
-                backgroundColor: colors.cardBackground,
-                marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-                ...(Platform.OS === 'android' &&
-                  sizing.contentContainerPaddingHorizontal !== undefined && {
-                    paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-                  }),
-              },
-              layout.showBorderRadius &&
-                isFirstInSection && {
-                  borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-                  borderTopRightRadius: sizing.containerBorderRadius * 1.5,
-                },
-              layout.showBorderRadius &&
-                isLastInSection && {
-                  borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-                  borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-                },
-            ]}
-            leftIcon={item.leftIcon}
-            onPress={item.onPress}
-            testID={item.testID}
-            chevron={item.chevron}
-            bottomDivider={!isLastInSection}
-            isFirst={isFirstInSection}
-            isLast={isLastInSection}
-          />
-        );
+        return <SettingsSectionHeader title={item.title} />;
       }
 
       const currentSection = Math.floor(item.section || 0);
-      const sectionItems = aboutItems().filter(i => Math.floor(i.section || 0) === currentSection);
-
+      const sectionItems = aboutItems().filter(
+        i => Math.floor(i.section || 0) === currentSection && !i.customContent && (i.onPress || i.leftIcon || i.chevron || i.subtitle),
+      );
       const indexInSection = sectionItems.findIndex(i => i.id === item.id);
-      const isLastInSection = indexInSection === sectionItems.length - 1;
       const isFirstInSection = indexInSection === 0;
+      const isLastInSection = indexInSection === sectionItems.length - 1;
+      const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
 
       return (
-        <PlatformListItem
+        <SettingsListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={[
-            {
-              backgroundColor: colors.cardBackground,
-              marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-              ...(Platform.OS === 'android' &&
-                sizing.contentContainerPaddingHorizontal !== undefined && {
-                  paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-                }),
-            },
-            layout.showBorderRadius &&
-              isFirstInSection && {
-                borderTopLeftRadius: sizing.containerBorderRadius * 1.5,
-                borderTopRightRadius: sizing.containerBorderRadius * 1.5,
-              },
-            layout.showBorderRadius &&
-              isLastInSection && {
-                borderBottomLeftRadius: sizing.containerBorderRadius * 1.5,
-                borderBottomRightRadius: sizing.containerBorderRadius * 1.5,
-              },
-          ]}
+          leftIcon={item.leftIcon}
+          iconName={item.iconName}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          bottomDivider={!isLastInSection}
-          isFirst={isFirstInSection}
-          isLast={isLastInSection}
+          position={position}
         />
       );
     },
-    [
-      styles.sectionHeaderContainer,
-      styles.sectionHeaderText,
-      aboutItems,
-      colors.cardBackground,
-      sizing.contentContainerMarginHorizontal,
-      sizing.contentContainerPaddingHorizontal,
-      sizing.containerBorderRadius,
-      layout.showBorderRadius,
-    ],
+    [aboutItems],
   );
 
-  const keyExtractor = useCallback((item: AboutItem) => item.id, []);
-
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
+  const keyExtractor = useCallback((item: AboutItem, index: number) => `${item.id}-${index}`, []);
 
   const ListFooterComponent = useCallback(() => <View style={localStyles.sectionSpacing} />, [localStyles.sectionSpacing]);
 
   return (
-    <SafeAreaFlatList
-      style={styles.container}
+    <SettingsFlatList
       data={aboutItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       testID="AboutScrollView"
-      ListHeaderComponent={ListHeaderComponent}
       ListFooterComponent={ListFooterComponent}
-      contentContainerStyle={{
-        paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-      }}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
-      headerHeight={headerHeight}
     />
   );
 };

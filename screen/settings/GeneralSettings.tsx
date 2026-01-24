@@ -1,15 +1,12 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { Platform, StyleSheet, Text, View, ListRenderItem, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Platform, View, ListRenderItem } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformStyles } from '../../theme/platformStyles';
+import { SettingsFlatList, SettingsListItem, SettingsSectionHeader, SettingsSubtitle } from '../../components/platform';
 
 enum SettingsPrivacySection {
   None,
@@ -39,19 +36,7 @@ interface SettingItem {
 
 const GeneralSettings: React.FC = () => {
   const { wallets, isStorageEncrypted } = useStorage();
-  const { colors, sizing, layout } = usePlatformStyles();
-  const insets = useSafeAreaInsets();
 
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
@@ -70,38 +55,6 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    listItemContainer: {
-      backgroundColor: colors.cardBackground,
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-    },
-    subtitleText: {
-      fontSize: 14,
-      color: colors.subtitleColor,
-      marginTop: 5,
-    },
-    sectionHeaderContainer: {
-      marginTop: 32,
-      marginBottom: 8,
-      paddingHorizontal: 16,
-    },
-    sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.titleColor,
-    },
-  });
 
   useEffect(() => {
     (async () => {
@@ -199,7 +152,7 @@ const GeneralSettings: React.FC = () => {
       {
         id: 'readClipboard',
         title: loc.settings.privacy_read_clipboard,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_clipboard_explanation}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.privacy_clipboard_explanation}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: isClipboardGetContentEnabled,
         onSwitchValueChange: setIsClipboardGetContentEnabledStorage,
@@ -213,8 +166,8 @@ const GeneralSettings: React.FC = () => {
         title: loc.settings.privacy_quickactions,
         subtitle: (
           <>
-            <Text style={styles.subtitleText}>{loc.settings.privacy_quickactions_explanation}</Text>
-            {storageIsEncrypted && <Text style={styles.subtitleText}>{loc.settings.encrypted_feature_disabled}</Text>}
+            <SettingsSubtitle>{loc.settings.privacy_quickactions_explanation}</SettingsSubtitle>
+            {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
         isSwitch: true,
@@ -228,7 +181,7 @@ const GeneralSettings: React.FC = () => {
       {
         id: 'totalBalance',
         title: loc.total_balance_view.title,
-        subtitle: <Text style={styles.subtitleText}>{loc.total_balance_view.explanation}</Text>,
+        subtitle: <SettingsSubtitle>{loc.total_balance_view.explanation}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: isTotalBalanceEnabled,
         onSwitchValueChange: onTotalBalanceEnabledValueChange,
@@ -243,7 +196,7 @@ const GeneralSettings: React.FC = () => {
       items.push({
         id: 'temporaryScreenshots',
         title: loc.settings.privacy_temporary_screenshots,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_temporary_screenshots_instructions}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.privacy_temporary_screenshots_instructions}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: !isPrivacyBlurEnabled,
         onSwitchValueChange: onTemporaryScreenshotsValueChange,
@@ -256,7 +209,7 @@ const GeneralSettings: React.FC = () => {
     items.push({
       id: 'doNotTrack',
       title: loc.settings.privacy_do_not_track,
-      subtitle: <Text style={styles.subtitleText}>{loc.settings.privacy_do_not_track_explanation}</Text>,
+      subtitle: <SettingsSubtitle>{loc.settings.privacy_do_not_track_explanation}</SettingsSubtitle>,
       isSwitch: true,
       switchValue: isDoNotTrackEnabled,
       onSwitchValueChange: onDoNotTrackValueChange,
@@ -279,8 +232,8 @@ const GeneralSettings: React.FC = () => {
         title: loc.settings.total_balance,
         subtitle: (
           <>
-            <Text style={styles.subtitleText}>{loc.settings.total_balance_explanation}</Text>
-            {storageIsEncrypted && <Text style={styles.subtitleText}>{loc.settings.encrypted_feature_disabled}</Text>}
+            <SettingsSubtitle>{loc.settings.total_balance_explanation}</SettingsSubtitle>
+            {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
         isSwitch: true,
@@ -304,7 +257,7 @@ const GeneralSettings: React.FC = () => {
       items.push({
         id: 'continuity',
         title: loc.settings.general_continuity,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.general_continuity_e}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.general_continuity_e}</SettingsSubtitle>,
         isSwitch: true,
         switchValue: isHandOffUseEnabled,
         onSwitchValueChange: onHandOffUseEnabledChange,
@@ -317,7 +270,6 @@ const GeneralSettings: React.FC = () => {
       id: 'privacySystemSettings',
       title: loc.settings.privacy_system_settings,
       subtitle: '',
-      chevron: true,
       onPress: openApplicationSettings,
       testID: 'PrivacySystemSettings',
       showItem: true,
@@ -334,7 +286,6 @@ const GeneralSettings: React.FC = () => {
     isLoading,
     storageIsEncrypted,
     wallets.length,
-    styles.subtitleText,
     setIsClipboardGetContentEnabledStorage,
     onDoNotTrackValueChange,
     onQuickActionsValueChange,
@@ -352,11 +303,7 @@ const GeneralSettings: React.FC = () => {
 
       // Handle section headers
       if (item.section) {
-        return (
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeaderText}>{item.section}</Text>
-          </View>
-        );
+        return <SettingsSectionHeader title={item.section} />;
       }
 
       // Find next non-section item to determine isLast
@@ -386,34 +333,17 @@ const GeneralSettings: React.FC = () => {
       const isLast: boolean =
         isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
 
-      // Apply greater corner radius to first and last items
-      // Add margin top for System Settings to create spacing from previous container
-      // Don't add marginTop for items that have a section header above them (they get spacing from the header)
-      const containerStyle = {
-        ...styles.listItemContainer,
-        ...(Platform.OS === 'android' &&
-          sizing.contentContainerPaddingHorizontal !== undefined && {
-            paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-          }),
-        ...(layout.showBorderRadius && {
-          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        }),
-        ...(isSystemSettings && !hasSectionHeaderAbove && { marginTop: 32 }),
-      };
+      const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
+      const spacingTop = isSystemSettings && !hasSectionHeaderAbove;
 
       if (item.isSwitch) {
         return (
-          <PlatformListItem
+          <SettingsListItem
             title={item.title}
             subtitle={item.subtitle}
-            containerStyle={containerStyle}
-            isFirst={isFirst}
-            isLast={isLast}
             Component={item.Component}
-            bottomDivider={layout.showBorderBottom && !isLast}
+            position={position}
+            spacingTop={spacingTop}
             switch={{
               value: item.switchValue || false,
               onValueChange: item.onSwitchValueChange,
@@ -425,48 +355,31 @@ const GeneralSettings: React.FC = () => {
       }
 
       return (
-        <PlatformListItem
+        <SettingsListItem
           title={item.title}
           subtitle={item.subtitle}
-          containerStyle={containerStyle}
           onPress={item.onPress}
           testID={item.testID}
           chevron={item.chevron}
-          isFirst={isFirst}
-          isLast={isLast}
-          bottomDivider={layout.showBorderBottom && !isLast}
+          position={position}
+          spacingTop={spacingTop}
         />
       );
     },
-    [
-      layout.showBorderBottom,
-      layout.showBorderRadius,
-      styles.listItemContainer,
-      styles.sectionHeaderContainer,
-      styles.sectionHeaderText,
-      settingsItems,
-      sizing.containerBorderRadius,
-      sizing.contentContainerPaddingHorizontal,
-    ],
+    [settingsItems],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);
 
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
-
   return (
-    <SafeAreaFlatList
+    <SettingsFlatList
       testID="SettingsPrivacy"
-      style={styles.container}
       data={settingsItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
-      headerHeight={headerHeight}
     />
   );
 };
