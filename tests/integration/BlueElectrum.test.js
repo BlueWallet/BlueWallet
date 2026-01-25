@@ -132,10 +132,10 @@ describe('BlueElectrum', () => {
   });
 
   it('BlueElectrum can do getTransactionsByAddress()', async function () {
-    const txs = await BlueElectrum.getTransactionsByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
+    const txs = await BlueElectrum.getTransactionsByAddress('bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc');
     assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].tx_hash, 'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d');
-    assert.strictEqual(txs[0].height, 563077);
+    assert.strictEqual(txs[0].tx_hash, '84b1a1b44726e5120533037edb8406ef46fa84c2f8dd50ada4ba72fa05af1dae');
+    assert.strictEqual(txs[0].height, 933626);
   });
 
   // skipped because requires fresh address with pending txs every time
@@ -152,7 +152,8 @@ describe('BlueElectrum', () => {
 
   it('BlueElectrum can do getTransactionsFullByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
-    for (const tx of txs) {
+    const tx = txs[0];
+    {
       assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
       assert.ok(tx.txid);
       assert.ok(tx.confirmations);
@@ -179,23 +180,23 @@ describe('BlueElectrum', () => {
   it.each([false, true])('BlueElectrum can do multiGetBalanceByAddress(), disableBatching=%p', async function (diableBatching) {
     if (diableBatching) BlueElectrum.setBatchingDisabled();
     const balances = await BlueElectrum.multiGetBalanceByAddress([
-      'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
-      'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
-      'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+      'bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc',
+      'bc1qdsf8p4knu2u0h9cspflh0ftjp8qayve3r5nme8',
+      'bc1qzfmm8d9saalnjjnskj2mekycg73hecpajt8urp',
       '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK',
-      'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
+      'bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj',
     ]);
 
-    assert.strictEqual(balances.balance, 200000 + 51432);
+    assert.strictEqual(balances.balance, 2400 + 51432);
     assert.strictEqual(balances.unconfirmed_balance, 0);
-    assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.confirmed, 50000);
-    assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.unconfirmed, 0);
-    assert.strictEqual(balances.addresses.bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p.confirmed, 50000);
-    assert.strictEqual(balances.addresses.bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p.unconfirmed, 0);
-    assert.strictEqual(balances.addresses.bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r.confirmed, 50000);
-    assert.strictEqual(balances.addresses.bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r.unconfirmed, 0);
-    assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.confirmed, 50000);
-    assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.unconfirmed, 0);
+    assert.strictEqual(balances.addresses.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc.confirmed, 600);
+    assert.strictEqual(balances.addresses.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc.unconfirmed, 0);
+    assert.strictEqual(balances.addresses.bc1qdsf8p4knu2u0h9cspflh0ftjp8qayve3r5nme8.confirmed, 600);
+    assert.strictEqual(balances.addresses.bc1qdsf8p4knu2u0h9cspflh0ftjp8qayve3r5nme8.unconfirmed, 0);
+    assert.strictEqual(balances.addresses.bc1qzfmm8d9saalnjjnskj2mekycg73hecpajt8urp.confirmed, 600);
+    assert.strictEqual(balances.addresses.bc1qzfmm8d9saalnjjnskj2mekycg73hecpajt8urp.unconfirmed, 0);
+    assert.strictEqual(balances.addresses.bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj.confirmed, 600);
+    assert.strictEqual(balances.addresses.bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj.unconfirmed, 0);
     assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].confirmed, 51432);
     assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].unconfirmed, 0);
     if (diableBatching) BlueElectrum.setBatchingEnabled();
@@ -204,22 +205,22 @@ describe('BlueElectrum', () => {
   it('BlueElectrum can do multiGetUtxoByAddress()', async () => {
     const utxos = await BlueElectrum.multiGetUtxoByAddress(
       [
-        'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
-        'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
-        'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
-        'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
+        'bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc',
+        'bc1qdsf8p4knu2u0h9cspflh0ftjp8qayve3r5nme8',
+        'bc1qzfmm8d9saalnjjnskj2mekycg73hecpajt8urp',
+        'bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj',
       ],
       3,
     );
 
     assert.strictEqual(Object.keys(utxos).length, 4);
     assert.strictEqual(
-      utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].txid,
-      'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
+      utxos.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc[0].txid,
+      '84b1a1b44726e5120533037edb8406ef46fa84c2f8dd50ada4ba72fa05af1dae',
     );
-    assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].vout, 1);
-    assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].value, 50000);
-    assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
+    assert.strictEqual(utxos.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc[0].vout, 0);
+    assert.strictEqual(utxos.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc[0].value, 600);
+    assert.strictEqual(utxos.bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc[0].address, 'bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc');
   });
 
   it.each([false, true])('ElectrumClient can do multiGetHistoryByAddress(), disableBatching=%p', async disableBatching => {

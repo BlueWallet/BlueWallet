@@ -109,11 +109,11 @@ jest.setTimeout(30_000);
 const w = new LightningArkWallet();
 
 beforeAll(async () => {
-  if (!process.env.HD_MNEMONIC) {
-    console.error('process.env.HD_MNEMONIC not set, skipped');
+  if (!process.env.HD_MNEMONIC_OLD) {
+    console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
     return;
   }
-  w.setSecret('arkade://' + process.env.HD_MNEMONIC);
+  w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
   await w.init();
 });
 
@@ -135,8 +135,8 @@ describe('LightningArkWallet', () => {
   });
 
   it('can fetch balance', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
 
@@ -174,8 +174,8 @@ describe('LightningArkWallet', () => {
 
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can create invoice', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
 
@@ -184,8 +184,8 @@ describe('LightningArkWallet', () => {
   });
 
   it('can fetch txs', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
 
@@ -235,8 +235,8 @@ describe('LightningArkWallet', () => {
 
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can pay invoice', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
 
