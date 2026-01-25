@@ -184,11 +184,9 @@ const SettingsBlockExplorer: React.FC = () => {
     ],
   );
 
-  // @ts-ignore: renderSectionHeader type is not correct
-  const renderSectionHeader = useCallback(({ section }) => {
-    const { title } = section;
-    if (title) {
-      return <SettingsSectionHeader title={title} />;
+  const renderSectionHeader = useCallback((info: { section: SectionData }) => {
+    if (info.section.title) {
+      return <SettingsSectionHeader title={info.section.title} />;
     }
     return null;
   }, []);

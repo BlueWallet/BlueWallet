@@ -6,7 +6,13 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
-import { SettingsFlatList, SettingsListItem, SettingsSectionHeader, SettingsSubtitle } from '../../components/platform';
+import {
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsListItemProps,
+  SettingsSectionHeader,
+  SettingsSubtitle,
+} from '../../components/platform';
 
 enum SettingsPrivacySection {
   None,
@@ -18,20 +24,10 @@ enum SettingsPrivacySection {
   TotalBalance,
 }
 
-interface SettingItem {
+interface SettingItem extends SettingsListItemProps {
   id: string;
-  title: string;
-  onPress?: () => void;
-  testID?: string;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  switchDisabled?: boolean;
-  subtitle?: string | React.ReactNode;
-  showItem: boolean;
   section?: string;
-  Component?: React.ElementType;
-  chevron?: boolean;
+  showItem: boolean;
 }
 
 const GeneralSettings: React.FC = () => {
@@ -153,10 +149,11 @@ const GeneralSettings: React.FC = () => {
         id: 'readClipboard',
         title: loc.settings.privacy_read_clipboard,
         subtitle: <SettingsSubtitle>{loc.settings.privacy_clipboard_explanation}</SettingsSubtitle>,
-        isSwitch: true,
-        switchValue: isClipboardGetContentEnabled,
-        onSwitchValueChange: setIsClipboardGetContentEnabledStorage,
-        switchDisabled: isLoading === SettingsPrivacySection.All,
+        switch: {
+          value: isClipboardGetContentEnabled,
+          onValueChange: setIsClipboardGetContentEnabledStorage,
+          disabled: isLoading === SettingsPrivacySection.All,
+        },
         testID: 'ClipboardSwitch',
         Component: View,
         showItem: true,
@@ -170,10 +167,11 @@ const GeneralSettings: React.FC = () => {
             {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
-        isSwitch: true,
-        switchValue: storageIsEncrypted ? false : isQuickActionsEnabled,
-        onSwitchValueChange: onQuickActionsValueChange,
-        switchDisabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+        switch: {
+          value: storageIsEncrypted ? false : isQuickActionsEnabled,
+          onValueChange: onQuickActionsValueChange,
+          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+        },
         testID: 'QuickActionsSwitch',
         Component: View,
         showItem: true,
@@ -182,10 +180,11 @@ const GeneralSettings: React.FC = () => {
         id: 'totalBalance',
         title: loc.total_balance_view.title,
         subtitle: <SettingsSubtitle>{loc.total_balance_view.explanation}</SettingsSubtitle>,
-        isSwitch: true,
-        switchValue: isTotalBalanceEnabled,
-        onSwitchValueChange: onTotalBalanceEnabledValueChange,
-        switchDisabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
+        switch: {
+          value: isTotalBalanceEnabled,
+          onValueChange: onTotalBalanceEnabledValueChange,
+          disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
+        },
         testID: 'TotalBalanceSwitch',
         Component: View,
         showItem: true,
@@ -197,10 +196,11 @@ const GeneralSettings: React.FC = () => {
         id: 'temporaryScreenshots',
         title: loc.settings.privacy_temporary_screenshots,
         subtitle: <SettingsSubtitle>{loc.settings.privacy_temporary_screenshots_instructions}</SettingsSubtitle>,
-        isSwitch: true,
-        switchValue: !isPrivacyBlurEnabled,
-        onSwitchValueChange: onTemporaryScreenshotsValueChange,
-        switchDisabled: isLoading === SettingsPrivacySection.All,
+        switch: {
+          value: !isPrivacyBlurEnabled,
+          onValueChange: onTemporaryScreenshotsValueChange,
+          disabled: isLoading === SettingsPrivacySection.All,
+        },
         Component: View,
         showItem: true,
       });
@@ -210,10 +210,11 @@ const GeneralSettings: React.FC = () => {
       id: 'doNotTrack',
       title: loc.settings.privacy_do_not_track,
       subtitle: <SettingsSubtitle>{loc.settings.privacy_do_not_track_explanation}</SettingsSubtitle>,
-      isSwitch: true,
-      switchValue: isDoNotTrackEnabled,
-      onSwitchValueChange: onDoNotTrackValueChange,
-      switchDisabled: isLoading === SettingsPrivacySection.All,
+      switch: {
+        value: isDoNotTrackEnabled,
+        onValueChange: onDoNotTrackValueChange,
+        disabled: isLoading === SettingsPrivacySection.All,
+      },
       Component: View,
       showItem: true,
     });
@@ -236,10 +237,11 @@ const GeneralSettings: React.FC = () => {
             {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
-        isSwitch: true,
-        switchValue: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
-        onSwitchValueChange: onWidgetsTotalBalanceValueChange,
-        switchDisabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+        switch: {
+          value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
+          onValueChange: onWidgetsTotalBalanceValueChange,
+          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+        },
         Component: View,
         showItem: true,
       });
@@ -258,9 +260,10 @@ const GeneralSettings: React.FC = () => {
         id: 'continuity',
         title: loc.settings.general_continuity,
         subtitle: <SettingsSubtitle>{loc.settings.general_continuity_e}</SettingsSubtitle>,
-        isSwitch: true,
-        switchValue: isHandOffUseEnabled,
-        onSwitchValueChange: onHandOffUseEnabledChange,
+        switch: {
+          value: isHandOffUseEnabled,
+          onValueChange: onHandOffUseEnabledChange,
+        },
         Component: View,
         showItem: true,
       });
@@ -298,73 +301,36 @@ const GeneralSettings: React.FC = () => {
   ]);
 
   const renderItem: ListRenderItem<SettingItem> = useCallback(
-    ({ item, index }) => {
+    ({ item }) => {
+      const { id, section, ...listItemProps } = item;
       const items = settingsItems();
 
-      // Handle section headers
-      if (item.section) {
-        return <SettingsSectionHeader title={item.section} />;
+      if (section) {
+        return <SettingsSectionHeader title={section} />;
       }
 
-      // Find next non-section item to determine isLast
-      const itemIndex: number = items.findIndex(i => i.id === item.id);
+      const itemIndex = items.findIndex(i => i.id === id);
       let nextRegularItemIndex = itemIndex + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
         nextRegularItemIndex++;
       }
 
-      // System Settings should always start a new container
-      const isSystemSettings = item.id === 'privacySystemSettings';
+      const isSystemSettings = id === 'privacySystemSettings';
       const isBeforeSystemSettings = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'privacySystemSettings';
-
-      // Continuity should always start a new container (iOS only)
-      const isContinuity = item.id === 'continuity';
+      const isContinuity = id === 'continuity';
       const isBeforeContinuity = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'continuity';
 
-      // Check if previous item was a section header (to avoid double spacing)
       const previousItem = itemIndex > 0 ? items[itemIndex - 1] : null;
       const hasSectionHeaderAbove = previousItem?.section !== undefined;
-
-      // Check if immediate next item is a section header (means current item is last in its section)
       const immediateNextItem = itemIndex + 1 < items.length ? items[itemIndex + 1] : null;
       const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
 
-      const isFirst: boolean = isSystemSettings || isContinuity || itemIndex === 0 || !!items[itemIndex - 1]?.section;
-      const isLast: boolean =
-        isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
-
+      const isFirst = isSystemSettings || isContinuity || itemIndex === 0 || !!items[itemIndex - 1]?.section;
+      const isLast = isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
       const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
       const spacingTop = isSystemSettings && !hasSectionHeaderAbove;
 
-      if (item.isSwitch) {
-        return (
-          <SettingsListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            Component={item.Component}
-            position={position}
-            spacingTop={spacingTop}
-            switch={{
-              value: item.switchValue || false,
-              onValueChange: item.onSwitchValueChange,
-              disabled: item.switchDisabled,
-            }}
-            testID={item.testID}
-          />
-        );
-      }
-
-      return (
-        <SettingsListItem
-          title={item.title}
-          subtitle={item.subtitle}
-          onPress={item.onPress}
-          testID={item.testID}
-          chevron={item.chevron}
-          position={position}
-          spacingTop={spacingTop}
-        />
-      );
+      return <SettingsListItem {...listItemProps} position={position} spacingTop={spacingTop} />;
     },
     [settingsItems],
   );

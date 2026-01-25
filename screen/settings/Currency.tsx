@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NativeSyntheticEvent, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import { Keyboard, LayoutAnimation, NativeSyntheticEvent, Platform, StyleSheet, UIManager, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -11,18 +11,18 @@ import {
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import presentAlert from '../../components/Alert';
+import {
+  SettingsCard,
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsSection,
+  SettingsSubtitle,
+  SettingsText,
+} from '../../components/platform';
+import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../hooks/context/useSettings';
-import {
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsCard,
-  SettingsSection,
-  SettingsText,
-  SettingsSubtitle,
-} from '../../components/platform';
 
 dayjs.extend(calendar);
 
@@ -43,22 +43,6 @@ const Currency: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
-  const styles = {
-    infoWrapper: {
-      marginBottom: 16,
-      paddingVertical: 12,
-    },
-    infoCard: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-    },
-    infoTitle: {
-      marginBottom: 8,
-    },
-    infoSubtitle: {
-      marginTop: 6,
-    },
-  };
 
   const filteredCurrencies = useMemo(() => {
     if (search.length > 0) {
@@ -176,16 +160,7 @@ const Currency: React.FC = () => {
         </View>
       </SettingsSection>
     );
-  }, [
-    isSearchFocused,
-    selectedCurrencyVisible,
-    selectedCurrency?.source,
-    currencyRate,
-    styles.infoWrapper,
-    styles.infoCard,
-    styles.infoTitle,
-    styles.infoSubtitle,
-  ]);
+  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
 
   return (
     <SettingsFlatList
@@ -202,3 +177,20 @@ const Currency: React.FC = () => {
 };
 
 export default Currency;
+
+const styles = StyleSheet.create({
+  infoWrapper: {
+    marginBottom: 16,
+    paddingVertical: 12,
+  },
+  infoCard: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  infoTitle: {
+    marginBottom: 8,
+  },
+  infoSubtitle: {
+    marginTop: 6,
+  },
+});

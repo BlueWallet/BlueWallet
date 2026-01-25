@@ -61,7 +61,7 @@ const Broadcast: React.FC = () => {
       marginBottom: sizing.sectionContainerMarginBottom,
     },
     card: {
-      backgroundColor: platformColors.cardBackground,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -75,7 +75,7 @@ const Broadcast: React.FC = () => {
       marginBottom: 10,
     },
     labelText: {
-      color: platformColors.titleColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       fontWeight: '500',
     },
@@ -223,7 +223,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
 
   const successStyles = StyleSheet.create({
     card: {
-      backgroundColor: platformColors.cardBackground,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -235,7 +235,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       paddingVertical: sizing.basePadding,
     },
     successText: {
-      color: platformColors.titleColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       textAlign: 'center',
     },

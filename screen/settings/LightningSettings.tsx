@@ -23,30 +23,6 @@ const LightningSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { setParams } = useExtendedNavigation();
-  const horizontalPadding = isAndroid ? 20 : 16;
-  const styles = StyleSheet.create({
-    rowPadding: {
-      paddingHorizontal: horizontalPadding,
-    },
-    cardContent: {
-      paddingHorizontal: horizontalPadding,
-      paddingVertical: 12,
-    },
-    inputContainer: {
-      marginTop: isAndroid ? 16 : 12,
-      marginBottom: isAndroid ? 16 : 12,
-    },
-    buttonContainer: {
-      marginTop: isAndroid ? 16 : 12,
-    },
-    githubContainer: {
-      marginTop: isAndroid ? 16 : 12,
-    },
-    addressInput: {
-      minHeight: 44,
-      height: 'auto',
-    },
-  });
 
   useEffect(() => {
     const fetchURI = async () => {
@@ -169,3 +145,29 @@ const LightningSettings: React.FC = () => {
 };
 
 export default LightningSettings;
+
+const horizontalPadding = isAndroid ? 20 : 16;
+
+const styles = StyleSheet.create({
+  rowPadding: {
+    paddingHorizontal: horizontalPadding,
+  },
+  cardContent: {
+    paddingHorizontal: horizontalPadding,
+    paddingVertical: 12,
+  },
+  inputContainer: {
+    marginTop: isAndroid ? 16 : 12,
+    marginBottom: isAndroid ? 16 : 12,
+  },
+  buttonContainer: {
+    marginTop: isAndroid ? 16 : 12,
+  },
+  githubContainer: {
+    marginTop: isAndroid ? 16 : 12,
+  },
+  addressInput: {
+    minHeight: 44,
+    height: 'auto',
+  },
+});

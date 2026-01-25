@@ -18,23 +18,13 @@ const Settings = () => {
     Linking.openURL('https://donate.bluewallet.io/');
   }, []);
 
-  const localStyles = StyleSheet.create({
-    donateIconContainer: {
-      padding: 4,
-    },
-    donateIconImage: {
-      width: 48,
-      height: 48,
-    },
-  });
-
   const donateIcon = useMemo(
     () => (
-      <View style={localStyles.donateIconContainer}>
-        <Image source={require('../../img/bluebeast.png')} style={localStyles.donateIconImage} resizeMode="contain" />
+      <View style={styles.donateIconContainer}>
+        <Image source={require('../../img/bluebeast.png')} style={styles.donateIconImage} resizeMode="contain" />
       </View>
     ),
-    [localStyles.donateIconContainer, localStyles.donateIconImage],
+    [],
   );
 
   return (
@@ -123,3 +113,13 @@ const Settings = () => {
 };
 
 export default Settings;
+
+const styles = StyleSheet.create({
+  donateIconContainer: {
+    padding: 4,
+  },
+  donateIconImage: {
+    width: 48,
+    height: 48,
+  },
+});

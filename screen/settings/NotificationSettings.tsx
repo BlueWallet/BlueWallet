@@ -23,23 +23,19 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SettingsCard, SettingsFlatList, SettingsListItem, SettingsSubtitle, isAndroid } from '../../components/platform';
+import {
+  SettingsCard,
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsListItemProps,
+  SettingsSubtitle,
+  isAndroid,
+} from '../../components/platform';
 
-interface SettingItem {
+interface SettingItem extends SettingsListItemProps {
   id: string;
-  title: string;
-  subtitle?: React.ReactNode;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  switchDisabled?: boolean;
-  isLoading?: boolean;
-  onPress?: () => void;
-  testID?: string;
-  chevron?: boolean;
-  Component?: React.ElementType;
-  customContent?: React.ReactNode;
   section?: number;
+  customContent?: React.ReactNode;
 }
 
 const NotificationSettings: React.FC = () => {
@@ -50,56 +46,6 @@ const NotificationSettings: React.FC = () => {
   const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
-  const horizontalPadding = isAndroid ? 20 : 16;
-
-  const styles = StyleSheet.create({
-    card: {
-      marginVertical: isAndroid ? 8 : 0,
-    },
-    cardNoRadius: {
-      borderRadius: 0,
-    },
-    cardContent: {
-      paddingHorizontal: horizontalPadding,
-      paddingVertical: isAndroid ? 12 : 10,
-    },
-    multilineText: {
-      color: colors.foregroundColor,
-      lineHeight: 20,
-      paddingBottom: 10,
-    },
-    centered: {
-      textAlign: 'center',
-      color: colors.foregroundColor,
-      marginVertical: 4,
-    },
-    uri: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      minHeight: 44,
-      height: 44,
-      alignItems: 'center',
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    uriText: {
-      flex: 1,
-      color: colors.alternativeTextColor,
-      marginHorizontal: 8,
-      minHeight: 36,
-      height: 36,
-    },
-    divider: {
-      marginVertical: isAndroid ? 16 : 12,
-      height: 0.5,
-      backgroundColor: colors.lightBorder ?? colors.borderTopColor,
-    },
-    sectionSpacing: {
-      height: isAndroid ? 24 : 12,
-    },
-  });
 
   const handleTap = () => {
     setTapCount(prevCount => prevCount + 1);
@@ -253,11 +199,11 @@ const NotificationSettings: React.FC = () => {
 
     return (
       <View>
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
             <Pressable onPress={handleTap}>
-              <Text style={styles.multilineText}>{loc.settings.groundcontrol_explanation}</Text>
+              <Text style={[styles.multilineText, { color: colors.foregroundColor }]}>{loc.settings.groundcontrol_explanation}</Text>
             </Pressable>
           </View>
         </SettingsCard>
@@ -273,13 +219,18 @@ const NotificationSettings: React.FC = () => {
 
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
-            <View style={styles.uri}>
+            <View
+              style={[
+                styles.uri,
+                { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+              ]}
+            >
               <TextInput
                 placeholder={getDefaultUri()}
                 value={URI}
                 onChangeText={setURI}
                 numberOfLines={1}
-                style={styles.uriText}
+                style={[styles.uriText, { color: colors.alternativeTextColor }]}
                 placeholderTextColor="#81868e"
                 editable={!isLoading}
                 textContentType="URL"
@@ -289,10 +240,10 @@ const NotificationSettings: React.FC = () => {
             </View>
 
             <BlueSpacing20 />
-            <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
               ♪ Ground Control to Major Tom ♪
             </Text>
-            <Text style={styles.centered} onPress={() => setTapCount(tapCount + 1)}>
+            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
               ♪ Commencing countdown, engines on ♪
             </Text>
 
@@ -306,21 +257,7 @@ const NotificationSettings: React.FC = () => {
         </SettingsCard>
       </View>
     );
-  }, [
-    tapCount,
-    styles.divider,
-    styles.card,
-    styles.cardContent,
-    styles.multilineText,
-    styles.uri,
-    styles.uriText,
-    styles.centered,
-    isLoading,
-    URI,
-    tokenInfo,
-    save,
-    setTapCount,
-  ]);
+  }, [tapCount, colors, isLoading, URI, tokenInfo, save]);
 
   const settingsItems = useCallback((): SettingItem[] => {
     const items: SettingItem[] = [
@@ -328,10 +265,11 @@ const NotificationSettings: React.FC = () => {
         id: 'notificationsToggle',
         title: loc.settings.notifications,
         subtitle: loc.notifications.notifications_subtitle,
-        isSwitch: true,
-        switchValue: isNotificationsEnabledState,
-        onSwitchValueChange: onNotificationsSwitch,
-        switchDisabled: isLoading,
+        switch: {
+          value: isNotificationsEnabledState || false,
+          onValueChange: onNotificationsSwitch,
+          disabled: isLoading,
+        },
         isLoading: isNotificationsEnabledState === undefined,
         testID: 'NotificationsSwitch',
         Component: View,
@@ -377,63 +315,27 @@ const NotificationSettings: React.FC = () => {
     ];
 
     return items.filter(item => item.title !== '' || item.customContent);
-  }, [
-    isNotificationsEnabledState,
-    onNotificationsSwitch,
-    isLoading,
-    styles.sectionSpacing,
-    styles.cardContent,
-    styles.cardNoRadius,
-    renderDeveloperSettings,
-    onSystemSettings,
-  ]);
+  }, [isNotificationsEnabledState, onNotificationsSwitch, isLoading, renderDeveloperSettings, onSystemSettings]);
 
   const renderItem = useCallback(
     (props: { item: SettingItem }) => {
-      const item = props.item;
+      const { id, section, customContent, ...listItemProps } = props.item;
       const items = settingsItems();
       const contentPadding = !isAndroid ? { paddingHorizontal: horizontalPadding } : undefined;
 
-      const listItems = items.filter(i => !i.customContent);
-      const firstListItemId = listItems[0]?.id;
-      const lastListItemId = listItems[listItems.length - 1]?.id;
-
-      if (item.customContent) {
-        return <View style={contentPadding}>{item.customContent}</View>;
+      if (customContent) {
+        return <View style={contentPadding}>{customContent}</View>;
       }
 
-      const position = item.subtitle ? 'single' : item.id === firstListItemId || item.id === lastListItemId ? 'single' : 'middle';
+      const sectionItems = items.filter(i => i.section === section && !i.customContent);
+      const indexInSection = sectionItems.findIndex(i => i.id === id);
+      const isFirstInSection = indexInSection === 0;
+      const isLastInSection = indexInSection === sectionItems.length - 1;
+      const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
 
-      if (item.isSwitch) {
-        return (
-          <SettingsListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            Component={item.Component}
-            switch={{
-              value: item.switchValue || false,
-              onValueChange: item.onSwitchValueChange,
-              disabled: item.switchDisabled,
-            }}
-            isLoading={item.isLoading}
-            testID={item.testID}
-            position={position}
-          />
-        );
-      }
-
-      return (
-        <SettingsListItem
-          title={item.title}
-          subtitle={item.subtitle}
-          onPress={item.onPress}
-          testID={item.testID}
-          chevron={item.chevron}
-          position={position}
-        />
-      );
+      return <SettingsListItem {...listItemProps} position={position} />;
     },
-    [settingsItems, horizontalPadding],
+    [settingsItems],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);
@@ -451,3 +353,47 @@ const NotificationSettings: React.FC = () => {
 };
 
 export default NotificationSettings;
+
+const horizontalPadding = isAndroid ? 20 : 16;
+
+const styles = StyleSheet.create({
+  card: {
+    marginVertical: isAndroid ? 8 : 0,
+  },
+  cardNoRadius: {
+    borderRadius: 0,
+  },
+  cardContent: {
+    paddingHorizontal: horizontalPadding,
+    paddingVertical: isAndroid ? 12 : 10,
+  },
+  multilineText: {
+    lineHeight: 20,
+    paddingBottom: 10,
+  },
+  centered: {
+    textAlign: 'center',
+    marginVertical: 4,
+  },
+  uri: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+  },
+  uriText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 36,
+    height: 36,
+  },
+  divider: {
+    marginVertical: isAndroid ? 16 : 12,
+    height: 0.5,
+  },
+  sectionSpacing: {
+    height: isAndroid ? 24 : 12,
+  },
+});

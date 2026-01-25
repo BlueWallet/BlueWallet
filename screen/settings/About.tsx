@@ -1,47 +1,34 @@
-import React, { useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, Text, TouchableOpacity, useWindowDimensions, View, StyleSheet } from 'react-native';
+import React, { useCallback } from 'react';
+import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+
 import A from '../../blue_modules/analytics';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { useSettings } from '../../hooks/context/useSettings';
 import {
   SettingsCard,
   SettingsFlatList,
   SettingsListItem,
+  SettingsListItemProps,
   SettingsSection,
   SettingsSectionHeader,
-  SettingsIconName,
 } from '../../components/platform';
 import { useTheme } from '../../components/themes';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
 const branch = require('../../current-branch.json');
 
-type IconProps = {
-  name: string;
-  type: string;
-  color: string;
-  backgroundColor?: string;
-};
-
-interface AboutItem {
+interface AboutItem extends SettingsListItemProps {
   id: string;
-  title: string;
-  subtitle?: React.ReactNode;
-  leftIcon?: IconProps | React.ReactElement;
-  iconName?: SettingsIconName;
-  onPress?: () => void;
-  chevron?: boolean;
   section?: number;
-  testID?: string;
   customContent?: React.ReactNode;
 }
 
@@ -50,76 +37,6 @@ const About: React.FC = () => {
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
-  const localStyles = StyleSheet.create({
-    sectionSpacing: {
-      height: 16,
-    },
-    headerCard: {
-      backgroundColor: 'transparent',
-      ...(Platform.OS === 'android' && {
-        borderRadius: 0,
-        elevation: 0,
-        marginHorizontal: 0,
-        marginVertical: 0,
-      }),
-    },
-    xIcon: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.foregroundColor,
-    },
-  });
-
-  const styles = StyleSheet.create({
-    card: {
-      marginVertical: 8,
-    },
-    center: {
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    logo: {
-      width: 120,
-      height: 120,
-      marginBottom: 8,
-      resizeMode: 'contain',
-    },
-    textFree: {
-      marginTop: 12,
-      fontSize: 16,
-      color: colors.foregroundColor,
-      textAlign: 'center',
-    },
-    textBackup: {
-      marginTop: 8,
-      fontSize: 14,
-      color: colors.alternativeTextColor,
-      textAlign: 'center',
-    },
-    headerButton: {
-      marginTop: 12,
-    },
-    sectionSpacing: {
-      height: 16,
-    },
-    footerContainer: {
-      marginTop: 16,
-    },
-    footerText: {
-      fontSize: 12,
-      color: colors.alternativeTextColor,
-      textAlign: 'center',
-      marginBottom: 4,
-    },
-    copyToClipboard: {
-      marginTop: 8,
-      alignItems: 'center',
-    },
-    copyToClipboardText: {
-      fontSize: 12,
-      color: colors.foregroundColor,
-    },
-  });
 
   const handleOnReleaseNotesPress = useCallback(() => {
     navigate('ReleaseNotes');
@@ -189,11 +106,13 @@ const About: React.FC = () => {
         title: '',
         customContent: (
           <SettingsSection compact>
-            <SettingsCard style={[styles.card, localStyles.headerCard]}>
+            <SettingsCard style={[styles.card, styles.headerCard]}>
               <View style={styles.center}>
                 <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
-                <Text style={styles.textFree}>{loc.settings.about_free}</Text>
-                <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
+                <Text style={[styles.textFree, { color: colors.foregroundColor }]}>{loc.settings.about_free}</Text>
+                <Text style={[styles.textBackup, { color: colors.alternativeTextColor }]}>
+                  {formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}
+                </Text>
                 {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
                   <View style={styles.headerButton}>
                     <Button onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
@@ -208,7 +127,7 @@ const About: React.FC = () => {
       {
         id: 'x',
         title: '@bluewalletio',
-        leftIcon: <Text style={localStyles.xIcon}>𝕏</Text>,
+        leftIcon: <Text style={[styles.xIcon, { color: colors.foregroundColor }]}>𝕏</Text>,
         onPress: handleOnXPress,
         section: 2,
       },
@@ -288,15 +207,17 @@ const About: React.FC = () => {
         customContent: (
           <View style={styles.footerContainer}>
             <BlueSpacing20 />
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
               {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
             </Text>
-            <Text style={styles.footerText}>{new Date(Number(getBuildNumber()) * 1000).toUTCString()}</Text>
-            <Text style={styles.footerText}>{getBundleId()}</Text>
-            <Text style={styles.footerText}>
+            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
+              {new Date(Number(getBuildNumber()) * 1000).toUTCString()}
+            </Text>
+            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>{getBundleId()}</Text>
+            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
               w, h = {width}, {height}
             </Text>
-            <Text style={styles.footerText}>Unique ID: {getUniqueIdSync()}</Text>
+            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>Unique ID: {getUniqueIdSync()}</Text>
             <View style={styles.copyToClipboard}>
               <TouchableOpacity
                 accessibilityRole="button"
@@ -306,7 +227,7 @@ const About: React.FC = () => {
                   Clipboard.setString(stringToCopy);
                 }}
               >
-                <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
+                <Text style={[styles.copyToClipboardText, { color: colors.foregroundColor }]}>{loc.transactions.details_copy}</Text>
               </TouchableOpacity>
             </View>
             <BlueSpacing20 />
@@ -317,20 +238,8 @@ const About: React.FC = () => {
     ];
     return items;
   }, [
-    styles.card,
-    styles.center,
-    styles.logo,
-    styles.textFree,
-    styles.textBackup,
-    styles.sectionSpacing,
-    styles.footerContainer,
-    styles.footerText,
-    styles.copyToClipboard,
-    styles.copyToClipboardText,
-    styles.headerButton,
-    localStyles.headerCard,
-    localStyles.xIcon,
     colors.foregroundColor,
+    colors.alternativeTextColor,
     handleOnRatePress,
     handleOnXPress,
     handleOnTelegramPress,
@@ -345,44 +254,33 @@ const About: React.FC = () => {
 
   const renderItem = useCallback(
     (props: { item: AboutItem }) => {
-      const item = props.item;
+      const { id, section, customContent, ...listItemProps } = props.item;
 
-      if (item.customContent) {
-        return <>{item.customContent}</>;
+      if (customContent) {
+        return <>{customContent}</>;
       }
 
-      if (item.title && !item.leftIcon && !item.onPress && item.section) {
-        return <SettingsSectionHeader title={item.title} />;
+      if (listItemProps.title && !listItemProps.leftIcon && !listItemProps.onPress && section) {
+        return <SettingsSectionHeader title={listItemProps.title} />;
       }
 
-      const currentSection = Math.floor(item.section || 0);
+      const currentSection = Math.floor(section || 0);
       const sectionItems = aboutItems().filter(
         i => Math.floor(i.section || 0) === currentSection && !i.customContent && (i.onPress || i.leftIcon || i.chevron || i.subtitle),
       );
-      const indexInSection = sectionItems.findIndex(i => i.id === item.id);
+      const indexInSection = sectionItems.findIndex(i => i.id === id);
       const isFirstInSection = indexInSection === 0;
       const isLastInSection = indexInSection === sectionItems.length - 1;
       const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
 
-      return (
-        <SettingsListItem
-          title={item.title}
-          subtitle={item.subtitle}
-          leftIcon={item.leftIcon}
-          iconName={item.iconName}
-          onPress={item.onPress}
-          testID={item.testID}
-          chevron={item.chevron}
-          position={position}
-        />
-      );
+      return <SettingsListItem {...listItemProps} position={position} />;
     },
     [aboutItems],
   );
 
   const keyExtractor = useCallback((item: AboutItem, index: number) => `${item.id}-${index}`, []);
 
-  const ListFooterComponent = useCallback(() => <View style={localStyles.sectionSpacing} />, [localStyles.sectionSpacing]);
+  const ListFooterComponent = useCallback(() => <View style={styles.sectionSpacing} />, []);
 
   return (
     <SettingsFlatList
@@ -399,3 +297,63 @@ const About: React.FC = () => {
 };
 
 export default About;
+
+const styles = StyleSheet.create({
+  sectionSpacing: {
+    height: 16,
+  },
+  headerCard: {
+    backgroundColor: 'transparent',
+    ...(Platform.OS === 'android' && {
+      borderRadius: 0,
+      elevation: 0,
+      marginHorizontal: 0,
+      marginVertical: 0,
+    }),
+  },
+  xIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  card: {
+    marginVertical: 8,
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
+  textFree: {
+    marginTop: 12,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  textBackup: {
+    marginTop: 8,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  headerButton: {
+    marginTop: 12,
+  },
+  footerContainer: {
+    marginTop: 16,
+  },
+  footerText: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  copyToClipboard: {
+    marginTop: 8,
+    alignItems: 'center',
+  },
+  copyToClipboardText: {
+    fontSize: 12,
+  },
+});

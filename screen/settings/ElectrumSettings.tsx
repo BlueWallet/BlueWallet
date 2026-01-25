@@ -1,34 +1,35 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { Divider } from '@rneui/themed';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInput, View } from 'react-native';
+import DefaultPreference from 'react-native-default-preference';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
+import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import loc from '../../loc';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
-import DefaultPreference from 'react-native-default-preference';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import { useTheme } from '../../components/themes';
-import { SettingsScrollView } from '../../components/platform';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Divider } from '@rneui/themed';
 import { Header } from '../../components/Header';
-import AddressInput from '../../components/AddressInput';
-import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
-import { Action } from '../../components/types';
-import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import ListItem, { PressableWrapper } from '../../components/ListItem';
+import { SettingsScrollView } from '../../components/platform';
+import { useTheme } from '../../components/themes';
+import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -307,12 +308,11 @@ const ElectrumSettings: React.FC = () => {
   type TCreateServerActionParameters = {
     value: ElectrumServerItem;
     seenHosts: Set<string>;
-    isPreferred?: boolean;
     isConnectedTo?: boolean;
     isSuggested?: boolean;
   };
   const createServerAction = useCallback(
-    ({ value, seenHosts, isPreferred: _unused, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
+    ({ value, seenHosts, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
       const hostKey = `${value.host}:${value.tcp ?? ''}:${value.ssl ?? ''}`;
 
       seenHosts.add(hostKey);
@@ -360,7 +360,6 @@ const ElectrumSettings: React.FC = () => {
           return createServerAction({
             value,
             seenHosts,
-            isPreferred: isPreferredServer,
             isConnectedTo,
             isSuggested,
           });

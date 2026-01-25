@@ -240,7 +240,7 @@ const renderVectorIcon = (icon: IconProps) => {
   }
 };
 
-interface SettingsListItemProps {
+export interface SettingsListItemProps {
   title: string;
   subtitle?: string | React.ReactNode;
   onPress?: () => void;
@@ -470,44 +470,42 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
 
   const minHeight = Math.max(platformSizing.itemMinHeight, platformSizing.itemMinHeight * fontScale);
 
-  const dynamicStyles = useMemo(() => {
-    const card = themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background;
-    const secondaryText = themeColors.alternativeTextColor ?? themeColors.darkGray;
-    const separator = themeColors.lightBorder ?? themeColors.borderTopColor;
-
-    return {
-      title: {
-        color: themeColors.foregroundColor,
-        fontSize: platformSizing.titleFontSize,
-        fontWeight: platformSizing.titleFontWeight,
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-      },
-      subtitle: {
-        flexWrap: 'wrap',
-        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-        color: secondaryText,
-        fontWeight: platformSizing.subtitleFontWeight,
-        paddingVertical: platformSizing.subtitlePaddingVertical,
-        lineHeight: platformSizing.subtitleLineHeight * fontScale,
-        fontSize: platformSizing.subtitleFontSize,
-      },
-      container: {
-        backgroundColor: card,
-        paddingVertical: isAndroid ? 8 : platformSizing.containerPaddingVertical,
-        paddingHorizontal: platformSizing.horizontalPadding,
-        minHeight,
-        borderBottomWidth: platformLayout.showBorderBottom && !isLast ? StyleSheet.hairlineWidth : 0,
-        borderBottomColor: platformLayout.showBorderBottom && !isLast ? separator : 'transparent',
-        borderRadius: 0,
-        elevation: platformLayout.showElevation ? platformSizing.containerElevation : 0,
-        marginVertical: isAndroid ? 0 : platformSizing.containerMarginVertical,
-      },
-      chevron: {
-        color: secondaryText,
-        opacity: 0.7,
-      },
-    } as const;
-  }, [fontScale, isLast, minHeight, themeColors]);
+  const dynamicStyles = useMemo(
+    () =>
+      ({
+        title: {
+          color: platformColors.text,
+          fontSize: platformSizing.titleFontSize,
+          fontWeight: platformSizing.titleFontWeight,
+          writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        },
+        subtitle: {
+          flexWrap: 'wrap',
+          writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+          color: platformColors.secondaryText,
+          fontWeight: platformSizing.subtitleFontWeight,
+          paddingVertical: platformSizing.subtitlePaddingVertical,
+          lineHeight: platformSizing.subtitleLineHeight * fontScale,
+          fontSize: platformSizing.subtitleFontSize,
+        },
+        container: {
+          backgroundColor: platformColors.card,
+          paddingVertical: isAndroid ? 8 : platformSizing.containerPaddingVertical,
+          paddingHorizontal: platformSizing.horizontalPadding,
+          minHeight,
+          borderBottomWidth: platformLayout.showBorderBottom && !isLast ? StyleSheet.hairlineWidth : 0,
+          borderBottomColor: platformLayout.showBorderBottom && !isLast ? platformColors.separator : 'transparent',
+          borderRadius: platformLayout.showBorderRadius ? platformSizing.containerBorderRadius : 0,
+          elevation: platformLayout.showElevation ? platformSizing.containerElevation : 0,
+          marginVertical: isAndroid ? 0 : platformSizing.containerMarginVertical,
+        },
+        chevron: {
+          color: platformColors.chevron,
+          opacity: 0.7,
+        },
+      }) as const,
+    [fontScale, minHeight, isLast],
+  );
 
   const containerStyle = [
     themeStyles.listItemContainer,
@@ -532,7 +530,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
         borderRadius: 0,
         elevation: platformLayout.showElevation ? platformSizing.containerElevation : 0,
         marginVertical: isAndroid ? 0 : 1,
-        backgroundColor: themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background,
+        backgroundColor: platformColors.card,
       };
 
   const outerContainerStyle = [

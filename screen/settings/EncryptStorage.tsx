@@ -1,16 +1,23 @@
+import { StackActions } from '@react-navigation/native';
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, Platform, View, ListRenderItemInfo } from 'react-native';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { useStorage } from '../../hooks/context/useStorage';
+import { Alert, ListRenderItemInfo, Platform, View } from 'react-native';
+
+import presentAlert from '../../components/Alert';
+import {
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsListItemProps,
+  SettingsSectionHeader,
+  SettingsSubtitle,
+} from '../../components/platform';
 import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
-import presentAlert from '../../components/Alert';
-import { StackActions } from '@react-navigation/native';
-import { SettingsFlatList, SettingsListItem, SettingsSectionHeader, SettingsSubtitle } from '../../components/platform';
+import { useStorage } from '../../hooks/context/useStorage';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -33,19 +40,8 @@ interface State {
   modalType: keyof typeof MODAL_TYPES;
 }
 
-interface SettingItem {
+interface SettingItem extends SettingsListItemProps {
   id: string;
-  title: string;
-  subtitle?: React.ReactNode;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  switchDisabled?: boolean;
-  onPress?: () => void;
-  testID?: string;
-  chevron?: boolean;
-  isLoading?: boolean;
-  Component?: React.ElementType;
   section?: string;
   showItem: boolean;
 }
@@ -182,10 +178,11 @@ const EncryptStorage = () => {
             )}
           </>
         ),
-        isSwitch: true,
-        switchValue: biometricEnabled,
-        onSwitchValueChange: onUseBiometricSwitch,
-        switchDisabled: state.currentLoadingSwitch !== null,
+        switch: {
+          value: biometricEnabled,
+          onValueChange: onUseBiometricSwitch,
+          disabled: state.currentLoadingSwitch !== null,
+        },
         isLoading: state.currentLoadingSwitch === 'biometric' && state.isLoading,
         testID: 'BiometricUseSwitch',
         Component: View,
@@ -197,10 +194,11 @@ const EncryptStorage = () => {
       id: 'encryptStorage',
       title: loc.settings.encrypt_enc_and_pass,
       subtitle: <SettingsSubtitle>{loc.settings.encrypt_enc_and_pass_description}</SettingsSubtitle>,
-      isSwitch: true,
-      switchValue: state.storageIsEncryptedSwitchEnabled,
-      onSwitchValueChange: onEncryptStorageSwitch,
-      switchDisabled: state.currentLoadingSwitch !== null,
+      switch: {
+        value: state.storageIsEncryptedSwitchEnabled,
+        onValueChange: onEncryptStorageSwitch,
+        disabled: state.currentLoadingSwitch !== null,
+      },
       isLoading: state.currentLoadingSwitch === 'encrypt' && state.isLoading,
       testID: 'EncyptedAndPasswordProtectedSwitch',
       Component: View,
@@ -243,14 +241,14 @@ const EncryptStorage = () => {
 
   const renderItem = useCallback(
     (info: ListRenderItemInfo<SettingItem>) => {
-      const item = info.item;
+      const { id, section, ...listItemProps } = info.item;
       const items = settingsItems();
 
-      if (item.section) {
-        return <SettingsSectionHeader title={item.section} />;
+      if (section) {
+        return <SettingsSectionHeader title={section} />;
       }
 
-      const itemIndex: number = items.findIndex(i => i.id === item.id);
+      const itemIndex = items.findIndex(i => i.id === id);
       let nextRegularItemIndex = itemIndex + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
         nextRegularItemIndex++;
@@ -259,38 +257,11 @@ const EncryptStorage = () => {
       const immediateNextItem = itemIndex + 1 < items.length ? items[itemIndex + 1] : null;
       const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
 
-      const isFirst: boolean = itemIndex === 0 || !!items[itemIndex - 1]?.section;
-      const isLast: boolean = immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
+      const isFirst = itemIndex === 0 || !!items[itemIndex - 1]?.section;
+      const isLast = immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
       const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
 
-      if (item.isSwitch) {
-        return (
-          <SettingsListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            Component={item.Component}
-            switch={{
-              value: item.switchValue || false,
-              onValueChange: item.onSwitchValueChange,
-              disabled: item.switchDisabled,
-            }}
-            isLoading={item.isLoading}
-            testID={item.testID}
-            position={position}
-          />
-        );
-      }
-
-      return (
-        <SettingsListItem
-          title={item.title}
-          subtitle={item.subtitle}
-          onPress={item.onPress}
-          testID={item.testID}
-          chevron={item.chevron}
-          position={position}
-        />
-      );
+      return <SettingsListItem {...listItemProps} position={position} />;
     },
     [settingsItems],
   );

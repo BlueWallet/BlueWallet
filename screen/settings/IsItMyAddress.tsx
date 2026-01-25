@@ -19,7 +19,7 @@ import { useTheme } from '../../components/themes';
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const theme = useTheme();
+  const { colors } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -114,7 +114,7 @@ const IsItMyAddress: React.FC = () => {
         // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
-          <Text key={`bold-${index++}`} selectable style={isLabel ? localStyles.boldText : undefined}>
+          <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
             {value}
           </Text>,
         );
@@ -127,59 +127,6 @@ const IsItMyAddress: React.FC = () => {
     return parts;
   };
 
-  const localStyles = StyleSheet.create({
-    textInputContainer: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      alignItems: 'center',
-      borderRadius: 4,
-      borderColor: theme.colors.formBorder,
-      borderBottomColor: theme.colors.formBorder,
-      backgroundColor: theme.colors.inputBackgroundColor,
-    },
-    textInput: {
-      flex: 1,
-      padding: 8,
-      minHeight: 100,
-      color: theme.colors.foregroundColor,
-    },
-    clearButton: {
-      padding: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    buttonSpacing: {
-      height: 16,
-    },
-    buttonSpacingSmall: {
-      height: 8,
-    },
-    spacingLarge: {
-      height: 32,
-    },
-    addressCheckContainer: {
-      width: '100%',
-      alignItems: 'center',
-    },
-    addressOwnershipText: {
-      marginVertical: 10,
-      textAlign: 'center',
-      color: theme.colors.foregroundColor,
-    },
-    walletCardContainer: {
-      width: '100%',
-      alignItems: 'center',
-    },
-    walletCardStyle: {
-      width: '100%',
-      maxWidth: '100%',
-    },
-    boldText: {
-      fontWeight: 'bold',
-    },
-  });
-
   return (
     <SettingsScrollView
       ref={scrollViewRef}
@@ -188,50 +135,55 @@ const IsItMyAddress: React.FC = () => {
       contentInsetAdjustmentBehavior="automatic"
     >
       <SettingsCard>
-        <View style={localStyles.textInputContainer}>
+        <View
+          style={[
+            styles.textInputContainer,
+            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+          ]}
+        >
           <TextInput
-            style={localStyles.textInput}
+            style={[styles.textInput, { color: colors.foregroundColor }]}
             multiline
             editable
             placeholder={loc.is_it_my_address.enter_address}
-            placeholderTextColor={theme.colors.placeholderTextColor}
+            placeholderTextColor={colors.placeholderTextColor}
             value={address}
             onChangeText={handleUpdateAddress}
             testID="AddressInput"
           />
           {address.length > 0 && (
-            <TouchableOpacity onPress={clearAddressInput} style={localStyles.clearButton}>
-              <Icon name="close" size={20} color={theme.colors.alternativeTextColor} />
+            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <Icon name="close" size={20} color={colors.alternativeTextColor} />
             </TouchableOpacity>
           )}
         </View>
 
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
 
-        <View style={localStyles.buttonSpacing} />
+        <View style={styles.buttonSpacing} />
 
         {resultCleanAddress && (
           <>
             <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-            <View style={localStyles.buttonSpacingSmall} />
+            <View style={styles.buttonSpacingSmall} />
           </>
         )}
 
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
 
-        <View style={localStyles.buttonSpacing} />
+        <View style={styles.buttonSpacing} />
 
         {matchingWallets !== undefined && matchingWallets.length > 0 && (
           <>
             <Divider />
-            <View style={localStyles.spacingLarge} />
+            <View style={styles.spacingLarge} />
           </>
         )}
         {matchingWallets !== undefined &&
           matchingWallets.length > 0 &&
           matchingWallets.map((wallet, index) => (
-            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={localStyles.addressCheckContainer}>
-              <Text selectable style={localStyles.addressOwnershipText}>
+            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
+              <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
                 {resultCleanAddress &&
                   renderFormattedText(loc.is_it_my_address.owns, {
                     label: wallet.getLabel(),
@@ -239,7 +191,7 @@ const IsItMyAddress: React.FC = () => {
                   })}
               </Text>
               <BlueSpacing10 />
-              <View style={localStyles.walletCardContainer}>
+              <View style={styles.walletCardContainer}>
                 <WalletCarouselItem
                   item={wallet}
                   onPress={item => {
@@ -248,7 +200,7 @@ const IsItMyAddress: React.FC = () => {
                       walletType: item.type,
                     });
                   }}
-                  customStyle={localStyles.walletCardStyle}
+                  customStyle={styles.walletCardStyle}
                 />
               </View>
               <BlueSpacing20 />
@@ -260,3 +212,51 @@ const IsItMyAddress: React.FC = () => {
 };
 
 export default IsItMyAddress;
+
+const styles = StyleSheet.create({
+  textInputContainer: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  textInput: {
+    flex: 1,
+    padding: 8,
+    minHeight: 100,
+  },
+  clearButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonSpacing: {
+    height: 16,
+  },
+  buttonSpacingSmall: {
+    height: 8,
+  },
+  spacingLarge: {
+    height: 32,
+  },
+  addressCheckContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  addressOwnershipText: {
+    marginVertical: 10,
+    textAlign: 'center',
+  },
+  walletCardContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  walletCardStyle: {
+    width: '100%',
+    maxWidth: '100%',
+  },
+  boldText: {
+    fontWeight: 'bold',
+  },
+});
