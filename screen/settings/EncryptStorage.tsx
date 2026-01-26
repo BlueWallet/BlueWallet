@@ -1,19 +1,23 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { Alert, Platform, StyleSheet, Text, View, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { useStorage } from '../../hooks/context/useStorage';
+import { StackActions } from '@react-navigation/native';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { Alert, ListRenderItemInfo, Platform, View } from 'react-native';
+
+import presentAlert from '../../components/Alert';
+import {
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsListItemProps,
+  SettingsSectionHeader,
+  SettingsSubtitle,
+} from '../../components/platform';
 import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
-import presentAlert from '../../components/Alert';
-import { StackActions } from '@react-navigation/native';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformStyles } from '../../theme/platformStyles';
+import { useStorage } from '../../hooks/context/useStorage';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -36,19 +40,8 @@ interface State {
   modalType: keyof typeof MODAL_TYPES;
 }
 
-interface SettingItem {
+interface SettingItem extends SettingsListItemProps {
   id: string;
-  title: string;
-  subtitle?: React.ReactNode;
-  isSwitch?: boolean;
-  switchValue?: boolean;
-  onSwitchValueChange?: (value: boolean) => void;
-  switchDisabled?: boolean;
-  onPress?: () => void;
-  testID?: string;
-  chevron?: boolean;
-  isLoading?: boolean;
-  Component?: React.ElementType;
   section?: string;
   showItem: boolean;
 }
@@ -83,50 +76,7 @@ const EncryptStorage = () => {
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const { colors, sizing, layout } = usePlatformStyles();
-  const insets = useSafeAreaInsets();
 
-  // Calculate header height for Android with transparent header
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    listItemContainer: {
-      backgroundColor: colors.cardBackground,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-    },
-    subtitleText: {
-      fontSize: 14,
-      color: colors.subtitleColor,
-      marginTop: 5,
-    },
-    sectionHeaderContainer: {
-      marginTop: 32,
-      marginBottom: 8,
-      paddingHorizontal: 16,
-    },
-    sectionHeaderText: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.titleColor,
-    },
-  });
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const initializeState = useCallback(async () => {
@@ -140,7 +90,6 @@ const EncryptStorage = () => {
   useEffect(() => {
     initializeState();
   }, [initializeState]);
-
   // Present modal when modalType changes to CREATE_PASSWORD
   useEffect(() => {
     if (state.modalType === MODAL_TYPES.CREATE_PASSWORD && state.currentLoadingSwitch === 'encrypt') {
@@ -223,16 +172,17 @@ const EncryptStorage = () => {
         title: loc.settings.biometrics,
         subtitle: (
           <>
-            <Text style={styles.subtitleText}>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</Text>
+            <SettingsSubtitle>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</SettingsSubtitle>
             {Platform.OS === 'android' && Platform.Version >= 30 && (
-              <Text style={styles.subtitleText}>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</Text>
+              <SettingsSubtitle>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</SettingsSubtitle>
             )}
           </>
         ),
-        isSwitch: true,
-        switchValue: biometricEnabled,
-        onSwitchValueChange: onUseBiometricSwitch,
-        switchDisabled: state.currentLoadingSwitch !== null,
+        switch: {
+          value: biometricEnabled,
+          onValueChange: onUseBiometricSwitch,
+          disabled: state.currentLoadingSwitch !== null,
+        },
         isLoading: state.currentLoadingSwitch === 'biometric' && state.isLoading,
         testID: 'BiometricUseSwitch',
         Component: View,
@@ -243,11 +193,12 @@ const EncryptStorage = () => {
     items.push({
       id: 'encryptStorage',
       title: loc.settings.encrypt_enc_and_pass,
-      subtitle: <Text style={styles.subtitleText}>{loc.settings.encrypt_enc_and_pass_description}</Text>,
-      isSwitch: true,
-      switchValue: state.storageIsEncryptedSwitchEnabled,
-      onSwitchValueChange: onEncryptStorageSwitch,
-      switchDisabled: state.currentLoadingSwitch !== null,
+      subtitle: <SettingsSubtitle>{loc.settings.encrypt_enc_and_pass_description}</SettingsSubtitle>,
+      switch: {
+        value: state.storageIsEncryptedSwitchEnabled,
+        onValueChange: onEncryptStorageSwitch,
+        disabled: state.currentLoadingSwitch !== null,
+      },
       isLoading: state.currentLoadingSwitch === 'encrypt' && state.isLoading,
       testID: 'EncyptedAndPasswordProtectedSwitch',
       Component: View,
@@ -267,7 +218,7 @@ const EncryptStorage = () => {
       items.push({
         id: 'plausibleDeniability',
         title: loc.settings.plausible_deniability,
-        subtitle: <Text style={styles.subtitleText}>{loc.settings.plausible_deniability_description}</Text>,
+        subtitle: <SettingsSubtitle>{loc.settings.plausible_deniability_description}</SettingsSubtitle>,
         onPress: navigateToPlausibleDeniability,
         chevron: true,
         testID: 'PlausibleDeniabilityButton',
@@ -285,102 +236,45 @@ const EncryptStorage = () => {
     biometricEnabled,
     onUseBiometricSwitch,
     onEncryptStorageSwitch,
-    styles.subtitleText,
     navigateToPlausibleDeniability,
   ]);
 
   const renderItem = useCallback(
-    (props: { item: SettingItem }) => {
-      const { item } = props;
+    (info: ListRenderItemInfo<SettingItem>) => {
+      const { id, section, ...listItemProps } = info.item;
       const items = settingsItems();
 
-      // Handle section headers
-      if (item.section) {
-        return (
-          <View style={styles.sectionHeaderContainer}>
-            <Text style={styles.sectionHeaderText}>{item.section}</Text>
-          </View>
-        );
+      if (section) {
+        return <SettingsSectionHeader title={section} />;
       }
 
-      // Find next non-section item to determine isLast
-      const itemIndex: number = items.findIndex(i => i.id === item.id);
+      const itemIndex = items.findIndex(i => i.id === id);
       let nextRegularItemIndex = itemIndex + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
         nextRegularItemIndex++;
       }
 
-      // Check if immediate next item is a section header (means current item is last in its section)
       const immediateNextItem = itemIndex + 1 < items.length ? items[itemIndex + 1] : null;
       const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
 
-      const isFirst: boolean = itemIndex === 0 || !!items[itemIndex - 1]?.section;
-      const isLast: boolean = immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
+      const isFirst = itemIndex === 0 || !!items[itemIndex - 1]?.section;
+      const isLast = immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
+      const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
 
-      // Apply greater corner radius to first and last items
-      const containerStyle = {
-        ...styles.listItemContainer,
-        ...(layout.showBorderRadius && {
-          borderTopLeftRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderTopRightRadius: isFirst ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomLeftRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-          borderBottomRightRadius: isLast ? sizing.containerBorderRadius * 1.5 : 0,
-        }),
-      };
-
-      if (item.isSwitch) {
-        return (
-          <PlatformListItem
-            title={item.title}
-            subtitle={item.subtitle}
-            containerStyle={containerStyle}
-            Component={item.Component}
-            switch={{
-              value: item.switchValue || false,
-              onValueChange: item.onSwitchValueChange,
-              disabled: item.switchDisabled,
-            }}
-            isLoading={item.isLoading}
-            testID={item.testID}
-            isFirst={isFirst}
-            isLast={isLast}
-            bottomDivider={layout.showBorderBottom && !isLast}
-          />
-        );
-      }
-
-      return (
-        <PlatformListItem
-          title={item.title}
-          subtitle={item.subtitle}
-          containerStyle={containerStyle}
-          onPress={item.onPress}
-          testID={item.testID}
-          chevron={item.chevron}
-          isFirst={isFirst}
-          isLast={isLast}
-          bottomDivider={layout.showBorderBottom && !isLast}
-        />
-      );
+      return <SettingsListItem {...listItemProps} position={position} />;
     },
-    [styles, layout.showBorderBottom, layout.showBorderRadius, settingsItems, sizing.containerBorderRadius],
+    [settingsItems],
   );
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);
 
-  const ListHeaderComponent = useCallback(() => <View style={styles.headerOffset} />, [styles.headerOffset]);
-
   return (
     <>
-      <SafeAreaFlatList
+      <SettingsFlatList
         testID="EncryptStorageScrollView"
-        headerHeight={headerHeight}
-        style={styles.container}
         data={settingsItems()}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        ListHeaderComponent={ListHeaderComponent}
-        contentContainerStyle={styles.contentContainer}
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         removeClippedSubviews
