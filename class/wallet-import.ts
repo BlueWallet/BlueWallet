@@ -513,6 +513,30 @@ const startImport = (
         }
       }
     } catch (_) {}
+
+    yield { progress: 'Unchained' };
+    try {
+      const json = JSON.parse(text);
+      if (json.xfp && (json.p2wsh || json.p2sh_p2wsh || json.p2sh)) {
+        const types = [
+          { key: 'p2wsh', deriv: 'p2wsh_deriv' },
+          { key: 'p2sh_p2wsh', deriv: 'p2sh_p2wsh_deriv' },
+          { key: 'p2sh', deriv: 'p2sh_deriv' }
+        ];
+        for (const type of types) {
+          const xpub = json[type.key];
+          const deriv = json[type.deriv];
+          if (xpub && deriv) {
+            const wallet = new WatchOnlyWallet();
+            wallet.setSecret(xpub);
+            wallet.init();
+            const fp = parseInt(json.xfp, 16);
+            if (!isNaN(fp)) wallet.masterFingerprint = fp;
+            yield { wallet };
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   // POEHALI
