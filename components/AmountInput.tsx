@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Icon, Text } from '@rneui/themed';
+import Clipboard from '@react-native-clipboard/clipboard';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
 import {
@@ -24,6 +25,7 @@ import {
   satoshiToBTC,
   updateExchangeRate,
 } from '../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
 import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
@@ -68,13 +70,31 @@ type AmountInputProps = Omit<TextInputProps, 'onChangeText' | 'value'> & {
    * Returns a BitcoinUnit value
    */
   onAmountUnitChange: (unit: BitcoinUnit) => void;
+  /**
+   * Estimated sendable amount in satoshis when MAX is selected.
+   * Displayed below the MAX label. Pass null to hide.
+   */
+  maxSendableAmount?: number | null;
+  /**
+   * When true, shows ≈ prefix for maxSendableAmount (indicates estimate).
+   */
+  isMaxAmountEstimate?: boolean;
 };
 
 export const AmountInput: React.FC<AmountInputProps> = props => {
   const textInputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
   const amount = props.amount || '0'; // internally amount is aways a string with a correct number
-  const { onChangeText, unit, onAmountUnitChange, disabled = false, isLoading = false, ...otherProps } = props;
+  const {
+    onChangeText,
+    unit,
+    onAmountUnitChange,
+    disabled = false,
+    isLoading = false,
+    maxSendableAmount,
+    isMaxAmountEstimate,
+    ...otherProps
+  } = props;
   const [isRateBeingUpdatedLocal, setIsRateBeingUpdatedLocal] = useState(false);
   const [outdatedRefreshRate, setOutdatedRefreshRate] = useState<CurrencyRate | undefined>();
 
@@ -239,6 +259,13 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     }
   }, [onChangeText]);
 
+  const copyMaxEstimate = useCallback(() => {
+    if (maxSendableAmount == null) return;
+    const btcValue = removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8));
+    Clipboard.setString(btcValue);
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
+  }, [maxSendableAmount]);
+
   const handleSelectionChange = useCallback(
     (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
       const { selection } = event.nativeEvent;
@@ -283,6 +310,14 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
             ) : (
               <Pressable onPress={resetAmount}>
                 <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                {maxSendableAmount != null && (
+                  <Text style={[styles.maxEstimate, stylesHook.localCurrency]} onLongPress={copyMaxEstimate}>
+                    {(isMaxAmountEstimate ? '≈ ' : '') +
+                      removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8)) +
+                      ' ' +
+                      loc.units[BitcoinUnit.BTC]}
+                  </Text>
+                )}
               </Pressable>
             )}
             {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
@@ -386,6 +421,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9BA0A9',
     fontWeight: '600',
+  },
+  maxEstimate: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 4,
   },
   changeAmountUnit: {
     alignSelf: 'center',
