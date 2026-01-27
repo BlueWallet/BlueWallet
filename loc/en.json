@@ -687,5 +687,32 @@
     "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
     "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
+  },
+  "portfolio": {
+    "title": "Portfolio",
+    "loading": "Loading...",
+    "metrics_title": "Portfolio Metrics",
+    "unrealized_return": "Unrealized Return",
+    "average_buy_price": "Average Buy Price",
+    "cost_basis": "Cost Basis",
+    "fees_title": "Transaction Fees",
+    "fees_total_btc": "Total Fees (BTC)",
+    "fees_total_currency": "Total Fees",
+    "fees_percentage": "Fees %",
+    "fees_good": "Good",
+    "fees_bad": "High",
+    "fees_threshold_info": "< 0.5% is considered good",
+    "repair_cache": "Repair Cache",
+    "repair_cache_title": "Repair Price Cache",
+    "repair_cache_message": "This will scan and remove corrupted price cache entries. Continue?",
+    "repair_cache_complete": "Cache Repair Complete",
+    "repair_cache_result": "Removed {count} corrupted entries.",
+    "repair_cache_error": "Error",
+    "clear_cache_title": "Clear Price Cache",
+    "clear_cache_message": "This will clear all cached prices. Prices will be re-fetched from the API. Continue?",
+    "clear_cache_confirm": "Clear All",
+    "clear_cache_complete": "Cache Cleared",
+    "clear_cache_complete_message": "All cached prices have been cleared.",
+    "clear_cache_error": "Error"
   }
 }

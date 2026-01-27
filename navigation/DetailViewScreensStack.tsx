@@ -54,6 +54,7 @@ import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
+import Portfolio from '../screen/portfolio/Portfolio';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -397,6 +398,15 @@ const DetailViewStackScreensStack = () => {
           statusBarStyle: 'light',
           headerShown: true,
           presentation: 'modal',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="Portfolio"
+        component={Portfolio}
+        options={navigationStyle({
+          title: loc.portfolio.title || 'Portfolio',
+          statusBarStyle: 'auto',
+          headerShown: true,
         })(theme)}
       />
     </DetailViewStack.Navigator>

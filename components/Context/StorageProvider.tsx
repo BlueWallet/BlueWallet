@@ -12,6 +12,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getLastScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
+import { UtxoTracker } from '../../class/portfolio/utxo-tracker';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -187,6 +188,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       if (forceDelete) {
+        // Clean up portfolio data before deletion
+        UtxoTracker.cleanupWallet(wallet);
+        
         deleteWallet(wallet);
         await saveToDisk(true);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -249,6 +253,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             }
           }
         }
+        // Clean up portfolio data before deletion
+        UtxoTracker.cleanupWallet(wallet);
+        
         deleteWallet(wallet);
         console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
         await saveToDisk(true);
@@ -377,6 +384,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             const txEnd = Date.now();
             console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
 
+            // Track UTXOs for portfolio feature
+            const walletsToTrack = lastSnappedTo !== undefined ? [wallets[lastSnappedTo]] : wallets;
+            UtxoTracker.trackAllWallets(walletsToTrack.filter(w => w && w.chain === 'ONCHAIN'));
+
             clearTimeout(refreshTimeout);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
@@ -420,6 +431,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           await BlueApp.fetchWalletTransactions(index);
           const txEnd = Date.now();
           console.debug('[fetchAndSaveWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
+
+          // Track UTXOs for portfolio feature
+          const wallet = wallets[index];
+          if (wallet && wallet.chain === 'ONCHAIN') {
+            UtxoTracker.trackUtxos(wallet);
+          }
         } catch (err) {
           noErr = false;
           console.error('[fetchAndSaveWalletTransactions] Error:', err);

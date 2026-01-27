@@ -10,6 +10,7 @@ type WalletWithPassphrase = AbstractWallet & { getPassphrase: () => string };
 type UtxoMetadata = {
   frozen?: boolean;
   memo?: string;
+  firstSeenTimestamp?: number; // Timestamp (milliseconds) when UTXO was first seen by wallet
 };
 
 export class AbstractWallet {
@@ -506,6 +507,7 @@ export class AbstractWallet {
     const meta = this._utxoMetadata[`${txid}:${vout}`] || {};
     if ('memo' in opts) meta.memo = opts.memo;
     if ('frozen' in opts) meta.frozen = opts.frozen;
+    if ('firstSeenTimestamp' in opts) meta.firstSeenTimestamp = opts.firstSeenTimestamp;
     this._utxoMetadata[`${txid}:${vout}`] = meta;
   }
 

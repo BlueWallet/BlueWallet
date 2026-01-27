@@ -20,6 +20,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
+import PortfolioBox from '../../components/portfolio/PortfolioBox';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
@@ -320,11 +321,12 @@ const WalletsList: React.FC = () => {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return isTotalBalanceEnabled ? (
+          return (
             <View style={stylesHook.walletsListWrapper}>
-              <TotalWalletsBalance />
+              {isTotalBalanceEnabled && <TotalWalletsBalance />}
+              <PortfolioBox />
             </View>
-          ) : null;
+          );
         }
         default:
           return null;
