@@ -2,7 +2,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback } from 'react';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import Rate, { AndroidMarket } from 'react-native-rate';
+import RateApp, { AndroidMarket } from 'react-native-rate-app';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import A from '../../blue_modules/analytics';
@@ -66,20 +66,25 @@ const About: React.FC = () => {
     Linking.openURL('https://github.com/BlueWallet/BlueWallet');
   }, []);
 
-  const handleOnRatePress = useCallback(() => {
-    const options = {
-      AppleAppID: '1376878040',
-      GooglePackageName: 'io.bluewallet.bluewallet',
-      preferredAndroidMarket: AndroidMarket.Google,
-      preferInApp: Platform.OS !== 'android',
-      openAppStoreIfInAppFails: true,
-      fallbackPlatformURL: 'https://bluewallet.io',
+  const handleOnRatePress = useCallback(async () => {
+    const storeOptions = {
+      iOSAppId: '1376878040',
+      androidPackageName: 'io.bluewallet.bluewallet',
+      androidMarket: AndroidMarket.GOOGLE,
     };
-    Rate.rate(options, (success: boolean) => {
-      if (success) {
-        console.log('User Rated.');
+
+    try {
+      const inAppSuccess = await RateApp.requestReview({ androidMarket: AndroidMarket.GOOGLE });
+      if (!inAppSuccess) {
+        await RateApp.openStoreForReview(storeOptions);
       }
-    });
+    } catch (error) {
+      try {
+        await RateApp.openStoreForReview(storeOptions);
+      } catch (openError) {
+        console.error('Rate app failed.', openError);
+      }
+    }
   }, []);
 
   const handlePerformanceTest = useCallback(async () => {
@@ -150,7 +155,7 @@ const About: React.FC = () => {
         title: '',
         customContent: (
           <SettingsSection compact>
-            <SettingsCard style={styles.card}>
+            <SettingsCard style={[styles.card, styles.builtWithCard]}>
               <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
               <BlueSpacing20 />
               <BlueTextCentered>React Native</BlueTextCentered>
@@ -318,6 +323,9 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: 8,
   },
+  builtWithCard: {
+    paddingVertical: 16,
+  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -325,21 +333,21 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
-    marginBottom: 8,
+    marginBottom: 12,
     resizeMode: 'contain',
   },
   textFree: {
-    marginTop: 12,
+    marginTop: 16,
     fontSize: 16,
     textAlign: 'center',
   },
   textBackup: {
-    marginTop: 8,
+    marginTop: 12,
     fontSize: 14,
     textAlign: 'center',
   },
   headerButton: {
-    marginTop: 12,
+    marginTop: 16,
   },
   footerContainer: {
     marginTop: 16,
