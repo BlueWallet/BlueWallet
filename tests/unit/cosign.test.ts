@@ -9,13 +9,13 @@ import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';
 
 describe('AbstractHDElectrumWallet.cosign', () => {
   it('different descendants of AbstractHDElectrumWallet can cosign one transaction', async () => {
-    if (!process.env.HD_MNEMONIC || !process.env.HD_MNEMONIC_BIP49) {
-      console.error('process.env.HD_MNEMONIC or HD_MNEMONIC_BIP49 not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD || !process.env.HD_MNEMONIC_BIP49) {
+      console.error('process.env.HD_MNEMONIC_OLD or HD_MNEMONIC_BIP49 not set, skipped');
       return;
     }
 
     const w1 = new HDLegacyP2PKHWallet();
-    w1.setSecret(process.env.HD_MNEMONIC);
+    w1.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(w1.validateMnemonic());
     const w1Utxo = [
       {
@@ -32,7 +32,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     ];
 
     const w2 = new HDSegwitBech32Wallet();
-    w2.setSecret(process.env.HD_MNEMONIC);
+    w2.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(w2.validateMnemonic());
     const w2Utxo = [
       {
@@ -194,7 +194,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
 
   it('HDSegwitBech32Wallet can cosign psbt with correct fingerprint', async () => {
     if (!process.env.MNEMONICS_COBO) {
-      console.error('process.env.HD_MNEMONIC or HD_MNEMONIC_BIP49 not set, skipped');
+      console.error('process.env.HD_MNEMONIC_OLD or HD_MNEMONIC_BIP49 not set, skipped');
       return;
     }
 

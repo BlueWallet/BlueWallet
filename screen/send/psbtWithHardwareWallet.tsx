@@ -255,7 +255,7 @@ const PsbtWithHardwareWallet = () => {
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
         </Text>
-        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />}
+        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
         <BlueSpacing20 />
         <SecondButton
           testID="PsbtTxScanButton"

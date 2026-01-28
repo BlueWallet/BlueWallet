@@ -1,36 +1,35 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Alert, Keyboard, LayoutAnimation, Platform, StatusBar, StyleSheet, Switch, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { Divider } from '@rneui/themed';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInput, View } from 'react-native';
+import DefaultPreference from 'react-native-default-preference';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
+import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
-import loc from '../../loc';
+import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
-import DefaultPreference from 'react-native-default-preference';
-import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import { useTheme } from '../../components/themes';
-import { usePlatformStyles } from '../../theme/platformStyles';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Divider } from '@rneui/themed';
 import { Header } from '../../components/Header';
-import AddressInput from '../../components/AddressInput';
-import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
-import { Action } from '../../components/types';
-import ListItem, { PressableWrapper } from '../../components/ListItem';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import ListItem, { PressableWrapper } from '../../components/ListItem';
+import { SettingsScrollView } from '../../components/platform';
+import { useTheme } from '../../components/themes';
+import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { suggestedServers, hardcodedPeers, presentResetToDefaultsAlert } from '../../blue_modules/BlueElectrum';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -44,17 +43,16 @@ const SET_PREFERRED_PREFIX = 'set_preferred_';
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
-  const { sizing } = usePlatformStyles();
   const params = useRoute<RouteProps>().params;
   const { server } = params;
   const navigation = useExtendedNavigation();
-  const insets = useSafeAreaInsets();
   const [isLoading, setIsLoading] = useState(true);
   const [serverHistory, setServerHistory] = useState<Set<ElectrumServerItem>>(new Set());
   const [config, setConfig] = useState<{ connected?: number; host?: string; port?: string }>({});
   const [host, setHost] = useState<string>('');
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
+  const [serverBanner, setServerBanner] = useState<string>('');
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
@@ -63,17 +61,6 @@ const ElectrumSettings: React.FC = () => {
     tcp: '',
     ssl: '',
   });
-
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -106,19 +93,14 @@ const ElectrumSettings: React.FC = () => {
   const configIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = useCallback(async () => {
-    console.log('Fetching data...');
     const preferredServer = await BlueElectrum.getPreferredServer();
     const savedHost = preferredServer?.host;
     const savedPort = preferredServer?.tcp ? Number(preferredServer.tcp) : undefined;
     const savedSslPort = preferredServer?.ssl ? Number(preferredServer.ssl) : undefined;
     const serverHistoryStr = (await DefaultPreference.get(BlueElectrum.ELECTRUM_SERVER_HISTORY)) as string;
 
-    console.log('Preferred server:', preferredServer);
-    console.log('Server history string:', serverHistoryStr);
-
     const parsedServerHistory: ElectrumServerItem[] = serverHistoryStr ? JSON.parse(serverHistoryStr) : [];
 
-    // Allow duplicates for same host if ssl/tcp differs. Only skip if host, ssl, and tcp are all the same:
     const newServerHistoryArray: ElectrumServerItem[] = [];
     for (const item of parsedServerHistory) {
       const existing = newServerHistoryArray.find(s => s.host === item.host && s.tcp === item.tcp && s.ssl === item.ssl);
@@ -136,8 +118,6 @@ const ElectrumSettings: React.FC = () => {
           !hardcodedPeers.some(peer => peer.host === v.host && peer.tcp === v.tcp && peer.ssl === v.ssl),
       ),
     );
-
-    console.log('Filtered server history:', filteredServerHistory);
 
     setHost(savedHost || '');
     setPort(savedPort);
@@ -168,6 +148,17 @@ const ElectrumSettings: React.FC = () => {
       if (configIntervalRef.current) clearInterval(configIntervalRef.current);
     };
   }, [fetchData]);
+
+  // Fetch banner when connected
+  useEffect(() => {
+    if (config.connected === 1 && config.host && !isElectrumDisabled) {
+      BlueElectrum.getServerBanner()
+        .then(setServerBanner)
+        .catch(() => setServerBanner(''));
+    } else {
+      setServerBanner('');
+    }
+  }, [config.connected, config.host, config.port, isElectrumDisabled]);
 
   useEffect(() => {
     if (server) {
@@ -209,14 +200,10 @@ const ElectrumSettings: React.FC = () => {
           }
           await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
 
-          // Clear current data for the preferred host
-          console.log('Clearing current data for the preferred host');
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
           await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
 
-          // Save the new preferred host
-          console.log('Saving new preferred host');
           await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, serverHost);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
@@ -321,12 +308,11 @@ const ElectrumSettings: React.FC = () => {
   type TCreateServerActionParameters = {
     value: ElectrumServerItem;
     seenHosts: Set<string>;
-    isPreferred?: boolean;
     isConnectedTo?: boolean;
     isSuggested?: boolean;
   };
   const createServerAction = useCallback(
-    ({ value, seenHosts, isPreferred: _unused, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
+    ({ value, seenHosts, isConnectedTo = false, isSuggested = false }: TCreateServerActionParameters) => {
       const hostKey = `${value.host}:${value.tcp ?? ''}:${value.ssl ?? ''}`;
 
       seenHosts.add(hostKey);
@@ -374,7 +360,6 @@ const ElectrumSettings: React.FC = () => {
           return createServerAction({
             value,
             seenHosts,
-            isPreferred: isPreferredServer,
             isConnectedTo,
             isSuggested,
           });
@@ -463,11 +448,9 @@ const ElectrumSettings: React.FC = () => {
   const onSSLPortChange = (value: boolean) => {
     Keyboard.dismiss();
     if (value) {
-      // Move the current port to sslPort
       setSslPort(port);
       setPort(undefined);
     } else {
-      // Move the current sslPort to port
       setPort(sslPort);
       setSslPort(undefined);
     }
@@ -515,6 +498,12 @@ const ElectrumSettings: React.FC = () => {
             {config.host}:{config.port}
           </BlueText>
         </BlueCard>
+
+        {serverBanner.length > 0 && (
+          <>
+            <BlueText style={[styles.bannerText, { color: colors.foregroundColor }]}>{serverBanner}</BlueText>
+          </>
+        )}
         <BlueSpacing20 />
 
         <Divider />
@@ -546,7 +535,6 @@ const ElectrumSettings: React.FC = () => {
                 onChangeText={text => {
                   const parsed = Number(text.trim());
                   if (Number.isNaN(parsed)) {
-                    // Handle invalid input
                     sslPort === undefined ? setPort(undefined) : setSslPort(undefined);
                     return;
                   }
@@ -613,16 +601,12 @@ const ElectrumSettings: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
+    <SettingsScrollView
       keyboardShouldPersistTaps="always"
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
       testID="ElectrumSettingsScrollView"
-      contentContainerStyle={{
-        paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
-      }}
-      headerHeight={headerHeight}
     >
       <ListItem
         Component={PressableWrapper}
@@ -637,7 +621,7 @@ const ElectrumSettings: React.FC = () => {
       />
 
       {!isElectrumDisabled && renderElectrumSettings()}
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
@@ -685,7 +669,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   usePort: {
-    marginHorizontal: 16,
+    marginHorizontal: 14,
+  },
+  bannerText: {
+    marginTop: 24,
+    alignSelf: 'center',
+    fontFamily: 'monospace',
+    marginBottom: 8,
   },
 });
 

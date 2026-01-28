@@ -286,7 +286,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             const LN = new Lnurl(false, AsyncStorage);
             let paymentHash = item.payment_hash!;
             if (typeof paymentHash === 'object') {
-              paymentHash = Buffer.from(paymentHash.data).toString('hex');
+              paymentHash = uint8ArrayToHex(new Uint8Array((paymentHash as any).data));
             }
             const loaded = await LN.loadSuccessfulPayment(paymentHash);
             if (loaded) {

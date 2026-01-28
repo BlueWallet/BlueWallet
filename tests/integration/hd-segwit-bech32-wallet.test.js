@@ -29,18 +29,18 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd.validateMnemonic());
 
     assert.strictEqual(
-      'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
+      'zpub6rnbAtzupLPpSrsBKRsHupFvv1h6pwfRnZxX3qs6RL4LiLqKQ6kfBaDckn2apQWfyw1D2TdQMMDCfUDHMwtrcbGoy88xoKBLmADTFK9AhLe',
       hd.getXpub(),
     );
 
-    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p');
-    assert.strictEqual(hd._getExternalAddressByIndex(1), 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
-    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy');
-    assert.strictEqual(hd._getInternalAddressByIndex(1), 'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r');
+    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc');
+    assert.strictEqual(hd._getExternalAddressByIndex(1), 'bc1qdsf8p4knu2u0h9cspflh0ftjp8qayve3r5nme8');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qzfmm8d9saalnjjnskj2mekycg73hecpajt8urp');
+    assert.strictEqual(hd._getInternalAddressByIndex(1), 'bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj');
 
-    assert.ok(hd.weOwnAddress('bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p'));
-    assert.ok(hd.weOwnAddress('BC1QVD6W54SYDC08Z3802SVKXR7297EZ7CUSD6266P'));
-    assert.ok(hd.weOwnAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'));
+    assert.ok(hd.weOwnAddress('bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc'));
+    assert.ok(hd.weOwnAddress('BC1QE7Q08PRC2SPLN2L7QDVVLCGQXM9ZA9Z7MJNPZC'));
+    assert.ok(hd.weOwnAddress('bc1qz28yun0lkkk2fk5ed2gdpnfra8970umtsd58gj'));
     assert.ok(!hd.weOwnAddress('1HjsSTnrwWzzEV2oi4r5MsAYENkTkrCtwL'));
     assert.ok(!hd.weOwnAddress('garbage'));
     assert.ok(!hd.weOwnAddress(false));
@@ -50,7 +50,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd._lastBalanceFetch === 0);
 
     await hd.fetchBalance();
-    assert.strictEqual(hd.getBalance(), 200000);
+    assert.strictEqual(hd.getBalance(), 2400);
     assert.strictEqual(await hd.getAddressAsync(), hd._getExternalAddressByIndex(2));
     assert.strictEqual(await hd.getChangeAddressAsync(), hd._getInternalAddressByIndex(2));
     assert.strictEqual(hd.next_free_address_index, 2);
@@ -66,13 +66,13 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     for (const tx of hd.getTransactions()) {
       assert.ok(tx.hash);
-      assert.strictEqual(tx.value, 50000);
+      assert.strictEqual(tx.value, 600);
       assert.ok(tx.timestamp);
       assert.ok(tx.confirmations > 1);
     }
 
-    assert.ok(hd.weOwnTransaction('5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'));
-    assert.ok(hd.weOwnTransaction('ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d'));
+    assert.ok(hd.weOwnTransaction('bf45480715b2500d9ad4ed3388dcfc6bc5c5bb7b3097e65e5f4d4503763f5647'));
+    assert.ok(hd.weOwnTransaction('0e505ed3a88a47b02c858e35f977db1c0e092dd29fa40ac5aec750373c0b306a'));
     assert.ok(!hd.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
 
     // now fetch UTXO

@@ -1217,6 +1217,10 @@ export const setBatchingEnabled = () => {
   disableBatching = false;
 };
 
+export function getServerBanner(): Promise<string> {
+  return mainClient.request('server.banner', []);
+}
+
 const splitIntoChunks = function (arr: any[], chunkSize: number) {
   const groups = [];
   let i;

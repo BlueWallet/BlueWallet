@@ -1074,7 +1074,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static isPathValid(path: string): boolean {
-    const root = bip32.fromSeed(Buffer.alloc(32));
+    const root = bip32.fromSeed(new Uint8Array(32));
     try {
       root.derivePath(path);
       return true;

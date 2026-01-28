@@ -112,22 +112,15 @@ const DetailViewStackScreensStack = () => {
       headerBackTitle: '',
       headerBackVisible: true, // Show back button on Android
       headerShadowVisible: false,
-      // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-      headerLargeTitle: Platform.OS === 'ios',
-      headerLargeTitleStyle:
-        Platform.OS === 'ios'
-          ? {
-              color: titleColorString,
-            }
-          : undefined,
+      headerLargeTitle: false,
+      headerLargeTitleStyle: undefined,
       headerTitleStyle: {
         color: titleColorString,
       },
-      // Transparent header on both iOS and Android
-      headerTransparent: true,
+      headerTransparent: false,
       headerBlurEffect: undefined,
       headerStyle: {
-        backgroundColor: 'transparent',
+        backgroundColor: theme.colors.customHeader,
       },
     };
   };

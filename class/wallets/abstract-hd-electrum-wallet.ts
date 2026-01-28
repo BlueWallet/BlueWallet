@@ -1561,10 +1561,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * @param seed {Buffer} Buffer object with seed
+   * @param seed {Uint8Array} Uint8Array with seed
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has length of 8 chars and correct leading zeroes. All caps
    */
-  static seedToFingerprint(seed: Buffer) {
+  static seedToFingerprint(seed: Uint8Array) {
     const root = bip32.fromSeed(seed);
     let hex = uint8ArrayToHex(root.fingerprint);
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
@@ -1712,13 +1712,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // utxo selected. lets create op_return payload using the correct (first!) utxo and correct targets with that payload
 
     const keyPair = ECPair.fromWIF(inputsTemp[0].wif);
-    const outputNumber = Buffer.from('00000000', 'hex');
-    outputNumber.writeUInt32LE(inputsTemp[0].vout);
+    const outputNumber = new Uint8Array(4); // 00000000 in hex
+    new DataView(outputNumber.buffer).setUint32(0, inputsTemp[0].vout, true); // little-endian
     const blindedPaymentCode = aliceBip47.getBlindedPaymentCode(
       bobBip47,
       keyPair.privateKey as Buffer,
       // txid is reversed, as well as output number
-      uint8ArrayToHex(hexToUint8Array(inputsTemp[0].txid).reverse()) + outputNumber.toString('hex'),
+      uint8ArrayToHex(hexToUint8Array(inputsTemp[0].txid).reverse()) + uint8ArrayToHex(outputNumber),
     );
 
     // targets:

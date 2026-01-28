@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, LayoutAnimation, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -191,7 +192,7 @@ const WalletDetails: React.FC = () => {
         memo = transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
-          hash = Buffer.from((hash as any).data).toString('hex');
+          hash = uint8ArrayToHex(new Uint8Array((hash as any).data));
         }
       }
 

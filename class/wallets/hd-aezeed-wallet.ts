@@ -37,10 +37,10 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return this;
   }
 
-  _getEntropyCached() {
+  _getEntropyCached(): Uint8Array {
     if (this._entropyHex) {
       // cache hit
-      return Buffer.from(this._entropyHex, 'hex');
+      return hexToUint8Array(this._entropyHex);
     } else {
       throw new Error('Entropy cache is not filled');
     }

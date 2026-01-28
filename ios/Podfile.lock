@@ -69,6 +69,34 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - RateApp (1.4.7):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1967,7 +1995,7 @@ PODS:
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
-  - react-native-document-picker (12.0.0):
+  - react-native-document-picker (12.0.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2943,8 +2971,6 @@ PODS:
     - ZXingObjC
   - RNQuickAction (0.3.13):
     - React
-  - RNRate (1.2.12):
-    - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - boost
     - DoubleConversion
@@ -3065,7 +3091,7 @@ PODS:
     - RNWorklets
     - SocketRocket
     - Yoga
-  - RNScreens (4.19.0):
+  - RNScreens (4.20.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3092,10 +3118,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.19.0)
+    - RNScreens/common (= 4.20.0)
     - SocketRocket
     - Yoga
-  - RNScreens/common (4.19.0):
+  - RNScreens/common (4.20.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3124,7 +3150,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNShare (12.2.2):
+  - RNShare (12.2.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -3239,7 +3265,7 @@ PODS:
     - Yoga
   - RNWatch (1.1.0):
     - React
-  - RNWorklets (0.7.1):
+  - RNWorklets (0.7.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3266,10 +3292,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNWorklets/worklets (= 0.7.1)
+    - RNWorklets/worklets (= 0.7.2)
     - SocketRocket
     - Yoga
-  - RNWorklets/worklets (0.7.1):
+  - RNWorklets/worklets (0.7.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3296,10 +3322,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNWorklets/worklets/apple (= 0.7.1)
+    - RNWorklets/worklets/apple (= 0.7.2)
     - SocketRocket
     - Yoga
-  - RNWorklets/worklets/apple (0.7.1):
+  - RNWorklets/worklets/apple (0.7.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -3345,6 +3371,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - RateApp (from `../node_modules/react-native-rate-app`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -3442,7 +3469,6 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
-  - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -3484,6 +3510,8 @@ EXTERNAL SOURCES:
     :tag: hermes-v0.14.0
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  RateApp:
+    :path: "../node_modules/react-native-rate-app"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -3676,8 +3704,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/rn-qr-generator"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
-  RNRate:
-    :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -3710,6 +3736,7 @@ SPEC CHECKSUMS:
   hermes-engine: b6ee973c4fd6366874d9aabcaf396d53475038eb
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: 691b8363e8c591fb78a78254ff2517258891456b
+  RateApp: f2c5275cac9cd8d8498d55a4732e62556189ceea
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: a41bbdd9af30bf2e5715796b313e44ec43eefff1
   RCTRequired: 7be34aabb0b77c3cefe644528df0fa0afad4e4d0
@@ -3751,7 +3778,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: 9bcc879e5d577b55050dc12ff0f283595c9e5873
-  react-native-document-picker: fd12cddcf583f27e005a9f85af37320b3ba13aa2
+  react-native-document-picker: dc2d83366e47e89e7c51e8a41eab99c1d54e941c
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 0314366753615115fa55c3cc937ac44cb7e75702
   react-native-menu: d3cbac7d7bd6ae1c283f4f3c9993f69d209a61b4
@@ -3807,15 +3834,14 @@ SPEC CHECKSUMS:
   RNPermissions: aaeb87328ea3d700e1ab6f65aec08e7313cc865c
   RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
-  RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: be4f1b4bf0398c30b59b76ed92ecb0a2ff3a69c6
   RNReanimated: 292cd58688552a22b3fc1cefcfbc49b336dfed68
-  RNScreens: ffbb0296608eb3560de641a711bbdb663ed1f6b4
-  RNShare: d1c1b7238eac733cb5185513e64cf14db9999637
+  RNScreens: 714e10b6b554f7dc7ad9f78dcf36dc8e3fc73415
+  RNShare: 425181ecafcb05648e93f9fbffb5d5005d1e69cc
   RNSVG: ba3c3bc3cf413f32d1a7012274fe503c6fc1eadd
   RNVectorIcons: 791f13226ec4a3fd13062eda9e892159f0981fae
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
-  RNWorklets: 69f7239afaf3a156f7f9549eeb0ae8d02adc095f
+  RNWorklets: 01efdd402d236a13651ea5ea5437ca85a44e7afa
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 5456bb010373068fc92221140921b09d126b116e
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
