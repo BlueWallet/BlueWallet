@@ -24,6 +24,7 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 
 const styles = StyleSheet.create({
   pressable: {
@@ -284,16 +285,16 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           try {
             // is it a successful lnurl-pay?
             const LN = new Lnurl(false, AsyncStorage);
-            let paymentHash = item.payment_hash!;
-            if (typeof paymentHash === 'object') {
-              paymentHash = uint8ArrayToHex(new Uint8Array((paymentHash as any).data));
-            }
-            const loaded = await LN.loadSuccessfulPayment(paymentHash);
+            const rawPaymentHash = item.payment_hash;
+            if (!rawPaymentHash) throw new Error('Missing payment hash');
+            const normalizedPaymentHash =
+              typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
+            const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
             if (loaded) {
               navigate('ScanLNDInvoiceRoot', {
                 screen: 'LnurlPaySuccess',
                 params: {
-                  paymentHash,
+                  paymentHash: normalizedPaymentHash,
                   justPaid: false,
                   fromWalletID: lightningWallet[0].getID(),
                 },

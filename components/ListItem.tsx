@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { ListItem as RNElementsListItem } from '@rneui/themed';
 import { useLocale } from '@react-navigation/native';
 
@@ -23,6 +23,7 @@ interface ListItemProps {
   rightTitleStyle?: object;
   chevron?: boolean;
   checkmark?: boolean;
+  isLoading?: boolean;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {
@@ -54,6 +55,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     rightTitleStyle,
     chevron,
     checkmark,
+    isLoading,
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();
@@ -113,18 +115,24 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             </RNElementsListItem.Title>
           </View>
         )}
-        {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
-        {switchProps && (
-          <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
-        )}
-        {checkmark && (
-          <RNElementsListItem.CheckBox
-            iconRight
-            containerStyle={stylesHook.containerStyle}
-            iconType="octaicon"
-            checkedIcon="check"
-            checked
-          />
+        {isLoading ? (
+          <ActivityIndicator accessibilityRole="progressbar" accessibilityLabel="Loading" />
+        ) : (
+          <>
+            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
+            {switchProps && (
+              <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+            )}
+            {checkmark && (
+              <RNElementsListItem.CheckBox
+                iconRight
+                containerStyle={stylesHook.containerStyle}
+                iconType="octaicon"
+                checkedIcon="check"
+                checked
+              />
+            )}
+          </>
         )}
       </>
     );
