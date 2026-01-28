@@ -30,7 +30,10 @@ const styles = StyleSheet.create({
   save: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 80,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    minWidth: 80,
+    paddingHorizontal: 12,
     borderRadius: 8,
     height: 34,
   },
