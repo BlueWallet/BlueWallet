@@ -175,7 +175,7 @@
     "react-test-renderer": "19.0.0",
     "readable-stream": "3.6.2",
     "realm": "20.1.0",
-    "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#731ed8eb445f65f3a659632232e18ff7e1ce56d6",
+    "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#5870927a70f5bf43dd59b332fd221af971b82bfe",
     "silent-payments": "github:BlueWallet/SilentPayments#59a037",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
     "stream-browserify": "3.0.0",
