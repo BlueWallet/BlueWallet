@@ -111,6 +111,15 @@ const SendDetails = () => {
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
+  // estimated sendable amount when MAX is selected (null if not applicable)
+  const maxSendableAmount = useMemo(() => {
+    if (addresses.length !== 1) return null;
+    if (addresses[0].amount !== BitcoinUnit.MAX) return null;
+    if (feePrecalc.current === null) return null;
+    const sendable = balance - feePrecalc.current;
+    return sendable > 0 ? sendable : null;
+  }, [addresses, balance, feePrecalc]);
+
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
@@ -316,8 +325,12 @@ const SendDetails = () => {
     let targets = [];
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
-        // single output with MAX
-        targets = [{ address: transaction.address }];
+        // single output with MAX — use P2TR dummy (43-byte output) for conservative estimate
+        const addr =
+          transaction.address && wallet.isAddressValid(transaction.address)
+            ? transaction.address
+            : 'bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0';
+        targets = [{ address: addr }];
         break;
       }
       const value = transaction.amountSats;
@@ -586,7 +599,12 @@ const SendDetails = () => {
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
         // output with MAX
-        targets.push({ address: transaction.address });
+        if (maxSendableAmount != null && addresses.length === 1) {
+          // Force the exact displayed amount — remainder goes to fee
+          targets.push({ address: transaction.address, value: maxSendableAmount });
+        } else {
+          targets.push({ address: transaction.address });
+        }
         continue;
       }
       const value = parseInt(String(transaction.amountSats), 10);
@@ -1399,6 +1417,8 @@ const SendDetails = () => {
             editable={isEditable}
             disabled={!isEditable}
             inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
+            maxSendableAmount={index === scrollIndex.current ? maxSendableAmount : null}
+            isMaxAmountEstimate={!(item.address && wallet?.isAddressValid(item.address))}
           />
         </View>
 
