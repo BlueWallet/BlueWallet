@@ -2966,7 +2966,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNQrGenerator (1.4.3):
+  - RNQrGenerator (1.4.5):
     - React
     - ZXingObjC
   - RNQuickAction (0.3.13):
@@ -3832,7 +3832,7 @@ SPEC CHECKSUMS:
   RNKeychain: 6ade38fa11cde4337b5fe2e6c13c11550082f03b
   RNLocalize: 23e6689ec46c6cba49eb8cde959e30e49160a35b
   RNPermissions: aaeb87328ea3d700e1ab6f65aec08e7313cc865c
-  RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
+  RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: be4f1b4bf0398c30b59b76ed92ecb0a2ff3a69c6
   RNReanimated: 292cd58688552a22b3fc1cefcfbc49b336dfed68
