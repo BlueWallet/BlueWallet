@@ -1,28 +1,40 @@
-import React, { useMemo } from 'react';
+import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import {
-  CoinControlComponent,
-  ConfirmComponent,
-  CreateTransactionComponent,
-  PaymentCodesListComponent,
-  PsbtMultisigComponent,
-  PsbtMultisigQRCodeComponent,
-  PsbtWithHardwareWalletComponent,
-  SelectWalletComponent,
-  SendDetailsComponent,
-  SuccessComponent,
-} from './LazyLoadSendDetailsStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import { Platform } from 'react-native';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
+
+const SendDetails = lazy(() => import('../screen/send/SendDetails'));
+const Confirm = lazy(() => import('../screen/send/Confirm'));
+const PsbtWithHardwareWallet = lazy(() => import('../screen/send/psbtWithHardwareWallet'));
+const CreateTransaction = lazy(() => import('../screen/send/create'));
+const PsbtMultisig = lazy(() => import('../screen/send/psbtMultisig'));
+const PsbtMultisigQRCode = lazy(() => import('../screen/send/PsbtMultisigQRCode'));
+const Success = lazy(() => import('../screen/send/success'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
+const CoinControl = lazy(() => import('../screen/send/CoinControl'));
+const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
+const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+
+const SendDetailsComponent = withLazySuspense(SendDetails);
+const ConfirmComponent = withLazySuspense(Confirm);
+const PsbtWithHardwareWalletComponent = withLazySuspense(PsbtWithHardwareWallet);
+const CreateTransactionComponent = withLazySuspense(CreateTransaction);
+const PsbtMultisigComponent = withLazySuspense(PsbtMultisig);
+const PsbtMultisigQRCodeComponent = withLazySuspense(PsbtMultisigQRCode);
+const SuccessComponent = withLazySuspense(Success);
+const SelectWalletComponent = withLazySuspense(SelectWallet);
+const CoinControlComponent = withLazySuspense(CoinControl);
+const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
+const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const SendDetailsStack = () => {
   const theme = useTheme();

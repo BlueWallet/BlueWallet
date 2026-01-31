@@ -1,12 +1,15 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { lazy } from 'react';
 
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { SignVerifyComponent } from './LazyLoadSignVerifyStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 const Stack = createNativeStackNavigator();
+
+const SignVerify = lazy(() => import('../screen/wallets/signVerify'));
+const SignVerifyComponent = withLazySuspense(SignVerify);
 
 const SignVerifyStackRoot = () => {
   const theme = useTheme();

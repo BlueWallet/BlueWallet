@@ -1739,7 +1739,7 @@ PODS:
     - React-Core
   - RNPermissions (5.4.4):
     - React-Core
-  - RNQrGenerator (1.4.3):
+  - RNQrGenerator (1.4.5):
     - React
     - ZXingObjC
   - RNQuickAction (0.3.13):
@@ -1884,7 +1884,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.16.0):
+  - RNScreens (4.17.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2381,11 +2381,11 @@ SPEC CHECKSUMS:
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
   RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
   RNPermissions: 3f86a2c7cd6d76b307cc57ac774038e4571b4722
-  RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
+  RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
   RNReanimated: 76e3bdba62bb728ea8d8d23b451e8070e6c2c2bc
-  RNScreens: 42312201faf5ff8ddc169d47cf828b340b60a0d4
+  RNScreens: 723a27283c0b5c3de74c4b5eba28890a99581d43
   RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
   RNSVG: cd580f422f3c4f0ffa490b6ac479c6602ae54bca
   RNVectorIcons: f7a99433a71f4b38891c14c64b21fc521d064392

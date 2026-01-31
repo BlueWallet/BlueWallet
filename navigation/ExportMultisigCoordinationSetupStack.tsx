@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { ExportMultisigCoordinationSetupComponent } from './LazyLoadExportMultisigCoordinationSetupStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 export type ExportMultisigCoordinationSetupStackRootParamList = {
   ExportMultisigCoordinationSetup: {
@@ -12,6 +12,9 @@ export type ExportMultisigCoordinationSetupStackRootParamList = {
 };
 
 const Stack = createNativeStackNavigator<ExportMultisigCoordinationSetupStackRootParamList>();
+
+const ExportMultisigCoordinationSetup = lazy(() => import('../screen/wallets/ExportMultisigCoordinationSetup'));
+const ExportMultisigCoordinationSetupComponent = withLazySuspense(ExportMultisigCoordinationSetup);
 
 const ExportMultisigCoordinationSetupStack = () => {
   const theme = useTheme();

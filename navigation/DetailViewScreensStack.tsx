@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
@@ -25,7 +25,7 @@ import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
-import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
@@ -53,6 +53,9 @@ import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
+
+const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
+const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();

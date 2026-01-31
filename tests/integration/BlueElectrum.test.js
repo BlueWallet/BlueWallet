@@ -153,21 +153,19 @@ describe('BlueElectrum', () => {
   it('BlueElectrum can do getTransactionsFullByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     const tx = txs[0];
-    {
-      assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
-      assert.ok(tx.txid);
-      assert.ok(tx.confirmations);
-      assert.ok(!tx.vin);
-      assert.ok(!tx.vout);
-      assert.ok(tx.inputs);
-      assert.strictEqual(tx.inputs[0]?.addresses[0], 'bc1q7td49wcxfad9v42kmvg5refn9wcnvnru4395qw');
-      assert.ok(tx.inputs[0].addresses.length > 0);
-      assert.ok(tx.inputs[0].value > 0);
-      assert.ok(tx.outputs);
-      assert.ok(tx.outputs[0].value > 0);
-      assert.ok(tx.outputs[0].scriptPubKey);
-      assert.ok(tx.outputs[0].addresses.length > 0);
-    }
+    assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
+    assert.ok(tx.txid);
+    assert.ok(tx.confirmations);
+    assert.ok(!tx.vin);
+    assert.ok(!tx.vout);
+    assert.ok(tx.inputs);
+    assert.strictEqual(tx.inputs[0]?.addresses[0], 'bc1q7td49wcxfad9v42kmvg5refn9wcnvnru4395qw');
+    assert.ok(tx.inputs[0].addresses.length > 0);
+    assert.ok(tx.inputs[0].value > 0);
+    assert.ok(tx.outputs);
+    assert.ok(tx.outputs[0].value > 0);
+    assert.ok(tx.outputs[0].scriptPubKey);
+    assert.ok(tx.outputs[0].addresses.length > 0);
   });
 
   it('BlueElectrum can do txhexToElectrumTransaction()', () => {

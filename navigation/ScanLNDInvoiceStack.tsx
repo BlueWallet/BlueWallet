@@ -1,14 +1,26 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { lazy } from 'react';
 
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
-import { LnurlPayComponent, LnurlPaySuccessComponent, ScanLNDInvoiceComponent, SuccessComponent } from './LazyLoadScanLNDInvoiceStack';
-import { SelectWalletComponent } from './LazyLoadLNDCreateInvoiceStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 const Stack = createNativeStackNavigator();
+
+const ScanLNDInvoice = lazy(() => import('../screen/lnd/ScanLNDInvoice'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
+const Success = lazy(() => import('../screen/send/success'));
+const LnurlPay = lazy(() => import('../screen/lnd/lnurlPay'));
+const LnurlPaySuccess = lazy(() => import('../screen/lnd/lnurlPaySuccess'));
+const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+
+const ScanLNDInvoiceComponent = withLazySuspense(ScanLNDInvoice);
+const SelectWalletComponent = withLazySuspense(SelectWallet);
+const SuccessComponent = withLazySuspense(Success);
+const LnurlPayComponent = withLazySuspense(LnurlPay);
+const LnurlPaySuccessComponent = withLazySuspense(LnurlPaySuccess);
+const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const ScanLNDInvoiceRoot = () => {
   const theme = useTheme();
