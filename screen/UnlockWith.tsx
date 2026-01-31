@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { CommonActions, useNavigation, type NavigationProp } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Image,
@@ -18,6 +19,7 @@ import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/use
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
 import { PasswordInput, PasswordInputHandle } from '../components/PasswordInput';
+import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 
 enum AuthType {
   Encrypted,
@@ -85,16 +87,28 @@ const UnlockWith: React.FC = () => {
   const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
+  const navigation = useNavigation<NavigationProp<DetailViewStackParamList>>();
 
   useEffect(() => {
     setWalletsInitialized(false);
   }, [setWalletsInitialized]);
 
+  const preloadWalletsList = useCallback(() => {
+    navigation.dispatch(
+      CommonActions.preload('DrawerRoot', {
+        screen: 'DetailViewStackScreensStack',
+        params: {
+          screen: 'WalletsList',
+        },
+      }),
+    );
+  }, [navigation]);
+
   const successfullyAuthenticated = useCallback(() => {
+    preloadWalletsList();
     setWalletsInitialized(true);
     isUnlockingWallets.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [preloadWalletsList, setWalletsInitialized]);
 
   const unlockUsingBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;

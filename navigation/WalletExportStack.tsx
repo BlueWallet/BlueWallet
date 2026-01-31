@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { WalletExportComponent } from './LazyLoadWalletExportStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 export type WalletExportStackParamList = {
   WalletExport: { walletID: string };
 };
 
 const Stack = createNativeStackNavigator<WalletExportStackParamList>();
+
+const WalletExport = lazy(() => import('../screen/wallets/WalletExport'));
+const WalletExportComponent = withLazySuspense(WalletExport);
 
 const WalletExportStack = () => {
   const theme = useTheme();
