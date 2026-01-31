@@ -15,6 +15,9 @@ const WalletsAddMultisig = lazy(() => import('../screen/wallets/WalletsAddMultis
 const MultisigAdvanced = lazy(() => import('../screen/wallets/MultisigAdvanced'));
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
+const WalletsAddMultisigVaultKeySheet = lazy(() => import('../screen/wallets/WalletsAddMultisigVaultKeySheet'));
+const WalletsAddMultisigProvideMnemonicsSheet = lazy(() => import('../screen/wallets/WalletsAddMultisigProvideMnemonicsSheet'));
+const WalletsAddMultisigCosignerXpubSheet = lazy(() => import('../screen/wallets/WalletsAddMultisigCosignerXpubSheet'));
 
 export const AddComponent: React.FC = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
@@ -87,3 +90,9 @@ export const WalletsAddMultisigHelpComponent = () => (
     <WalletsAddMultisigHelp />
   </Suspense>
 );
+
+export const WalletsAddMultisigVaultKeySheetComponent = () => <WalletsAddMultisigVaultKeySheet />;
+
+export const WalletsAddMultisigProvideMnemonicsSheetComponent = () => <WalletsAddMultisigProvideMnemonicsSheet />;
+
+export const WalletsAddMultisigCosignerXpubSheetComponent = () => <WalletsAddMultisigCosignerXpubSheet />;

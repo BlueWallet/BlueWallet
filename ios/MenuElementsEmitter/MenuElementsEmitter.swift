@@ -2,8 +2,7 @@ import Foundation
 import React
 
 @objc(MenuElementsEmitter)
-class MenuElementsEmitter: RCTEventEmitter {
-    
+class MenuElementsEmitter: RCTEventEmitter, NativeMenuElementsEmitterSpec {
     private static var instance: MenuElementsEmitter?
     private var hasListeners = false
     
@@ -19,13 +18,23 @@ class MenuElementsEmitter: RCTEventEmitter {
         }
         return instance!
     }
+
+    // NativeMenuElementsEmitterSpec expects an instance method; bridge it to the singleton above.
+    @objc
+    func sharedInstance() {
+        _ = MenuElementsEmitter.sharedInstance()
+    }
     
     override func supportedEvents() -> [String]! {
         return ["openSettings", "addWalletMenuAction", "importWalletMenuAction", "reloadTransactionsMenuAction"]
     }
     
-    override class func requiresMainQueueSetup() -> Bool {
-        return true
+    override func addListener(_ eventName: String!) {
+        // Required for TurboModule event emitters; JS handles bookkeeping
+    }
+
+    override func removeListeners(_ count: Double) {
+        // Required for TurboModule event emitters; JS handles bookkeeping
     }
     
     override func startObserving() {

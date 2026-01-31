@@ -6,7 +6,6 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
-  LayoutAnimation,
   PixelRatio,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -76,6 +76,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
   const [balance, setBalance] = useState(wallet.getBalance());
+  const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
+  const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -135,6 +137,16 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       navigation.setParams({ onBarScanned: undefined });
     }
   }, [navigation, onBarCodeRead, route.params]);
+
+  useEffect(() => {
+    // keep local display unit in sync when wallet changes (e.g., switching wallets)
+    console.debug('[UnitSwitch] sync from wallet preferred unit', { walletID, preferred: wallet.preferredBalanceUnit });
+    setDisplayUnit(wallet.preferredBalanceUnit);
+  }, [wallet, walletID]);
+
+  useEffect(() => {
+    console.debug('[UnitSwitch] display unit state changed', { walletID, displayUnit, switching: isUnitSwitching });
+  }, [walletID, displayUnit, isUnitSwitching]);
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
@@ -305,9 +317,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={wallet.preferredBalanceUnit} walletID={walletID} />
+      <TransactionListItem key={item.hash} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
     ),
-    [wallet.preferredBalanceUnit, walletID],
+    [displayUnit, walletID],
   );
 
   const choosePhoto = () => {
@@ -424,10 +436,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';
-    if (isNaN(balance) || balance === 0) return '';
-    return formatBalance(balance, wallet.preferredBalanceUnit, true);
+    if (!Number.isFinite(balance)) return '';
+    const formatted = formatBalance(balance, displayUnit, true);
+    return formatted || '0';
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, wallet.hideBalance, wallet.preferredBalanceUnit, balance]);
+  }, [wallet, wallet.hideBalance, displayUnit, balance]);
 
   const handleScroll = useCallback(
     (event: any) => {
@@ -477,10 +490,23 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         <TransactionsNavigationHeader
           wallet={wallet}
           onWalletUnitChange={async selectedUnit => {
-            wallet.preferredBalanceUnit = selectedUnit;
+            console.debug('[UnitSwitch] requested', { walletID, from: displayUnit, to: selectedUnit });
+            setIsUnitSwitching(true);
+            setDisplayUnit(selectedUnit);
+            if ('setPreferredBalanceUnit' in wallet) {
+              wallet.setPreferredBalanceUnit(selectedUnit);
+            } else {
+              (wallet as any).preferredBalanceUnit = selectedUnit;
+            }
             await saveToDisk();
+            console.debug('[UnitSwitch] persisted preferred unit', { walletID, unit: selectedUnit });
+            setTimeout(() => {
+              setIsUnitSwitching(false);
+              console.debug('[UnitSwitch] complete', { walletID, unit: selectedUnit });
+            }, 50);
           }}
-          unit={wallet.preferredBalanceUnit}
+          unit={displayUnit}
+          unitSwitching={isUnitSwitching}
           onWalletBalanceVisibilityChange={async isShouldBeVisible => {
             const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
             if (wallet.hideBalance && isBiometricsEnabled) {
@@ -522,13 +548,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           </View>
           <View style={stylesHook.backgroundContainer}>
             {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-              <WatchOnlyWarning
-                handleDismiss={() => {
-                  wallet.isWatchOnlyWarningVisible = false;
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-                  saveToDisk();
-                }}
-              />
+              <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
+                <WatchOnlyWarning
+                  handleDismiss={() => {
+                    wallet.isWatchOnlyWarningVisible = false;
+                    saveToDisk();
+                  }}
+                />
+              </Animated.View>
             )}
           </View>
         </>
@@ -536,6 +563,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     ),
     [
       wallet,
+      displayUnit,
+      isUnitSwitching,
       measureHeaderHeight,
       stylesHook.backgroundContainer,
       stylesHook.listHeaderText,
@@ -565,7 +594,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
         data={getTransactions(limit)}
-        extraData={wallet}
+        extraData={[wallet, displayUnit, wallet.hideBalance]}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}

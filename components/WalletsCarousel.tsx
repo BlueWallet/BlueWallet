@@ -1,20 +1,27 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect, createRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect } from 'react';
 import {
-  Animated,
   FlatList,
   ImageBackground,
   Platform,
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
+  useWindowDimensions,
   FlatListProps,
   ListRenderItemInfo,
   ViewStyle,
-  LayoutAnimation,
-  UIManager,
 } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
@@ -25,13 +32,11 @@ import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
-import HighlightedText from './HighlightedText';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+// Horizontal carousel shows a small peek of the next card; adjust overlap to control that spacing.
+const CARD_OVERLAP = 24;
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -78,22 +83,18 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       : { paddingVertical: 16, paddingHorizontal: 24 },
   });
 
-  const scale = useRef(new Animated.Value(1)).current;
+  const scale = useSharedValue(1);
+
+  const animatedScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handlePressIn = useCallback(() => {
-    Animated.spring(scale, {
-      toValue: 0.97,
-      useNativeDriver: true,
-      friction: 4,
-    }).start();
+    scale.value = withSpring(0.97, { damping: 14, stiffness: 180 });
   }, [scale]);
 
   const handlePressOut = useCallback(() => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-      friction: 4,
-    }).start();
+    scale.value = withSpring(1, { damping: 14, stiffness: 180 });
   }, [scale]);
 
   return (
@@ -115,9 +116,9 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         style={[
           nStyles.container,
           nStylesHooks.container,
-          { backgroundColor: WalletGradient.createWallet() },
+          { backgroundColor: colors.borderTopColor },
           isLarge ? {} : { width: itemWidth },
-          { transform: [{ scale }] },
+          animatedScaleStyle,
         ]}
       >
         <Text style={[nStyles.addAWAllet, { color: colors.foregroundColor }]}>{loc.wallets.list_create_a_wallet}</Text>
@@ -139,24 +140,39 @@ interface WalletCarouselItemProps {
   horizontal?: boolean;
   isPlaceHolder?: boolean;
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   animationsEnabled?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
   isNewWallet?: boolean;
   isExiting?: boolean;
+  isDraggingActive?: boolean;
+  dragActiveScale?: number;
+  sizeVariant?: 'default' | 'compact';
 }
 
 const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
   rootLargeDevice: { marginVertical: 20 },
   grad: {
-    padding: 15,
     borderRadius: 12,
     minHeight: 164,
   },
+  gradCompact: {
+    borderRadius: 10,
+    minHeight: 132,
+  },
+  gradContent: {
+    padding: 15,
+  },
+  gradContentCompact: {
+    padding: 12,
+  },
   balanceContainer: {
     height: 40,
+  },
+  balanceContainerCompact: {
+    height: 32,
   },
   image: {
     width: 99,
@@ -165,6 +181,12 @@ const iStyles = StyleSheet.create({
     bottom: 0,
     right: 0,
   },
+  imageCompact: {
+    width: 78,
+    height: 74,
+    right: 4,
+    bottom: 4,
+  },
   br: {
     backgroundColor: 'transparent',
   },
@@ -172,19 +194,32 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontSize: 19,
   },
+  labelCompact: {
+    fontSize: 16,
+  },
   balance: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
   },
+  balanceCompact: {
+    fontSize: 28,
+    lineHeight: 34,
+  },
   latestTx: {
     backgroundColor: 'transparent',
     fontSize: 13,
+  },
+  latestTxCompact: {
+    fontSize: 12,
   },
   latestTxTime: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  latestTxTimeCompact: {
+    fontSize: 14,
   },
   shadowContainer: {
     ...Platform.select({
@@ -197,6 +232,20 @@ const iStyles = StyleSheet.create({
       android: {
         elevation: 8,
         borderRadius: 12,
+      },
+    }),
+  },
+  shadowContainerCompact: {
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 20 / 100,
+        shadowRadius: 6,
+        borderRadius: 10,
+      },
+      android: {
+        elevation: 6,
+        borderRadius: 10,
       },
     }),
   },
@@ -218,51 +267,59 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     onPressOut,
     isNewWallet = false,
     isExiting = false,
+    isDraggingActive = false,
+    dragActiveScale = 1.02,
+    sizeVariant = 'default',
   }: WalletCarouselItemProps) => {
-    const scaleValue = useRef(new Animated.Value(1.0)).current;
-    const opacityValue = useRef(new Animated.Value(isSelectedWallet === false ? 0.5 : 1.0)).current;
-    const translateYValue = useRef(new Animated.Value(isNewWallet ? 20 : 0)).current;
+    const walletLabel = item.getLabel ? item.getLabel() : '';
+    const pressScale = useSharedValue(1.0);
+    const dragScale = useSharedValue(isDraggingActive ? dragActiveScale : 1.0);
+    const opacityValue = useSharedValue(isSelectedWallet === false ? 0.5 : 1.0);
+    const translateYValue = useSharedValue(isNewWallet ? 20 : 0);
+    const balanceOpacity = useSharedValue(1);
+    const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { sizeClass } = useSizeClass();
+    const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
+    const previousBalance = useRef<string | undefined>(undefined);
+    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+    const safeBalance = balance || undefined;
 
-    const springConfig = useMemo(() => ({ useNativeDriver: true, tension: 100 }), []);
-    const animateScale = useCallback(
-      (toValue: number, callback?: () => void) => {
-        Animated.spring(scaleValue, { toValue, ...springConfig }).start(callback);
+    const animatePressScale = useCallback(
+      (toValue: number) => {
+        pressScale.value = withSpring(toValue, { damping: 13, stiffness: 180, mass: 0.9 });
       },
-      [scaleValue, springConfig],
+      [pressScale],
     );
+
+    useEffect(() => {
+      dragScale.value = withSpring(isDraggingActive ? dragActiveScale : 1, { damping: 16, stiffness: 200, mass: 1 });
+    }, [isDraggingActive, dragActiveScale, dragScale]);
 
     useEffect(() => {
       if (!animationsEnabled) return;
 
       const targetOpacity = isSelectedWallet === false ? 0.5 : 1.0;
-      Animated.spring(opacityValue, {
-        toValue: targetOpacity,
-        useNativeDriver: true,
-        tension: 30,
-        friction: 7,
-        velocity: 0.1,
-      }).start();
+      opacityValue.value = withSpring(targetOpacity, { damping: 18, stiffness: 240 });
     }, [isSelectedWallet, opacityValue, animationsEnabled]);
 
     const onPressedIn = useCallback(() => {
       if (animationsEnabled) {
-        animateScale(0.95);
+        animatePressScale(0.97);
       }
       if (onPressIn) onPressIn();
-    }, [animateScale, animationsEnabled, onPressIn]);
+    }, [animatePressScale, animationsEnabled, onPressIn]);
 
     const onPressedOut = useCallback(() => {
       if (animationsEnabled) {
-        animateScale(1.0);
+        animatePressScale(1.0);
       }
       if (onPressOut) onPressOut();
-    }, [animateScale, animationsEnabled, onPressOut]);
+    }, [animatePressScale, animationsEnabled, onPressOut]);
 
     const handlePress = useCallback(() => {
       onPress(item);
@@ -270,37 +327,44 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     useEffect(() => {
       if (isNewWallet && animationsEnabled) {
-        Animated.parallel([
-          Animated.timing(translateYValue, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-          Animated.spring(opacityValue, {
-            toValue: isSelectedWallet === false ? 0.5 : 1.0,
-            useNativeDriver: true,
-            friction: 7,
-          }),
-        ]).start();
+        translateYValue.value = withTiming(0, { duration: 300 });
+        opacityValue.value = withSpring(isSelectedWallet === false ? 0.5 : 1.0, { damping: 18, stiffness: 240 });
       }
     }, [isNewWallet, animationsEnabled, translateYValue, opacityValue, isSelectedWallet]);
 
     useEffect(() => {
+      if (!animationsEnabled) {
+        previousBalance.current = safeBalance;
+        return;
+      }
+
+      if (previousBalance.current !== undefined && previousBalance.current !== safeBalance) {
+        // Subtle currency-like transition on balance updates.
+        balanceOpacity.value = 0;
+        balanceTranslateY.value = 6;
+        balanceOpacity.value = withTiming(1, { duration: 180 });
+        balanceTranslateY.value = withSpring(0, { damping: 16, stiffness: 220 });
+      }
+
+      previousBalance.current = safeBalance;
+    }, [safeBalance, animationsEnabled, balanceOpacity, balanceTranslateY]);
+
+    useEffect(() => {
       if (isExiting && animationsEnabled) {
-        Animated.parallel([
-          Animated.timing(translateYValue, {
-            toValue: -20,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(opacityValue, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-        ]).start();
+        translateYValue.value = withTiming(-20, { duration: 200 });
+        opacityValue.value = withTiming(0, { duration: 200 });
       }
     }, [isExiting, animationsEnabled, translateYValue, opacityValue]);
+
+    const animatedCardStyle = useAnimatedStyle(() => ({
+      opacity: opacityValue.value,
+      transform: [{ scale: pressScale.value * dragScale.value }, { translateY: translateYValue.value }],
+    }));
+
+    const animatedBalanceStyle = useAnimatedStyle(() => ({
+      opacity: balanceOpacity.value,
+      transform: [{ translateY: balanceTranslateY.value }],
+    }));
 
     let image;
     switch (item.type) {
@@ -327,23 +391,18 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
     }
 
-    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
-
     return (
       <Animated.View
         style={[
           sizeClass === SizeClass.Large || !horizontal
             ? [iStyles.rootLargeDevice, customStyle]
-            : (customStyle ?? { ...iStyles.root, width: itemWidth }),
-          {
-            opacity: opacityValue,
-            transform: [{ scale: scaleValue }, { translateY: translateYValue }],
-          },
+            : [iStyles.root, { width: itemWidth }, customStyle],
+          animatedCardStyle,
         ]}
       >
         <Pressable
           accessibilityRole="button"
-          testID={item.getLabel()}
+          testID={walletLabel}
           onPressIn={onPressedIn}
           onPressOut={onPressedOut}
           onLongPress={() => {
@@ -353,52 +412,75 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           delayHoverIn={0}
           delayHoverOut={0}
         >
-          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-              <ImageBackground source={image} style={iStyles.image} />
-              <Text style={iStyles.br} />
-              {!isPlaceHolder && (
-                <>
-                  <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
-                    {renderHighlightedText && searchQuery ? (
-                      <HighlightedText
-                        text={item.getLabel()}
-                        query={searchQuery}
-                        style={[iStyles.label, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                      />
-                    ) : (
-                      item.getLabel()
-                    )}
-                  </Text>
-                  <View style={iStyles.balanceContainer}>
-                    {item.hideBalance ? (
-                      <>
-                        <BlueSpacing10 />
-                        <BlurredBalanceView />
-                      </>
-                    ) : (
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                        style={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                      >
-                        {`${balance} `}
-                      </Text>
-                    )}
-                  </View>
-                  <Text style={iStyles.br} />
-                  <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
-                    {loc.wallets.list_latest_transaction}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                  >
-                    {latestTransactionText}
-                  </Text>
-                </>
-              )}
+          <View
+            style={[
+              iStyles.shadowContainer,
+              isCompact && iStyles.shadowContainerCompact,
+              { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+            ]}
+          >
+            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
+              <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
+                <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
+                <Text style={iStyles.br} />
+                {!isPlaceHolder && (
+                  <>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        iStyles.label,
+                        isCompact && iStyles.labelCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
+                    >
+                      {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
+                    </Text>
+                    <View style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact]}>
+                      {item.hideBalance ? (
+                        <>
+                          <BlueSpacing10 />
+                          <BlurredBalanceView />
+                        </>
+                      ) : (
+                        <Animated.Text
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                          style={[
+                            iStyles.balance,
+                            isCompact && iStyles.balanceCompact,
+                            { color: colors.inverseForegroundColor, writingDirection: direction },
+                            animatedBalanceStyle,
+                          ]}
+                        >
+                          {`${balance} `}
+                        </Animated.Text>
+                      )}
+                    </View>
+                    <Text style={iStyles.br} />
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        iStyles.latestTx,
+                        isCompact && iStyles.latestTxCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
+                    >
+                      {loc.wallets.list_latest_transaction}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        iStyles.latestTxTime,
+                        isCompact && iStyles.latestTxTimeCompact,
+                        { color: colors.inverseForegroundColor, writingDirection: direction },
+                      ]}
+                    >
+                      {latestTransactionText}
+                    </Text>
+                  </>
+                )}
+              </View>
             </LinearGradient>
           </View>
         </Pressable>
@@ -417,7 +499,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   data: TWallet[];
   scrollEnabled?: boolean;
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   animateChanges?: boolean;
 }
 
@@ -457,8 +539,10 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const { width } = useWindowDimensions();
   const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+  const layoutTransition = useMemo(() => LinearTransition.duration(240).easing(Easing.inOut(Easing.quad)), []);
+  const enteringTransition = useMemo(() => FadeIn.duration(180), []);
+  const exitingTransition = useMemo(() => FadeOut.duration(150), []);
 
-  const prevDataLength = useRef(data.length);
   const prevWalletIds = useRef<string[]>([]);
   const newWalletsMap = useRef<Record<string, boolean>>({});
   const lastAddedWalletId = useRef<string | null>(null);
@@ -467,7 +551,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const isInitialMount = useRef(true);
 
   const flatListRef = useRef<FlatList<any>>(null);
-  const walletRefs = useRef<Record<string, React.RefObject<View>>>({});
+  const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
   const { sizeClass } = useSizeClass();
 
@@ -508,7 +592,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           const walletRef = walletRefs.current[walletId];
           if (walletRef?.current) {
             return new Promise<{ x: number; y: number; width: number; height: number }>(resolve => {
-              walletRef.current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
+              walletRef.current?.measure((x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
                 resolve({ x: pageX, y: pageY, width: widthVal, height: heightVal });
               });
             });
@@ -530,7 +614,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   useEffect(() => {
     data.forEach(wallet => {
       if (!walletRefs.current[wallet.getID()]) {
-        walletRefs.current[wallet.getID()] = createRef<View>();
+        walletRefs.current[wallet.getID()] = { current: null };
       }
     });
   }, [data]);
@@ -584,7 +668,6 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       if (isInitialMount.current) {
         isInitialMount.current = false;
         prevWalletIds.current = currentWalletIds;
-        prevDataLength.current = data.length;
         return;
       }
 
@@ -597,9 +680,6 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         addedWallets.forEach(id => {
           newWalletsMap.current[id] = true;
         });
-
-        // Always animate layout changes
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
         // Auto-scroll to new wallet after mount (no condition, always scroll)
         if (scrollTimeoutRef.current) {
@@ -614,14 +694,8 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         }, 300);
       }
 
-      // Handle wallet removals
-      if (prevDataLength.current > data.length) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      }
-
       // Update refs for next comparison
       prevWalletIds.current = currentWalletIds;
-      prevDataLength.current = data.length;
 
       // Clear animation states
       if (addedWallets.length > 0) {
@@ -646,8 +720,9 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   };
 
   const renderItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<TWallet>) =>
-      item ? (
+    ({ item }: ListRenderItemInfo<TWallet>) => {
+      if (!item) return null;
+      const content = (
         <WalletCarouselItem
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
@@ -659,8 +734,28 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           isNewWallet={animateChanges && newWalletsMap.current[item.getID()]}
           animationsEnabled={animateChanges}
         />
-      ) : null,
-    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText, animateChanges],
+      );
+
+      if (!animateChanges) return content;
+
+      return (
+        <Animated.View layout={layoutTransition} entering={enteringTransition} exiting={exitingTransition}>
+          {content}
+        </Animated.View>
+      );
+    },
+    [
+      horizontal,
+      selectedWallet,
+      handleLongPress,
+      onPress,
+      searchQuery,
+      renderHighlightedText,
+      animateChanges,
+      layoutTransition,
+      enteringTransition,
+      exitingTransition,
+    ],
   );
 
   const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
@@ -674,16 +769,24 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   }, []);
 
   const renderNonFlatListWallets = useCallback(() => {
-    return data.map((item, index) =>
-      item ? (
+    return data.map(item => {
+      if (!item) return null;
+
+      const content = (
         <View
-          key={item.getID()}
-          ref={walletRefs.current[item.getID()]}
+          key={!animateChanges ? item.getID() : undefined}
+          ref={(node: View | null) => {
+            // Keep existing ref object in map
+            walletRefs.current[item.getID()] ??= { current: null };
+            walletRefs.current[item.getID()].current = node;
+          }}
           onLayout={() => {
             if (walletRefs.current[item.getID()]?.current && newWalletsMap.current[item.getID()]) {
-              walletRefs.current[item.getID()].current?.measure((x, y, widthVal, heightVal, pageX, pageY) => {
-                console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
-              });
+              walletRefs.current[item.getID()].current?.measure(
+                (x: number, y: number, widthVal: number, heightVal: number, pageX: number, pageY: number) => {
+                  console.debug(`[WalletsCarousel] New wallet ${item.getID()} positioned at y=${y}, pageY=${pageY}`);
+                },
+              );
             }
           }}
         >
@@ -698,9 +801,29 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
             animationsEnabled={animateChanges}
           />
         </View>
-      ) : null,
-    );
-  }, [data, horizontal, selectedWallet, handleLongPress, onPress, props.searchQuery, props.renderHighlightedText, animateChanges]);
+      );
+
+      if (!animateChanges) return content;
+
+      return (
+        <Animated.View key={item.getID()} layout={layoutTransition} entering={enteringTransition} exiting={exitingTransition}>
+          {content}
+        </Animated.View>
+      );
+    });
+  }, [
+    data,
+    horizontal,
+    selectedWallet,
+    handleLongPress,
+    onPress,
+    props.searchQuery,
+    props.renderHighlightedText,
+    animateChanges,
+    layoutTransition,
+    enteringTransition,
+    exitingTransition,
+  ]);
 
   useEffect(() => {
     // We check the current values inside the effect, but don't include them as dependencies
@@ -735,7 +858,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       showsVerticalScrollIndicator={false}
       pagingEnabled={horizontal}
       disableIntervalMomentum={horizontal}
-      snapToInterval={itemWidth}
+      snapToInterval={horizontal ? itemWidth - CARD_OVERLAP : undefined}
       decelerationRate="fast"
       contentContainerStyle={cStyles.content}
       directionalLockEnabled

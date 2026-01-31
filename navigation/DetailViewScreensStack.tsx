@@ -48,11 +48,14 @@ import NotificationSettings from '../screen/settings/NotificationSettings';
 import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
+import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
+import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -162,7 +165,7 @@ const DetailViewStackScreensStack = () => {
           },
           headerTitle: '',
           headerRight: () => DetailButton,
-          headerBackButtonDisplayMode: 'default',
+          headerBackButtonDisplayMode: 'minimal',
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
@@ -260,7 +263,6 @@ const DetailViewStackScreensStack = () => {
           title: loc.settings.header,
           headerBackButtonDisplayMode: 'minimal',
           headerBackTitle: '',
-          headerBackVisible: true, // Show back button on Android
           headerShadowVisible: false,
           // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
           headerLargeTitle: Platform.OS === 'ios',
@@ -274,11 +276,7 @@ const DetailViewStackScreensStack = () => {
           headerTitleStyle: {
             color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
           },
-          headerTransparent: false,
-          headerBlurEffect: undefined,
-          headerStyle: {
-            backgroundColor: theme.colors.customHeader,
-          },
+          headerBlurEffect: 'regular',
           animationTypeForReplace: 'push',
         })(theme)}
       />
@@ -365,6 +363,23 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
       />
       <DetailViewStack.Screen
+        name="SettingsPrivacy"
+        component={SettingsPrivacy}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.privacy))(theme)}
+      />
+      <DetailViewStack.Screen
+        name="PromptPasswordConfirmationSheet"
+        component={PromptPasswordConfirmationSheet}
+        options={navigationStyle({
+          title: loc.settings.password,
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerBackButtonDisplayMode: 'minimal',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
         name="ManageWallets"
         component={ManageWallets}
         options={{
@@ -383,6 +398,17 @@ const DetailViewStackScreensStack = () => {
           statusBarStyle: 'light',
           headerShown: true,
           presentation: 'modal',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ReceiveCustomAmount"
+        component={ReceiveCustomAmountSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: 'fitToContents',
+          headerTitle: '',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
     </DetailViewStack.Navigator>
