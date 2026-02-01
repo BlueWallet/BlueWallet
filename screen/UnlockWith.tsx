@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import {} from '@react-navigation/native';
 import {
   ActivityIndicator,
   Image,
@@ -19,7 +18,6 @@ import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/use
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
 import { PasswordInput, PasswordInputHandle } from '../components/PasswordInput';
-import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 
 enum AuthType {
   Encrypted,
