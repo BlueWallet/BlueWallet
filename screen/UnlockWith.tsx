@@ -94,14 +94,10 @@ const UnlockWith: React.FC = () => {
   }, [setWalletsInitialized]);
 
   const preloadWalletsList = useCallback(() => {
-    navigation.dispatch(
-      CommonActions.preload('DrawerRoot', {
-        screen: 'DetailViewStackScreensStack',
-        params: {
-          screen: 'WalletsList',
-        },
-      }),
-    );
+    const routeNames = navigation.getState()?.routeNames ?? [];
+    if (!routeNames.includes('DrawerRoot')) return;
+
+    navigation.dispatch(CommonActions.preload('DrawerRoot'));
   }, [navigation]);
 
   const successfullyAuthenticated = useCallback(() => {
