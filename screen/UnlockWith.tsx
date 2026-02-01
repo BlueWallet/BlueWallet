@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { CommonActions, useNavigation, type NavigationProp } from '@react-navigation/native';
+import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Image,
@@ -93,18 +93,10 @@ const UnlockWith: React.FC = () => {
     setWalletsInitialized(false);
   }, [setWalletsInitialized]);
 
-  const preloadWalletsList = useCallback(() => {
-    const routeNames = navigation.getState()?.routeNames ?? [];
-    if (!routeNames.includes('DrawerRoot')) return;
-
-    navigation.dispatch(CommonActions.preload('DrawerRoot'));
-  }, [navigation]);
-
   const successfullyAuthenticated = useCallback(() => {
-    preloadWalletsList();
     setWalletsInitialized(true);
     isUnlockingWallets.current = false;
-  }, [preloadWalletsList, setWalletsInitialized]);
+  }, [setWalletsInitialized]);
 
   const unlockUsingBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
