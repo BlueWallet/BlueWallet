@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { useNavigation, type NavigationProp } from '@react-navigation/native';
+import {} from '@react-navigation/native';
 import {
   ActivityIndicator,
   Image,
@@ -87,7 +87,6 @@ const UnlockWith: React.FC = () => {
   const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
-  const navigation = useNavigation<NavigationProp<DetailViewStackParamList>>();
 
   useEffect(() => {
     setWalletsInitialized(false);
