@@ -308,7 +308,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 {...otherProps}
               />
             ) : (
-              <Pressable onPress={resetAmount}>
+              <Pressable onPress={resetAmount} style={styles.maxPressable}>
                 <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
                 {maxSendableAmount != null && (
                   <Text style={[styles.maxEstimate, stylesHook.localCurrency]} onLongPress={copyMaxEstimate}>
@@ -426,6 +426,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 4,
+  },
+  maxPressable: {
+    alignItems: 'center',
   },
   changeAmountUnit: {
     alignSelf: 'center',
