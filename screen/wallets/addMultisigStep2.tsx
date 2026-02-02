@@ -44,7 +44,6 @@ import { AddressInputScanButton } from '../../components/AddressInputScanButton'
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import { extractColdcardQCosigner } from '../../util/extractColdcardQCosigner';
 
 const staticCache: Record<string, string> = {};
 type CosignerEntry = [key: string, fingerprint?: string, path?: string, passphrase?: string];
@@ -353,7 +352,7 @@ const WalletsAddMultisigStep2 = () => {
           returnedData = JSON.stringify(retData);
         }
 
-        const coldcardQCosigner = extractColdcardQCosigner(retData, format);
+        const coldcardQCosigner = MultisigCosigner.extractColdcardQCosigner(retData, format);
         if (coldcardQCosigner) {
           returnedData = `[${coldcardQCosigner.xfp}${coldcardQCosigner.path}]${coldcardQCosigner.xpub}`;
         }

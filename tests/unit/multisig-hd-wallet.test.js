@@ -2127,6 +2127,53 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.getFp(), '01EBDA7D');
   });
 
+  it('can parse coldcardQ json', () => {
+    const coldcardQjson = require('./fixtures/coldcardQ.json');
+
+    let data = MultisigCosigner.extractColdcardQCosigner(coldcardQjson, MultisigHDWallet.FORMAT_P2SH_P2WSH);
+
+    let cosigner = new MultisigCosigner(`[${data.xfp}${data.path}]${data.xpub}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), 'B68AF6E4');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Ypub6k6tL18jmAnNRGZpk4u3WPGDmWMkdZNmx3MySYdQywCwMMHqNoKHeqLAgU6pFokHKQFdi88vAW4g3TEsCAymoq5LnFXd54RkQ8m3AD9f81J',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/1'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(cosigner.isWrappedSegwit());
+
+    data = MultisigCosigner.extractColdcardQCosigner(coldcardQjson, MultisigHDWallet.FORMAT_P2WSH);
+    cosigner = new MultisigCosigner(`[${data.xfp}${data.path}]${data.xpub}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), 'B68AF6E4');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub74w9dfoeurKrKXE3SPRpFquLPTkiCuSwGuhDzBgbE42w5ShB2FxMjmJyjZpSJ6WhLt8y1PeFHQELGgq2GmktviFDH8yFWYRWg4xQiw3v335',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+
+    data = MultisigCosigner.extractColdcardQCosigner(coldcardQjson, MultisigHDWallet.FORMAT_P2SH);
+    cosigner = new MultisigCosigner(`[${data.xfp}${data.path}]${data.xpub}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), 'B68AF6E4');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'xpub69EKPNo9Jkd6v2h7xNKw5RdbFBoaHEcstXcRNfcQ2jg71iFpobCwcxfJjaV2ycGy218f2jM1znqs1SDkqMiR7fbyBVJwzacg2QarGt1gtJg',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/45'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+  });
+
   it('can parse plain Zpub', () => {
     const cosigner = new MultisigCosigner(Zpub1);
     assert.ok(cosigner.isValid());

@@ -152,6 +152,40 @@ export class MultisigCosigner {
     });
   }
 
+  static extractColdcardQCosigner(data: any, format: string): { xfp: string; path: string; xpub: string } | undefined {
+    if (!data || data.chain !== 'BTC' || !data.xfp || (!data.bip48_1 && !data.bip48_2 && !data.bip45)) {
+      return;
+    }
+
+    let entry;
+
+    switch (format) {
+      case MultisigHDWallet.FORMAT_P2WSH:
+        entry = data.bip48_2;
+        break;
+
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+        entry = data.bip48_1;
+        break;
+
+      case MultisigHDWallet.FORMAT_P2SH:
+        entry = data.bip45;
+        break;
+
+      default:
+        return;
+    }
+
+    if (!entry?.xpub || !entry?.deriv) return;
+
+    return {
+      xfp: data.xfp,
+      path: entry.deriv.replace(/^m/i, ''),
+      xpub: entry._pub || entry.xpub, // ColdcardQ provides SLIP-0132 encoded _pub (Ypub/Zpub). Prefer it when present, fallback to xpub for legacy.
+    };
+  }
+
   isValid() {
     return this._valid;
   }
