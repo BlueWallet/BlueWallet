@@ -1,24 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { lazy } from 'react';
 
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import {
-  AddComponent,
-  ImportCustomDerivationPathComponent,
-  ImportSpeedComponent,
-  ImportWalletComponent,
-  ImportWalletDiscoveryComponent,
-  PleaseBackupComponent,
-  PleaseBackupLNDHubComponent,
-  ProvideEntropyComponent,
-  WalletsAddMultisigComponent,
-  MultisigAdvancedComponent,
-  WalletsAddMultisigHelpComponent,
-  WalletsAddMultisigStep2Component,
-} from './LazyLoadAddWalletStack';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
 export type AddWalletStackParamList = {
@@ -72,6 +58,34 @@ export type AddWalletStackParamList = {
 };
 
 const Stack = createNativeStackNavigator<AddWalletStackParamList>();
+
+const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
+const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/ImportCustomDerivationPath'));
+const ImportWalletDiscovery = lazy(() => import('../screen/wallets/ImportWalletDiscovery'));
+const ImportSpeed = lazy(() => import('../screen/wallets/ImportSpeed'));
+const ImportWallet = lazy(() => import('../screen/wallets/ImportWallet'));
+const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
+const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
+const ProvideEntropy = lazy(() => import('../screen/wallets/ProvideEntropy'));
+const WalletsAddMultisig = lazy(() => import('../screen/wallets/WalletsAddMultisig'));
+const MultisigAdvanced = lazy(() => import('../screen/wallets/MultisigAdvanced'));
+const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
+const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
+const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+
+const AddComponent = withLazySuspense(WalletsAdd);
+const ImportWalletDiscoveryComponent = withLazySuspense(ImportWalletDiscovery);
+const ImportCustomDerivationPathComponent = withLazySuspense(ImportCustomDerivationPath);
+const ImportWalletComponent = withLazySuspense(ImportWallet);
+const ImportSpeedComponent = withLazySuspense(ImportSpeed);
+const PleaseBackupComponent = withLazySuspense(PleaseBackup);
+const PleaseBackupLNDHubComponent = withLazySuspense(PleaseBackupLNDHub);
+const ProvideEntropyComponent = withLazySuspense(ProvideEntropy);
+const WalletsAddMultisigComponent = withLazySuspense(WalletsAddMultisig);
+const MultisigAdvancedComponent = withLazySuspense(MultisigAdvanced);
+const WalletsAddMultisigStep2Component = withLazySuspense(WalletsAddMultisigStep2);
+const WalletsAddMultisigHelpComponent = withLazySuspense(WalletsAddMultisigHelp);
+const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const AddWalletStack = () => {
   const theme = useTheme();
