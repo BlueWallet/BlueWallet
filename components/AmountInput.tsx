@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Icon, Text } from '@rneui/themed';
-import BigNumber from 'bignumber.js';
-import dayjs from 'dayjs';
 import {
+  Text,
   Image,
   LayoutAnimation,
   NativeSyntheticEvent,
@@ -14,6 +12,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Badge from './Badge';
+import Icon from './Icon';
+import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
 
 import {
   CurrencyRate,
@@ -309,7 +311,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
       </View>
       {outdatedRefreshRate && (
         <View style={styles.outdatedRateContainer}>
-          <Badge status="warning" />
+          <Badge badgeStyle={styles.warningBadge} />
           <View style={styles.spacing8} />
           <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT') })}</BlueText>
           <View style={styles.spacing8} />
@@ -341,6 +343,12 @@ const styles = StyleSheet.create({
   },
   spacing8: {
     width: 8,
+  },
+  warningBadge: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#fc990e',
   },
   disabledButton: {
     opacity: 0.5,

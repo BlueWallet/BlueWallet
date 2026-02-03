@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import BN from 'bignumber.js';
 import {
   Alert,

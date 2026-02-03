@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';

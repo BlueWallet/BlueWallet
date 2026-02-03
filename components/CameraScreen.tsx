@@ -1,4 +1,4 @@
-import { Icon } from '@rneui/base';
+import Icon from './Icon';
 import React, { useRef, useState } from 'react';
 import { Animated, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit-no-google';

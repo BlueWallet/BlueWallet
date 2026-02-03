@@ -2,7 +2,7 @@ import React, { useCallback, FC } from 'react';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';

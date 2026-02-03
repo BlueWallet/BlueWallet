@@ -14,7 +14,7 @@ import {
   LayoutRectangle,
   NodeHandle,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueCard, BlueText } from '../../BlueComponents';

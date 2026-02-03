@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { forwardRef } from 'react';
-import { Dimensions, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { Icon, Text } from '@rneui/themed';
+import { Dimensions, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Icon from './components/Icon';
 import { useTheme } from './components/themes';
 import { useLocale } from '@react-navigation/native';
 

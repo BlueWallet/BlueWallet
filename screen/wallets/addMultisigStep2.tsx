@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';

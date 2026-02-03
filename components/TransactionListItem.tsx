@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from '
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
-import { Linking, View, ViewStyle, StyleSheet } from 'react-native';
+import { Linking, TextStyle, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -152,11 +152,11 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return {
         color,
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '600' as TextStyle['fontWeight'],
         textAlign: 'right',
         paddingRight: insets.right,
         paddingLeft: insets.left,
-      };
+      } as TextStyle;
     }, [
       colors.successColor,
       colors.foregroundColor,
@@ -417,7 +417,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
               )
             ) : undefined
           }
-          Component={View}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}

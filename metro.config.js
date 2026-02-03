@@ -4,6 +4,29 @@ const path = require('path');
 const resolveAliases = {
   '@arkade-os/sdk/adapters/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/adapters/expo.js'),
   'expo/fetch': path.join(__dirname, 'util/expo-fetch.js'),
+  'react-native-vector-icons/FontAwesome': path.join(
+    __dirname,
+    'node_modules/@react-native-vector-icons/fontawesome/lib/commonjs/index.js',
+  ),
+  'react-native-vector-icons/FontAwesome5': path.join(
+    __dirname,
+    'node_modules/@react-native-vector-icons/fontawesome5/lib/commonjs/index.js',
+  ),
+  'react-native-vector-icons/FontAwesome6': path.join(
+    __dirname,
+    'node_modules/@react-native-vector-icons/fontawesome6/lib/commonjs/index.js',
+  ),
+  'react-native-vector-icons/Ionicons': path.join(__dirname, 'node_modules/@react-native-vector-icons/ionicons/lib/commonjs/index.js'),
+  'react-native-vector-icons/MaterialIcons': path.join(
+    __dirname,
+    'node_modules/@react-native-vector-icons/material-icons/lib/commonjs/index.js',
+  ),
+  'react-native-vector-icons/MaterialCommunityIcons': path.join(
+    __dirname,
+    'node_modules/@react-native-vector-icons/material-design-icons/lib/commonjs/index.js',
+  ),
+  'react-native-vector-icons/Entypo': path.join(__dirname, 'node_modules/@react-native-vector-icons/entypo/lib/commonjs/index.js'),
+  'react-native-vector-icons/Octicons': path.join(__dirname, 'node_modules/@react-native-vector-icons/octicons/lib/commonjs/index.js'),
 };
 
 /**

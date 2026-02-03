@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Divider } from '@rneui/themed';
+import Divider from '../../components/Divider';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, TextInput, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
@@ -21,7 +21,7 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { Header } from '../../components/Header';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
-import ListItem, { PressableWrapper } from '../../components/ListItem';
+import ListItem from '../../components/ListItem';
 import { SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -609,7 +609,6 @@ const ElectrumSettings: React.FC = () => {
       testID="ElectrumSettingsScrollView"
     >
       <ListItem
-        Component={PressableWrapper}
         title={loc.settings.electrum_offline_mode}
         switch={{
           onValueChange: onElectrumConnectionEnabledSwitchChange,

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, Pressable, PressableProps, View, ViewStyle, Platform } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from './Icon';
 
 import { useTheme } from './themes';
 

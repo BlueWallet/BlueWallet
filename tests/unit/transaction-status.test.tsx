@@ -99,10 +99,6 @@ jest.mock('../../components/icons/TransactionIncomingIcon', () => 'TransactionIn
 jest.mock('../../components/icons/TransactionOutgoingIcon', () => 'TransactionOutgoingIcon');
 jest.mock('../../components/icons/TransactionPendingIcon', () => 'TransactionPendingIcon');
 
-jest.mock('@rneui/themed', () => ({
-  Icon: 'Icon',
-}));
-
 jest.mock('../../blue_modules/hapticFeedback', () => ({
   default: jest.fn(),
   HapticFeedbackTypes: {},

@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Switch } from 'react-native';
-import { ListItem } from '@rneui/themed';
+import { StyleSheet, Text, TextInput, View, Switch } from 'react-native';
 import { useTheme } from './themes';
 import loc from '../loc';
 
@@ -25,10 +24,10 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
 
   return (
     <View>
-      <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
-        <ListItem.Content>
-          <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
-        </ListItem.Content>
+      <View style={[styles.container, styles.row, { backgroundColor: colors.background, borderBottomColor: colors.formBorder }]}>
+        <View style={styles.content}>
+          <Text style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</Text>
+        </View>
         <Switch
           accessible
           accessibilityRole="switch"
@@ -36,7 +35,7 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
           onValueChange={onSwitchToggle}
           value={isCustomEnabled}
         />
-      </ListItem>
+      </View>
 
       {isCustomEnabled && (
         <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
@@ -68,6 +67,15 @@ const styles = StyleSheet.create({
   container: {
     minHeight: 60,
     paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  content: {
+    flex: 1,
   },
   title: {
     fontSize: 16,

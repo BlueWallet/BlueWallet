@@ -11,7 +11,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from './Icon';
 import ActionSheet from '../screen/ActionSheet';
 import { useTheme } from './themes';
 import { ActionSheetOptions } from '../screen/ActionSheet.common';

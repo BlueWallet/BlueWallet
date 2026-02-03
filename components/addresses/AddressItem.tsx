@@ -1,7 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, View } from 'react-native';
-import { ListItem } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import confirm from '../../helpers/confirm';
@@ -191,30 +190,35 @@ const AddressItem = ({
       onPress={navigateToReceive}
       isButton
     >
-      <ListItem key={item.key} containerStyle={stylesHook.container}>
-        <ListItem.Content>
-          <View style={styles.row}>
-            <View style={styles.leftSection}>
-              <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
-            </View>
-            <View style={styles.middleSection}>
-              {renderAddressContent()}
-              <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
-            </View>
+      <View key={item.key} style={[styles.container, stylesHook.container]}>
+        <View style={styles.row}>
+          <View style={styles.leftSection}>
+            <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
           </View>
-        </ListItem.Content>
+          <View style={styles.middleSection}>
+            {renderAddressContent()}
+            <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
+          </View>
+        </View>
         <View style={styles.rightContainer}>
           <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
           <Text style={[stylesHook.balance, styles.balance]}>
             {loc.addresses.transactions}: {item.transactions ?? 0}
           </Text>
         </View>
-      </ListItem>
+      </View>
     </ToolTipMenu>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   address: {
     fontWeight: 'bold',
     marginHorizontal: 4,
@@ -228,6 +232,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   leftSection: {
     marginRight: 8,
