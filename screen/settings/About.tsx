@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import RateApp, { AndroidMarket } from 'react-native-rate-app';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from '@react-native-vector-icons/fontawesome5';
 
 import A from '../../blue_modules/analytics';
 import { BlueTextCentered } from '../../BlueComponents';
@@ -139,14 +139,14 @@ const About: React.FC = () => {
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: <Icon name="telegram-plane" size={24} color={colors.foregroundColor} />,
+        leftIcon: <Icon name="telegram-plane" size={24} color={colors.foregroundColor} iconStyle="brand" />,
         onPress: handleOnTelegramPress,
         section: 2,
       },
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} />,
+        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} iconStyle="brand" />,
         onPress: handleOnGithubPress,
         section: 2,
       },

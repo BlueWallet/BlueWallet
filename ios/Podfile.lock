@@ -1369,6 +1369,14 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-vector-icons-entypo (12.4.0)
+  - react-native-vector-icons-fontawesome (12.0.0)
+  - react-native-vector-icons-fontawesome5 (12.0.0)
+  - react-native-vector-icons-fontawesome6 (12.3.0)
+  - react-native-vector-icons-ionicons (12.0.0)
+  - react-native-vector-icons-material-design-icons (12.0.0)
+  - react-native-vector-icons-material-icons (12.0.0)
+  - react-native-vector-icons-octicons (20.4.0)
   - React-NativeModulesApple (0.78.2):
     - glog
     - hermes-engine
@@ -1884,7 +1892,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.17.0):
+  - RNScreens (4.18.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1929,27 +1937,6 @@ PODS:
     - Yoga
   - RNSVG (15.12.1):
     - React-Core
-  - RNVectorIcons (10.2.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.7.1)
@@ -2014,6 +2001,14 @@ DEPENDENCIES:
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
+  - "react-native-vector-icons-entypo (from `../node_modules/@react-native-vector-icons/entypo`)"
+  - "react-native-vector-icons-fontawesome (from `../node_modules/@react-native-vector-icons/fontawesome`)"
+  - "react-native-vector-icons-fontawesome5 (from `../node_modules/@react-native-vector-icons/fontawesome5`)"
+  - "react-native-vector-icons-fontawesome6 (from `../node_modules/@react-native-vector-icons/fontawesome6`)"
+  - "react-native-vector-icons-ionicons (from `../node_modules/@react-native-vector-icons/ionicons`)"
+  - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
+  - "react-native-vector-icons-material-icons (from `../node_modules/@react-native-vector-icons/material-icons`)"
+  - "react-native-vector-icons-octicons (from `../node_modules/@react-native-vector-icons/octicons`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-performancetimeline (from `../node_modules/react-native/ReactCommon/react/performance/timeline`)
@@ -2062,7 +2057,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2181,6 +2175,22 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-true-sheet:
     :path: "../node_modules/@lodev09/react-native-true-sheet"
+  react-native-vector-icons-entypo:
+    :path: "../node_modules/@react-native-vector-icons/entypo"
+  react-native-vector-icons-fontawesome:
+    :path: "../node_modules/@react-native-vector-icons/fontawesome"
+  react-native-vector-icons-fontawesome5:
+    :path: "../node_modules/@react-native-vector-icons/fontawesome5"
+  react-native-vector-icons-fontawesome6:
+    :path: "../node_modules/@react-native-vector-icons/fontawesome6"
+  react-native-vector-icons-ionicons:
+    :path: "../node_modules/@react-native-vector-icons/ionicons"
+  react-native-vector-icons-material-design-icons:
+    :path: "../node_modules/@react-native-vector-icons/material-design-icons"
+  react-native-vector-icons-material-icons:
+    :path: "../node_modules/@react-native-vector-icons/material-icons"
+  react-native-vector-icons-octicons:
+    :path: "../node_modules/@react-native-vector-icons/octicons"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -2277,8 +2287,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
   Yoga:
@@ -2340,6 +2348,14 @@ SPEC CHECKSUMS:
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
+  react-native-vector-icons-entypo: feb9d28fa1769fd6b1913649f4a56f50510ee9a1
+  react-native-vector-icons-fontawesome: bf88921a76ec11f9d2b1270a8281b51397d9a59c
+  react-native-vector-icons-fontawesome5: 1da1548429853f77ebd207f433db13873fbc1158
+  react-native-vector-icons-fontawesome6: 1a73ea16a698f70851ad47e94521a99499e8e974
+  react-native-vector-icons-ionicons: 8b6dafd994b32061eb47e8746c96a7b5a6619bdb
+  react-native-vector-icons-material-design-icons: 56bd797f1fc5746c08370a09f2452e3435915a35
+  react-native-vector-icons-material-icons: 02a3a19a1a5a72819ecb773450ef227cb5acb048
+  react-native-vector-icons-octicons: 7729fdb078a1a52e2ce8ec65e16863818cd2ec28
   React-NativeModulesApple: fd0545efbb7f936f78edd15a6564a72d2c34bb32
   React-perflogger: 5f8fa36a8e168fb355efe72099efe77213bc2ac6
   React-performancetimeline: 8c0ecfa1ae459cc5678a65f95ac3bf85644d6feb
@@ -2385,10 +2401,9 @@ SPEC CHECKSUMS:
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
   RNReanimated: 76e3bdba62bb728ea8d8d23b451e8070e6c2c2bc
-  RNScreens: 723a27283c0b5c3de74c4b5eba28890a99581d43
+  RNScreens: 4369e7ae645058ce553eb6b206fd8ff77a3c3882
   RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
   RNSVG: cd580f422f3c4f0ffa490b6ac479c6602ae54bca
-  RNVectorIcons: f7a99433a71f4b38891c14c64b21fc521d064392
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: e14bad835e12b6c7e2260fc320bd00e0f4b45add
