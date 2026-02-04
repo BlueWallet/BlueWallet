@@ -25,7 +25,9 @@ export const getCoinControlSampleDataEnabled = () => coinControlSampleDataEnable
 
 export const onCoinControlSampleDataChange = (listener: SampleDataListener) => {
   emitter.addListener(COIN_CONTROL_EVENT, listener);
-  return () => emitter.removeListener(COIN_CONTROL_EVENT, listener);
+  return () => {
+    emitter.removeListener(COIN_CONTROL_EVENT, listener);
+  };
 };
 
 export const setPaymentCodesSampleDataEnabled = (enabled: boolean) => {
@@ -38,7 +40,9 @@ export const getPaymentCodesSampleDataEnabled = () => paymentCodesSampleDataEnab
 
 export const onPaymentCodesSampleDataChange = (listener: SampleDataListener) => {
   emitter.addListener(PAYMENT_CODES_EVENT, listener);
-  return () => emitter.removeListener(PAYMENT_CODES_EVENT, listener);
+  return () => {
+    emitter.removeListener(PAYMENT_CODES_EVENT, listener);
+  };
 };
 
 export const setWalletsListSampleDataEnabled = (enabled: boolean) => {
@@ -51,7 +55,9 @@ export const getWalletsListSampleDataEnabled = () => walletsListSampleDataEnable
 
 export const onWalletsListSampleDataChange = (listener: SampleDataListener) => {
   emitter.addListener(WALLETS_LIST_EVENT, listener);
-  return () => emitter.removeListener(WALLETS_LIST_EVENT, listener);
+  return () => {
+    emitter.removeListener(WALLETS_LIST_EVENT, listener);
+  };
 };
 
 export const setWalletTransactionsSampleDataEnabled = (enabled: boolean) => {
@@ -64,7 +70,9 @@ export const getWalletTransactionsSampleDataEnabled = () => walletTransactionsSa
 
 export const onWalletTransactionsSampleDataChange = (listener: SampleDataListener) => {
   emitter.addListener(WALLET_TRANSACTIONS_EVENT, listener);
-  return () => emitter.removeListener(WALLET_TRANSACTIONS_EVENT, listener);
+  return () => {
+    emitter.removeListener(WALLET_TRANSACTIONS_EVENT, listener);
+  };
 };
 
 export const setSendDetailsSampleDataEnabled = (enabled: boolean) => {
@@ -77,5 +85,7 @@ export const getSendDetailsSampleDataEnabled = () => sendDetailsSampleDataEnable
 
 export const onSendDetailsSampleDataChange = (listener: SampleDataListener) => {
   emitter.addListener(SEND_DETAILS_EVENT, listener);
-  return () => emitter.removeListener(SEND_DETAILS_EVENT, listener);
+  return () => {
+    emitter.removeListener(SEND_DETAILS_EVENT, listener);
+  };
 };

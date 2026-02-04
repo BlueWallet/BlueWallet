@@ -212,6 +212,9 @@ const Confirm: React.FC = () => {
           return;
         }
       } else {
+        if (!psbt) {
+          throw new Error('Missing PSBT for Payjoin');
+        }
         const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcastTransaction(txHex), wallet as HDSegwitBech32Wallet);
         const paymentScript = getPaymentScript();
         if (!paymentScript) {

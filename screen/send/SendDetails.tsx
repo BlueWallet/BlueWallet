@@ -209,12 +209,14 @@ const SendDetails = () => {
     const sampleAddress = addresses.find(addr => addr.address)?.address || 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
     const sampleValue = Number(addresses.find(addr => addr.amountSats)?.amountSats || 50000);
     const feeSats = 500;
+    const sampleValueBigInt = BigInt(sampleValue);
+    const feeSatsBigInt = BigInt(feeSats);
     const network = bitcoin.networks.bitcoin;
 
     const tx = new bitcoin.Transaction();
     tx.version = 2;
     tx.addInput(Buffer.alloc(32, 1), 0);
-    tx.addOutput(bitcoin.address.toOutputScript(sampleAddress, network), sampleValue);
+    tx.addOutput(bitcoin.address.toOutputScript(sampleAddress, network), sampleValueBigInt);
 
     const psbt = new bitcoin.Psbt({ network });
     psbt.addInput({
@@ -222,10 +224,10 @@ const SendDetails = () => {
       index: 0,
       witnessUtxo: {
         script: bitcoin.address.toOutputScript(sampleAddress, network),
-        value: sampleValue + feeSats,
+        value: sampleValueBigInt + feeSatsBigInt,
       },
     });
-    psbt.addOutput({ address: sampleAddress, value: sampleValue });
+    psbt.addOutput({ address: sampleAddress, value: sampleValueBigInt });
 
     const targets: CreateTransactionTarget[] = [{ address: sampleAddress, value: sampleValue }];
 

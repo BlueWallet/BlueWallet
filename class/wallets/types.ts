@@ -32,6 +32,7 @@ export type Utxo = {
   txhex?: string;
   confirmations?: number;
   wif?: string | false;
+  isSample?: boolean;
 };
 
 /**
@@ -143,6 +144,7 @@ export type Transaction = {
 export type ExtendedTransaction = Transaction & {
   walletID: string;
   walletPreferredBalanceUnit: BitcoinUnit;
+  isSample?: boolean;
 };
 
 export type TWallet =
