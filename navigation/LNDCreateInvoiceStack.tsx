@@ -1,17 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { lazy } from 'react';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import {
-  LNDCreateInvoiceComponent,
-  LNDViewAdditionalInvoicePreImageComponent,
-  LNDViewInvoiceComponent,
-  SelectWalletComponent,
-} from './LazyLoadLNDCreateInvoiceStack';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 const Stack = createNativeStackNavigator();
+
+const LNDCreateInvoice = lazy(() => import('../screen/lnd/lndCreateInvoice'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
+const LNDViewInvoice = lazy(() => import('../screen/lnd/lndViewInvoice'));
+const LNDViewAdditionalInvoicePreImage = lazy(() => import('../screen/lnd/lndViewAdditionalInvoicePreImage'));
+const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+
+const LNDCreateInvoiceComponent = withLazySuspense(LNDCreateInvoice);
+const SelectWalletComponent = withLazySuspense(SelectWallet);
+const LNDViewInvoiceComponent = withLazySuspense(LNDViewInvoice);
+const LNDViewAdditionalInvoicePreImageComponent = withLazySuspense(LNDViewAdditionalInvoicePreImage);
+const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const LNDCreateInvoiceRoot = () => {
   const theme = useTheme();
