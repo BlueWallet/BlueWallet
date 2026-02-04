@@ -116,7 +116,7 @@ const OutputList: React.FC<TOutputListProps> = ({
         onPress={selected ? onDeSelect : onSelect}
         icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
       />
-      <View style={styles.listContent}>
+      <View style={styles.rowContent}>
         <Text style={oStyles.amount}>{amount}</Text>
         <Text style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
           {memo || address}
@@ -163,7 +163,7 @@ const OutputModal: React.FC<TOutputModalProps> = ({
   return (
     <View style={[styles.listRow, oStyles.container]}>
       <Avatar rounded size={40} containerStyle={oStyles.avatar} />
-      <View style={styles.listContent}>
+      <View style={styles.rowContent}>
         <Text numberOfLines={1} style={oStyles.amount}>
           {amount}
         </Text>
@@ -538,7 +538,7 @@ const CoinControl: React.FC = () => {
         data={utxos}
         renderItem={renderItem}
         keyExtractor={item => `${item.txid}:${item.vout}`}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={styles.listContentContainer}
       />
 
       {selectionStarted && (
@@ -591,9 +591,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  listContent: {
+  rowContent: {
     flex: 1,
     marginLeft: 12,
+  },
+  listContentContainer: {
+    paddingBottom: 16,
   },
 });
 
