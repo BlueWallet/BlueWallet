@@ -13,21 +13,12 @@ type IconComponentType = React.ComponentType<any> | undefined;
 
 type IconType =
   | 'font-awesome'
-  | 'fontawesome'
   | 'font-awesome-5'
-  | 'font-awesome5'
-  | 'fontawesome5'
   | 'font-awesome-6'
-  | 'font-awesome6'
-  | 'fontawesome6'
   | 'ionicons'
   | 'material'
-  | 'material-icons'
   | 'material-community'
-  | 'material-design-icons'
   | 'entypo'
-  | 'octicon'
-  | 'octaicon'
   | 'octicons';
 
 export interface IconProps {
@@ -46,29 +37,20 @@ export interface IconProps {
 const resolveIconComponent = (type?: IconType | string): IconComponentType => {
   switch ((type ?? '').toLowerCase()) {
     case 'font-awesome-5':
-    case 'font-awesome5':
-    case 'fontawesome5':
       return FontAwesome5;
     case 'font-awesome-6':
-    case 'font-awesome6':
-    case 'fontawesome6':
       return FontAwesome6;
     case 'ionicons':
       return Ionicons;
     case 'material':
-    case 'material-icons':
       return MaterialIcons;
     case 'material-community':
-    case 'material-design-icons':
       return MaterialDesignIcons;
     case 'entypo':
       return Entypo;
-    case 'octicon':
-    case 'octaicon':
     case 'octicons':
       return Octicons;
     case 'font-awesome':
-    case 'fontawesome':
     default:
       return FontAwesome;
   }

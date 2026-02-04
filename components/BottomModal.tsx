@@ -108,7 +108,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
             >
               <Icon
                 name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
+                type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}
               />
@@ -124,7 +124,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
             >
               <Icon
                 name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
+                type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}
               />
