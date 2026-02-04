@@ -32,14 +32,28 @@ export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;
 };
 
-export const BlueText = ({ bold = false, ...props }) => {
+export const BlueText = ({ bold = false, h1, h2, h3, h4, ...props }) => {
   const { colors } = useTheme();
   const { direction } = useLocale();
+
+  // Determine heading styles based on h* props
+  let headingStyle = {};
+  if (h1) {
+    headingStyle = { fontSize: 40, fontWeight: 'bold' };
+  } else if (h2) {
+    headingStyle = { fontSize: 34, fontWeight: 'bold' };
+  } else if (h3) {
+    headingStyle = { fontSize: 28, fontWeight: 'bold' };
+  } else if (h4) {
+    headingStyle = { fontSize: 22, fontWeight: 'bold' };
+  }
+
   const style = StyleSheet.compose(
     {
       color: colors.foregroundColor,
       writingDirection: direction,
       fontWeight: bold ? 'bold' : 'normal',
+      ...headingStyle,
     },
     props.style,
   );
