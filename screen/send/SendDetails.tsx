@@ -56,6 +56,7 @@ import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTip
 import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
+import { getSendDetailsSampleDataEnabled, onSendDetailsSampleDataChange } from '../../blue_modules/devMenuSampleData';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -107,6 +108,9 @@ const SendDetails = () => {
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
+  const [sampleDataEnabled, setSampleDataEnabled] = useState(false);
+  const latestAddressesRef = useRef<IPaymentDestinations[]>(addresses);
+  const previousAddressesRef = useRef<IPaymentDestinations[] | null>(null);
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -151,6 +155,89 @@ const SendDetails = () => {
     console.log('SendDetails: No precalc fees yet, using default networkTransactionFees.fastestFee:', defaultFee);
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
+
+  const buildSampleAddresses = useCallback((): IPaymentDestinations[] => {
+    return [
+      {
+        address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        amount: '0.0005',
+        amountSats: 50000,
+        key: String(Math.random()),
+        unit: amountUnit,
+      },
+      {
+        address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+        amount: '0.0012',
+        amountSats: 120000,
+        key: String(Math.random()),
+        unit: amountUnit,
+      },
+      {
+        address: 'bc1qhrv6gt2cydgr0u2md2xqgv4k6egw5m3gq0q1aj',
+        amount: BitcoinUnit.MAX,
+        key: String(Math.random()),
+        unit: amountUnit,
+      },
+    ];
+  }, [amountUnit]);
+
+  useEffect(() => {
+    latestAddressesRef.current = addresses;
+  }, [addresses]);
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    setSampleDataEnabled(getSendDetailsSampleDataEnabled());
+    return onSendDetailsSampleDataChange(setSampleDataEnabled);
+  }, []);
+
+  useEffect(() => {
+    if (!__DEV__) return;
+
+    if (sampleDataEnabled) {
+      if (!previousAddressesRef.current) {
+        previousAddressesRef.current = latestAddressesRef.current;
+      }
+      setAddresses(buildSampleAddresses());
+    } else if (previousAddressesRef.current) {
+      setAddresses(previousAddressesRef.current);
+      previousAddressesRef.current = null;
+    }
+  }, [buildSampleAddresses, sampleDataEnabled]);
+
+  const buildSampleTransaction = useCallback(() => {
+    const sampleAddress = addresses.find(addr => addr.address)?.address || 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+    const sampleValue = Number(addresses.find(addr => addr.amountSats)?.amountSats || 50000);
+    const feeSats = 500;
+    const network = bitcoin.networks.bitcoin;
+
+    const tx = new bitcoin.Transaction();
+    tx.version = 2;
+    tx.addInput(Buffer.alloc(32, 1), 0);
+    tx.addOutput(bitcoin.address.toOutputScript(sampleAddress, network), sampleValue);
+
+    const psbt = new bitcoin.Psbt({ network });
+    psbt.addInput({
+      hash: Buffer.alloc(32, 2),
+      index: 0,
+      witnessUtxo: {
+        script: bitcoin.address.toOutputScript(sampleAddress, network),
+        value: sampleValue + feeSats,
+      },
+    });
+    psbt.addOutput({ address: sampleAddress, value: sampleValue });
+
+    const targets: CreateTransactionTarget[] = [{ address: sampleAddress, value: sampleValue }];
+
+    return {
+      txHex: tx.toHex(),
+      psbt,
+      fee: feeSats / 100000000,
+      recipients: targets,
+      targets,
+      satoshiPerByte: 1,
+    };
+  }, [addresses]);
 
   useEffect(() => {
     // decode route params
@@ -483,6 +570,23 @@ const SendDetails = () => {
 
   const createTransaction = async () => {
     assert(wallet, 'Internal error: wallet is not set');
+    if (sampleDataEnabled) {
+      const sample = buildSampleTransaction();
+      setIsLoading(false);
+      navigation.navigate('Confirm', {
+        fee: sample.fee,
+        memo: transactionMemo,
+        walletID: wallet.getID(),
+        tx: sample.txHex,
+        targets: sample.targets,
+        recipients: sample.recipients,
+        satoshiPerByte: sample.satoshiPerByte,
+        payjoinUrl: null,
+        psbt: sample.psbt,
+        isSample: true,
+      });
+      return;
+    }
     Keyboard.dismiss();
     setIsLoading(true);
     const requestedSatPerByte = feeRate;
@@ -1283,7 +1387,8 @@ const SendDetails = () => {
 
   const renderCreateButton = () => {
     const totalWithFee = calculateTotalAmount();
-    const isDisabled = totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0;
+    const isDisabled =
+      !sampleDataEnabled && (totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0);
 
     return (
       <View style={styles.createButton}>

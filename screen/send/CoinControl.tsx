@@ -36,6 +36,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import TipBox from '../../components/TipBox';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import { getCoinControlSampleDataEnabled, onCoinControlSampleDataChange } from '../../blue_modules/devMenuSampleData';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -214,6 +215,7 @@ const transparentBackground = { backgroundColor: 'transparent' };
 const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
   const { colors } = useTheme();
   const { txMetadata, saveToDisk } = useStorage();
+  const isSample = Boolean((output as any)?.isSample);
   const [memo, setMemo] = useState<string>(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
   const switchValue = useMemo(() => ({ value: frozen, onValueChange: (value: boolean) => setFrozen(value) }), [frozen, setFrozen]);
 
@@ -222,6 +224,7 @@ const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet
   // save on form change. Because effect called on each event, debounce it.
   const debouncedSaveMemo = useRef(
     debounce(async m => {
+      if (isSample) return;
       wallet.setUTXOMetadata(output.txid, output.vout, { memo: m });
       await saveToDisk();
     }, 500),
@@ -288,8 +291,9 @@ const CoinControl: React.FC = () => {
       .filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen)
       .map(({ txid, vout }) => `${txid}:${vout}`),
   );
+  const [sampleUtxos, setSampleUtxos] = useState<Utxo[]>([]);
   const utxos: Utxo[] = useMemo(() => {
-    const res = wallet.getUtxo(true).sort((a, b) => {
+    const res = [...wallet.getUtxo(true), ...sampleUtxos].sort((a, b) => {
       switch (sortType) {
         case ESortTypes.height:
           return a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout;
@@ -311,16 +315,71 @@ const CoinControl: React.FC = () => {
     });
     // invert if descending
     return sortDirection === ESortDirections.desc ? res.reverse() : res;
-  }, [sortDirection, sortType, wallet, frozen]);
+  }, [sortDirection, sortType, wallet, frozen, sampleUtxos]);
   const [output, setOutput] = useState<Utxo | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
   const { isVisible } = useKeyboard();
 
+  const buildSampleUtxos = useCallback((): Utxo[] => {
+    return [
+      {
+        address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        txid: 'a1b2c3d4e5f60123456789abcdef0123456789abcdef0123456789abcdef0123',
+        vout: 0,
+        value: 120000,
+        height: 800000,
+        confirmations: 12,
+        isSample: true,
+      },
+      {
+        address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+        txid: 'b2c3d4e5f60123456789abcdef0123456789abcdef0123456789abcdef01234a',
+        vout: 1,
+        value: 2500000,
+        height: 800010,
+        confirmations: 3,
+        isSample: true,
+      },
+      {
+        address: 'bc1qhrv6gt2cydgr0u2md2xqgv4k6egw5m3gq0q1aj',
+        txid: 'c3d4e5f60123456789abcdef0123456789abcdef0123456789abcdef01234ab5',
+        vout: 2,
+        value: 90000,
+        height: 0,
+        confirmations: 0,
+        isSample: true,
+      },
+    ];
+  }, []);
+
+  const applySampleUtxos = useCallback(
+    (enabled: boolean) => {
+      const samples = buildSampleUtxos();
+      const sampleIds = samples.map(({ txid, vout }) => `${txid}:${vout}`);
+
+      if (enabled) {
+        setSampleUtxos(samples);
+        setFrozen(f => [...new Set([...f, sampleIds[0]])]);
+      } else {
+        setSampleUtxos([]);
+        setSelected(s => s.filter(id => !sampleIds.includes(id)));
+        setFrozen(f => f.filter(id => !sampleIds.includes(id)));
+      }
+    },
+    [buildSampleUtxos],
+  );
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    applySampleUtxos(getCoinControlSampleDataEnabled());
+    return onCoinControlSampleDataChange(applySampleUtxos);
+  }, [applySampleUtxos]);
+
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
     debounce(async frzn => {
-      utxos.forEach(({ txid, vout }) => {
+      wallet.getUtxo(true).forEach(({ txid, vout }) => {
         wallet.setUTXOMetadata(txid, vout, { frozen: frzn.includes(`${txid}:${vout}`) });
       });
       await saveToDisk();

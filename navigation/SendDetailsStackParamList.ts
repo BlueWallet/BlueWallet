@@ -65,7 +65,8 @@ export type SendDetailsStackParamList = {
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     payjoinUrl?: string | null;
-    psbt: Psbt;
+    psbt?: Psbt;
+    isSample?: boolean;
   };
   PsbtWithHardwareWallet: {
     memo?: string;
