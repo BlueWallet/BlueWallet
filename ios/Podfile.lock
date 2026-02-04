@@ -1369,7 +1369,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-vector-icons-entypo (12.4.0)
+  - react-native-vector-icons-entypo (12.0.0)
   - react-native-vector-icons-fontawesome (12.0.0)
   - react-native-vector-icons-fontawesome5 (12.0.0)
   - react-native-vector-icons-fontawesome6 (12.3.0)
@@ -2348,7 +2348,7 @@ SPEC CHECKSUMS:
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
-  react-native-vector-icons-entypo: feb9d28fa1769fd6b1913649f4a56f50510ee9a1
+  react-native-vector-icons-entypo: 642baa138205224faacb5cfa30ffda8fd30f22cf
   react-native-vector-icons-fontawesome: bf88921a76ec11f9d2b1270a8281b51397d9a59c
   react-native-vector-icons-fontawesome5: 1da1548429853f77ebd207f433db13873fbc1158
   react-native-vector-icons-fontawesome6: 1a73ea16a698f70851ad47e94521a99499e8e974
