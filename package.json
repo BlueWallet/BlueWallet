@@ -168,7 +168,7 @@
     "react-native-share": "12.1.0",
     "react-native-svg": "15.12.1",
     "react-native-tcp-socket": "6.3.0",
-    "@react-native-vector-icons/entypo": "^12.0.0",
+    "@react-native-vector-icons/entypo": "12.0.0",
     "@react-native-vector-icons/fontawesome": "12.0.0",
     "@react-native-vector-icons/fontawesome5": "12.0.0",
     "@react-native-vector-icons/fontawesome6": "12.3.0",
