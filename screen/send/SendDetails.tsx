@@ -110,16 +110,8 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-
   // estimated sendable amount when MAX is selected (null if not applicable)
-  const maxSendableAmount = useMemo(() => {
-    if (addresses.length !== 1) return null;
-    if (addresses[0].amount !== BitcoinUnit.MAX) return null;
-    if (feePrecalc.current === null) return null;
-    const sendable = balance - feePrecalc.current;
-    return sendable > 0 ? sendable : null;
-  }, [addresses, balance, feePrecalc]);
-
+  const [maxSendableAmount, setMaxSendableAmount] = useState<number | null>(null);
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
@@ -377,6 +369,15 @@ const SendDetails = () => {
     }
 
     setFeePrecalc(newFeePrecalc);
+
+    // Calculate maxSendableAmount (only for single recipient with MAX)
+    if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
+      const sendable = balance - newFeePrecalc.current;
+      setMaxSendableAmount(sendable > 0 ? sendable : null);
+    } else {
+      setMaxSendableAmount(null);
+    }
+
     setParams({ frozenBalance: frozen });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]);
