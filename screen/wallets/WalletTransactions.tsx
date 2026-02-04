@@ -304,8 +304,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={wallet.preferredBalanceUnit} walletID={walletID} />
+    ({ item }: { item: Transaction & { isSample?: boolean } }) => (
+      <TransactionListItem
+        key={item.hash}
+        item={item}
+        itemPriceUnit={wallet.preferredBalanceUnit}
+        walletID={walletID}
+        onPress={item.isSample ? () => Alert.alert('Sample data', 'This is temporary sample data.') : undefined}
+        disableNavigation={item.isSample}
+      />
     ),
     [wallet.preferredBalanceUnit, walletID],
   );

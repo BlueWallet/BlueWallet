@@ -49,6 +49,7 @@ interface TransactionListItemProps {
   style?: ViewStyle;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
   onPress?: () => void;
+  disableNavigation?: boolean;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
@@ -62,6 +63,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     style,
     renderHighlightedText,
     onPress: customOnPress,
+    disableNavigation = false,
   }: TransactionListItemProps) => {
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
@@ -74,9 +76,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       () => ({
         backgroundColor: colors.background,
         borderBottomColor: colors.lightBorder,
-        paddingLeft: 16,
+        paddingLeft: 12,
 
-        paddingRight: 16,
+        paddingRight: 12,
       }),
       [colors.background, colors.lightBorder],
     );
@@ -247,7 +249,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       // If a custom onPress handler was provided, use it and return
       if (customOnPress) {
         customOnPress();
-        return;
+        if (disableNavigation) return;
       }
 
       if (item.hash) {
@@ -390,17 +392,15 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     return (
       <ToolTipMenu
-        isButton
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
-        onPress={onPress}
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-        accessibilityRole="button"
-        accessibilityState={accessibilityState}
       >
+        {/* @ts-ignore - MenuView types can be overly strict about child element props */}
         <ListItem
           leftAvatar={avatar}
           title={title}
+          onPress={onPress}
           subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={
             subtitle ? (

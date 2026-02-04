@@ -270,8 +270,15 @@ const WalletsList: React.FC = () => {
   }, [navigation]);
 
   const renderTransactionListsRow = useCallback(
-    (item: ExtendedTransaction) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+    (item: ExtendedTransaction & { isSample?: boolean }) => (
+      <TransactionListItem
+        key={item.hash}
+        item={item}
+        itemPriceUnit={item.walletPreferredBalanceUnit}
+        walletID={item.walletID}
+        onPress={item.isSample ? () => Alert.alert('Sample data', 'This is temporary sample data.') : undefined}
+        disableNavigation={item.isSample}
+      />
     ),
     [],
   );
