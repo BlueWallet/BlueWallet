@@ -139,14 +139,14 @@ const About: React.FC = () => {
       {
         id: 'telegram',
         title: loc.settings.about_sm_telegram,
-        leftIcon: <Icon name="telegram-plane" size={24} color={colors.foregroundColor} brand />,
+        leftIcon: <Icon name="telegram-plane" size={24} color={colors.foregroundColor} iconStyle="brand" />,
         onPress: handleOnTelegramPress,
         section: 2,
       },
       {
         id: 'github',
         title: loc.settings.about_sm_github,
-        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} brand />,
+        leftIcon: <Icon name="github" size={24} color={colors.foregroundColor} iconStyle="brand" />,
         onPress: handleOnGithubPress,
         section: 2,
       },

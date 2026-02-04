@@ -32,6 +32,19 @@ export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;
 };
 
+/**
+ * @typedef {import('react-native').TextProps & {
+ *   bold?: boolean;
+ *   h1?: boolean;
+ *   h2?: boolean;
+ *   h3?: boolean;
+ *   h4?: boolean;
+ * }} BlueTextProps
+ */
+
+/**
+ * @param {BlueTextProps} props
+ */
 export const BlueText = ({ bold = false, h1, h2, h3, h4, ...props }) => {
   const { colors } = useTheme();
   const { direction } = useLocale();
