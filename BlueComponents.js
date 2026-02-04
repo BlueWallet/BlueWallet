@@ -48,11 +48,12 @@ export const BlueText = ({ bold = false, h1, h2, h3, h4, ...props }) => {
     headingStyle = { fontSize: 22, fontWeight: 'bold' };
   }
 
+  const hasHeading = h1 || h2 || h3 || h4;
   const style = StyleSheet.compose(
     {
       color: colors.foregroundColor,
       writingDirection: direction,
-      fontWeight: bold ? 'bold' : 'normal',
+      fontWeight: hasHeading ? undefined : bold ? 'bold' : 'normal',
       ...headingStyle,
     },
     props.style,
