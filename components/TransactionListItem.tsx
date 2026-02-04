@@ -291,7 +291,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       } else {
         console.log('cant handle press');
       }
-    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress]);
+    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
     const handleOnExpandNote = useCallback(() => {
       setSubtitleNumberOfLines(0);
@@ -383,12 +383,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
       return actions as Action[];
     }, [rowTitle, subtitle, item.hash, subtitleNumberOfLines]);
-
-    const accessibilityState = useMemo(() => {
-      return {
-        expanded: subtitleNumberOfLines === 0,
-      };
-    }, [subtitleNumberOfLines]);
 
     return (
       <ToolTipMenu

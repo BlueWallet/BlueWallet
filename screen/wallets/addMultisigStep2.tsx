@@ -786,7 +786,7 @@ const WalletsAddMultisigStep2 = () => {
           onPress={handleOnHelpPress}
           disabled={isLoading}
         >
-            <Icon size={20} name="help" type="octicons" color={colors.foregroundColor} />
+          <Icon size={20} name="help" type="octicons" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>
