@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
 type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
@@ -69,6 +70,7 @@ const WalletsAddMultisig: React.FC = () => {
   });
 
   const onLetsStartPress = useCallback(() => {
+    resetScanWasBBQR();
     navigate('WalletsAddMultisigStep2', { m: state.m, n: state.n, format: state.format, walletLabel });
   }, [navigate, state.m, state.n, state.format, walletLabel]);
 

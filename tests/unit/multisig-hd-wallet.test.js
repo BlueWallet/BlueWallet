@@ -2362,4 +2362,39 @@ describe('multisig-cosigner', () => {
       'ur:crypto-account/oeadcywehhhpleaolytaadmhtaaddloxaxhdclaoamutctbahthnislelbwemnkeoefnhddienfetbpygrpaqdkemyrywyldaspyjkdtaahdcxhyneskwdhlehlfbwrpdnjlgsgakplkjtknvyttsgolnnlbwlcagoolcpfgsglkinamtaaddyotadlfcsdpykaocywehhhpleaxadaycywehhhplekpdwveih',
     ]);
   });
+
+  it('can export cosigner to BBQR', () => {
+    let result = encodeUR(MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'"), 175, undefined, 'BBQR');
+    assert.deepStrictEqual(result, [
+      'B$ZU0100DWG52CUCGAMEBX3FG7PAJBTNVDOUKW4KSXQLJNN4JNWPRA7ZQU7SZI3XN4CAODU4TPZUCWQB3IRLU4OZRZ5B4WRBBVJWCSTO4TRLUAKVGEPMKTNVH5FD4QCWTYRECHR55NJJ5F7BRPHOBN3CFQCXXV5SOVAWUXVIPRE6NAI6IDIZBBLCCSQDCXL4DJOK5QOTSEWVSARSMGJGJZ7BSY5HHU2XOFRMM4A7FMZ643HMLH3PVD3DUHXQ6',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        '42A2460E',
+        'Ypub6m2WhkZvujztfZVYWEB4Hfcq3mKfeZYMfZj2wfvgNmTDjcCncU9ua6VSxXno7FeF8P2kqp1S7N8UoYapR8YKnMLNq8bEDDd2PU6q7QCHoEb',
+        "m/48'/0'/0'/1'",
+      ),
+      175,
+      undefined,
+      'BBQR',
+    );
+    assert.deepStrictEqual(result, [
+      'B$ZU0100DWGU2C4CGAAEB76LFZPAE5MNXG5JKTQEKPWEG3N3VG4UJGLOUATEL7Z5BEPDY6EX64AYWUDAB4IDYQEEFUFDMYCRKO4RNNQKJOMDOHM7U73D2CU6WGOB4UJAFK6ZLINIHGFQI37BJPGM6WG6XS3HF6ZK3VGQLTVOZO6R6HF76ZEQEO5N5SVRHE3UMCC3UEAW63ISTVVEUSPPPACJRK2XG5UDQGLOWWAVMOZY5JMJRBQVU73MAN6H6',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        'ED5C5B8A',
+        'xpub69dgpFkP9mFYhaAWt6svmwd1BYsuGiyyNs8sJW1GwCn8GSK69mrCmNG6ZLcrPGvBSiJzfjXD66ntgJxdqQbhMk4j273VQYHEMc5knoqFGvt',
+        "m/45'",
+      ),
+      175,
+      undefined,
+      'BBQR',
+    );
+    assert.deepStrictEqual(result, [
+      'B$ZU0100CXG3WDUCGAAEBUL75HRGEYSQLLAY2ZYNBKAZBCFY6EEM6FALFVIDJ7V3GDO6ILXHBNCEDQIFLATDJIFONBQA6BA52P2WYQLKLZJLX5KVMLDVLISFDSYYTTFZUTDWZRHVWJ4EYYKOETQ5T2AUDTPJASQGQN4BRPPO3HQOGSIPNPTVGNCPCOQY5F4OZD5SBLO4KZXI5Z6TEOEK7FU3YG3HX5ZWT34AVU4EK4VUYDRS3SA56HY',
+    ]);
+  });
 });

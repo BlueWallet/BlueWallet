@@ -340,7 +340,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         isLoading: false,
                       });
                       setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path), 175, null)[0]);
                       setExportFilename('bw-cosigner-' + fp + '.json');
                       mnemonicsModalRef.current?.present();
                       setIsVaultKeyIndexDataLoading(undefined);
@@ -398,7 +398,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                       }
                       const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
                       setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path), 175, null)[0]);
                       setExportFilename('bw-cosigner-' + fp + '.json');
                       mnemonicsModalRef.current?.present();
                       setIsVaultKeyIndexDataLoading(undefined);
