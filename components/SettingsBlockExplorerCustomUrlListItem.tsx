@@ -24,7 +24,7 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
   const { colors } = useTheme();
 
   return (
-    <>
+    <View>
       <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
         <ListItem.Content>
           <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
@@ -58,7 +58,7 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
           />
         </View>
       )}
-    </>
+    </View>
   );
 };
 

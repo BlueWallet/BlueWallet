@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { AztecoRedeemComponent, SelectWalletComponent } from './LazyLoadAztecoRedeemStack';
+import { withLazySuspense } from './LazyLoadingIndicator';
 
 const Stack = createNativeStackNavigator();
+
+const AztecoRedeem = lazy(() => import('../screen/receive/AztecoRedeem'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
+
+const AztecoRedeemComponent = withLazySuspense(AztecoRedeem);
+const SelectWalletComponent = withLazySuspense(SelectWallet);
 
 const AztecoRedeemStackRoot = () => {
   const theme = useTheme();

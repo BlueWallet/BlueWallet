@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { usePlatformStyles } from '../../theme/platformStyles';
+import { platformColors, platformSizing, platformLayout } from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -30,7 +30,8 @@ const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
-  const { colors: platformColors, sizing, layout } = usePlatformStyles();
+  const sizing = platformSizing;
+  const layout = platformLayout;
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
@@ -60,7 +61,7 @@ const Broadcast: React.FC = () => {
       marginBottom: sizing.sectionContainerMarginBottom,
     },
     card: {
-      backgroundColor: platformColors.cardBackground,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -74,7 +75,7 @@ const Broadcast: React.FC = () => {
       marginBottom: 10,
     },
     labelText: {
-      color: platformColors.titleColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       fontWeight: '500',
     },
@@ -213,7 +214,8 @@ const Broadcast: React.FC = () => {
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
-  const { colors: platformColors, sizing, layout } = usePlatformStyles();
+  const sizing = platformSizing;
+  const layout = platformLayout;
 
   if (!tx) {
     return null;
@@ -221,7 +223,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
 
   const successStyles = StyleSheet.create({
     card: {
-      backgroundColor: platformColors.cardBackground,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -233,7 +235,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       paddingVertical: sizing.basePadding,
     },
     successText: {
-      color: platformColors.titleColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       textAlign: 'center',
     },

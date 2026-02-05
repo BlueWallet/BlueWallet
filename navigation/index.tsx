@@ -1,7 +1,7 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import React, { lazy, Suspense } from 'react';
+import React, { lazy } from 'react';
 import UnlockWith from '../screen/UnlockWith';
-import { LazyLoadingIndicator } from './LazyLoadingIndicator';
+import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
@@ -42,66 +42,16 @@ export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarSt
 
 const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
 
-// Lazy loading wrapper components
-const LazyDrawerRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <DrawerRoot />
-  </Suspense>
-);
-
-const LazyAddWalletStack = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <AddWalletStack />
-  </Suspense>
-);
-
-const LazySendDetailsStack = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <SendDetailsStack />
-  </Suspense>
-);
-
-const LazyLNDCreateInvoiceRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <LNDCreateInvoiceRoot />
-  </Suspense>
-);
-
-const LazyScanLNDInvoiceRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ScanLNDInvoiceRoot />
-  </Suspense>
-);
-
-const LazyAztecoRedeemStackRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <AztecoRedeemStackRoot />
-  </Suspense>
-);
-
-const LazyExportMultisigCoordinationSetupStack = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ExportMultisigCoordinationSetupStack />
-  </Suspense>
-);
-
-const LazyViewEditMultisigCosigners = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ViewEditMultisigCosigners />
-  </Suspense>
-);
-
-const LazySignVerifyStackRoot = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <SignVerifyStackRoot />
-  </Suspense>
-);
-
-const LazyScanQRCodeComponent = () => (
-  <Suspense fallback={<LazyLoadingIndicator />}>
-    <ScanQRCode />
-  </Suspense>
-);
+const LazyDrawerRoot = withLazySuspense(DrawerRoot);
+const LazyAddWalletStack = withLazySuspense(AddWalletStack);
+const LazySendDetailsStack = withLazySuspense(SendDetailsStack);
+const LazyLNDCreateInvoiceRoot = withLazySuspense(LNDCreateInvoiceRoot);
+const LazyScanLNDInvoiceRoot = withLazySuspense(ScanLNDInvoiceRoot);
+const LazyAztecoRedeemStackRoot = withLazySuspense(AztecoRedeemStackRoot);
+const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisigCoordinationSetupStack);
+const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
+const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
+const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();

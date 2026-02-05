@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard, Text, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Keyboard, LayoutAnimation, NativeSyntheticEvent, Platform, StyleSheet, UIManager, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -12,13 +11,18 @@ import {
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import presentAlert from '../../components/Alert';
+import {
+  SettingsCard,
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsSection,
+  SettingsSubtitle,
+  SettingsText,
+} from '../../components/platform';
+import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../hooks/context/useSettings';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import PlatformListItem from '../../components/PlatformListItem';
-import { usePlatformStyles } from '../../theme/platformStyles';
 
 dayjs.extend(calendar);
 
@@ -39,52 +43,6 @@ const Currency: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
-  const { colors: platformColors, sizing, layout } = usePlatformStyles();
-  const insets = useSafeAreaInsets();
-
-  // Calculate header height for Android with transparent header
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
-    listItemContainer: {
-      backgroundColor: platformColors.cardBackground,
-      minHeight: 77,
-      ...(Platform.OS === 'android' && {
-        paddingHorizontal: 16,
-      }),
-    },
-    infoContainer: {
-      backgroundColor: platformColors.cardBackground,
-      marginBottom: 8,
-      padding: 16,
-      borderRadius: sizing.containerBorderRadius * 1.5,
-    },
-    infoText: {
-      color: platformColors.titleColor,
-      fontSize: sizing.subtitleFontSize,
-      marginBottom: 8,
-    },
-    headerOffset: {
-      height: sizing.firstSectionContainerPaddingTop,
-    },
-    contentContainer: {
-      marginHorizontal: sizing.contentContainerMarginHorizontal,
-      paddingHorizontal: sizing.contentContainerPaddingHorizontal,
-    },
-    infoWrapper: {
-      marginBottom: 8,
-    },
-  });
 
   const filteredCurrencies = useMemo(() => {
     if (search.length > 0) {
@@ -145,11 +103,10 @@ const Currency: React.FC = () => {
       const isLast = index === filteredCurrencies.length - 1;
 
       return (
-        <PlatformListItem
+        <SettingsListItem
           disabled={isDisabled}
           title={`${item.endPointKey} (${item.symbol})`}
           subtitle={item.country}
-          containerStyle={styles.listItemContainer}
           checkmark={isSelected}
           isLoading={isLoading}
           onPress={async () => {
@@ -173,67 +130,44 @@ const Currency: React.FC = () => {
               setIsSavingNewPreferredCurrency(undefined);
             }
           }}
-          isFirst={isFirst}
-          isLast={isLast}
-          bottomDivider={layout.showBorderBottom && !isLast}
+          position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
           accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
         />
       );
     },
-    [
-      isSavingNewPreferredCurrency,
-      selectedCurrency,
-      filteredCurrencies.length,
-      layout.showBorderBottom,
-      styles.listItemContainer,
-      fetchCurrency,
-      setPreferredFiatCurrencyStorage,
-    ],
+    [isSavingNewPreferredCurrency, selectedCurrency, filteredCurrencies.length, fetchCurrency, setPreferredFiatCurrencyStorage],
   );
 
   const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
 
   const ListHeaderComponent = useCallback(() => {
+    if (isSearchFocused || !selectedCurrencyVisible) return null;
+
     return (
-      <View>
-        <View style={styles.headerOffset} />
-        {!isSearchFocused && selectedCurrencyVisible && (
-          <View style={styles.infoWrapper}>
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>
-                {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
-              </Text>
-              <Text style={styles.infoText}>
-                {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-              </Text>
-              <Text style={styles.infoText}>
-                {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
-              </Text>
-            </View>
-          </View>
-        )}
-      </View>
+      <SettingsSection compact>
+        <View style={styles.infoWrapper}>
+          <SettingsCard style={styles.infoCard}>
+            <SettingsText style={styles.infoTitle}>
+              {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+            </SettingsText>
+            <SettingsSubtitle style={styles.infoSubtitle}>
+              {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+            </SettingsSubtitle>
+            <SettingsSubtitle style={styles.infoSubtitle}>
+              {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+            </SettingsSubtitle>
+          </SettingsCard>
+        </View>
+      </SettingsSection>
     );
-  }, [
-    isSearchFocused,
-    selectedCurrencyVisible,
-    selectedCurrency?.source,
-    currencyRate,
-    styles.headerOffset,
-    styles.infoContainer,
-    styles.infoText,
-    styles.infoWrapper,
-  ]);
+  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
 
   return (
-    <SafeAreaFlatList
-      headerHeight={headerHeight}
-      style={styles.container}
+    <SettingsFlatList
       data={filteredCurrencies}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       ListHeaderComponent={ListHeaderComponent}
-      contentContainerStyle={styles.contentContainer}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
@@ -243,3 +177,20 @@ const Currency: React.FC = () => {
 };
 
 export default Currency;
+
+const styles = StyleSheet.create({
+  infoWrapper: {
+    marginBottom: 16,
+    paddingVertical: 12,
+  },
+  infoCard: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  infoTitle: {
+    marginBottom: 8,
+  },
+  infoSubtitle: {
+    marginTop: 6,
+  },
+});

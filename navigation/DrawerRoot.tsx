@@ -59,7 +59,6 @@ const DrawerRoot = () => {
       drawerType: isLargeScreen ? 'permanent' : 'front',
       overlayColor: 'rgba(0,0,0,0.4)',
       swipeEnabled: false,
-      drawerStatusBarAnimation: 'fade',
 
       ...getAnimationConfig(true),
     }),
@@ -71,7 +70,12 @@ const DrawerRoot = () => {
   }, [sizeClass]);
 
   return (
-    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerContent} initialRouteName="DetailViewStackScreensStack">
+    <Drawer.Navigator
+      screenOptions={drawerStyle}
+      drawerContent={DrawerContent}
+      initialRouteName="DetailViewStackScreensStack"
+      defaultStatus={isLargeScreen ? 'open' : 'closed'}
+    >
       <Drawer.Screen name="DetailViewStackScreensStack" component={DetailViewStackScreensStack} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );

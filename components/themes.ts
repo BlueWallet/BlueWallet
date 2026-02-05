@@ -135,6 +135,15 @@ export const BlueDarkTheme: Theme = {
 // Casting theme value to get autocompletion
 export const useTheme = (): Theme => useThemeBase() as Theme;
 
+export const platformColors = {
+  background: BlueDefaultTheme.colors.background,
+  card: BlueDefaultTheme.colors.modal ?? BlueDefaultTheme.colors.elevated ?? BlueDefaultTheme.colors.background,
+  text: BlueDefaultTheme.colors.foregroundColor,
+  secondaryText: BlueDefaultTheme.colors.alternativeTextColor ?? BlueDefaultTheme.colors.darkGray,
+  separator: BlueDefaultTheme.colors.lightBorder ?? BlueDefaultTheme.colors.borderTopColor,
+  chevron: BlueDefaultTheme.colors.alternativeTextColor ?? BlueDefaultTheme.colors.darkGray,
+};
+
 export class BlueCurrentTheme {
   static colors: Theme['colors'];
   static closeImage: Theme['closeImage'];
@@ -145,6 +154,13 @@ export class BlueCurrentTheme {
     BlueCurrentTheme.colors = isColorSchemeDark ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
     BlueCurrentTheme.closeImage = isColorSchemeDark ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
     BlueCurrentTheme.scanImage = isColorSchemeDark ? BlueDarkTheme.scanImage : BlueDefaultTheme.scanImage;
+    const colors = BlueCurrentTheme.colors;
+    platformColors.background = colors.background;
+    platformColors.card = colors.modal ?? colors.elevated ?? colors.background;
+    platformColors.text = colors.foregroundColor;
+    platformColors.secondaryText = colors.alternativeTextColor ?? colors.darkGray;
+    platformColors.separator = colors.lightBorder ?? colors.borderTopColor;
+    platformColors.chevron = colors.alternativeTextColor ?? colors.darkGray;
   }
 }
 
