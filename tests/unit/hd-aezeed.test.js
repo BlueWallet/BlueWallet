@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { HDAezeedWallet, WatchOnlyWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDAezeedWallet', () => {
   it('can import mnemonics and generate addresses and WIFs', async function () {
@@ -81,20 +82,20 @@ describe('HDAezeedWallet', () => {
 
     // we should not really test private methods, but oh well
     assert.strictEqual(
-      aezeed._getNodePubkeyByIndex(0, 0).toString('hex'),
+      uint8ArrayToHex(aezeed._getNodePubkeyByIndex(0, 0)),
       '03ed28668d446c6e2ac11e4848f7afd894761ad26569baa8a16adff723699f2c07',
     );
     assert.strictEqual(
-      aezeed._getNodePubkeyByIndex(1, 0).toString('hex'),
+      uint8ArrayToHex(aezeed._getNodePubkeyByIndex(1, 0)),
       '0210791263114fe72ab5a2131ca1986b84c62a93e30ee9d509266f1eadf4febaf2',
     );
     assert.strictEqual(
-      aezeed._getPubkeyByAddress(aezeed._getExternalAddressByIndex(1)).toString('hex'),
-      aezeed._getNodePubkeyByIndex(0, 1).toString('hex'),
+      uint8ArrayToHex(aezeed._getPubkeyByAddress(aezeed._getExternalAddressByIndex(1))),
+      uint8ArrayToHex(aezeed._getNodePubkeyByIndex(0, 1)),
     );
     assert.strictEqual(
-      aezeed._getPubkeyByAddress(aezeed._getInternalAddressByIndex(1)).toString('hex'),
-      aezeed._getNodePubkeyByIndex(1, 1).toString('hex'),
+      uint8ArrayToHex(aezeed._getPubkeyByAddress(aezeed._getInternalAddressByIndex(1))),
+      uint8ArrayToHex(aezeed._getNodePubkeyByIndex(1, 1)),
     );
   });
 

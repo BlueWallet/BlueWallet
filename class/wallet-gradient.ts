@@ -83,67 +83,7 @@ export default class WalletGradient {
     return gradient;
   }
 
-  static linearGradientProps(type: string) {
-    let props: any;
-    switch (type) {
-      case MultisigHDWallet.type:
-        /* Example
-        props = { start: { x: 0, y: 0 } };
-        https://github.com/react-native-linear-gradient/react-native-linear-gradient
-        */
-        break;
-      default:
-        break;
-    }
-    return props;
-  }
-
   static headerColorFor(type: string): string {
-    let gradient: string[];
-    switch (type) {
-      case WatchOnlyWallet.type:
-        gradient = WalletGradient.watchOnlyWallet;
-        break;
-      case LegacyWallet.type:
-        gradient = WalletGradient.legacyWallet;
-        break;
-      case TaprootWallet.type:
-        gradient = WalletGradient.taprootWallet;
-        break;
-      case HDLegacyP2PKHWallet.type:
-      case HDLegacyElectrumSeedP2PKHWallet.type:
-      case SLIP39LegacyP2PKHWallet.type:
-        gradient = WalletGradient.hdLegacyP2PKHWallet;
-        break;
-      case HDLegacyBreadwalletWallet.type:
-        gradient = WalletGradient.hdLegacyBreadWallet;
-        break;
-      case HDSegwitP2SHWallet.type:
-      case SLIP39SegwitP2SHWallet.type:
-        gradient = WalletGradient.hdSegwitP2SHWallet;
-        break;
-      case HDSegwitBech32Wallet.type:
-      case HDSegwitElectrumSeedP2WPKHWallet.type:
-      case SLIP39SegwitBech32Wallet.type:
-        gradient = WalletGradient.hdSegwitBech32Wallet;
-        break;
-      case SegwitBech32Wallet.type:
-        gradient = WalletGradient.segwitBech32Wallet;
-        break;
-      case MultisigHDWallet.type:
-        gradient = WalletGradient.multisigHdWallet;
-        break;
-      case HDAezeedWallet.type:
-        gradient = WalletGradient.aezeedWallet;
-        break;
-      case LightningArkWallet.type:
-      case LightningCustodianWallet.type:
-        gradient = WalletGradient.lightningCustodianWallet;
-        break;
-      default:
-        gradient = WalletGradient.defaultGradients;
-        break;
-    }
-    return gradient[0];
+    return WalletGradient.gradientsFor(type)[0];
   }
 }

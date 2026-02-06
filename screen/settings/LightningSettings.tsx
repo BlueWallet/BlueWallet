@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
-import { Alert, Linking, StyleSheet } from 'react-native';
-import { Button as ButtonRNElements } from '@rneui/themed';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import { BlueLoading } from '../../components/BlueLoading';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
-import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
@@ -16,31 +14,19 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { BlueSpacing40 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
+import { SettingsScrollView, SettingsCard, SettingsListItem, SettingsSubtitle, isAndroid } from '../../components/platform';
 
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
 const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
-  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
-  const { colors } = useTheme();
   const { setParams } = useExtendedNavigation();
-
-  const stylesHook = StyleSheet.create({
-    buttonStyle: {
-      backgroundColor: 'transparent',
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
-    },
-  });
 
   useEffect(() => {
     const fetchURI = async () => {
       try {
-        // Try fetching from DefaultPreference first as DefaultPreference uses truly native storage
         const value = await getLNDHub();
         setURI(value ?? undefined);
       } catch (error) {
@@ -72,16 +58,14 @@ const LightningSettings: React.FC = () => {
       });
     };
 
-    // Call the initialize function
     initialize();
   }, [params?.url]);
 
   const setLndhubURI = (value: string) => {
-    // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
     const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
-
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
+
   const save = useCallback(async () => {
     setIsLoading(true);
     let normalizedURI;
@@ -90,7 +74,6 @@ const LightningSettings: React.FC = () => {
       if (URI) {
         normalizedURI = new URL(URI.replace(/([^:]\/)\/+/g, '$1')).toString();
         await LightningCustodianWallet.isValidNodeAddress(normalizedURI);
-
         await setLNDHub(normalizedURI);
       } else {
         await clearLNDHub();
@@ -116,40 +99,75 @@ const LightningSettings: React.FC = () => {
     }
   }, [params?.onBarScanned, setParams]);
 
+  const handleOpenGithub = () => {
+    Linking.openURL('https://github.com/BlueWallet/LndHub');
+  };
+
   return (
-    <SafeAreaScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <BlueCard>
-        <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
-      </BlueCard>
+    <SettingsScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      <SettingsCard>
+        <View style={styles.cardContent}>
+          <SettingsSubtitle>{loc.settings.lightning_settings_explain}</SettingsSubtitle>
+        </View>
+      </SettingsCard>
 
-      <ButtonRNElements
-        icon={{
-          name: 'github',
-          type: 'font-awesome',
-          color: colors.foregroundColor,
-        }}
-        onPress={() => Linking.openURL('https://github.com/BlueWallet/LndHub')}
-        titleStyle={{ color: colors.buttonAlternativeTextColor }}
-        title="github.com/BlueWallet/LndHub"
-        // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
-        // color={colors.buttonTextColor}
-        buttonStyle={stylesHook.buttonStyle}
-      />
-
-      <BlueCard>
-        <AddressInput
-          isLoading={isLoading}
-          address={URI}
-          placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
-          onChangeText={setLndhubURI}
-          testID="URIInput"
-          editable={!isLoading}
+      <View style={[styles.rowPadding, styles.githubContainer]}>
+        <SettingsListItem
+          title={loc.settings.lndhub_github}
+          subtitle="github.com/BlueWallet/LndHub"
+          onPress={handleOpenGithub}
+          iconName="github"
+          position="single"
         />
-        <BlueSpacing40 />
-        {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
-      </BlueCard>
-    </SafeAreaScrollView>
+      </View>
+
+      <SettingsCard>
+        <View style={styles.cardContent}>
+          <View style={styles.inputContainer}>
+            <AddressInput
+              isLoading={isLoading}
+              address={URI}
+              placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
+              onChangeText={setLndhubURI}
+              testID="URIInput"
+              editable={!isLoading}
+              style={styles.addressInput}
+            />
+          </View>
+
+          <View style={styles.buttonContainer}>
+            {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+          </View>
+        </View>
+      </SettingsCard>
+    </SettingsScrollView>
   );
 };
 
 export default LightningSettings;
+
+const horizontalPadding = isAndroid ? 20 : 16;
+
+const styles = StyleSheet.create({
+  rowPadding: {
+    paddingHorizontal: horizontalPadding,
+  },
+  cardContent: {
+    paddingHorizontal: horizontalPadding,
+    paddingVertical: 12,
+  },
+  inputContainer: {
+    marginTop: isAndroid ? 16 : 12,
+    marginBottom: isAndroid ? 16 : 12,
+  },
+  buttonContainer: {
+    marginTop: isAndroid ? 16 : 12,
+  },
+  githubContainer: {
+    marginTop: isAndroid ? 16 : 12,
+  },
+  addressInput: {
+    minHeight: 44,
+    height: 'auto',
+  },
+});

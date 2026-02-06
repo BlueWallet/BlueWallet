@@ -31,7 +31,7 @@ export class AbstractWallet {
     return temp;
   }
 
-  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)' | 'p2tr';
+  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)' | 'p2tr' | 'p2pkh' /* not segwit but ok */;
   _derivationPath?: string;
   label: string;
   secret: string;
@@ -243,7 +243,7 @@ export class AbstractWallet {
         // old (or broken) format..? no square brackets, only "()"
         fpAndPath = this.secret.substring(this.secret.indexOf('('), xpubIndex).replace(/[()]/g, '');
       }
-      const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '').split('/')[0];
+      const xpub = this.secret.substring(xpubIndex).replace(/[()]/g, '').split('/')[0];
 
       const pathIndex = fpAndPath.indexOf('/');
       const path = 'm' + fpAndPath.substring(pathIndex).replace(/h/g, "'");
@@ -253,10 +253,18 @@ export class AbstractWallet {
       const mfp = uint8ArrayToHex(hexToUint8Array(fp).reverse());
       this.masterFingerprint = parseInt(mfp, 16);
 
-      if (this.secret.startsWith('wpkh(')) {
+      // Store the script type for later use
+      if (this.secret.startsWith('tr(')) {
+        this.segwitType = 'p2tr';
+        this.secret = xpub;
+      } else if (this.secret.startsWith('wpkh(')) {
+        this.segwitType = 'p2wpkh';
         this.secret = this._xpubToZpub(xpub);
-      } else {
-        // nop
+      } else if (this.secret.startsWith('sh(wpkh(')) {
+        this.segwitType = 'p2sh(p2wpkh)';
+        this.secret = this._xpubToYpub(xpub);
+      } else if (this.secret.startsWith('pkh(')) {
+        this.segwitType = 'p2pkh';
         this.secret = xpub;
       }
 
@@ -351,19 +359,6 @@ export class AbstractWallet {
         this.secret = this._xpubToZpub(json.ExtPubKey);
         const mfp = uint8ArrayToHex(hexToUint8Array(json.MasterFingerprint).reverse());
         this.masterFingerprint = parseInt(mfp, 16);
-        return this;
-      }
-    } catch (_) {}
-
-    // is it sparrow-export ?
-    try {
-      const json = JSON.parse(origSecret);
-      if (json.chain && json.chain === 'BTC' && json.xfp && json.bip84) {
-        // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
-        this.secret = json.bip84._pub;
-        const mfp = uint8ArrayToHex(hexToUint8Array(json.xfp).reverse());
-        this.masterFingerprint = parseInt(mfp, 16);
-        this._derivationPath = json.bip84.deriv;
         return this;
       }
     } catch (_) {}

@@ -36,6 +36,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RateApp (1.4.7):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1635,7 +1656,7 @@ PODS:
     - React-logger (= 0.78.2)
     - React-perflogger (= 0.78.2)
     - React-utils (= 0.78.2)
-  - ReactNativeCameraKit (15.0.1):
+  - ReactNativeCameraKit (16.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1666,7 +1687,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.5.1):
     - React-Core
-  - RNDeviceInfo (14.0.4):
+  - RNDeviceInfo (14.1.1):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -1716,15 +1737,13 @@ PODS:
     - Yoga
   - RNLocalize (3.5.4):
     - React-Core
-  - RNPermissions (5.4.2):
+  - RNPermissions (5.4.4):
     - React-Core
-  - RNQrGenerator (1.4.3):
+  - RNQrGenerator (1.4.5):
     - React
     - ZXingObjC
   - RNQuickAction (0.3.13):
     - React
-  - RNRate (1.2.12):
-    - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - DoubleConversion
     - glog
@@ -1865,7 +1884,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.16.0):
+  - RNScreens (4.17.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1950,6 +1969,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - RateApp (from `../node_modules/react-native-rate-app`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2022,7 +2042,7 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
+  - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit-no-google`)
   - RealmJS (from `../node_modules/realm`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
@@ -2037,7 +2057,6 @@ DEPENDENCIES:
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
-  - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2076,6 +2095,8 @@ EXTERNAL SOURCES:
     :tag: hermes-2025-01-13-RNv0.78.0-a942ef374897d85da38e9c8904574f8376555388
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  RateApp:
+    :path: "../node_modules/react-native-rate-app"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2217,7 +2238,7 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeCameraKit:
-    :path: "../node_modules/react-native-camera-kit"
+    :path: "../node_modules/react-native-camera-kit-no-google"
   RealmJS:
     :path: "../node_modules/realm"
   RNCAsyncStorage:
@@ -2246,8 +2267,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/rn-qr-generator"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
-  RNRate:
-    :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -2278,6 +2297,7 @@ SPEC CHECKSUMS:
   hermes-engine: 2771b98fb813fdc6f92edd7c9c0035ecabf9fee7
   lottie-ios: a881093fab623c467d3bce374367755c272bdd59
   lottie-react-native: 0fdfbaa934fc6d3acbffbac5fb4d73d48e37fdf5
+  RateApp: 1b619eb01f0370714242558164695a18ea79d96b
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: be794de7dc6ed8f9f7fbf525f86e7651b8b68746
   RCTRequired: a83787b092ec554c2eb6019ff3f5b8d125472b3b
@@ -2348,25 +2368,24 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 4893bde33952f997a323eb1a1ee87a72764018ff
   ReactCodegen: 99ea3536c05be3c18d0c517acb56b5a6d726fc7b
   ReactCommon: 865ebe76504a95e115b6229dd00a31e56d2d4bfe
-  ReactNativeCameraKit: c7cec02191d24b6607c002dff403d349a61f5e49
+  ReactNativeCameraKit: f2afb64c4218b3c77d49bc03235ac9c67b157e2f
   RealmJS: 9fd51c849eb552ade9f7b11db42a319b4f6cab4c
   RNCAsyncStorage: b44e8a4e798c3e1f56bffccd0f591f674fb9198f
   RNCClipboard: f6679d470d0da2bce2a37b0af7b9e0bf369ecda5
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
-  RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
+  RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 92e89a04cd0d1c77f383a55d14c15e7f423f4c00
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
   RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
-  RNPermissions: c48851513712284b650e8a166fdd409aa81b6104
-  RNQrGenerator: afacf12b55dfba0e3aaca963eec23691e8426431
+  RNPermissions: 3f86a2c7cd6d76b307cc57ac774038e4571b4722
+  RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
-  RNRate: 7641919330e0d6688ad885a985b4bd697ed7d14c
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
   RNReanimated: 76e3bdba62bb728ea8d8d23b451e8070e6c2c2bc
-  RNScreens: 42312201faf5ff8ddc169d47cf828b340b60a0d4
+  RNScreens: 723a27283c0b5c3de74c4b5eba28890a99581d43
   RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
   RNSVG: cd580f422f3c4f0ffa490b6ac479c6602ae54bca
   RNVectorIcons: f7a99433a71f4b38891c14c64b21fc521d064392

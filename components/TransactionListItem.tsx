@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { Linking, View, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
@@ -262,7 +263,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             const LN = new Lnurl(false, AsyncStorage);
             let paymentHash = item.payment_hash!;
             if (typeof paymentHash === 'object') {
-              paymentHash = Buffer.from(paymentHash.data).toString('hex');
+              paymentHash = uint8ArrayToHex(new Uint8Array((paymentHash as any).data));
             }
             const loaded = await LN.loadSuccessfulPayment(paymentHash);
             if (loaded) {
@@ -387,8 +388,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       };
     }, [subtitleNumberOfLines]);
 
-    const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
-
     return (
       <ToolTipMenu
         isButton
@@ -419,7 +418,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
             ) : undefined
           }
           Component={View}
-          subtitleProps={subtitleProps}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}

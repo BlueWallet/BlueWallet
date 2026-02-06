@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import assert from 'assert';
 
-import { BlueApp, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { BlueApp, HDSegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -46,6 +46,58 @@ it('Appstorage - loadFromDisk works', async () => {
   const Storage3 = new BlueApp();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
+});
+
+it('Appstorage - loadFromDisk works with ambiguous descriptor in watch-only wallet', async () => {
+  let Storage = new BlueApp();
+  // Test that wpkh() descriptors are identified by script type, not path
+  const w = new WatchOnlyWallet();
+  w.setSecret(
+    'wpkh([97311f91/0/0]xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)',
+  );
+  w.init();
+  const addressSegwit = w._getExternalAddressByIndex(0);
+  assert.ok(addressSegwit.startsWith('bc1q'), 'not segwit address, got: ' + addressSegwit);
+
+  Storage.wallets.push(w);
+  await Storage.saveToDisk();
+  Storage = undefined;
+
+  // saved, now trying to load
+
+  const Storage2 = new BlueApp();
+  await Storage2.loadFromDisk();
+  assert.strictEqual(Storage2.wallets.length, 1);
+  const w2 = Storage2.wallets[0];
+
+  assert.strictEqual(w2._getExternalAddressByIndex(0), addressSegwit);
+  assert.strictEqual(w2.segwitType, 'p2wpkh');
+});
+
+it('Appstorage - loadFromDisk works with ambiguous descriptor in watch-only wallet 2', async () => {
+  let Storage = new BlueApp();
+  // Test that p2tr() descriptors are identified by script type, not path
+  const w = new WatchOnlyWallet();
+  w.setSecret(
+    "tr([97311f91/44'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw",
+  );
+  w.init();
+  const addressSegwit = w._getExternalAddressByIndex(0);
+  assert.ok(addressSegwit.startsWith('bc1p'), 'not taproot address, got: ' + addressSegwit);
+
+  Storage.wallets.push(w);
+  await Storage.saveToDisk();
+  Storage = undefined;
+
+  // saved, now trying to load
+
+  const Storage2 = new BlueApp();
+  await Storage2.loadFromDisk();
+  assert.strictEqual(Storage2.wallets.length, 1);
+  const w2 = Storage2.wallets[0];
+
+  assert.strictEqual(w2._getExternalAddressByIndex(0), addressSegwit);
+  assert.strictEqual(w2.segwitType, 'p2tr');
 });
 
 it('AppStorage - getTransactions() work', async () => {

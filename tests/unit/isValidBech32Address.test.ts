@@ -1,4 +1,4 @@
-import { isValidBech32Address } from '../../utils/isValidBech32Address';
+import { isValidBech32Address } from '../../util/isValidBech32Address.ts';
 
 describe('isValidBech32Address', () => {
   const validBech32Addresses: string[] = [

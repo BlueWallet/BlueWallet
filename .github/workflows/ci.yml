@@ -4,31 +4,84 @@ name: Tests
 # https://medium.com/@reime005/the-best-ci-cd-for-react-native-with-e2e-support-4860b4aaab29
 
 env:
-  TRAVIS: 1
   HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
   HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
 
 on: [pull_request]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout project
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
 
     - name: Specify node version
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: 22
+        node-version: 24
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
     - name: Install node_modules
-      run: npm ci
+      run: npm ci || npm ci
 
     - name: Run tests
-      run: npm test || npm test || npm test || npm test
+      run: npm run lint
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Specify node version
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Run tests
+      run: npm run unit
+      env:
+        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
+        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
+        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Specify node version
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Run tests
+      run: npm run integration || npm run integration || npm run integration || npm run integration
       env:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
@@ -40,93 +93,3 @@ jobs:
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
         RETRY: 1
-
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
-
-    - name: Free Disk Space
-      uses: jlumbroso/free-disk-space@main
-      with:
-        tool-cache: true
-        android: false
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
-
-    - name: npm and gradle caches in /mnt
-      run: |
-        rm -rf ~/.npm
-        rm -rf ~/.gradle
-        sudo mkdir -p /mnt/.npm
-        sudo mkdir -p /mnt/.gradle
-        sudo chown -R runner /mnt/.npm
-        sudo chown -R runner /mnt/.gradle
-        ln -s /mnt/.npm /home/runner/
-        ln -s /mnt/.gradle /home/runner/
-
-    - name: Create artifacts directory on /mnt
-      run: |
-        sudo mkdir -p /mnt/artifacts
-        sudo chown -R runner /mnt/artifacts
-
-    - name: Specify node version
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'npm'
-        cache-dependency-path: package-lock.json
-
-
-    - name: Use gradle caches
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Install node_modules
-      run: npm ci --omit=dev --yes
-
-    - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Enable KVM group perms
-      run: |
-        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-        sudo udevadm control --reload-rules
-        sudo udevadm trigger --name-match=kvm
-
-    - name: Build
-      run: npm run e2e:release-build
-
-    - name: Install dev deps needed for tests
-      run: npm i
-
-    - name: Run tests
-      uses: reactivecircus/android-emulator-runner@v2
-      with:
-        api-level: 31
-        avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        arch: x86_64
-        script: npm run e2e:release-test --  --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
-
-    - uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: e2e-test-videos
-        path: /mnt/artifacts/

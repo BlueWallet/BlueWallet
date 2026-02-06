@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('P2SH Segwit HD (BIP49)', () => {
   it('can create a wallet', async () => {
@@ -16,14 +17,12 @@ describe('P2SH Segwit HD (BIP49)', () => {
     assert.ok(!hd.getAllExternalAddresses().includes('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei')); // not internal
     assert.strictEqual(true, hd.validateMnemonic());
 
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
-      '0348192db90b753484601aaf1e6220644ffe37d83a9a5feff32b4da43739f736be',
-    );
-    assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
-      '03c107e6976d59e17490513fbed3fb321736b7231d24f3d09306c72714acf1859d',
-    );
+    let u8a = hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), '0348192db90b753484601aaf1e6220644ffe37d83a9a5feff32b4da43739f736be');
+    u8a = hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0));
+    assert(u8a);
+    assert.strictEqual(uint8ArrayToHex(u8a), '03c107e6976d59e17490513fbed3fb321736b7231d24f3d09306c72714acf1859d');
 
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0)), "m/49'/0'/0'/0/0");
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/49'/0'/0'/1/0");
@@ -107,7 +106,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
     let hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed1 = hd._getSeed().toString('hex');
+    const seed1 = uint8ArrayToHex(hd._getSeed());
     assert.ok(hd.validateMnemonic());
 
     mnemonic = 'hell';
@@ -121,7 +120,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
       '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor Bounce remind\nhorse \n traffic exotic since escape mimic ramp skin judge owner topple erode ';
     hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
-    const seed2 = hd._getSeed().toString('hex');
+    const seed2 = uint8ArrayToHex(hd._getSeed());
     assert.strictEqual(seed1, seed2);
     assert.ok(hd.validateMnemonic());
   });

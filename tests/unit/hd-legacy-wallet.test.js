@@ -2,15 +2,16 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDLegacyP2PKHWallet } from '../../class';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Legacy HD (BIP44)', () => {
   it('works', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
     const hd = new HDLegacyP2PKHWallet();
-    hd.setSecret(process.env.HD_MNEMONIC);
+    hd.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(hd.validateMnemonic());
 
     assert.strictEqual(
@@ -28,11 +29,11 @@ describe('Legacy HD (BIP44)', () => {
     assert.ok(!hd.getAllExternalAddresses().includes('1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj')); // not internal
 
     assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
+      uint8ArrayToHex(hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0))),
       '0316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667',
     );
     assert.strictEqual(
-      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
+      uint8ArrayToHex(hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0))),
       '02ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002',
     );
 
@@ -41,12 +42,12 @@ describe('Legacy HD (BIP44)', () => {
   });
 
   it('can create TX', async () => {
-    if (!process.env.HD_MNEMONIC) {
-      console.error('process.env.HD_MNEMONIC not set, skipped');
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
     const hd = new HDLegacyP2PKHWallet();
-    hd.setSecret(process.env.HD_MNEMONIC);
+    hd.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(hd.validateMnemonic());
 
     const utxo = [

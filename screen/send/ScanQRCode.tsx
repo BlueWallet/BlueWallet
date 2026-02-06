@@ -1,7 +1,7 @@
 import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
@@ -15,7 +15,6 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
-import presentAlert from '../../components/Alert';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
@@ -74,6 +73,7 @@ const ScanQRCode = () => {
   const [urHave, setUrHave] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
+  const useBBQRRef = useRef(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState<Record<string, string>>({});
   const [cameraStatusGranted, setCameraStatusGranted] = useState<boolean | undefined>(undefined);
   const stylesHook = StyleSheet.create({
@@ -108,7 +108,7 @@ const ScanQRCode = () => {
           const merge = true;
           const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
           if (onBarScanned) {
-            onBarScanned(data);
+            onBarScanned(data, useBBQRRef.current);
           }
 
           navigation.dispatch(popToAction);
@@ -117,12 +117,8 @@ const ScanQRCode = () => {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
       }
-    } catch (error) {
-      setIsLoading(true);
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 
@@ -151,7 +147,7 @@ const ScanQRCode = () => {
           const merge = true;
           const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
           if (onBarScanned) {
-            onBarScanned(data);
+            onBarScanned(data, useBBQRRef.current);
           }
 
           navigation.dispatch(popToAction);
@@ -159,13 +155,8 @@ const ScanQRCode = () => {
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
-    } catch (error) {
-      setIsLoading(true);
-
-      presentAlert({
-        title: loc.errors.error,
-        message: loc._.invalid_animated_qr_code_fragment,
-      });
+    } catch (error: any) {
+      console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
     }
   };
 
@@ -186,6 +177,11 @@ const ScanQRCode = () => {
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('B$')) {
+      useBBQRRef.current = true;
       return _onReadUniformResourceV2(ret.data);
     }
 
@@ -210,7 +206,7 @@ const ScanQRCode = () => {
         const merge = true;
         const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
         if (onBarScanned) {
-          onBarScanned(data);
+          onBarScanned(data, useBBQRRef.current);
         }
         navigation.dispatch(popToAction);
       }
@@ -223,7 +219,7 @@ const ScanQRCode = () => {
 
           const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge });
           if (onBarScanned) {
-            onBarScanned(ret.data);
+            onBarScanned(ret.data, useBBQRRef.current);
           }
 
           navigation.dispatch(popToAction);

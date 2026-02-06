@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform, Keyboard } from 'react-native';
+import { Keyboard, LayoutAnimation, NativeSyntheticEvent, Platform, StyleSheet, UIManager, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -10,16 +10,19 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
-import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import ListItem from '../../components/ListItem';
-import { useTheme } from '../../components/themes';
+import {
+  SettingsCard,
+  SettingsFlatList,
+  SettingsListItem,
+  SettingsSection,
+  SettingsSubtitle,
+  SettingsText,
+} from '../../components/platform';
+import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../hooks/context/useSettings';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 dayjs.extend(calendar);
 
@@ -27,33 +30,29 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const ITEM_HEIGHT = 60;
+const MAX_DISPLAY_ITEMS = 50;
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
-  const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
+  const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({
+    LastUpdated: null,
+    Rate: null,
+  });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { colors } = useTheme();
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
 
-  const stylesHook = StyleSheet.create({
-    flex: {
-      backgroundColor: colors.background,
-    },
-  });
-
-  const data = useMemo(() => {
+  const filteredCurrencies = useMemo(() => {
     if (search.length > 0) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }
 
     const searchLower = search.toLowerCase();
-    return Object.values(FiatUnit).filter(
-      item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower),
-    );
+    return Object.values(FiatUnit)
+      .filter(item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower))
+      .slice(0, MAX_DISPLAY_ITEMS);
   }, [search]);
 
   const fetchCurrency = useCallback(async () => {
@@ -89,30 +88,27 @@ const Currency: React.FC = () => {
     });
   }, [setOptions, handleSearchChange]);
 
-  const getItemLayout = useCallback(
-    (_data: unknown, index: number) => ({
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    }),
-    [],
+  const selectedCurrencyVisible = useMemo(
+    () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),
+    [filteredCurrencies, selectedCurrency.endPointKey],
   );
 
   const renderItem = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: FiatUnitType }) => {
+    (props: { item: FiatUnitType; index: number }) => {
+      const { item, index } = props;
       const isSelected = selectedCurrency.endPointKey === item.endPointKey;
       const isDisabled = isSavingNewPreferredCurrency === item || isSelected;
       const isLoading = isSavingNewPreferredCurrency === item;
+      const isFirst = index === 0;
+      const isLast = index === filteredCurrencies.length - 1;
 
       return (
-        <ListItem
+        <SettingsListItem
           disabled={isDisabled}
           title={`${item.endPointKey} (${item.symbol})`}
-          containerStyle={StyleSheet.flatten([styles.flex, stylesHook.flex, { height: ITEM_HEIGHT }])}
+          subtitle={item.country}
           checkmark={isSelected}
           isLoading={isLoading}
-          subtitle={item.country}
           onPress={async () => {
             if (isDisabled) return;
 
@@ -134,66 +130,67 @@ const Currency: React.FC = () => {
               setIsSavingNewPreferredCurrency(undefined);
             }
           }}
+          position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
+          accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
         />
       );
     },
-    [isSavingNewPreferredCurrency, selectedCurrency, stylesHook.flex, fetchCurrency, setPreferredFiatCurrencyStorage],
+    [isSavingNewPreferredCurrency, selectedCurrency, filteredCurrencies.length, fetchCurrency, setPreferredFiatCurrencyStorage],
   );
-
-  const selectedCurrencyVisible = useMemo(
-    () => data.some(item => item.endPointKey === selectedCurrency.endPointKey),
-    [data, selectedCurrency.endPointKey],
-  );
-
-  const CurrencyInfo = useMemo(() => {
-    if (isSearchFocused && !selectedCurrencyVisible) return null;
-
-    return (
-      <BlueCard>
-        <BlueText>
-          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
-        </BlueText>
-        <BlueSpacing10 />
-        <BlueText>
-          {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-        </BlueText>
-        <BlueSpacing10 />
-        <BlueText>
-          {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
-        </BlueText>
-        <BlueSpacing20 />
-      </BlueCard>
-    );
-  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
 
   const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
 
+  const ListHeaderComponent = useCallback(() => {
+    if (isSearchFocused || !selectedCurrencyVisible) return null;
+
+    return (
+      <SettingsSection compact>
+        <View style={styles.infoWrapper}>
+          <SettingsCard style={styles.infoCard}>
+            <SettingsText style={styles.infoTitle}>
+              {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+            </SettingsText>
+            <SettingsSubtitle style={styles.infoSubtitle}>
+              {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+            </SettingsSubtitle>
+            <SettingsSubtitle style={styles.infoSubtitle}>
+              {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+            </SettingsSubtitle>
+          </SettingsCard>
+        </View>
+      </SettingsSection>
+    );
+  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
+
   return (
-    <View style={[styles.flex, stylesHook.flex]}>
-      <SafeAreaFlatList
-        contentInsetAdjustmentBehavior="automatic"
-        automaticallyAdjustContentInsets
-        automaticallyAdjustKeyboardInsets
-        keyExtractor={keyExtractor}
-        data={data}
-        extraData={selectedCurrency}
-        initialNumToRender={10}
-        maxToRenderPerBatch={10}
-        windowSize={10}
-        updateCellsBatchingPeriod={50}
-        removeClippedSubviews={true}
-        getItemLayout={getItemLayout}
-        renderItem={renderItem}
-      />
-      {CurrencyInfo}
-    </View>
+    <SettingsFlatList
+      data={filteredCurrencies}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      ListHeaderComponent={ListHeaderComponent}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      removeClippedSubviews={true}
+    />
   );
 };
 
 export default Currency;
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
+  infoWrapper: {
+    marginBottom: 16,
+    paddingVertical: 12,
+  },
+  infoCard: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  infoTitle: {
+    marginBottom: 8,
+  },
+  infoSubtitle: {
+    marginTop: 6,
   },
 });

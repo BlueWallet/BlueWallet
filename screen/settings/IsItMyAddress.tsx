@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Keyboard, StyleSheet, TextInput, View, ScrollView, Pressable, Text } from 'react-native';
-import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
+import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { useTheme } from '../../components/themes';
+import { BlueButtonLink } from '../../BlueComponents';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
@@ -11,10 +11,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
-import { scanQrHelper } from '../../helpers/scan-qr.ts';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView.tsx';
-import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -22,18 +22,9 @@ const IsItMyAddress: React.FC = () => {
   const { colors } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
-
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
-
-  const stylesHooks = StyleSheet.create({
-    input: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-  });
 
   const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
@@ -120,8 +111,10 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
+        // Bold the wallet name (label), regular weight for address
+        const isLabel = match[1] === 'label';
         parts.push(
-          <Text key={`bold-${index++}`} style={styles.boldText} selectable>
+          <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
             {value}
           </Text>,
         );
@@ -135,17 +128,21 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
+    <SettingsScrollView
       ref={scrollViewRef}
-      contentContainerStyle={styles.wrapper}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
-      <BlueCard style={styles.mainCard}>
-        <View style={[styles.input, stylesHooks.input]}>
+      <SettingsCard>
+        <View
+          style={[
+            styles.textInputContainer,
+            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+          ]}
+        >
           <TextInput
-            style={styles.textInput}
+            style={[styles.textInput, { color: colors.foregroundColor }]}
             multiline
             editable
             placeholder={loc.is_it_my_address.enter_address}
@@ -155,100 +152,111 @@ const IsItMyAddress: React.FC = () => {
             testID="AddressInput"
           />
           {address.length > 0 && (
-            <Pressable onPress={clearAddressInput} style={styles.clearButton}>
-              <Icon name="close" size={20} color="#81868e" />
-            </Pressable>
+            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <Icon name="close" size={20} color={colors.alternativeTextColor} />
+            </TouchableOpacity>
           )}
         </View>
 
-        <BlueSpacing10 />
         <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-        <BlueSpacing20 />
+
+        <View style={styles.buttonSpacing} />
+
         {resultCleanAddress && (
           <>
             <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-            <BlueSpacing20 />
+            <View style={styles.buttonSpacingSmall} />
           </>
         )}
+
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
-        <BlueSpacing40 />
+
+        <View style={styles.buttonSpacing} />
 
         {matchingWallets !== undefined && matchingWallets.length > 0 && (
           <>
             <Divider />
-            <BlueSpacing40 />
+            <View style={styles.spacingLarge} />
           </>
         )}
         {matchingWallets !== undefined &&
           matchingWallets.length > 0 &&
           matchingWallets.map((wallet, index) => (
-            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.walletContainer}>
-              <BlueText selectable style={styles.resultText}>
+            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
+              <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
                 {resultCleanAddress &&
                   renderFormattedText(loc.is_it_my_address.owns, {
                     label: wallet.getLabel(),
                     address: resultCleanAddress,
                   })}
-              </BlueText>
+              </Text>
               <BlueSpacing10 />
-              <WalletCarouselItem
-                item={wallet}
-                onPress={item => {
-                  navigate('WalletTransactions', {
-                    walletID: item.getID(),
-                    walletType: item.type,
-                  });
-                }}
-              />
+              <View style={styles.walletCardContainer}>
+                <WalletCarouselItem
+                  item={wallet}
+                  onPress={item => {
+                    navigate('WalletTransactions', {
+                      walletID: item.getID(),
+                      walletType: item.type,
+                    });
+                  }}
+                  customStyle={styles.walletCardStyle}
+                />
+              </View>
               <BlueSpacing20 />
             </View>
           ))}
-      </BlueCard>
-    </SafeAreaScrollView>
+      </SettingsCard>
+    </SettingsScrollView>
   );
 };
 
 export default IsItMyAddress;
 
 const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: 'center',
-  },
-  mainCard: {
-    padding: 0,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    width: '100%',
-  },
-  input: {
+  textInputContainer: {
     flexDirection: 'row',
     borderWidth: 1,
     borderBottomWidth: 0.5,
     alignItems: 'center',
     borderRadius: 4,
-    width: '100%',
   },
   textInput: {
     flex: 1,
     padding: 8,
     minHeight: 100,
-    color: '#81868e',
   },
   clearButton: {
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  boldText: {
-    fontWeight: 'bold',
+  buttonSpacing: {
+    height: 16,
   },
-  resultText: {
+  buttonSpacingSmall: {
+    height: 8,
+  },
+  spacingLarge: {
+    height: 32,
+  },
+  addressCheckContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  addressOwnershipText: {
     marginVertical: 10,
     textAlign: 'center',
   },
-  walletContainer: {
+  walletCardContainer: {
     width: '100%',
     alignItems: 'center',
+  },
+  walletCardStyle: {
+    width: '100%',
+    maxWidth: '100%',
+  },
+  boldText: {
+    fontWeight: 'bold',
   },
 });

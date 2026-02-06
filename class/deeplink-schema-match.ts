@@ -99,7 +99,7 @@ class DeeplinkSchemaMatch {
           }
         }
       }
-    } else if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
+    } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
       readFileOutsideSandbox(decodeURI(event.url))
         .then(file => {
           if (file) {
@@ -264,31 +264,15 @@ class DeeplinkSchemaMatch {
   }
 
   static isTXNFile(filePath: string): boolean {
-    return (
-      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('.txn')
-    );
-  }
-
-  static isPossiblySignedPSBTFile(filePath: string): boolean {
-    return (
-      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('-signed.psbt')
-    );
+    return filePath.toLowerCase().endsWith('.txn');
   }
 
   static isPossiblyPSBTFile(filePath: string): boolean {
-    return (
-      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('.psbt')
-    );
+    return filePath.toLowerCase().endsWith('.psbt');
   }
 
   static isPossiblyCosignerFile(filePath: string): boolean {
-    return (
-      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('.bwcosigner')
-    );
+    return filePath.toLowerCase().endsWith('.bwcosigner');
   }
 
   static isBothBitcoinAndLightningOnWalletSelect(wallet: TWallet, uri: any): TCompletionHandlerParams {

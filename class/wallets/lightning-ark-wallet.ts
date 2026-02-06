@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
@@ -144,11 +145,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
       setTimeout(async () => {
         const manager = new VtxoManager(staticWalletCache[namespace], {
           enabled: true, // Enable expiration monitoring
-          thresholdPercentage: 10, // Alert when 10% of lifetime remains (default)
         });
         try {
-          const txid = await manager.renewVtxos();
-          console.log('ARK VTXO Renewed:', txid);
+          const expiringVtxos = await manager.getExpiringVtxos();
+          if (expiringVtxos.length > 0) {
+            console.log(`ARK renewing ${expiringVtxos.length} expiring VTXOs...`);
+            const renewTxid = await manager.renewVtxos();
+            console.log('ARK VTXO renewed:', renewTxid);
+          }
         } catch (error: any) {
           console.log('ARK Error renewing VTXOs:', error.message);
         }
@@ -165,9 +169,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // fetching fees boltz takes:
     const feesResponse = await fetch(this._boltzApiUrl + '/v2/swap/submarine');
     const feesResponseJson = await feesResponse.json();
-    this._limitMin = feesResponseJson?.ark?.BTC?.limits?.minimal ?? 333;
-    this._limitMax = feesResponseJson?.ark?.BTC?.limits?.maximal ?? 1000000;
-    this._feePercentage = feesResponseJson?.ark?.BTC?.fees?.percentage ?? 0;
+    this._limitMin = feesResponseJson?.ARK?.BTC?.limits?.minimal ?? 333;
+    this._limitMax = feesResponseJson?.ARK?.BTC?.limits?.maximal ?? 1000000;
+    this._feePercentage = feesResponseJson?.ARK?.BTC?.fees?.percentage ?? 0;
+    if (!feesResponseJson?.ARK?.BTC?.fees?.percentage) {
+      console.log('warning: unexpected fees response from boltz:', JSON.stringify(feesResponseJson, null, 2));
+    }
 
     // Initialize the Lightning swap provider
     const swapProvider = new BoltzSwapProvider({
@@ -194,6 +201,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   getTransactions(): (Transaction & LightningTransaction)[] {
+    const walletID = this.getID();
     const ret: LightningTransaction[] = [];
     for (const swap of this._swapHistory) {
       let memo = '';
@@ -209,6 +217,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // @ts-ignore properties do exist
         bolt11invoice = swap.request.invoice || swap.response.invoice;
         const invoiceDetails = this.decodeInvoice(bolt11invoice);
+        value = invoiceDetails.num_satoshis;
         memo = invoiceDetails.description;
         payment_hash = invoiceDetails.payment_hash;
         expiry = invoiceDetails.expiry;
@@ -236,14 +245,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (this._claimedSwaps[swap.id]) {
         ispaid = true;
       }
-
       // @ts-ignore properties do exist
-      value = swap.response.expectedAmount || swap.response.onchainAmount || swap.request.invoiceAmount /* doesnt account for fee */ || 0;
+      value = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
       value = value * direction;
 
       ret.push({
         type: direction < 0 ? 'paid_invoice' : 'user_invoice',
-        walletID: this.getID(),
+        walletID,
         description: memo,
         memo,
         value,
@@ -260,7 +268,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const boardingTx of this._boardingUtxos) {
       ret.push({
         type: 'bitcoind_tx',
-        walletID: this.getID(),
+        walletID,
         description: 'Pending refill',
         memo: 'Pending refill',
         value: boardingTx.value,
@@ -273,7 +281,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // for now putting on the list only onchain top-up transactions:
         ret.push({
           type: 'bitcoind_tx',
-          walletID: this.getID(),
+          walletID,
           description: 'Refill',
           memo: 'Refill',
           value: histTx.amount,
@@ -303,22 +311,29 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async _attemptToClaimPendingVHTLCs() {
     assert(this._wallet, 'Ark wallet not initialized');
     assert(this._arkadeLightning, 'Ark Lightning not initialized');
+    const arkadeLightning = this._arkadeLightning;
 
     const pendingReverseSwaps = await this._arkadeLightning.getPendingReverseSwaps();
     if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? [], 'pending swaps');
 
-    for (const swap of pendingReverseSwaps ?? []) {
-      if (this._claimedSwaps[swap.id]) continue;
+    await Promise.all(
+      (pendingReverseSwaps ?? []).map(async swap => {
+        if (this._claimedSwaps[swap.id]) return;
 
-      console.log(`claiming ${swap.id}...`);
-      try {
-        await this._arkadeLightning.claimVHTLC(swap);
-        console.log('claimed!');
-        this._claimedSwaps[swap.id] = true;
-      } catch (error: any) {
-        console.log('could not claim:', error.message);
-      }
-    }
+        console.log(`claiming ${swap.id}...`);
+        if (swap?.response?.timeoutBlockHeights?.refund && swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
+          console.log(`skipping ${swap.id} (too old)`);
+          return;
+        }
+        try {
+          await arkadeLightning.claimVHTLC(swap);
+          console.log('claimed!');
+          this._claimedSwaps[swap.id] = true;
+        } catch (error: any) {
+          console.log(`could not claim ${swap.id}:`, error.message);
+        }
+      }),
+    );
   }
 
   async fetchBalance(noRetry?: boolean): Promise<void> {

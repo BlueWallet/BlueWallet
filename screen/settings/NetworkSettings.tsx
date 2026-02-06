@@ -1,13 +1,12 @@
 import React from 'react';
-import { isNotificationsCapable } from '../../blue_modules/notifications';
-import ListItem from '../../components/ListItem';
-import loc from '../../loc';
+import { Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import loc from '../../loc';
+import { SettingsScrollView, SettingsSection, SettingsListItem } from '../../components/platform';
 
 const NetworkSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
-
+  const isNotificationsCapable = Platform.OS !== 'web';
   const navigateToElectrumSettings = () => {
     navigation.navigate('ElectrumSettings');
   };
@@ -20,20 +19,52 @@ const NetworkSettings: React.FC = () => {
     navigation.navigate('SettingsBlockExplorer');
   };
 
+  const navigateToNotificationSettings = () => {
+    navigation.navigate('NotificationSettings');
+  };
+
   return (
-    <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      <ListItem title={loc.settings.block_explorer} onPress={navigateToBlockExplorerSettings} testID="BlockExplorerSettings" chevron />
-      <ListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
-      <ListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
-      {isNotificationsCapable && (
-        <ListItem
-          title={loc.settings.notifications}
-          onPress={() => navigation.navigate('NotificationSettings')}
-          testID="NotificationSettings"
+    <SettingsScrollView>
+      <SettingsSection horizontalInset={false}>
+        <SettingsListItem
+          title={loc.settings.block_explorer}
+          iconName="blockExplorer"
+          onPress={navigateToBlockExplorerSettings}
+          testID="BlockExplorerSettings"
           chevron
+          position="first"
         />
-      )}
-    </SafeAreaScrollView>
+
+        <SettingsListItem
+          title={loc.settings.network_electrum}
+          iconName="electrum"
+          onPress={navigateToElectrumSettings}
+          testID="ElectrumSettings"
+          chevron
+          position="middle"
+        />
+
+        <SettingsListItem
+          title={loc.settings.lightning_settings}
+          iconName="lightning"
+          onPress={navigateToLightningSettings}
+          testID="LightningSettings"
+          chevron
+          position={isNotificationsCapable ? 'middle' : 'last'}
+        />
+
+        {isNotificationsCapable && (
+          <SettingsListItem
+            title={loc.settings.notifications}
+            iconName="notifications"
+            onPress={navigateToNotificationSettings}
+            testID="NotificationSettings"
+            chevron
+            position="last"
+          />
+        )}
+      </SettingsSection>
+    </SettingsScrollView>
   );
 };
 

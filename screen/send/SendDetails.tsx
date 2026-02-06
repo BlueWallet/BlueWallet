@@ -743,30 +743,34 @@ const SendDetails = () => {
     try {
       const res = await pickTransaction();
 
-      if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(res.uri)) {
-        // we assume that transaction is already signed, so all we have to do is get txhex and pass it to next screen
-        // so user can broadcast:
+      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(String(res.name))) {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
-        const txhex = psbt.extractTransaction().toHex();
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
-        setIsLoading(false);
 
-        return;
-      }
+        // first, lets check if tx signed. we will try to finalize it, and then we will
+        // try to extract transaction:
+        let possiblySignedPsbt = psbt.clone();
+        try {
+          possiblySignedPsbt = possiblySignedPsbt.finalizeAllInputs();
+        } catch {}
 
-      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+        try {
+          const txhex = possiblySignedPsbt.extractTransaction().toHex();
+          navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
+          setIsLoading(false);
+
+          return;
+        } catch {}
+
         // looks like transaction is UNsigned, so we construct PSBT object and pass to next screen
         // so user can do smth with it:
-        const file = await RNFS.readFile(res.uri, 'ascii');
-        const psbt = bitcoin.Psbt.fromBase64(file);
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt });
         setIsLoading(false);
 
         return;
       }
 
-      if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
+      if (DeeplinkSchemaMatch.isTXNFile(String(res.name))) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
@@ -777,7 +781,8 @@ const SendDetails = () => {
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
-    } catch (err) {
+    } catch (err: any) {
+      console.error('error picking transaction:', err?.message);
       if (!isCancel(err)) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });

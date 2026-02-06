@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import assert from 'assert';
 
-import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, HDTaprootWallet, LightningCustodianWallet, HDLegacyP2PKHWallet } from '../../class';
@@ -36,6 +35,7 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -293,6 +293,10 @@ const WalletsAdd: React.FC = () => {
   }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
 
   useEffect(() => {
+    // resetting format of last camera qr scan, in case user will use camera to
+    // scan his wallet backup to import wallet
+    resetScanWasBBQR();
+
     getLNDHub()
       .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
       .catch(() => setWalletBaseURI(''))
@@ -364,7 +368,7 @@ const WalletsAdd: React.FC = () => {
         }
         addWallet(w);
         await saveToDisk();
-        A(A.ENUM.CREATED_WALLET);
+
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         if (w.type === HDLegacyP2PKHWallet.type || w.type === HDSegwitBech32Wallet.type || w.type === HDTaprootWallet.type) {
           navigate('PleaseBackup', {
@@ -407,12 +411,11 @@ const WalletsAdd: React.FC = () => {
       }
       // giving app, not adding anything
     }
-    A(A.ENUM.CREATED_LIGHTNING_WALLET);
+
     await wallet.generate();
     addWallet(wallet);
     await saveToDisk();
 
-    A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),
@@ -433,7 +436,6 @@ const WalletsAdd: React.FC = () => {
     addWallet(wallet);
     await saveToDisk();
 
-    A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),
