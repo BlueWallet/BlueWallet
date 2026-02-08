@@ -18,7 +18,7 @@ import CPFP from '../screen/transactions/CPFP';
 import TransactionDetails from '../screen/transactions/TransactionDetails';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
-import TransactionStatus from '../screen/transactions/TransactionStatus';
+import TransactionDetail from '../screen/transactions/TransactionDetail';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
@@ -153,7 +153,7 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewStack.Screen
         name="TransactionStatus"
-        component={TransactionStatus}
+        component={TransactionDetail}
         initialParams={{
           hash: undefined,
           walletID: undefined,
@@ -164,7 +164,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerTitle: '',
-          headerRight: () => DetailButton,
           headerBackButtonDisplayMode: 'default',
         })(theme)}
       />

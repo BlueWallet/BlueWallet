@@ -23,7 +23,7 @@ const TransactionIncomingIcon: React.FC = () => {
 
   const stylesHooks = StyleSheet.create({
     ballIncoming: {
-      backgroundColor: colors.ballReceive,
+      backgroundColor: 'rgba(31, 221, 26, 0.2)', // #1FDD1A at 20% opacity
     },
   });
 

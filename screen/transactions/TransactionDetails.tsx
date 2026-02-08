@@ -1,3 +1,8 @@
+/**
+ * @deprecated This screen has been replaced by TransactionDetail.tsx
+ * All functionality has been merged into the unified TransactionDetail screen.
+ * This file is kept for reference only and should not be used in new code.
+ */
 import React, { useCallback, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useFocusEffect, usePreventRemove, useRoute } from '@react-navigation/native';

@@ -1,3 +1,8 @@
+/**
+ * @deprecated This screen has been replaced by TransactionDetail.tsx
+ * All functionality has been merged into the unified TransactionDetail screen.
+ * This file is kept for reference only and should not be used in new code.
+ */
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
