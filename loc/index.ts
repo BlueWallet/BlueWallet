@@ -333,6 +333,28 @@ export const transactionTimeToReadable = (time: number | string) => {
   return ret;
 };
 
+export const formatTransactionListDate = (timestamp: number | string): string => {
+  if (timestamp === -1) {
+    return 'unknown';
+  }
+  let time: number = +timestamp;
+  if (time < 1000000000000) {
+    time = time * 1000;
+  }
+  if (time === 0) {
+    return loc._.never;
+  }
+  try {
+    const d = dayjs(time);
+    const now = dayjs();
+    const format = d.year() === now.year() ? 'MMM D h:mm a' : 'MMM D, YYYY h:mm a';
+    return d.format(format);
+  } catch (_) {
+    console.warn('incorrect locale set for dayjs');
+    return String(timestamp);
+  }
+};
+
 export const removeTrailingZeros = (value: number | string): string => {
   let ret = value.toString();
 
