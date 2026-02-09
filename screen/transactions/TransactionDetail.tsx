@@ -129,7 +129,7 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
   </View>
 );
 
-const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid }) => {
+const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
@@ -1008,7 +1008,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     );
   }
 
-  if (isLoading || !tx || wallet === undefined) {
+  if (isLoading || wallet === undefined) {
     return (
       <SafeAreaScrollView>
         <BlueLoading />
@@ -1016,7 +1016,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     );
   }
 
-  if (!transaction) {
+  if (!tx) {
     return (
       <SafeAreaScrollView>
         <BlueText>{loc.transactions.transaction_not_available}</BlueText>
