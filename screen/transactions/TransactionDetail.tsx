@@ -107,11 +107,6 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
 };
 
 type TransactionDetailProps = {
-  transaction?: {
-    amount?: number;
-    value?: number;
-    confirmations?: number;
-  };
   txid?: string;
 };
 
