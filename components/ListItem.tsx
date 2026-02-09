@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { Pressable, PressableProps, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { ListItem as RNElementsListItem } from '@rneui/themed';
 import { useLocale } from '@react-navigation/native';
 
@@ -19,6 +19,8 @@ interface ListItemProps {
   subtitleNumberOfLines?: number;
   rightTitle?: string;
   rightTitleStyle?: object;
+  rightSubtitle?: string | React.ReactNode;
+  rightSubtitleStyle?: object;
   chevron?: boolean;
   checkmark?: boolean;
 }
@@ -50,6 +52,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     subtitleNumberOfLines,
     rightTitle,
     rightTitleStyle,
+    rightSubtitle,
+    rightSubtitleStyle,
     chevron,
     checkmark,
   }: ListItemProps) => {
@@ -104,11 +108,18 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           )}
         </RNElementsListItem.Content>
 
-        {rightTitle && (
-          <View style={styles.margin8}>
-            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
-              {rightTitle}
-            </RNElementsListItem.Title>
+        {(rightTitle || rightSubtitle) && (
+          <View style={[styles.margin8, rightSubtitle ? styles.rightColumnShrink : null]}>
+            {rightTitle && (
+              <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
+                {rightTitle}
+              </RNElementsListItem.Title>
+            )}
+            {rightSubtitle && (
+              <Text style={[stylesHook.subtitle, rightSubtitleStyle]} numberOfLines={1} ellipsizeMode="tail">
+                {rightSubtitle}
+              </Text>
+            )}
           </View>
         )}
         {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
@@ -153,4 +164,8 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   width16: { width: 16 },
+  rightColumnShrink: {
+    maxWidth: '55%',
+    minWidth: 0,
+  },
 });

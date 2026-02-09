@@ -138,6 +138,11 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return formattedAmount;
     }, [item, formattedAmount]);
 
+    const rightMemoStyle = useMemo(
+      () => [styles.dateLine, { color: colors.alternativeTextColor, textAlign: 'right' as const }],
+      [colors.alternativeTextColor],
+    );
+
     const rowTitleStyle = useMemo(() => {
       let color = colors.successColor;
 
@@ -392,6 +397,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
+          rightSubtitle={noteForCopy}
+          rightSubtitleStyle={rightMemoStyle}
           containerStyle={combinedStyle}
           testID="TransactionListItem"
         />
