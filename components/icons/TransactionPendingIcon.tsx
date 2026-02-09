@@ -28,7 +28,7 @@ const TransactionPendingIcon: React.FC = () => {
 
   const stylesHook = StyleSheet.create({
     ball: {
-      backgroundColor: 'rgba(0, 60, 240, 0.1)', // #003CF0 at 10% opacity
+      backgroundColor: colors.transactionPendingIconBackground,
     },
   });
 
@@ -45,6 +45,9 @@ const TransactionPendingIcon: React.FC = () => {
             autoPlay={true}
             loop={true}
             resizeMode="cover"
+            colorFilters={[
+              { keypath: '**', color: colors.transactionPendingAnimationColor },
+            ]}
           />
         </View>
       </View>
