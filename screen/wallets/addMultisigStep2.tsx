@@ -248,7 +248,7 @@ const WalletsAddMultisigStep2 = () => {
       }
 
       setCosignerXpub(MultisigCosigner.exportToJson(fingerprint, cosigner[0], path));
-      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fingerprint, cosigner[0], path))[0]);
+      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fingerprint, cosigner[0], path), 175, null)[0]);
       setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.bwcosigner');
       renderCosignersXpubModalRef.current?.present();
     } else {
@@ -257,7 +257,7 @@ const WalletsAddMultisigStep2 = () => {
       const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
       const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
-      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+      setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path), 175, null)[0]);
       setCosignerXpubFilename('bw-cosigner-' + fp + '.bwcosigner');
       renderCosignersXpubModalRef.current?.present();
     }
@@ -352,7 +352,7 @@ const WalletsAddMultisigStep2 = () => {
           returnedData = JSON.stringify(retData);
         }
       } catch (e) {
-        console.debug('JSON parsing failed for ret.data:', e);
+        console.debug('JSON parsing failed for returnedData:', e);
       }
 
       if (returnedData.toUpperCase().startsWith('UR')) {
