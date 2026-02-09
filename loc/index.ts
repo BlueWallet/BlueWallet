@@ -347,7 +347,7 @@ export const formatTransactionListDate = (timestamp: number | string): string =>
   try {
     const d = dayjs(time);
     const now = dayjs();
-    const format = d.year() === now.year() ? 'MMM D h:mm a' : 'MMM D, YYYY h:mm a';
+    const format = d.year() === now.year() ? 'MMM D, h:mm a' : 'MMM D, YYYY h:mm a';
     return d.format(format);
   } catch (_) {
     console.warn('incorrect locale set for dayjs');

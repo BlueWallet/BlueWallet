@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
+import React, { useCallback, useMemo, useRef, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
@@ -118,10 +118,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPending, item.timestamp, language]);
 
-    const dateLineStyle = useMemo(
-      () => [styles.dateLine, { color: colors.alternativeTextColor }],
-      [colors.alternativeTextColor],
-    );
+    const dateLineStyle = useMemo(() => [styles.dateLine, { color: colors.alternativeTextColor }], [colors.alternativeTextColor]);
 
     const formattedAmount = useMemo(() => {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
