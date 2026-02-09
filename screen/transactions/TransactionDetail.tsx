@@ -1016,7 +1016,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     );
   }
 
-  if (!transaction && !tx) {
+  if (!transaction) {
     return (
       <SafeAreaScrollView>
         <BlueText>{loc.transactions.transaction_not_available}</BlueText>
