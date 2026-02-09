@@ -3,15 +3,13 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-import LottieView from 'lottie-react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import { BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
-import HandOffComponent from '../../components/HandOffComponent';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -21,7 +19,6 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -118,10 +115,24 @@ type TransactionDetailProps = {
   txid?: string;
 };
 
+type TransactionDetailHeaderTitleProps = {
+  direction: string;
+  date: string;
+  directionStyle: any;
+  dateStyle: any;
+};
+
+const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
+  <View style={styles.headerTitleContainer}>
+    <BlueText style={directionStyle}>{direction}</BlueText>
+    <BlueText style={dateStyle}>{date}</BlueText>
+  </View>
+);
+
 const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, getTransactions, saveToDisk } = useStorage();
+  const { wallets, txMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const { hash, walletID } = useRoute<RouteProps>().params;
   const subscribedWallet = useWalletSubscribe(walletID!);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
@@ -140,7 +151,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   const [to, setTo] = useState<string[]>([]);
   const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
-  const [wasPending, setWasPending] = useState<boolean>(false);
 
   const stylesHook = StyleSheet.create({
     value: {
@@ -148,9 +158,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     },
     valueUnit: {
       color: colors.foregroundColor,
-    },
-    iconRoot: {
-      backgroundColor: colors.success,
     },
     titleDate: {
       color: colors.alternativeTextColor,
@@ -161,9 +168,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     headerTitleDirection: {
       color: colors.foregroundColor,
     },
-    stateLabel: {
-      color: colors.foregroundColor,
-    },
     stateLabelPending: {
       color: colors.transactionPendingColor,
     },
@@ -172,9 +176,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     },
     stateLabelReceived: {
       color: colors.transactionReceivedColor,
-    },
-    stateValue: {
-      color: colors.alternativeTextColor,
     },
     stateValuePending: {
       color: colors.transactionPendingColor,
@@ -287,14 +288,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     blockFeeRateTime: {
       color: colors.alternativeTextColor,
     },
-    cancelText: {
-      color: colors.redText,
-    },
     rowValue: {
       color: colors.alternativeTextColor,
-    },
-    iconChevron: {
-      color: colors.foregroundColor,
     },
   });
 
@@ -337,8 +332,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       const newTx = transactions.find((t: Transaction) => t.hash === hash);
       if (newTx) {
         setTX(newTx);
-        // Track if transaction was pending
-        setWasPending(!newTx.confirmations || newTx.confirmations === 0);
         // Extract from/to addresses
         let newFrom: string[] = [];
         let newTo: string[] = [];
@@ -352,15 +345,15 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         }
         setFrom(newFrom);
         setTo(newTo);
-        
+
         // Also fetch from Electrum to get complete transaction data including fee
         // For received transactions, we need to populate vin.value by fetching previous transactions
         BlueElectrum.multiGetTransactionByTxid([hash], true, 10)
-          .then(async transactions => {
-            const fetchedTx = transactions[hash];
+          .then(async txMap => {
+            const fetchedTx = txMap[hash];
             if (fetchedTx && fetchedTx.vin) {
               // Fetch previous transactions to populate vin.value (needed for fee calculation, especially for received transactions)
-              const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((txid: string) => !!txid);
+              const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
               if (vinTxids.length > 0) {
                 try {
                   const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
@@ -388,7 +381,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   useEffect(() => {
     dispatch({ type: ActionType.SetWallet, payload: subscribedWallet });
   }, [subscribedWallet]);
-
 
   // Fetch fee rates when advanced section is expanded
   useEffect(() => {
@@ -425,7 +417,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         const now = Math.floor(Date.now() / 1000);
         const blockInterval = 600; // 10 minutes in seconds
         const secondsSinceLastBlock = now % blockInterval;
-        
+
         // Format the time using dayjs
         const timeAgo = dayjs().subtract(secondsSinceLastBlock, 'second').fromNow(true);
         setLastBlockTimeAgo(timeAgo);
@@ -478,25 +470,25 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         setIntervalMs(31000);
 
         console.debug('checking tx', hash, 'for confirmations...');
-        const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
-        const txFromElectrum = transactions[hash];
-        if (!txFromElectrum) {
+        const fetchedTxMap = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
+        const fetchedTx = fetchedTxMap[hash];
+        if (!fetchedTx) {
           console.error(`Transaction from Electrum with hash ${hash} not found.`);
           return;
         }
 
-        console.debug('got txFromElectrum=', txFromElectrum);
-        
-        // Update txFromElectrum state so fee calculation can use it
-        setTxFromElectrum(txFromElectrum);
+        console.debug('got txFromElectrum=', fetchedTx);
 
-        const address = txFromElectrum.vout?.[0]?.scriptPubKey?.addresses?.pop();
+        // Update txFromElectrum state so fee calculation can use it
+        setTxFromElectrum(fetchedTx);
+
+        const address = fetchedTx.vout?.[0]?.scriptPubKey?.addresses?.pop();
         if (!address) {
           console.error('Address not found in txFromElectrum.');
           return;
         }
 
-        if (!txFromElectrum.confirmations && txFromElectrum.vsize) {
+        if (!fetchedTx.confirmations && fetchedTx.vsize) {
           const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
           let txFromMempool;
           for (const tempTxM of txsM) {
@@ -511,30 +503,32 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           }
 
           console.debug('txFromMempool=', txFromMempool);
-          
+
           // Store mempool fee for fee calculation
           if (txFromMempool.fee) {
             setMempoolFee(txFromMempool.fee);
           }
 
-          const satPerVbyte = txFromMempool.fee && txFromElectrum.vsize ? Math.round(txFromMempool.fee / txFromElectrum.vsize) : 0;
+          const satPerVbyte = txFromMempool.fee && fetchedTx.vsize ? Math.round(txFromMempool.fee / fetchedTx.vsize) : 0;
           const fees = await BlueElectrum.estimateFees();
-          
+
           // Only set ETA if we have valid fee data
           // Validate that fees exist, are numbers, and are positive
-          if (fees && 
-              typeof fees.fast === 'number' && 
-              typeof fees.medium === 'number' && 
-              fees.fast > 0 && 
-              fees.medium > 0 && 
-              satPerVbyte > 0) {
+          if (
+            fees &&
+            typeof fees.fast === 'number' &&
+            typeof fees.medium === 'number' &&
+            fees.fast > 0 &&
+            fees.medium > 0 &&
+            satPerVbyte > 0
+          ) {
             // Fast should be >= medium, but handle edge cases
             if (fees.fast >= fees.medium) {
               // Normal case: fast >= medium
               // If transaction fee is at least 50% of fast fee, consider it reasonable (not 1 day)
               // This handles cases where fees are low and transaction is reasonably close to next block fee
               const reasonableThreshold = fees.fast * 0.5; // 50% of fast fee
-              
+
               if (satPerVbyte >= fees.fast) {
                 setEta(loc.formatString(loc.transactions.eta_10m));
               } else if (satPerVbyte >= fees.medium || satPerVbyte >= reasonableThreshold) {
@@ -556,23 +550,23 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             }
           }
           // If we don't have valid data, keep showing "Analyzing..." (don't set ETA)
-        } else if (txFromElectrum.confirmations && txFromElectrum.confirmations > 0) {
+        } else if (fetchedTx.confirmations && fetchedTx.confirmations > 0) {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           setEta('');
           // Clear mempool fee when transaction is confirmed (will use calculated fee from vin/vout)
           setMempoolFee(null);
-          
+
           // Populate vin.value for fee calculation when transaction becomes confirmed
-          if (txFromElectrum.vin && txFromElectrum.vin.length > 0) {
-            const vinTxids = txFromElectrum.vin.map((vin: any) => vin.txid).filter((txid: string) => !!txid);
+          if (fetchedTx.vin && fetchedTx.vin.length > 0) {
+            const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
             if (vinTxids.length > 0) {
               try {
-                const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
+                const prevTxs = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
                 // Populate vin.value from previous transaction outputs
-                for (let i = 0; i < txFromElectrum.vin.length; i++) {
-                  const vin = txFromElectrum.vin[i];
-                  if (prevTransactions[vin.txid]?.vout?.[vin.vout]) {
-                    vin.value = prevTransactions[vin.txid].vout[vin.vout].value;
+                for (let i = 0; i < fetchedTx.vin.length; i++) {
+                  const vin = fetchedTx.vin[i];
+                  if (prevTxs[vin.txid]?.vout?.[vin.vout]) {
+                    vin.value = prevTxs[vin.txid].vout[vin.vout].value;
                   }
                 }
               } catch (err) {
@@ -580,13 +574,13 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
               }
             }
           }
-          
+
           // Update txFromElectrum with populated vin values
-          setTxFromElectrum(txFromElectrum);
-          
+          setTxFromElectrum(fetchedTx);
+
           if (tx) {
             setTX((prevState: any) => {
-              return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
+              return Object.assign({}, prevState, { confirmations: fetchedTx.confirmations });
             });
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
@@ -598,8 +592,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             fetchAndSaveWalletTransactions(wallet.getID()).then(() => {
               // After wallet transactions are updated, refresh the transaction data from the wallet
               if (subscribedWallet && hash) {
-                const transactions = subscribedWallet.getTransactions();
-                const updatedTx = transactions.find((t: Transaction) => t.hash === hash);
+                const walletTxs = subscribedWallet.getTransactions();
+                const updatedTx = walletTxs.find((t: Transaction) => t.hash === hash);
                 if (updatedTx) {
                   setTX(updatedTx);
                   // Update from/to addresses if needed
@@ -631,7 +625,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       clearInterval(fetchTxInterval.current);
       fetchTxInterval.current = undefined;
     };
-  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
+  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet, subscribedWallet]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -840,45 +834,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     }
   };
 
-  const renderRBFCancel = () => {
-    if (isRBFCancelPossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-        </>
-      );
-    } else if (isRBFCancelPossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
-            <Text onPress={navigateToRBFCancel} style={[styles.cancelText, stylesHook.cancelText]}>
-              {loc.transactions.status_cancel}
-            </Text>
-          </TouchableOpacity>
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
-  const renderRBFBumpFee = () => {
-    if (isRBFBumpFeePossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-          <BlueSpacing20 />
-        </>
-      );
-    } else if (isRBFBumpFeePossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
   const shortenCounterpartyName = (addr: string): string => {
     if (addr.length < 20) return addr;
     return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
@@ -892,14 +847,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     }
     return null;
   };
-
-  const navigateToWallet = (wallet: TWallet) => {
-    navigate('WalletTransactions', {
-      walletID: wallet.getID(),
-      walletType: wallet.type,
-    });
-  };
-
 
   const onlyUnique = (value: any, index: number, self: any[]) => {
     return self.indexOf(value) === index;
@@ -920,15 +867,13 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
 
     for (const [index, address] of array.entries()) {
       const isWeOwnAddress = weOwnAddress(address);
-      const addressStyle = isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress, stylesHook.rowValue] : [styles.rowValue, stylesHook.rowValue];
+      const addressStyle = isWeOwnAddress
+        ? [styles.rowValue, styles.weOwnAddress, stylesHook.rowValue]
+        : [styles.rowValue, stylesHook.rowValue];
 
       fromArray.push(
-        <View key={address} style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-          <CopyTextToClipboard
-            text={address}
-            style={StyleSheet.flatten(addressStyle)}
-            containerStyle={{}}
-          />
+        <View key={address} style={styles.addressRow}>
+          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} containerStyle={{}} />
           {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
         </View>,
       );
@@ -942,37 +887,37 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   // This works for both sent and received transactions
   const calculatedFee = useMemo(() => {
     if (!tx) return null;
-    
+
     // If fee is already available, use it (for Lightning transactions)
     if (tx.fee !== undefined && tx.fee !== null) {
       return tx.fee;
     }
-    
+
     // For pending transactions, use mempool fee if available (most accurate)
     if (!tx.confirmations && mempoolFee !== null && mempoolFee !== undefined) {
       return mempoolFee;
     }
-    
+
     // Try to calculate from Electrum transaction data first (most reliable for both sent and received)
     // txFromElectrum has complete transaction data with all input/output values
     if (txFromElectrum && txFromElectrum.vin && txFromElectrum.vout) {
       let totalInputs = 0;
       let totalOutputs = 0;
-      
+
       // Sum all input values (in BTC, convert to satoshis)
       for (const vin of txFromElectrum.vin) {
         if (vin.value !== undefined && vin.value !== null) {
           totalInputs += Math.round(vin.value * 100000000);
         }
       }
-      
+
       // Sum all output values (in BTC, convert to satoshis)
       for (const vout of txFromElectrum.vout) {
         if (vout.value !== undefined && vout.value !== null) {
           totalOutputs += Math.round(vout.value * 100000000);
         }
       }
-      
+
       // Fee = inputs - outputs
       if (totalInputs > 0 && totalOutputs > 0) {
         const fee = totalInputs - totalOutputs;
@@ -981,14 +926,14 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         }
       }
     }
-    
+
     // Fallback: calculate from tx.inputs and tx.outputs
     // Note: For received transactions, input.value might not be populated
     // This works better for sent transactions where we own the inputs
     if (tx.inputs && tx.outputs) {
       let totalInputs = 0;
       let totalOutputs = 0;
-      
+
       // Sum all input values
       for (const input of tx.inputs) {
         if (input.value !== undefined && input.value !== null) {
@@ -997,7 +942,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           totalInputs += inputValue;
         }
       }
-      
+
       // Sum all output values
       for (const output of tx.outputs) {
         if (output.value !== undefined && output.value !== null) {
@@ -1006,7 +951,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           totalOutputs += outputValue;
         }
       }
-      
+
       // Fee = inputs - outputs
       // For received transactions, if inputs don't have values, we can't calculate
       // But we should still try if we have at least some input values
@@ -1017,7 +962,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         }
       }
     }
-    
+
     return null;
   }, [tx, txFromElectrum, mempoolFee]);
 
@@ -1034,18 +979,23 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   // Get memo
   const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
 
-  // Set header title with direction and date
+  // Set header title with direction and date (inline component required by React Navigation API)
   useEffect(() => {
     if (tx) {
       setOptions({
+        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
         headerTitle: () => (
-          <View style={styles.headerTitleContainer}>
-            <BlueText style={[styles.headerTitleDirection, stylesHook.headerTitleDirection]}>{transactionDirection}</BlueText>
-            <BlueText style={[styles.headerTitleDate, stylesHook.titleDate]}>{transactionDate}</BlueText>
-          </View>
+          <TransactionDetailHeaderTitle
+            direction={transactionDirection}
+            date={transactionDate}
+            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection]}
+            dateStyle={[styles.headerTitleDate, stylesHook.titleDate]}
+          />
         ),
       });
     }
+    // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, transactionDirection, transactionDate, setOptions, colors]);
 
   if (loadingError) {
@@ -1087,9 +1037,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             )}
           </Text>
           {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>
-              {satoshiToLocalCurrency(Math.abs(tx.value))}
-            </Text>
+            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{satoshiToLocalCurrency(Math.abs(tx.value))}</Text>
           )}
         </View>
       </View>
@@ -1099,11 +1047,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         style={[
           styles.stateCard,
           stylesHook.stateCard,
-          !tx.confirmations
-            ? stylesHook.stateCardPending
-            : tx.value < 0
-              ? stylesHook.stateCardSent
-              : stylesHook.stateCardReceived,
+          !tx.confirmations ? stylesHook.stateCardPending : tx.value < 0 ? stylesHook.stateCardSent : stylesHook.stateCardReceived,
         ]}
       >
         <View style={styles.stateSection}>
@@ -1121,17 +1065,19 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
               {(isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
-                    <TouchableOpacity 
-                      onPress={navigateToRBFBumpFee} 
+                    <TouchableOpacity
+                      onPress={navigateToRBFBumpFee}
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
-                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.details_speed_up}</BlueText>
+                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>
+                        {loc.transactions.details_speed_up}
+                      </BlueText>
                     </TouchableOpacity>
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
-                    <TouchableOpacity 
-                      onPress={navigateToRBFCancel} 
+                    <TouchableOpacity
+                      onPress={navigateToRBFCancel}
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
@@ -1175,9 +1121,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle]}>
           <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_section}</BlueText>
           {tx?.hash && (
-            <TouchableOpacity 
-              onPress={handleOpenBlockExplorer} 
-              style={[styles.explorerButton, stylesHook.explorerButton]} 
+            <TouchableOpacity
+              onPress={handleOpenBlockExplorer}
+              style={[styles.explorerButton, stylesHook.explorerButton]}
               activeOpacity={0.7}
             >
               <BlueText style={[styles.explorerButtonText, stylesHook.explorerButtonText]}>{loc.transactions.details_explorer}</BlueText>
@@ -1202,29 +1148,30 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         </View>
 
         {/* To address - sent transactions only */}
-        {tx.value < 0 && (() => {
-          const externalAddresses = arrDiff(from, to.filter(onlyUnique));
-          if (externalAddresses.length === 0) return null;
-          const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
-          const copyText = externalAddresses.join(', ');
-          return (
-            <View style={[styles.detailRow, stylesHook.detailRow]}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_to_address}</BlueText>
-              <View style={styles.detailValueContainer}>
-                <CopyTextToClipboard
-                  text={copyText}
-                  displayText={displayText}
-                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
-                  numberOfLines={1}
-                  ellipsizeMode="middle"
-                  selectable
-                  textAlign="right"
-                />
+        {tx.value < 0 &&
+          (() => {
+            const externalAddresses = arrDiff(from, to.filter(onlyUnique));
+            if (externalAddresses.length === 0) return null;
+            const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
+            const copyText = externalAddresses.join(', ');
+            return (
+              <View style={[styles.detailRow, stylesHook.detailRow]}>
+                <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_to_address}</BlueText>
+                <View style={styles.detailValueContainer}>
+                  <CopyTextToClipboard
+                    text={copyText}
+                    displayText={displayText}
+                    style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                    containerStyle={{}}
+                    numberOfLines={1}
+                    ellipsizeMode="middle"
+                    selectable
+                    textAlign="right"
+                  />
+                </View>
               </View>
-            </View>
-          );
-        })()}
+            );
+          })()}
 
         {/* Transaction ID */}
         {tx.hash && (
@@ -1250,7 +1197,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           <View style={styles.detailValueContainer}>
             {memo ? (
               <TouchableOpacity onPress={handleNotePress} activeOpacity={0.7} style={styles.memoContainer}>
-                <BlueText style={[styles.memoText, stylesHook.memoText]} numberOfLines={0}>{memo}</BlueText>
+                <BlueText style={[styles.memoText, stylesHook.memoText]} numberOfLines={0}>
+                  {memo}
+                </BlueText>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={handleNotePress} style={[styles.addButton, stylesHook.addButton]} activeOpacity={0.7}>
@@ -1267,7 +1216,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
           style={[styles.advancedHeader, stylesHook.advancedHeader]}
         >
-          <View style={[styles.sectionTitle, stylesHook.sectionTitle, { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow]}>
             <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_advanced}</BlueText>
             <Icon
               name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
@@ -1285,7 +1234,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
               <View style={[styles.blockFeeRateContainer, stylesHook.blockFeeRateContainer]}>
                 {/* Next Block */}
                 <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
-                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>{loc.transactions.details_next_block}</BlueText>
+                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>
+                    {loc.transactions.details_next_block}
+                  </BlueText>
                   <CopyTextToClipboard
                     text={feeRates?.fast ? `${feeRates.fast} sats/vb` : '-'}
                     style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
@@ -1295,7 +1246,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
                 </View>
                 {/* Latest Block */}
                 <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
-                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>{loc.transactions.details_latest_block}</BlueText>
+                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>
+                    {loc.transactions.details_latest_block}
+                  </BlueText>
                   <CopyTextToClipboard
                     text={latestBlockFeeRate ? `${latestBlockFeeRate} sats/vb` : '-'}
                     style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
@@ -1401,7 +1354,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             {/* Inputs */}
             {tx.inputs && tx.inputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.formatString(loc.transactions.details_inputs_count, { count: tx.inputs.length })}</BlueText>
+                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
+                  {loc.formatString(loc.transactions.details_inputs_count, { count: tx.inputs.length })}
+                </BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {from.filter(onlyUnique).length > 0 && renderSection(from.filter(onlyUnique))}
                 </View>
@@ -1411,7 +1366,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             {/* Outputs */}
             {tx.outputs && tx.outputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, styles.detailRowLast, stylesHook.detailRowFullWidth]}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}</BlueText>
+                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
+                  {loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}
+                </BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {to.filter(onlyUnique).length > 0 && renderSection(arrDiff(from, to.filter(onlyUnique)))}
                 </View>
@@ -1422,11 +1379,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {tx.confirmations > 0 && (
-        <View style={styles.actions}>
-          {renderCPFP()}
-        </View>
-      )}
+      {tx.confirmations > 0 && <View style={styles.actions}>{renderCPFP()}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1573,6 +1526,12 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
+  sectionTitleRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   sectionTitleWithButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1652,11 +1611,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
   },
-  detailSubLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 6,
-    lineHeight: 20,
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
   },
   detailValue: {
     fontSize: 15,
@@ -1697,12 +1655,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     overflow: 'hidden',
-  },
-  advancedHeaderText: {
-    fontSize: 17,
-    fontWeight: '600',
-    letterSpacing: 0.15,
-    lineHeight: 24,
   },
   advancedContent: {
     marginTop: 0,
@@ -1755,15 +1707,6 @@ const styles = StyleSheet.create({
     marginVertical: 24,
     width: '100%',
     paddingHorizontal: 16,
-  },
-  cancel: {
-    marginVertical: 16,
-  },
-  cancelText: {
-    color: '#d0021b',
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
   },
   rowValue: {
     color: 'grey',

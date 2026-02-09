@@ -1,7 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -62,8 +61,6 @@ const DetailViewStackScreensStack = () => {
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
   const { sizeClass } = useSizeClass();
-
-  const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
     navigation.navigate('AddWalletRoot');

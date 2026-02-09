@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import LottieView from 'lottie-react-native';
 
@@ -34,7 +34,7 @@ const TransactionPendingIcon: React.FC = () => {
 
   try {
     const pendingAnimation = require('../../img/pending.json');
-    
+
     return (
       <View style={styles.boxIncoming}>
         <View style={[styles.ball, stylesHook.ball]}>
@@ -45,9 +45,7 @@ const TransactionPendingIcon: React.FC = () => {
             autoPlay={true}
             loop={true}
             resizeMode="cover"
-            colorFilters={[
-              { keypath: '**', color: colors.transactionPendingAnimationColor },
-            ]}
+            colorFilters={[{ keypath: '**', color: colors.transactionPendingAnimationColor }]}
           />
         </View>
       </View>
