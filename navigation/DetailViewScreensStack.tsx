@@ -15,7 +15,6 @@ import Broadcast from '../screen/send/Broadcast';
 import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
-import TransactionDetails from '../screen/transactions/TransactionDetails';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionDetail from '../screen/transactions/TransactionDetail';
@@ -138,17 +137,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerTitle: loc.wallets.details_title,
           statusBarStyle: 'auto',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="TransactionDetails"
-        component={TransactionDetails}
-        options={navigationStyle({
-          statusBarStyle: 'auto',
-          headerStyle: {
-            backgroundColor: theme.colors.customHeader,
-          },
-          headerTitle: loc.transactions.details_title,
         })(theme)}
       />
       <DetailViewStack.Screen
