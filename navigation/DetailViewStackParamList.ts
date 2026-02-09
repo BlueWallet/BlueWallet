@@ -1,5 +1,5 @@
 import { AztecoVoucher } from '../class/azteco';
-import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { Chain } from '../models/bitcoinUnits';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';

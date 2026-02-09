@@ -53,11 +53,11 @@ export function decodeOpReturnPayload(scriptHex: string): { text: string | null;
     dataStart = 3;
   } else if (pushOp === OP_PUSHDATA2) {
     if (arr.length < 5) return { text: null, hex: scriptHex };
-    dataLength = arr[2] | (arr[3] << 8);
+    dataLength = arr[2] + arr[3] * 256;
     dataStart = 4;
   } else if (pushOp === OP_PUSHDATA4) {
     if (arr.length < 7) return { text: null, hex: scriptHex };
-    dataLength = arr[2] | (arr[3] << 8) | (arr[4] << 16) | (arr[5] << 24);
+    dataLength = arr[2] + arr[3] * 256 + arr[4] * 65536 + arr[5] * 16777216;
     dataStart = 6;
   } else {
     return { text: null, hex: scriptHex };

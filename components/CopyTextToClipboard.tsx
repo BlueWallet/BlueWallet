@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { StyleSheet, Text, TextProps, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { TextProps, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
@@ -31,7 +31,21 @@ const defaultContainerStyle: ViewStyle = {
 };
 
 const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
-  ({ text, displayText: displayTextProp, truncated, style, containerStyle, numberOfLines, ellipsizeMode, selectable, textAlign, ...textProps }, ref) => {
+  (
+    {
+      text,
+      displayText: displayTextProp,
+      truncated,
+      style,
+      containerStyle,
+      numberOfLines,
+      ellipsizeMode,
+      selectable,
+      textAlign,
+      ...textProps
+    },
+    ref,
+  ) => {
     const [hasTappedText, setHasTappedText] = useState(false);
     const initialDisplayText = displayTextProp || text;
     const [displayText, setDisplayText] = useState(initialDisplayText);
