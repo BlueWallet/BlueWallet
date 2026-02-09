@@ -32,6 +32,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import prompt from '../../helpers/prompt';
+import { decodeOpReturnPayload } from '../../blue_modules/opReturn';
 
 dayjs.extend(relativeTime);
 
@@ -133,6 +134,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   const [txHex, setTxHex] = useState<string | null>(null);
   const [isLoadingHex, setIsLoadingHex] = useState(false);
   const [feeRates, setFeeRates] = useState<{ fast: number; medium: number; slow: number } | null>(null);
+  const [latestBlockFeeRate, setLatestBlockFeeRate] = useState<number | null>(null);
+  const [lastBlockTimeAgo, setLastBlockTimeAgo] = useState<string>('');
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
   const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
@@ -162,31 +165,31 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       color: colors.foregroundColor,
     },
     stateLabelPending: {
-      color: '#2757C6',
+      color: colors.transactionPendingColor,
     },
     stateLabelSent: {
-      color: '#BF2828',
+      color: colors.transactionSentColor,
     },
     stateLabelReceived: {
-      color: '#63BDA2',
+      color: colors.transactionReceivedColor,
     },
     stateValue: {
       color: colors.alternativeTextColor,
     },
     stateValuePending: {
-      color: '#2757C6',
+      color: colors.transactionPendingColor,
     },
     stateValueSent: {
-      color: '#BF2828',
+      color: colors.transactionSentColor,
     },
     stateValueReceived: {
-      color: '#63BDA2',
+      color: colors.transactionReceivedColor,
     },
     detailLabel: {
-      color: 'rgba(0, 0, 0, 0.4)',
+      color: colors.alternativeTextColor,
     },
     detailValue: {
-      color: '#000000',
+      color: colors.foregroundColor,
     },
     memoText: {
       color: colors.foregroundColor,
@@ -198,7 +201,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       color: colors.buttonTextColor,
     },
     explorerButton: {
-      backgroundColor: 'rgba(0, 0, 0, 0.05)',
+      backgroundColor: colors.lightButton,
     },
     explorerButtonText: {
       color: colors.buttonTextColor,
@@ -211,13 +214,13 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       overflow: 'hidden',
     },
     stateCardPending: {
-      backgroundColor: '#DBEFFD',
+      backgroundColor: colors.transactionPendingBackgroundColor,
     },
     stateCardSent: {
-      backgroundColor: colors.outgoingBackgroundColor || '#f8d2d2',
+      backgroundColor: colors.outgoingBackgroundColor,
     },
     stateCardReceived: {
-      backgroundColor: colors.incomingBackgroundColor || '#d2f8d6',
+      backgroundColor: colors.incomingBackgroundColor,
     },
     card: {
       backgroundColor: colors.elevated || colors.background,
@@ -231,6 +234,67 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       marginHorizontal: 24,
       marginBottom: 42,
       padding: 0,
+    },
+    sectionTitle: {
+      backgroundColor: colors.cardSectionHeaderBackground,
+    },
+    sectionTitleText: {
+      color: colors.foregroundColor,
+    },
+    detailsCard: {
+      borderColor: colors.cardBorderColor,
+    },
+    detailRow: {
+      backgroundColor: colors.cardSectionBackground,
+      borderBottomColor: colors.cardBorderColor,
+    },
+    detailRowFullWidth: {
+      backgroundColor: colors.cardSectionBackground,
+      borderBottomColor: colors.cardBorderColor,
+    },
+    speedUpButton: {
+      backgroundColor: colors.transactionStateBumpButtonBackground,
+    },
+    speedUpButtonText: {
+      color: colors.transactionPendingColor,
+    },
+    cancelButton: {
+      backgroundColor: colors.transactionStateCancelButtonBackground,
+    },
+    cancelButtonText: {
+      color: colors.alternativeTextColor,
+    },
+    advancedHeader: {
+      borderColor: colors.cardBorderColor,
+    },
+    advancedContent: {
+      borderTopColor: colors.cardBorderColor,
+    },
+    blockFeeRateContainer: {
+      backgroundColor: colors.cardSectionBackground,
+      borderBottomColor: colors.cardBorderColor,
+    },
+    blockFeeRateBox: {
+      backgroundColor: colors.lightButton,
+      borderColor: colors.cardBorderColor,
+    },
+    blockFeeRateTitle: {
+      color: colors.alternativeTextColor,
+    },
+    blockFeeRateValue: {
+      color: colors.foregroundColor,
+    },
+    blockFeeRateTime: {
+      color: colors.alternativeTextColor,
+    },
+    cancelText: {
+      color: colors.redText,
+    },
+    rowValue: {
+      color: colors.alternativeTextColor,
+    },
+    iconChevron: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -339,6 +403,44 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
     }
   }, [isAdvancedExpanded, feeRates]);
 
+  // Fetch latest block fee rate when advanced section is expanded and transaction is pending
+  useEffect(() => {
+    if (isAdvancedExpanded && !tx?.confirmations && !latestBlockFeeRate && feeRates) {
+      // TODO: Replace with actual API call to get median fee rate from last mined block
+      // For now, using medium fee rate as placeholder (represents recent block estimate)
+      // This should be replaced with actual block data when API is available
+      setLatestBlockFeeRate(feeRates.medium);
+    }
+  }, [isAdvancedExpanded, tx?.confirmations, latestBlockFeeRate, feeRates]);
+
+  // Calculate time since last block was mined
+  useEffect(() => {
+    if (!isAdvancedExpanded || tx?.confirmations) return;
+
+    const calculateLastBlockTime = () => {
+      try {
+        // Blocks are mined approximately every 10 minutes (600 seconds)
+        // Calculate time since last block: estimate based on current time modulo block interval
+        // This gives us an approximation of time since the last block
+        const now = Math.floor(Date.now() / 1000);
+        const blockInterval = 600; // 10 minutes in seconds
+        const secondsSinceLastBlock = now % blockInterval;
+        
+        // Format the time using dayjs
+        const timeAgo = dayjs().subtract(secondsSinceLastBlock, 'second').fromNow(true);
+        setLastBlockTimeAgo(timeAgo);
+      } catch (error) {
+        console.error('Error calculating last block time:', error);
+        setLastBlockTimeAgo('');
+      }
+    };
+
+    calculateLastBlockTime();
+    const interval = setInterval(calculateLastBlockTime, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isAdvancedExpanded, tx?.confirmations]);
+
   // Fetch transaction hex when advanced section is expanded
   useEffect(() => {
     if (isAdvancedExpanded && tx?.hash && !txHex && !isLoadingHex) {
@@ -417,16 +519,43 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
 
           const satPerVbyte = txFromMempool.fee && txFromElectrum.vsize ? Math.round(txFromMempool.fee / txFromElectrum.vsize) : 0;
           const fees = await BlueElectrum.estimateFees();
-          console.debug('fees=', fees, 'satPerVbyte=', satPerVbyte);
-          if (satPerVbyte >= fees.fast) {
-            setEta(loc.formatString(loc.transactions.eta_10m));
+          
+          // Only set ETA if we have valid fee data
+          // Validate that fees exist, are numbers, and are positive
+          if (fees && 
+              typeof fees.fast === 'number' && 
+              typeof fees.medium === 'number' && 
+              fees.fast > 0 && 
+              fees.medium > 0 && 
+              satPerVbyte > 0) {
+            // Fast should be >= medium, but handle edge cases
+            if (fees.fast >= fees.medium) {
+              // Normal case: fast >= medium
+              // If transaction fee is at least 50% of fast fee, consider it reasonable (not 1 day)
+              // This handles cases where fees are low and transaction is reasonably close to next block fee
+              const reasonableThreshold = fees.fast * 0.5; // 50% of fast fee
+              
+              if (satPerVbyte >= fees.fast) {
+                setEta(loc.formatString(loc.transactions.eta_10m));
+              } else if (satPerVbyte >= fees.medium || satPerVbyte >= reasonableThreshold) {
+                // Use 3h if at least medium fee OR at least 50% of fast fee
+                setEta(loc.formatString(loc.transactions.eta_3h));
+              } else {
+                setEta(loc.formatString(loc.transactions.eta_1d));
+              }
+            } else {
+              // Edge case: fast < medium (shouldn't happen, but handle it)
+              // Use medium as the threshold since it's higher
+              if (satPerVbyte >= fees.medium) {
+                setEta(loc.formatString(loc.transactions.eta_10m));
+              } else if (satPerVbyte >= fees.fast) {
+                setEta(loc.formatString(loc.transactions.eta_3h));
+              } else {
+                setEta(loc.formatString(loc.transactions.eta_1d));
+              }
+            }
           }
-          if (satPerVbyte >= fees.medium && satPerVbyte < fees.fast) {
-            setEta(loc.formatString(loc.transactions.eta_3h));
-          }
-          if (satPerVbyte < fees.medium) {
-            setEta(loc.formatString(loc.transactions.eta_1d));
-          }
+          // If we don't have valid data, keep showing "Analyzing..." (don't set ETA)
         } else if (txFromElectrum.confirmations && txFromElectrum.confirmations > 0) {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           setEta('');
@@ -722,7 +851,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       return (
         <>
           <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
-            <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
+            <Text onPress={navigateToRBFCancel} style={[styles.cancelText, stylesHook.cancelText]}>
               {loc.transactions.status_cancel}
             </Text>
           </TouchableOpacity>
@@ -791,7 +920,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
 
     for (const [index, address] of array.entries()) {
       const isWeOwnAddress = weOwnAddress(address);
-      const addressStyle = isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue;
+      const addressStyle = isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress, stylesHook.rowValue] : [styles.rowValue, stylesHook.rowValue];
 
       fromArray.push(
         <View key={address} style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -899,7 +1028,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
   const opReturnOutputs = tx?.outputs?.filter((out: any) => !out.scriptPubKey.addresses || out.scriptPubKey.addresses.length === 0) || [];
 
   // Get transaction direction and date
-  const transactionDirection = tx?.value < 0 ? 'Sent' : 'Received';
+  const transactionDirection = tx?.value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
@@ -982,80 +1111,82 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             <>
               <View style={styles.stateIndicator}>
                 <TransactionPendingIcon />
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending]}>Pending</BlueText>
+                <View style={styles.stateLabelContainer}>
+                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending]}>{loc.transactions.pending}</BlueText>
+                  <BlueText style={[styles.stateValue, stylesHook.stateValuePending, styles.stateValueInline]}>
+                    {eta || loc.transactions.details_eta_analyzing}
+                  </BlueText>
+                </View>
               </View>
-              {eta && (
-                <BlueText style={[styles.stateValue, stylesHook.stateValuePending]}>{eta}</BlueText>
-              )}
               {(isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity 
                       onPress={navigateToRBFBumpFee} 
-                      style={styles.speedUpButton}
+                      style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
-                      <BlueText style={styles.speedUpButtonText}>{loc.transactions.status_bump}</BlueText>
+                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.details_speed_up}</BlueText>
                     </TouchableOpacity>
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
                     <TouchableOpacity 
                       onPress={navigateToRBFCancel} 
-                      style={styles.cancelButton}
+                      style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
-                      <BlueText style={styles.cancelButtonText}>{loc.transactions.status_cancel}</BlueText>
+                      <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.details_cancel}</BlueText>
                     </TouchableOpacity>
                   )}
                 </View>
               )}
             </>
           ) : tx.value < 0 ? (
-            <>
-              <View style={styles.stateIndicator}>
-                <TransactionOutgoingIcon />
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>Sent</BlueText>
+            <View style={styles.stateIndicator}>
+              <TransactionOutgoingIcon />
+              <View style={styles.stateLabelContainer}>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
+                <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
+                  {loc.formatString(loc.transactions.confirmations_lowercase, {
+                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                  })}
+                </BlueText>
               </View>
-              <BlueText style={[styles.stateValue, stylesHook.stateValueSent]}>
-                {loc.formatString(loc.transactions.confirmations_lowercase, {
-                  confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
-                })}
-              </BlueText>
-            </>
+            </View>
           ) : (
-            <>
-              <View style={styles.stateIndicator}>
-                <TransactionIncomingIcon />
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>Received</BlueText>
+            <View style={styles.stateIndicator}>
+              <TransactionIncomingIcon />
+              <View style={styles.stateLabelContainer}>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
+                <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
+                  {loc.formatString(loc.transactions.confirmations_lowercase, {
+                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                  })}
+                </BlueText>
               </View>
-              <BlueText style={[styles.stateValue, stylesHook.stateValueReceived]}>
-                {loc.formatString(loc.transactions.confirmations_lowercase, {
-                  confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
-                })}
-              </BlueText>
-            </>
+            </View>
           )}
         </View>
       </View>
 
       {/* Details Section */}
-      <View style={styles.detailsCard}>
+      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         {/* Details Title */}
-        <View style={[styles.sectionTitle, styles.sectionTitleWithButton]}>
-          <BlueText style={styles.sectionTitleText}>Details</BlueText>
+        <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle]}>
+          <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_section}</BlueText>
           {tx?.hash && (
             <TouchableOpacity 
               onPress={handleOpenBlockExplorer} 
               style={[styles.explorerButton, stylesHook.explorerButton]} 
               activeOpacity={0.7}
             >
-              <BlueText style={[styles.explorerButtonText, stylesHook.explorerButtonText]}>explorer</BlueText>
+              <BlueText style={[styles.explorerButtonText, stylesHook.explorerButtonText]}>{loc.transactions.details_explorer}</BlueText>
             </TouchableOpacity>
           )}
         </View>
         {/* Network Fee */}
-        <View style={styles.detailRow}>
-          <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Network Fee</BlueText>
+        <View style={[styles.detailRow, stylesHook.detailRow]}>
+          <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
           <View style={styles.detailValueContainer}>
             <CopyTextToClipboard
               text={
@@ -1070,10 +1201,35 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
           </View>
         </View>
 
+        {/* To address - sent transactions only */}
+        {tx.value < 0 && (() => {
+          const externalAddresses = arrDiff(from, to.filter(onlyUnique));
+          if (externalAddresses.length === 0) return null;
+          const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
+          const copyText = externalAddresses.join(', ');
+          return (
+            <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_to_address}</BlueText>
+              <View style={styles.detailValueContainer}>
+                <CopyTextToClipboard
+                  text={copyText}
+                  displayText={displayText}
+                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                  containerStyle={{}}
+                  numberOfLines={1}
+                  ellipsizeMode="middle"
+                  selectable
+                  textAlign="right"
+                />
+              </View>
+            </View>
+          );
+        })()}
+
         {/* Transaction ID */}
         {tx.hash && (
-          <View style={styles.detailRow}>
-            <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>ID</BlueText>
+          <View style={[styles.detailRow, stylesHook.detailRow]}>
+            <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <CopyTextToClipboard
                 text={tx.hash}
@@ -1089,8 +1245,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
         )}
 
         {/* Note/Memo */}
-        <View style={[styles.detailRow, styles.detailRowLast]}>
-          <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Note</BlueText>
+        <View style={[styles.detailRow, styles.detailRowLast, stylesHook.detailRow]}>
+          <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_note}</BlueText>
           <View style={styles.detailValueContainer}>
             {memo ? (
               <TouchableOpacity onPress={handleNotePress} activeOpacity={0.7} style={styles.memoContainer}>
@@ -1098,7 +1254,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={handleNotePress} style={[styles.addButton, stylesHook.addButton]} activeOpacity={0.7}>
-                <BlueText style={[styles.addButtonText, stylesHook.addButtonText]}>add</BlueText>
+                <BlueText style={[styles.addButtonText, stylesHook.addButtonText]}>{loc.transactions.details_add_note}</BlueText>
               </TouchableOpacity>
             )}
           </View>
@@ -1106,27 +1262,56 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
       </View>
 
       {/* Advanced Section */}
-      <View style={styles.detailsCard}>
+      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         <TouchableOpacity
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
-          style={styles.advancedHeader}
+          style={[styles.advancedHeader, stylesHook.advancedHeader]}
         >
-          <View style={[styles.sectionTitle, { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-            <BlueText style={styles.sectionTitleText}>Advanced</BlueText>
+          <View style={[styles.sectionTitle, stylesHook.sectionTitle, { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_advanced}</BlueText>
             <Icon
               name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
               type="font-awesome-5"
               size={16}
-              color="rgba(0, 0, 0, 0.8)"
+              color={colors.foregroundColor}
             />
           </View>
         </TouchableOpacity>
 
         {isAdvancedExpanded && (
-          <View style={styles.advancedContent}>
+          <View style={[styles.advancedContent, stylesHook.advancedContent]}>
+            {/* Block Fee Rate Boxes - Only for pending transactions */}
+            {!tx.confirmations && (
+              <View style={[styles.blockFeeRateContainer, stylesHook.blockFeeRateContainer]}>
+                {/* Next Block */}
+                <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
+                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>{loc.transactions.details_next_block}</BlueText>
+                  <CopyTextToClipboard
+                    text={feeRates?.fast ? `${feeRates.fast} sats/vb` : '-'}
+                    style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
+                    containerStyle={{}}
+                    textAlign="left"
+                  />
+                </View>
+                {/* Latest Block */}
+                <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
+                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>{loc.transactions.details_latest_block}</BlueText>
+                  <CopyTextToClipboard
+                    text={latestBlockFeeRate ? `${latestBlockFeeRate} sats/vb` : '-'}
+                    style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
+                    containerStyle={{}}
+                    textAlign="left"
+                  />
+                  {lastBlockTimeAgo && (
+                    <BlueText style={[styles.blockFeeRateTime, stylesHook.blockFeeRateTime]}>{lastBlockTimeAgo}</BlueText>
+                  )}
+                </View>
+              </View>
+            )}
+
             {/* Fee Rate */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Fee rate</BlueText>
+            <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_fee_rate}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
                   text={feeRate ? `${feeRate} sats/vb` : '-'}
@@ -1137,35 +1322,9 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
               </View>
             </View>
 
-            {/* Fee Rate in Previous Block */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Previous block</BlueText>
-              <View style={styles.detailValueContainer}>
-                <CopyTextToClipboard
-                  text={feeRates ? `${feeRates.medium} sats/vb` : '-'}
-                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
-                  textAlign="right"
-                />
-              </View>
-            </View>
-
-            {/* Fee Rate in Next Block */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Next block</BlueText>
-              <View style={styles.detailValueContainer}>
-                <CopyTextToClipboard
-                  text={feeRates ? `${feeRates.fast} sats/vb` : '-'}
-                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
-                  textAlign="right"
-                />
-              </View>
-            </View>
-
             {/* Size */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Size</BlueText>
+            <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_size}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
                   text={tx.size ? `${tx.size} B` : '-'}
@@ -1177,8 +1336,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             </View>
 
             {/* Virtual Size */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Virtual size</BlueText>
+            <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_virtual_size}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
                   text={tx.vsize ? `${tx.vsize} vB` : '-'}
@@ -1190,13 +1349,13 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
             </View>
 
             {/* Transaction Hex */}
-            <View style={styles.detailRow}>
-              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>Tx Hex</BlueText>
+            <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_tx_hex}</BlueText>
               <View style={styles.detailValueContainer}>
                 {txHex ? (
                   <CopyTextToClipboard
                     text={txHex}
-                    displayText="copy"
+                    displayText={loc.transactions.details_copy}
                     style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
                     containerStyle={{}}
                     textAlign="right"
@@ -1216,28 +1375,33 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
 
             {/* Op_return Data */}
             {opReturnOutputs.length > 0 && (
-              <View style={styles.detailRowFullWidth}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>OP_return</BlueText>
+              <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
+                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.transactions.details_op_return}</BlueText>
                 <View style={styles.detailValueFullWidth}>
-                  {opReturnOutputs.map((out: any, index: number) => (
-                    <CopyTextToClipboard
-                      key={index}
-                      text={out.scriptPubKey.hex || '-'}
-                      style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                      containerStyle={{}}
-                      selectable
-                      numberOfLines={0}
-                      textAlign="left"
-                    />
-                  ))}
+                  {opReturnOutputs.map((out: any, index: number) => {
+                    const scriptHex = out.scriptPubKey?.hex || '';
+                    const decoded = decodeOpReturnPayload(scriptHex);
+                    const displayText = decoded.text !== null ? decoded.text : decoded.hex || '-';
+                    return (
+                      <CopyTextToClipboard
+                        key={index}
+                        text={displayText}
+                        style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                        containerStyle={{}}
+                        selectable
+                        numberOfLines={0}
+                        textAlign="left"
+                      />
+                    );
+                  })}
                 </View>
               </View>
             )}
 
             {/* Inputs */}
             {tx.inputs && tx.inputs.length > 0 && (
-              <View style={styles.detailRowFullWidth}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>Inputs ({tx.inputs.length})</BlueText>
+              <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
+                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.formatString(loc.transactions.details_inputs_count, { count: tx.inputs.length })}</BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {from.filter(onlyUnique).length > 0 && renderSection(from.filter(onlyUnique))}
                 </View>
@@ -1246,8 +1410,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ transaction, txid
 
             {/* Outputs */}
             {tx.outputs && tx.outputs.length > 0 && (
-              <View style={[styles.detailRowFullWidth, styles.detailRowLast]}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>Outputs ({tx.outputs.length})</BlueText>
+              <View style={[styles.detailRowFullWidth, styles.detailRowLast, stylesHook.detailRowFullWidth]}>
+                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}</BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {to.filter(onlyUnique).length > 0 && renderSection(arrDiff(from, to.filter(onlyUnique)))}
                 </View>
@@ -1330,16 +1494,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
   },
+  stateLabelContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginLeft: 8,
+    flex: 1,
+  },
   stateLabel: {
     fontSize: 16,
     fontWeight: '600',
-    marginLeft: 8,
     lineHeight: 22,
+    marginBottom: 0,
   },
   stateValue: {
-    fontSize: 14,
+    fontSize: 13,
     marginBottom: 0,
-    lineHeight: 20,
+    marginTop: 0,
+  },
+  stateValueInline: {
+    marginBottom: 0,
   },
   stateButtons: {
     flexDirection: 'row',
@@ -1392,8 +1565,6 @@ const styles = StyleSheet.create({
     padding: 0,
     borderRadius: 12,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   sectionTitle: {
     backgroundColor: '#F2F2F2',
@@ -1413,7 +1584,7 @@ const styles = StyleSheet.create({
     color: 'rgba(0, 0, 0, 0.8)',
   },
   explorerButton: {
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     alignSelf: 'flex-end',
@@ -1424,7 +1595,6 @@ const styles = StyleSheet.create({
   explorerButtonText: {
     fontSize: 15,
     fontWeight: '500',
-    lineHeight: 20,
   },
   detailRow: {
     flexDirection: 'row',
@@ -1434,7 +1604,7 @@ const styles = StyleSheet.create({
     minHeight: 24,
     backgroundColor: '#F9F9F9',
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
@@ -1503,7 +1673,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   addButton: {
-    paddingVertical: 8,
+    paddingVertical: 4,
     paddingHorizontal: 12,
     borderRadius: 6,
     alignSelf: 'flex-end',
@@ -1540,6 +1710,44 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  blockFeeRateContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 0,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    backgroundColor: '#F9F9F9',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  blockFeeRateBox: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    borderRadius: 8,
+  },
+  blockFeeRateTitle: {
+    color: 'rgba(0, 0, 0, 0.4)',
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  blockFeeRateValue: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 22,
+  },
+  blockFeeRateTime: {
+    color: 'rgba(0, 0, 0, 0.4)',
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 16,
+    marginTop: 4,
   },
   actions: {
     alignSelf: 'center',
