@@ -1,13 +1,15 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
-import TransactionStatus from '../../screen/transactions/TransactionStatus';
+import TransactionDetail from '../../screen/transactions/TransactionDetail';
 
 type MockStorage = {
   wallets: any[];
   txMetadata: Record<string, any>;
   counterpartyMetadata: Record<string, any>;
   fetchAndSaveWalletTransactions: jest.Mock;
+  getTransactions: jest.Mock;
+  saveToDisk: jest.Mock;
 };
 
 const mockFetchAndSaveWalletTransactions = jest.fn();
@@ -16,6 +18,8 @@ let mockStorageState: MockStorage = {
   txMetadata: {},
   counterpartyMetadata: {},
   fetchAndSaveWalletTransactions: mockFetchAndSaveWalletTransactions,
+  getTransactions: jest.fn(() => Promise.resolve([])),
+  saveToDisk: jest.fn(() => Promise.resolve()),
 };
 
 jest.mock('../../hooks/context/useStorage', () => ({
@@ -94,6 +98,7 @@ jest.mock('../../components/BlueSpacing', () => ({
 }));
 jest.mock('../../components/BlueLoading', () => ({ BlueLoading: 'BlueLoading' }));
 jest.mock('../../components/SafeArea', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
+jest.mock('../../components/SafeAreaScrollView', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 
 jest.mock('../../components/icons/TransactionIncomingIcon', () => 'TransactionIncomingIcon');
 jest.mock('../../components/icons/TransactionOutgoingIcon', () => 'TransactionOutgoingIcon');
@@ -109,9 +114,9 @@ jest.mock('../../blue_modules/hapticFeedback', () => ({
 }));
 
 jest.mock('../../blue_modules/BlueElectrum', () => ({
-  multiGetTransactionByTxid: jest.fn(),
-  getMempoolTransactionsByAddress: jest.fn(),
-  estimateFees: jest.fn(),
+  multiGetTransactionByTxid: jest.fn(() => Promise.resolve({})),
+  getMempoolTransactionsByAddress: jest.fn(() => Promise.resolve([])),
+  estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
 }));
 
 jest.mock('../../loc', () => ({
@@ -179,7 +184,7 @@ const setup = (confirmations: number, lastFetch: number) => {
 
   mockWalletSubscribe = walletMock;
 
-  const view = render(<TransactionStatus />);
+  const view = render(<TransactionDetail />);
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
@@ -192,7 +197,7 @@ const setup = (confirmations: number, lastFetch: number) => {
       ...mockStorageState,
       wallets: [walletMock],
     };
-    view.rerender(<TransactionStatus />);
+    view.rerender(<TransactionDetail />);
     await waitFor(() => {
       expect(walletMock.getTransactions).toHaveBeenCalled();
     });
@@ -209,6 +214,8 @@ describe('TransactionStatus regression', () => {
       txMetadata: {},
       counterpartyMetadata: {},
       fetchAndSaveWalletTransactions: mockFetchAndSaveWalletTransactions,
+      getTransactions: jest.fn(() => Promise.resolve([])),
+      saveToDisk: jest.fn(() => Promise.resolve()),
     };
     mockWalletSubscribe = null;
   });
