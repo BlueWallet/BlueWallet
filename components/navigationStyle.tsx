@@ -126,11 +126,7 @@ const navigationStyle = (
 
       // statusBarStyle: auto is not supported on Android, so we get it based on the theme.barStyle
       const statusBarStyle: NativeStackNavigationOptions['statusBarStyle'] =
-        opts.statusBarStyle && opts.statusBarStyle !== 'auto'
-          ? opts.statusBarStyle
-          : theme.barStyle === 'light-content'
-            ? 'light'
-            : 'dark';
+        opts.statusBarStyle && opts.statusBarStyle !== 'auto' ? opts.statusBarStyle : theme.barStyle === 'light-content' ? 'light' : 'dark';
 
       let options: NativeStackNavigationOptions = {
         ...baseHeaderStyle,

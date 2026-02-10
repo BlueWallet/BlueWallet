@@ -149,13 +149,9 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         onPress={(event: GestureResponderEvent) => {
           if (onPress) {
             onPress(event);
-            return;
-          }
-          // For buttons that only need the menu, show it on tap when long-press is disabled.
-          if (!shouldOpenOnLongPress) {
-            menuRef.current?.show?.();
           }
         }}
+        onLongPress={shouldOpenOnLongPress ? () => {} : undefined}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
