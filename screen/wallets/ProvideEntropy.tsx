@@ -202,7 +202,7 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
         <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
-              <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
+              <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-6" />
             ) : (
               <View style={[styles.dice, stylesHook.dice]}>
                 <Text style={stylesHook.diceText}>{i + 1}</Text>
@@ -250,12 +250,12 @@ const TollTab = ({ active }: { active: boolean }) => {
 
 const D6Tab = ({ active }: { active: boolean }) => {
   const { colors } = useTheme();
-  return <Icon name="dice" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
+  return <Icon name="dice" type="font-awesome-6" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
 const D20Tab = ({ active }: { active: boolean }) => {
   const { colors } = useTheme();
-  return <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
+  return <Icon name="dice-d20" type="font-awesome-6" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />;
 };
 
 const ProvideEntropy = () => {

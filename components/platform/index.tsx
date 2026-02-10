@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialIcon from '@react-native-vector-icons/material-icons';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import FontAwesome5 from '@react-native-vector-icons/fontawesome5';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 import SafeAreaFlatList from '../SafeAreaFlatList';
 import SafeAreaScrollView from '../SafeAreaScrollView';
@@ -236,7 +236,7 @@ const renderVectorIcon = (icon: IconProps) => {
     case 'material-community':
       return <MaterialDesignIcons name={icon.name as never} size={size} color={color} />;
     default:
-      return <FontAwesome5 name={icon.name as never} size={size} color={color} />;
+      return <FontAwesome6 name={icon.name as never} size={size} color={color} />;
   }
 };
 

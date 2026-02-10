@@ -60,7 +60,10 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'visibility' : 'visibility-off'} color={colors.brandingColor} type="material" />
+    <Text style={[styles.leftButtonText, { color: colors.brandingColor }]}>
+      {hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -477,8 +480,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  leftButtonText: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   carouselItem: {
     width: '100%',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   transparentBackground: {
     backgroundColor: 'transparent',

@@ -50,7 +50,7 @@ const multisigReducer = (state: MultisigState, action: MultisigAction): Multisig
 const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
-  const { walletLabel } = useRoute<RouteProps>().params;
+  const { walletLabel, m, n, format } = useRoute<RouteProps>().params;
 
   const [state, dispatch] = useReducer(multisigReducer, {
     m: 2,
@@ -79,13 +79,17 @@ const WalletsAddMultisig: React.FC = () => {
       m: state.m,
       n: state.n,
       format: state.format,
-      onSave: (m: number, n: number, format: string) => {
-        dispatch({ type: MultisigActions.SET_M, payload: m });
-        dispatch({ type: MultisigActions.SET_N, payload: n });
-        dispatch({ type: MultisigActions.SET_FORMAT, payload: format });
-      },
+      walletLabel,
     });
-  }, [navigate, state.m, state.n, state.format]);
+  }, [navigate, state.m, state.n, state.format, walletLabel]);
+
+  React.useEffect(() => {
+    if (typeof m === 'number' && typeof n === 'number' && typeof format === 'string') {
+      if (m !== state.m) dispatch({ type: MultisigActions.SET_M, payload: m });
+      if (n !== state.n) dispatch({ type: MultisigActions.SET_N, payload: n });
+      if (format !== state.format) dispatch({ type: MultisigActions.SET_FORMAT, payload: format });
+    }
+  }, [m, n, format, state.m, state.n, state.format]);
 
   const getCurrentlySelectedFormat = (code: string) => {
     switch (code) {

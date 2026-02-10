@@ -2,7 +2,6 @@ import React from 'react';
 import { Pressable, StyleProp, TextStyle, View, ViewStyle } from 'react-native';
 import Entypo from '@react-native-vector-icons/entypo';
 import FontAwesome from '@react-native-vector-icons/fontawesome';
-import FontAwesome5 from '@react-native-vector-icons/fontawesome5';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
@@ -11,15 +10,7 @@ import Octicons from '@react-native-vector-icons/octicons';
 
 type IconComponentType = React.ComponentType<any> | undefined;
 
-type IconType =
-  | 'font-awesome'
-  | 'font-awesome-5'
-  | 'font-awesome-6'
-  | 'ionicons'
-  | 'material'
-  | 'material-community'
-  | 'entypo'
-  | 'octicons';
+type IconType = 'font-awesome' | 'font-awesome-6' | 'ionicons' | 'material' | 'material-community' | 'entypo' | 'octicons';
 
 export interface IconProps {
   name: string;
@@ -36,8 +27,6 @@ export interface IconProps {
 
 const resolveIconComponent = (type?: IconType | string): IconComponentType => {
   switch ((type ?? '').toLowerCase()) {
-    case 'font-awesome-5':
-      return FontAwesome5;
     case 'font-awesome-6':
       return FontAwesome6;
     case 'ionicons':

@@ -55,7 +55,12 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={n === m || m === 7}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon
+            name="keyboard-arrow-up"
+            size={22}
+            type="material"
+            color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
+          />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
         <Pressable
@@ -64,7 +69,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={m === 2}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
 
@@ -79,7 +84,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           onPress={increaseN}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-up" size={22} type="material" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
         <Pressable
@@ -89,7 +94,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
           testID="DecreaseN"
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
     </View>
@@ -154,7 +159,7 @@ const MultisigAdvanced: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
-  const { m, n, format, onSave } = route.params;
+  const { m, n, format, walletLabel } = route.params;
 
   const [currentM, setCurrentM] = React.useState(m);
   const [currentN, setCurrentN] = React.useState(n);
@@ -179,9 +184,12 @@ const MultisigAdvanced: React.FC = () => {
   });
 
   const handleSave = useCallback(() => {
-    onSave(currentM, currentN, currentFormat);
-    navigation.goBack();
-  }, [onSave, currentM, currentN, currentFormat, navigation]);
+    navigation.navigate({
+      name: 'WalletsAddMultisig',
+      params: { walletLabel, m: currentM, n: currentN, format: currentFormat },
+      merge: true,
+    });
+  }, [navigation, currentM, currentN, currentFormat, walletLabel]);
 
   const SaveButton = useCallback(
     () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,

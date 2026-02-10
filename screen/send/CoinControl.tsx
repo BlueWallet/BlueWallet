@@ -546,7 +546,7 @@ const CoinControl: React.FC = () => {
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
-            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-5" color={colors.buttonAlternativeTextColor} />}
+            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-6" color={colors.buttonAlternativeTextColor} />}
           />
           <FButton
             onPress={handleMassUse}

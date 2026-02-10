@@ -1371,7 +1371,6 @@ PODS:
     - Yoga
   - react-native-vector-icons-entypo (12.0.0)
   - react-native-vector-icons-fontawesome (12.0.0)
-  - react-native-vector-icons-fontawesome5 (12.0.0)
   - react-native-vector-icons-fontawesome6 (12.3.0)
   - react-native-vector-icons-ionicons (12.0.0)
   - react-native-vector-icons-material-design-icons (12.0.0)
@@ -2003,7 +2002,6 @@ DEPENDENCIES:
   - "react-native-true-sheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
   - "react-native-vector-icons-entypo (from `../node_modules/@react-native-vector-icons/entypo`)"
   - "react-native-vector-icons-fontawesome (from `../node_modules/@react-native-vector-icons/fontawesome`)"
-  - "react-native-vector-icons-fontawesome5 (from `../node_modules/@react-native-vector-icons/fontawesome5`)"
   - "react-native-vector-icons-fontawesome6 (from `../node_modules/@react-native-vector-icons/fontawesome6`)"
   - "react-native-vector-icons-ionicons (from `../node_modules/@react-native-vector-icons/ionicons`)"
   - "react-native-vector-icons-material-design-icons (from `../node_modules/@react-native-vector-icons/material-design-icons`)"
@@ -2179,8 +2177,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-vector-icons/entypo"
   react-native-vector-icons-fontawesome:
     :path: "../node_modules/@react-native-vector-icons/fontawesome"
-  react-native-vector-icons-fontawesome5:
-    :path: "../node_modules/@react-native-vector-icons/fontawesome5"
   react-native-vector-icons-fontawesome6:
     :path: "../node_modules/@react-native-vector-icons/fontawesome6"
   react-native-vector-icons-ionicons:
@@ -2350,7 +2346,6 @@ SPEC CHECKSUMS:
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
   react-native-vector-icons-entypo: 642baa138205224faacb5cfa30ffda8fd30f22cf
   react-native-vector-icons-fontawesome: bf88921a76ec11f9d2b1270a8281b51397d9a59c
-  react-native-vector-icons-fontawesome5: 1da1548429853f77ebd207f433db13873fbc1158
   react-native-vector-icons-fontawesome6: 1a73ea16a698f70851ad47e94521a99499e8e974
   react-native-vector-icons-ionicons: 8b6dafd994b32061eb47e8746c96a7b5a6619bdb
   react-native-vector-icons-material-design-icons: 56bd797f1fc5746c08370a09f2452e3435915a35

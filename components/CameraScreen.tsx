@@ -130,7 +130,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                  <Icon name="file-import" type="font-awesome-6" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -179,7 +179,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
                 onPress={onFilePickerButtonPress}
               >
                 <Animated.View style={styles.topButtonImg}>
-                  <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+                  <Icon name="file-import" type="font-awesome-6" color="#ffffff" />
                 </Animated.View>
               </TouchableOpacity>
             )}

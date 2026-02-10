@@ -8,10 +8,6 @@ const resolveAliases = {
     __dirname,
     'node_modules/@react-native-vector-icons/fontawesome/lib/commonjs/index.js',
   ),
-  'react-native-vector-icons/FontAwesome5': path.join(
-    __dirname,
-    'node_modules/@react-native-vector-icons/fontawesome5/lib/commonjs/index.js',
-  ),
   'react-native-vector-icons/FontAwesome6': path.join(
     __dirname,
     'node_modules/@react-native-vector-icons/fontawesome6/lib/commonjs/index.js',
