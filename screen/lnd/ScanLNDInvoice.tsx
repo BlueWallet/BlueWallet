@@ -26,6 +26,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
+import { LightningArkWallet } from '../../class';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -110,6 +111,19 @@ const ScanLNDInvoice = () => {
 
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
+
+      if (data.toLowerCase().startsWith('ark1')) {
+        const arkw = new LightningArkWallet();
+        if (arkw.isAddressValid(data)) {
+          setParams({ uri: undefined, invoice: data });
+          // @ts-ignore we need it to be set to something
+          setDecoded({});
+          setIsAmountInitiallyEmpty(true);
+          setDestination(data);
+          setIsLoading(false);
+          return;
+        }
+      }
 
       let newDecoded: DecodedInvoice;
       try {
@@ -233,6 +247,7 @@ const ScanLNDInvoice = () => {
     if (
       (text && text.toLowerCase().startsWith('lnb')) ||
       text.toLowerCase().startsWith('lightning:lnb') ||
+      text.toLowerCase().startsWith('ark1') ||
       Lnurl.isLnurl(text) ||
       Lnurl.isLightningAddress(text)
     ) {

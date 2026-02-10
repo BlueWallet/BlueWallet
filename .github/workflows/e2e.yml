@@ -177,7 +177,7 @@ jobs:
       run: |
         mkdir -p ${{ github.workspace }}/artifacts
 
-    - name: Specify node version (React Native 0.83)
+    - name: Specify node version
       uses: actions/setup-node@v6
       with:
         node-version: 24

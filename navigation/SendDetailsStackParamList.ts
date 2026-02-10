@@ -100,7 +100,7 @@ export type SendDetailsStackParamList = {
   PsbtMultisigQRCode: {
     memo?: string;
     psbtBase64: string;
-    fromWallet: string;
+    walletID: string;
     launchedBy?: string;
     isShowOpenScanner?: boolean;
     onBarScanned?: string;

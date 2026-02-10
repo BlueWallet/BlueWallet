@@ -93,8 +93,7 @@ const UnlockWith: React.FC = () => {
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
     isUnlockingWallets.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setWalletsInitialized]);
 
   const unlockUsingBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;

@@ -339,7 +339,7 @@ const WalletsAddMultisigStep2 = () => {
           payload.data = JSON.stringify(retData);
         }
       } catch (e) {
-        console.debug('JSON parsing failed for ret.data:', e);
+        console.debug('JSON parsing failed for returnedData:', e);
       }
 
       if ((payload.data ?? '').toUpperCase().startsWith('UR')) {
