@@ -216,7 +216,7 @@ const ImportWalletDiscovery: React.FC = () => {
   );
 
   const ListFooterComponent = useMemo(
-    () =>
+    () => (
       loading && wallets.length > 0 ? (
         <View style={styles.noWallets}>
           <BlueSpacing20 />
@@ -225,7 +225,8 @@ const ImportWalletDiscovery: React.FC = () => {
           <BlueFormLabel>{progress}</BlueFormLabel>
           <BlueSpacing20 />
         </View>
-      ) : null,
+      ) : null
+    ),
     [loading, wallets.length, progress],
   );
 

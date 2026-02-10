@@ -16,7 +16,7 @@ import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
-import TransactionDetail from '../screen/transactions/TransactionDetail';
+import TransactionDetails from '../screen/transactions/TransactionDetails';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
@@ -138,7 +138,7 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewStack.Screen
         name="TransactionStatus"
-        component={TransactionDetail}
+        component={TransactionDetails}
         initialParams={{
           hash: undefined,
           walletID: undefined,

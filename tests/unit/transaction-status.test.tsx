@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 
-import TransactionDetail from '../../screen/transactions/TransactionDetail';
+import TransactionDetails from '../../screen/transactions/TransactionDetails';
 
 type MockStorage = {
   wallets: any[];
@@ -184,7 +184,7 @@ const setup = (confirmations: number, lastFetch: number) => {
 
   mockWalletSubscribe = walletMock;
 
-  const view = render(<TransactionDetail />);
+  const view = render(<TransactionDetails />);
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
@@ -197,7 +197,7 @@ const setup = (confirmations: number, lastFetch: number) => {
       ...mockStorageState,
       wallets: [walletMock],
     };
-    view.rerender(<TransactionDetail />);
+    view.rerender(<TransactionDetails />);
     await waitFor(() => {
       expect(walletMock.getTransactions).toHaveBeenCalled();
     });
