@@ -137,7 +137,7 @@
     "crypto-browserify": "3.12.1",
     "crypto-js": "4.2.0",
     "dayjs": "1.11.19",
-    "detox": "20.46.3",
+    "detox": "20.47.0",
     "ecpair": "3.0.0",
     "electrum-client": "github:BlueWallet/rn-electrum-client#d9f511d",
     "electrum-mnemonic": "2.0.0",
