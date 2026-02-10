@@ -3,6 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
+import { sha256 } from '@noble/hashes/sha256';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
@@ -29,7 +30,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import prompt from '../../helpers/prompt';
-import { decodeOpReturnPayload } from '../../blue_modules/opReturn';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 dayjs.extend(relativeTime);
 
@@ -106,7 +107,7 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
   }
 };
 
-type TransactionDetailProps = {
+type TransactionDetailsProps = {
   txid?: string;
 };
 
@@ -124,10 +125,10 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
   </View>
 );
 
-const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
+const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const { hash, walletID } = useRoute<RouteProps>().params;
   const subscribedWallet = useWalletSubscribe(walletID!);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
@@ -146,6 +147,8 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
   const [to, setTo] = useState<string[]>([]);
   const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
+  const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
+  const [paymentCode, setPaymentCode] = useState<string | null>(null);
 
   const stylesHook = StyleSheet.create({
     value: {
@@ -159,6 +162,18 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
     },
     localCurrency: {
       color: colors.alternativeTextColor,
+    },
+    counterpartyContainer: {
+      backgroundColor: colors.cardSectionHeaderBackground,
+    },
+    counterpartyAvatar: {
+      backgroundColor: colors.lightButton,
+    },
+    counterpartyAvatarText: {
+      color: colors.foregroundColor,
+    },
+    counterpartyName: {
+      color: colors.foregroundColor,
     },
     headerTitleDirection: {
       color: colors.foregroundColor,
@@ -964,15 +979,69 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
   // Calculate fee rate
   const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
 
-  // Extract op_return outputs
-  const opReturnOutputs = tx?.outputs?.filter((out: any) => !out.scriptPubKey.addresses || out.scriptPubKey.addresses.length === 0) || [];
-
   // Get transaction direction and date
   const transactionDirection = tx?.value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
   const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+
+  const shortenContactName = (name: string): string => {
+    if (name.length < 20) return name;
+    return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
+  };
+
+  // Derive read-only counterparty info (if any) for BIP47 counterparties
+  useEffect(() => {
+    if (!tx?.hash || !wallet || !counterpartyMetadata) {
+      setCounterpartyLabel(null);
+      setPaymentCode(null);
+      return;
+    }
+
+    try {
+      const maybeWallet: any = wallet;
+      if (typeof maybeWallet.allowBIP47 === 'function' && typeof maybeWallet.isBIP47Enabled === 'function' && 'getBip47CounterpartyByTxid' in maybeWallet) {
+        if (!maybeWallet.allowBIP47() || !maybeWallet.isBIP47Enabled()) {
+          setCounterpartyLabel(null);
+          setPaymentCode(null);
+          return;
+        }
+        const foundPaymentCode = maybeWallet.getBip47CounterpartyByTxid(tx.hash);
+        if (foundPaymentCode) {
+          const meta = counterpartyMetadata[foundPaymentCode];
+          setPaymentCode(foundPaymentCode);
+          setCounterpartyLabel(meta?.label ?? null);
+        } else {
+          setCounterpartyLabel(null);
+          setPaymentCode(null);
+        }
+      } else {
+        setCounterpartyLabel(null);
+        setPaymentCode(null);
+      }
+    } catch (error) {
+      // If anything goes wrong, we silently ignore and do not show a counterparty badge
+      setCounterpartyLabel(null);
+      setPaymentCode(null);
+    }
+  }, [tx?.hash, wallet, counterpartyMetadata]);
+
+  const counterpartyDisplayName = useMemo(() => {
+    const base = counterpartyLabel || paymentCode;
+    if (!base) return null;
+    return shortenContactName(base);
+  }, [counterpartyLabel, paymentCode]);
+
+  const counterpartyColor = useMemo(() => {
+    if (!paymentCode) return null;
+    try {
+      const hash = sha256(paymentCode);
+      return '#' + uint8ArrayToHex(hash).substring(0, 6);
+    } catch {
+      return null;
+    }
+  }, [paymentCode]);
 
   // Set header title with direction and date (inline component required by React Navigation API)
   useEffect(() => {
@@ -1066,7 +1135,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
                       accessibilityRole="button"
                     >
                       <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>
-                        {loc.transactions.details_speed_up}
+                        {loc.transactions.status_bump}
                       </BlueText>
                     </TouchableOpacity>
                   )}
@@ -1076,7 +1145,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
-                      <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.details_cancel}</BlueText>
+                      <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.status_cancel}</BlueText>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -1109,6 +1178,26 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
           )}
         </View>
       </View>
+
+      {/* Counterparty badge (read-only, matches contact list style) */}
+      {counterpartyDisplayName && (
+        <View style={[styles.counterpartyContainer, stylesHook.counterpartyContainer]}>
+          <View
+            style={[
+              styles.counterpartyAvatar,
+              stylesHook.counterpartyAvatar,
+              counterpartyColor ? { backgroundColor: counterpartyColor } : null,
+            ]}
+          >
+            <Text style={[styles.counterpartyAvatarText, stylesHook.counterpartyAvatarText]}>
+              {(counterpartyLabel || paymentCode || '').charAt(0).toUpperCase()}
+            </Text>
+          </View>
+          <Text style={[styles.counterpartyName, stylesHook.counterpartyName]} numberOfLines={1}>
+            {counterpartyDisplayName}
+          </Text>
+        </View>
+      )}
 
       {/* Details Section */}
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
@@ -1321,31 +1410,6 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
               </View>
             </View>
 
-            {/* Op_return Data */}
-            {opReturnOutputs.length > 0 && (
-              <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
-                <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>{loc.transactions.details_op_return}</BlueText>
-                <View style={styles.detailValueFullWidth}>
-                  {opReturnOutputs.map((out: any, index: number) => {
-                    const scriptHex = out.scriptPubKey?.hex || '';
-                    const decoded = decodeOpReturnPayload(scriptHex);
-                    const displayText = decoded.text !== null ? decoded.text : decoded.hex || '-';
-                    return (
-                      <CopyTextToClipboard
-                        key={index}
-                        text={displayText}
-                        style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                        containerStyle={{}}
-                        selectable
-                        numberOfLines={0}
-                        textAlign="left"
-                      />
-                    );
-                  })}
-                </View>
-              </View>
-            )}
-
             {/* Inputs */}
             {tx.inputs && tx.inputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
@@ -1379,7 +1443,7 @@ const TransactionDetail: React.FC<TransactionDetailProps> = ({ txid }) => {
   );
 };
 
-export default TransactionDetail;
+export default TransactionDetails;
 
 const styles = StyleSheet.create({
   scrollContent: {
@@ -1405,6 +1469,31 @@ const styles = StyleSheet.create({
   },
   valueCard: {
     marginTop: 0,
+  },
+  counterpartyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 24,
+    marginBottom: 32,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  counterpartyAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  counterpartyAvatarText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  counterpartyName: {
+    marginLeft: 12,
+    fontSize: 16,
+    fontWeight: '500',
   },
   valueContent: {
     alignItems: 'flex-start',
