@@ -297,7 +297,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const handleOnDetailsPress = useCallback(() => {
       if (walletID && item && item.hash) {
-        navigate('TransactionStatus', { hash: item.hash, walletID });
+        navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
       } else {
         const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
         if (lightningWallet) {
