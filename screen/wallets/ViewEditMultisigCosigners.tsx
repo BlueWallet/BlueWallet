@@ -229,7 +229,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                       }
                       const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
                       const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
-                      const exportUr = encodeUR(exportJson)[0];
+                      const exportUr = encodeUR(exportJson, 175, null)[0];
                       setVaultKeyData({
                         keyIndex,
                         seed: '',
@@ -314,7 +314,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                       const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
                       const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
                       const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
-                      const exportUr = encodeUR(exportJson)[0];
+                      const exportUr = encodeUR(exportJson, 175, null)[0];
                       setAskPassphrase(false);
                       navigate('ViewEditMultisigCosignerViewSheet', {
                         walletID,

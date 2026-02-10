@@ -239,7 +239,7 @@ const WalletsAddMultisigStep2 = () => {
     (cosigner: CosignerTuple) => {
       if (MultisigHDWallet.isXpubValid(cosigner[0])) {
         const cosignerJson = MultisigCosigner.exportToJson(cosigner[1] as string, cosigner[0], cosigner[2] as string);
-        const cosignerUR = encodeUR(cosignerJson)[0];
+        const cosignerUR = encodeUR(cosignerJson, 175, null)[0];
         const filename = 'bw-cosigner-' + cosigner[1] + '.bwcosigner';
         navigation.navigate('WalletsAddMultisigCosignerXpubSheet', {
           cosignerXpub: cosignerJson,
@@ -252,7 +252,7 @@ const WalletsAddMultisigStep2 = () => {
         const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
         const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
         const cosignerJson = MultisigCosigner.exportToJson(fp, xpub, path);
-        const cosignerUR = encodeUR(cosignerJson)[0];
+        const cosignerUR = encodeUR(cosignerJson, 175, null)[0];
         const filename = 'bw-cosigner-' + fp + '.bwcosigner';
         navigation.navigate('WalletsAddMultisigCosignerXpubSheet', {
           cosignerXpub: cosignerJson,
