@@ -129,7 +129,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
-  const { hash, walletID } = useRoute<RouteProps>().params;
+  const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const subscribedWallet = useWalletSubscribe(walletID!);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -140,9 +140,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
   const [txHex, setTxHex] = useState<string | null>(null);
   const [isLoadingHex, setIsLoadingHex] = useState(false);
-  const [feeRates, setFeeRates] = useState<{ fast: number; medium: number; slow: number } | null>(null);
-  const [latestBlockFeeRate, setLatestBlockFeeRate] = useState<number | null>(null);
-  const [lastBlockTimeAgo, setLastBlockTimeAgo] = useState<string>('');
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
   const [txFromElectrum, setTxFromElectrum] = useState<any>(null);
@@ -281,23 +278,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     advancedContent: {
       borderTopColor: colors.cardBorderColor,
     },
-    blockFeeRateContainer: {
-      backgroundColor: colors.cardSectionBackground,
-      borderBottomColor: colors.cardBorderColor,
-    },
-    blockFeeRateBox: {
-      backgroundColor: colors.lightButton,
-      borderColor: colors.cardBorderColor,
-    },
-    blockFeeRateTitle: {
-      color: colors.alternativeTextColor,
-    },
-    blockFeeRateValue: {
-      color: colors.foregroundColor,
-    },
-    blockFeeRateTime: {
-      color: colors.alternativeTextColor,
-    },
     rowValue: {
       color: colors.alternativeTextColor,
     },
@@ -335,7 +315,27 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     dispatch({ type: ActionType.SetRBFCancelPossible, payload: status });
   };
 
-  // Load transaction data
+  // Seed transaction data from navigation param if available (offline / fallback)
+  useEffect(() => {
+    if (initialTx && !tx) {
+      setTX(initialTx);
+      // Extract from/to addresses from the initial transaction snapshot
+      let newFrom: string[] = [];
+      let newTo: string[] = [];
+      for (const input of initialTx.inputs || []) {
+        newFrom = newFrom.concat(input?.addresses ?? []);
+      }
+      for (const output of initialTx.outputs || []) {
+        if (output?.scriptPubKey?.addresses) {
+          newTo = newTo.concat(output.scriptPubKey.addresses);
+        }
+      }
+      setFrom(newFrom);
+      setTo(newTo);
+    }
+  }, [initialTx, tx]);
+
+  // Load transaction data from subscribed wallet and Electrum
   useEffect(() => {
     if (subscribedWallet && hash) {
       const transactions = subscribedWallet.getTransactions();
@@ -391,57 +391,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   useEffect(() => {
     dispatch({ type: ActionType.SetWallet, payload: subscribedWallet });
   }, [subscribedWallet]);
-
-  // Fetch fee rates when advanced section is expanded
-  useEffect(() => {
-    if (isAdvancedExpanded && !feeRates) {
-      BlueElectrum.estimateFees()
-        .then(fees => {
-          setFeeRates(fees);
-        })
-        .catch(err => {
-          console.error('Error fetching fee rates:', err);
-        });
-    }
-  }, [isAdvancedExpanded, feeRates]);
-
-  // Fetch latest block fee rate when advanced section is expanded and transaction is pending
-  useEffect(() => {
-    if (isAdvancedExpanded && !tx?.confirmations && !latestBlockFeeRate && feeRates) {
-      // TODO: Replace with actual API call to get median fee rate from last mined block
-      // For now, using medium fee rate as placeholder (represents recent block estimate)
-      // This should be replaced with actual block data when API is available
-      setLatestBlockFeeRate(feeRates.medium);
-    }
-  }, [isAdvancedExpanded, tx?.confirmations, latestBlockFeeRate, feeRates]);
-
-  // Calculate time since last block was mined
-  useEffect(() => {
-    if (!isAdvancedExpanded || tx?.confirmations) return;
-
-    const calculateLastBlockTime = () => {
-      try {
-        // Blocks are mined approximately every 10 minutes (600 seconds)
-        // Calculate time since last block: estimate based on current time modulo block interval
-        // This gives us an approximation of time since the last block
-        const now = Math.floor(Date.now() / 1000);
-        const blockInterval = 600; // 10 minutes in seconds
-        const secondsSinceLastBlock = now % blockInterval;
-
-        // Format the time using dayjs
-        const timeAgo = dayjs().subtract(secondsSinceLastBlock, 'second').fromNow(true);
-        setLastBlockTimeAgo(timeAgo);
-      } catch (error) {
-        console.error('Error calculating last block time:', error);
-        setLastBlockTimeAgo('');
-      }
-    };
-
-    calculateLastBlockTime();
-    const interval = setInterval(calculateLastBlockTime, 30000); // Update every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [isAdvancedExpanded, tx?.confirmations]);
 
   // Fetch transaction hex when advanced section is expanded
   useEffect(() => {
@@ -1313,39 +1262,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
 
         {isAdvancedExpanded && (
           <View style={[styles.advancedContent, stylesHook.advancedContent]}>
-            {/* Block Fee Rate Boxes - Only for pending transactions */}
-            {!tx.confirmations && (
-              <View style={[styles.blockFeeRateContainer, stylesHook.blockFeeRateContainer]}>
-                {/* Next Block */}
-                <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
-                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>
-                    {loc.transactions.details_next_block}
-                  </BlueText>
-                  <CopyTextToClipboard
-                    text={feeRates?.fast ? `${feeRates.fast} sats/vb` : '-'}
-                    style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
-                    containerStyle={{}}
-                    textAlign="left"
-                  />
-                </View>
-                {/* Latest Block */}
-                <View style={[styles.blockFeeRateBox, stylesHook.blockFeeRateBox]}>
-                  <BlueText style={[styles.blockFeeRateTitle, stylesHook.blockFeeRateTitle]}>
-                    {loc.transactions.details_latest_block}
-                  </BlueText>
-                  <CopyTextToClipboard
-                    text={latestBlockFeeRate ? `${latestBlockFeeRate} sats/vb` : '-'}
-                    style={StyleSheet.flatten([styles.blockFeeRateValue, stylesHook.blockFeeRateValue])}
-                    containerStyle={{}}
-                    textAlign="left"
-                  />
-                  {lastBlockTimeAgo && (
-                    <BlueText style={[styles.blockFeeRateTime, stylesHook.blockFeeRateTime]}>{lastBlockTimeAgo}</BlueText>
-                  )}
-                </View>
-              </View>
-            )}
-
             {/* Fee Rate */}
             <View style={[styles.detailRow, stylesHook.detailRow]}>
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_fee_rate}</BlueText>
@@ -1746,44 +1662,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  blockFeeRateContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 0,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#F9F9F9',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  blockFeeRateBox: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-    borderRadius: 8,
-  },
-  blockFeeRateTitle: {
-    color: 'rgba(0, 0, 0, 0.4)',
-    fontSize: 14,
-    fontWeight: '400',
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  blockFeeRateValue: {
-    color: '#000000',
-    fontSize: 16,
-    fontWeight: '500',
-    lineHeight: 22,
-  },
-  blockFeeRateTime: {
-    color: 'rgba(0, 0, 0, 0.4)',
-    fontSize: 12,
-    fontWeight: '400',
-    lineHeight: 16,
-    marginTop: 4,
   },
   actions: {
     alignSelf: 'center',
