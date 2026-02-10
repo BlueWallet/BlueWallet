@@ -23,7 +23,7 @@ const TransactionOutgoingIcon: React.FC = () => {
 
   const stylesBlueIconHooks = StyleSheet.create({
     ballOutgoing: {
-      backgroundColor: 'rgba(234, 51, 47, 0.2)', // #EA332F at 20% opacity
+      backgroundColor: colors.ballOutgoing,
     },
   });
 
