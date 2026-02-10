@@ -16,6 +16,7 @@ import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-
 import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
+const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
 
@@ -357,7 +358,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
     if (!this._wallet) await this.init();
+    if (!this._wallet) throw new Error('Ark wallet not initialized');
+
+    if (this.isAddressValid(invoice)) {
+      // its an ark address, so we need to do native ark-to-ark transfer
+      await this._wallet.sendBitcoin({
+        address: invoice,
+        amount: freeAmount,
+      });
+      return;
+    }
+
     assert(this._arkadeLightning, 'Ark Lightning not initialized');
+
     const invoiceDetails = decodeInvoice(invoice);
 
     console.log('Invoice amount:', invoiceDetails.amountSats, 'sats');
@@ -479,7 +492,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (!this._wallet) return;
         // not instantiating, this is supposed to be called inside `fetchBalance`
         console.log('attempting to board ', this._boardingUtxos.length, 'UTXOs...');
-        await new Ramps(this._wallet).onboard(this._boardingUtxos);
+        const info = await this._wallet.arkProvider.getInfo();
+        const feeInfo = info.fees;
+        await new Ramps(this._wallet).onboard(feeInfo, this._boardingUtxos);
         this._boardingUtxos = await this._wallet.getBoardingUtxos(); // refetch UTXOs, if we succeeded boarding previosuly the set should be reduced
       }
     })()
@@ -487,5 +502,17 @@ export class LightningArkWallet extends LightningCustodianWallet {
       .finally(() => {
         boardingLock[namespace] = false;
       });
+  }
+
+  isAddressValid(address: string): boolean {
+    try {
+      const decoded = bech32m.decode(address, 1000);
+      if (decoded.prefix !== 'ark') return false;
+      if (decoded.words[0] !== 0) return false;
+      if (decoded.words.length !== 104) return false;
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 }
