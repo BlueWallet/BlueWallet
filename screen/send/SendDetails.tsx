@@ -966,7 +966,11 @@ const SendDetails = () => {
   }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
+    scrollIndex.current = 0;
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
+    setTimeout(() => {
+      scrollView.current?.scrollToOffset({ offset: 0, animated: false });
+    }, 0);
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
@@ -1346,7 +1350,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index} collapsable={false}>
         <View style={styles.amountInputContainer}>
           <AmountInput.AmountInput
             isLoading={isLoading}

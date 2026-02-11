@@ -430,8 +430,12 @@ const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => vo
             </View>
             <BlueSpacing20 />
             <View style={styles.fullWidth}>
-              <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()} style={styles.fullWidth}>
-                <Button title="Test Save to Storage"/>
+              <SaveFileButton
+                fileName="bluewallet-selftest.txt"
+                fileContent={'Success on ' + new Date().toUTCString()}
+                style={styles.fullWidth}
+              >
+                <Button title="Test Save to Storage" />
               </SaveFileButton>
             </View>
             <BlueSpacing20 />
