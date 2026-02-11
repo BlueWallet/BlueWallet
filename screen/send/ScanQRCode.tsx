@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{ translateX: -30 }],
   },
-  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
+  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '10%', width: '90%', height: '70%', backgroundColor: 'white' },
   progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
   backdoorInput: {
     height: '50%',

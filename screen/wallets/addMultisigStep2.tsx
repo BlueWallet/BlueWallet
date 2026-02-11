@@ -55,7 +55,7 @@ const WalletsAddMultisigStep2 = () => {
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
   const { isPrivacyBlurEnabled, isElectrumDisabled } = useSettings();
-  const data = useRef<Array<null | undefined>>(new Array(n));
+  const data = useRef(new Array(n).fill(null));
 
   useFocusEffect(
     useCallback(() => {
@@ -324,6 +324,61 @@ const WalletsAddMultisigStep2 = () => {
     return hd.validateMnemonic();
   };
 
+  const utilizeMnemonicPhrase = useCallback(
+    async (overrideText?: string, overrideAskPassphrase?: boolean) => {
+      const textToUse = overrideText ?? importText;
+      const askForPassphrase = overrideAskPassphrase ?? askPassphrase;
+      setIsLoading(true);
+
+      if (MultisigHDWallet.isXpubValid(textToUse)) {
+        return tryUsingXpub(textToUse);
+      }
+      try {
+        const jsonText = JSON.parse(textToUse);
+        let fp;
+        let path;
+        if (jsonText.xpub) {
+          if (jsonText.xfp) {
+            fp = jsonText.xfp;
+          }
+          if (jsonText.path) {
+            path = jsonText.path;
+          }
+          return tryUsingXpub(jsonText.xpub, fp, path);
+        }
+      } catch {}
+      const hd = new HDSegwitBech32Wallet();
+      hd.setSecret(textToUse);
+      if (!hd.validateMnemonic()) {
+        setIsLoading(false);
+        return presentAlert({ message: loc.multisig.invalid_mnemonics });
+      }
+
+      let passphrase: string | undefined;
+      if (askForPassphrase) {
+        try {
+          passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+        } catch (e) {
+          const message = e instanceof Error ? e.message : String(e);
+          if (message === 'Cancel Pressed') {
+            setIsLoading(false);
+            return;
+          }
+          throw e;
+        }
+      }
+
+      const cosignersCopy = [...cosigners];
+      cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
+      setCosigners(cosignersCopy);
+
+      setIsLoading(false);
+      setImportText('');
+      setAskPassphrase(false);
+    },
+    [askPassphrase, cosigners, importText, tryUsingXpub],
+  );
+
   const onBarScanned = useCallback(
     async (ret: { data?: string } | string) => {
       const payload = typeof ret === 'string' ? { data: ret } : ret;
@@ -345,11 +400,7 @@ const WalletsAddMultisigStep2 = () => {
       if ((payload.data ?? '').toUpperCase().startsWith('UR')) {
         presentAlert({ message: 'BC-UR not decoded. This should never happen' });
       } else if (isValidMnemonicSeed(payload.data ?? '')) {
-        setImportText(payload.data ?? '');
-        navigation.navigate('WalletsAddMultisigProvideMnemonicsSheet', {
-          importText: payload.data ?? '',
-          askPassphrase,
-        });
+        utilizeMnemonicPhrase(payload.data ?? '', askPassphrase);
       } else {
         if (payload.data && MultisigHDWallet.isXpubValid(payload.data) && !MultisigHDWallet.isXpubForMultisig(payload.data)) {
           return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
@@ -439,62 +490,7 @@ const WalletsAddMultisigStep2 = () => {
         setCosigners(cosignersCopy);
       }
     },
-    [askPassphrase, cosigners, format, getXpubCacheForMnemonics, navigation, tryUsingXpub],
-  );
-
-  const utilizeMnemonicPhrase = useCallback(
-    async (overrideText?: string, overrideAskPassphrase?: boolean) => {
-      const textToUse = overrideText ?? importText;
-      const askForPassphrase = overrideAskPassphrase ?? askPassphrase;
-      setIsLoading(true);
-
-      if (MultisigHDWallet.isXpubValid(textToUse)) {
-        return tryUsingXpub(textToUse);
-      }
-      try {
-        const jsonText = JSON.parse(textToUse);
-        let fp;
-        let path;
-        if (jsonText.xpub) {
-          if (jsonText.xfp) {
-            fp = jsonText.xfp;
-          }
-          if (jsonText.path) {
-            path = jsonText.path;
-          }
-          return tryUsingXpub(jsonText.xpub, fp, path);
-        }
-      } catch {}
-      const hd = new HDSegwitBech32Wallet();
-      hd.setSecret(textToUse);
-      if (!hd.validateMnemonic()) {
-        setIsLoading(false);
-        return presentAlert({ message: loc.multisig.invalid_mnemonics });
-      }
-
-      let passphrase: string | undefined;
-      if (askForPassphrase) {
-        try {
-          passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-        } catch (e) {
-          const message = e instanceof Error ? e.message : String(e);
-          if (message === 'Cancel Pressed') {
-            setIsLoading(false);
-            return;
-          }
-          throw e;
-        }
-      }
-
-      const cosignersCopy = [...cosigners];
-      cosignersCopy.push([hd.getSecret(), false, false, passphrase]);
-      setCosigners(cosignersCopy);
-
-      setIsLoading(false);
-      setImportText('');
-      setAskPassphrase(false);
-    },
-    [askPassphrase, cosigners, importText, tryUsingXpub],
+    [askPassphrase, cosigners, format, getXpubCacheForMnemonics, tryUsingXpub, utilizeMnemonicPhrase],
   );
 
   useEffect(() => {

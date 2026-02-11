@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { BlueFormLabel, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
@@ -29,18 +29,34 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
     (text?: string) => {
       const textToUse = (text ?? importText).trim();
       if (!textToUse) return;
-      // Type assertion is safe: Step2 already has required params; we only merge in sheet action flags.
-      navigation.navigate(
-        'WalletsAddMultisigStep2',
-        {
-          sheetAction: 'importMnemonic',
-          sheetImportText: textToUse,
-          sheetAskPassphrase: askPassphrase,
-        } as unknown as AddWalletStackParamList['WalletsAddMultisigStep2'],
-        { merge: true },
+      navigation.dispatch(
+        StackActions.popTo(
+          'WalletsAddMultisigStep2',
+          {
+            sheetAction: 'importMnemonic',
+            sheetImportText: textToUse,
+            sheetAskPassphrase: askPassphrase,
+          },
+          { merge: true },
+        ),
       );
     },
     [askPassphrase, importText, navigation],
+  );
+
+  const handleScanResult = useCallback(
+    (text: string) => {
+      navigation.dispatch(
+        StackActions.popTo(
+          'WalletsAddMultisigStep2',
+          {
+            onBarScanned: { data: text },
+          },
+          { merge: true },
+        ),
+      );
+    },
+    [navigation],
   );
 
   return (
@@ -72,13 +88,19 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
           <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
         </View>
         <BlueSpacing20 />
-        <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={() => handleImport()} />
+        <Button
+          testID="DoImportKeyButton"
+          disabled={importText.trim().length === 0}
+          title={loc.wallets.import_do_import}
+          onPress={() => handleImport()}
+        />
         <BlueSpacing20 />
         <AddressInputScanButton
           type="link"
+          testID="ScanOrOpenFile"
           onChangeText={text => {
             setImportText(text);
-            handleImport(text);
+            handleScanResult(text);
           }}
         />
       </KeyboardAvoidingView>
@@ -94,7 +116,6 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -102,6 +123,7 @@ const styles = StyleSheet.create({
   },
   mnemonicInput: {
     minHeight: 220,
+    marginHorizontal: 0,
   },
 });
 

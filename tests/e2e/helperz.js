@@ -10,15 +10,9 @@ export async function waitForId(id, timeout = 33000) {
     // nop
   }
 
-  try {
-    await waitFor(element(by.id(id)))
-      .toBeVisible()
-      .withTimeout(timeout / 2);
-    return true;
-  } catch (_) {
-    const msg = `Assertion failed: testID ${id} is not visible`;
-    throw new Error(msg);
-  }
+  await waitFor(element(by.id(id)))
+    .toBeVisible()
+    .withTimeout(timeout / 2);
 }
 
 export async function waitForText(text, timeout = 33000) {
@@ -31,15 +25,9 @@ export async function waitForText(text, timeout = 33000) {
     // nop
   }
 
-  try {
-    await waitFor(element(by.text(text)))
-      .toBeVisible()
-      .withTimeout(timeout / 2);
-    return true;
-  } catch (_) {
-    const msg = `Assertion failed: text "${text}" is not visible`;
-    throw new Error(msg);
-  }
+  await waitFor(element(by.text(text)))
+    .toBeVisible()
+    .withTimeout(timeout / 2);
 }
 
 export async function getSwitchValue(switchId) {

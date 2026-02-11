@@ -134,7 +134,6 @@ export const AddressInputScanButton = ({
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
-      testID={testID}
       shouldOpenOnLongPress
       disabled={isLoading}
       onPress={toolTipOnPress}
@@ -143,14 +142,14 @@ export const AddressInputScanButton = ({
       accessibilityHint={loc.send.details_scan_hint}
     >
       {type === 'default' ? (
-        <View style={styles.contentRow}>
+        <View testID={testID} style={styles.contentRow}>
           <Image source={require('../img/scan-white.png')} accessible={false} />
           <Text style={[styles.scanText, stylesHook.scanText]} accessible={false} numberOfLines={1} ellipsizeMode="tail">
             {loc.send.details_scan}
           </Text>
         </View>
       ) : (
-        <View style={styles.contentRow}>
+        <View testID={testID} style={styles.contentRow}>
           <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
             {loc.wallets.import_scan_qr}
           </Text>

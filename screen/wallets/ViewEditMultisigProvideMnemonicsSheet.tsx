@@ -74,10 +74,16 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
         </View>
         <BlueSpacing20 />
-        <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={() => handleImport()} />
+        <Button
+          testID="DoImportKeyButton"
+          disabled={importText.trim().length === 0}
+          title={loc.wallets.import_do_import}
+          onPress={() => handleImport()}
+        />
         <BlueSpacing20 />
         <AddressInputScanButton
           type="link"
+          testID="ScanOrOpenFile"
           onChangeText={text => {
             setImportText(text);
             handleImport(text);
@@ -96,7 +102,6 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -104,6 +109,7 @@ const styles = StyleSheet.create({
   },
   mnemonicInput: {
     minHeight: 220,
+    marginHorizontal: 0,
   },
 });
 

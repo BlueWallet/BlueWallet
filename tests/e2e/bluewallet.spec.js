@@ -557,30 +557,31 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ModalDoneButton')).tap();
 
     //
-
     await element(by.id('LetsStart')).tap();
 
     // key1 - seed:
-
     await element(by.id('VaultCosignerImport1')).tap();
+    await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
 
     await scanText('pipe goose bottom run seed curious thought kangaroo example family coral success');
-    await element(by.id('DoImportKeyButton')).tap(); // when seed - need to extra tap the button
+    // scan auto-imports the seed via onBarScanned and navigates back to Step2
 
     // key2 - xpub:
-
+    await waitForId('VaultCosignerImport2');
     await element(by.id('VaultCosignerImport2')).tap();
+    await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
-
     await scanText(
       'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
     );
-    // when xpub - it automatically closes the modal, so no need to tap the button
 
+    // scan auto-imports the xpub via onBarScanned and navigates back to Step2
+    await waitForId('CreateButton');
     await element(by.id('CreateButton')).tap();
     await waitForText('OK');
     await tapIfTextPresent('OK');
+    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await waitForId('ReceiveButton');
@@ -632,6 +633,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForText('OK', 3 * 61000); // waiting for wallet import
     await element(by.text('OK')).tap();
+    await scrollUpOnHomeScreen();
     // ok, wallet imported
 
     // lets go inside wallet
