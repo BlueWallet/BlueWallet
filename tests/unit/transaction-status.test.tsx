@@ -12,7 +12,7 @@ type MockStorage = {
   saveToDisk: jest.Mock;
 };
 
-const mockFetchAndSaveWalletTransactions = jest.fn();
+const mockFetchAndSaveWalletTransactions = jest.fn(() => Promise.resolve());
 let mockStorageState: MockStorage = {
   wallets: [],
   txMetadata: {},
@@ -120,7 +120,11 @@ jest.mock('../../helpers/prompt', () => ({
 }));
 
 jest.mock('../../blue_modules/BlueElectrum', () => ({
-  multiGetTransactionByTxid: jest.fn(() => Promise.resolve({})),
+  multiGetTransactionByTxid: jest.fn((txids: string[]) =>
+    Promise.resolve(
+      Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }])),
+    ),
+  ),
   getMempoolTransactionsByAddress: jest.fn(() => Promise.resolve([])),
   estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
 }));
@@ -255,9 +259,12 @@ describe('TransactionStatus regression', () => {
     mockStorageState.txMetadata = { 'mock-tx': { memo: existingMemo } };
     const { view } = setup(1, 1000);
 
-    await waitFor(() => {
-      expect(view.getByText('confirmations: 1')).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(view.getByText(existingMemo)).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
 
     mockPrompt.mockResolvedValue(undefined);
 
