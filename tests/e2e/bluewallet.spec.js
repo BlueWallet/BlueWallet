@@ -644,7 +644,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SendButton')).tap();
 
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0005');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0005');
     await element(by.id('BitcoinAmountInput')).tapReturnKey();
     await waitForKeyboardToClose();
 
