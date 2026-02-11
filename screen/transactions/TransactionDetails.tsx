@@ -107,10 +107,6 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
   }
 };
 
-type TransactionDetailsProps = {
-  txid?: string;
-};
-
 type TransactionDetailHeaderTitleProps = {
   direction: string;
   date: string;
@@ -125,12 +121,12 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
   </View>
 );
 
-const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
+const TransactionDetails: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
-  const subscribedWallet = useWalletSubscribe(walletID!);
+  const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
@@ -319,6 +315,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   useEffect(() => {
     if (initialTx && !tx) {
       setTX(initialTx);
+      setIsLoading(false);
       // Extract from/to addresses from the initial transaction snapshot
       let newFrom: string[] = [];
       let newTo: string[] = [];
@@ -618,15 +615,25 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
   }, [tx, wallets]);
 
   useEffect(() => {
-    if (!tx && txid) {
+    if (!tx && hash) {
       const fetchTransaction = async () => {
         try {
-          const transactions = await BlueElectrum.multiGetTransactionByTxid([txid], true, 10);
-          const fetchedTx = transactions[txid];
+          const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
+          const fetchedTx = transactions[hash];
           if (fetchedTx) {
             setTX(fetchedTx);
+            // Raw Electrum tx has no top-level .value; refetch wallet so it computes value and we can show balance
+            if (subscribedWallet) {
+              fetchAndSaveWalletTransactions(subscribedWallet.getID()).then(() => {
+                const walletTxs = subscribedWallet.getTransactions();
+                const txWithValue = walletTxs.find((t: Transaction) => t.hash === hash);
+                if (txWithValue && txWithValue.value !== undefined) {
+                  setTX(txWithValue);
+                }
+              });
+            }
           } else {
-            console.error(`Transaction with txid ${txid} not found.`);
+            console.error(`Transaction with hash ${hash} not found.`);
             dispatch({ type: ActionType.SetLoadingError, payload: true });
             dispatch({ type: ActionType.SetLoading, payload: false });
           }
@@ -638,7 +645,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
       };
       fetchTransaction().catch(error => console.error('Unhandled error in fetchTransaction:', error));
     }
-  }, [tx, txid]);
+  }, [tx, hash, subscribedWallet, fetchAndSaveWalletTransactions]);
 
   useEffect(() => {
     if (isLoading) {
@@ -710,35 +717,39 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     }
   };
 
-  const navigateToRBFBumpFee = () => {
-    if (tx?.hash && wallet) {
-      navigate('RBFBumpFee', {
-        txid: tx.hash,
-        wallet,
-      });
-    }
+  const navigateToRBFBumpFee = (transaction: Transaction, w: TWallet) => {
+    navigate('RBFBumpFee', {
+      txid: transaction.hash,
+      wallet: w,
+    });
   };
 
-  const navigateToRBFCancel = () => {
-    if (tx?.hash && wallet) {
-      navigate('RBFCancel', {
-        txid: tx.hash,
-        wallet,
-      });
-    }
+  const navigateToRBFCancel = (transaction: Transaction, w: TWallet) => {
+    navigate('RBFCancel', {
+      txid: transaction.hash,
+      wallet: w,
+    });
   };
 
-  const navigateToCPFP = () => {
+  const navigateToCPFP = (transaction: Transaction, w: TWallet) => {
     navigate('CPFP', {
-      txid: tx.hash,
-      wallet,
+      txid: transaction.hash,
+      wallet: w,
     });
   };
 
   const handleNotePress = useCallback(async () => {
     const currentMemo = txMetadata[tx.hash]?.memo || '';
     try {
-      const newMemo = await prompt(loc.send.details_note_placeholder, currentMemo, true, 'plain-text');
+      const newMemo = await prompt(
+        loc.send.details_note_placeholder,
+        '',
+        true,
+        'plain-text',
+        false,
+        undefined,
+        currentMemo,
+      );
       if (newMemo !== undefined) {
         txMetadata[tx.hash] = { memo: newMemo };
         await saveToDisk();
@@ -775,7 +786,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
       });
   }, [tx?.hash, selectedBlockExplorer]);
 
-  const renderCPFP = () => {
+  const renderCPFP = (transaction: Transaction, w: TWallet) => {
     if (isCPFPPossible === ButtonStatus.Unknown) {
       return (
         <>
@@ -786,7 +797,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     } else if (isCPFPPossible === ButtonStatus.Possible) {
       return (
         <>
-          <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
+          <Button onPress={() => navigateToCPFP(transaction, w)} title={loc.transactions.status_bump} />
           <BlueSpacing10 />
         </>
       );
@@ -832,7 +843,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
-          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} containerStyle={{}} />
+          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} />
           {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
         </View>,
       );
@@ -841,87 +852,35 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     return fromArray;
   };
 
-  // Calculate fee from transaction data if not available
-  // Fee = (sum of all input values) - (sum of all output values)
-  // This works for both sent and received transactions
+  // Fee: use tx.fee when set (e.g. Lightning), else mempool for pending, else compute inputs - outputs
   const calculatedFee = useMemo(() => {
     if (!tx) return null;
 
-    // If fee is already available, use it (for Lightning transactions)
     if (tx.fee !== undefined && tx.fee !== null) {
       return tx.fee;
     }
-
-    // For pending transactions, use mempool fee if available (most accurate)
-    if (!tx.confirmations && mempoolFee !== null && mempoolFee !== undefined) {
+    if (!tx.confirmations && mempoolFee != null) {
       return mempoolFee;
     }
 
-    // Try to calculate from Electrum transaction data first (most reliable for both sent and received)
-    // txFromElectrum has complete transaction data with all input/output values
-    if (txFromElectrum && txFromElectrum.vin && txFromElectrum.vout) {
-      let totalInputs = 0;
-      let totalOutputs = 0;
+    // Fee = sum(inputs) - sum(outputs). Prefer txFromElectrum (vin.value populated) when available.
+    const inputs = txFromElectrum?.vin ?? tx.inputs;
+    const outputs = txFromElectrum?.vout ?? tx.outputs;
+    if (!inputs?.length || !outputs?.length) return null;
 
-      // Sum all input values (in BTC, convert to satoshis)
-      for (const vin of txFromElectrum.vin) {
-        if (vin.value !== undefined && vin.value !== null) {
-          totalInputs += Math.round(vin.value * 100000000);
-        }
-      }
-
-      // Sum all output values (in BTC, convert to satoshis)
-      for (const vout of txFromElectrum.vout) {
-        if (vout.value !== undefined && vout.value !== null) {
-          totalOutputs += Math.round(vout.value * 100000000);
-        }
-      }
-
-      // Fee = inputs - outputs
-      if (totalInputs > 0 && totalOutputs > 0) {
-        const fee = totalInputs - totalOutputs;
-        if (fee >= 0) {
-          return fee;
-        }
-      }
+    const toSats = (v: number) => (v < 1 ? Math.round(v * 100000000) : v);
+    let totalInputs = 0;
+    let totalOutputs = 0;
+    for (const vin of inputs) {
+      if (vin.value != null) totalInputs += toSats(vin.value);
     }
-
-    // Fallback: calculate from tx.inputs and tx.outputs
-    // Note: For received transactions, input.value might not be populated
-    // This works better for sent transactions where we own the inputs
-    if (tx.inputs && tx.outputs) {
-      let totalInputs = 0;
-      let totalOutputs = 0;
-
-      // Sum all input values
-      for (const input of tx.inputs) {
-        if (input.value !== undefined && input.value !== null) {
-          // Convert to satoshis: if value < 1, it's in BTC, otherwise it might already be in satoshis
-          const inputValue = input.value < 1 ? Math.round(input.value * 100000000) : input.value;
-          totalInputs += inputValue;
-        }
-      }
-
-      // Sum all output values
-      for (const output of tx.outputs) {
-        if (output.value !== undefined && output.value !== null) {
-          // Convert to satoshis: if value < 1, it's in BTC, otherwise it might already be in satoshis
-          const outputValue = output.value < 1 ? Math.round(output.value * 100000000) : output.value;
-          totalOutputs += outputValue;
-        }
-      }
-
-      // Fee = inputs - outputs
-      // For received transactions, if inputs don't have values, we can't calculate
-      // But we should still try if we have at least some input values
-      if (totalInputs > 0 && totalOutputs > 0) {
-        const fee = totalInputs - totalOutputs;
-        if (fee >= 0) {
-          return fee;
-        }
-      }
+    for (const vout of outputs) {
+      if (vout.value != null) totalOutputs += toSats(vout.value);
     }
-
+    if (totalInputs > 0 && totalOutputs > 0) {
+      const fee = totalInputs - totalOutputs;
+      if (fee >= 0) return fee;
+    }
     return null;
   }, [tx, txFromElectrum, mempoolFee]);
 
@@ -1021,7 +980,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
     );
   }
 
-  if (isLoading || wallet === undefined) {
+  if (isLoading || !wallet) {
     return (
       <SafeAreaScrollView>
         <BlueLoading />
@@ -1079,7 +1038,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={navigateToRBFBumpFee}
+                      onPress={() => navigateToRBFBumpFee(tx, wallet)}
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
@@ -1090,7 +1049,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={navigateToRBFCancel}
+                      onPress={() => navigateToRBFCancel(tx, wallet)}
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
@@ -1174,7 +1133,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                   : '-'
               }
               style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-              containerStyle={{}}
               textAlign="right"
             />
           </View>
@@ -1191,16 +1149,17 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
               <View style={[styles.detailRow, stylesHook.detailRow]}>
                 <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_to_address}</BlueText>
                 <View style={styles.detailValueContainer}>
-                  <CopyTextToClipboard
-                    text={copyText}
-                    displayText={displayText}
-                    style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                    containerStyle={{}}
-                    numberOfLines={1}
-                    ellipsizeMode="middle"
-                    selectable
-                    textAlign="right"
-                  />
+                  <View style={styles.detailValueCopyContainer}>
+                    <CopyTextToClipboard
+                      text={copyText}
+                      displayText={displayText}
+                      style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                      numberOfLines={1}
+                      ellipsizeMode="middle"
+                      selectable
+                      textAlign="right"
+                    />
+                  </View>
                 </View>
               </View>
             );
@@ -1211,15 +1170,16 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
           <View style={[styles.detailRow, stylesHook.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
-              <CopyTextToClipboard
-                text={tx.hash}
-                style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                containerStyle={{}}
-                numberOfLines={1}
-                ellipsizeMode="middle"
-                selectable
-                textAlign="right"
-              />
+              <View style={styles.detailValueCopyContainer}>
+                <CopyTextToClipboard
+                  text={tx.hash}
+                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                  numberOfLines={1}
+                  ellipsizeMode="middle"
+                  selectable
+                  textAlign="right"
+                />
+              </View>
             </View>
           </View>
         )}
@@ -1269,7 +1229,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                 <CopyTextToClipboard
                   text={feeRate ? `${feeRate} sats/vb` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
                   textAlign="right"
                 />
               </View>
@@ -1282,7 +1241,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                 <CopyTextToClipboard
                   text={tx.size ? `${tx.size} B` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
                   textAlign="right"
                 />
               </View>
@@ -1295,7 +1253,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                 <CopyTextToClipboard
                   text={tx.vsize ? `${tx.vsize} vB` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                  containerStyle={{}}
                   textAlign="right"
                 />
               </View>
@@ -1310,7 +1267,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                     text={txHex}
                     displayText={loc.transactions.details_copy}
                     style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                    containerStyle={{}}
                     textAlign="right"
                   />
                 ) : isLoadingHex ? (
@@ -1319,7 +1275,6 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
                   <CopyTextToClipboard
                     text="-"
                     style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-                    containerStyle={{}}
                     textAlign="right"
                   />
                 )}
@@ -1354,7 +1309,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ txid }) => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {tx.confirmations > 0 && <View style={styles.actions}>{renderCPFP()}</View>}
+      {tx.confirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1414,12 +1369,15 @@ const styles = StyleSheet.create({
   valueContent: {
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
+    overflow: 'visible',
   },
   value: {
     fontSize: 40,
     fontWeight: '700',
     letterSpacing: -0.5,
-    lineHeight: 48,
+    lineHeight: 32,
+    paddingTop: 8,
+    minHeight: 38,
   },
   valueUnit: {
     fontSize: 18,
@@ -1558,7 +1516,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 0,
     minHeight: 24,
     backgroundColor: '#F9F9F9',
@@ -1599,11 +1557,18 @@ const styles = StyleSheet.create({
   },
   detailValueContainer: {
     flex: 1,
-    alignItems: 'flex-end',
+    minWidth: 0,
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 8,
     flexWrap: 'wrap',
+  },
+  detailValueCopyContainer: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   detailValueFullWidth: {
     width: '100%',
@@ -1619,9 +1584,10 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: 15,
     fontWeight: '500',
-    lineHeight: 20,
+    lineHeight: 22,
     textAlign: 'right',
     flexShrink: 1,
+    minWidth: 0,
     color: '#000000',
   },
   memoText: {

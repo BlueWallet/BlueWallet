@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { TextProps, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, TextProps, TouchableOpacity, View } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
@@ -9,26 +9,23 @@ type CopyTextToClipboardProps = TextProps & {
   text: string;
   displayText?: string; // Optional text to display instead of the actual text (but still copies the actual text)
   truncated?: boolean;
-  style?: TextStyle;
-  containerStyle?: ViewStyle;
-  numberOfLines?: number;
-  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
   selectable?: boolean;
   textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
 };
 
-const defaultTextStyle: TextStyle = {
-  marginVertical: 32,
-  fontSize: 15,
-  color: '#9aa0aa',
-  textAlign: 'center',
-};
-
-const defaultContainerStyle: ViewStyle = {
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingHorizontal: 16,
-};
+const styles = StyleSheet.create({
+  defaultTextStyle: {
+    marginVertical: 32,
+    fontSize: 15,
+    color: '#9aa0aa',
+    textAlign: 'center',
+  },
+  defaultContainerStyle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+});
 
 const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
   (
@@ -37,7 +34,6 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       displayText: displayTextProp,
       truncated,
       style,
-      containerStyle,
       numberOfLines,
       ellipsizeMode,
       selectable,
@@ -72,39 +68,38 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       }, 1000);
     };
 
-    // Determine if we should use default styles or custom styles
-    const useDefaultStyles = !style && !containerStyle;
-    const mergedTextStyle = useDefaultStyles ? defaultTextStyle : style;
-    const mergedContainerStyle = useDefaultStyles ? defaultContainerStyle : containerStyle || {};
-
-    // Determine numberOfLines and ellipsizeMode
+    const useDefaultStyles = !style;
+    const mergedTextStyle = useDefaultStyles ? styles.defaultTextStyle : style;
     const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
     const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
 
-    return (
-      <View style={mergedContainerStyle}>
-        <TouchableOpacity
-          ref={ref}
-          accessibilityRole="button"
-          onPress={copyToClipboard}
-          disabled={hasTappedText || !text || text === '-'}
-          testID="CopyTextToClipboard"
-          activeOpacity={0.7}
+    const content = (
+      <TouchableOpacity
+        ref={ref}
+        accessibilityRole="button"
+        onPress={copyToClipboard}
+        disabled={hasTappedText || !text || text === '-'}
+        testID="CopyTextToClipboard"
+        activeOpacity={0.7}
+      >
+        <BlueText
+          style={mergedTextStyle}
+          numberOfLines={finalNumberOfLines}
+          ellipsizeMode={finalEllipsizeMode}
+          selectable={selectable}
+          textAlign={textAlign}
+          {...textProps}
+          testID="AddressValue"
         >
-          <BlueText
-            style={mergedTextStyle}
-            numberOfLines={finalNumberOfLines}
-            ellipsizeMode={finalEllipsizeMode}
-            selectable={selectable}
-            textAlign={textAlign}
-            {...textProps}
-            testID="AddressValue"
-          >
-            {displayText}
-          </BlueText>
-        </TouchableOpacity>
-      </View>
+          {displayText}
+        </BlueText>
+      </TouchableOpacity>
     );
+
+    if (useDefaultStyles) {
+      return <View style={styles.defaultContainerStyle}>{content}</View>;
+    }
+    return content;
   },
 );
 
