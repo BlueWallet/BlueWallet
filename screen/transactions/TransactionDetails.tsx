@@ -1002,9 +1002,9 @@ const TransactionDetails: React.FC = () => {
       <View style={[styles.valueCard, stylesHook.valueCardContainer]}>
         <View style={styles.valueContent}>
           <Text style={[styles.value, stylesHook.value]} selectable>
-            {wallet && formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
+            {formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
             {` `}
-            {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet && (
+            {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
               <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.preferredBalanceUnit}</Text>
             )}
           </Text>
