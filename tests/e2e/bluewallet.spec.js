@@ -267,7 +267,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.text(`No, and do not ask me again.`)).tap();
       await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
-    await waitForId('BitcoinAddressQRCodeContainer');
+    await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
@@ -278,7 +278,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('test');
     await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
 
-    await waitForId('BitcoinAddressQRCodeContainer');
+    await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');

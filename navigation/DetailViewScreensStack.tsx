@@ -91,7 +91,6 @@ const DetailViewStackScreensStack = () => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
       title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
-      navigationBarColor: theme.colors.navigationBarColor,
       headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
       headerShadowVisible: false,
       headerStyle: {
@@ -99,7 +98,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets]);
+  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
 
@@ -140,14 +139,12 @@ const DetailViewStackScreensStack = () => {
         component={WalletDetails}
         options={navigationStyle({
           headerTitle: loc.wallets.details_title,
-          statusBarStyle: 'auto',
         })(theme)}
       />
       <DetailViewStack.Screen
         name="TransactionDetails"
         component={TransactionDetails}
         options={navigationStyle({
-          statusBarStyle: 'auto',
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
@@ -162,7 +159,6 @@ const DetailViewStackScreensStack = () => {
           walletID: undefined,
         }}
         options={navigationStyle({
-          statusBarStyle: 'auto',
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
@@ -191,7 +187,6 @@ const DetailViewStackScreensStack = () => {
         name="LNDViewInvoice"
         component={LNDViewInvoice}
         options={navigationStyle({
-          statusBarStyle: 'auto',
           headerTitle: loc.lndViewInvoice.lightning_invoice,
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
@@ -256,7 +251,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="WalletAddresses"
         component={WalletAddresses}
-        options={navigationStyle({ title: loc.addresses.addresses_title, statusBarStyle: 'auto' })(theme)}
+        options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
       />
 
       <DetailViewStack.Screen
@@ -388,7 +383,6 @@ const DetailViewStackScreensStack = () => {
         options={{
           presentation: 'fullScreenModal',
           title: loc.wallets.manage_title,
-          statusBarStyle: 'auto',
           headerShown: true,
         }}
       />

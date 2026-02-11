@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, View, ViewStyle, StyleSheet, Text, Pressable, TextStyle } from 'react-native';
+import { Linking, View, ViewStyle, StyleSheet, Text, TextStyle } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   pressable: {
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
+    width: '100%',
   },
   fullWidthButton: {
     width: '100%',
@@ -457,14 +458,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         accessibilityRole="button"
         accessibilityState={accessibilityState}
       >
-        <Pressable
-          onPress={onPress}
-          style={({ pressed }) => [
-            combinedStyle,
-            styles.pressable,
-            { width: '100%', borderBottomColor: colors.lightBorder },
-            pressed && { opacity: 0.7 },
-          ]}
+        <View
+          style={[combinedStyle, styles.pressable]}
           testID="TransactionListItem"
           accessibilityRole="button"
           accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
@@ -484,7 +479,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
               </Text>
             </View>
           </View>
-        </Pressable>
+        </View>
       </ToolTipMenu>
     );
   },

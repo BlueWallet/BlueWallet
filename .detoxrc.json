@@ -44,6 +44,10 @@
     }
   },
   "configurations": {
+    "ios.debug": {
+      "device": "simulator",
+      "app": "ios.debug"
+    },
     "ios.release": {
       "device": "simulator",
       "app": "ios.release"
