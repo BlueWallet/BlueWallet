@@ -114,7 +114,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const dateLine = useMemo(() => {
       if (isPending) return transactionTimeToReadable(item.timestamp);
-      return formatTransactionListDate(item.timestamp ?? 0);
+      return formatTransactionListDate(item.timestamp * 1000);
+      // language in deps so date format updates when locale changes (formatters use global locale)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPending, item.timestamp, language]);
 
