@@ -53,11 +53,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('AboutScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
-    // Wait for the self-test to complete (loading disappears)
-    await waitFor(element(by.id('SelfTestLoading')))
-      .not.toBeVisible()
-      .withTimeout(300 * 1000);
-    // Then wait for the OK button to appear
+    await element(by.id('SelfTestLoading')).tap(); // tapping START button
+
+    // Wait for the self-test to complete
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
@@ -520,6 +518,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
     await sleep(1000); // propagate
+    await element(by.text('OK')).tap(); // INCORRECT PASSWORD alert
     // correct password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('pass');

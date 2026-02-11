@@ -60,7 +60,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
+    "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f android/app/.cxx; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && npm i && cd ios && pod update && cd ..; npm start -- --reset-cache",
     "releasenotes2json": "./scripts/release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "branch2json": "./scripts/current-branch.sh > current-branch.json",
@@ -68,7 +68,7 @@
     "android": "react-native run-android",
     "android:relaunch": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
     "adb": "adb reverse tcp:8081 tcp:8081",
-    "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
+    "android:clean": "cd android;  ./gradlew clean ; cd .. ; rm -r -f android/app/.cxx; npm run android",
     "android:restart": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
     "ios": "react-native run-ios",
     "postinstall": "npm run releasenotes2json; npm run branch2json; npm run patches",
@@ -77,7 +77,7 @@
     "integration": "jest tests/integration/*",
     "e2e:debug-build": "detox build -c android.debug",
     "e2e:debug-test": "detox test -c android.debug -d 200000 --loglevel error --reuse",
-    "e2e:debug-test-device": "detox test -c android.debug.device -d 200000 --loglevel error --reuse",
+    "e2e:debug-test-device": "detox test -c android.debug.device -d 200000 --loglevel info --reuse",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
     "e2e:release-build": "detox build -c android.release",
     "e2e:release-test": "detox test -c android.release --loglevel error",
