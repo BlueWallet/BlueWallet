@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback, useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 
@@ -90,12 +90,12 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     container: { borderWidth: dark ? BORDER_WIDTH : 0 },
   });
 
-  const qrButtonStyle = {
+  const qrButtonStyle: ViewStyle = {
     width: newSize,
     height: newSize,
     justifyContent: 'center',
     alignItems: 'center',
-  } as const;
+  };
 
   const renderQRCode = (
     <QRCode
@@ -109,13 +109,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       ecl={ecl}
       getRef={(c: any) => (qrCode.current = c)}
       onError={onError}
+      testID="BitcoinAddressQRCode"
     />
   );
 
   return (
     <View
       style={[styles.container, stylesHook.container]}
-      testID="BitcoinAddressQRCodeContainer"
       accessibilityIgnoresInvertColors
       importantForAccessibility="no-hide-descendants"
       accessibilityRole="image"
