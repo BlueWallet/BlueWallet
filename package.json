@@ -42,7 +42,6 @@
     "eslint-plugin-react-native": "^4.1.0",
     "jest": "^29.6.3",
     "jest-environment-node": "^29.7.0",
-    "metro-react-native-babel-preset": "0.76.8",
     "node-fetch": "^2.6.7",
     "prettier": "^3.2.5",
     "ts-jest": "^29.1.1",
@@ -83,8 +82,8 @@
     "unit": "jest -b -w tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.2.16",
-    "@arkade-os/sdk": "0.3.10",
+    "@arkade-os/boltz-swap": "0.2.19",
+    "@arkade-os/sdk": "0.3.12",
     "@babel/preset-env": "7.27.2",
     "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
@@ -148,6 +147,7 @@
     "react-native-default-preference": "https://github.com/BlueWallet/react-native-default-preference.git#6338a1f1235e4130b8cfc2dd3b53015eeff2870c",
     "react-native-device-info": "14.1.1",
     "react-native-draglist": "github:BlueWallet/react-native-draglist#0c8049d",
+    "react-native-edge-to-edge": "1.7.0",
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.25.0",
     "react-native-get-random-values": "1.11.0",
