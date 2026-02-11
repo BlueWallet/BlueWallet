@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import TransactionDetails from '../../screen/transactions/TransactionDetails';
 
@@ -113,6 +113,12 @@ jest.mock('../../blue_modules/hapticFeedback', () => ({
   HapticFeedbackTypes: {},
 }));
 
+const mockPrompt = jest.fn();
+jest.mock('../../helpers/prompt', () => ({
+  __esModule: true,
+  default: (...args: unknown[]) => mockPrompt(...args),
+}));
+
 jest.mock('../../blue_modules/BlueElectrum', () => ({
   multiGetTransactionByTxid: jest.fn(() => Promise.resolve({})),
   getMempoolTransactionsByAddress: jest.fn(() => Promise.resolve([])),
@@ -145,10 +151,13 @@ jest.mock('../../loc', () => ({
       details_inputs: 'inputs',
       details_outputs: 'outputs',
       details_view_in_browser: 'view in browser',
+      details_note: 'Note',
+      details_add_note: 'Add note',
     },
     send: {
       create_details: 'Details',
       create_fee: 'Fee',
+      details_note_placeholder: 'Note to Self',
     },
     _: {
       ok: 'OK',
@@ -239,5 +248,35 @@ describe('TransactionStatus regression', () => {
       expect(walletMock.getTransactions).toHaveBeenCalledTimes(initialCalls + 1);
       expect(view.getByText('confirmations: 4')).toBeTruthy();
     });
+  });
+
+  it('when editing a note, passes current memo as default value in the input (not in alert message)', async () => {
+    const existingMemo = 'My existing note';
+    mockStorageState.txMetadata = { 'mock-tx': { memo: existingMemo } };
+    const { view } = setup(1, 1000);
+
+    await waitFor(() => {
+      expect(view.getByText('confirmations: 1')).toBeTruthy();
+    });
+
+    mockPrompt.mockResolvedValue(undefined);
+
+    const noteText = view.getByText(existingMemo);
+    fireEvent.press(noteText);
+
+    await waitFor(() => {
+      expect(mockPrompt).toHaveBeenCalledTimes(1);
+    });
+
+    // 7th argument is defaultInputValue: current memo should be in the input field, not in the message
+    expect(mockPrompt).toHaveBeenCalledWith(
+      'Note to Self',
+      '', // message empty so content is not in alert body
+      true,
+      'plain-text',
+      false,
+      undefined,
+      existingMemo, // defaultInputValue: pre-fill input for easy editing
+    );
   });
 });

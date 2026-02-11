@@ -32,32 +32,23 @@ const TransactionPendingIcon: React.FC = () => {
     },
   });
 
-  try {
-    const pendingAnimation = require('../../img/pending.json');
+  const pendingAnimation = require('../../img/pending.json');
 
-    return (
-      <View style={styles.boxIncoming}>
-        <View style={[styles.ball, stylesHook.ball]}>
-          <LottieView
-            ref={lottieRef}
-            style={styles.lottie}
-            source={pendingAnimation}
-            autoPlay={true}
-            loop={true}
-            resizeMode="cover"
-            colorFilters={[{ keypath: '**', color: colors.transactionPendingAnimationColor }]}
-          />
-        </View>
+  return (
+    <View style={styles.boxIncoming}>
+      <View style={[styles.ball, stylesHook.ball]}>
+        <LottieView
+          ref={lottieRef}
+          style={styles.lottie}
+          source={pendingAnimation}
+          autoPlay={true}
+          loop={true}
+          resizeMode="cover"
+          colorFilters={[{ keypath: '**', color: colors.transactionPendingAnimationColor }]}
+        />
       </View>
-    );
-  } catch (error) {
-    // Fallback: return empty view if file fails to load
-    return (
-      <View style={styles.boxIncoming}>
-        <View style={[styles.ball, stylesHook.ball]} />
-      </View>
-    );
-  }
+    </View>
+  );
 };
 
 export default TransactionPendingIcon;
