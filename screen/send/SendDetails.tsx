@@ -372,7 +372,9 @@ const SendDetails = () => {
 
     // Calculate maxSendableAmount (only for single recipient with MAX)
     if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
-      const sendable = balance - newFeePrecalc.current;
+      // use lutxo to match what coinSelectSplit actually receives
+      const spendableBalance = lutxo.reduce((prev: number, curr: { value: number }) => prev + curr.value, 0);
+      const sendable = spendableBalance - newFeePrecalc.current;
       setMaxSendableAmount(sendable > 0 ? sendable : null);
     } else {
       setMaxSendableAmount(null);
@@ -600,12 +602,7 @@ const SendDetails = () => {
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
         // output with MAX
-        if (maxSendableAmount != null && addresses.length === 1) {
-          // Force the exact displayed amount — remainder goes to fee
-          targets.push({ address: transaction.address, value: maxSendableAmount });
-        } else {
-          targets.push({ address: transaction.address });
-        }
+        targets.push({ address: transaction.address });
         continue;
       }
       const value = parseInt(String(transaction.amountSats), 10);
