@@ -122,32 +122,34 @@ const CoinControlOutputSheet: React.FC = () => {
     <View style={[styles.root, { backgroundColor: colors.elevated }]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
         <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
-          <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
-          <RNElementsListItem.Content>
-            <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={[styles.amount, { color: colors.foregroundColor }]}>
-              {amount}
-              <View style={styles.tranContainer}>
-                <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
-                  {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
-                </Text>
-              </View>
-            </RNElementsListItem.Title>
-            {memo ? (
-              <>
-                <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
-                  {memo}
-                </RNElementsListItem.Subtitle>
-                <BlueSpacing10 />
-              </>
-            ) : null}
-            <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
-              {utxo.address}
-            </RNElementsListItem.Subtitle>
-            <BlueSpacing10 />
-            <RNElementsListItem.Subtitle
-              style={[styles.memo, { color: colors.alternativeTextColor }]}
-            >{`${utxo.txid}:${utxo.vout}`}</RNElementsListItem.Subtitle>
-          </RNElementsListItem.Content>
+          <View style={styles.rowContent}>
+            <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
+            <RNElementsListItem.Content>
+              <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={[styles.amount, { color: colors.foregroundColor }]}>
+                {amount}
+                <View style={styles.tranContainer}>
+                  <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
+                    {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
+                  </Text>
+                </View>
+              </RNElementsListItem.Title>
+              {memo ? (
+                <>
+                  <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
+                    {memo}
+                  </RNElementsListItem.Subtitle>
+                  <BlueSpacing10 />
+                </>
+              ) : null}
+              <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
+                {utxo.address}
+              </RNElementsListItem.Subtitle>
+              <BlueSpacing10 />
+              <RNElementsListItem.Subtitle
+                style={[styles.memo, { color: colors.alternativeTextColor }]}
+              >{`${utxo.txid}:${utxo.vout}`}</RNElementsListItem.Subtitle>
+            </RNElementsListItem.Content>
+          </View>
         </RNElementsListItem>
 
         <View style={styles.content}>
@@ -201,6 +203,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     borderBottomColor: 'transparent',
     backgroundColor: 'transparent',
+  },
+  rowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 10,
   },
   avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold' },
