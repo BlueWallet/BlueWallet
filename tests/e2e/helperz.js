@@ -55,7 +55,9 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  if (device.getPlatform() === 'ios') { await element(by.id('SpeedWalletTypeInput')).tapReturnKey(); }
+  if (device.getPlatform() === 'ios') {
+    await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  }
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();

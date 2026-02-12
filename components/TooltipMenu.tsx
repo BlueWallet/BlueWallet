@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Platform, Pressable, ViewStyle } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -174,7 +174,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           onPressAction={handlePressMenuItemForMenuView}
           actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
           shouldOpenOnLongPress={shouldOpenOnLongPress}
-          style={buttonStyle ? styles.menuViewFlex : undefined}
+          style={buttonStyle ? styles.menuView : undefined}
         >
           {children}
         </MenuView>

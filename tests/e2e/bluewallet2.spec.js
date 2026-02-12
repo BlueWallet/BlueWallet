@@ -57,7 +57,7 @@ beforeAll(async () => {
   } catch (_) {}
 }, 1200_000);
 
-describe.skip('BlueWallet UI Tests - import BIP84 wallet', () => {
+describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can create a transaction; can scanQR with bip21; can switch units', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.CI) {
@@ -453,22 +453,26 @@ describe.skip('BlueWallet UI Tests - import BIP84 wallet', () => {
     do {
       await element(by.text('Add Contact')).tap();
       await typeTextIntoAlertInput('13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
-      try { await element(by.text('OK')).tap(); } catch (_) {}
+      try {
+        await element(by.text('OK')).tap();
+      } catch (_) {}
       await sleep(3_000); // propagate
       try {
         await expect(element(by.id('ContactListItem0'))).toBeVisible();
         contact0added = true;
       } catch (_) {}
     } while (!contact0added && counter++ < 10);
-    
+
     let contact1added = false;
     let counter1 = 0;
     do {
-      await element(by.text('Add Contact')).tap();    
+      await element(by.text('Add Contact')).tap();
       await typeTextIntoAlertInput(
         'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv',
       );
-      try { await element(by.text('OK')).tap(); } catch (_) {}
+      try {
+        await element(by.text('OK')).tap();
+      } catch (_) {}
       await sleep(3_000); // propagate
 
       try {
@@ -480,12 +484,14 @@ describe.skip('BlueWallet UI Tests - import BIP84 wallet', () => {
     let contact2added = false;
     let counter2 = 0;
     do {
-    await element(by.text('Add Contact')).tap();
-    await typeTextIntoAlertInput(
-      'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97',
-    );
-    try { await element(by.text('OK')).tap(); } catch (_) {}
-    await sleep(3_000); // propagate
+      await element(by.text('Add Contact')).tap();
+      await typeTextIntoAlertInput(
+        'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97',
+      );
+      try {
+        await element(by.text('OK')).tap();
+      } catch (_) {}
+      await sleep(3_000); // propagate
 
       try {
         await waitForText('On-chain transaction needed');
@@ -503,7 +509,9 @@ describe.skip('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('ContactListItem0')).tap();
     await element(by.text('Rename contact')).tap();
     await typeTextIntoAlertInput('c0ntact');
-    try { await element(by.text('OK')).tap(); } catch (_) {}
+    try {
+      await element(by.text('OK')).tap();
+    } catch (_) {}
     await expect(element(by.text('c0ntact'))).toBeVisible();
 
     // now, doing a real transaction with our contacts
