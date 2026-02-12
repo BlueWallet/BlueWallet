@@ -121,7 +121,7 @@ const CoinControlOutputSheet: React.FC = () => {
         title={loc.send.input_done}
         onPress={applyChangesAndClose}
         disabled={loading || !wallet}
-        testID="CoinControlOutputDone"
+        testID="ModalDoneButton"
       />
     ),
     [applyChangesAndClose, loading, wallet],

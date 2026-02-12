@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, Pressable, GestureResponderEvent, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
-const styles = {
-  menuView: { flex: 1 } as const,
-  pressable: { alignSelf: 'center' } as const,
-  pressed: { opacity: 0.6 } as const,
-};
+const styles = StyleSheet.create({
+  pressable: { alignSelf: 'center' },
+  pressed: { opacity: 0.6 },
+  menuViewFlex: { flex: 1 },
+});
 
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
@@ -146,11 +146,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           return base;
         }}
         disabled={disabled}
-        onPress={(event: GestureResponderEvent) => {
-          if (onPress) {
-            onPress(event);
-          }
-        }}
+        onPress={onPress}
         onLongPress={shouldOpenOnLongPress ? () => {} : undefined}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
@@ -178,7 +174,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           onPressAction={handlePressMenuItemForMenuView}
           actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
           shouldOpenOnLongPress={shouldOpenOnLongPress}
-          style={styles.menuView}
+          style={buttonStyle ? styles.menuViewFlex : undefined}
         >
           {children}
         </MenuView>
