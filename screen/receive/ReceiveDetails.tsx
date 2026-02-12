@@ -120,7 +120,6 @@ const ReceiveDetails = () => {
       return;
     }
     if (address) {
-      setAddressBIP21Encoded(address);
       try {
         await tryToObtainPermissions();
         majorTomToGroundControl([address], [], []);
