@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
-import TransactionDetails from '../../screen/transactions/TransactionDetails';
+import TransactionStatus from '../../screen/transactions/TransactionStatus';
 
 type MockStorage = {
   wallets: any[];
@@ -121,9 +121,7 @@ jest.mock('../../helpers/prompt', () => ({
 
 jest.mock('../../blue_modules/BlueElectrum', () => ({
   multiGetTransactionByTxid: jest.fn((txids: string[]) =>
-    Promise.resolve(
-      Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }])),
-    ),
+    Promise.resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
   ),
   getMempoolTransactionsByAddress: jest.fn(() => Promise.resolve([])),
   estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
@@ -197,7 +195,7 @@ const setup = (confirmations: number, lastFetch: number) => {
 
   mockWalletSubscribe = walletMock;
 
-  const view = render(<TransactionDetails />);
+  const view = render(<TransactionStatus />);
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
@@ -210,7 +208,7 @@ const setup = (confirmations: number, lastFetch: number) => {
       ...mockStorageState,
       wallets: [walletMock],
     };
-    view.rerender(<TransactionDetails />);
+    view.rerender(<TransactionStatus />);
     await waitFor(() => {
       expect(walletMock.getTransactions).toHaveBeenCalled();
     });
