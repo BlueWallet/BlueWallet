@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
-import { ActivityIndicator, Keyboard, LayoutAnimation, PixelRatio, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Animated, Keyboard, PixelRatio, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -16,28 +18,64 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import TipBox from '../../components/TipBox';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
 
 const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
-  const oStyles = StyleSheet.create({
-    freeze: { backgroundColor: colors.redBG, borderWidth: 0, marginLeft: 4 },
-    freezeText: { color: colors.redText, marginTop: -1 },
-  });
-  return <Badge value={loc.cc.freeze} badgeStyle={oStyles.freeze} textStyle={oStyles.freezeText} />;
+  return (
+    <Badge
+      value={loc.cc.freeze}
+      badgeStyle={[styles.badge, { backgroundColor: colors.redBG }]}
+      textStyle={[styles.badgeText, { color: colors.redText }]}
+    />
+  );
 };
 
 const ChangeBadge: React.FC = () => {
   const { colors } = useTheme();
-  const oStyles = StyleSheet.create({
-    change: { backgroundColor: colors.buttonDisabledBackgroundColor, borderWidth: 0, marginLeft: 4 },
-    changeText: { color: colors.alternativeTextColor, marginTop: -1 },
-  });
-  return <Badge value={loc.cc.change} badgeStyle={oStyles.change} textStyle={oStyles.changeText} />;
+  return (
+    <Badge
+      value={loc.cc.change}
+      badgeStyle={[styles.badge, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
+      textStyle={[styles.badgeText, { color: colors.alternativeTextColor }]}
+    />
+  );
+};
+
+const AnimatedTip: React.FC<{ text: string }> = ({ text }) => {
+  const { colors } = useTheme();
+  const heightAnim = useRef(new Animated.Value(0)).current;
+  const currentHeight = useRef(0);
+  const [measured, setMeasured] = useState(false);
+
+  const onContentLayout = useCallback(
+    (e: { nativeEvent: { layout: { height: number } } }) => {
+      const newHeight = e.nativeEvent.layout.height;
+      if (!measured) {
+        currentHeight.current = newHeight;
+        heightAnim.setValue(newHeight);
+        setMeasured(true);
+        return;
+      }
+      if (Math.abs(newHeight - currentHeight.current) < 1) return;
+      currentHeight.current = newHeight;
+      Animated.timing(heightAnim, { toValue: newHeight, duration: 250, useNativeDriver: false }).start();
+    },
+    [heightAnim, measured],
+  );
+
+  return (
+    <Animated.View style={[styles.tipOuter, measured && styles.tipOverflow, measured && { height: heightAnim }]}>
+      <View
+        onLayout={onContentLayout}
+        style={[styles.tipContainer, { backgroundColor: colors.ballOutgoingExpired }, measured && styles.tipAbsolute]}
+      >
+        <Text style={{ color: colors.foregroundColor }}>{text}</Text>
+      </View>
+    </Animated.View>
+  );
 };
 
 type TOutputListProps = {
@@ -71,40 +109,43 @@ const OutputList: React.FC<TOutputListProps> = ({
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
-  const oStyles = StyleSheet.create({
-    container: { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
-    containerSelected: {
-      backgroundColor: colors.ballOutgoingExpired,
-      borderBottomColor: 'rgba(0, 0, 0, 0)',
-    },
-    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
-    amount: { fontWeight: 'bold', color: colors.foregroundColor },
-    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
-  });
-
   let onPress = onOpen;
   if (selectionStarted) {
     onPress = selected ? onDeSelect : onSelect;
   }
 
   return (
-    <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
-      <Avatar
-        rounded
-        size={40}
-        containerStyle={oStyles.avatar}
-        onPress={selected ? onDeSelect : onSelect}
-        icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
-      />
-      <RNElementsListItem.Content>
-        <RNElementsListItem.Title style={oStyles.amount}>{amount}</RNElementsListItem.Title>
-        <RNElementsListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
-          {memo || address}
-        </RNElementsListItem.Subtitle>
-      </RNElementsListItem.Content>
-      <View style={styles.badges}>
-        {frozen && <FrozenBadge />}
-        {change && <ChangeBadge />}
+    <RNElementsListItem
+      bottomDivider
+      onPress={onPress}
+      containerStyle={
+        selected
+          ? [styles.outputContainer, { backgroundColor: colors.ballOutgoingExpired }]
+          : [styles.outputContainer, { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated }]
+      }
+    >
+      <View style={styles.rowContent}>
+        <Avatar
+          rounded
+          size={40}
+          containerStyle={[styles.outputAvatar, { backgroundColor: color }]}
+          onPress={selected ? onDeSelect : onSelect}
+          icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
+        />
+        <RNElementsListItem.Content>
+          <RNElementsListItem.Title style={[styles.outputAmount, { color: colors.foregroundColor }]}>{amount}</RNElementsListItem.Title>
+          <RNElementsListItem.Subtitle
+            style={[styles.outputMemo, { color: colors.alternativeTextColor }]}
+            numberOfLines={1}
+            ellipsizeMode="middle"
+          >
+            {memo || address}
+          </RNElementsListItem.Subtitle>
+        </RNElementsListItem.Content>
+        <View style={styles.badges}>
+          {frozen && <FrozenBadge />}
+          {change && <ChangeBadge />}
+        </View>
       </View>
     </RNElementsListItem>
   );
@@ -204,31 +245,19 @@ const CoinControl: React.FC = () => {
     }, [wallet]),
   );
 
-  const stylesHook = StyleSheet.create({
-    tip: {
-      backgroundColor: colors.ballOutgoingExpired,
-      borderRadius: 12,
-      padding: 16,
-      marginVertical: 24,
-      marginHorizontal: 16,
-    },
-  });
+  const tipText = useMemo(() => {
+    if (utxos.length === 0) return '';
+    if (selected.length === 0) return loc.cc.tip;
+    const summ = selected.reduce((prev, curr) => {
+      return prev + (utxos.find(({ txid, vout }) => `${txid}:${vout}` === curr) as Utxo).value;
+    }, 0);
+    const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
+    return loc.formatString(loc.cc.selected_summ, { value });
+  }, [selected, utxos, wallet]);
 
   const tipCoins = () => {
     if (utxos.length === 0) return null;
-
-    let text = loc.cc.tip;
-    if (selected.length > 0) {
-      // show summ of coins if any selected
-      const summ = selected.reduce((prev, curr) => {
-        return prev + (utxos.find(({ txid, vout }) => `${txid}:${vout}` === curr) as Utxo).value;
-      }, 0);
-
-      const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
-      text = loc.formatString(loc.cc.selected_summ, { value });
-    }
-
-    return <TipBox description={text} containerStyle={stylesHook.tip} />;
+    return <AnimatedTip text={tipText} />;
   };
 
   const handleChoose = (item: Utxo) => navigation.navigate('CoinControlOutput', { walletID, utxo: item });
@@ -257,36 +286,27 @@ const CoinControl: React.FC = () => {
   const allFrozen = selectionStarted && selected.reduce((prev, curr) => (prev ? frozen.includes(curr) : false), true);
   const buttonFontSize = PixelRatio.roundToNearestPixel(width / 26) > 22 ? 22 : PixelRatio.roundToNearestPixel(width / 26);
 
-  const renderItem = (p: { item: Utxo }) => {
-    const { memo } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
-    const change = wallet.addressIsChange(p.item.address);
-    const oFrozen = frozen.includes(`${p.item.txid}:${p.item.vout}`);
+  const renderItem = (item: Utxo) => {
+    const key = `${item.txid}:${item.vout}`;
+    const { memo } = wallet.getUTXOMetadata(item.txid, item.vout);
+    const isChange = wallet.addressIsChange(item.address);
+    const oFrozen = frozen.includes(key);
     return (
       <OutputList
+        key={key}
         balanceUnit={wallet.getPreferredBalanceUnit()}
-        item={p.item}
+        item={item}
         oMemo={memo}
         frozen={oFrozen}
-        change={change}
-        onOpen={() => handleChoose(p.item)}
-        selected={selected.includes(`${p.item.txid}:${p.item.vout}`)}
+        change={isChange}
+        onOpen={() => handleChoose(item)}
+        selected={selected.includes(key)}
         selectionStarted={selectionStarted}
         onSelect={() => {
-          setSelected(s => {
-            if (s.length === 0) {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-            }
-            return [...s, `${p.item.txid}:${p.item.vout}`];
-          });
+          setSelected(s => [...s, key]);
         }}
         onDeSelect={() => {
-          setSelected(s => {
-            const newValue = s.filter(i => i !== `${p.item.txid}:${p.item.vout}`);
-            if (newValue.length === 0) {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-            }
-            return newValue;
-          });
+          setSelected(s => s.filter(i => i !== key));
         }}
       />
     );
@@ -348,13 +368,10 @@ const CoinControl: React.FC = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
-      <SafeAreaFlatList
-        ListHeaderComponent={tipCoins}
-        data={utxos}
-        renderItem={renderItem}
-        keyExtractor={item => `${item.txid}:${item.vout}`}
-        contentInset={styles.listContent}
-      />
+      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
+        {tipCoins()}
+        {utxos.map(renderItem)}
+      </SafeAreaScrollView>
 
       {selectionStarted && (
         <FContainer>
@@ -395,14 +412,55 @@ const styles = StyleSheet.create({
   sendIcon: {
     transform: [{ rotate: '225deg' }],
   },
+  rowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 16,
+  },
   badges: {
     flexDirection: 'row',
   },
   listContent: {
-    top: 0,
+    paddingBottom: 70,
+  },
+  badge: {
+    borderWidth: 0,
+    marginLeft: 4,
+  },
+  badgeText: {
+    marginTop: -1,
+  },
+  tipOuter: {
+    marginVertical: 24,
+    marginHorizontal: 16,
+  },
+  tipOverflow: {
+    overflow: 'hidden',
+  },
+  tipContainer: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  tipAbsolute: {
+    position: 'absolute',
     left: 0,
-    bottom: 70,
     right: 0,
+    top: 0,
+  },
+  outputContainer: {
+    borderBottomColor: 'rgba(0, 0, 0, 0)',
+  },
+  outputAvatar: {
+    borderColor: 'white',
+    borderWidth: 1,
+  },
+  outputAmount: {
+    fontWeight: 'bold',
+  },
+  outputMemo: {
+    fontSize: 13,
+    marginTop: 3,
   },
 });
 
