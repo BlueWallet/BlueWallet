@@ -55,20 +55,18 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  // await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
     await waitForKeyboardToClose();
   }
-  try {
-    await element(by.id('SpeedDoImport')).tap();
-    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
-  } catch (_) {}
+  await element(by.id('SpeedDoImport')).tap();
 
   // waiting for import result
   await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
+  await scrollUpOnHomeScreen();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
