@@ -23,6 +23,7 @@ import TransactionIncomingIcon from '../../components/icons/TransactionIncomingI
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import TxBowtieGraph, { buildInputOutputData } from '../../components/TxBowtieGraph';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -143,6 +144,7 @@ const TransactionStatus: React.FC = () => {
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
+  const [flowChartWidth, setFlowChartWidth] = useState(0);
 
   const stylesHook = StyleSheet.create({
     value: {
@@ -861,6 +863,11 @@ const TransactionStatus: React.FC = () => {
     return null;
   }, [tx, txFromElectrum, mempoolFee]);
 
+  const flowChartData = useMemo(() => {
+    if (!tx || !txFromElectrum?.vin?.length || !txFromElectrum?.vout?.length) return null;
+    return buildInputOutputData(tx, txFromElectrum, calculatedFee);
+  }, [tx, txFromElectrum, calculatedFee]);
+
   // Calculate fee rate
   const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
 
@@ -1182,6 +1189,28 @@ const TransactionStatus: React.FC = () => {
         </View>
       </View>
 
+      {/* Transaction Flow */}
+      {flowChartData && flowChartData.totalValue > 0 && (
+        <View style={[styles.detailsCard, stylesHook.detailsCard]}>
+          <View style={[styles.sectionTitle, stylesHook.sectionTitle]}>
+            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_flow}</BlueText>
+          </View>
+          <View
+            style={styles.flowChartContainer}
+            onLayout={e => setFlowChartWidth(e.nativeEvent.layout.width)}
+          >
+            {flowChartWidth > 0 && (
+              <TxBowtieGraph
+                inputData={flowChartData.inputData}
+                outputData={flowChartData.outputData}
+                totalValue={flowChartData.totalValue}
+                width={flowChartWidth}
+              />
+            )}
+          </View>
+        </View>
+      )}
+
       {/* Advanced Section */}
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         <TouchableOpacity
@@ -1469,6 +1498,12 @@ const styles = StyleSheet.create({
     padding: 0,
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  flowChartContainer: {
+    width: '100%',
+    minHeight: 180,
+    paddingVertical: 12,
+    backgroundColor: '#F2F2F2',
   },
   sectionTitle: {
     backgroundColor: '#F2F2F2',

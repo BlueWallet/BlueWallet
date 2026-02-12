@@ -386,6 +386,7 @@
     "details_eta_analyzing": "Analyzing...",
     "details_sent": "Sent",
     "details_section": "Details",
+    "details_flow": "Transaction flow",
     "details_explorer": "explorer",
     "details_network_fee": "Network Fee",
     "details_to_address": "To",
