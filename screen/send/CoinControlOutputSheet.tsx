@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
@@ -115,24 +115,6 @@ const CoinControlOutputSheet: React.FC = () => {
     navigation.goBack();
   }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
 
-  const renderDoneButton = useCallback(
-    () => (
-      <HeaderRightButton
-        title={loc.send.input_done}
-        onPress={applyChangesAndClose}
-        disabled={loading || !wallet}
-        testID="ModalDoneButton"
-      />
-    ),
-    [applyChangesAndClose, loading, wallet],
-  );
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: renderDoneButton,
-    });
-  }, [navigation, renderDoneButton]);
-
   if (!wallet) {
     return (
       <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
@@ -143,6 +125,9 @@ const CoinControlOutputSheet: React.FC = () => {
 
   return (
     <SafeArea style={[styles.root, { backgroundColor: colors.elevated }]}>
+      <View style={styles.floatingDoneButtonContainer}>
+        <HeaderRightButton testID="CoinControlOutputDone" title={loc.send.input_done} onPress={applyChangesAndClose} disabled={loading} />
+      </View>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
         <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
           <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
@@ -234,6 +219,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingTop: 12,
     flex: 1,
+  },
+  floatingDoneButtonContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 0,
+    zIndex: 10,
+    elevation: 10,
   },
 });
 

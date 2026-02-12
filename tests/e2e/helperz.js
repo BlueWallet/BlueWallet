@@ -55,13 +55,18 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  if (device.getPlatform() === 'ios') { await element(by.id('SpeedWalletTypeInput')).tapReturnKey(); }
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
     await waitForKeyboardToClose();
   }
   await element(by.id('SpeedDoImport')).tap();
+
+  try {
+    await sleep(1_000);
+    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
+  } catch (_) {}
 
   // waiting for import result
   await waitForText('OK', 3 * 61000);
@@ -252,6 +257,7 @@ export async function typeTextIntoAlertInput(text) {
   } else {
     await element(by.type('_UIAlertControllerTextField')).replaceText(text);
   }
+  await sleep(1000);
 }
 
 /**

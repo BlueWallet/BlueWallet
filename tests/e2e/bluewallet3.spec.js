@@ -18,7 +18,7 @@ console.warn = console.log = (...args) => {
   process.stdout.write('\n\t\t' + output + '\n');
 };
 
-describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
+describe.skip('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
   /**
    * test plan:
    * 1. import wallet

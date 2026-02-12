@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { TextInput, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -24,6 +24,7 @@ const ReceiveCustomAmountSheet = () => {
   const [label, setLabel] = useState(currentLabel);
   const [amount, setAmount] = useState(currentAmount);
   const [unit, setUnit] = useState<BitcoinUnit>(currentUnit);
+  const latestLabel = useRef(currentLabel);
 
   const stylesHook = useMemo(
     () => ({
@@ -82,12 +83,22 @@ const ReceiveCustomAmountSheet = () => {
     [address],
   );
 
+  const handleLabelChange = useCallback((value: string) => {
+    latestLabel.current = value;
+    setLabel(value);
+  }, []);
+
+  const handleLabelEndEditing = useCallback((event: { nativeEvent: { text: string } }) => {
+    latestLabel.current = event.nativeEvent.text ?? '';
+  }, []);
+
   const handleSave = useCallback(() => {
-    const encoded = computeBip21(amount, unit, label);
+    const resolvedLabel = latestLabel.current ?? label;
+    const encoded = computeBip21(amount, unit, resolvedLabel);
     navigation.popTo(
       'ReceiveDetails',
       {
-        customLabel: label,
+        customLabel: resolvedLabel,
         customAmount: amount,
         customUnit: unit,
         bip21encoded: encoded,
@@ -119,11 +130,12 @@ const ReceiveCustomAmountSheet = () => {
         <AmountInput.AmountInput unit={unit} amount={amount || ''} onChangeText={setAmount} onAmountUnitChange={setUnit} />
         <View style={[styles.customAmount, stylesHook.customAmount]}>
           <TextInput
-            onChangeText={setLabel}
+            onChangeText={handleLabelChange}
             placeholderTextColor="#81868e"
             placeholder={loc.receive.details_label}
             value={label || ''}
             numberOfLines={1}
+            onEndEditing={handleLabelEndEditing}
             style={[styles.customAmountText, stylesHook.customAmountText]}
             testID="CustomAmountDescription"
           />

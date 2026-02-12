@@ -4,11 +4,11 @@ import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
-const styles = StyleSheet.create({
-  pressable: { alignSelf: 'center' },
-  pressed: { opacity: 0.6 },
-  menuViewFlex: { flex: 1 },
-});
+const styles = {
+  menuView: { alignSelf: 'flex-start' } as const,
+  pressable: { alignSelf: 'center' } as const,
+  pressed: { opacity: 0.6 } as const,
+};
 
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {

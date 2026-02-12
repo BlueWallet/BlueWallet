@@ -190,10 +190,10 @@ const ReceiveDetails = () => {
   }, [showConfirmedBalance]);
 
   useEffect(() => {
-    if (address) {
+    if (address && !isCustom) {
       setAddressBIP21Encoded(address);
     }
-  }, [address, setAddressBIP21Encoded]);
+  }, [address, isCustom, setAddressBIP21Encoded]);
 
   const toolTipActions = useMemo(() => {
     const action = { ...CommonToolTipActions.PaymentsCode };
@@ -413,8 +413,16 @@ const ReceiveDetails = () => {
     }
   };
 
+  const hasIncomingCustomParams =
+    route.params?.customLabel !== undefined ||
+    route.params?.customAmount !== undefined ||
+    route.params?.customUnit !== undefined ||
+    route.params?.bip21encoded !== undefined ||
+    route.params?.isCustom !== undefined;
+
   useFocusEffect(
     useCallback(() => {
+      if (isCustom || hasIncomingCustomParams) return () => {};
       let cancelled = false;
       (async () => {
         try {
@@ -432,7 +440,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
